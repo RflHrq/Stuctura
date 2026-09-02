@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Banco derivado: fora do controle de versao (§4).
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# Copias de seguranca de coleta (§15).
+backup/
