@@ -1,0 +1,57 @@
+# CIUs — atividades diagnósticas.
+#
+# ATENÇÃO, ESTADO REAL DESTE ARQUIVO: contém 1 atividade, não 45.
+#
+# A única CIU aqui (ciu_kc09_001) é a que existe verbatim no protótipo
+# funcional. O dossiê reporta 45 atividades com distrator mapeado; elas não
+# estavam nos artefatos entregues e NÃO foram inventadas aqui — redigir
+# enunciado, código e distratores é trabalho de domínio, do pesquisador,
+# não do motor.
+#
+# Para o piloto são necessárias, no mínimo:
+#   - 3 CIUs diagnósticas por KC (KC 7, KC 11, KC 9) = 9
+#   - 1 CIU de variação por KC (RF11)                = 3
+#
+# Contrato de cada CIU:
+#   kc        KC ao qual pertence
+#   targets   nós do grafo que a resposta correta confirma (Q-matrix)
+#   phase     diagnostic | variation
+#   kind      tipo do item; o seletor varia o tipo entre CIUs (§7.5)
+#   options   exatamente uma com `correct: true`; cada distrator com
+#             `misconception` apontando para o catálogo
+#   visual    bloco opcional lido pelo renderizador (§10)
+#
+# Um distrator SEM `misconception` é deliberado: se ele for escolhido com
+# frequência, é crença fora do catálogo — achado, não falha (§4.4).
+
+cius:
+
+  ciu_kc09_001:
+    kc: kc_09
+    targets: [I1, I2]
+    phase: diagnostic
+    kind: trace
+    stem: "O que free(p) liberou?"
+    code: |
+      int *p = malloc(sizeof(int));
+      free(p);
+    options:
+      - text: "Só o bloco no heap; p continua na stack com o mesmo valor."
+        correct: true
+      - text: "Tanto p quanto o bloco no heap."
+        misconception: free_kills_pointer
+      - text: "O bloco, e p passou a valer NULL."
+        misconception: free_nullifies
+    visual:
+      kind: memory_diagram
+      regions: [stack, heap]
+      states:
+        antes:
+          stack: [{name: "p", value: "0x7ffd21a0"}]
+          heap: [{name: "bloco", value: "int 42", note: "bloco válido"}]
+          arrow: {from: p, to: bloco, style: solid}
+        depois:
+          stack: [{name: "p", value: "0x7ffd21a0"}]
+          heap: [{name: "bloco", value: "liberado", note: "não mais válido", invalid: true}]
+          arrow: {from: p, to: bloco, style: dashed, invalid: true}
+      caption: "p continua aqui, nos dois estados."

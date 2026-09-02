@@ -1,0 +1,399 @@
+# Grafos de premissas do domínio "ponteiros em C".
+#
+# Transcrito do documento "Grafos de Premissas do Structura" (artefato
+# 525440fa), que é a especificação canônica dos grafos.
+#
+# Tipos de nó:
+#   base       fato observável ou recuperável; não deriva de nada dentro do KC.
+#              Pergunta-se direto ("onde fica p?").
+#   inference  decorre de outros nós; nunca é perguntado como fato.
+#              Pergunta-se "dado que você disse X e Y, o que segue?".
+#
+# Referências cruzadas: um item de `support` ou `imports` com ponto
+# ("kc_06.I4") aponta para nó de outro KC. Sem ponto, é local ao KC.
+#
+# `imports` num nó base registra que aquele fato é o mesmo de outro KC —
+# é documentação de proveniência interna, e o validador confere que o
+# alvo existe. Não cria aresta de suporte: o nó continua base aqui.
+
+graphs:
+
+  # ------------------------------------------------------------------
+  kc_01:
+    B1:
+      type: base
+      text: "O programa tem memória própria enquanto executa."
+    B2:
+      type: base
+      text: "Variáveis locais nascem e morrem com a função."
+    B3:
+      type: base
+      text: "malloc pede um bloco que não morre com a função."
+    I1:
+      type: inference
+      support: [B2, B3]
+      text: "Existem duas disciplinas de vida distintas."
+    I2:
+      type: inference
+      support: [B1, I1]
+      text: "Logo há duas regiões: stack e heap."
+
+  # ------------------------------------------------------------------
+  kc_02:
+    B1:
+      type: base
+      text: "Todo objeto na memória tem um endereço."
+    B2:
+      type: base
+      text: "p é uma variável: ocupa espaço e tem endereço próprio."
+    B3:
+      type: base
+      text: "O valor guardado em p é um endereço."
+    I1:
+      type: inference
+      support: [B2, B3]
+      text: "p e o objeto apontado são duas entidades."
+    I2:
+      type: inference
+      support: [I1, kc_01.I2]
+      text: "p vive onde foi declarado, não onde aponta."
+    I3:
+      type: inference
+      support: [B1, B3]
+      text: "Endereço não é inteiro: tem tipo e regras próprias."
+
+  # ------------------------------------------------------------------
+  kc_03:
+    B1:
+      type: base
+      text: "A declaração reserva espaço para a variável declarada."
+    B2:
+      type: base
+      text: "int *p declara p, não *p."
+    B3:
+      type: base
+      text: "C não zera variáveis automáticas."
+    I1:
+      type: inference
+      support: [B1, B2]
+      text: "Declarar p não cria o objeto apontado."
+    I2:
+      type: inference
+      support: [B3, I1]
+      text: "p contém lixo, não NULL."
+    I3:
+      type: inference
+      support: [I1, I2]
+      text: "Desreferenciar p antes de atribuir é inválido."
+
+  # ------------------------------------------------------------------
+  kc_04:
+    B1:
+      type: base
+      text: "Só o que ocupa memória tem endereço."
+    B2:
+      type: base
+      text: "&x devolve o endereço de x; não copia x."
+    B3:
+      type: base
+      imports: kc_02.B3
+      text: "p guarda um endereço."
+    B4:
+      type: base
+      text: "Na declaração o * pertence ao tipo; na expressão é operador."
+    I1:
+      type: inference
+      support: [B1]
+      text: "&5 é inválido: 5 não é objeto."
+    I2:
+      type: inference
+      support: [B2, B3]
+      text: "*p vai até o endereço e acessa o que está lá."
+    I3:
+      type: inference
+      support: [B2, I2]
+      text: "* e & são inversos: *(&x) é x."
+    I4:
+      type: inference
+      support: [B4, I2]
+      text: "*p = v escreve no objeto apontado, não em p."
+
+  # ------------------------------------------------------------------
+  kc_05:
+    B1:
+      type: base
+      text: "Um ponteiro precisa poder dizer \"não aponto para nada\"."
+    B2:
+      type: base
+      text: "A constante 0 em contexto de ponteiro vira o ponteiro nulo."
+    B3:
+      type: base
+      text: "Nenhum objeto tem o endereço do ponteiro nulo."
+    B4:
+      type: base
+      text: "A representação interna do ponteiro nulo não precisa ser zero."
+    I1:
+      type: inference
+      support: [B1, B2]
+      text: "NULL é um valor de ponteiro, não um não-valor."
+    I2:
+      type: inference
+      support: [I1]
+      text: "p == NULL é teste, não desreferência."
+    I3:
+      type: inference
+      support: [B3, kc_04.I2]
+      text: "*p com p nulo não acessa objeto: comportamento indefinido."
+    I4:
+      type: inference
+      support: [B2, B4]
+      text: "\"NULL é 0\" vale na linguagem-fonte, não no padrão de bits."
+
+  # ------------------------------------------------------------------
+  kc_06:
+    B1:
+      type: base
+      text: "Ao chamar f(x), o parâmetro é variável nova, local a f."
+    B2:
+      type: base
+      text: "O valor de x é copiado para essa variável."
+    B3:
+      type: base
+      imports: kc_01.B2
+      text: "Locais de f morrem no retorno."
+    I1:
+      type: inference
+      support: [B1, B2]
+      text: "Modificar o parâmetro não afeta x."
+    I2:
+      type: inference
+      support: [B2, kc_04.B2]
+      text: "Se o argumento é &x, f recebe cópia do endereço."
+    I3:
+      type: inference
+      support: [I2, kc_04.I4]
+      text: "*p = v dentro de f altera x."
+    I4:
+      type: inference
+      support: [I1, I2]
+      text: "p = ... dentro de f não altera o ponteiro do chamador."
+    I5:
+      type: inference
+      support: [I1, I3]
+      text: "C não tem passagem por referência: tem passagem de endereços por valor."
+
+  # ------------------------------------------------------------------
+  kc_07:
+    B1:
+      type: base
+      text: "int a[5] reserva 5 ints contíguos e nomeados."
+    B2:
+      type: base
+      imports: kc_03.I1
+      text: "int *p reserva só o ponteiro."
+    B3:
+      type: base
+      text: "Em expressão, o nome do array converte-se em ponteiro ao 1º elemento."
+    B4:
+      type: base
+      text: "Há contextos onde a conversão não ocorre: sizeof e &."
+    I1:
+      type: inference
+      support: [B1, B2, B3]
+      text: "a e p têm tipos diferentes, ainda que a[i] e p[i] se pareçam."
+    I2:
+      type: inference
+      support: [B1, I1]
+      text: "Não se atribui a a: não é modificável."
+    I3:
+      type: inference
+      support: [B4, I1]
+      text: "sizeof(a) dá o array; sizeof(p), o ponteiro."
+    I4:
+      type: inference
+      support: [B3, kc_06.B2]
+      text: "Como parâmetro, int a[] é reescrito como int *a — daí a perda do tamanho."
+    I5:
+      type: inference
+      support: [B4, I1]
+      text: "arr e &arr apontam ao mesmo lugar, com tipos diferentes."
+
+  # ------------------------------------------------------------------
+  kc_08:
+    B1:
+      type: base
+      text: "malloc(n) pede n bytes ao alocador."
+    B2:
+      type: base
+      text: "Devolve o endereço do bloco, ou NULL."
+    B3:
+      type: base
+      text: "O bloco devolvido não tem conteúdo definido."
+    B4:
+      type: base
+      imports: kc_01.B3
+      text: "O bloco não morre com a função que o pediu."
+    I1:
+      type: inference
+      support: [B2, kc_02.I1]
+      text: "O ponteiro é uma variável; o bloco é outra coisa."
+    I2:
+      type: inference
+      support: [B2, kc_05.I1]
+      text: "Verificar NULL é necessário: falhar é resultado possível."
+    I3:
+      type: inference
+      support: [B3]
+      text: "O conteúdo precisa ser escrito antes de lido."
+    I4:
+      type: inference
+      support: [B4]
+      text: "Ninguém libera o bloco por você."
+
+  # ------------------------------------------------------------------
+  kc_09:
+    B1:
+      type: base
+      text: "free recebe o endereço do bloco."
+    B2:
+      type: base
+      imports: kc_06.I1
+      text: "free(p) recebe uma cópia de p."
+    B3:
+      type: base
+      text: "Devolver o bloco o marca como não mais válido."
+    B4:
+      type: base
+      imports: kc_02.I2
+      text: "p é variável do chamador."
+    I1:
+      type: inference
+      support: [B2, kc_06.I4]
+      text: "free não pode alterar p, nem se quisesse."
+    I2:
+      type: inference
+      support: [B4, I1]
+      text: "p continua existindo, com o mesmo valor."
+    I3:
+      type: inference
+      support: [B1, B3]
+      text: "O bloco deixou de ser válido."
+    I4:
+      type: inference
+      support: [I2, I3]
+      text: "p guarda endereço que não designa objeto."
+    I5:
+      type: inference
+      support: [I4]
+      text: "Usar p depois, mesmo sem desreferenciar, é comportamento indefinido."
+    I6:
+      type: inference
+      support: [I2, kc_05.I1]
+      text: "Atribuir NULL a p é o que registra o estado."
+
+  # ------------------------------------------------------------------
+  kc_10:
+    B1:
+      type: base
+      imports: kc_02.B2
+      text: "Um ponteiro é variável e, como toda variável, tem endereço."
+    B2:
+      type: base
+      imports: kc_04.B2
+      text: "&p produz o endereço de p, que é um int **."
+    B3:
+      type: base
+      text: "Cada aplicação de * desfaz um nível."
+    B4:
+      type: base
+      text: "O tipo diz quantos níveis existem; não é opcional."
+    I1:
+      type: inference
+      support: [B1, B2]
+      text: "pp e p são variáveis distintas, em níveis distintos."
+    I2:
+      type: inference
+      support: [B3, I1]
+      text: "*pp é o ponteiro p; **pp é o int."
+    I3:
+      type: inference
+      support: [I1, kc_06.I4]
+      text: "Para uma função alterar o p do chamador, precisa receber &p."
+    I4:
+      type: inference
+      support: [B4, kc_07.B3]
+      text: "int a[N][M] não é int **: é bloco contíguo, não vetor de ponteiros."
+
+  # ------------------------------------------------------------------
+  kc_11:
+    B1:
+      type: base
+      text: "p aponta para um objeto de um tipo definido."
+    B2:
+      type: base
+      text: "Objetos de um tipo têm tamanho fixo (sizeof)."
+    B3:
+      type: base
+      imports: kc_07.B1
+      text: "Elementos de um array são contíguos."
+    B4:
+      type: base
+      text: "O compilador conhece o tipo de p em tempo de compilação."
+    I1:
+      type: inference
+      support: [B1, B3]
+      text: "p + 1 precisa chegar ao próximo objeto, não ao próximo byte."
+    I2:
+      type: inference
+      support: [B2, B4, I1]
+      text: "Logo o compilador multiplica por sizeof(*p) sozinho."
+    I3:
+      type: inference
+      support: [I2]
+      text: "Multiplicar por sizeof na mão escala duas vezes."
+    I4:
+      type: inference
+      support: [I1, kc_07.B3]
+      text: "a[i] é exatamente *(a + i)."
+    I5:
+      type: inference
+      support: [B1, I2]
+      text: "void * não tem aritmética: sem tipo, não há escala."
+
+  # ------------------------------------------------------------------
+  kc_12:
+    B1:
+      type: base
+      imports: kc_01.B2
+      text: "Variáveis locais existem durante a execução da função."
+    B2:
+      type: base
+      text: "O retorno da função encerra a existência das suas locais."
+    B3:
+      type: base
+      imports: kc_04.B2
+      text: "&local é endereço válido enquanto a função executa."
+    B4:
+      type: base
+      imports: kc_06.B2
+      text: "O valor retornado é copiado para o chamador."
+    I1:
+      type: inference
+      support: [B3, B4]
+      text: "Retornar &local copia um endereço, não o objeto."
+    I2:
+      type: inference
+      support: [B2, I1]
+      text: "Quando o chamador recebe o endereço, o objeto já não existe."
+    I3:
+      type: inference
+      support: [I2]
+      text: "Logo o ponteiro não designa objeto válido, sem nenhum free."
+    I4:
+      type: inference
+      support: [B2]
+      text: "static muda a duração, não o escopo — por isso \"funciona\"."
+    I5:
+      type: inference
+      support: [I2, kc_06.I3]
+      text: "O caminho correto é o chamador fornecer o armazenamento."

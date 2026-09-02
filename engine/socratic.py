@@ -1,0 +1,252 @@
+"""Traversal socrático: ordem topológica, perguntas e regressão (§7.1, §7.4).
+
+Puro. Sem I/O, sem estado global, sem aleatoriedade. Recebe o domínio e o
+que já foi confirmado; devolve o plano e as perguntas. É o que permite
+congelar os 34 planos de refutação num teste golden e reproduzir qualquer
+sessão na defesa.
+
+O texto das perguntas é MONTADO a partir do grafo, nunca escrito à mão.
+Os únicos literais aqui são conectivos ("Você já confirmou que...") —
+andaime linguístico, não conhecimento de domínio.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Iterable, Sequence
+
+from engine.loader import Domain, Ref
+
+# Limite de tentativas por nó antes de encerrar o KC como "em progresso"
+# (§6, §7.4). Sem essa guarda, um aluno travado entra em laço.
+MAX_ATTEMPTS = 3
+
+
+@dataclass(frozen=True, slots=True)
+class Step:
+    """Um passo do traversal. `idx`/`total` são 1-based, para exibição."""
+
+    kc: str
+    node: str
+    kind: str          # "base" | "inference"
+    text: str          # o enunciado do nó, como está no YAML
+    question: str      # a pergunta montada a partir do grafo
+    idx: int
+    total: int
+
+    @property
+    def ref(self) -> Ref:
+        return (self.kc, self.node)
+
+
+# --------------------------------------------------------------------------
+# §7.1 Traversal
+# --------------------------------------------------------------------------
+
+def plan(
+    domain: Domain,
+    kc: str,
+    target: str,
+    confirmed: Iterable[Ref] = (),
+) -> list[Ref]:
+    """Ordem em que os nós devem ser percorridos para refutar `target`.
+
+    Pós-ordem em profundidade sobre o suporte: todo suporte de um nó
+    aparece antes dele. Termina em no máximo |nós| passos porque o grafo é
+    acíclico — propriedade garantida pelo validador, não presumida.
+
+    Nós já confirmados na sessão são pulados (RF07), exceto o próprio
+    alvo: o nó negado é sempre percorrido, porque é ele que está errado.
+    """
+    ordem: list[Ref] = []
+    visto: set[Ref] = set()
+
+    def visitar(ref: Ref) -> None:
+        if ref in visto:
+            return
+        visto.add(ref)
+        try:
+            node = domain.node(*ref)
+        except KeyError:
+            return
+        for s in node.support:
+            visitar(s)
+        ordem.append(ref)
+
+    visitar((kc, target))
+
+    ja = set(confirmed)
+    alvo = (kc, target)
+    return [r for r in ordem if r not in ja or r == alvo]
+
+
+def full_plan(domain: Domain, kc: str, target: str) -> list[Ref]:
+    """O plano sem filtro de confirmados. É o que o teste golden congela."""
+    return plan(domain, kc, target, confirmed=())
+
+
+def steps(
+    domain: Domain,
+    kc: str,
+    target: str,
+    confirmed: Iterable[Ref] = (),
+) -> list[Step]:
+    """O plano já com as perguntas montadas, pronto para a estratégia."""
+    refs = plan(domain, kc, target, confirmed)
+    total = len(refs)
+    return [
+        Step(
+            kc=k,
+            node=n,
+            kind=domain.node(k, n).type,
+            text=domain.node(k, n).text,
+            question=question(domain, k, n),
+            idx=i,
+            total=total,
+        )
+        for i, (k, n) in enumerate(refs, start=1)
+    ]
+
+
+# --------------------------------------------------------------------------
+# Geração das perguntas
+# --------------------------------------------------------------------------
+
+def question(domain: Domain, kc: str, node: str) -> str:
+    """Monta a pergunta do nó a partir da sua posição no grafo.
+
+    Nó BASE: fato observável. Pergunta direta, ancorada no diagrama — não
+    há premissa anterior para invocar.
+
+    Nó de INFERÊNCIA: cita o suporte que o aluno já confirmou e pede a
+    conclusão. É aqui que o socrático morde: o aluno não consegue
+    reinterpretar uma conclusão construída com as respostas dele.
+    """
+    nd = domain.node(kc, node)
+    corpo = nd.text.rstrip(".")
+
+    if nd.is_base:
+        return "Olhando o diagrama: %s, certo?" % corpo
+
+    citados = "; ".join(
+        domain.node(*s).text.rstrip(".")
+        for s in nd.support
+        if _existe(domain, s)
+    )
+    if not citados:  # inferência sem suporte resolvível: não deveria passar no validador
+        return "%s, certo?" % corpo
+    return "Você já confirmou que %s. Então: %s, certo?" % (citados, corpo)
+
+
+def _existe(domain: Domain, ref: Ref) -> bool:
+    try:
+        domain.node(*ref)
+        return True
+    except KeyError:
+        return False
+
+
+def conclusion(domain: Domain, kc: str) -> tuple[str, str]:
+    """(texto da conclusão, nome técnico). A nomeação tardia acontece aqui.
+
+    RF10: o termo técnico só aparece neste ponto. Nenhum texto de nó,
+    pergunta ou rótulo de diagrama pode contê-lo antes — o validador
+    confere.
+    """
+    k = domain.kcs[kc]
+    return k.conclusion_text, k.technical_name
+
+
+# --------------------------------------------------------------------------
+# §7.4 Regressão controlada (RF09)
+# --------------------------------------------------------------------------
+
+@dataclass(frozen=True, slots=True)
+class Regression:
+    """O que fazer depois de um erro num nó do traversal.
+
+    `action`:
+      reformulate  1ª tentativa: repete o nó citando o suporte por extenso
+      regress      2ª tentativa: volta um passo. O confirmado NÃO é descartado
+      abandon      3ª tentativa: encerra o KC como "em progresso" e segue
+    """
+
+    action: str
+    cursor: int            # índice do passo em que o traversal continua
+    attempts: int
+    from_node: str | None = None
+    to_node: str | None = None
+    prompt: str | None = None
+
+
+def on_wrong(
+    domain: Domain,
+    steps_: Sequence[Step],
+    cursor: int,
+    attempts: int,
+) -> Regression:
+    """Decide o próximo passo depois de o aluno errar o nó em `cursor`.
+
+    `attempts` é quantas vezes ele JÁ errou este nó, antes desta. A função
+    é pura: não incrementa nada, não escreve nada. Quem persiste é a FSM.
+
+    O progresso confirmado nunca é descartado — só o cursor anda para trás.
+    """
+    atual = steps_[cursor]
+    n = attempts + 1
+
+    if n >= MAX_ATTEMPTS:
+        return Regression(action="abandon", cursor=cursor, attempts=n,
+                          from_node=atual.node)
+
+    if n == 1:
+        return Regression(
+            action="reformulate",
+            cursor=cursor,
+            attempts=n,
+            from_node=atual.node,
+            prompt=reformulate(domain, atual),
+        )
+
+    # n == 2: volta um passo. Se já está no primeiro, não há para onde
+    # voltar — reformula de novo em vez de sair do traversal.
+    if cursor == 0:
+        return Regression(
+            action="reformulate",
+            cursor=0,
+            attempts=n,
+            from_node=atual.node,
+            prompt=reformulate(domain, atual),
+        )
+
+    anterior = steps_[cursor - 1]
+    return Regression(
+        action="regress",
+        cursor=cursor - 1,
+        attempts=n,
+        from_node=atual.node,
+        to_node=anterior.node,
+        prompt=anterior.question,
+    )
+
+
+def reformulate(domain: Domain, step: Step) -> str:
+    """Repete a pergunta com o suporte explicitado nó a nó.
+
+    Primeira tentativa de recuperação: em vez de mudar de assunto, torna
+    visível a cadeia que sustenta a conclusão pedida.
+    """
+    nd = domain.node(step.kc, step.node)
+    if nd.is_base:
+        return "Olhe de novo o diagrama. %s — é o que você vê?" % nd.text
+
+    linhas = [
+        "- %s" % domain.node(*s).text
+        for s in nd.support
+        if _existe(domain, s)
+    ]
+    return (
+        "Vamos por partes. Você já confirmou:\n"
+        + "\n".join(linhas)
+        + "\nJuntando as duas: %s" % nd.text
+    )

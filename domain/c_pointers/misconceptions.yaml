@@ -1,0 +1,381 @@
+# Catálogo de crenças erradas, com proveniência declarada.
+#
+# ESCALA DE PROVENIÊNCIA (§1.3 do dossiê). Cada item declara o grau da
+# evidência que o sustenta. O catálogo é apresentado como HIPÓTESE com
+# proveniência declarada, não como levantamento consolidado — não existe
+# catálogo de misconceptions de C na pesquisa educacional.
+#
+#   D  Documentada     achado empírico com fonte e página localizadas
+#   T  Transposta      documentada em outra linguagem, analogia declarada
+#   L  Literatura      registrada como erro comum em obra técnica revisada;
+#                      testemunho de especialista, não medição
+#   N  Norma técnica   o erro está catalogado (CERT C, CWE); a crença não
+#   E  Elaborada       derivada da notional machine, sem fonte
+#
+# `negates` é o ataque primário: o nó que a crença nega, e o alvo do
+# traversal. `also_negates` registra ataques secundários — o mesmo modelo
+# mental reaparecendo em outro KC.
+#
+# `kind`:
+#   foundational   nega um nó BASE. Não há premissa anterior para
+#                  confrontá-lo: exige confronto visual antes do traversal
+#                  (RF08). São 4 no catálogo.
+#   derivational   nega um nó de INFERÊNCIA. O traversal se resolve com as
+#                  respostas do próprio aluno.
+#
+# `plan_length` é o tamanho esperado do plano de refutação, congelado como
+# fixture do teste golden (§11). Mudança no grafo que altere um plano
+# quebra o teste — de propósito.
+
+misconceptions:
+
+  # ---- KC 1 --------------------------------------------------------
+  memory_is_uniform:
+    belief: "A memória é uma coisa só; não há regiões com regras diferentes."
+    negates: {kc: kc_01, node: I2}
+    kind: derivational
+    plan_length: 5
+    grade: T
+    provenance: "Kaczmarczyk et al. (2010), p. 109, Tema T1"
+
+  system_frees_auto:
+    belief: "O sistema libera o que eu aloquei quando a função termina."
+    negates: {kc: kc_01, node: B3}
+    also_negates:
+      - {kc: kc_08, node: I4}
+    kind: foundational
+    plan_length: 1
+    grade: L
+    provenance: "FAQ comp.lang.c §7.24, §7.25"
+
+  # ---- KC 2 --------------------------------------------------------
+  pointer_is_data:
+    belief: "O ponteiro e o objeto apontado são a mesma coisa."
+    negates: {kc: kc_02, node: I1}
+    kind: derivational
+    plan_length: 3
+    grade: T
+    provenance: "Sorva (2012), p. 360, item 14"
+
+  pointer_lives_in_heap:
+    belief: "O ponteiro mora onde ele aponta."
+    negates: {kc: kc_02, node: I2}
+    also_negates:
+      - {kc: kc_08, node: I1}
+    kind: derivational
+    plan_length: 9
+    grade: L
+    provenance: "FAQ comp.lang.c §7.22"
+
+  pointer_is_integer:
+    belief: "Um endereço é só um número inteiro."
+    negates: {kc: kc_02, node: I3}
+    also_negates:
+      - {kc: kc_05, node: I4}
+    kind: derivational
+    plan_length: 3
+    grade: L
+    provenance: "FAQ comp.lang.c §4.14, §4.15"
+
+  voidptr_is_universal:
+    belief: "void * serve para qualquer coisa, inclusive aritmética."
+    negates: {kc: kc_02, node: I3}
+    kind: derivational
+    plan_length: 3
+    grade: L
+    provenance: "FAQ comp.lang.c §4.13"
+
+  # ---- KC 3 --------------------------------------------------------
+  declaration_allocates:
+    belief: "Declarar o ponteiro já reserva o objeto apontado."
+    negates: {kc: kc_03, node: I1}
+    kind: derivational
+    plan_length: 3
+    grade: T
+    provenance: >-
+      Kaczmarczyk et al. (2010), p. 109, Tabela 2, MMR4 — "Student thinks
+      memory is allocated for an uninstantiated Object."; FAQ §7.10
+    analogy: >-
+      Documentado em Java, sobre objetos não instanciados. A analogia
+      declarada: em ambos os casos o aluno confunde declarar o
+      identificador com criar o objeto que ele designa.
+
+  uninitialized_is_null:
+    belief: "Um ponteiro não inicializado vale NULL."
+    negates: {kc: kc_03, node: I2}
+    kind: derivational
+    plan_length: 5
+    grade: D
+    provenance: >-
+      Sorva (2012), p. 359, item 10 — "Variables always receive a
+      particular default value upon creation." Fontes primárias:
+      du Boulay (1986); Samurçay (1989)
+
+  # ---- KC 4 --------------------------------------------------------
+  ampersand_takes_value:
+    belief: "& pega o valor, então &5 faz sentido."
+    negates: {kc: kc_04, node: I1}
+    kind: derivational
+    plan_length: 2
+    grade: L
+    provenance: "FAQ comp.lang.c §4.10 — \"f(&5); doesn't seem to work\""
+
+  star_assigns_pointer:
+    belief: "*p designa o ponteiro; escrever em *p muda p."
+    negates: {kc: kc_04, node: B4}
+    kind: foundational
+    plan_length: 1
+    grade: L
+    provenance: "FAQ comp.lang.c §4.2, §7.10"
+
+  # ---- KC 5 --------------------------------------------------------
+  null_is_zero_always:
+    belief: "NULL é o inteiro 0, também na representação de bits."
+    negates: {kc: kc_05, node: I4}
+    kind: derivational
+    plan_length: 3
+    grade: L
+    provenance: "FAQ comp.lang.c §5.13, §5.16"
+
+  null_is_safe_to_deref:
+    belief: "Desreferenciar um ponteiro nulo é seguro: dá erro controlado."
+    negates: {kc: kc_05, node: I3}
+    kind: derivational
+    plan_length: 5
+    grade: N
+    provenance: "CERT C EXP34-C; CWE-476 NULL Pointer Dereference"
+    note: >-
+      CONFLITO DE FONTE A RESOLVER. O documento de grafos marca este item
+      como grau E (hipótese sem fonte) e o descreve como "único item sem
+      fonte no conjunto"; o protótipo e a tabela do dossiê o marcam como
+      grau N. A diferença é material: grau N é norma técnica, grau E é
+      hipótese. Decidir antes da defesa e alinhar os três documentos.
+
+  # ---- KC 6 --------------------------------------------------------
+  function_gets_original:
+    belief: "A função recebe a variável original e pode alterá-la."
+    negates: {kc: kc_06, node: I1}
+    kind: derivational
+    plan_length: 3
+    grade: T
+    provenance: "Sorva (2012), p. 363, item 67 (Ma 2007); FAQ §4.11"
+    analogy: >-
+      Documentado em Java, sobre identidade de objetos passados a métodos.
+      A analogia declarada: em ambos o aluno supõe que o parâmetro é a
+      variável do chamador, não uma cópia.
+
+  pointer_copy_is_alias:
+    belief: "Uma cópia do ponteiro é um apelido: mexer nela mexe no original."
+    negates: {kc: kc_06, node: I4}
+    kind: derivational
+    plan_length: 6
+    grade: T
+    provenance: "Sorva (2012), p. 363, itens 74–75 (Holland et al. 1997)"
+    analogy: >-
+      Documentado em Java, sobre referências. A analogia declarada: em
+      ambos o aluno trata a cópia da referência como a mesma entidade.
+
+  # ---- KC 7 --------------------------------------------------------
+  array_is_pointer:
+    belief: "Array e ponteiro são a mesma coisa."
+    negates: {kc: kc_07, node: I1}
+    kind: derivational
+    plan_length: 4
+    grade: L
+    provenance: >-
+      FAQ comp.lang.c §6.2 — "But I heard that char a[] was identical to
+      char *a."; §6.9 — "Someone explained to me that arrays were really
+      just constant pointers."; §6.10
+
+  array_is_assignable:
+    belief: "Dá para atribuir a um array: a = b."
+    negates: {kc: kc_07, node: I2}
+    kind: derivational
+    plan_length: 5
+    grade: L
+    provenance: "FAQ comp.lang.c §6.5–6.7"
+
+  sizeof_array_via_pointer:
+    belief: "sizeof num ponteiro devolve o tamanho do array."
+    negates: {kc: kc_07, node: I3}
+    kind: derivational
+    plan_length: 6
+    grade: L
+    provenance: "FAQ comp.lang.c §6.21, §7.28"
+
+  array_passed_by_reference:
+    belief: "Array é passado por referência; a função recebe o array inteiro."
+    negates: {kc: kc_07, node: I4}
+    kind: derivational
+    plan_length: 3
+    grade: L
+    provenance: "FAQ comp.lang.c §6.4b"
+
+  arr_equals_addr_of_arr:
+    belief: "arr e &arr são a mesma expressão."
+    negates: {kc: kc_07, node: I5}
+    kind: derivational
+    plan_length: 6
+    grade: L
+    provenance: "FAQ comp.lang.c §6.12"
+
+  string_literal_is_array:
+    belief: "char *s = \"abc\" cria um array modificável, como char s[]."
+    negates: {kc: kc_07, node: B1}
+    kind: foundational
+    plan_length: 1
+    grade: L
+    provenance: "FAQ comp.lang.c §6.6b"
+
+  # ---- KC 11 -------------------------------------------------------
+  ptr_arith_is_bytes:
+    belief: "p + n avança n bytes; preciso multiplicar por sizeof na mão."
+    negates: {kc: kc_11, node: I2}
+    kind: derivational
+    plan_length: 6
+    grade: L
+    provenance: >-
+      FAQ comp.lang.c §4.4 — "I expected the last line to print 3, but it
+      printed garbage." O programador multiplicou por sizeof na mão
+
+  voidptr_arith_ok:
+    belief: "Dá para fazer aritmética sobre void *."
+    negates: {kc: kc_11, node: I5}
+    kind: derivational
+    plan_length: 7
+    grade: L
+    provenance: "FAQ comp.lang.c §4.6, §4.13"
+    note: >-
+      CONFLITO DE NOME A RESOLVER. O documento de grafos atribui o ataque
+      a kc_11:I5 a `voidptr_is_universal`, não a `voidptr_arith_ok`. O
+      protótipo trata os dois como crenças distintas (kc_02:I3 e kc_11:I5).
+      Se forem a mesma crença, o catálogo tem 33 itens, não 34.
+
+  # ---- KC 8 --------------------------------------------------------
+  malloc_always_succeeds:
+    belief: "malloc sempre funciona; não preciso testar o retorno."
+    negates: {kc: kc_08, node: I2}
+    kind: derivational
+    plan_length: 5
+    grade: N
+    provenance: "CERT C ERR33-C; CWE-252 Unchecked Return Value · realocada do antigo KC 11"
+
+  malloc_initializes_zero:
+    belief: "O bloco devolvido por malloc vem zerado."
+    negates: {kc: kc_08, node: I3}
+    kind: derivational
+    plan_length: 2
+    grade: L
+    provenance: "FAQ comp.lang.c §7.31; Sorva (2012), p. 359, item 10"
+
+  # ---- KC 9 --------------------------------------------------------
+  free_nullifies:
+    belief: "p vira NULL depois de free()."
+    negates: {kc: kc_09, node: I1}
+    kind: derivational
+    plan_length: 8
+    grade: L
+    provenance: >-
+      FAQ comp.lang.c §7.21 — "Why isn't a pointer null after calling
+      free?" A pergunta é literalmente esta crença
+
+  free_kills_pointer:
+    belief: "free(p) apaga a variável p."
+    negates: {kc: kc_09, node: I2}
+    kind: derivational
+    plan_length: 10
+    grade: L
+    provenance: >-
+      FAQ comp.lang.c §7.21 (resposta); CERT C MEM30-C;
+      Sorva (2012), p. 359, item 5
+
+  heap_persists:
+    belief: "O bloco continua válido depois do free."
+    negates: {kc: kc_09, node: I3}
+    kind: derivational
+    plan_length: 3
+    grade: L
+    provenance: "FAQ comp.lang.c §7.20"
+
+  double_free_is_safe:
+    belief: "Chamar free duas vezes no mesmo ponteiro não faz mal."
+    negates: {kc: kc_09, node: I3}
+    kind: derivational
+    plan_length: 3
+    grade: N
+    provenance: >-
+      CWE-415 Double Free; CERT C MEM31-C · do antigo KC 11.
+      O erro é normativo; a crença que o produz, não
+
+  null_after_free_redundant:
+    belief: "Atribuir NULL depois do free é redundante."
+    negates: {kc: kc_09, node: I6}
+    kind: derivational
+    plan_length: 14
+    grade: L
+    provenance: "FAQ comp.lang.c §7.21 (resposta) · do antigo KC 11"
+
+  # ---- KC 10 -------------------------------------------------------
+  array2d_is_double_pointer:
+    belief: "int a[N][M] é um int **."
+    negates: {kc: kc_10, node: I4}
+    kind: derivational
+    plan_length: 3
+    grade: L
+    provenance: "FAQ comp.lang.c §6.18"
+
+  double_deref_is_data:
+    belief: "*pp já dá o dado; os dois níveis são a mesma coisa."
+    negates: {kc: kc_10, node: I2}
+    kind: derivational
+    plan_length: 5
+    grade: L
+    provenance: "FAQ comp.lang.c §4.9 (absorve double_pointer_same_level)"
+
+  modify_pp_changes_p:
+    belief: "Passar p para a função basta para ela inicializar p."
+    negates: {kc: kc_10, node: I3}
+    kind: derivational
+    plan_length: 10
+    grade: L
+    provenance: >-
+      FAQ comp.lang.c §4.8 — "I have a function which […] is supposed to
+      initialize a pointer […] the pointer in the caller remains
+      unchanged." Acerto direto: a crença é literal
+
+  # ---- KC 12 -------------------------------------------------------
+  local_survives_return:
+    belief: "A variável local continua existindo depois do return."
+    negates: {kc: kc_12, node: I2}
+    kind: derivational
+    plan_length: 6
+    disputed: true
+    grade: T
+    provenance: "Kumar (2001), ITiCSE; Sorva (2012), p. 359, item 5 (du Boulay 1986)"
+    note: >-
+      DISCREPÂNCIA A RESOLVER — a única do domínio inteiro. O grafo
+      documentado (kc_12:I2 <- B2 e I1) produz um plano de 5 passos; o
+      protótipo congelou 6. As outras 33 crenças batem exatamente. A
+      hipótese mais provável é uma aresta faltando: se kc_12:I2 também
+      dependesse de B1 ("variáveis locais existem durante a execução da
+      função"), o plano daria 6. Decidir: ou o grafo perdeu essa aresta,
+      ou o 6 do protótipo está errado.
+    analogy: >-
+      Documentado em outras linguagens sobre tempo de vida de variáveis.
+      A analogia declarada: em ambos o aluno não distingue escopo léxico
+      de duração de armazenamento.
+
+  static_is_scope:
+    belief: "static muda o escopo da variável."
+    negates: {kc: kc_12, node: I4}
+    kind: derivational
+    plan_length: 2
+    grade: T
+    provenance: "Sorva (2012), p. 359, item 5 (du Boulay 1986), por transposição"
+    note: >-
+      CONFLITO DE FONTE A RESOLVER. O documento de grafos marca este item
+      como grau E (hipótese, opcional); o protótipo e a tabela do dossiê o
+      marcam como grau T. Decidir antes da defesa.
+    analogy: >-
+      Transposição declarada: o aluno confunde a palavra-chave que altera
+      duração com uma que altera visibilidade.
