@@ -9,5 +9,13 @@ data/*.db
 data/*.db-wal
 data/*.db-shm
 
+# Token que protege /export/events.csv. Gerado no primeiro arranque e
+# guardado em disco para que reiniciar o servidor no meio da coleta nao
+# invalide o token ja anotado. Nao entra no repositorio.
+data/export_token.txt
+
+# Saida das tabelas de analise (§12): derivada do log, nao fonte.
+analise/
+
 # Copias de seguranca de coleta (§15).
 backup/
