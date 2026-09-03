@@ -176,35 +176,65 @@ def check_disputed(d: Domain) -> list[str]:
     return out
 
 
+def check_ordering_shape(d: Domain) -> list[str]:
+    """CIU de ordenação cujo distrator não é permutação exige outra interface.
+
+    Um widget de arrastar-e-soltar só produz permutações dos mesmos passos.
+    Quando a sequência errada tem passos diferentes, é escolha entre dois
+    caminhos — e renderizar como reordenação tornaria o distrator inatingível.
+    """
+    out = []
+    for c in d.cius.values():
+        for w in c.wrong_orders:
+            if not c.is_permutation(w):
+                out.append(
+                    "%s: a sequência errada não é permutação dos passos; render "
+                    "como escolha entre caminhos, não como reordenação" % c.id
+                )
+    return out
+
+
 def check_ciu_coverage(d: Domain) -> list[str]:
-    """Cada KC do piloto precisa de CIU diagnóstica e de variação."""
+    """Cada KC do piloto precisa de CIU diagnóstica e de variação.
+
+    O §6 diz "ATÉ 3 CIUs diagnósticas por KC": é teto, não piso. O que o
+    piloto exige de fato é ao menos uma para diagnosticar e uma de
+    variação para encerrar o KC (RF11). Ter só uma diagnóstica não
+    impede a sessão, mas tira do seletor a regra de variar o tipo (§7.5)
+    — vale registrar.
+    """
     out = []
     for kc_id in d.pilot_sequence:
         cius = d.cius_of(kc_id)
         diag = [c for c in cius if c.phase == "diagnostic"]
         var = [c for c in cius if c.phase == "variation"]
-        if len(diag) < 3:
+        if not diag:
+            out.append("%s sem CIU diagnóstica: a sessão não tem por onde começar" % kc_id)
+        elif len(diag) == 1:
             out.append(
-                "%s tem %d CIU(s) diagnóstica(s); o piloto precisa de 3 (§6)"
-                % (kc_id, len(diag))
+                "%s tem 1 CIU diagnóstica; com uma só, o seletor não consegue "
+                "variar o tipo entre itens (§7.5)" % kc_id
             )
         if not var:
-            out.append("%s sem CIU de variação; RF11 exige uma" % kc_id)
+            out.append(
+                "%s sem CIU de variação: RF11 exige acerto em código novo para "
+                "encerrar o KC" % kc_id
+            )
     return out
 
 
 def check_distractor_mapping(d: Domain) -> list[str]:
-    """Toda crença do catálogo deveria ser alcançável por algum distrator."""
-    usadas = {
-        o.misconception
-        for c in d.cius.values()
-        for o in c.options
-        if o.misconception
-    }
+    """Toda crença do catálogo precisa ser detectável por alguma CIU.
+
+    Detectável por qualquer via: distrator de múltipla escolha, padrão de
+    resposta livre ou sequência errada de ordenação. Crença que nenhuma
+    atividade alcança é crença que o estudo não pode observar.
+    """
+    usadas = {m for c in d.cius.values() for m in c.misconception_ids()}
     ausentes = sorted(set(d.misconceptions) - usadas)
     if ausentes:
         return [
-            "%d crença(s) sem distrator que as detecte: %s"
+            "%d crença(s) que nenhuma CIU detecta: %s"
             % (len(ausentes), ", ".join(ausentes))
         ]
     return []
@@ -223,6 +253,7 @@ BLOQUEANTES = (
 AVISOS = (
     ("cobertura do grafo", check_coverage),
     ("discrepâncias em aberto", check_disputed),
+    ("forma das CIUs de ordenação", check_ordering_shape),
     ("cobertura de CIUs", check_ciu_coverage),
     ("mapeamento de distratores", check_distractor_mapping),
 )

@@ -18,7 +18,7 @@ Ordem do §13 da spec. Marcos 1 a 3 são o caminho crítico.
 
 | # | Entrega | Estado |
 |---|---------|--------|
-| — | `domain/c_pointers/*.yaml` — 12 KCs, 94 nós, 34 crenças, **1 CIU** | reconstruído dos artefatos |
+| — | `domain/c_pointers/*.yaml` — 12 KCs, 93 nós, 34 crenças, 47 CIUs | **completo** |
 | — | `engine/loader.py`, `socratic.py`, `tools/validate.py` | **feito** |
 | 1 | Regressão controlada (RF09) — `socratic.on_wrong()` | **feito**, falta a FSM chamar |
 | 2 | `store/`: esquema, append, projeção, `replay.py` | **feito** |
@@ -28,12 +28,13 @@ Ordem do §13 da spec. Marcos 1 a 3 são o caminho crítico.
 | 6 | `web/`: interface e `diagram.js` | pendente |
 | 7 | `feedback.yaml` + `feedback.py` (RF17, SHOULD) | pendente |
 | 8 | `export.py` + os três CSVs | pendente |
-| — | **as 44 CIUs restantes** | bloqueia o piloto |
+| — | CIU de variação do KC 11 (RF11) | única lacuna de domínio |
 
 ## Porta de CI
 
 ```bash
 python -m tools.validate --stats   # domínio: sai 0 obrigatoriamente
+python -m tools.import_cius CATALOGO.html --dry-run   # reconcilia com o catálogo publicado
 python -m pytest tests/ -q         # motor e store
 python -m tools.replay --verify    # RNF04 sobre o banco de coleta
 ```

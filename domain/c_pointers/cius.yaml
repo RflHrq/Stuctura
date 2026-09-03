@@ -1,57 +1,800 @@
-# CIUs — atividades diagnósticas.
+# CIUs — atividades diagnósticas, de traversal e de variação.
 #
-# ATENÇÃO, ESTADO REAL DESTE ARQUIVO: contém 1 atividade, não 45.
+# GERADO por tools/import_cius.py a partir do "Catálogo de Atividades do
+# Structura" (artefato 38ed442a). Não editar à mão sem reconciliar com a
+# origem: rode o extrator de novo e compare.
 #
-# A única CIU aqui (ciu_kc09_001) é a que existe verbatim no protótipo
-# funcional. O dossiê reporta 45 atividades com distrator mapeado; elas não
-# estavam nos artefatos entregues e NÃO foram inventadas aqui — redigir
-# enunciado, código e distratores é trabalho de domínio, do pesquisador,
-# não do motor.
+# `phase`:
+#   diagnostic  até 3 por KC, sem feedback (§6)
+#   traversal   usada durante a correção
+#   variation   mesmo invariante, código novo; encerra o KC (RF11)
 #
-# Para o piloto são necessárias, no mínimo:
-#   - 3 CIUs diagnósticas por KC (KC 7, KC 11, KC 9) = 9
-#   - 1 CIU de variação por KC (RF11)                = 3
+# `kind` varia entre CIUs consecutivas por regra do seletor (§7.5).
 #
-# Contrato de cada CIU:
-#   kc        KC ao qual pertence
-#   targets   nós do grafo que a resposta correta confirma (Q-matrix)
-#   phase     diagnostic | variation
-#   kind      tipo do item; o seletor varia o tipo entre CIUs (§7.5)
-#   options   exatamente uma com `correct: true`; cada distrator com
-#             `misconception` apontando para o catálogo
-#   visual    bloco opcional lido pelo renderizador (§10)
-#
-# Um distrator SEM `misconception` é deliberado: se ele for escolhido com
+# Um distrator SEM `misconception` é deliberado: se for escolhido com
 # frequência, é crença fora do catálogo — achado, não falha (§4.4).
+#
+# PENDÊNCIA DE REDAÇÃO: o texto veio sem acentuação do catálogo publicado
+# ("memoria", "variavel", "e" por "é"). Precisa de revisão ortográfica
+# antes do congelamento — é o item 9 do cronograma, não uma correção que
+# o extrator deva fazer sozinho.
 
 cius:
 
+  # ---- kc_01 -----------------------------------------------------
+  ciu_kc01_001:
+    kc: kc_01
+    targets: [I2]
+    phase: diagnostic
+    kind: multiple_choice
+    stem: "Onde ficam guardados x e o bloco pedido ao malloc?"
+    code: |
+      int x = 10;
+      int *p = malloc(sizeof(int));
+    options:
+      - text: "x na stack; o bloco no heap."
+        correct: true
+      - text: "Os dois no mesmo lugar: memoria e memoria."
+        misconception: memory_is_uniform
+      - text: "x na stack; o bloco em disco."
+        misconception: memory_is_uniform
+
+  ciu_kc01_002:
+    kc: kc_01
+    targets: [B2, I1]
+    phase: diagnostic
+    kind: prediction
+    stem: "Depois que f retorna, o que acontece com y?"
+    code: |
+      void f(void) { int y = 5; }
+    options:
+      - text: "Deixa de existir; o espaco dela e reaproveitado."
+        correct: true
+      - text: "Continua existindo ate o programa terminar."
+        misconception: memory_is_uniform
+
+  ciu_kc01_003:
+    kc: kc_01
+    targets: [B3, I1]
+    phase: traversal
+    kind: fill_in
+    stem: "Um bloco pedido ao malloc so deixa de existir quando ______."
+    answer:
+      expected: "o programa chama free"
+      also_accepts: ["free", "chamar free", "o programador libera"]
+    patterns:
+      - match: ["a funcao retorna", "acaba a funcao"]
+        misconception: memory_is_uniform
+      - match: ["o sistema libera", "sozinho", "automatico"]
+        misconception: system_frees_auto
+    visual:
+      kind: "memory_diagram"
+      regions: "stack, heap"
+      states: "dentro_da_funcao, apos_o_retorno"
+      controlled_by: "student"
+      caption: "O quadro da funcao sumiu. E o bloco no heap?"
+
+
+  # ---- kc_02 -----------------------------------------------------
+  ciu_kc02_001:
+    kc: kc_02
+    targets: [I1]
+    phase: diagnostic
+    kind: multiple_choice
+    stem: "Quantas variaveis existem nesse trecho?"
+    code: |
+      int v = 42;
+      int *p = &v;
+    options:
+      - text: "Duas: v e p, cada uma com seu proprio espaco."
+        correct: true
+      - text: "Uma: p e apenas outro nome para v."
+        misconception: pointer_is_data
+      - text: "Uma: p e o proprio valor 42."
+        misconception: pointer_is_data
+
+  ciu_kc02_002:
+    kc: kc_02
+    targets: [I2]
+    phase: diagnostic
+    kind: prediction
+    stem: "A variavel p esta guardada em qual regiao?"
+    code: |
+      int *p = malloc(sizeof(int));
+    options:
+      - text: "Na stack; so o bloco apontado esta no heap."
+        correct: true
+      - text: "No heap, junto do bloco que ela aponta."
+        misconception: pointer_lives_in_heap
+    visual:
+      kind: "memory_diagram"
+      regions: "stack, heap"
+      show: "p na stack com seta, bloco no heap"
+      caption: "Onde esta a caixa chamada p?"
+
+  ciu_kc02_003:
+    kc: kc_02
+    targets: [I3]
+    phase: traversal
+    kind: multiple_choice
+    stem: "Isso e valido?"
+    code: |
+      int n = 1000;
+      int *p = (int *) n;
+    options:
+      - text: "Compila, mas p nao passa a designar objeto algum valido."
+        correct: true
+      - text: "Sim: ponteiro e inteiro, so muda o nome do tipo."
+        misconception: pointer_is_integer
+
+  ciu_kc02_004:
+    kc: kc_02
+    targets: [I3]
+    phase: traversal
+    kind: multiple_choice
+    stem: "Isso e garantido pelo padrao C?"
+    code: |
+      void *v;
+      int (*f)(int);
+      v = f;
+    options:
+      - text: "Nao: void * e generico para ponteiros de objeto, nao de funcao."
+        correct: true
+      - text: "Sim: void * aceita qualquer ponteiro, inclusive de funcao."
+        misconception: voidptr_is_universal
+      - text: "Sim, desde que se faca o cast de volta antes de chamar."
+        misconception: voidptr_is_universal
+
+
+  # ---- kc_03 -----------------------------------------------------
+  ciu_kc03_001:
+    kc: kc_03
+    targets: [I1]
+    phase: diagnostic
+    kind: multiple_choice
+    stem: "Depois dessa linha, quanto de memoria foi reservado?"
+    code: |
+      int *p;
+    options:
+      - text: "So o espaco de p; nenhum int foi criado."
+        correct: true
+      - text: "O espaco de p e de um int para ele apontar."
+        misconception: declaration_allocates
+      - text: "Nada ainda; a declaracao nao reserva espaco."
+        misconception: declaration_allocates
+
+  ciu_kc03_002:
+    kc: kc_03
+    targets: [I2]
+    phase: diagnostic
+    kind: prediction
+    stem: "O que esse programa imprime?"
+    code: |
+      int *p;
+      if (p == NULL) printf("nulo");
+    options:
+      - text: "Indefinido: p contem lixo, nao necessariamente NULL."
+        correct: true
+      - text: "Sempre imprime nulo: p comeca em NULL."
+        misconception: uninitialized_is_null
+
+  ciu_kc03_003:
+    kc: kc_03
+    targets: [I1, I3]
+    phase: traversal
+    kind: ordering
+    stem: "Ordene os passos para usar um ponteiro com seguranca."
+    steps:
+      - "Declarar o ponteiro"
+      - "Fazer o ponteiro apontar para algo valido"
+      - "Desreferenciar"
+    wrong_orders:
+      - order: ["Declarar o ponteiro", "Desreferenciar", "Fazer o ponteiro apontar para algo valido"]
+        misconception: declaration_allocates
+
+
+  # ---- kc_04 -----------------------------------------------------
+  ciu_kc04_001:
+    kc: kc_04
+    targets: [I1]
+    phase: diagnostic
+    kind: multiple_choice
+    stem: "Por que a chamada f(&5); nao compila?"
+    code: |
+      void f(int *ip);
+    options:
+      - text: "Porque 5 e um valor, nao um objeto: nao ha endereco para tomar."
+        correct: true
+      - text: "Porque falta um cast: bastaria f((int *) &5)."
+        misconception: ampersand_takes_value
+      - text: "Porque & so funciona com variaveis do tipo declarado no parametro."
+        misconception: ampersand_takes_value
+
+  ciu_kc04_002:
+    kc: kc_04
+    targets: [B4]
+    phase: diagnostic
+    kind: multiple_choice
+    stem: "O compilador reclama. O que esta errado?"
+    code: |
+      char *p;
+      *p = malloc(10);
+    options:
+      - text: "A atribuicao e em p, nao em *p: quem recebe o endereco e o ponteiro."
+        correct: true
+      - text: "Nada: *p e a forma de se referir ao ponteiro p."
+        misconception: star_assigns_pointer
+      - text: "Falta alocar antes: era preciso um malloc para p e outro para *p."
+        misconception: star_assigns_pointer
+    visual:
+      kind: "annotated_declaration"
+      show: "int *p  ->  o * pertence ao TIPO: p e um ponteiro para int, *p = v  ->  o * e OPERADOR: escreve no objeto apontado"
+      caption: "O mesmo simbolo, dois papeis. Onde ele aparece muda o que faz."
+
+  ciu_kc04_003:
+    kc: kc_04
+    targets: [I2, I3]
+    phase: traversal
+    kind: prediction
+    stem: "O que e impresso?"
+    code: |
+      int x = 7;
+      int *p = &x;
+      *p = 9;
+      printf("%d", x);
+    options:
+      - text: "9: *p e o proprio x, entao escrever em *p escreve em x."
+        correct: true
+      - text: "7: *p e uma copia; x nao muda."
+        misconception: star_assigns_pointer
+
+  ciu_kc04_004:
+    kc: kc_04
+    targets: [I3]
+    phase: traversal
+    kind: fill_in
+    stem: "Para qualquer variavel x, a expressao *(&x) vale sempre ______."
+    answer:
+      expected: "x"
+      also_accepts: ["o proprio x", "o valor de x"]
+    patterns:
+      - match: ["o endereco", "&x", "o endereco de x"]
+        misconception: ampersand_takes_value
+
+
+  # ---- kc_05 -----------------------------------------------------
+  ciu_kc05_001:
+    kc: kc_05
+    targets: [I3]
+    phase: diagnostic
+    kind: prediction
+    stem: "O que acontece na segunda linha?"
+    code: |
+      int *p = NULL;
+      printf("%d", *p);
+    options:
+      - text: "Comportamento indefinido: nao ha objeto nesse endereco para ler."
+        correct: true
+      - text: "Imprime 0, porque NULL vale 0."
+        misconception: null_is_safe_to_deref
+      - text: "Imprime lixo, mas o programa segue normalmente."
+        misconception: null_is_safe_to_deref
+
+  ciu_kc05_002:
+    kc: kc_05
+    targets: [I4]
+    phase: diagnostic
+    kind: multiple_choice
+    stem: "com um padrao de bits diferente de zero?"
+    code: |
+      Uma implementacao de C pode representar o ponteiro nulo internamente
+    options:
+      - text: "Pode. A constante 0 no codigo-fonte e convertida para o que a implementacao usar."
+        correct: true
+      - text: "Nao: NULL e zero, entao os bits tem de ser zero."
+        misconception: null_is_zero_always
+
+  ciu_kc05_003:
+    kc: kc_05
+    targets: [I1, I2]
+    phase: traversal
+    kind: multiple_choice
+    stem: "O que essa condicao faz?"
+    code: |
+      if (p) { ... }
+    options:
+      - text: "Compara p com o ponteiro nulo; nao acessa o objeto apontado."
+        correct: true
+      - text: "Le o valor apontado por p e verifica se e diferente de zero."
+        misconception: null_is_safe_to_deref
+
+  ciu_kc05_004:
+    kc: kc_05
+    targets: [I1]
+    phase: traversal
+    kind: fill_in
+    stem: "NULL nao e ausencia de valor: e um valor de ponteiro que nao designa ______."
+    answer:
+      expected: "objeto algum"
+      also_accepts: ["nenhum objeto", "objeto nenhum", "nada"]
+
+
+  # ---- kc_06 -----------------------------------------------------
+  ciu_kc06_001:
+    kc: kc_06
+    targets: [I1]
+    phase: diagnostic
+    kind: prediction
+    stem: "O que e impresso?"
+    code: |
+      void dobra(int v) { v = v * 2; }
+      int main(void) { int n = 5; dobra(n); printf("%d", n); }
+    options:
+      - text: "5: dobra recebeu uma copia de n."
+        correct: true
+      - text: "10: a funcao trabalhou sobre o proprio n."
+        misconception: function_gets_original
+
+  ciu_kc06_002:
+    kc: kc_06
+    targets: [I4]
+    phase: diagnostic
+    kind: prediction
+    stem: "Depois da chamada, quanto vale p?"
+    code: |
+      void aloca(int *q) { q = malloc(sizeof(int)); }
+      int main(void) { int *p = NULL; aloca(p); /* p aqui vale o que? */ }
+    options:
+      - text: "Continua NULL: aloca alterou a copia q, nao p."
+        correct: true
+      - text: "Aponta para o bloco recem-alocado."
+        misconception: pointer_copy_is_alias
+      - text: "Aponta para o mesmo bloco, porque q e p sao a mesma variavel."
+        misconception: pointer_copy_is_alias
+
+  ciu_kc06_003:
+    kc: kc_06
+    targets: [I2, I3]
+    phase: traversal
+    kind: multiple_choice
+    stem: "Imprime 6. Por que funcionou, se C passa tudo por valor?"
+    code: |
+      void inc(int *q) { (*q)++; }
+      int main(void) { int n = 5; inc(&n); printf("%d", n); }
+    options:
+      - text: "q e copia do endereco de n; *q chega ao proprio n."
+        correct: true
+      - text: "Porque com & a passagem deixa de ser por valor."
+        misconception: function_gets_original
+
+  ciu_kc06_004:
+    kc: kc_06
+    targets: [I3, I4]
+    phase: variation
+    kind: contrast
+    stem: "Qual das duas o chamador enxerga?"
+    code: |
+      Dentro de uma funcao que recebeu int *q:
+        A:  *q = 10;
+        B:  q = &outra;
+    options:
+      - text: "So A. B muda apenas a copia local do endereco."
+        correct: true
+      - text: "As duas: q e o ponteiro do chamador."
+        misconception: pointer_copy_is_alias
+
+
+  # ---- kc_07 -----------------------------------------------------
+  ciu_kc07_001:
+    kc: kc_07
+    targets: [I1]
+    phase: diagnostic
+    kind: multiple_choice
+    stem: "Depois dessas linhas, a e p sao a mesma coisa?"
+    code: |
+      int a[5];
+      int *p = a;
+    options:
+      - text: "Nao: p e uma variavel ponteiro; a nomeia os 5 ints e nao e reatribuivel."
+        correct: true
+      - text: "Sim: array e ponteiro sao a mesma coisa em C."
+        misconception: array_is_pointer
+      - text: "Sim: a e apenas um ponteiro constante para o primeiro elemento."
+        misconception: array_is_pointer
+
+  ciu_kc07_002:
+    kc: kc_07
+    targets: [I3]
+    phase: diagnostic
+    kind: prediction
+    stem: "Supondo int de 4 bytes e ponteiro de 8, o que e impresso?"
+    code: |
+      int a[10];
+      int *p = a;
+      printf("%zu %zu", sizeof(a), sizeof(p));
+    options:
+      - text: "40 8: sizeof(a) mede o array; sizeof(p) mede o ponteiro."
+        correct: true
+      - text: "40 40: os dois se referem ao mesmo array."
+        misconception: sizeof_array_via_pointer
+      - text: "8 8: em expressao, a vira ponteiro."
+        misconception: array_is_pointer
+
+  ciu_kc07_003:
+    kc: kc_07
+    targets: [I2]
+    phase: traversal
+    kind: prediction
+    stem: "Por que a terceira linha nao compila?"
+    code: |
+      char destino[10];
+      char *origem = "abc";
+      destino = origem;
+    options:
+      - text: "O nome do array nao e modificavel: nao ha o que atribuir a ele."
+        correct: true
+      - text: "Falta um cast entre char[10] e char *."
+        misconception: array_is_assignable
+      - text: "Compila sim; o problema e so o tamanho diferente."
+        misconception: array_is_assignable
+
+  ciu_kc07_004:
+    kc: kc_07
+    targets: [I4]
+    phase: traversal
+    kind: prediction
+    stem: "Chamada com um array de 10 ints, o que f imprime?"
+    code: |
+      void f(int a[10]) { printf("%zu", sizeof(a)); }
+    options:
+      - text: "O tamanho de um ponteiro: o parametro foi reescrito como int *a."
+        correct: true
+      - text: "40, o tamanho do array declarado no parametro."
+        misconception: sizeof_array_via_pointer
+      - text: "40, porque arrays sao passados por referencia."
+        misconception: array_passed_by_reference
+
+  ciu_kc07_005:
+    kc: kc_07
+    targets: [I5]
+    phase: traversal
+    kind: multiple_choice
+    stem: "Qual a diferenca entre arr e &arr?"
+    code: |
+      int arr[5];
+    options:
+      - text: "Apontam para o mesmo endereco, mas tem tipos diferentes: int * e int (*)[5]."
+        correct: true
+      - text: "Nenhuma: sao a mesma coisa escrita de dois jeitos."
+        misconception: arr_equals_addr_of_arr
+
+  ciu_kc07_006:
+    kc: kc_07
+    targets: [B1]
+    phase: variation
+    kind: multiple_choice
+    stem: "As duas linhas armazenam a string do mesmo jeito?"
+    code: |
+      char *s = "abc";
+      char t[] = "abc";
+    options:
+      - text: "Nao: t e um array de 4 chars copiado; s aponta para um literal que nao deve ser alterado."
+        correct: true
+      - text: "Sim: as duas criam um array de caracteres."
+        misconception: string_literal_is_array
+    visual:
+      kind: "memory_diagram"
+      regions: "stack, literais"
+      show: "t: 4 caixas de char na stack, com copia de a b c \\0, s: uma caixa de ponteiro na stack, com seta para o literal"
+      caption: "Mesma aparencia no codigo. Duas coisas diferentes na memoria."
+
+
+  # ---- kc_11 -----------------------------------------------------
+  ciu_kc11_001:
+    kc: kc_11
+    targets: [I2, I3]
+    phase: diagnostic
+    kind: prediction
+    stem: "O que esse programa imprime?"
+    code: |
+      int a[5], *ip = a;
+      for (int i = 0; i < 5; i++) a[i] = i;
+      printf("%d", *(ip + 3 * sizeof(int)));
+    options:
+      - text: "Lixo: o deslocamento foi escalado duas vezes."
+        correct: true
+      - text: "Imprime 3, que e a[3]."
+        misconception: ptr_arith_is_bytes
+      - text: "Erro de compilacao."
+        misconception: ptr_arith_is_bytes
+
+  ciu_kc11_002:
+    kc: kc_11
+    targets: [I1, I2]
+    phase: traversal
+    kind: multiple_choice
+    stem: "Quantos bytes d + 1 avanca?"
+    code: |
+      double *d aponta para o inicio de um vetor de double.
+    options:
+      - text: "sizeof(double) bytes: um elemento."
+        correct: true
+      - text: "Um byte."
+        misconception: ptr_arith_is_bytes
+
+  ciu_kc11_003:
+    kc: kc_11
+    targets: [I4]
+    phase: traversal
+    kind: fill_in
+    stem: "Escrever a[i] equivale exatamente a escrever ______."
+    answer:
+      expected: "*(a + i)"
+      also_accepts: ["*(a+i)", "* (a + i)"]
+
+  ciu_kc11_004:
+    kc: kc_11
+    targets: [I5]
+    phase: traversal
+    kind: prediction
+    stem: "Quantos bytes v avancou?"
+    code: |
+      void *v = malloc(100);
+      v = v + 1;
+    options:
+      - text: "Nenhum: nao ha aritmetica em void * no padrao, porque void nao tem tamanho."
+        correct: true
+      - text: "Um byte, como em qualquer ponteiro."
+        misconception: voidptr_arith_ok
+      - text: "sizeof(void) bytes, que vale 1."
+        misconception: voidptr_arith_ok
+
+
+  # ---- kc_08 -----------------------------------------------------
+  ciu_kc08_001:
+    kc: kc_08
+    targets: [I3]
+    phase: diagnostic
+    kind: prediction
+    stem: "O que e impresso?"
+    code: |
+      int *p = malloc(sizeof(int));
+      printf("%d", *p);
+    options:
+      - text: "Indefinido: malloc nao define o conteudo do bloco."
+        correct: true
+      - text: "0, porque malloc zera a memoria que devolve."
+        misconception: malloc_initializes_zero
+
+  ciu_kc08_002:
+    kc: kc_08
+    targets: [I2]
+    phase: diagnostic
+    kind: multiple_choice
+    stem: "Por que a segunda linha e arriscada?"
+    code: |
+      int *p = malloc(n * sizeof(int));
+      p[0] = 1;
+    options:
+      - text: "malloc pode ter devolvido NULL; e preciso testar antes de usar."
+        correct: true
+      - text: "Nao e: malloc sempre devolve um bloco valido."
+        misconception: malloc_always_succeeds
+
+  ciu_kc08_003:
+    kc: kc_08
+    targets: [I1]
+    phase: traversal
+    kind: multiple_choice
+    stem: "Quantas coisas foram criadas, e onde?"
+    code: |
+      int *p = malloc(sizeof(int));
+    options:
+      - text: "Duas: a variavel p na stack e o bloco no heap."
+        correct: true
+      - text: "Uma: o bloco no heap, e p e o proprio bloco."
+        misconception: pointer_lives_in_heap
+
+  ciu_kc08_004:
+    kc: kc_08
+    targets: [I4]
+    phase: traversal
+    kind: fill_in
+    stem: "Um bloco devolvido por malloc so volta ao alocador quando ______."
+    answer:
+      expected: "o programa chama free"
+      also_accepts: ["free", "chamar free", "o programador libera"]
+    patterns:
+      - match: ["a funcao termina", "sai do escopo", "acaba a funcao"]
+        misconception: pointer_lives_in_heap
+      - match: ["o sistema libera", "automaticamente", "sozinho"]
+        misconception: system_frees_auto
+
+
+  # ---- kc_09 -----------------------------------------------------
   ciu_kc09_001:
     kc: kc_09
     targets: [I1, I2]
     phase: diagnostic
-    kind: trace
+    kind: multiple_choice
     stem: "O que free(p) liberou?"
     code: |
       int *p = malloc(sizeof(int));
       free(p);
     options:
-      - text: "Só o bloco no heap; p continua na stack com o mesmo valor."
+      - text: "So o bloco no heap; p continua na stack com o mesmo valor."
         correct: true
       - text: "Tanto p quanto o bloco no heap."
         misconception: free_kills_pointer
       - text: "O bloco, e p passou a valer NULL."
         misconception: free_nullifies
+
+  ciu_kc09_002:
+    kc: kc_09
+    targets: [I3, I5]
+    phase: diagnostic
+    kind: prediction
+    stem: "O que acontece nessa segunda linha?"
+    code: |
+      free(p);
+      printf("%d", *p);
+    options:
+      - text: "Comportamento indefinido: o bloco nao e mais valido."
+        correct: true
+      - text: "Imprime o valor normalmente: o dado ainda esta la."
+        misconception: heap_persists
     visual:
-      kind: memory_diagram
-      regions: [stack, heap]
-      states:
-        antes:
-          stack: [{name: "p", value: "0x7ffd21a0"}]
-          heap: [{name: "bloco", value: "int 42", note: "bloco válido"}]
-          arrow: {from: p, to: bloco, style: solid}
-        depois:
-          stack: [{name: "p", value: "0x7ffd21a0"}]
-          heap: [{name: "bloco", value: "liberado", note: "não mais válido", invalid: true}]
-          arrow: {from: p, to: bloco, style: dashed, invalid: true}
-      caption: "p continua aqui, nos dois estados."
+      kind: "memory_diagram"
+      states: "antes_do_free, depois_do_free"
+      controlled_by: "student"
+      caption: "Alterne entre antes e depois. O que mudou? O que nao mudou?"
+
+  ciu_kc09_003:
+    kc: kc_09
+    targets: [I4, I6]
+    phase: variation
+    kind: contrast
+    stem: "B:  free(p); p = NULL;"
+    code: |
+      Dois trechos liberam memoria. Um deles fica seguro contra uso posterior.
+      Qual, e por que?
+        A:  free(p);
+    options:
+      - text: "B: atribuir NULL registra que p nao designa mais nada."
+        correct: true
+      - text: "Os dois: free ja deixa p em NULL."
+        misconception: null_after_free_redundant
+      - text: "Os dois: depois do free nao da para usar p de qualquer jeito."
+        misconception: double_free_is_safe
+
+
+  # ---- kc_12 -----------------------------------------------------
+  ciu_kc12_001:
+    kc: kc_12
+    targets: [I1, I2]
+    phase: diagnostic
+    kind: prediction
+    stem: "O que acontece?"
+    code: |
+      int *f(void) { int x = 42; return &x; }
+      int main(void) { int *p = f(); printf("%d", *p); }
+    options:
+      - text: "Comportamento indefinido: x deixou de existir quando f retornou."
+        correct: true
+      - text: "Imprime 42: o endereco foi retornado, entao o valor veio junto."
+        misconception: local_survives_return
+      - text: "Imprime 42, porque x continua na memoria ate o programa acabar."
+        misconception: local_survives_return
+
+  ciu_kc12_002:
+    kc: kc_12
+    targets: [I4]
+    phase: diagnostic
+    kind: multiple_choice
+    stem: "Aqui retornar o endereco passou a ser valido. Por que?"
+    code: |
+      int *g(void) { static int x = 42; return &x; }
+    options:
+      - text: "static muda a duracao de x, que passa a existir enquanto o programa roda."
+        correct: true
+      - text: "static torna x global, entao o escopo deixou de importar."
+        misconception: static_is_scope
+
+  ciu_kc12_003:
+    kc: kc_12
+    targets: [I3]
+    phase: traversal
+    kind: contrast
+    stem: "O que os dois casos tem em comum, e o que os separa?"
+    code: |
+      Dois ponteiros invalidos:
+        A:  int *p = malloc(4); free(p);
+        B:  int *p = f();   /* f retorna &local */
+    options:
+      - text: "Os dois deixam um endereco que nao designa objeto; em B nenhum free foi chamado."
+        correct: true
+      - text: "Sao o mesmo caso: em B o compilador libera a local, que e um free implicito."
+        misconception: local_survives_return
+
+  ciu_kc12_004:
+    kc: kc_12
+    targets: [I5]
+    phase: variation
+    kind: ordering
+    stem: "Ordene os passos de uma funcao que devolve um resultado sem devolver endereco de local."
+    steps:
+      - "O chamador reserva o armazenamento"
+      - "O chamador passa o endereco desse armazenamento para a funcao"
+      - "A funcao escreve atraves do ponteiro recebido"
+    wrong_orders:
+      - order: ["A funcao declara uma variavel local", "A funcao escreve na local", "A funcao retorna o endereco da local"]
+        misconception: local_survives_return
+
+
+  # ---- kc_10 -----------------------------------------------------
+  ciu_kc10_001:
+    kc: kc_10
+    targets: [I3]
+    phase: diagnostic
+    kind: prediction
+    stem: "Depois da chamada, quanto vale ip no main?"
+    code: |
+      void f(int *ip) { static int dummy = 5; ip = &dummy; }
+      int main(void) { int *ip = NULL; f(ip); /* ip aqui? */ }
+    options:
+      - text: "Continua NULL. Para f alterar ip, precisaria receber &ip, do tipo int **."
+        correct: true
+      - text: "Aponta para dummy: f recebeu o ponteiro e o inicializou."
+        misconception: modify_pp_changes_p
+      - text: "Aponta para dummy, porque ponteiro ja e passagem por referencia."
+        misconception: modify_pp_changes_p
+
+  ciu_kc10_002:
+    kc: kc_10
+    targets: [I2]
+    phase: diagnostic
+    kind: multiple_choice
+    stem: "A que se refere *pp?"
+    code: |
+      int v = 7;
+      int *p = &v;
+      int **pp = &p;
+    options:
+      - text: "Ao ponteiro p. Para chegar ao 7 sao precisos dois: **pp."
+        correct: true
+      - text: "Ao valor 7: pp aponta para o dado final."
+        misconception: double_deref_is_data
+      - text: "Ao valor 7, porque int **pp e int *p sao equivalentes."
+        misconception: double_deref_is_data
+
+  ciu_kc10_003:
+    kc: kc_10
+    targets: [I4]
+    phase: traversal
+    kind: prediction
+    stem: "Por que o compilador reclama?"
+    code: |
+      void f(int **m);
+      int a[3][4];
+      f(a);
+    options:
+      - text: "a decai para int (*)[4], nao para int **: e um bloco contiguo, nao um vetor de ponteiros."
+        correct: true
+      - text: "Por nada de fundo: um cast para (int **) resolve o problema."
+        misconception: array2d_is_double_pointer
+      - text: "Falta alocar as linhas; matriz e sempre int **."
+        misconception: array2d_is_double_pointer
+
+  ciu_kc10_004:
+    kc: kc_10
+    targets: [I1, I3]
+    phase: traversal
+    kind: fill_in
+    stem: "Para uma funcao alterar o ponteiro p do chamador, ela precisa receber ______."
+    answer:
+      expected: "&p"
+      also_accepts: ["o endereco de p", "&p", "do tipo int **"]
+    patterns:
+      - match: ["p", "o proprio p", "o ponteiro p"]
+        misconception: modify_pp_changes_p
+

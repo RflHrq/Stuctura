@@ -27,6 +27,11 @@ GRADES = ("D", "T", "L", "N", "E")
 KINDS = ("foundational", "derivational")
 SOCRATIC_MODES = ("pure", "diagram")
 
+# Fases de uma CIU (§6). `traversal` e usada durante a correcao; so as
+# `diagnostic` alimentam o diagnostico inicial, e a `variation` encerra o KC.
+CIU_PHASES = ("diagnostic", "traversal", "variation")
+CIU_KINDS = ("multiple_choice", "prediction", "fill_in", "ordering", "contrast")
+
 
 class DomainError(Exception):
     """Domínio inconsistente. O sistema não sobe."""
@@ -105,6 +110,46 @@ class Option:
 
 
 @dataclass(frozen=True, slots=True)
+class FreeAnswer:
+    """Resposta livre de uma CIU de lacuna guiada."""
+
+    expected: str
+    also_accepts: tuple[str, ...] = ()
+
+    def accepts(self, texto: str) -> bool:
+        alvo = texto.strip().casefold()
+        return alvo == self.expected.strip().casefold() or any(
+            alvo == a.strip().casefold() for a in self.also_accepts
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class Pattern:
+    """Padrao de resposta livre que revela uma crenca (§12: crenca fora do
+    catalogo aparece como padrao nao previsto)."""
+
+    match: tuple[str, ...]
+    misconception: str | None = None
+
+    def hits(self, texto: str) -> bool:
+        alvo = texto.casefold()
+        return any(m.casefold() in alvo for m in self.match)
+
+
+@dataclass(frozen=True, slots=True)
+class WrongOrder:
+    """Uma sequencia errada numa CIU de ordenacao.
+
+    Duas semanticas convivem no catalogo, e a interface precisa distingui-las:
+    quando `order` e permutacao de `CIU.steps`, o aluno reordena os mesmos
+    passos; quando nao e, sao dois caminhos diferentes e ele escolhe um.
+    """
+
+    order: tuple[str, ...]
+    misconception: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class CIU:
     id: str
     kc: str
@@ -113,8 +158,17 @@ class CIU:
     kind: str
     stem: str
     code: str
-    options: tuple[Option, ...]
+    options: tuple[Option, ...] = ()
+    steps: tuple[str, ...] = ()
+    wrong_orders: tuple[WrongOrder, ...] = ()
+    answer: FreeAnswer | None = None
+    patterns: tuple[Pattern, ...] = ()
     visual: Mapping[str, Any] | None = None
+
+    @property
+    def is_choice(self) -> bool:
+        """Tem alternativas? As de lacuna e ordenacao nao tem."""
+        return bool(self.options)
 
     @property
     def correct_index(self) -> int:
@@ -122,6 +176,16 @@ class CIU:
             if o.correct:
                 return i
         raise ValueError("CIU %s sem alternativa correta" % self.id)
+
+    def is_permutation(self, wrong: "WrongOrder") -> bool:
+        return bool(self.steps) and sorted(wrong.order) == sorted(self.steps)
+
+    def misconception_ids(self) -> tuple[str, ...]:
+        """Toda crenca que esta CIU consegue detectar, por qualquer via."""
+        out = [o.misconception for o in self.options if o.misconception]
+        out += [p.misconception for p in self.patterns if p.misconception]
+        out += [w.misconception for w in self.wrong_orders if w.misconception]
+        return tuple(dict.fromkeys(out))
 
 
 @dataclass(frozen=True, slots=True)
@@ -373,34 +437,76 @@ def _build_cius(
         if kc not in kcs:
             problemas.append("CIU %s referencia KC inexistente: %r" % (cid, kc))
             continue
+
         alvos = tuple(c.get("targets") or ())
+        if not alvos:
+            problemas.append("CIU %s sem nó-alvo: não alimenta a Q-matrix" % cid)
         for t in alvos:
             if t not in kcs[kc].nodes:
                 problemas.append("CIU %s: target %s:%s não existe" % (cid, kc, t))
 
-        opcoes = []
-        for o in c.get("options") or ():
-            mid = o.get("misconception")
-            if mid is not None and mid not in miscs:
-                problemas.append("CIU %s: misconception_id desconhecido %r" % (cid, mid))
-            opcoes.append(Option(o.get("text", ""), bool(o.get("correct")), mid))
+        fase = c.get("phase")
+        if fase not in CIU_PHASES:
+            problemas.append("CIU %s: phase inválida %r" % (cid, fase))
+        tipo = c.get("kind")
+        if tipo not in CIU_KINDS:
+            problemas.append("CIU %s: kind inválido %r" % (cid, tipo))
 
-        corretas = [o for o in opcoes if o.correct]
-        if len(corretas) != 1:
-            problemas.append(
-                "CIU %s: precisa de exatamente 1 alternativa correta, tem %d"
-                % (cid, len(corretas))
-            )
+        def _mid(valor, onde):
+            """Confere um misconception_id contra o catálogo."""
+            if valor is not None and valor not in miscs:
+                problemas.append("CIU %s (%s): crença desconhecida %r" % (cid, onde, valor))
+                return None
+            return valor
+
+        opcoes = tuple(
+            Option(o.get("text", ""), bool(o.get("correct")),
+                   _mid(o.get("misconception"), "distrator"))
+            for o in (c.get("options") or ())
+        )
+        if opcoes:
+            corretas = [o for o in opcoes if o.correct]
+            if len(corretas) != 1:
+                problemas.append(
+                    "CIU %s: precisa de exatamente 1 alternativa correta, tem %d"
+                    % (cid, len(corretas))
+                )
+            if not any(o.misconception for o in opcoes if not o.correct):
+                problemas.append("CIU %s: nenhum distrator mapeado a crença" % cid)
+
+        passos = tuple(c.get("steps") or ())
+        ordens = tuple(
+            WrongOrder(tuple(w.get("order") or ()),
+                       _mid(w.get("misconception"), "ordem errada"))
+            for w in (c.get("wrong_orders") or ())
+        )
+        bruto = c.get("answer")
+        resposta = FreeAnswer(
+            bruto.get("expected", ""), tuple(bruto.get("also_accepts") or ())
+        ) if bruto else None
+
+        padroes = tuple(
+            Pattern(tuple(p.get("match") or ()), _mid(p.get("misconception"), "padrão"))
+            for p in (c.get("patterns") or ())
+        )
+
+        # Toda CIU tem de ter ALGUMA forma de resposta, ou não mede nada.
+        if not (opcoes or passos or resposta):
+            problemas.append("CIU %s não tem alternativas, passos nem resposta" % cid)
 
         out[cid] = CIU(
             id=cid,
             kc=kc,
             targets=alvos,
-            phase=c.get("phase", "diagnostic"),
-            kind=c.get("kind", "trace"),
+            phase=fase or "diagnostic",
+            kind=tipo or "multiple_choice",
             stem=c.get("stem", ""),
             code=c.get("code", ""),
-            options=tuple(opcoes),
+            options=opcoes,
+            steps=passos,
+            wrong_orders=ordens,
+            answer=resposta,
+            patterns=padroes,
             visual=c.get("visual"),
         )
     return out
