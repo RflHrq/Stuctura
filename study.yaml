@@ -18,9 +18,47 @@ pilot_sequence: [kc_07, kc_11, kc_09]
 late_named_terms:
   - dangling
 
+# Como apresentar um nó cujo texto JÁ contém o termo, antes da conclusão.
+#
+# Dois nós do domínio carregam "dangling" no próprio enunciado — kc_09:I4
+# e kc_12:I3 — e o traversal os apresenta como pergunta socrática. Sem
+# substituição, o aluno leria o nome técnico antes de construir a
+# conclusão, que é exatamente o que RF10 proíbe.
+#
+# A substituição é aplicada da frase mais longa para a mais curta. O texto
+# original permanece intocado no YAML do domínio: isto é apresentação.
+#
+# ALTERNATIVA A CONSIDERAR: reescrever os dois enunciados no domínio para
+# não conterem o termo, e deixar o nome só em `reveal_names`. Seria mais
+# limpo — a substituição existe porque o domínio hoje precisa dela.
+late_name_substitutions:
+  "dangling pointer": "um ponteiro invalido"
+  "dangling": "um ponteiro invalido"
+
+# O termo revelado na CONCLUSÃO de cada KC (RF10). Vive aqui, e não no
+# domínio, porque é regra de apresentação do experimento: o mesmo grafo
+# poderia ser usado sem nomeação tardia.
+reveal_names:
+  kc_09: "dangling pointer"
+  kc_12: "dangling pointer por escopo"
+
 # Limite de tentativas por nó antes de encerrar o KC como "em progresso"
 # (§6, §7.4). Sem essa guarda, um aluno travado entra em laço.
 max_attempts_per_node: 3
+
+# Política da fase de diagnóstico (§6).
+#
+#   all                  apresenta TODAS as diagnósticas do KC, até o teto,
+#                        mesmo depois de detectar uma crença
+#   until_misconception  para na primeira crença detectada
+#
+# O padrão é `all` porque o desfecho PRIMÁRIO do estudo é a validação da
+# Q-matrix, e ela precisa da resposta a cada item. Parar cedo economizaria
+# minutos e custaria dados de distrator — exatamente o que o piloto existe
+# para coletar. Os dois braços usam a mesma política, então a escolha não
+# ameaça a comparação A/B; ela decide quanto dado por participante.
+diagnostic_policy: all
+max_diagnostics_per_kc: 3
 
 # Escala de confiança declarada (RF02, RF04). Só o primeiro valor tem
 # efeito no §7.3: errar com ele marca a premissa ausente, não errada.

@@ -100,11 +100,28 @@ def steps(
             kc=k,
             node=n,
             kind=domain.node(k, n).type,
-            text=domain.node(k, n).text,
+            text=domain.study.mask(domain.node(k, n).text),
             question=question(domain, k, n),
             idx=i,
             total=total,
         )
+        for i, (k, n) in enumerate(refs, start=1)
+    ]
+
+
+def steps_from(domain: Domain, refs: Sequence[Ref]) -> list[Step]:
+    """Monta os passos a partir de um plano JÁ congelado.
+
+    A FSM congela o plano ao entrar na correção e caminha sobre ele. Não
+    pode recalcular a cada turno: confirmar um nó no meio do traversal
+    encolheria o plano sob os pés do aluno, e o "passo 3 de 7" viraria
+    "passo 3 de 5" entre uma tela e a seguinte.
+    """
+    total = len(refs)
+    return [
+        Step(kc=k, node=n, kind=domain.node(k, n).type,
+             text=domain.study.mask(domain.node(k, n).text),
+             question=question(domain, k, n), idx=i, total=total)
         for i, (k, n) in enumerate(refs, start=1)
     ]
 
@@ -124,13 +141,13 @@ def question(domain: Domain, kc: str, node: str) -> str:
     reinterpretar uma conclusão construída com as respostas dele.
     """
     nd = domain.node(kc, node)
-    corpo = nd.text.rstrip(".")
+    corpo = domain.study.mask(nd.text).rstrip(".")
 
     if nd.is_base:
         return "Olhando o diagrama: %s, certo?" % corpo
 
     citados = "; ".join(
-        domain.node(*s).text.rstrip(".")
+        domain.study.mask(domain.node(*s).text).rstrip(".")
         for s in nd.support
         if _existe(domain, s)
     )

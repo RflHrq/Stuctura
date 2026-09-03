@@ -23,7 +23,7 @@ Ordem do §13 da spec. Marcos 1 a 3 são o caminho crítico.
 | 1 | Regressão controlada (RF09) — `socratic.on_wrong()` | **feito**, falta a FSM chamar |
 | 2 | `store/`: esquema, append, projeção, `replay.py` | **feito** |
 | 3 | `strategy.py` + teste de paridade dos braços | **feito · marco crítico verde** |
-| 4 | `session.py`: FSM do §6 | pendente |
+| 4 | `session.py`: FSM do §6 + `model.py` + `selector.py` | **feito** |
 | 5 | `api/`: as seis rotas do §9 | pendente |
 | 6 | `web/`: interface e `diagram.js` | pendente |
 | 7 | `feedback.yaml` + `feedback.py` (RF17, SHOULD) | pendente |

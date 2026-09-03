@@ -227,9 +227,25 @@ class CIU:
 class Study:
     """Configuração do experimento. Não é domínio."""
 
+    def mask(self, texto: str) -> str:
+        """Esconde os termos de nomeação tardia num texto de apresentação.
+
+        Da frase mais longa para a mais curta, para que uma substituição de
+        duas palavras seja aplicada antes da de uma palavra que a prefixa.
+        """
+        for termo in sorted(self.late_name_substitutions, key=len, reverse=True):
+            substituto = self.late_name_substitutions[termo]
+            for variante in (termo, termo.capitalize()):
+                texto = texto.replace(variante, substituto)
+        return texto
+
     pilot_sequence: tuple[str, ...] = ()
     late_named_terms: tuple[str, ...] = ()
+    late_name_substitutions: Mapping[str, str] = field(default_factory=dict)
+    reveal_names: Mapping[str, str] = field(default_factory=dict)
     max_attempts_per_node: int = 3
+    diagnostic_policy: str = "all"
+    max_diagnostics_per_kc: int = 3
     confidence_scale: tuple[str, ...] = ()
 
     @property
@@ -364,7 +380,11 @@ def _load_study(path: str | Path | None, kcs: Mapping[str, KC],
     return Study(
         pilot_sequence=seq,
         late_named_terms=tuple(dados.get("late_named_terms") or ()),
+        late_name_substitutions=dict(dados.get("late_name_substitutions") or {}),
+        reveal_names=dict(dados.get("reveal_names") or {}),
         max_attempts_per_node=int(dados.get("max_attempts_per_node", 3)),
+        diagnostic_policy=dados.get("diagnostic_policy", "all"),
+        max_diagnostics_per_kc=int(dados.get("max_diagnostics_per_kc", 3)),
         confidence_scale=tuple(dados.get("confidence_scale") or ()),
     )
 
