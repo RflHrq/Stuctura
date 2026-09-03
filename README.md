@@ -14,6 +14,10 @@ python -m pip install -r requirements.txt
 python -m api.main
 ```
 
+> **No Windows PowerShell**, `&&` não existe (é erro de parser no 5.1) e `rm -f`
+> é ambíguo entre `-Force` e `-Filter`. Os comandos deste README estão em uma
+> linha cada por isso; onde houver encadeamento, a versão PowerShell vem junto.
+
 Abra `http://127.0.0.1:8000`. O servidor imprime o **hash do domínio** e o
 **token de exportação** no arranque — anote os dois.
 
@@ -23,7 +27,13 @@ errado (§1: falha na carga, não em sessão).
 ### Entre uma demonstração e a seguinte
 
 ```bash
-rm data/structura.db data/structura.db-wal data/structura.db-shm
+rm -f data/structura.db*
+```
+
+PowerShell:
+
+```powershell
+Remove-Item data\structura.db* -Force -ErrorAction Ignore
 ```
 
 O token em `data/export_token.txt` sobrevive — reiniciar o servidor no meio
@@ -47,7 +57,14 @@ sessões viram hashes de domínio diferentes (§15). Depois disso, copie
 python -m pytest tests/ -q && python -m tools.validate --stats
 ```
 
-150 testes; o validador tem de sair 0.
+PowerShell:
+
+```powershell
+python -m pytest tests/ -q; if ($?) { python -m tools.validate --stats }
+```
+
+150 testes; o validador tem de sair 0. Ele imprime avisos — 21 hoje, todos
+documentados e nenhum bloqueante. Erro é o que sai com código diferente de 0.
 
 ## Estado da construção
 
