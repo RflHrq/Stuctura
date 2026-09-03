@@ -7,10 +7,47 @@ Piloto alvo: **30 de setembro de 2026**.
 
 ## Rodar
 
+Testado em Python 3.14.7 (mínimo 3.11).
+
 ```bash
 python -m pip install -r requirements.txt
-python -m pytest tests/ -q
+python -m api.main
 ```
+
+Abra `http://127.0.0.1:8000`. O servidor imprime o **hash do domínio** e o
+**token de exportação** no arranque — anote os dois.
+
+Se um YAML estiver inconsistente, o processo **não sobe** e lista o que está
+errado (§1: falha na carga, não em sessão).
+
+### Entre uma demonstração e a seguinte
+
+```bash
+rm data/structura.db data/structura.db-wal data/structura.db-shm
+```
+
+O token em `data/export_token.txt` sobrevive — reiniciar o servidor no meio
+da coleta não invalida o token já anotado.
+
+### Ao fim de cada sessão de coleta
+
+```bash
+python -m tools.replay --verify
+python -m tools.export --out analise/
+```
+
+O primeiro confere que o estado de toda sessão é reconstruível do log
+(RNF04). O segundo escreve as três tabelas e **sai com código 1** se as
+sessões viram hashes de domínio diferentes (§15). Depois disso, copie
+`data/structura.db` para duas mídias.
+
+### Conferir que está tudo de pé
+
+```bash
+python -m pytest tests/ -q && python -m tools.validate --stats
+```
+
+150 testes; o validador tem de sair 0.
 
 ## Estado da construção
 
