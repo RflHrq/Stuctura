@@ -23,7 +23,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any, Mapping, Sequence
 
-from engine import model, selector, socratic, strategy
+from engine import feedback as fb, model, selector, socratic, strategy
 from engine.loader import CIU, Domain, Ref
 
 # Fases da sessão (§6).
@@ -440,7 +440,14 @@ def _entra_correcao(domain: Domain, state: SessionState) -> Transition:
     ))
     novo = replace(state, phase=CORRECAO, target=alvo, plan=plano, cursor=0,
                    attempts={}, rounds=state.rounds + 1)
-    return _apresenta_passo(domain, novo)
+    t = _apresenta_passo(domain, novo)
+    # RF17 etapa 1: reconhecer o que há de legítimo, ANTES de refutar. Vai
+    # junto do primeiro passo, nos dois braços.
+    if state.rounds == 0:
+        validacao = fb.validation(domain, state.vector, state.kc, state.detected)
+        if validacao:
+            t = Transition(t.state, _com_feedback(t.action, validacao), t.events)
+    return t
 
 
 def _passos(domain: Domain, state: SessionState) -> list[socratic.Step]:
@@ -474,6 +481,7 @@ def _apresenta_passo(domain: Domain, state: SessionState,
                       text=prompt or passo.question,
                       step_idx=passo.idx, step_total=passo.total,
                       data={"node_kind": passo.kind})
+        acao = _talvez_contradicao(domain, state, passo, acao)
         evento = Emit("socratic_step_shown", {
             "kc": passo.kc, "node": passo.node, "kind": passo.kind,
             "step_idx": passo.idx, "total": passo.total,
@@ -482,6 +490,7 @@ def _apresenta_passo(domain: Domain, state: SessionState,
         acao = Action("explain", kc=passo.kc, node=passo.node, text=passo.text,
                       step_idx=passo.idx, step_total=passo.total,
                       data={"node_kind": passo.kind})
+        acao = _talvez_contradicao(domain, state, passo, acao)
         evento = Emit("direct_explanation_shown", {
             "kc": passo.kc, "node": passo.node, "elapsed_ms": 0,
             "step_idx": passo.idx, "total": passo.total,
@@ -549,6 +558,33 @@ def _avanca_correcao(domain: Domain, state: SessionState, ev: StepAnswer) -> Tra
     return Transition(seguinte.state, seguinte.action, tuple(eventos) + seguinte.events)
 
 
+def _com_feedback(acao: Action, f: fb.Feedback) -> Action:
+    dados = dict(acao.data)
+    dados["feedback"] = f.as_json()
+    return replace(acao, data=dados)
+
+
+def _talvez_contradicao(domain: Domain, state: SessionState,
+                        passo: socratic.Step, acao: Action) -> Action:
+    """RF17 etapa 2, e SÓ no nó que a crença nega.
+
+    Ancorada no nó da CRENÇA, não no alvo corrente do traversal. São
+    coisas diferentes: a partir da segunda rodada de correção o alvo passa
+    a ser a conclusão do KC, e usá-lo faria a contradição reaparecer num
+    ponto onde ela já foi resolvida — o aluno seria confrontado duas vezes
+    com uma ideia que já abandonou.
+
+    Como o nó da crença é confirmado na primeira rodada, ele some dos
+    planos seguintes: a etapa acontece exatamente uma vez.
+    """
+    if not state.detected or state.detected not in domain.misconceptions:
+        return acao
+    if passo.ref != domain.misconceptions[state.detected].negates:
+        return acao
+    contra = fb.contradiction(domain, passo.kc, passo.node, state.detected)
+    return _com_feedback(acao, contra) if contra else acao
+
+
 # --------------------------------------------------------------------------
 # Conclusão e variação
 # --------------------------------------------------------------------------
@@ -571,6 +607,10 @@ def _entra_conclusao(domain: Domain, state: SessionState) -> Transition:
         dados["technical_name"] = nome
     acao = Action("conclude", kc=kc, text=socratic.conclusion(domain, kc),
                   node=concl, data=dados)
+    # RF17 etapa 3: dizer de ONDE a conclusão veio, não qual é.
+    recon = fb.reconstruction(domain, kc, state.arm, houve_correcao=state.rounds > 0)
+    if recon:
+        acao = _com_feedback(acao, recon)
     return Transition(replace(state, phase=CONCLUSAO), acao)
 
 

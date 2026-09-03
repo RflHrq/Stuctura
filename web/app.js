@@ -410,6 +410,7 @@
 
     S.trilha[idx - 1] = a.text || "";
     desenhaTrilha(idx, total);
+    pintaFeedback("passo-feedback", a.feedback);
 
     var acoes = $("passo-acoes");
     acoes.innerHTML = "";
@@ -422,6 +423,15 @@
       acoes.appendChild(botao("Entendi, continuar", "btn", function () { passo(true); }));
     }
     mostra("passo");
+  }
+
+  /* RF17: o feedback vem do servidor pronto, nas tres etapas. O cliente
+   * so o coloca na tela — nao decide quando aparece nem o que diz, e nao
+   * o mostra diferente por braco. */
+  function pintaFeedback(id, f) {
+    var caixa = $(id);
+    caixa.classList.toggle("hidden", !f);
+    if (f) caixa.textContent = f.text;
   }
 
   function botao(texto, cls, fn) {
@@ -466,6 +476,7 @@
   function telaConclusao(j) {
     var a = S.acao;
     $("conc-texto").textContent = a.conclusion_text || a.text || "";
+    pintaFeedback("conc-feedback", a.feedback);
     var nome = a.technical_name;
     $("conc-nome-linha").classList.toggle("hidden", !nome);
     if (nome) $("conc-nome").textContent = nome;

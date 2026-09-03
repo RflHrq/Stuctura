@@ -260,6 +260,7 @@ class Domain:
     kcs: Mapping[str, KC]
     misconceptions: Mapping[str, Misconception]
     cius: Mapping[str, CIU]
+    feedback: Mapping[str, Mapping[str, str]]
     study: Study
     hash: str
     source: Path = field(compare=False, default=DEFAULT_DOMAIN)
@@ -305,7 +306,11 @@ class Domain:
 # Carga
 # --------------------------------------------------------------------------
 
-FILES = ("kcs.yaml", "premise_graphs.yaml", "misconceptions.yaml", "cius.yaml")
+# `feedback.yaml` entra no HASH porque é conteúdo que o participante lê:
+# mudar o texto no meio da coleta faria os participantes verem coisas
+# diferentes, que é exatamente o que o hash existe para detectar (§15).
+FILES = ("kcs.yaml", "premise_graphs.yaml", "misconceptions.yaml", "cius.yaml",
+         "feedback.yaml")
 
 
 def load(path: str | Path | None = None, study_path: str | Path | None = None) -> Domain:
@@ -317,6 +322,11 @@ def load(path: str | Path | None = None, study_path: str | Path | None = None) -
     for nome in FILES:
         arquivo = base / nome
         if not arquivo.exists():
+            if nome == "feedback.yaml":
+                # RF17 é SHOULD: sem os moldes o sistema roda, apenas sem
+                # feedback elaborado. Faltar não pode derrubar uma coleta.
+                raw[nome] = {}
+                continue
             raise DomainError(["arquivo obrigatório ausente: %s" % arquivo])
         try:
             raw[nome] = yaml.safe_load(arquivo.read_text(encoding="utf-8")) or {}
@@ -331,6 +341,7 @@ def load(path: str | Path | None = None, study_path: str | Path | None = None) -
     _check_acyclic(kcs, problemas)
     _check_prerequisites(kcs, problemas)
 
+    fb = _build_feedback(raw.get("feedback.yaml") or {}, problemas)
     estudo = _load_study(study_path, kcs, problemas)
 
     if problemas:
@@ -341,6 +352,7 @@ def load(path: str | Path | None = None, study_path: str | Path | None = None) -
         kcs=kcs,
         misconceptions=miscs,
         cius=cius,
+        feedback=fb,
         study=estudo,
         hash=domain_hash(base),
         source=base,
@@ -491,6 +503,40 @@ def _build_misconceptions(
             notes=m.get("notes"),
             kind="foundational" if negado.is_base else "derivational",
         )
+    return out
+
+
+def _build_feedback(raw: Mapping, problemas: list[str]) -> dict[str, dict[str, str]]:
+    """Moldes de feedback (RF17), com os marcadores conferidos na carga.
+
+    Um `{premisa}` digitado errado não quebra nada em execução: aparece
+    CRU na tela do participante, no meio de uma sessão de coleta. Por isso
+    a conferência é aqui e não em tempo de uso.
+    """
+    from engine import feedback as fb_mod
+
+    out: dict[str, dict[str, str]] = {}
+    bloco = raw.get("feedback") or {}
+    for etapa, moldes in bloco.items():
+        if etapa not in fb_mod.STAGES:
+            problemas.append("feedback.yaml: etapa desconhecida %r" % etapa)
+            continue
+        if not isinstance(moldes, Mapping):
+            problemas.append("feedback.yaml: %s não é um mapa de moldes" % etapa)
+            continue
+        for chave, molde in moldes.items():
+            desconhecidos = [
+                m for m in fb_mod.placeholders_of(molde)
+                if m not in fb_mod.PLACEHOLDERS
+            ]
+            if desconhecidos:
+                problemas.append(
+                    "feedback.yaml %s.%s usa marcador(es) inexistente(s): %s; "
+                    "conhecidos: %s"
+                    % (etapa, chave, ", ".join(desconhecidos),
+                       ", ".join(fb_mod.PLACEHOLDERS))
+                )
+        out[etapa] = dict(moldes)
     return out
 
 

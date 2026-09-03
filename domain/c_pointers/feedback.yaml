@@ -1,0 +1,84 @@
+# Feedback em tres etapas (RF17): validacao, contradicao, reconstrucao.
+#
+# ATENCAO — TEXTO A REVISAR. Estes moldes foram redigidos junto com o
+# motor, nao extraidos de fonte. Sao a unica parte do dominio que nao veio
+# do autor, e sao lidos pelo participante. Revisar antes do congelamento.
+#
+# ------------------------------------------------------------------------
+# POR QUE ESTE ARQUIVO NAO CONTEM NADA SOBRE PONTEIROS
+#
+# Os moldes falam de RACIOCINIO, nao de C: "voce confirmou X, e X e Y nao
+# podem valer juntos". O conteudo entra pelos marcadores, que o motor
+# preenche a partir do grafo. Trocar os YAMLs troca o dominio sem tocar
+# aqui — que e o principio §1.
+#
+# ------------------------------------------------------------------------
+# SIMETRIA ENTRE OS BRACOS
+#
+# O feedback e apresentado nos DOIS bracos, nos mesmos tres pontos. O §8.1
+# lista o que e identico entre socratico e direto; feedback nao esta na
+# lista porque nao existia ainda. Se um braco recebesse elaboracao verbal
+# que o outro nao recebe, a variavel isolada deixaria de ser a geracao
+# ativa — e o experimento mediria duas coisas ao mesmo tempo.
+#
+# `tests/test_feedback.py` afirma essa simetria.
+#
+# ------------------------------------------------------------------------
+# MARCADORES DISPONIVEIS (o validador recusa qualquer outro)
+#
+#   {belief}       o que a crenca detectada afirma
+#   {support}      as premissas que sustentam o no, em lista
+#   {node}         o enunciado do no em questao
+#   {conclusion}   a conclusao do KC
+#   {kc_name}      o nome do KC
+
+schema_version: 1
+
+feedback:
+
+  # ETAPA 1 — VALIDACAO
+  #
+  # Antes de refutar, reconhecer o que ha de legitimo no raciocinio. Nao e
+  # cortesia: um aluno que se sente corrigido defende a posicao; um aluno
+  # que se sente ouvido examina a propria premissa. E o que faz a refutacao
+  # socratica ser examinada em vez de aceita por autoridade.
+  validation:
+    misconception: >-
+      Sua resposta nao foi aleatoria. Ela segue de uma ideia coerente:
+      {belief} Muita gente boa em programacao pensa assim, e o motivo de
+      pensar assim quase sempre e razoavel. Vamos examinar de onde ela vem.
+    gap: >-
+      Ate aqui voce nao afirmou nada errado. O que aparece e uma peca que
+      ainda nao foi colocada, nao um engano. Vamos coloca-la.
+    unknown: >-
+      Este topico ainda nao foi construido com voce. Nao ha o que corrigir:
+      ha o que montar, do comeco.
+
+  # ETAPA 2 — CONTRADICAO
+  #
+  # Apresentada no momento em que o traversal chega ao no que a crenca
+  # nega, e nao antes. O aluno ja confirmou as premissas; a contradicao e
+  # entre coisas que ELE afirmou, nao entre ele e o sistema.
+  contradiction:
+    template: >-
+      Repare no que voce ja confirmou: {support} E, antes, voce respondeu
+      partindo de que {belief} As duas coisas nao podem valer ao mesmo
+      tempo. Qual delas voce sustenta?
+    without_belief: >-
+      Repare no que voce ja confirmou: {support} O passo seguinte decorre
+      disso — e so disso.
+
+  # ETAPA 3 — RECONSTRUCAO
+  #
+  # No fecho. Nao repete a conclusao: diz de onde ela veio. E a diferenca
+  # entre "a resposta certa e X" e "voce chegou a X, e foi por aqui".
+  reconstruction:
+    socratic: >-
+      Repare no caminho: {conclusion} Isso nao lhe foi dito. Cada premissa
+      dessa cadeia foi uma resposta sua, e a conclusao veio delas.
+    direct: >-
+      Repare no caminho: {conclusion} Cada passo apoia o seguinte, e nenhum
+      deles precisa ser decorado: eles decorrem uns dos outros.
+    after_correction: >-
+      A ideia que voce trazia no comeco deste topico levava a outro lugar.
+      Compare com o que a cadeia acima sustenta.

@@ -197,6 +197,13 @@ input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px
 .banner.warn { background: var(--warn-bg); border-color: var(--rule-2); }
 .banner b { color: var(--ink); }
 
+/* O feedback do RF17 vem com quebra de parágrafo entre a reconstrução e a
+ * nota de correção. Sem isto o 
+
+ vira um espaço e os dois blocos
+ * colam num parágrafo só. */
+#passo-feedback, #conc-feedback { white-space: pre-line; }
+
 .term {
   display: inline-block; font-weight: 700; font-size: 18px;
   padding: 4px 12px; border-radius: 6px;
