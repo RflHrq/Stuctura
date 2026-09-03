@@ -240,7 +240,7 @@ visual:
   kind: memory_diagram
   regions: [stack, literais]
   show:
-    - "t: 4 caixas de char na stack, com copia de a b c  "
+    - "t: 4 caixas de char na stack, com copia de a b c \0"
     - "s: uma caixa de ponteiro na stack, com seta para o literal"
 ```
 
