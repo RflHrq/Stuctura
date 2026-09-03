@@ -19,7 +19,7 @@
 # `kind`:
 #   foundational   nega um nó BASE. Não há premissa anterior para
 #                  confrontá-lo: exige confronto visual antes do traversal
-#                  (RF08). São 4 no catálogo.
+#                  (RF08). São 3 no catálogo: KC 1, KC 4 e KC 7.
 #   derivational   nega um nó de INFERÊNCIA. O traversal se resolve com as
 #                  respostas do próprio aluno.
 #
@@ -145,11 +145,14 @@ misconceptions:
     grade: N
     provenance: "CERT C EXP34-C; CWE-476 NULL Pointer Dereference"
     note: >-
-      CONFLITO DE FONTE A RESOLVER. O documento de grafos marca este item
-      como grau E (hipótese sem fonte) e o descreve como "único item sem
-      fonte no conjunto"; o protótipo e a tabela do dossiê o marcam como
-      grau N. A diferença é material: grau N é norma técnica, grau E é
-      hipótese. Decidir antes da defesa e alinhar os três documentos.
+      HISTÓRICO DE PROVENIÊNCIA, resolvido. O documento de grafos marca
+      este item como grau E ("único item sem fonte no conjunto"), mas é a
+      versão de 37 crenças, anterior à consolidação; o dossiê, posterior,
+      declara E=0 e 34 de 34 ancoradas. Grau N prevalece.
+      PENDÊNCIA MENOR: o dossiê define N como "o erro está catalogado
+      (CERT C, CWE)" sem nomear quais para este item. EXP34-C e CWE-476
+      são a reconstrução mais óbvia, não uma citação verificada —
+      conferir antes da defesa.
 
   # ---- KC 6 --------------------------------------------------------
   function_gets_original:
@@ -246,10 +249,10 @@ misconceptions:
     grade: L
     provenance: "FAQ comp.lang.c §4.6, §4.13"
     note: >-
-      CONFLITO DE NOME A RESOLVER. O documento de grafos atribui o ataque
-      a kc_11:I5 a `voidptr_is_universal`, não a `voidptr_arith_ok`. O
-      protótipo trata os dois como crenças distintas (kc_02:I3 e kc_11:I5).
-      Se forem a mesma crença, o catálogo tem 33 itens, não 34.
+      RESOLVIDO: são duas crenças distintas. A contagem por KC do dossiê
+      §2.3 fecha em 34 exatamente com esta separação (KC 2 = 4 crenças,
+      KC 11 = 2). O documento de grafos, que atribuía os dois ataques a
+      `voidptr_is_universal`, é a versão anterior de 37 crenças.
 
   # ---- KC 8 --------------------------------------------------------
   malloc_always_succeeds:
@@ -373,9 +376,9 @@ misconceptions:
     grade: T
     provenance: "Sorva (2012), p. 359, item 5 (du Boulay 1986), por transposição"
     note: >-
-      CONFLITO DE FONTE A RESOLVER. O documento de grafos marca este item
-      como grau E (hipótese, opcional); o protótipo e a tabela do dossiê o
-      marcam como grau T. Decidir antes da defesa.
+      RESOLVIDO pelo mesmo argumento de `null_is_safe_to_deref`: o grau E
+      vem da versão de 37 crenças; o dossiê, posterior, declara E=0.
+      Grau T prevalece.
     analogy: >-
       Transposição declarada: o aluno confunde a palavra-chave que altera
       duração com uma que altera visibilidade.

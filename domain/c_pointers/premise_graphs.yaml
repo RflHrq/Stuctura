@@ -157,10 +157,12 @@ graphs:
     B2:
       type: base
       text: "O valor de x é copiado para essa variável."
-    B3:
-      type: base
-      imports: kc_01.B2
-      text: "Locais de f morrem no retorno."
+    # B3 ("Locais de f morrem no retorno", importado de kc_01.B2) foi
+    # REMOVIDO. Evidência: (a) o dossiê §2.3 conta 7 nós no KC 6 e os
+    # outros 11 KCs batem exatamente, sobrando um; (b) nenhum nó do
+    # domínio o referencia; (c) nenhum plano de refutação o percorre.
+    # O documento de grafos, que o listava, é a versão de 37 crenças —
+    # anterior à consolidação em 34.
     I1:
       type: inference
       support: [B1, B2]
