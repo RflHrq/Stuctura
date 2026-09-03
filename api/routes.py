@@ -33,6 +33,10 @@ class NewSession(BaseModel):
     participant: str = Field(min_length=1, max_length=32)
     arm: str
     kc_sequence: list[str] | None = None
+    # Sem padrão: consentimento é ato do participante e alocação é decisão
+    # do pesquisador. Um default aqui grava algo que ninguém declarou.
+    consented: bool = False
+    prior_c: str | None = None
 
 
 class AnswerBody(BaseModel):
@@ -94,7 +98,8 @@ def criar_sessao(body: NewSession, dep=Depends(ctx)):
     domain, conn = dep
     try:
         vista = service.create_session(
-            conn, domain, body.participant, body.arm, body.kc_sequence
+            conn, domain, body.participant, body.arm, body.kc_sequence,
+            consented=body.consented, prior_c=body.prior_c,
         )
     except Exception as exc:
         raise _erro(exc) from exc
@@ -244,6 +249,8 @@ def health(dep=Depends(ctx)):
         # A escala vem daqui para a interface: um <button> por nível, sem
         # que o cliente carregue uma cópia que possa divergir de study.yaml.
         "confidence_scale": list(domain.study.confidence_scale),
+        "prior_c_options": list(domain.study.prior_c_options),
+        "consent_text": domain.study.consent_text,
         "sessions": total,
     }
 

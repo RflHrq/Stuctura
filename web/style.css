@@ -197,11 +197,8 @@ input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px
 .banner.warn { background: var(--warn-bg); border-color: var(--rule-2); }
 .banner b { color: var(--ink); }
 
-/* O feedback do RF17 vem com quebra de parágrafo entre a reconstrução e a
- * nota de correção. Sem isto o 
-
- vira um espaço e os dois blocos
- * colam num parágrafo só. */
+/* O feedback do RF17 traz quebra de paragrafo entre a reconstrucao e a
+ * nota de correcao. Sem pre-line as duas colam num paragrafo so. */
 #passo-feedback, #conc-feedback { white-space: pre-line; }
 
 .term {
@@ -259,6 +256,14 @@ svg.mem { width: 100%; height: auto; display: block; }
 .order-item button:disabled { opacity: .3; cursor: not-allowed; }
 
 /* ---------------------------------------------------------------- rodapé */
+
+.consent {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 14px; color: var(--ink-2); line-height: 1.5;
+  border: 1px solid var(--rule-2); border-radius: 8px; padding: 12px 14px;
+  cursor: pointer;
+}
+.consent input { margin-top: 3px; flex: none; width: 17px; height: 17px; }
 
 .foot { font-size: 13px; color: var(--mute); text-align: center; margin-top: 26px; }
 .hidden { display: none !important; }

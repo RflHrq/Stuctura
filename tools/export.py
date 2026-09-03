@@ -134,7 +134,15 @@ def linhas_answers(d: Domain, sessao: dict, eventos: Sequence[store_events.Event
             "targets": "|".join(ciu.targets) if ciu else "",
             "option_idx": "" if idx is None else idx,
             "option_text": opcao.text if opcao else "",
-            "response_text": json.dumps(texto, ensure_ascii=False) if texto else "",
+            # Texto cru, não JSON. `json.dumps` embrulhava a resposta em
+            # aspas — o analista veria `"*(a + i)"` em vez de `*(a + i)` —
+            # e, pior, escondia o `=` inicial de `neutraliza`, que então
+            # deixava passar uma fórmula. Só a ordenação (uma lista) vira
+            # JSON, porque não tem representação plana.
+            "response_text": (
+                texto if isinstance(texto, str)
+                else json.dumps(texto, ensure_ascii=False) if texto else ""
+            ),
             "correct": 1 if p.get("correct") else 0,
             "confidence": p.get("confidence", ""),
             "elapsed_ms": p.get("elapsed_ms", ""),
@@ -293,6 +301,27 @@ def linhas_calibration(d: Domain, sessao: dict, eventos: Sequence[store_events.E
 # Escrita
 # --------------------------------------------------------------------------
 
+# Caracteres com que uma celula NAO pode comecar num CSV que sera aberto
+# em planilha. Excel e LibreOffice tratam esses inicios como formula.
+_PERIGOSOS = ("=", "+", "-", "@", chr(9), chr(13))
+
+
+def neutraliza(valor: Any) -> Any:
+    """Impede que uma resposta livre vire formula na planilha.
+
+    As CIUs de lacuna aceitam texto do participante. Um aluno que escreva
+    `=1+1` — ou algo pior — teria isso EXECUTADO quando o pesquisador
+    abrisse answers.csv. Nao e hipotetico: e o vetor de injecao de formula
+    em CSV, e aqui o texto livre vai direto do teclado dele para a planilha.
+
+    O prefixo apostrofo e a mitigacao padrao: a planilha mostra o texto e
+    nao o avalia. O dado original continua intacto no log, que e a fonte.
+    """
+    if isinstance(valor, str) and valor.startswith(_PERIGOSOS):
+        return "'" + valor
+    return valor
+
+
 def escreve(caminho: Path, colunas: Sequence[str], linhas: Iterable[dict]) -> int:
     caminho.parent.mkdir(parents=True, exist_ok=True)
     # utf-8-sig: o Excel em português abre acento certo sem perguntar nada.
@@ -301,7 +330,7 @@ def escreve(caminho: Path, colunas: Sequence[str], linhas: Iterable[dict]) -> in
         w.writeheader()
         total = 0
         for linha in linhas:
-            w.writerow(linha)
+            w.writerow({k: neutraliza(v) for k, v in linha.items()})
             total += 1
     return total
 

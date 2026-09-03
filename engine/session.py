@@ -140,6 +140,10 @@ class SessionState:
 
     # Encerramento
     kc_status: Mapping[str, str] = field(default_factory=dict)
+    # Soma dos `elapsed_ms` que o aluno gastou nas telas. NAO e a diferenca
+    # entre carimbos de tempo: uma pausa para o pesquisador falar, ou a aba
+    # aberta durante o intervalo, nao entram. E o que o §8 quer parear.
+    total_ms: int = 0
 
     @property
     def kc(self) -> str | None:
@@ -181,6 +185,9 @@ def start(domain: Domain, arm: str, kc_sequence: Sequence[str]) -> Transition:
 
 def advance(domain: Domain, state: SessionState, event: Event) -> Transition:
     """(estado, evento) -> (estado, ação, eventos). Único ponto de decisão."""
+    # O tempo se acumula das ENTRADAS, não de um relógio: a FSM continua
+    # pura e a sessão retomada soma exatamente o mesmo total.
+    state = replace(state, total_ms=state.total_ms + max(0, event.elapsed_ms))
     if state.phase == DIAGNOSTICO:
         if not isinstance(event, Answer):
             raise ValueError("DIAGNOSTICO espera Answer, veio %s" % type(event).__name__)
@@ -707,7 +714,7 @@ def _encerra(domain: Domain, state: SessionState) -> Transition:
     completos = sum(1 for s in state.kc_status.values() if s == COMPLETO)
     evento = Emit("session_ended", {
         "reason": "concluida" if completos == len(state.kc_sequence) else "parcial",
-        "total_ms": 0,
+        "total_ms": state.total_ms,
         "kc_status": dict(state.kc_status),
     })
     acao = Action("done", data={

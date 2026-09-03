@@ -143,10 +143,23 @@ def add_participant(
     arm: str,
     prior_c: str | None = None,
     *,
+    consented: bool = True,
     clock: Clock = utc_now,
 ) -> None:
+    """Registra o participante. `consent_at` so e gravado com consentimento.
+
+    A coluna e NOT NULL desde o §5.1, entao um participante sem
+    consentimento simplesmente nao entra. E o comportamento certo: um
+    banco que AFIRMA consentimento sem que ele tenha sido dado e pior do
+    que um que nao o registra, e e o primeiro item que um comite de etica
+    verifica.
+    """
     if arm not in ARMS:
         raise EventError("arm invalido: %r; esperado um de %s" % (arm, ARMS))
+    if not consented:
+        raise EventError(
+            "participante %s sem consentimento: nada e gravado" % code
+        )
     conn.execute(
         "INSERT INTO participants (code, arm, prior_c, consent_at) VALUES (?,?,?,?)",
         (code, arm, prior_c, clock()),

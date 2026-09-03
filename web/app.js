@@ -28,6 +28,7 @@
     sessao: null,
     acao: null,
     escala: [],
+    prior: null,        // experiência prévia declarada (§4.3)
     escolha: null,       // índice da alternativa, texto, ordem ou rótulo
     confianca: null,
     inicio: 0,           // marca de tempo do início da tela atual
@@ -81,10 +82,9 @@
     try { salvo = localStorage.getItem("structura.codigo"); } catch (e) {}
     if (salvo) $("codigo").value = salvo;
 
-    $("codigo").addEventListener("input", function () {
-      $("btn-comecar").disabled = !$("codigo").value.trim();
-    });
-    $("btn-comecar").disabled = !$("codigo").value.trim();
+    $("codigo").addEventListener("input", habilitaComecar);
+    $("consent").addEventListener("change", habilitaComecar);
+    habilitaComecar();
 
     // O braço é escolha do PESQUISADOR, não do participante: fica atrás de
     // um clique para não sugerir ao aluno que existem duas versões.
@@ -97,6 +97,7 @@
         Array.prototype.forEach.call($("braco-opts").children, function (o) {
           o.setAttribute("aria-pressed", String(o === b));
         });
+        habilitaComecar();
       };
     });
 
@@ -106,16 +107,50 @@
     });
   }
 
+  /* Nada começa sem código, experiência declarada, consentimento marcado
+   * E braço escolhido. Os quatro são dados que a análise precisa e que
+   * ninguém pode assumir por outro: alocação é do pesquisador,
+   * consentimento é do participante, experiência é a estratificação. */
+  function habilitaComecar() {
+    $("btn-comecar").disabled = !(
+      $("codigo").value.trim() && S.prior && S.braco && $("consent").checked
+    );
+  }
+
+  function montaAbertura(h) {
+    $("consent-texto").textContent = h.consent_text || "";
+    var caixa = $("prior-opts");
+    caixa.innerHTML = "";
+    (h.prior_c_options || []).forEach(function (op) {
+      var b = document.createElement("button");
+      b.className = "conf-opt";
+      b.textContent = op;
+      b.setAttribute("aria-pressed", "false");
+      b.onclick = function () {
+        S.prior = op;
+        Array.prototype.forEach.call(caixa.children, function (x) {
+          x.setAttribute("aria-pressed", String(x === b));
+        });
+        habilitaComecar();
+      };
+      caixa.appendChild(b);
+    });
+  }
+
   async function comecar() {
     limpaErro("erro-abertura");
     var codigo = $("codigo").value.trim();
     $("btn-comecar").disabled = true;
     try {
-      // Sem braço escolhido, o servidor recusa — a alocação é deliberada,
-      // nunca um padrão silencioso.
+      // Sem braço, o servidor recusa: a alocação é deliberada, nunca um
+      // padrão silencioso. O botão já garante que os quatro campos
+      // existem; mandar mesmo assim o que o usuário escolheu, sem
+      // fallback, é o que impede um default de virar dado.
       var j = await api("POST", "/sessions", {
         participant: codigo,
-        arm: S.braco || "socratic"
+        arm: S.braco,
+        prior_c: S.prior,
+        consented: $("consent").checked
       });
       try { localStorage.setItem("structura.codigo", codigo); } catch (e) {}
       aplica(j);
@@ -533,6 +568,7 @@
     try {
       var h = await api("GET", "/health");
       S.escala = h.confidence_scale || [];
+      montaAbertura(h);
       $("meta").innerHTML = "domínio <b>" + h.domain_hash.slice(7, 15) + "</b>";
     } catch (e) {
       erroEm("erro-abertura", "servidor fora do ar: " + e.message);

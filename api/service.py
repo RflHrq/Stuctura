@@ -30,7 +30,7 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Any, Mapping
 
-from engine import model, session as fsm
+from engine import model, session as fsm, strategy
 from engine.loader import Domain
 from store import events as store_events
 from store import projections
@@ -108,18 +108,43 @@ def create_session(
     participant: str,
     arm: str,
     kc_sequence: list[str] | None = None,
+    consented: bool = False,
+    prior_c: str | None = None,
 ) -> SessionView:
-    """Cria participante (se novo), sessão e primeira ação."""
+    """Cria participante (se novo), sessão e primeira ação.
+
+    `arm` e `consented` não têm padrão de propósito. A alocação é decisão
+    do pesquisador e o consentimento é do participante: qualquer valor
+    assumido em silêncio aqui vira um dado que ninguém declarou.
+    """
     sequencia = tuple(kc_sequence or domain.pilot_sequence)
     if not sequencia:
         raise ValueError("sem sequência de KCs: study.yaml define pilot_sequence")
+    if arm not in strategy.ARMS:
+        raise ValueError(
+            "braço %r inválido; a alocação tem de ser explícita, um de %s"
+            % (arm, list(strategy.ARMS))
+        )
 
     existe = conn.execute(
         "SELECT arm FROM participants WHERE code = ?", (participant,)
     ).fetchone()
 
     if existe is None:
-        store_events.add_participant(conn, participant, arm)
+        if not consented:
+            raise ValueError(
+                "o participante %s ainda não consentiu; nada é gravado" % participant
+            )
+        opcoes = domain.study.prior_c_options
+        if opcoes and prior_c not in opcoes:
+            # É a variável de estratificação do §4.3. Perdê-la significa
+            # não conseguir mostrar que os grupos ficaram equilibrados.
+            raise ValueError(
+                "experiência prévia %r fora das opções declaradas: %s"
+                % (prior_c, list(opcoes))
+            )
+        store_events.add_participant(conn, participant, arm, prior_c,
+                                     consented=True)
     elif existe["arm"] != arm:
         # A alocação é feita uma vez e não muda: trocar de braço no meio da
         # coleta contaminaria a comparação. Este teste vem ANTES da retomada

@@ -60,6 +60,30 @@ max_attempts_per_node: 3
 diagnostic_policy: all
 max_diagnostics_per_kc: 3
 
+# Experiência prévia declarada (§4.3).
+#
+# É a variável de ESTRATIFICAÇÃO da alocação aleatória. Sem coletá-la, a
+# estratificação não pode ser conferida na análise: fica-se com dois
+# grupos que se supõe equilibrados, sem dado para mostrar que estão.
+#
+# As opções são instrumento; ajuste à realidade da UFV–CRP.
+prior_c_options:
+  - "nunca programei em C"
+  - "cursei uma disciplina com C"
+  - "estou cursando agora"
+  - "uso C fora da disciplina"
+
+# Texto do consentimento apresentado antes de qualquer coleta.
+#
+# O banco tem `consent_at NOT NULL` desde o §5.1, mas até aqui o carimbo
+# era gravado quando o participante apenas digitava um código. Um banco
+# que afirma consentimento sem que ele tenha sido dado é pior do que um
+# que não o registra.
+consent_text: >-
+  Concordo em participar. Entendo que minhas respostas serão registradas
+  de forma anônima, identificadas apenas pelo código acima, e usadas na
+  pesquisa. Posso interromper a qualquer momento, sem justificativa.
+
 # Escala de confiança declarada (RF02, RF04). Só o primeiro valor tem
 # efeito no §7.3: errar com ele marca a premissa ausente, não errada.
 confidence_scale: [chutei, "acho que sei", "tenho certeza"]

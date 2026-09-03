@@ -247,6 +247,8 @@ class Study:
     diagnostic_policy: str = "all"
     max_diagnostics_per_kc: int = 3
     confidence_scale: tuple[str, ...] = ()
+    prior_c_options: tuple[str, ...] = ()
+    consent_text: str = ""
 
     @property
     def guessed(self) -> str:
@@ -398,6 +400,8 @@ def _load_study(path: str | Path | None, kcs: Mapping[str, KC],
         diagnostic_policy=dados.get("diagnostic_policy", "all"),
         max_diagnostics_per_kc=int(dados.get("max_diagnostics_per_kc", 3)),
         confidence_scale=tuple(dados.get("confidence_scale") or ()),
+        prior_c_options=tuple(dados.get("prior_c_options") or ()),
+        consent_text=(dados.get("consent_text") or "").strip(),
     )
 
 

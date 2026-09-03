@@ -31,10 +31,14 @@ def client(tmp_path, monkeypatch):
         yield c
 
 
+PRIOR_C = "cursei uma disciplina com C"
+
+
 def abre(client, participante="P01", arm="socratic", kcs=None):
     r = client.post("/sessions", json={
         "participant": participante, "arm": arm,
         "kc_sequence": kcs or ["kc_09"],
+        "consented": True, "prior_c": PRIOR_C,
     })
     assert r.status_code == 200, r.text
     return r.json()
@@ -387,3 +391,91 @@ def test_sessao_encerrada_nao_e_retomada(client):
     avanca_ate_o_fim(client, primeira["session_id"], primeira, d)
     segunda = abre(client, "P23")
     assert segunda["session_id"] != primeira["session_id"]
+
+
+# --------------------------------------------------------------------------
+# Consentimento, estratificação e alocação — o que o §4.3 exige
+# --------------------------------------------------------------------------
+
+def test_sem_consentimento_nada_e_gravado(client):
+    """O banco tem `consent_at NOT NULL` desde o §5.1. Gravar o carimbo
+    porque o participante digitou um código seria afirmar consentimento
+    que ninguém deu — e é o primeiro item que um comitê de ética verifica.
+    """
+    r = client.post("/sessions", json={
+        "participant": "PSC", "arm": "socratic", "prior_c": PRIOR_C})
+    assert r.status_code == 400
+    assert "consent" in r.text.lower()
+
+    conn = store_events.connect(client.app.state.db_path)
+    try:
+        linhas = conn.execute(
+            "SELECT * FROM participants WHERE code = 'PSC'").fetchall()
+        assert linhas == []
+    finally:
+        conn.close()
+
+
+def test_experiencia_previa_e_obrigatoria_e_validada(client):
+    """É a variável de estratificação do §4.3: sem ela não se mostra que
+    os grupos ficaram equilibrados."""
+    r = client.post("/sessions", json={
+        "participant": "PEX", "arm": "socratic", "consented": True})
+    assert r.status_code == 400
+
+    r = client.post("/sessions", json={
+        "participant": "PEX", "arm": "socratic", "consented": True,
+        "prior_c": "sei tudo"})
+    assert r.status_code == 400
+
+
+def test_experiencia_previa_chega_ao_banco(client):
+    abre(client, "PEV")
+    conn = store_events.connect(client.app.state.db_path)
+    try:
+        linha = conn.execute(
+            "SELECT prior_c, consent_at FROM participants WHERE code = 'PEV'"
+        ).fetchone()
+        assert linha["prior_c"] == PRIOR_C
+        assert linha["consent_at"]
+    finally:
+        conn.close()
+
+
+def test_braco_tem_de_ser_explicito(client):
+    """A alocação é decisão do pesquisador. Um padrão silencioso alocaria
+    o participante sem que ninguém tivesse decidido."""
+    for arm in ("", "socratico", "A", None):
+        r = client.post("/sessions", json={
+            "participant": "PBR", "arm": arm, "consented": True,
+            "prior_c": PRIOR_C})
+        assert r.status_code in (400, 422), arm
+
+
+def test_health_expoe_o_instrumento_para_a_interface(client):
+    j = client.get("/health").json()
+    assert j["confidence_scale"] and j["prior_c_options"] and j["consent_text"]
+
+
+def test_total_ms_da_sessao_nao_e_zero(client):
+    """`session_ended.total_ms` era zero fixo: o log afirmava que toda
+    sessão durou nada."""
+    from engine.loader import load
+    d = load()
+    j = abre(client, "PTM")
+    sid = j["session_id"]
+    avanca_ate_o_fim(client, sid, j, d)
+
+    conn = store_events.connect(client.app.state.db_path)
+    try:
+        fim = store_events.read(conn, sid, types=["session_ended"])[0]
+        gastos = sum(
+            int(e.payload.get("elapsed_ms") or 0)
+            for e in store_events.read(conn, sid)
+            if e.type in ("answer_submitted", "socratic_step_answered",
+                          "explanation_acknowledged", "stage_acknowledged")
+        )
+        assert fim.payload["total_ms"] > 0
+        assert fim.payload["total_ms"] == gastos
+    finally:
+        conn.close()
