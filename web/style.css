@@ -1,0 +1,258 @@
+/* Structura — interface do piloto.
+ *
+ * OFFLINE (RNF05): nenhuma fonte, folha ou script vem de fora. A pilha de
+ * fontes é de sistema de propósito — um @import de Google Fonts faria a
+ * interface degradar quando o laboratório estiver sem rede, que é
+ * justamente a condição em que ela precisa funcionar.
+ *
+ * IDÊNTICA NOS DOIS BRAÇOS (§8.1): cores, tipografia e espaçamento não
+ * mudam entre socrático e direto. Não existe seletor de braço neste
+ * arquivo, e isso é intencional — se um dia existir, a estética vira
+ * variável confundida.
+ */
+
+:root {
+  --paper:   #f7f7f4;
+  --card:    #ffffff;
+  --sunk:    #eeeeea;
+  --ink:     #16181a;
+  --ink-2:   #414850;
+  --mute:    #6b737b;
+  --rule:    #e0e0da;
+  --rule-2:  #c3c6c0;
+  --accent:  #22566e;
+  --accent-bg: #dfeaef;
+  --ok:      #1b6647;
+  --ok-bg:   #dfefe7;
+  --bad:     #94372a;
+  --bad-bg:  #f7e5e1;
+  --warn-bg: #f6eddb;
+  --shadow:  0 1px 2px rgba(22,24,26,.05), 0 10px 26px -20px rgba(22,24,26,.45);
+  --radius:  10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #111315; --card: #191c1e; --sunk: #212427;
+    --ink: #eaecee; --ink-2: #bdc4c9; --mute: #889197;
+    --rule: #282c2f; --rule-2: #3b4146;
+    --accent: #79b8ce; --accent-bg: #132831;
+    --ok: #61c398; --ok-bg: #112a20;
+    --bad: #e08c7c; --bad-bg: #31201c;
+    --warn-bg: #2e2313;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 10px 26px -20px rgba(0,0,0,.9);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+code, pre, .mono {
+  font-family: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas,
+               "Liberation Mono", monospace;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.wrap { max-width: 780px; margin: 0 auto; padding: 24px 20px 80px; }
+
+header.top {
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 14px 20px; border-bottom: 1px solid var(--rule);
+  background: var(--card); position: sticky; top: 0; z-index: 5;
+}
+header.top .brand { font-weight: 650; letter-spacing: -.01em; }
+header.top .meta { margin-left: auto; font-size: 13px; color: var(--mute); }
+header.top .meta b { color: var(--ink-2); font-weight: 600; }
+
+.card {
+  background: var(--card); border: 1px solid var(--rule);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 22px 24px; margin-bottom: 18px;
+}
+
+h1 { font-size: 24px; margin: 0 0 6px; letter-spacing: -.02em; }
+h2 { font-size: 18px; margin: 0 0 14px; letter-spacing: -.01em; }
+p  { margin: 0 0 12px; color: var(--ink-2); }
+.lead { font-size: 15px; }
+
+.label {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--mute); font-weight: 600; margin-bottom: 8px;
+}
+
+/* --------------------------------------------------------------- código */
+
+pre.code {
+  background: var(--sunk); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 14px 16px; margin: 0 0 16px;
+  font-size: 14px; line-height: 1.5; overflow-x: auto;
+  white-space: pre; color: var(--ink);
+}
+
+.question { font-size: 17px; color: var(--ink); margin: 0 0 16px; font-weight: 500; }
+
+/* ------------------------------------------------------------ opções */
+
+.opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+
+button.opt {
+  text-align: left; width: 100%; cursor: pointer;
+  background: var(--card); color: var(--ink);
+  border: 1px solid var(--rule-2); border-radius: 8px;
+  padding: 12px 14px; font: inherit; font-size: 15px;
+  transition: border-color .12s, background .12s;
+}
+button.opt:hover { border-color: var(--accent); }
+button.opt[aria-pressed="true"] {
+  border-color: var(--accent); background: var(--accent-bg);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* Coleta de confiança ANTES da submissão (RF02). O botão de confirmar só
+ * habilita com alternativa E confiança escolhidas: sem a confiança, a
+ * resposta não distingue lacuna de crença (§7.3) e o dado nasce inútil. */
+.conf { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+button.conf-opt {
+  cursor: pointer; background: var(--card); color: var(--ink-2);
+  border: 1px solid var(--rule-2); border-radius: 999px;
+  padding: 7px 16px; font: inherit; font-size: 14px;
+}
+button.conf-opt[aria-pressed="true"] {
+  border-color: var(--accent); background: var(--accent-bg); color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- botões */
+
+button.btn {
+  cursor: pointer; font: inherit; font-size: 15px; font-weight: 600;
+  background: var(--accent); color: var(--card);
+  border: 1px solid var(--accent); border-radius: 8px; padding: 11px 22px;
+}
+@media (prefers-color-scheme: dark) { button.btn { color: #0e1719; } }
+button.btn:disabled { opacity: .4; cursor: not-allowed; }
+button.btn.ghost {
+  background: transparent; color: var(--ink-2); border-color: var(--rule-2);
+}
+.actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+input[type="text"] {
+  font: inherit; padding: 10px 12px; width: 100%;
+  border: 1px solid var(--rule-2); border-radius: 8px;
+  background: var(--card); color: var(--ink);
+}
+input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ------------------------------------------------------------- traversal */
+
+.progress { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.progress .bar {
+  flex: 1; height: 4px; background: var(--sunk); border-radius: 2px; overflow: hidden;
+}
+.progress .bar > i { display: block; height: 100%; background: var(--accent); }
+.progress .count { font-size: 13px; color: var(--mute); white-space: nowrap; }
+
+/* O contador reinicia entre rodadas de correção. A nota explica isso: sem
+ * ela o aluno acha que voltou ao começo. */
+.round-note { font-size: 13px; color: var(--mute); margin: -8px 0 14px; }
+
+.node-kind {
+  display: inline-block; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .07em; font-weight: 700; padding: 3px 8px;
+  border-radius: 4px; background: var(--sunk); color: var(--mute);
+  margin-bottom: 10px;
+}
+
+.steps { margin-top: 22px; border-top: 1px solid var(--rule); padding-top: 14px; }
+.step-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 6px 0; font-size: 14px; color: var(--mute);
+}
+.step-row .n {
+  flex: none; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--sunk); color: var(--mute);
+  display: grid; place-items: center; font-size: 12px; font-weight: 700;
+}
+.step-row.done { color: var(--ink-2); }
+.step-row.done .n { background: var(--ok-bg); color: var(--ok); }
+.step-row.cur { color: var(--ink); font-weight: 500; }
+.step-row.cur .n { background: var(--accent); color: var(--card); }
+
+/* --------------------------------------------------------------- avisos */
+
+.banner {
+  border-radius: 8px; padding: 14px 16px; margin-bottom: 16px;
+  border: 1px solid var(--rule-2); background: var(--sunk); font-size: 15px;
+}
+.banner.ok   { background: var(--ok-bg);   border-color: var(--ok);   }
+.banner.bad  { background: var(--bad-bg);  border-color: var(--bad);  }
+.banner.warn { background: var(--warn-bg); border-color: var(--rule-2); }
+.banner b { color: var(--ink); }
+
+.term {
+  display: inline-block; font-weight: 700; font-size: 18px;
+  padding: 4px 12px; border-radius: 6px;
+  background: var(--accent-bg); color: var(--accent);
+}
+
+/* --------------------------------------------------------------- diagrama */
+
+.diagram-card { padding: 18px 20px; }
+.diagram-toggle { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+button.state-btn {
+  cursor: pointer; font: inherit; font-size: 14px;
+  background: var(--card); color: var(--ink-2);
+  border: 1px solid var(--rule-2); border-radius: 6px; padding: 6px 14px;
+}
+button.state-btn[aria-pressed="true"] {
+  background: var(--accent); color: var(--card); border-color: var(--accent);
+  font-weight: 600;
+}
+@media (prefers-color-scheme: dark) {
+  button.state-btn[aria-pressed="true"] { color: #0e1719; }
+}
+.diagram-caption { font-size: 14px; color: var(--mute); margin-top: 10px; }
+svg.mem { width: 100%; height: auto; display: block; }
+
+/* ---------------------------------------------------------------- passos */
+
+.path-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.path-card {
+  border: 1px solid var(--rule-2); border-radius: 8px; padding: 12px 14px;
+  cursor: pointer; background: var(--card); text-align: left; width: 100%;
+  font: inherit;
+}
+.path-card[aria-pressed="true"] {
+  border-color: var(--accent); background: var(--accent-bg);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.path-card .plabel { font-weight: 700; margin-bottom: 6px; color: var(--ink); }
+.path-card ol { margin: 0; padding-left: 20px; color: var(--ink-2); font-size: 14px; }
+
+.order-list { list-style: none; margin: 0 0 20px; padding: 0; }
+.order-item {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--rule-2); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 8px; background: var(--card);
+}
+.order-item .txt { flex: 1; font-size: 15px; }
+.order-item button {
+  cursor: pointer; font: inherit; font-size: 13px; line-height: 1;
+  border: 1px solid var(--rule-2); background: var(--sunk); color: var(--ink-2);
+  border-radius: 5px; padding: 5px 8px;
+}
+.order-item button:disabled { opacity: .3; cursor: not-allowed; }
+
+/* ---------------------------------------------------------------- rodapé */
+
+.foot { font-size: 13px; color: var(--mute); text-align: center; margin-top: 26px; }
+.hidden { display: none !important; }
+.err { color: var(--bad); font-size: 14px; margin-top: 10px; }

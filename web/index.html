@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structura</title>
+<!-- Tudo local (RNF05): nenhuma folha, fonte ou script vem de fora. -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <span class="brand">Structura</span>
+  <span class="meta" id="meta"></span>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ 1. Abertura ============ -->
+  <section id="tela-abertura" class="card">
+    <h1>Sessão de estudo sobre ponteiros em C</h1>
+    <p class="lead">
+      Você vai responder algumas atividades curtas. Não é prova e não vale
+      nota: o objetivo é entender <em>como</em> as pessoas pensam sobre
+      ponteiros, não medir quem sabe mais.
+    </p>
+    <p class="lead">
+      Em cada atividade, além de escolher a resposta, você vai indicar
+      quanta confiança tem nela. Essa segunda parte é tão importante quanto
+      a primeira — responda com sinceridade, inclusive quando for chute.
+    </p>
+
+    <div class="label" style="margin-top:22px">Código de participante</div>
+    <p style="font-size:14px">
+      É o código que você recebeu (por exemplo, <code>P07</code>). Se a aba
+      fechar por acidente, digite o mesmo código para voltar de onde parou.
+    </p>
+    <input type="text" id="codigo" autocomplete="off" spellcheck="false"
+           placeholder="P07" maxlength="32">
+
+    <div id="bloco-braco" class="hidden">
+      <div class="label" style="margin-top:18px">Braço (uso do pesquisador)</div>
+      <div class="conf" id="braco-opts">
+        <button class="conf-opt" data-arm="socratic" aria-pressed="false">socrático</button>
+        <button class="conf-opt" data-arm="direct" aria-pressed="false">direto</button>
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:18px">
+      <button class="btn" id="btn-comecar" disabled>Começar</button>
+      <button class="btn ghost" id="btn-braco">Definir braço</button>
+    </div>
+    <div class="err hidden" id="erro-abertura"></div>
+  </section>
+
+  <!-- ============ 2. Atividade (CIU) ============ -->
+  <section id="tela-ciu" class="card hidden">
+    <div class="label" id="ciu-fase">Atividade</div>
+    <pre class="code hidden" id="ciu-code"></pre>
+    <p class="question" id="ciu-pergunta"></p>
+
+    <div id="ciu-corpo"></div>
+
+    <div class="label">Antes de confirmar: quanta confiança você tem nessa resposta?</div>
+    <div class="conf" id="ciu-conf"></div>
+
+    <div class="actions">
+      <button class="btn" id="btn-responder" disabled>Confirmar resposta</button>
+    </div>
+    <div class="err hidden" id="erro-ciu"></div>
+  </section>
+
+  <!-- ============ 3. Confronto visual ============ -->
+  <section id="tela-diagrama" class="card hidden">
+    <h2>Antes de continuar, olhe</h2>
+    <div class="banner" id="diag-crenca"></div>
+    <p id="diag-instrucao"></p>
+    <div id="diag-alvo"></div>
+    <div class="actions" style="margin-top:16px">
+      <button class="btn" id="btn-diagrama">Já comparei. Continuar</button>
+    </div>
+  </section>
+
+  <!-- ============ 4. Passo do traversal (ask | explain) ============ -->
+  <section id="tela-passo" class="card hidden">
+    <div class="progress">
+      <span class="count" id="passo-contagem"></span>
+      <span class="bar"><i id="passo-barra" style="width:0"></i></span>
+    </div>
+    <div class="round-note hidden" id="passo-nota"></div>
+    <span class="node-kind" id="passo-tipo"></span>
+    <p class="question" id="passo-texto"></p>
+    <div class="actions" id="passo-acoes"></div>
+    <div class="steps hidden" id="passo-trilha"></div>
+  </section>
+
+  <!-- ============ 5. Conclusão (nomeação tardia) ============ -->
+  <section id="tela-conclusao" class="card hidden">
+    <h2>Você acabou de construir isto</h2>
+    <div class="banner ok" id="conc-texto"></div>
+    <p id="conc-nome-linha" class="hidden">
+      Isso tem um nome: <span class="term" id="conc-nome"></span>
+    </p>
+    <p style="font-size:14px" id="conc-nota"></p>
+    <div class="actions">
+      <button class="btn" id="btn-conclusao">Continuar</button>
+    </div>
+  </section>
+
+  <!-- ============ 6. Fim ============ -->
+  <section id="tela-fim" class="card hidden">
+    <h2>Sessão concluída</h2>
+    <div class="banner ok" id="fim-resumo"></div>
+    <p>Obrigado. Avise o pesquisador que você terminou.</p>
+  </section>
+
+  <div class="foot" id="rodape"></div>
+</div>
+
+<script src="diagram.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

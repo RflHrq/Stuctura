@@ -429,3 +429,30 @@ def test_a_acao_serializa_para_o_contrato_do_paragrafo_9(d):
     j = t.action.as_json()
     assert j["kind"] == "ciu" and j["ciu_id"] and "options" in j
     assert set(j) >= {"kind", "kc", "ciu_id"}
+
+
+def test_crenca_fundacional_na_variacao_tambem_passa_pelo_diagrama(d):
+    """RF08 vale em QUALQUER ponto em que a crença é detectada.
+
+    `string_literal_is_array` nega kc_07:B1, um nó-base, e só é detectável
+    por `ciu_kc07_006`, que é de variação. Se o confronto visual só
+    existisse na saída do diagnóstico, essa crença — uma das três
+    fundacionais do catálogo — nunca teria diagrama.
+    """
+    t = S.start(d, "socratic", ["kc_07"])
+    for _ in range(40):
+        if t.action.kind == "diagram":
+            break
+        if t.action.kind == "ciu":
+            ciu = d.cius[t.action.ciu_id]
+            erro = ("string_literal_is_array"
+                    if any(o.misconception == "string_literal_is_array"
+                           for o in ciu.options) else None)
+            t = responde(d, t, errando=erro)
+        elif t.action.kind in ("ask", "explain"):
+            t = S.advance(d, t.state, S.StepAnswer(True, 100))
+        else:
+            t = S.advance(d, t.state, S.Acknowledge(0))
+    assert t.action.kind == "diagram", "a crença fundacional não acionou o diagrama"
+    assert t.action.node == "B1"
+    assert t.action.data["visual"], "o diagrama veio sem especificação visual"

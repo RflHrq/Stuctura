@@ -117,14 +117,31 @@ def create_session(
     existe = conn.execute(
         "SELECT arm FROM participants WHERE code = ?", (participant,)
     ).fetchone()
+
     if existe is None:
         store_events.add_participant(conn, participant, arm)
     elif existe["arm"] != arm:
         # A alocação é feita uma vez e não muda: trocar de braço no meio da
-        # coleta contaminaria a comparação.
+        # coleta contaminaria a comparação. Este teste vem ANTES da retomada
+        # de propósito — braço divergente é erro de digitação do
+        # pesquisador, e retomar em silêncio o esconderia.
         raise ValueError(
             "participante %s já está alocado no braço %r" % (participant, existe["arm"])
         )
+    else:
+        # RNF06 diz "reabrir com o MESMO CÓDIGO". O aluno não conhece o
+        # session_id — ele conhece o código que recebeu. Reabrir com um
+        # código que já tem sessão em aberto RETOMA, não cria outra.
+        #
+        # Sem isto, fechar a aba e digitar o código de novo geraria uma
+        # segunda sessão do mesmo participante, e a análise teria de
+        # decidir qual das duas conta.
+        aberta = conn.execute(
+            "SELECT id FROM sessions WHERE participant = ? AND ended_at IS NULL"
+            " ORDER BY started_at DESC LIMIT 1", (participant,)
+        ).fetchone()
+        if aberta is not None:
+            return load_session(conn, domain, aberta["id"])
 
     sid = store_events.start_session(
         conn, participant, arm, sequencia, domain.hash

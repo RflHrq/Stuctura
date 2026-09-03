@@ -362,3 +362,28 @@ def test_latencia_por_interacao_respeita_o_rnf03(client):
     tempos.sort()
     p95 = tempos[int(len(tempos) * 0.95)]
     assert p95 < 200, "p95 = %.1f ms, acima do RNF03" % p95
+
+
+def test_reabrir_com_o_mesmo_codigo_retoma_em_vez_de_criar_outra(client):
+    """RNF06 na forma em que o aluno a usa: ele digita o código, não o id."""
+    from engine.loader import load
+    d = load()
+    primeira = abre(client, "P22")
+    sid = primeira["session_id"]
+    j = responde(client, sid, primeira["next_action"], d)
+
+    # aba fechada; o aluno digita o mesmo código de novo
+    segunda = abre(client, "P22")
+    assert segunda["session_id"] == sid, "criou uma segunda sessão do mesmo participante"
+    assert segunda["next_action"] == j["next_action"]
+
+
+def test_sessao_encerrada_nao_e_retomada(client):
+    """Depois de terminar, o mesmo código abre uma sessão nova — não revive
+    a antiga, que já foi para a análise."""
+    from engine.loader import load
+    d = load()
+    primeira = abre(client, "P23")
+    avanca_ate_o_fim(client, primeira["session_id"], primeira, d)
+    segunda = abre(client, "P23")
+    assert segunda["session_id"] != primeira["session_id"]

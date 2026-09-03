@@ -241,6 +241,9 @@ def health(dep=Depends(ctx)):
         "kcs": len(domain.kcs),
         "cius": len(domain.cius),
         "pilot_sequence": list(domain.pilot_sequence),
+        # A escala vem daqui para a interface: um <button> por nível, sem
+        # que o cliente carregue uma cópia que possa divergir de study.yaml.
+        "confidence_scale": list(domain.study.confidence_scale),
         "sessions": total,
     }
 

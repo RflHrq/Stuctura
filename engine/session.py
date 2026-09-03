@@ -276,7 +276,9 @@ def _apresenta(domain: Domain, state: SessionState, ciu: CIU, fase: str) -> Tran
 
 
 def _acao_ciu(ciu: CIU) -> Action:
-    dados: dict[str, Any] = {"type": ciu.type, "prompt": ciu.prompt}
+    dados: dict[str, Any] = {
+        "type": ciu.type, "phase": ciu.phase, "prompt": ciu.prompt,
+    }
     if ciu.is_choice:
         dados["options"] = [{"text": o.text} for o in ciu.options]
     if ciu.type == "parsons":
@@ -348,14 +350,20 @@ def _decide_apos_diagnostico(domain: Domain, state: SessionState) -> Transition:
         return _entra_variacao(domain, state)
 
     alvo = _escolhe_alvo(domain, state, estado_cognitivo)
-    novo = replace(state, target=alvo)
+    return _corrige(domain, replace(state, target=alvo), alvo)
 
-    # RF08: crença que nega nó-base não tem premissa anterior para
-    # confrontá-la. Só a observação direta reintroduz o fato.
-    if estado_cognitivo == model.MISCONCEPTION and domain.node(*alvo).is_base:
-        return _apresenta_confronto(domain, novo)
 
-    return _entra_correcao(domain, novo)
+def _corrige(domain: Domain, state: SessionState, alvo: Ref) -> Transition:
+    """Entra na correção pelo caminho certo para o tipo do nó (RF08).
+
+    Ponto único: crença que nega nó-base não tem premissa anterior para
+    confrontá-la, e só a observação direta reintroduz o fato. Antes isto
+    vivia só na saída do diagnóstico, e a mesma crença detectada na CIU de
+    variação ia direto ao traversal — sem o diagrama que ela exige.
+    """
+    if domain.node(*alvo).is_base and model.state_of(state.vector, *alvo) == model.WRONG:
+        return _apresenta_confronto(domain, state)
+    return _entra_correcao(domain, state)
 
 
 def _escolhe_alvo(domain: Domain, state: SessionState, estado_cognitivo: str) -> Ref:
@@ -610,9 +618,8 @@ def _responde_variacao(domain: Domain, state: SessionState, ev: Answer) -> Trans
     if correto:
         # Acertou a variação mas o vetor não fechou: ainda há premissa não
         # confirmada. Volta para a correção mirando o que falta.
-        seguinte = _entra_correcao(domain, replace(
-            novo, target=_escolhe_alvo(domain, novo,
-                                       model.cognitive_state(domain, vetor, state.kc))))
+        alvo = _escolhe_alvo(domain, novo, model.cognitive_state(domain, vetor, state.kc))
+        seguinte = _corrige(domain, replace(novo, target=alvo), alvo)
         return Transition(seguinte.state, seguinte.action, tuple(eventos) + seguinte.events)
 
     if mid:
@@ -623,7 +630,8 @@ def _responde_variacao(domain: Domain, state: SessionState, ev: Answer) -> Trans
     # §6: errou a variação -> rodada socrática focada SÓ na premissa que
     # não generalizou. O progresso confirmado não é descartado.
     alvo = _premissa_que_falhou(domain, novo, ciu, mid)
-    seguinte = _entra_correcao(domain, replace(novo, target=alvo, detected=mid or novo.detected))
+    seguinte = _corrige(
+        domain, replace(novo, target=alvo, detected=mid or novo.detected), alvo)
     return Transition(seguinte.state, seguinte.action, tuple(eventos) + seguinte.events)
 
 
