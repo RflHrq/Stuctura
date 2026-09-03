@@ -1,0 +1,231 @@
+{
+  "ampersand_takes_value": [
+    "kc_04:B1",
+    "kc_04:I1"
+  ],
+  "arr_equals_addr_of_arr": [
+    "kc_07:B4",
+    "kc_07:B1",
+    "kc_07:B2",
+    "kc_07:B3",
+    "kc_07:I1",
+    "kc_07:I5"
+  ],
+  "array2d_is_double_pointer": [
+    "kc_10:B4",
+    "kc_07:B3",
+    "kc_10:I4"
+  ],
+  "array_is_assignable": [
+    "kc_07:B1",
+    "kc_07:B2",
+    "kc_07:B3",
+    "kc_07:I1",
+    "kc_07:I2"
+  ],
+  "array_is_pointer": [
+    "kc_07:B1",
+    "kc_07:B2",
+    "kc_07:B3",
+    "kc_07:I1"
+  ],
+  "array_passed_by_reference": [
+    "kc_07:B3",
+    "kc_06:B2",
+    "kc_07:I4"
+  ],
+  "declaration_allocates": [
+    "kc_03:B1",
+    "kc_03:B2",
+    "kc_03:I1"
+  ],
+  "double_deref_is_data": [
+    "kc_10:B3",
+    "kc_10:B1",
+    "kc_10:B2",
+    "kc_10:I1",
+    "kc_10:I2"
+  ],
+  "double_free_is_safe": [
+    "kc_09:B1",
+    "kc_09:B3",
+    "kc_09:I3"
+  ],
+  "free_kills_pointer": [
+    "kc_09:B4",
+    "kc_09:B2",
+    "kc_06:B1",
+    "kc_06:B2",
+    "kc_06:I1",
+    "kc_04:B2",
+    "kc_06:I2",
+    "kc_06:I4",
+    "kc_09:I1",
+    "kc_09:I2"
+  ],
+  "free_nullifies": [
+    "kc_09:B2",
+    "kc_06:B1",
+    "kc_06:B2",
+    "kc_06:I1",
+    "kc_04:B2",
+    "kc_06:I2",
+    "kc_06:I4",
+    "kc_09:I1"
+  ],
+  "function_gets_original": [
+    "kc_06:B1",
+    "kc_06:B2",
+    "kc_06:I1"
+  ],
+  "heap_persists": [
+    "kc_09:B1",
+    "kc_09:B3",
+    "kc_09:I3"
+  ],
+  "local_survives_return": [
+    "kc_12:B1",
+    "kc_12:B2",
+    "kc_12:B3",
+    "kc_12:B4",
+    "kc_12:I1",
+    "kc_12:I2"
+  ],
+  "malloc_always_succeeds": [
+    "kc_08:B2",
+    "kc_05:B1",
+    "kc_05:B2",
+    "kc_05:I1",
+    "kc_08:I2"
+  ],
+  "malloc_initializes_zero": [
+    "kc_08:B3",
+    "kc_08:I3"
+  ],
+  "memory_is_uniform": [
+    "kc_01:B1",
+    "kc_01:B2",
+    "kc_01:B3",
+    "kc_01:I1",
+    "kc_01:I2"
+  ],
+  "modify_pp_changes_p": [
+    "kc_10:B1",
+    "kc_10:B2",
+    "kc_10:I1",
+    "kc_06:B1",
+    "kc_06:B2",
+    "kc_06:I1",
+    "kc_04:B2",
+    "kc_06:I2",
+    "kc_06:I4",
+    "kc_10:I3"
+  ],
+  "null_after_free_redundant": [
+    "kc_09:B4",
+    "kc_09:B2",
+    "kc_06:B1",
+    "kc_06:B2",
+    "kc_06:I1",
+    "kc_04:B2",
+    "kc_06:I2",
+    "kc_06:I4",
+    "kc_09:I1",
+    "kc_09:I2",
+    "kc_05:B1",
+    "kc_05:B2",
+    "kc_05:I1",
+    "kc_09:I6"
+  ],
+  "null_is_safe_to_deref": [
+    "kc_05:B3",
+    "kc_04:B2",
+    "kc_04:B3",
+    "kc_04:I2",
+    "kc_05:I3"
+  ],
+  "null_is_zero_always": [
+    "kc_05:B2",
+    "kc_05:B4",
+    "kc_05:I4"
+  ],
+  "pointer_copy_is_alias": [
+    "kc_06:B1",
+    "kc_06:B2",
+    "kc_06:I1",
+    "kc_04:B2",
+    "kc_06:I2",
+    "kc_06:I4"
+  ],
+  "pointer_is_data": [
+    "kc_02:B2",
+    "kc_02:B3",
+    "kc_02:I1"
+  ],
+  "pointer_is_integer": [
+    "kc_02:B1",
+    "kc_02:B3",
+    "kc_02:I3"
+  ],
+  "pointer_lives_in_heap": [
+    "kc_02:B2",
+    "kc_02:B3",
+    "kc_02:I1",
+    "kc_01:B1",
+    "kc_01:B2",
+    "kc_01:B3",
+    "kc_01:I1",
+    "kc_01:I2",
+    "kc_02:I2"
+  ],
+  "ptr_arith_is_bytes": [
+    "kc_11:B2",
+    "kc_11:B4",
+    "kc_11:B1",
+    "kc_11:B3",
+    "kc_11:I1",
+    "kc_11:I2"
+  ],
+  "sizeof_array_via_pointer": [
+    "kc_07:B4",
+    "kc_07:B1",
+    "kc_07:B2",
+    "kc_07:B3",
+    "kc_07:I1",
+    "kc_07:I3"
+  ],
+  "star_assigns_pointer": [
+    "kc_04:B4"
+  ],
+  "static_is_scope": [
+    "kc_12:B2",
+    "kc_12:I4"
+  ],
+  "string_literal_is_array": [
+    "kc_07:B1"
+  ],
+  "system_frees_auto": [
+    "kc_01:B3"
+  ],
+  "uninitialized_is_null": [
+    "kc_03:B3",
+    "kc_03:B1",
+    "kc_03:B2",
+    "kc_03:I1",
+    "kc_03:I2"
+  ],
+  "voidptr_arith_ok": [
+    "kc_11:B1",
+    "kc_11:B2",
+    "kc_11:B4",
+    "kc_11:B3",
+    "kc_11:I1",
+    "kc_11:I2",
+    "kc_11:I5"
+  ],
+  "voidptr_is_universal": [
+    "kc_02:B1",
+    "kc_02:B3",
+    "kc_02:I3"
+  ]
+}

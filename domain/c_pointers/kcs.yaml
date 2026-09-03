@@ -1,159 +1,116 @@
-# Knowledge components do domínio "ponteiros em C".
-#
-# Os identificadores são ESTÁVEIS. KC 11 e KC 12 foram acrescentados na
-# revisão de completude e levam os números seguintes, não a posição na
-# sequência de ensino — essa sai de `prerequisites`. Renumerar um KC
-# invalida todo o log de eventos já coletado.
-#
-# `technical_name` só é revelado na CONCLUSÃO (RF10, nomeação tardia).
-# Nenhum texto de nó, pergunta ou rótulo de diagrama pode conter esse
-# termo antes disso — o validador confere.
-
-domain:
-  id: c_pointers
-  name: "Ponteiros em C"
-  language: pt-BR
+# Structura -- dominio declarativo: ponteiros em C
+# Os ids sao ESTAVEIS. teaching_order deriva de prerequisites e nao
+# deve ser usado como identidade. Renumerar kc_* quebra o event log.
+domain: c_pointers
+schema_version: 1
 
 kcs:
-
-  kc_01:
-    name: "Modelo de memória"
-    teaching_order: 1
+  - id: kc_01
+    name: Modelo de memoria
+    conclusion: >-
+      A memoria do processo tem regioes com regras de vida diferentes:
+      a stack e gerenciada pelo compilador, o heap pelo programador.
+    conclusion_node: I2
     prerequisites: []
-    conclusion_node: I2
-    conclusion_text: >-
-      A memória do processo tem regiões com regras de vida diferentes:
-      a stack é gerenciada pelo compilador, o heap pelo programador.
-    technical_name: "stack e heap"
-    socratic: diagram
+    teaching_order: 1
 
-  kc_02:
-    name: "O que é um ponteiro"
-    teaching_order: 2
+  - id: kc_02
+    name: O que e um ponteiro
+    conclusion: >-
+      Um ponteiro e uma variavel cujo valor e o endereco de outro objeto.
+      O ponteiro e o objeto apontado sao duas entidades separadas.
+    conclusion_node: I2
     prerequisites: [kc_01]
-    conclusion_node: I1
-    conclusion_text: >-
-      Um ponteiro é uma variável cujo valor é o endereço de outro objeto.
-      O ponteiro e o objeto apontado são duas entidades separadas.
-    technical_name: ""            # nada retido: o KC é sobre isso abertamente
-    socratic: pure
+    teaching_order: 2
 
-  kc_03:
-    name: "Declaração e inicialização"
-    teaching_order: 3
+  - id: kc_03
+    name: Declaracao e inicializacao
+    conclusion: >-
+      int *p; cria so o ponteiro, com valor indeterminado. Nao cria nem
+      inicializa o objeto apontado.
+    conclusion_node: I3
     prerequisites: [kc_02]
-    conclusion_node: I2
-    conclusion_text: >-
-      int *p; cria só o ponteiro, com valor indeterminado.
-      Não cria nem inicializa o objeto apontado.
-    technical_name: ""
-    socratic: pure
+    teaching_order: 3
 
-  kc_04:
-    name: "Dereferência: * e &"
-    teaching_order: 4
+  - id: kc_04
+    name: Dereferencia (* e &)
+    conclusion: >-
+      &x produz o endereco de x; *p acessa o objeto no endereco guardado
+      em p. Sao operacoes inversas sobre objetos que ocupam memoria.
+    conclusion_node: I3
     prerequisites: [kc_02, kc_03]
-    conclusion_node: I3
-    conclusion_text: >-
-      &x produz o endereço de x; *p acessa o objeto no endereço guardado
-      em p. São operações inversas sobre objetos que ocupam memória.
-    technical_name: ""
-    socratic: diagram
+    teaching_order: 4
 
-  kc_05:
-    name: "Ponteiro NULL"
-    teaching_order: 5
+  - id: kc_05
+    name: Ponteiro NULL
+    conclusion: >-
+      NULL e um valor de ponteiro que garantidamente nao designa objeto
+      algum. Desreferencia-lo e comportamento indefinido.
+    conclusion_node: I3
     prerequisites: [kc_03, kc_04]
-    conclusion_node: I3
-    conclusion_text: >-
-      NULL é um valor de ponteiro que garantidamente não designa objeto
-      algum. Desreferenciá-lo é comportamento indefinido.
-    technical_name: ""
-    socratic: pure
+    teaching_order: 5
 
-  kc_06:
-    name: "Passagem por referência"
-    teaching_order: 6
-    prerequisites: [kc_04]
+  - id: kc_06
+    name: Passagem por referencia
+    conclusion: >-
+      C passa tudo por valor. Uma funcao recebe copia do argumento; para
+      modificar o objeto do chamador, precisa receber o endereco dele.
     conclusion_node: I5
-    conclusion_text: >-
-      C passa tudo por valor. Uma função recebe cópia do argumento; para
-      modificar o objeto do chamador, precisa receber o endereço dele.
-    technical_name: ""
-    socratic: pure
-    # Nó de maior alavancagem do domínio: I4 é importado por KC 9, 10 e 12.
-    # Se a calibração for feita em um lugar só, é aqui.
+    prerequisites: [kc_04]
+    teaching_order: 6
 
-  kc_07:
-    name: "Ponteiro e array"
-    teaching_order: 7
-    prerequisites: [kc_04, kc_06]
+  - id: kc_07
+    name: Ponteiro e array
+    conclusion: >-
+      Array e ponteiro sao tipos distintos. Em quase toda expressao o nome
+      do array converte-se no endereco do primeiro elemento, mas o array
+      nao e um ponteiro.
     conclusion_node: I1
-    conclusion_text: >-
-      Array e ponteiro são tipos distintos. Em quase toda expressão o nome
-      do array converte-se no endereço do primeiro elemento — mas o array
-      não é um ponteiro.
-    technical_name: "decaimento de array"
-    socratic: diagram
+    prerequisites: [kc_04, kc_06]
+    teaching_order: 7
 
-  kc_08:
-    name: "Alocação dinâmica"
-    teaching_order: 9
-    prerequisites: [kc_01, kc_02, kc_05]
-    conclusion_node: I4
-    conclusion_text: >-
-      malloc reserva um bloco no heap e devolve seu endereço, ou NULL se
-      falhar. O bloco não é inicializado e vive até o free.
-    technical_name: ""
-    socratic: pure
-
-  kc_09:
-    name: "free() e ponteiro inválido"
-    teaching_order: 10
-    prerequisites: [kc_08, kc_06]
-    conclusion_node: I4
-    conclusion_text: >-
-      free(p) devolve o bloco ao alocador. p continua existindo com o mesmo
-      endereço, que agora não designa objeto válido.
-    technical_name: "dangling pointer"
-    socratic: pure
-
-  kc_10:
-    name: "Ponteiro para ponteiro"
-    teaching_order: 12
-    prerequisites: [kc_04, kc_06, kc_07]
-    conclusion_node: I2
-    conclusion_text: >-
-      int **pp é uma variável cujo valor é o endereço de um int *.
-      Cada * desfaz exatamente um nível de indireção.
-    technical_name: ""
-    socratic: pure
-
-  kc_11:
-    name: "Aritmética de ponteiros"
-    teaching_order: 8
-    prerequisites: [kc_04, kc_07]
-    conclusion_node: I2
-    conclusion_text: >-
-      p + n avança n elementos do tipo apontado, não n bytes. A escala vem
+  - id: kc_11
+    name: Aritmetica de ponteiros
+    conclusion: >-
+      p + n avanca n elementos do tipo apontado, nao n bytes. A escala vem
       do tipo, e o compilador a aplica sozinho.
-    technical_name: ""
-    socratic: pure
+    conclusion_node: I2
+    prerequisites: [kc_04, kc_07]
+    teaching_order: 8
 
-  kc_12:
-    name: "Ponteiro inválido por escopo"
-    teaching_order: 11
-    prerequisites: [kc_01, kc_04, kc_06]
-    conclusion_node: I3
-    conclusion_text: >-
-      Uma variável local deixa de existir quando a função retorna. Um
-      ponteiro para ela sobrevive e passa a não designar objeto válido —
+  - id: kc_08
+    name: Alocacao dinamica
+    conclusion: >-
+      malloc reserva um bloco no heap e devolve seu endereco, ou NULL se
+      falhar. O bloco nao e inicializado e vive ate o free.
+    conclusion_node: I4
+    prerequisites: [kc_01, kc_02, kc_05]
+    teaching_order: 9
+
+  - id: kc_09
+    name: free() e dangling pointer
+    conclusion: >-
+      free(p) devolve o bloco ao alocador. p continua existindo com o mesmo
+      endereco, que agora nao designa objeto valido.
+    conclusion_node: I4
+    prerequisites: [kc_08, kc_06]
+    teaching_order: 10
+
+  - id: kc_12
+    name: Dangling por escopo
+    conclusion: >-
+      Uma variavel local deixa de existir quando a funcao retorna. Um
+      ponteiro para ela sobrevive e passa a nao designar objeto valido,
       sem que nenhum free tenha sido chamado.
-    technical_name: "dangling por escopo"
-    socratic: pure
+    conclusion_node: I3
+    prerequisites: [kc_01, kc_04, kc_06]
+    teaching_order: 11
 
-# Recorte do piloto (§4.1 do dossiê): KC 7, KC 9 e KC 11.
-# Os de melhor ancoragem (6, 5 e 2 crenças documentadas); cobrem os dois
-# regimes que a estrutura distingue (KC 7 exige diagrama, os outros dois
-# são socrático puro); e cabem em 30–40 minutos de sessão.
-pilot_sequence: [kc_07, kc_11, kc_09]
+  - id: kc_10
+    name: Ponteiro para ponteiro
+    conclusion: >-
+      int **pp e uma variavel cujo valor e o endereco de um int *. Cada *
+      desfaz exatamente um nivel de indirecao.
+    conclusion_node: I2
+    prerequisites: [kc_04, kc_06, kc_07]
+    teaching_order: 12

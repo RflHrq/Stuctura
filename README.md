@@ -18,7 +18,7 @@ Ordem do §13 da spec. Marcos 1 a 3 são o caminho crítico.
 
 | # | Entrega | Estado |
 |---|---------|--------|
-| — | `domain/c_pointers/*.yaml` — 12 KCs, 93 nós, 34 crenças, 47 CIUs | **completo** |
+| — | `domain/c_pointers/*.yaml` — canônicos, do autor. 12 KCs, 93 nós, 34 crenças, 48 CIUs | **completo** |
 | — | `engine/loader.py`, `socratic.py`, `tools/validate.py` | **feito** |
 | 1 | Regressão controlada (RF09) — `socratic.on_wrong()` | **feito**, falta a FSM chamar |
 | 2 | `store/`: esquema, append, projeção, `replay.py` | **feito** |
@@ -28,16 +28,29 @@ Ordem do §13 da spec. Marcos 1 a 3 são o caminho crítico.
 | 6 | `web/`: interface e `diagram.js` | pendente |
 | 7 | `feedback.yaml` + `feedback.py` (RF17, SHOULD) | pendente |
 | 8 | `export.py` + os três CSVs | pendente |
-| — | CIU de variação do KC 11 (RF11) | única lacuna de domínio |
+| — | CIU de variação para os 8 KCs fora do piloto | não bloqueia |
 
 ## Porta de CI
 
 ```bash
 python -m tools.validate --stats   # domínio: sai 0 obrigatoriamente
-python -m tools.import_cius CATALOGO.html --dry-run   # reconcilia com o catálogo publicado
 python -m pytest tests/ -q         # motor e store
 python -m tools.replay --verify    # RNF04 sobre o banco de coleta
+python -m tools.freeze_golden      # só após mudança DELIBERADA no grafo
 ```
+
+## Fronteira domínio / estudo
+
+`domain/c_pointers/*.yaml` é **fonte**: o loader se adapta a ele, nunca o
+contrário. Propriedades que o motor precisa e que os YAMLs não declaram são
+**derivadas** — se uma crença é fundacional sai do tipo do nó que ela nega;
+se um KC exige diagrama sai de ter uma crença fundacional. Nada disso é
+acrescentado ao domínio.
+
+`study.yaml` é outra coisa: recorte do piloto, termos de nomeação tardia,
+limite de tentativas, escala de confiança. São decisões do experimento, não
+do conteúdo — e por isso **ficam fora do hash do domínio** (§15). Mudar o
+recorte não muda o que o participante viu.
 
 ## `store/` — o que esta camada decide
 

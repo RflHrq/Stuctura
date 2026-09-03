@@ -18,7 +18,8 @@ from typing import Iterable, Sequence
 from engine.loader import Domain, Ref
 
 # Limite de tentativas por nó antes de encerrar o KC como "em progresso"
-# (§6, §7.4). Sem essa guarda, um aluno travado entra em laço.
+# (§6, §7.4). Sem essa guarda, um aluno travado entra em laço. O valor
+# efetivo vem de study.yaml; esta constante é só o padrão de segurança.
 MAX_ATTEMPTS = 3
 
 
@@ -146,15 +147,14 @@ def _existe(domain: Domain, ref: Ref) -> bool:
         return False
 
 
-def conclusion(domain: Domain, kc: str) -> tuple[str, str]:
-    """(texto da conclusão, nome técnico). A nomeação tardia acontece aqui.
+def conclusion(domain: Domain, kc: str) -> str:
+    """O enunciado da conclusão do KC. A nomeação tardia acontece aqui.
 
-    RF10: o termo técnico só aparece neste ponto. Nenhum texto de nó,
-    pergunta ou rótulo de diagrama pode contê-lo antes — o validador
-    confere.
+    RF10: os termos de `study.late_named_terms` só podem aparecer neste
+    ponto e no texto do nó de conclusão. Nenhum nó intermediário, pergunta
+    ou rótulo de diagrama pode contê-los antes — o validador confere.
     """
-    k = domain.kcs[kc]
-    return k.conclusion_text, k.technical_name
+    return domain.kcs[kc].conclusion
 
 
 # --------------------------------------------------------------------------
@@ -184,6 +184,7 @@ def on_wrong(
     steps_: Sequence[Step],
     cursor: int,
     attempts: int,
+    max_attempts: int | None = None,
 ) -> Regression:
     """Decide o próximo passo depois de o aluno errar o nó em `cursor`.
 
@@ -194,8 +195,9 @@ def on_wrong(
     """
     atual = steps_[cursor]
     n = attempts + 1
+    limite = max_attempts or domain.study.max_attempts_per_node or MAX_ATTEMPTS
 
-    if n >= MAX_ATTEMPTS:
+    if n >= limite:
         return Regression(action="abandon", cursor=cursor, attempts=n,
                           from_node=atual.node)
 

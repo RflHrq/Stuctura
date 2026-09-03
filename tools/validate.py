@@ -1,21 +1,19 @@
 """Validador estrutural do domínio. Porta de CI: saída 0 obrigatória.
 
-    python -m tools.validate            # valida domain/c_pointers
-    python -m tools.validate --stats     # com o resumo quantitativo
+    python -m tools.validate           # valida domain/c_pointers
+    python -m tools.validate --stats   # com o resumo quantitativo
+    python -m tools.validate --strict  # avisos também derrubam a saída
 
-O `loader` já faz as verificações que impedem o sistema de subir (refs
-pendurados, ciclo, tipos). Aqui vão as de POLÍTICA — as que não quebram o
-motor, mas quebram o estudo:
+O `loader` já faz o que impede o sistema de subir: referência pendurada,
+ciclo no grafo, forma de CIU incoerente com o `type`. Aqui vão as
+verificações de POLÍTICA — as que não quebram o motor, mas quebram o
+estudo:
 
-  cobertura        todo nó de inferência deve ser alcançável a partir da
-                   conclusão do seu KC; nó órfão é nó que nunca é
-                   percorrido, e portanto peso morto no catálogo
-  proveniência     toda crença declara grau e fonte (§1.3)
-  classe           `kind` bate com o tipo do nó negado — é o que decide se
-                   o confronto visual é obrigatório (RF08)
-  diagrama         todo KC com crença fundacional exige socratic: diagram
-  nomeação tardia  nenhum texto de nó contém o nome técnico do KC (RF10)
-  golden           o tamanho real do plano bate com `plan_length`
+  RF08   KC com crença fundacional precisa de CIU com diagrama
+  RF10   nenhum termo de nomeação tardia fora do nó de conclusão
+  RF11   todo KC precisa de CIU de variação para poder ser encerrado
+  §12    toda crença tem de ser detectável por alguma atividade
+  §7.1   todo nó tem de ser percorrido por algum traversal
 """
 
 from __future__ import annotations
@@ -32,7 +30,8 @@ from engine.loader import Domain, DomainError, load  # noqa: E402
 
 
 def _norm(s: str) -> str:
-    """minúsculas sem acento, para comparar termos técnicos com folga."""
+    """minúsculas sem acento: o domínio está sem acentuação e a comparação
+    não pode depender disso."""
     return "".join(
         c for c in unicodedata.normalize("NFD", s.lower())
         if unicodedata.category(c) != "Mn"
@@ -40,23 +39,178 @@ def _norm(s: str) -> str:
 
 
 # --------------------------------------------------------------------------
-# Verificações de política
+# Bloqueantes
 # --------------------------------------------------------------------------
 
-def check_coverage(d: Domain) -> list[str]:
+def check_diagram_requirement(d: Domain) -> list[str]:
+    """RF08: KC com crença que nega nó-base precisa de confronto visual.
+
+    Não há premissa anterior para confrontar uma crença fundacional: só a
+    observação direta reintroduz o fato. Um KC assim sem nenhuma CIU com
+    `visual` não tem como cumprir o RF08 em sessão.
+    """
+    out = []
+    for kc_id in d.teaching_sequence():
+        if not d.requires_diagram(kc_id):
+            continue
+        fundacionais = [m.id for m in d.misconceptions_of(kc_id) if m.is_foundational]
+        if not any(c.visual for c in d.cius_of(kc_id)):
+            out.append(
+                "%s tem crença fundacional (%s) e nenhuma CIU com diagrama; "
+                "RF08 não pode ser cumprido" % (kc_id, ", ".join(fundacionais))
+            )
+    return out
+
+
+def check_late_naming(d: Domain) -> list[str]:
+    """RF10: o termo técnico só pode aparecer no nó de conclusão.
+
+    Os termos vêm de study.yaml, não do domínio: é regra de apresentação
+    do experimento, e o mesmo grafo poderia ser usado sem ela.
+    """
+    out = []
+    termos = [(_norm(t), t) for t in d.study.late_named_terms]
+    if not termos:
+        return out
+    for kc in d.kcs.values():
+        for node in kc.nodes.values():
+            if node.id == kc.conclusion_node:
+                continue
+            for norm, orig in termos:
+                if norm in _norm(node.text):
+                    out.append(
+                        "%s:%s usa %r antes da conclusão (%s) — RF10"
+                        % (kc.id, node.id, orig, kc.conclusion_node)
+                    )
+    for c in d.cius.values():
+        for norm, orig in termos:
+            if norm in _norm(c.prompt) or any(norm in _norm(o.text) for o in c.options):
+                out.append("CIU %s usa %r; a nomeação é tardia (RF10)" % (c.id, orig))
+    return out
+
+
+def check_detectability(d: Domain) -> list[str]:
+    """Toda crença precisa ser detectável por alguma CIU.
+
+    Crença que nenhuma atividade alcança é crença que o estudo não pode
+    observar — e o desfecho primário é justamente a validação da Q-matrix.
+    """
+    usadas = {m for c in d.cius.values() for m in c.misconception_ids()}
+    ausentes = sorted(set(d.misconceptions) - usadas)
+    if ausentes:
+        return ["%d crença(s) que nenhuma CIU detecta: %s"
+                % (len(ausentes), ", ".join(ausentes))]
+    return []
+
+
+def _prereq_closure(d: Domain, kc_id: str) -> set:
+    """Todos os KCs que este exige, direta ou transitivamente."""
+    vistos: set = set()
+    pilha = list(d.kcs[kc_id].prerequisites)
+    while pilha:
+        atual = pilha.pop()
+        if atual in vistos or atual not in d.kcs:
+            continue
+        vistos.add(atual)
+        pilha.extend(d.kcs[atual].prerequisites)
+    return vistos
+
+
+def check_qmatrix_coherence(d: Domain) -> list[str]:
+    """Distrator só pode apontar para crença do próprio KC ou de prerequisito.
+
+    Mapear para outro KC não é erro por si: os grafos se importam, e um
+    aluno pode revelar no KC 8 uma crença ancorada no KC 2 — é falha de
+    prerequisito, e detectá-la é justamente o que a estrutura permite.
+
+    O que seria incoerente é mapear para um KC que este nem exige: aí a
+    resposta seria atribuída, na análise, a uma crença que o participante
+    não tinha por que ter exercitado ali.
+    """
+    out = []
+    for c in sorted(d.cius.values(), key=lambda x: x.id):
+        permitidos = {c.kc} | _prereq_closure(d, c.kc)
+        for mid in c.misconception_ids():
+            m = d.misconceptions[mid]
+            if m.kc not in permitidos:
+                out.append(
+                    "CIU %s (%s) mapeia %s, que nega nó de %s — e %s não é "
+                    "prerequisito de %s" % (c.id, c.kc, mid, m.kc, m.kc, c.kc)
+                )
+    return out
+
+
+def check_cross_kc_mapping(d: Domain) -> list[str]:
+    """Distratores que diagnosticam crença de um KC anterior.
+
+    Legítimo, mas precisa aparecer na análise: a resposta a uma CIU do
+    KC 8 será atribuída a uma crença do KC 2, e o `answers.csv` tem de
+    deixar isso legível em vez de parecer erro de mapeamento.
+    """
+    out = []
+    for c in sorted(d.cius.values(), key=lambda x: x.id):
+        for mid in c.misconception_ids():
+            m = d.misconceptions[mid]
+            if m.kc != c.kc:
+                out.append(
+                    "CIU %s (%s) detecta %s, ancorada em %s:%s — falha de "
+                    "prerequisito, não do KC da atividade"
+                    % (c.id, c.kc, mid, m.kc, m.node)
+                )
+    return out
+
+
+# --------------------------------------------------------------------------
+# Avisos
+# --------------------------------------------------------------------------
+
+def check_variation_coverage(d: Domain) -> list[str]:
+    """RF11: sem CIU de variação, o KC não tem como ser encerrado.
+
+    Bloqueia de verdade só dentro do recorte do piloto; fora dele, fica
+    visível para a expansão em vez de ser descoberto no meio de uma sessão.
+    """
+    out = []
+    for kc_id in d.teaching_sequence():
+        if d.cius_of(kc_id, "variation"):
+            continue
+        dentro = kc_id in d.pilot_sequence
+        out.append(
+            "%s: nenhuma CIU de fase 'variation'. A RF11 não pode ser satisfeita: "
+            "o KC não tem como ser encerrado%s"
+            % (kc_id, " — E ELE ESTÁ NO PILOTO" if dentro else " (fora do piloto)")
+        )
+    return out
+
+
+def check_diagnostic_coverage(d: Domain) -> list[str]:
+    """O §6 diz "ATÉ 3 CIUs diagnósticas": é teto, não piso.
+
+    Com uma só, porém, o seletor perde a regra de variar o tipo (§7.5).
+    """
+    out = []
+    for kc_id in d.pilot_sequence:
+        diag = d.cius_of(kc_id, "diagnostic")
+        if not diag:
+            out.append("%s sem CIU diagnóstica: a sessão não tem por onde começar" % kc_id)
+        elif len(diag) == 1:
+            out.append(
+                "%s tem 1 CIU diagnóstica; com uma só o seletor não varia o tipo (§7.5)"
+                % kc_id
+            )
+    return out
+
+
+def check_node_coverage(d: Domain) -> list[str]:
     """Todo nó deve ser percorrido por algum traversal do domínio.
 
-    A alcançabilidade é GLOBAL, não por KC: um nó do KC 5 pode existir só
-    para ser importado pelo KC 9, e continua sendo peso útil.
+    A alcançabilidade é GLOBAL: um nó do KC 5 pode existir só para ser
+    importado pelo KC 9 e continuar sendo peso útil. Fora de todo
+    traversal, cai em dois casos que só o pesquisador distingue:
 
-    Isto é AVISO, não erro. Um nó fora de todo traversal cai em dois casos,
-    e só o pesquisador distingue:
-
-      corolário       tem dependentes; decorre da conclusão em vez de levar
-                      a ela. Legítimo — é o que o KC ensina DEPOIS de o
-                      aluno construir a conclusão.
-      sem dependentes ninguém o usa. Ou é peso morto a remover, ou falta
-                      uma aresta que deveria existir.
+      corolário  apoia-se NA conclusão em vez de levar a ela. Legítimo:
+                 é o que o KC ensina depois de o aluno construí-la.
+      órfão      ninguém o alcança. Peso morto, ou aresta faltando.
     """
     alcancaveis: set = set()
     for kc in d.kcs.values():
@@ -64,23 +218,17 @@ def check_coverage(d: Domain) -> list[str]:
             alcancaveis |= set(socratic.full_plan(d, kc.id, kc.conclusion_node))
     for m in d.misconceptions.values():
         alcancaveis |= set(socratic.full_plan(d, m.kc, m.node))
-        for alvo in m.also_negates:
-            alcancaveis |= set(socratic.full_plan(d, *alvo))
 
     out = []
     for kc in d.kcs.values():
         for n in kc.nodes:
-            ref = (kc.id, n)
-            if ref in alcancaveis:
+            if (kc.id, n) in alcancaveis:
                 continue
-            # Corolário: o nó se apoia NA conclusão do KC, em vez de levar
-            # a ela. Decorre do que o aluno acabou de construir — legítimo.
-            apoia_se_em = set(socratic.full_plan(d, kc.id, n))
-            if kc.conclusion_ref in apoia_se_em and (kc.id, n) != kc.conclusion_ref:
+            apoia = set(socratic.full_plan(d, kc.id, n))
+            if kc.conclusion_ref in apoia:
                 out.append(
-                    "%s:%s é corolário da conclusão (%s) — nunca percorrido porque "
-                    "vem depois dela. Confirmar se é intencional"
-                    % (kc.id, n, kc.conclusion_node)
+                    "%s:%s é corolário da conclusão (%s): vem depois dela, por isso "
+                    "nenhum traversal o percorre" % (kc.id, n, kc.conclusion_node)
                 )
             else:
                 out.append(
@@ -90,154 +238,19 @@ def check_coverage(d: Domain) -> list[str]:
     return out
 
 
-def check_diagram_requirement(d: Domain) -> list[str]:
-    """KC com crença fundacional precisa de diagrama antes do traversal."""
-    out = []
-    for kc in d.kcs.values():
-        fundacionais = [
-            m.id for m in d.misconceptions.values()
-            if m.kind == "foundational" and m.kc == kc.id
-        ]
-        if fundacionais and kc.socratic != "diagram":
-            out.append(
-                "%s tem crença fundacional (%s) mas socratic=%r; RF08 exige "
-                "confronto visual" % (kc.id, ", ".join(fundacionais), kc.socratic)
-            )
-    return out
+def check_hypotheses(d: Domain) -> list[str]:
+    """Crenças cuja formulação ainda é hipótese, não achado.
 
-
-def check_late_naming(d: Domain) -> list[str]:
-    """RF10: o nome técnico não pode aparecer antes da conclusão.
-
-    O nó de conclusão é isento: é exatamente onde o termo deve aparecer.
-    KC sem termo a reter deixa `technical_name` vazio e não é verificado —
-    nem todo KC esconde uma palavra.
+    Grau N documenta o ERRO em norma, não a crença; grau E não tem fonte.
+    Nos dois casos, o texto da monografia precisa dizer isso — e a Q-matrix
+    do piloto é o que confirma ou descarta.
     """
-    out = []
-    for kc in d.kcs.values():
-        termo = _norm(kc.technical_name).strip()
-        if not termo or len(termo) < 4:
-            continue
-        for node in kc.nodes.values():
-            if node.id == kc.conclusion_node:
-                continue
-            if termo in _norm(node.text):
-                out.append(
-                    "%s:%s vaza o nome técnico %r antes da conclusão (RF10)"
-                    % (kc.id, node.id, kc.technical_name)
-                )
-        for ciu in d.cius_of(kc.id):
-            campos = [ciu.stem] + [o.text for o in ciu.options]
-            for texto in campos:
-                if termo in _norm(texto):
-                    out.append(
-                        "CIU %s vaza o nome técnico %r (RF10)" % (ciu.id, kc.technical_name)
-                    )
-                    break
-    return out
-
-
-def check_golden_plans(d: Domain) -> list[str]:
-    """O tamanho real do plano tem de bater com o congelado no catálogo.
-
-    Itens marcados `disputed: true` saem daqui e viram aviso: são os
-    pontos onde as fontes do próprio projeto discordam entre si, e a
-    decisão é do pesquisador, não do validador.
-    """
-    out = []
-    for m in sorted(d.misconceptions.values(), key=lambda x: x.id):
-        if m.disputed:
-            continue
-        if not m.plan_length:
-            out.append("crença %s sem plan_length congelado" % m.id)
-            continue
-        real = len(socratic.full_plan(d, m.kc, m.node))
-        if real != m.plan_length:
-            out.append(
-                "crença %s: plano tem %d passos, plan_length diz %d "
-                "(o grafo mudou ou o número está errado)" % (m.id, real, m.plan_length)
-            )
-    return out
-
-
-def check_disputed(d: Domain) -> list[str]:
-    """Discrepâncias entre documentos do projeto, ainda não resolvidas."""
-    out = []
-    for m in sorted(d.misconceptions.values(), key=lambda x: x.id):
-        if not m.disputed:
-            continue
-        real = len(socratic.full_plan(d, m.kc, m.node))
-        detalhe = " plano real=%d, catálogo=%d." % (real, m.plan_length) \
-            if m.plan_length and real != m.plan_length else ""
-        out.append(
-            "crença %s em disputa.%s %s"
-            % (m.id, detalhe, (m.note or "").strip().replace("\n", " "))
-        )
-    return out
-
-
-def check_ordering_shape(d: Domain) -> list[str]:
-    """CIU de ordenação cujo distrator não é permutação exige outra interface.
-
-    Um widget de arrastar-e-soltar só produz permutações dos mesmos passos.
-    Quando a sequência errada tem passos diferentes, é escolha entre dois
-    caminhos — e renderizar como reordenação tornaria o distrator inatingível.
-    """
-    out = []
-    for c in d.cius.values():
-        for w in c.wrong_orders:
-            if not c.is_permutation(w):
-                out.append(
-                    "%s: a sequência errada não é permutação dos passos; render "
-                    "como escolha entre caminhos, não como reordenação" % c.id
-                )
-    return out
-
-
-def check_ciu_coverage(d: Domain) -> list[str]:
-    """Cada KC do piloto precisa de CIU diagnóstica e de variação.
-
-    O §6 diz "ATÉ 3 CIUs diagnósticas por KC": é teto, não piso. O que o
-    piloto exige de fato é ao menos uma para diagnosticar e uma de
-    variação para encerrar o KC (RF11). Ter só uma diagnóstica não
-    impede a sessão, mas tira do seletor a regra de variar o tipo (§7.5)
-    — vale registrar.
-    """
-    out = []
-    for kc_id in d.pilot_sequence:
-        cius = d.cius_of(kc_id)
-        diag = [c for c in cius if c.phase == "diagnostic"]
-        var = [c for c in cius if c.phase == "variation"]
-        if not diag:
-            out.append("%s sem CIU diagnóstica: a sessão não tem por onde começar" % kc_id)
-        elif len(diag) == 1:
-            out.append(
-                "%s tem 1 CIU diagnóstica; com uma só, o seletor não consegue "
-                "variar o tipo entre itens (§7.5)" % kc_id
-            )
-        if not var:
-            out.append(
-                "%s sem CIU de variação: RF11 exige acerto em código novo para "
-                "encerrar o KC" % kc_id
-            )
-    return out
-
-
-def check_distractor_mapping(d: Domain) -> list[str]:
-    """Toda crença do catálogo precisa ser detectável por alguma CIU.
-
-    Detectável por qualquer via: distrator de múltipla escolha, padrão de
-    resposta livre ou sequência errada de ordenação. Crença que nenhuma
-    atividade alcança é crença que o estudo não pode observar.
-    """
-    usadas = {m for c in d.cius.values() for m in c.misconception_ids()}
-    ausentes = sorted(set(d.misconceptions) - usadas)
-    if ausentes:
-        return [
-            "%d crença(s) que nenhuma CIU detecta: %s"
-            % (len(ausentes), ", ".join(ausentes))
-        ]
-    return []
+    return [
+        "%s (grau %s, %s): a formulação da crença é hipótese a testar na Q-matrix"
+        % (m.id, m.grade, m.kc)
+        for m in sorted(d.misconceptions.values(), key=lambda x: x.id)
+        if m.grade in ("N", "E")
+    ]
 
 
 # --------------------------------------------------------------------------
@@ -247,15 +260,16 @@ def check_distractor_mapping(d: Domain) -> list[str]:
 BLOQUEANTES = (
     ("exigência de diagrama (RF08)", check_diagram_requirement),
     ("nomeação tardia (RF10)", check_late_naming),
-    ("golden dos planos", check_golden_plans),
+    ("detectabilidade das crenças (§12)", check_detectability),
+    ("coerência da Q-matrix", check_qmatrix_coherence),
 )
 
 AVISOS = (
-    ("cobertura do grafo", check_coverage),
-    ("discrepâncias em aberto", check_disputed),
-    ("forma das CIUs de ordenação", check_ordering_shape),
-    ("cobertura de CIUs", check_ciu_coverage),
-    ("mapeamento de distratores", check_distractor_mapping),
+    ("mapeamento cross-KC", check_cross_kc_mapping),
+    ("CIU de variação (RF11)", check_variation_coverage),
+    ("CIUs diagnósticas", check_diagnostic_coverage),
+    ("cobertura do grafo", check_node_coverage),
+    ("crenças ainda hipotéticas", check_hypotheses),
 )
 
 
@@ -265,23 +279,35 @@ def stats(d: Domain) -> str:
     graus: dict[str, int] = {}
     for m in d.misconceptions.values():
         graus[m.grade] = graus.get(m.grade, 0) + 1
-    fund = sum(1 for m in d.misconceptions.values() if m.kind == "foundational")
+    fund = sum(1 for m in d.misconceptions.values() if m.is_foundational)
     planos = [len(socratic.full_plan(d, m.kc, m.node)) for m in d.misconceptions.values()]
-    media = sum(planos) / len(planos) if planos else 0.0
+    fases: dict[str, int] = {}
+    tipos: dict[str, int] = {}
+    for c in d.cius.values():
+        fases[c.phase] = fases.get(c.phase, 0) + 1
+        tipos[c.type] = tipos.get(c.type, 0) + 1
+    mapeados = sum(len(c.misconception_ids()) for c in d.cius.values())
 
     linhas = [
-        "domínio        %s (%s)" % (d.id, d.name),
+        "domínio        %s" % d.id,
         "hash           %s" % d.hash,
-        "KCs            %d" % len(d.kcs),
+        "KCs            %d  (%d exigem diagrama: %s)"
+        % (len(d.kcs), sum(1 for k in d.kcs if d.requires_diagram(k)),
+           ", ".join(k for k in d.teaching_sequence() if d.requires_diagram(k))),
         "nós            %d  (%d base, %d inferência)" % (nos, base, nos - base),
         "crenças        %d  (%d fundacionais, %d derivacionais)"
         % (len(d.misconceptions), fund, len(d.misconceptions) - fund),
         "proveniência   %s" % "  ".join(
-            "%s=%d" % (g, graus.get(g, 0)) for g in ("D", "T", "L", "N", "E")
-        ),
-        "CIUs           %d" % len(d.cius),
+            "%s=%d" % (g, graus.get(g, 0)) for g in ("D", "T", "L", "N", "E")),
+        "CIUs           %d  (%s)" % (
+            len(d.cius), ", ".join("%s=%d" % kv for kv in sorted(fases.items()))),
+        "tipos          %s" % ", ".join("%s=%d" % kv for kv in sorted(tipos.items())),
+        "mapeamentos    %d  (%d/%d crenças detectáveis)" % (
+            mapeados,
+            len({m for c in d.cius.values() for m in c.misconception_ids()}),
+            len(d.misconceptions)),
         "plano médio    %.1f passos  (mín %d, máx %d)"
-        % (media, min(planos, default=0), max(planos, default=0)),
+        % (sum(planos) / len(planos), min(planos), max(planos)),
         "piloto         %s" % ", ".join(d.pilot_sequence),
     ]
     return "\n".join("  " + l for l in linhas)
@@ -290,8 +316,8 @@ def stats(d: Domain) -> str:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Valida o domínio declarativo do Structura.")
     p.add_argument("path", nargs="?", default=None, help="diretório do domínio")
-    p.add_argument("--stats", action="store_true", help="mostra o resumo quantitativo")
-    p.add_argument("--strict", action="store_true", help="trata avisos como erro")
+    p.add_argument("--stats", action="store_true")
+    p.add_argument("--strict", action="store_true", help="avisos também derrubam a saída")
     args = p.parse_args(argv)
 
     try:
@@ -303,14 +329,13 @@ def main(argv: list[str] | None = None) -> int:
         print("\n%d problema(s) estrutural(is)." % len(exc.problemas))
         return 1
 
-    print("Carga OK: %d KCs, %d crenças, %d CIUs.\n" % (
-        len(d.kcs), len(d.misconceptions), len(d.cius)))
+    print("Carga OK: %d KCs, %d crenças, %d CIUs.\n"
+          % (len(d.kcs), len(d.misconceptions), len(d.cius)))
 
     erros: list[str] = []
     for nome, fn in BLOQUEANTES:
         achados = fn(d)
-        marca = "ok " if not achados else "FALHA"
-        print("  [%s] %s" % (marca, nome))
+        print("  [%s] %s" % ("ok   " if not achados else "FALHA", nome))
         for a in achados:
             print("         %s" % a)
         erros.extend(achados)
@@ -318,8 +343,7 @@ def main(argv: list[str] | None = None) -> int:
     avisos: list[str] = []
     for nome, fn in AVISOS:
         achados = fn(d)
-        marca = "ok " if not achados else "aviso"
-        print("  [%s] %s" % (marca, nome))
+        print("  [%s] %s" % ("ok   " if not achados else "AVISO", nome))
         for a in achados:
             print("         %s" % a)
         avisos.extend(achados)

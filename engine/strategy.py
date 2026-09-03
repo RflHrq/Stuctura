@@ -166,8 +166,7 @@ def parity(
 
 def parity_over_catalog(domain: Domain) -> list[ParityReport]:
     """Paridade sobre as 34 crenças do catálogo, ataque primário e secundário."""
-    alvos: list[tuple[str, str]] = []
-    for m in sorted(domain.misconceptions.values(), key=lambda x: x.id):
-        alvos.append(m.negates)
-        alvos.extend(m.also_negates)
-    return [parity(domain, kc, node) for kc, node in alvos]
+    return [
+        parity(domain, m.kc, m.node)
+        for m in sorted(domain.misconceptions.values(), key=lambda x: x.id)
+    ]

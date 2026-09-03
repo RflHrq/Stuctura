@@ -1,0 +1,27 @@
+# Configuração do ESTUDO, não do domínio.
+#
+# O que está aqui não descreve ponteiros em C: descreve como o piloto de
+# outubro usa o domínio. Fica fora de domain/c_pointers/ de propósito —
+# aqueles quatro arquivos são gerados e versionados como conteúdo, e
+# congelados no início da coleta (§15). Este muda com o desenho do estudo.
+
+# Recorte do piloto (§4.1 do dossiê): os de melhor ancoragem, cobrindo os
+# dois regimes (KC 7 exige diagrama; 11 e 9 são socrático puro), em 30-40 min.
+pilot_sequence: [kc_07, kc_11, kc_09]
+
+# RF10, nomeação tardia. Termos que só podem aparecer no nó de conclusão
+# do seu KC — nunca num nó intermediário, numa pergunta socrática ou num
+# enunciado de CIU. O validador confere.
+#
+# A lista vive aqui, e não no domínio, porque é uma regra de apresentação
+# do experimento: o mesmo grafo poderia ser usado sem nomeação tardia.
+late_named_terms:
+  - dangling
+
+# Limite de tentativas por nó antes de encerrar o KC como "em progresso"
+# (§6, §7.4). Sem essa guarda, um aluno travado entra em laço.
+max_attempts_per_node: 3
+
+# Escala de confiança declarada (RF02, RF04). Só o primeiro valor tem
+# efeito no §7.3: errar com ele marca a premissa ausente, não errada.
+confidence_scale: [chutei, "acho que sei", "tenho certeza"]
