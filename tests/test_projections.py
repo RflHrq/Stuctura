@@ -42,7 +42,7 @@ def roteiro_socratico(conn, sid):
     ev.append(conn, sid, "ciu_presented",
               {"ciu_id": "ciu_1", "kc": "kc_x", "targets": ["n1", "n2", "n3"], "phase": "diag"})
     ev.append(conn, sid, "answer_submitted",
-              {"ciu_id": "ciu_1", "option_idx": 2, "confidence": "confiante", "elapsed_ms": 8400,
+              {"ciu_id": "ciu_1", "option_idx": 2, "confidence": "tenho certeza", "elapsed_ms": 8400,
                "correct": False,
                "node_updates": [{"kc": "kc_x", "node": "n3", "state": "wrong"},
                                 {"kc": "kc_x", "node": "n1", "state": "absent"},
@@ -118,6 +118,22 @@ def test_tipo_desconhecido_falha(conn, sid):
 def test_campo_obrigatorio_faltando_falha(conn, sid):
     with pytest.raises(ev.EventError, match="obrigatorio"):
         ev.append(conn, sid, "kc_completed", {"kc": "kc_x", "elapsed_ms": 1})
+
+
+def test_a_escala_de_confianca_pode_ser_alinhada_ao_estudo(conn, sid):
+    """A escala vem de study.yaml; o store só a valida. Trocar a escala do
+    instrumento não pode exigir edição do log."""
+    original = ev.CONFIDENCE_VALUES
+    try:
+        ev.set_confidence_scale(["baixa", "alta"])
+        ev.append(conn, sid, "answer_submitted",
+                  {"ciu_id": "c", "option_idx": 0, "confidence": "alta", "elapsed_ms": 1})
+        with pytest.raises(ev.EventError, match="confidence"):
+            ev.append(conn, sid, "answer_submitted",
+                      {"ciu_id": "c", "option_idx": 0, "confidence": "chutei",
+                       "elapsed_ms": 1})
+    finally:
+        ev.set_confidence_scale(original)
 
 
 def test_confianca_fora_da_escala_falha(conn, sid):

@@ -24,7 +24,7 @@ Ordem do §13 da spec. Marcos 1 a 3 são o caminho crítico.
 | 2 | `store/`: esquema, append, projeção, `replay.py` | **feito** |
 | 3 | `strategy.py` + teste de paridade dos braços | **feito · marco crítico verde** |
 | 4 | `session.py`: FSM do §6 + `model.py` + `selector.py` | **feito** |
-| 5 | `api/`: as seis rotas do §9 | pendente |
+| 5 | `api/`: as seis rotas do §9 + retomada por replay | **feito** |
 | 6 | `web/`: interface e `diagram.js` | pendente |
 | 7 | `feedback.yaml` + `feedback.py` (RF17, SHOULD) | pendente |
 | 8 | `export.py` + os três CSVs | pendente |
@@ -38,6 +38,29 @@ python -m pytest tests/ -q         # motor e store
 python -m tools.replay --verify    # RNF04 sobre o banco de coleta
 python -m tools.freeze_golden      # só após mudança DELIBERADA no grafo
 ```
+
+## Rodar o servidor
+
+```bash
+python -m api.main
+```
+
+Sobe em `127.0.0.1:8000`. O domínio é validado no arranque: YAML inconsistente
+e o processo não sobe (§1). O hash do domínio é impresso e exposto em
+`/health` — confira antes de cada sessão (§15). O token de exportação fica em
+`data/export_token.txt`, ou vem de `STRUCTURA_EXPORT_TOKEN`.
+
+### Por que a retomada é por replay
+
+O estado da sessão **não existe em memória**. A cada requisição ele é
+reconstruído replicando as entradas do log através da FSM. Custa ~10 ms
+(medido; RNF03 pede ≤ 200) e compra: a sessão sobrevive a fechar a aba e a
+reiniciar o servidor; o estado nunca diverge do log, porque não há estado; e
+RNF04 passa a valer para o fluxo, não só para o vetor de premissas.
+
+Só funciona porque a FSM é pura e determinística. Se entrar aleatoriedade ou
+relógio no motor, a retomada quebra em silêncio — por isso
+`test_sessao_retomada_termina_igual_a_que_nao_caiu` compara as duas.
 
 ## Fronteira domínio / estudo
 

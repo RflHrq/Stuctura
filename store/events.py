@@ -28,9 +28,22 @@ DEFAULT_DB = Path(__file__).resolve().parent.parent / "data" / "structura.db"
 NODE_STATES = ("unknown", "confirmed", "absent", "wrong")
 
 # Confianca declarada, coletada antes da submissao (RF02) e usada para
-# distinguir premissa ausente de errada (RF04, §7.3). Se o instrumento
-# mudar a escala, muda aqui - e so aqui.
-CONFIDENCE_VALUES = ("chutei", "inseguro", "confiante", "certeza")
+# distinguir premissa ausente de errada (RF04, §7.3).
+#
+# A FONTE da escala e study.yaml. Esta constante e so o padrao de
+# arranque: a API chama `set_confidence_scale()` na inicializacao com a
+# escala do estudo. `store` nao importa `engine` — a direcao de
+# dependencia se manteria invertida —, entao quem conhece as duas pontas
+# injeta o valor.
+CONFIDENCE_VALUES: tuple[str, ...] = ("chutei", "acho que sei", "tenho certeza")
+
+
+def set_confidence_scale(values: Sequence[str]) -> None:
+    """Alinha a validacao do log a escala declarada em study.yaml."""
+    global CONFIDENCE_VALUES
+    if not values:
+        raise EventError("escala de confianca vazia")
+    CONFIDENCE_VALUES = tuple(values)
 
 ARMS = ("socratic", "direct")
 
@@ -47,6 +60,14 @@ EVENT_SCHEMA: Mapping[str, tuple[str, ...]] = {
     "socratic_step_answered":   ("kc", "node", "accepted", "elapsed_ms"),
     "regression_triggered":     ("from_node", "to_node"),
     "direct_explanation_shown": ("kc", "node", "elapsed_ms"),
+    # Dois acréscimos ao catálogo do §5.2, ambos exigidos pela retomada
+    # (RNF06): o estado da sessão é RECONSTRUÍDO replicando as entradas do
+    # log, e sem estes dois eventos as confirmações de diagrama, conclusão
+    # e leitura não deixariam rastro — a sessão retomada divergiria.
+    # `explanation_acknowledged` é também o par simétrico de
+    # `socratic_step_answered` para o pareamento de tempo do §8.
+    "explanation_acknowledged": ("kc", "node", "elapsed_ms"),
+    "stage_acknowledged":       ("stage", "kc", "elapsed_ms"),
     "kc_completed":             ("kc", "vector", "elapsed_ms"),
     "kc_incomplete":            ("kc", "node", "attempts"),
     "session_ended":            ("reason", "total_ms"),

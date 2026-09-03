@@ -124,8 +124,7 @@ def test_os_dois_bracos_percorrem_os_mesmos_nos(d):
     nos_a = [(e.payload["kc"], e.payload["node"])
              for e in ev_a if e.type == "socratic_step_shown"]
     nos_b = [(e.payload["kc"], e.payload["node"])
-             for e in ev_b if e.type == "direct_explanation_shown"
-             and "node_updates" not in e.payload]
+             for e in ev_b if e.type == "direct_explanation_shown"]
     assert nos_a == nos_b and nos_a
 
 

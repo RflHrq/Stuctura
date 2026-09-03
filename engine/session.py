@@ -189,7 +189,13 @@ def advance(domain: Domain, state: SessionState, event: Event) -> Transition:
     if state.phase == CONFRONTO:
         if not isinstance(event, Acknowledge):
             raise ValueError("CONFRONTO espera Acknowledge, veio %s" % type(event).__name__)
-        return _entra_correcao(domain, state)
+        ev = Emit("stage_acknowledged", {
+            "stage": "diagram", "kc": state.kc,
+            "node": state.target[1] if state.target else "",
+            "elapsed_ms": event.elapsed_ms,
+        })
+        t = _entra_correcao(domain, state)
+        return Transition(t.state, t.action, (ev,) + t.events)
 
     if state.phase == CORRECAO:
         if not isinstance(event, StepAnswer):
@@ -199,7 +205,13 @@ def advance(domain: Domain, state: SessionState, event: Event) -> Transition:
     if state.phase == CONCLUSAO:
         if not isinstance(event, Acknowledge):
             raise ValueError("CONCLUSAO espera Acknowledge, veio %s" % type(event).__name__)
-        return _entra_variacao(domain, state)
+        ev = Emit("stage_acknowledged", {
+            "stage": "conclusion", "kc": state.kc,
+            "node": domain.kcs[state.kc].conclusion_node,
+            "elapsed_ms": event.elapsed_ms,
+        })
+        t = _entra_variacao(domain, state)
+        return Transition(t.state, t.action, (ev,) + t.events)
 
     if state.phase == VARIACAO:
         if not isinstance(event, Answer):
@@ -290,6 +302,7 @@ def _responde_diagnostico(domain: Domain, state: SessionState, ev: Answer) -> Tr
     # validação da Q-matrix, e independe de confiança.
     eventos = [Emit("answer_submitted", {
         "ciu_id": ciu.id, "kc": ciu.kc, "option_idx": ev.option_idx,
+        "text": list(ev.text) if isinstance(ev.text, tuple) else ev.text,
         "confidence": ev.confidence, "elapsed_ms": ev.elapsed_ms,
         "correct": correto, "misconception_id": mid,
         "node_updates": [u.as_payload() for u in updates],
@@ -464,7 +477,7 @@ def _apresenta_passo(domain: Domain, state: SessionState,
         evento = Emit("direct_explanation_shown", {
             "kc": passo.kc, "node": passo.node, "elapsed_ms": 0,
             "step_idx": passo.idx, "total": passo.total,
-        })
+        })  # apresentação; o tempo de exposição vem no acknowledged
     return Transition(state, acao, (evento,))
 
 
@@ -484,13 +497,14 @@ def _avanca_correcao(domain: Domain, state: SessionState, ev: StepAnswer) -> Tra
     if not socratico or ev.accepted:
         updates = [model.Update(ref[0], ref[1], model.CONFIRMED)]
         vetor = model.apply(state.vector, updates)
+        # Simétrico de propósito: cada braço tem um evento de apresentação
+        # e um de resposta, os dois com o mesmo par (kc, node) e o mesmo
+        # `elapsed_ms`. É o que permite parear tempo em tarefa entre A e B
+        # (§8) sem depender de contar eventos de tipos diferentes.
         evento = Emit(
-            "socratic_step_answered" if socratico else "direct_explanation_shown",
+            "socratic_step_answered" if socratico else "explanation_acknowledged",
             {"kc": ref[0], "node": ref[1], "accepted": True,
              "elapsed_ms": ev.elapsed_ms,
-             "node_updates": [u.as_payload() for u in updates]}
-            if socratico else
-            {"kc": ref[0], "node": ref[1], "elapsed_ms": ev.elapsed_ms,
              "node_updates": [u.as_payload() for u in updates]},
         )
         novo = replace(state, vector=vetor, cursor=state.cursor + 1)
@@ -576,6 +590,7 @@ def _responde_variacao(domain: Domain, state: SessionState, ev: Answer) -> Trans
 
     eventos = [Emit("answer_submitted", {
         "ciu_id": ciu.id, "kc": ciu.kc, "option_idx": ev.option_idx,
+        "text": list(ev.text) if isinstance(ev.text, tuple) else ev.text,
         "confidence": ev.confidence, "elapsed_ms": ev.elapsed_ms,
         "correct": correto, "misconception_id": mid, "phase": "variation",
         "node_updates": [u.as_payload() for u in updates],
