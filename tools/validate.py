@@ -77,11 +77,15 @@ def check_late_naming(d: Domain) -> list[str]:
             if node.id == kc.conclusion_node:
                 continue
             for norm, orig in termos:
-                if norm in _norm(node.text):
-                    out.append(
-                        "%s:%s usa %r antes da conclusão (%s) — RF10"
-                        % (kc.id, node.id, orig, kc.conclusion_node)
-                    )
+                # `plain` é o que o participante REALMENTE lê quando existe.
+                # Verificar só `text` deixaria o vazamento passar justamente
+                # pelo campo novo — e RF10 é sobre o que chega aos olhos.
+                for campo, valor in (("text", node.text), ("plain", node.plain)):
+                    if valor and norm in _norm(valor):
+                        out.append(
+                            "%s:%s usa %r em `%s`, antes da conclusão (%s) — RF10"
+                            % (kc.id, node.id, orig, campo, kc.conclusion_node)
+                        )
     for c in d.cius.values():
         for norm, orig in termos:
             if norm in _norm(c.prompt) or any(norm in _norm(o.text) for o in c.options):
@@ -276,6 +280,68 @@ def check_node_coverage(d: Domain) -> list[str]:
     return out
 
 
+def check_plain_consistency(d: Domain) -> list[str]:
+    """Um KC não deveria misturar os dois registros no mesmo traversal.
+
+    `plain` é opcional por KC — reescrever os 93 nós é trabalho de conteúdo,
+    e o domínio tem de continuar carregando enquanto ele não acontece. Mas
+    DENTRO de um KC a mistura é visível: o aluno confirma três premissas em
+    linguagem corrente e a quarta chega em linguagem técnica, no meio da
+    mesma pergunta. Ou o KC inteiro tem, ou nenhum nó tem.
+
+    É aviso, não erro: um KC pela metade ainda coleta dado válido. Só não
+    deve chegar assim ao piloto.
+    """
+    out = []
+    for kc in d.kcs.values():
+        com = [n.id for n in kc.nodes.values() if n.plain]
+        sem = [n.id for n in kc.nodes.values() if not n.plain]
+        if com and sem:
+            out.append(
+                "%s tem %d nó(s) com `plain` e %d sem (%s): o traversal "
+                "misturaria os dois registros%s"
+                % (kc.id, len(com), len(sem), ", ".join(sorted(sem)),
+                   "" if kc.id in d.pilot_sequence else " (fora do piloto)")
+            )
+    return out
+
+
+def check_mixed_question(d: Domain) -> list[str]:
+    """Uma pergunta que cita metade das premissas em cada registro.
+
+    A pergunta de uma inferência cita o nó e cada um dos seus suportes. Se
+    parte deles tem `plain` e parte não, o aluno lê, na MESMA frase, uma
+    premissa em linguagem corrente e outra em linguagem técnica — e não há
+    como ele saber que são o mesmo tipo de coisa.
+
+    Isto acontece calado quando o suporte vem de outro KC: kc_07:I4 se
+    apoia em kc_06.B2, e simplificar o kc_07 sem tocar no kc_06 produziria
+    exatamente essa frase. A conferência por KC não pegaria — o nó
+    estrangeiro não pertence ao KC simplificado.
+    """
+    out = []
+    for kc in d.kcs.values():
+        for node in kc.nodes.values():
+            if not node.support:
+                continue
+            citados = [node]
+            for ref in node.support:
+                try:
+                    citados.append(d.node(*ref))
+                except KeyError:
+                    pass
+            com = [n for n in citados if n.plain]
+            sem = [n for n in citados if not n.plain]
+            if com and sem:
+                out.append(
+                    "a pergunta de %s:%s mistura os registros: %s com "
+                    "`plain`, %s não" % (
+                        kc.id, node.id,
+                        ", ".join("%s:%s" % (n.kc, n.id) for n in com),
+                        ", ".join("%s:%s" % (n.kc, n.id) for n in sem)))
+    return out
+
+
 def check_hypotheses(d: Domain) -> list[str]:
     """Crenças cuja formulação ainda é hipótese, não achado.
 
@@ -309,6 +375,8 @@ AVISOS = (
     ("CIUs diagnósticas", check_diagnostic_coverage),
     ("cobertura do grafo", check_node_coverage),
     ("crenças ainda hipotéticas", check_hypotheses),
+    ("registro uniforme por KC", check_plain_consistency),
+    ("pergunta com registro misto", check_mixed_question),
 )
 
 
@@ -334,6 +402,12 @@ def stats(d: Domain) -> str:
         % (len(d.kcs), sum(1 for k in d.kcs if d.requires_diagram(k)),
            ", ".join(k for k in d.teaching_sequence() if d.requires_diagram(k))),
         "nós            %d  (%d base, %d inferência)" % (nos, base, nos - base),
+        "simplificados  %d/%d com `plain`, %d com figura  (KCs: %s)" % (
+            sum(1 for k in d.kcs.values() for n in k.nodes.values() if n.plain),
+            nos,
+            sum(1 for k in d.kcs.values() for n in k.nodes.values() if n.figure),
+            ", ".join(sorted(k.id for k in d.kcs.values()
+                             if any(n.plain for n in k.nodes.values()))) or "nenhum"),
         "crenças        %d  (%d fundacionais, %d derivacionais)"
         % (len(d.misconceptions), fund, len(d.misconceptions) - fund),
         "proveniência   %s" % "  ".join(

@@ -220,7 +220,7 @@ mídias (§15).
 Antes da primeira atividade o participante lê seis cartões ilustrados:
 o percurso da sessão, endereço, caixa, ponteiro, as duas regiões, e a escala
 de confiança. Cada um tem uma figura em SVG, montada de `intro.yaml` — o tipo
-de figura é vocabulário de apresentação (`web/intro.js`), o conteúdo é domínio.
+de figura é vocabulário de apresentação (`web/figures.js`), o conteúdo é domínio.
 
 **A introdução cobre a mobília, nunca as conclusões dos KCs que o piloto mede.**
 Se ela dissesse "array e ponteiro são tipos distintos", teria ensinado a
@@ -232,6 +232,60 @@ domínio se um cartão mencionar termo distintivo de `kc_07`, `kc_11` ou `kc_09`
 confirmado emite `stage_acknowledged` com o tempo de leitura, então a retomada
 volta ao cartão certo e o tempo de orientação entra na análise separado do
 tempo de tarefa.
+
+
+## Duas versões de cada premissa
+
+Um nó do grafo pode declarar, além de `text`, dois campos opcionais:
+
+```yaml
+B1:
+  type: base
+  text:  "int a[5] reserva 5 ints contiguos e nomeados."
+  plain: "int a[5] cria 5 caixas de inteiro grudadas uma na outra. O nome a
+          vale para o conjunto inteiro, não para uma caixa só."
+  figure: {kind: array_row, ...}
+```
+
+`text` é a proposição do grafo de premissas — a que tem proveniência, a que
+os planos golden congelam, a que a banca cobra. `plain` é **apresentação**:
+a mesma proposição dita a quem ainda não tem o vocabulário. Os dois convivem
+porque servem a leitores diferentes, e nenhum deve ser derivado do outro por
+heurística. Sem `plain`, o nó é apresentado pelo `text`, como sempre.
+
+Quem lê `plain` lê em **todo lugar**: a pergunta do traversal, a citação do
+suporte nas inferências, o texto do braço direto e a contradição do RF17. Se
+a contradição devolvesse o enunciado canônico depois de o aluno ter
+confirmado a versão simples, ele não reconheceria como sua uma frase que
+nunca leu — e a etapa 2 do RF17 vale justamente por dizer *"repare no que
+você confirmou"*.
+
+Os dois braços leem sempre a mesma versão (§8.1). Simplificar um braço só
+seria dar-lhe um apoio que o outro não tem, e a variável isolada deixaria de
+ser a geração ativa. `tests/test_plain.py` afirma isso.
+
+**Hoje só o `kc_07` está simplificado** (9 nós, mais `kc_06:B2`, que o
+`kc_07:I4` puxa para dentro do traversal). É amostra deliberada: reescrever
+os 93 nós é trabalho de conteúdo, e o registro precisa ser julgado num KC
+antes de valer para os outros.
+
+Dois avisos do validador cuidam da transição:
+
+- **registro uniforme por KC** — um KC com metade dos nós simplificados
+  misturaria os dois registros no mesmo traversal.
+- **pergunta com registro misto** — mais preciso: nomeia a pergunta em que
+  parte das premissas citadas tem `plain` e parte não. Pega o caso que a
+  conferência por KC não pega, o do suporte que vem de outro KC.
+
+Para julgar o registro de um KC:
+
+```
+python -m tools.figuras kc_07 -o analise/figuras_kc07.html
+```
+
+A página põe lado a lado, para cada nó e na ordem do traversal, o enunciado
+do grafo, a versão simples, a pergunta montada e a ilustração — renderizada
+pelo mesmo `web/figures.js` do piloto.
 
 ## O que a interface exige antes de começar
 

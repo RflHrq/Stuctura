@@ -27,8 +27,23 @@
   --bad:     #94372a;
   --bad-bg:  #f7e5e1;
   --warn-bg: #f6eddb;
+  --warn:    #8a6212;
   --shadow:  0 1px 2px rgba(22,24,26,.05), 0 10px 26px -20px rgba(22,24,26,.45);
   --radius:  10px;
+
+  /* Cores DAS FIGURAS. Existem porque uma ilustração compara dois casos
+   * que são ambos corretos — "quase toda expressão" contra "as duas
+   * exceções" — e pintá-los com --ok e --bad diria que um está errado.
+   * `--base` é o lado neutro; `--accent` continua sendo o lado em foco.
+   *
+   * `-soft` é o fundo do respectivo par. `--accent-soft` é apelido de
+   * `--accent-bg`: as figuras foram escritas com um nome, a interface com
+   * o outro, e um `var()` sem valor não avisa ninguém — só pinta de PRETO
+   * (o fallback do SVG), que foi exatamente o que aconteceu. */
+  --base:        #4c5a63;
+  --base-soft:   #e8ecee;
+  --accent-soft: var(--accent-bg);
+  --warn-soft:   var(--warn-bg);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,7 +54,8 @@
     --accent: #79b8ce; --accent-bg: #132831;
     --ok: #61c398; --ok-bg: #112a20;
     --bad: #e08c7c; --bad-bg: #31201c;
-    --warn-bg: #2e2313;
+    --warn-bg: #2e2313; --warn: #d9ae5b;
+    --base: #9aa8b1; --base-soft: #1d2124;
     --shadow: 0 1px 2px rgba(0,0,0,.5), 0 10px 26px -20px rgba(0,0,0,.9);
   }
 }
@@ -97,7 +113,13 @@ pre.code {
   white-space: pre; color: var(--ink);
 }
 
-.question { font-size: 17px; color: var(--ink); margin: 0 0 16px; font-weight: 500; }
+/* pre-line porque os moldes de pergunta quebram linha: `retry_inference`
+ * lista as premissas uma por linha, e sem isto a lista virava um
+ * parágrafo corrido — a quebra existia no texto e sumia na tela. */
+.question {
+  font-size: 17px; color: var(--ink); margin: 0 0 16px; font-weight: 500;
+  white-space: pre-line;
+}
 
 /* ------------------------------------------------------------ opções */
 
@@ -173,6 +195,18 @@ input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px
 
 #passo-diagrama:not(:empty) { margin: 0 0 18px; }
 #passo-diagrama .diagram-card { margin: 0; }
+
+/* A analogia da premissa. Mesma caixa da introdução, um pouco mais
+ * discreta: aqui ela acompanha a pergunta, não é o assunto da tela. */
+.premissa-fig{
+  margin:0; padding:16px 14px 12px; background:var(--sunk);
+  border:1px solid var(--rule); border-radius:10px;
+}
+.premissa-fig svg.fig{width:100%; height:auto; display:block}
+.premissa-fig figcaption{
+  margin-top:12px; padding-top:10px; border-top:1px solid var(--rule-2);
+  font-size:13px; color:var(--mute); text-align:center;
+}
 
 .steps { margin-top: 22px; border-top: 1px solid var(--rule); padding-top: 14px; }
 .step-row {

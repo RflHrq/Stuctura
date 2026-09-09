@@ -84,6 +84,23 @@ class Node:
     support: tuple[Ref, ...] = ()
     imported_from: Ref | None = None
 
+    # Reescrita do enunciado em linguagem corrente, e a ilustração que o
+    # acompanha. Ambos OPCIONAIS: sem eles o nó é apresentado como sempre.
+    #
+    # POR QUE NÃO REESCREVER `text` DIRETO
+    #
+    # `text` é o enunciado do grafo de premissas — a proposição com
+    # proveniência, a que a banca cobra e a que os testes golden congelam.
+    # `plain` é APRESENTAÇÃO: como dizer a mesma proposição a alguém que
+    # ainda não tem o vocabulário. Separá-los permite simplificar a fala
+    # sem mexer no que o grafo afirma, e permite mostrar os dois lado a
+    # lado na defesa.
+    #
+    # É o mesmo princípio de `study.late_name_substitutions`: o domínio
+    # guarda a afirmação, o estudo decide como ela chega ao participante.
+    plain: str = ""
+    figure: Mapping[str, Any] | None = None
+
     @property
     def ref(self) -> Ref:
         return (self.kc, self.id)
@@ -91,6 +108,11 @@ class Node:
     @property
     def is_base(self) -> bool:
         return self.type == "base"
+
+    @property
+    def display_text(self) -> str:
+        """O que o aluno lê. `text` continua sendo o que o grafo afirma."""
+        return self.plain or self.text
 
 
 @dataclass(frozen=True, slots=True)
@@ -459,10 +481,16 @@ def _build_kcs(kcs_raw: Mapping, graphs_raw: Mapping, problemas: list[str]) -> d
             if tipo == "inference" and not sup:
                 problemas.append("%s é inferência sem support" % onde)
             imp = nd.get("imported_from")
+            fig = nd.get("figure")
+            if fig is not None and not (isinstance(fig, Mapping) and fig.get("kind")):
+                problemas.append("%s: figure sem `kind`" % onde)
+                fig = None
             nodes[node_id] = Node(
                 kc=kc_id, id=node_id, type=tipo, text=nd.get("text", ""), support=sup,
                 imported_from=_ref(imp, kc_id, "%s imported_from" % onde, problemas)
                 if imp else None,
+                plain=(nd.get("plain") or "").strip(),
+                figure=dict(fig) if fig else None,
             )
             if not nodes[node_id].text:
                 problemas.append("%s sem texto" % onde)
@@ -549,7 +577,7 @@ class IntroCard:
 PROMPT_KEYS: Mapping[str, tuple[str, ...]] = {
     "base_with_diagram":       ("node",),
     "base_plain":              ("node",),
-    "inference":               ("node", "support"),
+    "inference":               ("node", "support", "support_list"),
     "inference_no_support":    ("node",),
     "retry_base_with_diagram": ("node",),
     "retry_base_plain":        ("node",),

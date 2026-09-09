@@ -155,10 +155,10 @@ def test_todo_cartao_tem_id_titulo_e_figura(d):
 
 
 def test_as_figuras_usam_tipos_que_o_renderizador_conhece(d):
-    """Os tipos vivem em web/intro.js. Um `kind` desconhecido renderiza
+    """Os tipos vivem em web/figures.js. Um `kind` desconhecido renderiza
     NADA e o cartão fica sem a ilustração, em silêncio."""
     conhecidos = set()
-    fonte = (Path(__file__).resolve().parent.parent / "web" / "intro.js").read_text(
+    fonte = (Path(__file__).resolve().parent.parent / "web" / "figures.js").read_text(
         encoding="utf-8")
     bloco = fonte[fonte.index("var TIPOS = {"):fonte.index("};", fonte.index("var TIPOS = {"))]
     for linha in bloco.splitlines()[1:]:
@@ -168,7 +168,7 @@ def test_as_figuras_usam_tipos_que_o_renderizador_conhece(d):
 
     for c in d.intro:
         assert c.figure["kind"] in conhecidos, \
-            "%s usa figura %r, que web/intro.js não desenha" % (c.id, c.figure["kind"])
+            "%s usa figura %r, que web/figures.js não desenha" % (c.id, c.figure["kind"])
 
 
 def test_dominio_sem_introducao_ainda_sobe(d, tmp_path):

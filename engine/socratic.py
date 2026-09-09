@@ -15,7 +15,7 @@ andaime linguístico, não conhecimento de domínio.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 
 from engine.loader import Domain, Ref
 
@@ -27,15 +27,24 @@ MAX_ATTEMPTS = 3
 
 @dataclass(frozen=True, slots=True)
 class Step:
-    """Um passo do traversal. `idx`/`total` são 1-based, para exibição."""
+    """Um passo do traversal. `idx`/`total` são 1-based, para exibição.
+
+    `text` é o que o aluno LÊ — a versão em linguagem corrente quando o nó
+    tem uma. `canonical` é o que o grafo AFIRMA. Os dois convivem porque
+    servem a leitores diferentes: o participante lê o primeiro, a análise
+    e a banca leem o segundo, e nenhum dos dois deve ser derivado do outro
+    por heurística.
+    """
 
     kc: str
     node: str
-    kind: str          # "base" | "inference"
-    text: str          # o enunciado do nó, como está no YAML
-    question: str      # a pergunta montada a partir do grafo
+    kind: str                  # "base" | "inference"
+    text: str                  # o enunciado como o aluno o lê
+    question: str              # a pergunta montada a partir do grafo
     idx: int
     total: int
+    canonical: str = ""        # o enunciado do nó como está no YAML
+    figure: Mapping[str, Any] | None = None
 
     @property
     def ref(self) -> Ref:
@@ -97,19 +106,7 @@ def steps(
 ) -> list[Step]:
     """O plano já com as perguntas montadas, pronto para a estratégia."""
     refs = plan(domain, kc, target, confirmed)
-    total = len(refs)
-    return [
-        Step(
-            kc=k,
-            node=n,
-            kind=domain.node(k, n).type,
-            text=domain.study.mask(domain.node(k, n).text),
-            question=question(domain, k, n, with_diagram),
-            idx=i,
-            total=total,
-        )
-        for i, (k, n) in enumerate(refs, start=1)
-    ]
+    return steps_from(domain, refs, with_diagram)
 
 
 def steps_from(domain: Domain, refs: Sequence[Ref],
@@ -122,12 +119,21 @@ def steps_from(domain: Domain, refs: Sequence[Ref],
     "passo 3 de 5" entre uma tela e a seguinte.
     """
     total = len(refs)
-    return [
-        Step(kc=k, node=n, kind=domain.node(k, n).type,
-             text=domain.study.mask(domain.node(k, n).text),
-             question=question(domain, k, n, with_diagram), idx=i, total=total)
-        for i, (k, n) in enumerate(refs, start=1)
-    ]
+    return [_step(domain, k, n, i, total, with_diagram)
+            for i, (k, n) in enumerate(refs, start=1)]
+
+
+def _step(domain: Domain, kc: str, node: str, idx: int, total: int,
+          with_diagram: bool) -> Step:
+    nd = domain.node(kc, node)
+    return Step(
+        kc=kc, node=node, kind=nd.type,
+        text=domain.study.mask(nd.display_text),
+        canonical=domain.study.mask(nd.text),
+        figure=dict(nd.figure) if nd.figure else None,
+        question=question(domain, kc, node, with_diagram),
+        idx=idx, total=total,
+    )
 
 
 # --------------------------------------------------------------------------
@@ -146,7 +152,7 @@ def question(domain: Domain, kc: str, node: str,
     reinterpretar uma conclusão construída com as respostas dele.
     """
     nd = domain.node(kc, node)
-    corpo = domain.study.mask(nd.text).rstrip(".")
+    corpo = domain.study.mask(nd.display_text).rstrip(".")
 
     if nd.is_base:
         # "Olhando o diagrama" só pode ser dito se HOUVER um diagrama na
@@ -156,14 +162,20 @@ def question(domain: Domain, kc: str, node: str,
         chave = "base_with_diagram" if with_diagram else "base_plain"
         return _molde(domain, chave, "%s, certo?", node=corpo)
 
-    citados = "; ".join(
-        domain.study.mask(domain.node(*s).text).rstrip(".")
-        for s in nd.support
-        if _existe(domain, s)
-    )
-    if not citados:  # inferência sem suporte resolvível: o validador já reclamou
+    # O suporte é citado na MESMA linguagem em que o aluno o confirmou.
+    # Citá-lo no enunciado canônico enquanto ele o confirmou em linguagem
+    # corrente faria a inferência parecer apoiada em outra coisa.
+    textos = [domain.study.mask(domain.node(*s).display_text).rstrip(".")
+              for s in nd.support if _existe(domain, s)]
+    if not textos:  # inferência sem suporte resolvível: o validador já reclamou
         return _molde(domain, "inference_no_support", "%s, certo?", node=corpo)
-    return _molde(domain, "inference", "%s, certo?", node=corpo, support=citados)
+    # Dois formatos do mesmo suporte, e o molde escolhe. Em prosa corrida
+    # ({support}) três premissas de uma linha ainda se leem; três premissas
+    # em linguagem corrente viram um parágrafo em que ninguém acha onde uma
+    # acaba e a outra começa. {support_list} põe uma por linha.
+    return _molde(domain, "inference", "%s, certo?", node=corpo,
+                  support="; ".join(textos),
+                  support_list=chr(10).join("- " + t for t in textos))
 
 
 def _molde(domain: Domain, chave: str, reserva: str, **valores: str) -> str:
@@ -286,13 +298,13 @@ def reformulate(domain: Domain, step: Step,
     if nd.is_base:
         chave = "retry_base_with_diagram" if with_diagram else "retry_base_plain"
         return _molde(domain, chave, "%s — você concorda?",
-                      node=domain.study.mask(nd.text))
+                      node=domain.study.mask(nd.display_text))
 
-    textos = [domain.study.mask(domain.node(*s).text)
+    textos = [domain.study.mask(domain.node(*s).display_text)
               for s in nd.support if _existe(domain, s)]
     return _molde(
         domain, "retry_inference", "%s",
-        node=domain.study.mask(nd.text),
+        node=domain.study.mask(nd.display_text),
         support="; ".join(t.rstrip(".") for t in textos),
         support_list=chr(10).join("- " + t for t in textos),
     )

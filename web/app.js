@@ -206,7 +206,7 @@
 
     var fig = $("intro-fig");
     fig.innerHTML = "";
-    var desenho = IntroFig.render(a.figure);
+    var desenho = Fig.render(a.figure);
     if (desenho) fig.appendChild(desenho);
 
     var corpo = $("intro-corpo");
@@ -513,9 +513,14 @@
     desenhaTrilha(idx, total);
     pintaFeedback("passo-feedback", a.feedback);
 
-    /* O diagrama vem junto quando a correção veio de um confronto visual.
-     * Sem isto a pergunta dizia "olhando o diagrama" e não havia diagrama
-     * nenhum na tela — o aluno procurava o que não existe. */
+    /* Duas ilustrações possíveis, nunca as duas ao mesmo tempo — quem
+     * decide é o servidor, em _dados_do_passo:
+     *
+     *   a.visual   o diagrama do confronto RF08 (manipulação experimental)
+     *   a.figure   a analogia do próprio nó, vinda do grafo
+     *
+     * Sem a primeira, a pergunta dizia "olhando o diagrama" sem diagrama
+     * nenhum na tela. Sem a segunda, cada premissa era só uma frase. */
     var alvo = $("passo-diagrama");
     alvo.innerHTML = "";
     if (a.visual) {
@@ -525,6 +530,9 @@
           payload: { from_state: de, to_state: para, elapsed_ms: decorrido() }
         }).catch(function () {});
       }));
+    } else if (a.figure) {
+      var fig = Fig.render(a.figure, "premissa-fig");
+      if (fig) alvo.appendChild(fig);
     }
 
     var acoes = $("passo-acoes");

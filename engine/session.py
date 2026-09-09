@@ -565,6 +565,27 @@ def _passos(domain: Domain, state: SessionState) -> list[socratic.Step]:
     return socratic.steps_from(domain, state.plan, with_diagram=bool(state.visual))
 
 
+def _dados_do_passo(state: SessionState, passo: socratic.Step) -> dict[str, Any]:
+    """O que acompanha o enunciado na tela. Idêntico nos dois braços (§8.1).
+
+    Duas figuras podem disputar o mesmo espaço:
+
+      `visual`  o diagrama do confronto RF08. É manipulação experimental —
+                entra só nos nós-base, que são onde a pergunta manda olhar.
+      `figure`  a analogia do próprio nó, que vem do grafo.
+
+    Quando as duas existem, o diagrama vence: ele é o que o RF08 exige que
+    o aluno observe, e duas ilustrações lado a lado dividiriam a atenção
+    justamente no passo em que ela importa (§10.1).
+    """
+    dados: dict[str, Any] = {"node_kind": passo.kind}
+    if state.visual and passo.kind == "base":
+        dados["visual"] = dict(state.visual)
+    elif passo.figure:
+        dados["figure"] = dict(passo.figure)
+    return dados
+
+
 def _apresenta_passo(domain: Domain, state: SessionState,
                      prompt: str | None = None) -> Transition:
     passos = _passos(domain, state)
@@ -588,11 +609,7 @@ def _apresenta_passo(domain: Domain, state: SessionState,
     socratico = state.arm == strategy.ARM_SOCRATIC
 
     if socratico:
-        dados = {"node_kind": passo.kind}
-        if state.visual and passo.kind == "base":
-            # Só nos nós-base: é neles que a pergunta manda olhar, e repetir
-            # a figura numa inferência competiria com o texto (§10.1).
-            dados["visual"] = dict(state.visual)
+        dados = _dados_do_passo(state, passo)
         acao = Action("ask", kc=passo.kc, node=passo.node,
                       text=prompt or passo.question,
                       step_idx=passo.idx, step_total=passo.total,
@@ -603,9 +620,7 @@ def _apresenta_passo(domain: Domain, state: SessionState,
             "step_idx": passo.idx, "total": passo.total,
         })
     else:
-        dados = {"node_kind": passo.kind}
-        if state.visual and passo.kind == "base":
-            dados["visual"] = dict(state.visual)   # idêntico ao braço A (§8.1)
+        dados = _dados_do_passo(state, passo)      # idêntico ao braço A (§8.1)
         acao = Action("explain", kc=passo.kc, node=passo.node, text=passo.text,
                       step_idx=passo.idx, step_total=passo.total,
                       data=dados)

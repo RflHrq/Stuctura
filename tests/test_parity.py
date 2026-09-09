@@ -85,12 +85,19 @@ def test_braco_b_tem_exatamente_uma_acao_a_mais(d):
 
 
 def test_o_texto_do_braco_b_sai_do_mesmo_no_do_yaml(d):
-    """O braço B não pode ter texto próprio: é o mesmo nó, outra forma verbal."""
+    """O braço B não pode ter texto próprio: é o mesmo nó, outra forma verbal.
+
+    `display_text`, não `text`: um nó simplificado é lido na versão em
+    linguagem corrente nos DOIS braços. Se o braço B lesse o enunciado
+    canônico enquanto o A lê a versão simples, a simplificação viraria
+    tratamento — e a variável isolada deixaria de ser a geração ativa.
+    """
     for m in d.misconceptions.values():
         for acao in strategy.DirectStrategy().correct(d, m.kc, m.node):
             if acao.kind == "confirm":
                 continue
-            assert acao.text == d.node(acao.kc, acao.node).text
+            no = d.node(acao.kc, acao.node)
+            assert acao.text == d.study.mask(no.display_text)
 
 
 def test_braco_desconhecido_falha_alto(d):

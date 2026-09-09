@@ -58,24 +58,202 @@ graphs:
   kc_06:
     nodes:
       B1: {type: base, text: "Ao chamar f(x), o parametro e variavel nova, local a f."}
-      B2: {type: base, text: "O valor de x e copiado para essa variavel."}
+      B2:
+        type: base
+        text: "O valor de x e copiado para essa variavel."
+        # Puxado para dentro do kc_07 por I4. Ver a nota de escopo no kc_07.
+        plain: "O valor de x é copiado para dentro dessa caixa nova."
+        figure:
+          kind: boxes
+          alt: "Duas caixas com o mesmo valor dentro"
+          items:
+            - {name: "x", value: "7", addr: "0x40"}
+            - {name: "cópia em f", value: "7", addr: "0x88"}
+          caption: "Duas caixas, o mesmo valor dentro. Mexer numa não mexe na outra."
       I1: {type: inference, support: [B1, B2], text: "Modificar o parametro nao afeta x."}
       I2: {type: inference, support: [B2, kc_04.B2], text: "Se o argumento e &x, f recebe copia do endereco."}
       I3: {type: inference, support: [I2, kc_04.I4], text: "*p = v dentro de f altera x."}
       I4: {type: inference, support: [I1, I2], text: "Atribuir a p dentro de f nao altera o ponteiro do chamador."}
       I5: {type: inference, support: [I1, I3], text: "C nao tem passagem por referencia: passa enderecos por valor."}
 
+  # ==========================================================================
+  # KC 07 — o unico KC com `plain` e `figure` em todos os nos.
+  #
+  # E o primeiro KC do piloto, entao e o primeiro traversal que o
+  # participante ve. Serve de AMOSTRA do registro: se o tom estiver certo
+  # aqui, os outros 84 nos seguem o mesmo padrao; se estiver errado, so
+  # este KC precisa ser refeito.
+  #
+  # `text` continua sendo o enunciado do grafo — a proposicao com
+  # proveniencia. `plain` e como dize-la a quem ainda nao tem o
+  # vocabulario. Os dois convivem de proposito: ver Node.display_text.
+  #
+  # Nota de escopo: kc_06.B2 tambem recebeu `plain`, porque I4 o puxa para
+  # dentro deste traversal. Sem isso, uma pergunta so citaria metade das
+  # premissas em linguagem corrente.
+  #
+  # O vocabulario e o mesmo da introducao — "caixa", "endereco" — de
+  # proposito: o participante acabou de le-la.
+  # ==========================================================================
   kc_07:
     nodes:
-      B1: {type: base, text: "int a[5] reserva 5 ints contiguos e nomeados."}
-      B2: {type: base, imported_from: kc_03.I1, text: "int *p reserva so o ponteiro."}
-      B3: {type: base, text: "Em expressao, o nome do array converte-se em ponteiro ao primeiro elemento."}
-      B4: {type: base, text: "Ha contextos onde a conversao nao ocorre: sizeof e &."}
-      I1: {type: inference, support: [B1, B2, B3], text: "a e p tem tipos diferentes, ainda que a[i] e p[i] se parecam."}
-      I2: {type: inference, support: [B1, I1], text: "Nao se atribui ao nome do array: nao e modificavel."}
-      I3: {type: inference, support: [B4, I1], text: "sizeof(a) da o array; sizeof(p), o ponteiro."}
-      I4: {type: inference, support: [B3, kc_06.B2], text: "Como parametro, int a[] e reescrito como int *a; dai a perda do tamanho."}
-      I5: {type: inference, support: [B4, I1], text: "arr e &arr apontam ao mesmo lugar, com tipos diferentes."}
+
+      B1:
+        type: base
+        text: "int a[5] reserva 5 ints contiguos e nomeados."
+        plain: "int a[5] cria 5 caixas de inteiro grudadas uma na outra. O nome a vale para o conjunto inteiro, não para uma caixa só."
+        figure:
+          kind: array_row
+          alt: "Cinco caixas grudadas, com um nome só por cima de todas"
+          name: "a"
+          cells:
+            - {value: "?", label: "a[0]"}
+            - {value: "?", label: "a[1]"}
+            - {value: "?", label: "a[2]"}
+            - {value: "?", label: "a[3]"}
+            - {value: "?", label: "a[4]"}
+          note: "Vizinhas, sem espaço entre elas."
+          caption: "O nome a cobre as cinco. Não existe uma caixa chamada a separada delas."
+
+      B2:
+        type: base
+        imported_from: kc_03.I1
+        text: "int *p reserva so o ponteiro."
+        plain: "int *p cria uma caixa só: a de p. Nenhuma caixa de inteiro nasce junto."
+        figure:
+          kind: boxes
+          alt: "Uma única caixa, ainda vazia"
+          items:
+            - {name: "p", value: "?", addr: "0x88", tone: "pointer"}
+          caption: "Só isto. A caixa para onde p vai apontar ainda não existe."
+
+      B3:
+        type: base
+        text: "Em expressao, o nome do array converte-se em ponteiro ao primeiro elemento."
+        plain: "Quando você usa a numa conta, C troca a pelo endereço da primeira caixa."
+        figure:
+          kind: array_decay
+          alt: "O nome a sendo trocado pelo endereço da primeira caixa"
+          written_label: "no código"
+          written: "a"
+          arrow_label: "C troca por"
+          cells:
+            - {value: "?", label: "a[0]"}
+            - {value: "?", label: "a[1]"}
+            - {value: "?", label: "a[2]"}
+            - {value: "?", label: "a[3]"}
+            - {value: "?", label: "a[4]"}
+          note: "Só o endereço da primeira. As outras quatro ficam onde estão."
+          caption: "É uma troca, não uma igualdade: a some da conta e entra um endereço."
+
+      B4:
+        type: base
+        text: "Ha contextos onde a conversao nao ocorre: sizeof e &."
+        plain: "Essa troca acontece quase sempre. Em dois lugares ela não acontece: sizeof(a) e &a."
+        figure:
+          kind: two_cases
+          alt: "A regra e as duas exceções"
+          left:
+            title: "quase toda expressão"
+            code: "p = a;"
+            result: "a vira o endereço da 1ª caixa"
+          right:
+            title: "as duas exceções"
+            code: "sizeof(a)      &a"
+            result: "a continua sendo as 5 caixas"
+          note: "Duas exceções, e só essas duas."
+          caption: "Vale a pena decorar quais são: é onde quase todo mundo se perde."
+
+      I1:
+        type: inference
+        support: [B1, B2, B3]
+        text: "a e p tem tipos diferentes, ainda que a[i] e p[i] se parecam."
+        plain: "a e p são coisas diferentes, mesmo que a[i] e p[i] se escrevam do mesmo jeito."
+        figure:
+          kind: two_cases
+          alt: "O que cada declaração cria"
+          left:
+            title: "int a[5];"
+            code: "5 caixas"
+            result: "o nome cobre todas elas"
+          right:
+            title: "int *p;"
+            code: "1 caixa"
+            result: "guarda um endereço"
+          note: "a[2] e p[2] se escrevem igual porque C sabe chegar ao mesmo lugar pelos dois caminhos."
+          caption: "Escrever parecido não é ser a mesma coisa."
+
+      I2:
+        type: inference
+        support: [B1, I1]
+        text: "Nao se atribui ao nome do array: nao e modificavel."
+        plain: "Dá para trocar o que está dentro de cada caixa. Não dá para trocar o conjunto inteiro por outro."
+        figure:
+          kind: two_cases
+          alt: "O que se pode e o que não se pode atribuir"
+          left:
+            title: "isto vale"
+            code: "a[0] = 7;"
+            result: "troca o conteúdo de uma caixa"
+          right:
+            title: "isto não compila"
+            code: "a = outro;"
+            result: "a não é uma caixa que se possa trocar"
+          note: "As 5 caixas estão onde estão. O nome a não muda de endereço."
+          caption: "a é o nome de um lugar, não uma caixa com um valor dentro."
+
+      I3:
+        type: inference
+        support: [B4, I1]
+        text: "sizeof(a) da o array; sizeof(p), o ponteiro."
+        plain: "sizeof(a) mede as 5 caixas juntas. sizeof(p) mede só a caixa de p."
+        figure:
+          kind: sizes
+          alt: "Duas medidas, em escala"
+          bars:
+            - {label: "sizeof(a)", units: 20, note: "as 5 caixas — 20 bytes"}
+            - {label: "sizeof(p)", units: 8, note: "só a caixa de p — 8 bytes"}
+          caption: "sizeof é um dos dois lugares onde a NÃO vira endereço. Por isso ele consegue medir o conjunto."
+
+      I4:
+        type: inference
+        support: [B3, kc_06.B2]
+        text: "Como parametro, int a[] e reescrito como int *a; dai a perda do tamanho."
+        plain: "Ao passar um array para uma função, só o endereço da primeira caixa viaja. Lá dentro não dá mais para saber quantas caixas eram."
+        figure:
+          kind: call_frame
+          alt: "O que atravessa a chamada de uma função"
+          caller:
+            title: "quem chama"
+            has: "tem as 5 caixas"
+            value: "a[0] .. a[4]"
+          callee:
+            title: "dentro de f"
+            has: "recebe um endereço"
+            value: "&a[0]"
+            lost: "o número de caixas ficou para trás"
+          crosses: "só o endereço"
+          note: "Por isso funções que recebem array quase sempre pedem o tamanho num segundo parâmetro."
+          caption: "Nada foi copiado além do endereço — nem as caixas, nem quantas eram."
+
+      I5:
+        type: inference
+        support: [B4, I1]
+        text: "arr e &arr apontam ao mesmo lugar, com tipos diferentes."
+        plain: "arr e &arr marcam o mesmo ponto na memória, mas não significam a mesma coisa."
+        figure:
+          kind: two_cases
+          alt: "Mesmo endereço, significados diferentes"
+          left:
+            title: "arr"
+            code: "endereço da 1ª caixa"
+            result: "anda de caixa em caixa"
+          right:
+            title: "&arr"
+            code: "endereço do conjunto"
+            result: "anda de conjunto em conjunto"
+          note: "Somar 1 a cada um leva a lugares diferentes — e é aí que a diferença aparece."
+          caption: "Começam no mesmo ponto. Não é o mesmo que serem a mesma coisa."
 
   kc_11:
     nodes:

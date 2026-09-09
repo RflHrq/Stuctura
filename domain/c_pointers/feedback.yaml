@@ -59,14 +59,18 @@ feedback:
   # Apresentada no momento em que o traversal chega ao no que a crenca
   # nega, e nao antes. O aluno ja confirmou as premissas; a contradicao e
   # entre coisas que ELE afirmou, nao entre ele e o sistema.
+  #
+  # NAO repete {support} aqui de proposito. A pergunta logo abaixo ja
+  # lista as premissas, uma por linha; repeti-las na prosa fazia o aluno
+  # ler a mesma lista duas vezes na mesma tela. O marcador continua
+  # disponivel — so nao esta em uso.
   contradiction:
     template: >-
-      Repare no que voce ja confirmou: {support} E, antes, voce respondeu
-      partindo de que {belief} As duas coisas nao podem valer ao mesmo
-      tempo. Qual delas voce sustenta?
+      Antes, voce respondeu partindo de que {belief} Mas as premissas que
+      voce acabou de confirmar, logo abaixo, levam a outro lugar. As duas
+      coisas nao podem valer ao mesmo tempo — qual delas voce sustenta?
     without_belief: >-
-      Repare no que voce ja confirmou: {support} O passo seguinte decorre
-      disso — e so disso.
+      O passo seguinte decorre do que voce ja confirmou — e so disso.
 
   # ETAPA 3 — RECONSTRUCAO
   #
@@ -113,7 +117,14 @@ prompts:
   # No de INFERENCIA: cita o suporte que o aluno JA confirmou e pede a
   # conclusao. E aqui que o socratico morde — ele nao consegue
   # reinterpretar uma conclusao construida com as respostas dele.
-  inference: "Você já confirmou que {support}. Então: {node}, certo?"
+  # Uma premissa por linha. Em prosa corrida, tres premissas em linguagem
+  # corrente viram um paragrafo em que nao se ve onde uma acaba e a outra
+  # comeca — e a inferencia depende justamente de ve-las separadas.
+  # {support} (prosa corrida) continua disponivel se preferir.
+  inference: |-
+    Você já confirmou:
+    {support_list}
+    Juntando: {node}, certo?
   inference_no_support: "{node}, certo?"
 
   # Primeira tentativa depois de um erro: em vez de mudar de assunto,

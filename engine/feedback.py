@@ -64,12 +64,19 @@ def _preenche(molde: str, **valores: str) -> str:
 
 
 def _lista_suporte(domain: Domain, ref: Ref) -> str:
-    """As premissas de um nó, em prosa corrida e sem o nome técnico."""
+    """As premissas de um nó, em prosa corrida e sem o nome técnico.
+
+    `display_text`, não `text`: a força da etapa 2 do RF17 é dizer "repare
+    no que VOCÊ confirmou". Devolver a premissa no enunciado canônico
+    enquanto o aluno a confirmou em linguagem corrente quebra exatamente
+    isso — ele não reconhece como sua uma frase que não leu.
+    """
     nd = domain.node(*ref)
     textos = []
     for s in nd.support:
         try:
-            textos.append(domain.study.mask(domain.node(*s).text).rstrip("."))
+            textos.append(
+                domain.study.mask(domain.node(*s).display_text).rstrip("."))
         except KeyError:
             continue
     if not textos:
@@ -116,7 +123,7 @@ def contradiction(domain: Domain, kc: str, node: str,
         return _monta(
             CONTRADICTION, moldes.get("template"), support=suporte,
             belief=domain.study.mask(domain.misconceptions[belief_id].belief),
-            node=domain.study.mask(domain.node(kc, node).text),
+            node=domain.study.mask(domain.node(kc, node).display_text),
         )
     return _monta(CONTRADICTION, moldes.get("without_belief"), support=suporte)
 
