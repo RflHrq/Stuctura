@@ -139,6 +139,11 @@ class SessionState:
     detected: str | None = None            # misconception_id
     target: Ref | None = None              # nó que o traversal vai reconstruir
     plan: tuple[Ref, ...] = ()             # congelado ao entrar na correção
+    # Diagrama que acompanha ESTA correção, quando ela veio de um confronto
+    # visual. Fica no estado para que a pergunta possa dizer "olhando o
+    # diagrama" apenas quando há um — e para que ele siga visível durante o
+    # traversal, que é onde o aluno precisa dele para confirmar nós-base.
+    visual: Mapping[str, Any] | None = None
     cursor: int = 0
     attempts: Mapping[Ref, int] = field(default_factory=dict)
     rounds: int = 0                        # rodadas de correção neste KC
@@ -282,7 +287,8 @@ def _abre_kc(domain: Domain, state: SessionState) -> Transition:
         return _encerra(domain, state)
 
     novo = replace(state, phase=DIAGNOSTICO, diagnostics_done=0, rounds=0,
-                   detected=None, target=None, plan=(), cursor=0, attempts={})
+                   detected=None, target=None, plan=(), cursor=0, attempts={},
+                   visual=None)
 
     if model.is_complete(domain, novo.vector, kc):
         return _entra_variacao(domain, novo)
@@ -449,7 +455,10 @@ def _apresenta_confronto(domain: Domain, state: SessionState) -> Transition:
         text=m.belief if m else None,
         data={"visual": visual, "controlled_by": "student"},
     )
-    return Transition(replace(state, phase=CONFRONTO), acao)
+    # O diagrama segue para a correção: RF08 existe porque só a observação
+    # direta reintroduz um fato-base, e tirá-lo da tela justo quando o aluno
+    # vai confirmar esses fatos desfaria o efeito.
+    return Transition(replace(state, phase=CONFRONTO, visual=visual or None), acao)
 
 
 # --------------------------------------------------------------------------
@@ -493,7 +502,7 @@ def _entra_correcao(domain: Domain, state: SessionState) -> Transition:
 
 
 def _passos(domain: Domain, state: SessionState) -> list[socratic.Step]:
-    return socratic.steps_from(domain, state.plan)
+    return socratic.steps_from(domain, state.plan, with_diagram=bool(state.visual))
 
 
 def _apresenta_passo(domain: Domain, state: SessionState,
@@ -519,19 +528,27 @@ def _apresenta_passo(domain: Domain, state: SessionState,
     socratico = state.arm == strategy.ARM_SOCRATIC
 
     if socratico:
+        dados = {"node_kind": passo.kind}
+        if state.visual and passo.kind == "base":
+            # Só nos nós-base: é neles que a pergunta manda olhar, e repetir
+            # a figura numa inferência competiria com o texto (§10.1).
+            dados["visual"] = dict(state.visual)
         acao = Action("ask", kc=passo.kc, node=passo.node,
                       text=prompt or passo.question,
                       step_idx=passo.idx, step_total=passo.total,
-                      data={"node_kind": passo.kind})
+                      data=dados)
         acao = _talvez_contradicao(domain, state, passo, acao)
         evento = Emit("socratic_step_shown", {
             "kc": passo.kc, "node": passo.node, "kind": passo.kind,
             "step_idx": passo.idx, "total": passo.total,
         })
     else:
+        dados = {"node_kind": passo.kind}
+        if state.visual and passo.kind == "base":
+            dados["visual"] = dict(state.visual)   # idêntico ao braço A (§8.1)
         acao = Action("explain", kc=passo.kc, node=passo.node, text=passo.text,
                       step_idx=passo.idx, step_total=passo.total,
-                      data={"node_kind": passo.kind})
+                      data=dados)
         acao = _talvez_contradicao(domain, state, passo, acao)
         evento = Emit("direct_explanation_shown", {
             "kc": passo.kc, "node": passo.node, "elapsed_ms": 0,
@@ -573,7 +590,8 @@ def _avanca_correcao(domain: Domain, state: SessionState, ev: StepAnswer) -> Tra
     # Errou (só braço A). §7.4.
     tentativas = dict(state.attempts)
     ja = tentativas.get(ref, 0)
-    reg = socratic.on_wrong(domain, passos, state.cursor, ja)
+    reg = socratic.on_wrong(domain, passos, state.cursor, ja,
+                            with_diagram=bool(state.visual))
     tentativas[ref] = reg.attempts
 
     eventos = [Emit("socratic_step_answered", {

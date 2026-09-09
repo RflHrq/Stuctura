@@ -513,6 +513,20 @@
     desenhaTrilha(idx, total);
     pintaFeedback("passo-feedback", a.feedback);
 
+    /* O diagrama vem junto quando a correção veio de um confronto visual.
+     * Sem isto a pergunta dizia "olhando o diagrama" e não havia diagrama
+     * nenhum na tela — o aluno procurava o que não existe. */
+    var alvo = $("passo-diagrama");
+    alvo.innerHTML = "";
+    if (a.visual) {
+      alvo.appendChild(Diagram.render(a.visual, function (de, para) {
+        api("POST", "/sessions/" + S.sessao + "/telemetry", {
+          type: "diagram_toggled",
+          payload: { from_state: de, to_state: para, elapsed_ms: decorrido() }
+        }).catch(function () {});
+      }));
+    }
+
     var acoes = $("passo-acoes");
     acoes.innerHTML = "";
     if (socratico) {

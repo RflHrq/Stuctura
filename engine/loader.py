@@ -263,6 +263,7 @@ class Domain:
     misconceptions: Mapping[str, Misconception]
     cius: Mapping[str, CIU]
     feedback: Mapping[str, Mapping[str, str]]
+    prompts: Mapping[str, str]
     intro: tuple["IntroCard", ...]
     study: Study
     hash: str
@@ -345,6 +346,7 @@ def load(path: str | Path | None = None, study_path: str | Path | None = None) -
     _check_prerequisites(kcs, problemas)
 
     fb = _build_feedback(raw.get("feedback.yaml") or {}, problemas)
+    prompts = _build_prompts(raw.get("feedback.yaml") or {}, problemas)
     intro = _build_intro(raw.get("intro.yaml") or {}, problemas)
     estudo = _load_study(study_path, kcs, problemas)
 
@@ -357,6 +359,7 @@ def load(path: str | Path | None = None, study_path: str | Path | None = None) -
         misconceptions=miscs,
         cius=cius,
         feedback=fb,
+        prompts=prompts,
         intro=intro,
         study=estudo,
         hash=domain_hash(base),
@@ -536,6 +539,49 @@ class IntroCard:
         if self.figure:
             out["figure"] = dict(self.figure)
         return out
+
+
+# Moldes que o traversal usa, e os marcadores que cada um aceita. Faltar um
+# molde nao derruba a carga — `socratic` cai num texto minimo —, mas um
+# marcador desconhecido apareceria CRU na tela do participante.
+PROMPT_KEYS: Mapping[str, tuple[str, ...]] = {
+    "base_with_diagram":       ("node",),
+    "base_plain":              ("node",),
+    "inference":               ("node", "support"),
+    "inference_no_support":    ("node",),
+    "retry_base_with_diagram": ("node",),
+    "retry_base_plain":        ("node",),
+    "retry_inference":         ("node", "support_list", "support"),
+}
+
+
+def _build_prompts(raw: Mapping, problemas: list[str]) -> dict[str, str]:
+    """Moldes das perguntas do traversal (antes embutidos em socratic.py)."""
+    import re
+
+    out: dict[str, str] = {}
+    bloco = raw.get("prompts") or {}
+    for chave, molde in bloco.items():
+        if chave not in PROMPT_KEYS:
+            problemas.append(
+                "feedback.yaml prompts: chave desconhecida %r; conhecidas: %s"
+                % (chave, ", ".join(sorted(PROMPT_KEYS)))
+            )
+            continue
+        usados = re.findall(r"\{([a-z_]+)\}", molde or "")
+        maus = [m for m in usados if m not in PROMPT_KEYS[chave]]
+        if maus:
+            problemas.append(
+                "feedback.yaml prompts.%s usa marcador(es) que não recebe: %s; "
+                "aceita: %s" % (chave, ", ".join(maus), ", ".join(PROMPT_KEYS[chave]))
+            )
+        if "node" not in usados:
+            problemas.append(
+                "feedback.yaml prompts.%s não usa {node}: a pergunta não diria "
+                "sobre o que é" % chave
+            )
+        out[chave] = molde
+    return out
 
 
 def _build_intro(raw: Mapping, problemas: list[str]) -> tuple[IntroCard, ...]:

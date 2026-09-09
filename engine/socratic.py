@@ -6,7 +6,9 @@ congelar os 34 planos de refutação num teste golden e reproduzir qualquer
 sessão na defesa.
 
 O texto das perguntas é MONTADO a partir do grafo, nunca escrito à mão.
-Os únicos literais aqui são conectivos ("Você já confirmou que...") —
+Os moldes das perguntas vivem em `feedback.yaml`, não aqui: são texto que o
+aluno lê, e por isso são domínio. O motor decide QUAL molde e com que
+conteúdo; o conteúdo vem do grafo. Ver PROMPT_KEYS em loader.py —
 andaime linguístico, não conhecimento de domínio.
 """
 
@@ -91,6 +93,7 @@ def steps(
     kc: str,
     target: str,
     confirmed: Iterable[Ref] = (),
+    with_diagram: bool = False,
 ) -> list[Step]:
     """O plano já com as perguntas montadas, pronto para a estratégia."""
     refs = plan(domain, kc, target, confirmed)
@@ -101,7 +104,7 @@ def steps(
             node=n,
             kind=domain.node(k, n).type,
             text=domain.study.mask(domain.node(k, n).text),
-            question=question(domain, k, n),
+            question=question(domain, k, n, with_diagram),
             idx=i,
             total=total,
         )
@@ -109,7 +112,8 @@ def steps(
     ]
 
 
-def steps_from(domain: Domain, refs: Sequence[Ref]) -> list[Step]:
+def steps_from(domain: Domain, refs: Sequence[Ref],
+               with_diagram: bool = False) -> list[Step]:
     """Monta os passos a partir de um plano JÁ congelado.
 
     A FSM congela o plano ao entrar na correção e caminha sobre ele. Não
@@ -121,7 +125,7 @@ def steps_from(domain: Domain, refs: Sequence[Ref]) -> list[Step]:
     return [
         Step(kc=k, node=n, kind=domain.node(k, n).type,
              text=domain.study.mask(domain.node(k, n).text),
-             question=question(domain, k, n), idx=i, total=total)
+             question=question(domain, k, n, with_diagram), idx=i, total=total)
         for i, (k, n) in enumerate(refs, start=1)
     ]
 
@@ -130,7 +134,8 @@ def steps_from(domain: Domain, refs: Sequence[Ref]) -> list[Step]:
 # Geração das perguntas
 # --------------------------------------------------------------------------
 
-def question(domain: Domain, kc: str, node: str) -> str:
+def question(domain: Domain, kc: str, node: str,
+             with_diagram: bool = False) -> str:
     """Monta a pergunta do nó a partir da sua posição no grafo.
 
     Nó BASE: fato observável. Pergunta direta, ancorada no diagrama — não
@@ -144,16 +149,36 @@ def question(domain: Domain, kc: str, node: str) -> str:
     corpo = domain.study.mask(nd.text).rstrip(".")
 
     if nd.is_base:
-        return "Olhando o diagrama: %s, certo?" % corpo
+        # "Olhando o diagrama" só pode ser dito se HOUVER um diagrama na
+        # tela. O confronto visual acontece antes do traversal e só quando
+        # a crença nega um nó-base; na maioria dos casos não há diagrama
+        # nenhum, e a pergunta mandava o aluno olhar para o que não existe.
+        chave = "base_with_diagram" if with_diagram else "base_plain"
+        return _molde(domain, chave, "%s, certo?", node=corpo)
 
     citados = "; ".join(
         domain.study.mask(domain.node(*s).text).rstrip(".")
         for s in nd.support
         if _existe(domain, s)
     )
-    if not citados:  # inferência sem suporte resolvível: não deveria passar no validador
-        return "%s, certo?" % corpo
-    return "Você já confirmou que %s. Então: %s, certo?" % (citados, corpo)
+    if not citados:  # inferência sem suporte resolvível: o validador já reclamou
+        return _molde(domain, "inference_no_support", "%s, certo?", node=corpo)
+    return _molde(domain, "inference", "%s, certo?", node=corpo, support=citados)
+
+
+def _molde(domain: Domain, chave: str, reserva: str, **valores: str) -> str:
+    """Preenche um molde de `feedback.yaml`.
+
+    Sem o molde, cai num texto mínimo em vez de quebrar: os moldes são
+    SHOULD como o resto do RF17, e faltar um não pode derrubar uma coleta
+    no meio. O validador avisa antes.
+    """
+    molde = domain.prompts.get(chave)
+    if not molde:
+        return reserva % valores.get("node", "")
+    for marcador, valor in valores.items():
+        molde = molde.replace("{" + marcador + "}", valor)
+    return molde.strip()
 
 
 def _existe(domain: Domain, ref: Ref) -> bool:
@@ -202,6 +227,7 @@ def on_wrong(
     cursor: int,
     attempts: int,
     max_attempts: int | None = None,
+    with_diagram: bool = False,
 ) -> Regression:
     """Decide o próximo passo depois de o aluno errar o nó em `cursor`.
 
@@ -224,7 +250,7 @@ def on_wrong(
             cursor=cursor,
             attempts=n,
             from_node=atual.node,
-            prompt=reformulate(domain, atual),
+            prompt=reformulate(domain, atual, with_diagram),
         )
 
     # n == 2: volta um passo. Se já está no primeiro, não há para onde
@@ -235,7 +261,7 @@ def on_wrong(
             cursor=0,
             attempts=n,
             from_node=atual.node,
-            prompt=reformulate(domain, atual),
+            prompt=reformulate(domain, atual, with_diagram),
         )
 
     anterior = steps_[cursor - 1]
@@ -249,7 +275,8 @@ def on_wrong(
     )
 
 
-def reformulate(domain: Domain, step: Step) -> str:
+def reformulate(domain: Domain, step: Step,
+                with_diagram: bool = False) -> str:
     """Repete a pergunta com o suporte explicitado nó a nó.
 
     Primeira tentativa de recuperação: em vez de mudar de assunto, torna
@@ -257,15 +284,15 @@ def reformulate(domain: Domain, step: Step) -> str:
     """
     nd = domain.node(step.kc, step.node)
     if nd.is_base:
-        return "Olhe de novo o diagrama. %s — é o que você vê?" % nd.text
+        chave = "retry_base_with_diagram" if with_diagram else "retry_base_plain"
+        return _molde(domain, chave, "%s — você concorda?",
+                      node=domain.study.mask(nd.text))
 
-    linhas = [
-        "- %s" % domain.node(*s).text
-        for s in nd.support
-        if _existe(domain, s)
-    ]
-    return (
-        "Vamos por partes. Você já confirmou:\n"
-        + "\n".join(linhas)
-        + "\nJuntando as duas: %s" % nd.text
+    textos = [domain.study.mask(domain.node(*s).text)
+              for s in nd.support if _existe(domain, s)]
+    return _molde(
+        domain, "retry_inference", "%s",
+        node=domain.study.mask(nd.text),
+        support="; ".join(t.rstrip(".") for t in textos),
+        support_list=chr(10).join("- " + t for t in textos),
     )

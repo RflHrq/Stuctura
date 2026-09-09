@@ -82,3 +82,45 @@ feedback:
     after_correction: >-
       A ideia que voce trazia no comeco deste topico levava a outro lugar.
       Compare com o que a cadeia acima sustenta.
+
+# ------------------------------------------------------------------------
+# MOLDES DAS PERGUNTAS DO TRAVERSAL
+#
+# Estavam embutidos em engine/socratic.py. Sao texto que o aluno le, entao
+# sao dominio — e o motor nao pode conter uma linha deles (§1).
+#
+# Marcadores:
+#   {node}          o enunciado do no, sem o nome tecnico
+#   {support}       as premissas que o sustentam, em prosa corrida
+#   {support_list}  as mesmas, uma por linha, com marcador
+#
+# POR QUE HA DUAS VARIANTES PARA NO-BASE
+#
+# "Olhando o diagrama" so pode ser dito quando ha um diagrama NA TELA. O
+# confronto visual (RF08) acontece antes do traversal e so quando a crenca
+# nega um no-base; na maioria dos traversals nao ha diagrama nenhum, e a
+# pergunta mandava o aluno olhar para algo que nao existe.
+#
+# O motor escolhe a variante conforme o diagrama estar de fato sendo
+# apresentado junto da pergunta.
+
+prompts:
+
+  # No BASE: fato observavel. Nao ha premissa anterior para invocar.
+  base_with_diagram: "Olhando o diagrama: {node}, certo?"
+  base_plain: "Confirme comigo: {node}, certo?"
+
+  # No de INFERENCIA: cita o suporte que o aluno JA confirmou e pede a
+  # conclusao. E aqui que o socratico morde — ele nao consegue
+  # reinterpretar uma conclusao construida com as respostas dele.
+  inference: "Você já confirmou que {support}. Então: {node}, certo?"
+  inference_no_support: "{node}, certo?"
+
+  # Primeira tentativa depois de um erro: em vez de mudar de assunto,
+  # torna visivel a cadeia que sustenta a conclusao pedida.
+  retry_base_with_diagram: "Olhe de novo o diagrama. {node} — é o que você vê?"
+  retry_base_plain: "Vamos com calma. {node} — você concorda?"
+  retry_inference: |-
+    Vamos por partes. Você já confirmou:
+    {support_list}
+    Juntando: {node}

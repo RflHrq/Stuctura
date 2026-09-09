@@ -472,3 +472,83 @@ def test_crenca_fundacional_na_variacao_tambem_passa_pelo_diagrama(d):
     assert t.action.kind == "diagram", "a crença fundacional não acionou o diagrama"
     assert t.action.node == "B1"
     assert t.action.data["visual"], "o diagrama veio sem especificação visual"
+
+
+# --------------------------------------------------------------------------
+# A pergunta não pode mandar olhar o que não está na tela
+# --------------------------------------------------------------------------
+
+def test_sem_diagrama_a_pergunta_nao_manda_olhar_o_diagrama(d):
+    """O confronto visual acontece antes do traversal e só quando a crença
+    nega um nó-base. Na maioria dos traversals não há diagrama nenhum, e a
+    pergunta mandava o aluno olhar para algo que não existe na tela."""
+    t = comeca(d, "socratic", ["kc_07"])
+    vistos = 0
+    for _ in range(40):
+        a = t.action
+        if a.kind == "done":
+            break
+        if a.kind in ("ask", "explain"):
+            vistos += 1
+            tem_figura = bool((a.data or {}).get("visual"))
+            menciona = "diagrama" in (a.text or "").lower()
+            assert menciona <= tem_figura, (
+                "%s:%s manda olhar o diagrama e não há diagrama na tela"
+                % (a.kc, a.node)
+            )
+            t = S.advance(d, t.state, S.StepAnswer(True, 100))
+        elif a.kind == "ciu":
+            t = responde(d, t)
+        else:
+            t = S.advance(d, t.state, S.Acknowledge(0))
+    assert vistos > 0, "a sessão não chegou a nenhum passo"
+
+
+def test_com_confronto_visual_o_diagrama_segue_no_traversal(d):
+    """RF08 existe porque só a observação direta reintroduz um fato-base.
+    Tirar a figura da tela justo quando o aluno vai confirmar esses fatos
+    desfaria o efeito — e deixaria a pergunta mentindo."""
+    t = comeca(d, "socratic", ["kc_07"])
+    for _ in range(40):
+        if t.action.kind == "diagram":
+            break
+        if t.action.kind == "ciu":
+            ciu = d.cius[t.action.ciu_id]
+            erro = ("string_literal_is_array"
+                    if any(o.misconception == "string_literal_is_array"
+                           for o in ciu.options) else None)
+            t = responde(d, t, errando=erro)
+        elif t.action.kind in ("ask", "explain"):
+            t = S.advance(d, t.state, S.StepAnswer(True, 100))
+        else:
+            t = S.advance(d, t.state, S.Acknowledge(0))
+    assert t.action.kind == "diagram"
+
+    t = S.advance(d, t.state, S.Acknowledge(1000))     # fecha o confronto
+    assert t.action.kind in ("ask", "explain")
+    assert t.action.data.get("visual"), "o diagrama sumiu ao entrar no traversal"
+    assert "diagrama" in t.action.text.lower()
+
+
+def test_o_diagrama_no_traversal_e_igual_nos_dois_bracos(d):
+    """§8.1: o diagrama está na lista do que não pode diferir."""
+    def figuras(arm):
+        t = comeca(d, arm, ["kc_07"])
+        out = []
+        for _ in range(60):
+            a = t.action
+            if a.kind == "done":
+                break
+            if a.kind in ("ask", "explain"):
+                out.append((a.kc, a.node, bool((a.data or {}).get("visual"))))
+                t = S.advance(d, t.state, S.StepAnswer(True, 100))
+            elif a.kind == "ciu":
+                ciu = d.cius[a.ciu_id]
+                erro = ("string_literal_is_array"
+                        if any(o.misconception == "string_literal_is_array"
+                               for o in ciu.options) else None)
+                t = responde(d, t, errando=erro)
+            else:
+                t = S.advance(d, t.state, S.Acknowledge(0))
+        return out
+    assert figuras("socratic") == figuras("direct")
