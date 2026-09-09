@@ -186,6 +186,37 @@ input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px
 .step-row.cur { color: var(--ink); font-weight: 500; }
 .step-row.cur .n { background: var(--accent); color: var(--card); }
 
+/* ----------------------------------------------------------- introdução */
+
+.intro-prog{
+  display:flex; align-items:center; gap:12px; margin-bottom:18px;
+  font-size:12px; color:var(--mute); letter-spacing:.04em;
+}
+.intro-prog .dots{display:flex; gap:6px}
+.intro-prog .dots i{
+  width:7px; height:7px; border-radius:50%; background:var(--rule-2);
+  display:block;
+}
+.intro-prog .dots i.on{background:var(--accent)}
+.intro-prog .dots i.done{background:var(--ink-2)}
+
+#tela-intro h1{font-size:26px; margin:0 0 10px; letter-spacing:-.015em}
+#tela-intro .lead{font-size:17px; color:var(--ink); margin-bottom:20px}
+#intro-corpo p{font-size:15.5px; margin-bottom:13px}
+#intro-corpo p b{color:var(--ink)}
+
+/* A ilustração é o argumento do cartão, não enfeite: ganha respiro e uma
+ * moldura própria, e o texto ao redor fica curto de propósito. */
+.intro-fig{
+  margin:0 0 22px; padding:20px 18px 14px; background:var(--sunk);
+  border:1px solid var(--rule); border-radius:10px;
+}
+.intro-fig svg.fig{width:100%; height:auto; display:block}
+.intro-fig figcaption{
+  margin-top:14px; padding-top:12px; border-top:1px solid var(--rule-2);
+  font-size:13px; color:var(--mute); text-align:center;
+}
+
 /* --------------------------------------------------------------- avisos */
 
 .banner {

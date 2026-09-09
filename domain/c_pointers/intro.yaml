@@ -1,0 +1,168 @@
+# Introducao apresentada ANTES da primeira atividade.
+#
+# ------------------------------------------------------------------------
+# A REGRA QUE GOVERNA ESTE ARQUIVO
+#
+# A introducao cobre a MOBILIA do dominio, nunca as CONCLUSOES dos KCs que
+# o piloto mede.
+#
+# O piloto roda sobre kc_07 (ponteiro e array), kc_11 (aritmetica) e
+# kc_09 (free). Se a introducao dissesse "array e ponteiro sao tipos
+# distintos", teria ensinado a resposta da primeira atividade — e o
+# diagnostico deixaria de medir a crenca previa do aluno, que e o desfecho
+# PRIMARIO do estudo.
+#
+# Entao ela estabelece vocabulario: endereco, caixa, regiao, o que e um
+# ponteiro. E para ali. Nada sobre array, nada sobre aritmetica, nada
+# sobre free.
+#
+# `tools/validate.py` confere isso: se um cartao mencionar um termo dos
+# KCs do piloto, ele reclama.
+#
+# ------------------------------------------------------------------------
+# SIMETRIA
+#
+# A introducao e identica nos dois bracos, e vem antes de eles divergirem.
+# O §8.1 lista o que precisa ser igual entre socratico e direto; isto
+# entra na lista.
+#
+# ------------------------------------------------------------------------
+# ILUSTRACOES
+#
+# Cada cartao pode declarar um `figure`. Os tipos disponiveis estao em
+# web/intro.js e sao vocabulario de APRESENTACAO, nao de dominio: o
+# conteudo (rotulos, valores, legendas) vem daqui.
+
+schema_version: 1
+
+intro:
+
+  - id: abertura
+    title: "O que vamos fazer nos próximos 35 minutos"
+    lead: >-
+      Você vai responder algumas atividades curtas sobre ponteiros em C.
+      Não é prova, não vale nota, e ninguém vai ver suas respostas
+      individualmente.
+    body:
+      - >-
+        O que este estudo quer entender não é quem sabe mais. É COMO as
+        pessoas pensam sobre ponteiros — quais ideias elas trazem, e de
+        onde essas ideias vêm.
+      - >-
+        Por isso, em cada atividade você vai fazer duas coisas: escolher
+        uma resposta e dizer quanta confiança tem nela. As duas contam.
+    figure:
+      kind: session_map
+      steps:
+        - {label: "Você responde", note: "atividade curta, com código"}
+        - {label: "Você declara a confiança", note: "chutei · acho que sei · tenho certeza"}
+        - {label: "O sistema conversa", note: "perguntas curtas, uma de cada vez"}
+        - {label: "Você conclui", note: "a conclusão sai das suas respostas"}
+
+  - id: enderecos
+    title: "A memória é uma rua com casas numeradas"
+    lead: >-
+      Toda a memória do seu programa é uma sequência enorme de posições, e
+      cada posição tem um número que a identifica. Esse número é o
+      ENDEREÇO.
+    body:
+      - >-
+        Você nunca precisa decorar esses números — o programa cuida
+        disso. Mas eles existem, e é por eles que uma parte do programa
+        consegue dizer a outra "o que você procura está ali".
+      - >-
+        Guarde só isto: <b>endereço é o número da casa, não a casa</b>.
+    figure:
+      kind: street
+      caption: "Cada posição tem um número. O número não é o conteúdo."
+      houses:
+        - {addr: "0x1000", content: "…"}
+        - {addr: "0x1004", content: "42", highlight: true}
+        - {addr: "0x1008", content: "…"}
+        - {addr: "0x100C", content: "…"}
+      pin: {at: 1, label: "aqui mora o valor 42"}
+
+  - id: caixa
+    title: "Uma variável é uma caixa com nome"
+    lead: >-
+      Quando você escreve `int x = 42;`, o programa reserva uma caixa,
+      dá a ela o nome `x`, e guarda 42 dentro.
+    body:
+      - >-
+        A caixa tem duas coisas que valem separar desde já: um
+        <b>conteúdo</b> (o 42) e um <b>endereço</b> (onde ela está). São
+        informações diferentes sobre a mesma caixa.
+    figure:
+      kind: boxes
+      caption: "Uma caixa tem nome, conteúdo — e um endereço, que é onde ela está."
+      items:
+        - {name: "x", value: "42", addr: "0x1004", tone: "plain"}
+
+  - id: ponteiro
+    title: "Um ponteiro é uma caixa cujo conteúdo é um endereço"
+    lead: >-
+      Esta é a única ideia realmente nova. Um ponteiro não é mágica: é
+      uma caixa comum, com nome e endereço próprios. O que muda é o que
+      ela guarda dentro.
+    body:
+      - >-
+        Enquanto `x` guarda o número 42, um ponteiro `p` guarda o
+        <b>endereço de outra caixa</b>. É como um bilhete com o número de
+        uma casa anotado.
+      - >-
+        E aqui vale reparar numa coisa que volta o tempo todo:
+        <b>são duas caixas, não uma</b>. O bilhete tem um lugar; a casa
+        tem outro.
+    figure:
+      kind: pointer_pair
+      caption: "p e x são duas caixas separadas. p guarda o endereço de x."
+      pointer: {name: "p", value: "0x1004", addr: "0x2A00"}
+      target: {name: "x", value: "42", addr: "0x1004"}
+
+  - id: regioes
+    title: "Duas regiões, duas regras de arrumação"
+    lead: >-
+      Nem toda memória segue a mesma regra. Existem duas áreas, e a
+      diferença entre elas é quem arruma a bagunça.
+    body:
+      - >-
+        Numa delas, as caixas nascem quando a função começa e somem
+        sozinhas quando ela termina — como um armário de sala de aula,
+        esvaziado no fim do período, sem você fazer nada.
+      - >-
+        Na outra, você pede o espaço quando precisa e ele fica lá até
+        você devolver — como alugar um depósito. Ninguém arruma por você.
+    figure:
+      kind: regions
+      caption: "A diferença não é o que cabe em cada uma. É quem arruma."
+      left:
+        title: "arrumada sozinha"
+        note: "nasce e some com a função"
+        icon: "armario"
+      right:
+        title: "arrumada por você"
+        note: "você pede, você devolve"
+        icon: "deposito"
+
+  - id: confianca
+    title: "Sobre chutar: é dado, não vergonha"
+    lead: >-
+      Antes de confirmar cada resposta, você vai marcar quanta confiança
+      tem nela. Essa segunda escolha é tão importante quanto a primeira.
+    body:
+      - >-
+        Errar tendo certeza e errar chutando são coisas muito diferentes,
+        e o sistema trata as duas de forma diferente. Se você marcar
+        "chutei", ele entende que aquilo é uma lacuna — não uma ideia
+        errada que precisa ser desmontada.
+      - >-
+        Então responda com sinceridade, inclusive quando não fizer ideia.
+        <b>Chutar e admitir o chute é a resposta mais útil que você pode
+        dar.</b>
+    figure:
+      kind: confidence
+      caption: "A mesma resposta errada leva a caminhos diferentes."
+      levels:
+        - {label: "chutei", meaning: "eu sei que não sei", tone: "cool"}
+        - {label: "acho que sei", meaning: "tenho uma ideia", tone: "mid"}
+        - {label: "tenho certeza", meaning: "é assim que funciona", tone: "hot"}

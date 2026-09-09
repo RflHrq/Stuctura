@@ -22,7 +22,7 @@
   "use strict";
 
   var $ = function (id) { return document.getElementById(id); };
-  var TELAS = ["abertura", "ciu", "diagrama", "passo", "conclusao", "fim"];
+  var TELAS = ["abertura", "intro", "ciu", "diagrama", "passo", "conclusao", "fim"];
 
   var S = {
     sessao: null,
@@ -172,12 +172,78 @@
       "Sessão em andamento. Se a aba fechar, digite o mesmo código para voltar.";
 
     var k = S.acao.kind;
+    if (k === "intro") return telaIntro();
     if (k === "ciu") return telaCiu();
     if (k === "diagram") return telaDiagrama();
     if (k === "ask" || k === "explain") return telaPasso();
     if (k === "conclude") return telaConclusao(j);
     if (k === "done") return telaFim(j);
     erroEm("erro-abertura", "ação desconhecida: " + k);
+  }
+
+  /* ------------------------------------------------------------ introdução */
+
+  /* A introdução estabelece VOCABULÁRIO — endereço, caixa, região — e para
+   * antes das conclusões dos KCs que o piloto mede. Se ela ensinasse a
+   * resposta da primeira atividade, o diagnóstico deixaria de medir a
+   * crença prévia do aluno. `tools/validate.py` confere isso no domínio.
+   *
+   * É idêntica nos dois braços: acontece antes de eles divergirem. */
+  function telaIntro() {
+    var a = S.acao;
+    $("intro-titulo").textContent = a.title || "";
+    $("intro-lead").innerHTML = a.lead || "";
+
+    var prog = $("intro-contagem");
+    prog.textContent = a.index + " de " + a.total;
+    var dots = $("intro-dots");
+    dots.innerHTML = "";
+    for (var i = 1; i <= a.total; i++) {
+      var d = document.createElement("i");
+      d.className = i < a.index ? "done" : (i === a.index ? "on" : "");
+      dots.appendChild(d);
+    }
+
+    var fig = $("intro-fig");
+    fig.innerHTML = "";
+    var desenho = IntroFig.render(a.figure);
+    if (desenho) fig.appendChild(desenho);
+
+    var corpo = $("intro-corpo");
+    corpo.innerHTML = "";
+    (a.body || []).forEach(function (t) {
+      var p = document.createElement("p");
+      p.innerHTML = t;          // os moldes usam <b> para o que importa reter
+      corpo.appendChild(p);
+    });
+
+    // Voltar é local: relê um cartão sem gravar evento nem mover a sessão.
+    // O servidor continua sendo o único ponto que decide o fluxo (§9).
+    var voltar = $("btn-intro-voltar");
+    voltar.classList.toggle("hidden", a.index <= 1);
+    voltar.onclick = function () {
+      if (S.introCache && S.introCache[a.index - 2]) {
+        S.acao = S.introCache[a.index - 2];
+        telaIntro();
+      }
+    };
+    S.introCache = S.introCache || [];
+    S.introCache[a.index - 1] = a;
+
+    var b = $("btn-intro");
+    b.textContent = a.index >= a.total ? "Começar as atividades" : "Continuar";
+    b.disabled = false;
+    b.onclick = async function () {
+      b.disabled = true;
+      try {
+        aplica(await api("POST", "/sessions/" + S.sessao + "/ack",
+                         { elapsed_ms: decorrido() }));
+      } catch (e) {
+        if (e.status === 409) return realinha();
+        b.disabled = false;
+      }
+    };
+    mostra("intro");
   }
 
   /* ------------------------------------------------------------------ CIU */

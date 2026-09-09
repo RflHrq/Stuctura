@@ -27,6 +27,19 @@ def d():
 # Utilidades de roteiro
 # --------------------------------------------------------------------------
 
+def comeca(d, arm, kcs):
+    """Abre a sessão e atravessa a introdução.
+
+    A introdução é orientação, não medida: nenhum teste de fluxo, de
+    paridade ou de diagnóstico depende dela. Atravessá-la aqui mantém cada
+    teste falando do que ele de fato verifica.
+    """
+    t = S.start(d, arm, kcs)
+    while t.action.kind == "intro":
+        t = S.advance(d, t.state, S.Acknowledge(500))
+    return t
+
+
 def idx_de(ciu, misconception=None, correct=False):
     """Índice da alternativa correta, ou da que carrega dada crença."""
     for i, o in enumerate(ciu.options):
@@ -94,7 +107,10 @@ def test_sessao_completa_roda_ponta_a_ponta(d, arm):
     assert estado.done
     assert estado.kc_status["kc_09"] == S.COMPLETO
     tipos = [e.type for e in eventos]
-    assert tipos[0] == "ciu_presented"
+    # A sessão abre pela introdução; a primeira coisa MEDIDA é a atividade.
+    assert tipos[0] == "stage_acknowledged"
+    assert eventos[0].payload["stage"] == "intro"
+    assert next(t for t in tipos if t != "stage_acknowledged") == "ciu_presented"
     assert tipos[-1] == "session_ended"
     assert "misconception_detected" in tipos
     assert "kc_completed" in tipos
@@ -142,7 +158,7 @@ def test_so_o_braco_a_pergunta_e_so_o_b_explica(d):
 # --------------------------------------------------------------------------
 
 def test_errar_com_certeza_marca_o_no_como_errado(d):
-    t = S.start(d, "socratic", ["kc_09"])
+    t = comeca(d, "socratic", ["kc_09"])
     ciu = d.cius[t.action.ciu_id]
     t = S.advance(d, t.state, S.Answer(
         ciu.id, "tenho certeza", 8000,
@@ -152,7 +168,7 @@ def test_errar_com_certeza_marca_o_no_como_errado(d):
 
 
 def test_errar_chutando_marca_ausente_e_nao_detecta_crenca(d):
-    t = S.start(d, "socratic", ["kc_09"])
+    t = comeca(d, "socratic", ["kc_09"])
     ciu = d.cius[t.action.ciu_id]
     t = S.advance(d, t.state, S.Answer(
         ciu.id, "chutei", 8000,
@@ -172,7 +188,7 @@ def test_a_mesma_resposta_leva_a_estados_cognitivos_opostos(d):
     é essa a oposição que importa.
     """
     def estado_apos(conf):
-        t = S.start(d, "socratic", ["kc_09"])
+        t = comeca(d, "socratic", ["kc_09"])
         ciu = d.cius[t.action.ciu_id]
         t = S.advance(d, t.state, S.Answer(
             ciu.id, conf, 8000, option_idx=idx_de(ciu, misconception="free_nullifies")))
@@ -190,7 +206,7 @@ def test_a_mesma_resposta_leva_a_estados_cognitivos_opostos(d):
 def test_chutar_depois_de_acertar_algo_da_lacuna(d):
     """Com premissa já erguida, o chute produz LACUNA: prefixo confirmado,
     resto ausente, nenhum errado."""
-    t = S.start(d, "socratic", ["kc_09"])
+    t = comeca(d, "socratic", ["kc_09"])
     ciu = d.cius[t.action.ciu_id]
     t = S.advance(d, t.state, S.Answer(ciu.id, "tenho certeza", 1000,
                                        option_idx=idx_de(ciu, correct=True)))
@@ -207,7 +223,7 @@ def test_chutar_depois_de_acertar_algo_da_lacuna(d):
 
 def test_crenca_que_nega_no_base_passa_pelo_diagrama(d):
     """`star_assigns_pointer` nega kc_04:B4, um nó-base."""
-    t = S.start(d, "socratic", ["kc_04"])
+    t = comeca(d, "socratic", ["kc_04"])
     vistos = []
     for _ in range(20):
         if t.action.kind == "diagram":
@@ -228,7 +244,7 @@ def test_crenca_que_nega_no_base_passa_pelo_diagrama(d):
 
 def test_crenca_derivacional_nao_passa_pelo_diagrama(d):
     """`free_nullifies` nega kc_09:I1, uma inferência: o traversal basta."""
-    t = S.start(d, "socratic", ["kc_09"])
+    t = comeca(d, "socratic", ["kc_09"])
     ciu = d.cius[t.action.ciu_id]
     t = S.advance(d, t.state, S.Answer(
         ciu.id, "tenho certeza", 8000,
@@ -250,7 +266,7 @@ def test_crenca_derivacional_nao_passa_pelo_diagrama(d):
 # --------------------------------------------------------------------------
 
 def _ate_o_primeiro_ask(d, kc="kc_09", crenca="free_nullifies"):
-    t = S.start(d, "socratic", [kc])
+    t = comeca(d, "socratic", [kc])
     for _ in range(20):
         if t.action.kind == "ask":
             return t
@@ -327,7 +343,7 @@ def test_terceiro_erro_no_mesmo_no_encerra_o_kc_em_progresso(d):
 
 def test_sessao_travada_nao_entra_em_laco(d):
     """O invariante do §6: sempre há saída da correção."""
-    t = S.start(d, "socratic", ["kc_09"])
+    t = comeca(d, "socratic", ["kc_09"])
     for i in range(300):
         if t.action.kind == "done":
             break
@@ -371,7 +387,7 @@ def test_kc_so_fecha_com_vetor_completo_e_acerto_na_variacao(d):
 
 
 def test_errar_a_variacao_devolve_para_a_correcao(d):
-    t = S.start(d, "socratic", ["kc_09"])
+    t = comeca(d, "socratic", ["kc_09"])
     for _ in range(60):
         if t.state.phase == S.VARIACAO:
             break
@@ -405,7 +421,7 @@ def test_a_fsm_e_deterministica(d):
 
 
 def test_a_fsm_nao_muta_o_estado_recebido(d):
-    t = S.start(d, "socratic", ["kc_09"])
+    t = comeca(d, "socratic", ["kc_09"])
     antes = dict(t.state.vector)
     ciu = d.cius[t.action.ciu_id]
     S.advance(d, t.state, S.Answer(ciu.id, "tenho certeza", 1000,
@@ -414,7 +430,7 @@ def test_a_fsm_nao_muta_o_estado_recebido(d):
 
 
 def test_evento_do_tipo_errado_falha_alto(d):
-    t = S.start(d, "socratic", ["kc_09"])
+    t = comeca(d, "socratic", ["kc_09"])
     with pytest.raises(ValueError, match="DIAGNOSTICO espera Answer"):
         S.advance(d, t.state, S.StepAnswer(True, 0))
 
@@ -425,7 +441,7 @@ def test_braco_desconhecido_falha_no_start(d):
 
 
 def test_a_acao_serializa_para_o_contrato_do_paragrafo_9(d):
-    t = S.start(d, "socratic", ["kc_09"])
+    t = comeca(d, "socratic", ["kc_09"])
     j = t.action.as_json()
     assert j["kind"] == "ciu" and j["ciu_id"] and "options" in j
     assert set(j) >= {"kind", "kc", "ciu_id"}
@@ -439,7 +455,7 @@ def test_crenca_fundacional_na_variacao_tambem_passa_pelo_diagrama(d):
     existisse na saída do diagnóstico, essa crença — uma das três
     fundacionais do catálogo — nunca teria diagrama.
     """
-    t = S.start(d, "socratic", ["kc_07"])
+    t = comeca(d, "socratic", ["kc_07"])
     for _ in range(40):
         if t.action.kind == "diagram":
             break

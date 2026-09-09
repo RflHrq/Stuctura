@@ -89,6 +89,44 @@ def check_late_naming(d: Domain) -> list[str]:
     return out
 
 
+def check_intro_scope(d: Domain) -> list[str]:
+    """A introdução não pode ensinar as conclusões dos KCs que o piloto MEDE.
+
+    Se ela dissesse "array e ponteiro são tipos distintos", teria ensinado
+    a resposta da primeira atividade — e o diagnóstico deixaria de medir a
+    crença prévia do aluno, que é o desfecho PRIMÁRIO do estudo.
+
+    A verificação é por termo distintivo do nome de cada KC do piloto.
+    Grosseira de propósito: prefere acusar demais a deixar passar.
+    """
+    if not d.intro:
+        return []
+
+    # "ponteiro" aparece no nome de quase todo KC e no vocabulário que a
+    # introdução PRECISA estabelecer; não é termo distintivo de nenhum.
+    generico = {"ponteiro", "ponteiros", "dereferencia"}
+    proibidos: dict[str, str] = {}
+    for kc_id in d.pilot_sequence:
+        kc = d.kcs[kc_id]
+        nome_tecnico = d.study.reveal_names.get(kc_id, "")
+        for termo in list(kc.name.split()) + list(nome_tecnico.split()):
+            t = _norm(termo).strip(":()")
+            if len(t) >= 5 and t not in generico:
+                proibidos[t] = kc_id
+
+    out = []
+    for c in d.intro:
+        texto = _norm(" ".join([c.title, c.lead] + list(c.body)))
+        for termo, kc_id in sorted(proibidos.items()):
+            if termo in texto:
+                out.append(
+                    "intro '%s' menciona %r, termo do %s — um KC que o piloto "
+                    "MEDE. A introdução contaminaria o diagnóstico"
+                    % (c.id, termo, kc_id)
+                )
+    return out
+
+
 def check_detectability(d: Domain) -> list[str]:
     """Toda crença precisa ser detectável por alguma CIU.
 
@@ -260,6 +298,7 @@ def check_hypotheses(d: Domain) -> list[str]:
 BLOQUEANTES = (
     ("exigência de diagrama (RF08)", check_diagram_requirement),
     ("nomeação tardia (RF10)", check_late_naming),
+    ("escopo da introdução", check_intro_scope),
     ("detectabilidade das crenças (§12)", check_detectability),
     ("coerência da Q-matrix", check_qmatrix_coherence),
 )

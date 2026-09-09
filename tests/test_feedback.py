@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from engine import feedback as fb, model, session as S
 from engine.loader import DomainError, load
-from tests.test_session import responde
+from tests.test_session import comeca, responde
 
 
 @pytest.fixture(scope="module")
@@ -28,7 +28,7 @@ def d():
 
 def roteiro(d, arm, kc="kc_09", crenca="free_nullifies", limite=120):
     """Roda uma sessão coletando (ação, feedback) de cada tela."""
-    t = S.start(d, arm, [kc])
+    t = comeca(d, arm, [kc])
     passos = []
     for _ in range(limite):
         a = t.action

@@ -215,6 +215,24 @@ mídias (§15).
 - Nenhuma chamada de rede em tempo de sessão (RNF05).
 
 
+## A introdução, e por que ela não pode ensinar
+
+Antes da primeira atividade o participante lê seis cartões ilustrados:
+o percurso da sessão, endereço, caixa, ponteiro, as duas regiões, e a escala
+de confiança. Cada um tem uma figura em SVG, montada de `intro.yaml` — o tipo
+de figura é vocabulário de apresentação (`web/intro.js`), o conteúdo é domínio.
+
+**A introdução cobre a mobília, nunca as conclusões dos KCs que o piloto mede.**
+Se ela dissesse "array e ponteiro são tipos distintos", teria ensinado a
+resposta da primeira atividade, e o diagnóstico deixaria de medir a crença
+prévia do aluno — que é o desfecho primário. `tools/validate.py` recusa o
+domínio se um cartão mencionar termo distintivo de `kc_07`, `kc_11` ou `kc_09`.
+
+É idêntica nos dois braços: acontece antes de eles divergirem. Cada cartão
+confirmado emite `stage_acknowledged` com o tempo de leitura, então a retomada
+volta ao cartão certo e o tempo de orientação entra na análise separado do
+tempo de tarefa.
+
 ## O que a interface exige antes de começar
 
 Quatro campos, nenhum com padrão: **código**, **experiência prévia**,

@@ -270,7 +270,9 @@ def acknowledge(
     conn: sqlite3.Connection, domain: Domain, session_id: str, elapsed_ms: int = 0
 ) -> SessionView:
     vista = load_session(conn, domain, session_id)
-    _exige(vista, ("diagram", "conclude"))
+    # "intro" entra aqui: os cartões de orientação também avançam por
+    # confirmação, e é a confirmação que registra o tempo de leitura.
+    _exige(vista, ("intro", "diagram", "conclude"))
     return _avanca(conn, domain, vista, fsm.Acknowledge(elapsed_ms))
 
 

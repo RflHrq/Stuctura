@@ -28,6 +28,7 @@ from engine.loader import CIU, Domain, Ref
 
 # Fases da sessão (§6).
 ABERTA = "ABERTA"
+INTRO = "INTRO"
 DIAGNOSTICO = "DIAGNOSTICO"
 CONFRONTO = "CONFRONTO"
 CORRECAO = "CORRECAO"
@@ -124,6 +125,10 @@ class SessionState:
     phase: str = ABERTA
     vector: Mapping[Ref, str] = field(default_factory=dict)
 
+    # Introdução (§ intro.yaml): cartão corrente. Fica no estado para que
+    # a sessão retomada volte ao mesmo cartão, não ao começo.
+    intro_index: int = 0
+
     # Diagnóstico
     diagnostics_done: int = 0
     used_cius: tuple[str, ...] = ()
@@ -180,6 +185,10 @@ def start(domain: Domain, arm: str, kc_sequence: Sequence[str]) -> Transition:
     if not ordem:
         raise ValueError("sequência de KCs vazia")
     estado = SessionState(arm=arm, kc_sequence=ordem, phase=DIAGNOSTICO)
+    # A introdução vem antes de tudo, e é idêntica nos dois braços — vem
+    # antes de eles divergirem, então a simetria do §8.1 é estrutural.
+    if domain.intro:
+        return _apresenta_intro(domain, replace(estado, phase=INTRO))
     return _abre_kc(domain, estado)
 
 
@@ -188,6 +197,22 @@ def advance(domain: Domain, state: SessionState, event: Event) -> Transition:
     # O tempo se acumula das ENTRADAS, não de um relógio: a FSM continua
     # pura e a sessão retomada soma exatamente o mesmo total.
     state = replace(state, total_ms=state.total_ms + max(0, event.elapsed_ms))
+
+    if state.phase == INTRO:
+        if not isinstance(event, Acknowledge):
+            raise ValueError("INTRO espera Acknowledge, veio %s" % type(event).__name__)
+        cartao = domain.intro[state.intro_index]
+        ev = Emit("stage_acknowledged", {
+            "stage": "intro", "kc": "", "card": cartao.id,
+            "card_index": state.intro_index + 1, "total": len(domain.intro),
+            "elapsed_ms": event.elapsed_ms,
+        })
+        seguinte = replace(state, intro_index=state.intro_index + 1)
+        if seguinte.intro_index >= len(domain.intro):
+            t = _abre_kc(domain, replace(seguinte, phase=DIAGNOSTICO))
+        else:
+            t = _apresenta_intro(domain, seguinte)
+        return Transition(t.state, t.action, (ev,) + t.events)
     if state.phase == DIAGNOSTICO:
         if not isinstance(event, Answer):
             raise ValueError("DIAGNOSTICO espera Answer, veio %s" % type(event).__name__)
@@ -229,6 +254,16 @@ def advance(domain: Domain, state: SessionState, event: Event) -> Transition:
         return Transition(state, Action("done"))
 
     raise ValueError("fase desconhecida: %r" % state.phase)
+
+
+def _apresenta_intro(domain: Domain, state: SessionState) -> Transition:
+    """Um cartão da introdução. Não emite evento ao APRESENTAR — só ao ser
+    confirmado, que é quando existe um tempo de leitura para registrar."""
+    cartao = domain.intro[state.intro_index]
+    dados = cartao.as_json()
+    dados["index"] = state.intro_index + 1
+    dados["total"] = len(domain.intro)
+    return Transition(state, Action("intro", text=cartao.title, data=dados))
 
 
 # --------------------------------------------------------------------------

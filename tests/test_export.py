@@ -50,6 +50,8 @@ def coleta(tmp_path_factory, d):
                 "kc_sequence": ["kc_09"], "consented": True,
                 "prior_c": d.study.prior_c_options[1]}).json()
             sid = j["session_id"]
+            while j["next_action"]["kind"] == "intro":      # orientação
+                j = c.post("/sessions/%s/ack" % sid, json={"elapsed_ms": 800}).json()
             primeira = True
             for _ in range(200):
                 a = j["next_action"]

@@ -41,7 +41,17 @@ def abre(client, participante="P01", arm="socratic", kcs=None):
         "consented": True, "prior_c": PRIOR_C,
     })
     assert r.status_code == 200, r.text
-    return r.json()
+    return atravessa_intro(client, r.json())
+
+
+def atravessa_intro(client, j):
+    """Confirma os cartões da introdução e devolve a sessão na 1ª atividade."""
+    for _ in range(20):
+        if j["next_action"]["kind"] != "intro":
+            return j
+        j = client.post("/sessions/%s/ack" % j["session_id"],
+                        json={"elapsed_ms": 800}).json()
+    raise AssertionError("a introdução não terminou")
 
 
 def responde(client, sid, acao, domain, *, errando=None, conf="tenho certeza"):

@@ -263,6 +263,7 @@ class Domain:
     misconceptions: Mapping[str, Misconception]
     cius: Mapping[str, CIU]
     feedback: Mapping[str, Mapping[str, str]]
+    intro: tuple["IntroCard", ...]
     study: Study
     hash: str
     source: Path = field(compare=False, default=DEFAULT_DOMAIN)
@@ -312,7 +313,7 @@ class Domain:
 # mudar o texto no meio da coleta faria os participantes verem coisas
 # diferentes, que é exatamente o que o hash existe para detectar (§15).
 FILES = ("kcs.yaml", "premise_graphs.yaml", "misconceptions.yaml", "cius.yaml",
-         "feedback.yaml")
+         "feedback.yaml", "intro.yaml")
 
 
 def load(path: str | Path | None = None, study_path: str | Path | None = None) -> Domain:
@@ -324,7 +325,7 @@ def load(path: str | Path | None = None, study_path: str | Path | None = None) -
     for nome in FILES:
         arquivo = base / nome
         if not arquivo.exists():
-            if nome == "feedback.yaml":
+            if nome in ("feedback.yaml", "intro.yaml"):
                 # RF17 é SHOULD: sem os moldes o sistema roda, apenas sem
                 # feedback elaborado. Faltar não pode derrubar uma coleta.
                 raw[nome] = {}
@@ -344,6 +345,7 @@ def load(path: str | Path | None = None, study_path: str | Path | None = None) -
     _check_prerequisites(kcs, problemas)
 
     fb = _build_feedback(raw.get("feedback.yaml") or {}, problemas)
+    intro = _build_intro(raw.get("intro.yaml") or {}, problemas)
     estudo = _load_study(study_path, kcs, problemas)
 
     if problemas:
@@ -355,6 +357,7 @@ def load(path: str | Path | None = None, study_path: str | Path | None = None) -
         misconceptions=miscs,
         cius=cius,
         feedback=fb,
+        intro=intro,
         study=estudo,
         hash=domain_hash(base),
         source=base,
@@ -508,6 +511,50 @@ def _build_misconceptions(
             kind="foundational" if negado.is_base else "derivational",
         )
     return out
+
+
+@dataclass(frozen=True, slots=True)
+class IntroCard:
+    """Um cartao da introducao, apresentado antes da primeira atividade.
+
+    Existe para orientar, nao para ensinar: cobre vocabulario (endereco,
+    caixa, regiao) e para antes das conclusoes dos KCs que o piloto mede.
+    Ver o cabecalho de intro.yaml.
+    """
+
+    id: str
+    title: str
+    lead: str
+    body: tuple[str, ...]
+    figure: Mapping[str, Any] | None = None
+
+    def as_json(self) -> dict[str, Any]:
+        out: dict[str, Any] = {
+            "id": self.id, "title": self.title, "lead": self.lead,
+            "body": list(self.body),
+        }
+        if self.figure:
+            out["figure"] = dict(self.figure)
+        return out
+
+
+def _build_intro(raw: Mapping, problemas: list[str]) -> tuple[IntroCard, ...]:
+    cartoes = []
+    vistos: set[str] = set()
+    for i, c in enumerate(raw.get("intro") or ()):
+        cid = c.get("id") or ""
+        if not cid:
+            problemas.append("intro.yaml: cartao %d sem id" % (i + 1))
+        if cid in vistos:
+            problemas.append("intro.yaml: id repetido %r" % cid)
+        vistos.add(cid)
+        if not c.get("title"):
+            problemas.append("intro.yaml %s: sem titulo" % cid)
+        cartoes.append(IntroCard(
+            id=cid, title=c.get("title", ""), lead=c.get("lead", ""),
+            body=tuple(c.get("body") or ()), figure=c.get("figure"),
+        ))
+    return tuple(cartoes)
 
 
 def _build_feedback(raw: Mapping, problemas: list[str]) -> dict[str, dict[str, str]]:
