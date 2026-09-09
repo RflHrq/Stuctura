@@ -84,6 +84,24 @@ consent_text: >-
   de forma anônima, identificadas apenas pelo código acima, e usadas na
   pesquisa. Posso interromper a qualquer momento, sem justificativa.
 
+# Ordem das alternativas.
+#
+# No catálogo, a alternativa correta é a PRIMEIRA nas 40 CIUs de escolha.
+# Sem embaralhar, um participante que perceba isso acerta tudo sem ler — e
+# a validação da Q-matrix, que é o desfecho primário, mede outra coisa.
+#
+# O embaralhamento é DETERMINÍSTICO por (sessão, atividade), não sorteado a
+# cada apresentação:
+#
+#   - participantes diferentes veem ordens diferentes, então some o viés
+#     de posição;
+#   - o MESMO participante, ao retomar depois de fechar a aba, vê a MESMA
+#     ordem — se fosse sorteado de novo, o `option_idx` já gravado passaria
+#     a apontar para outra alternativa e o dado se corromperia em silêncio;
+#   - o motor continua determinístico (RNF02): a ordem é função das
+#     entradas, não de um gerador com estado.
+shuffle_options: true
+
 # Escala de confiança declarada (RF02, RF04). Só o primeiro valor tem
 # efeito no §7.3: errar com ele marca a premissa ausente, não errada.
 confidence_scale: [chutei, "acho que sei", "tenho certeza"]

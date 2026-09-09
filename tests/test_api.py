@@ -55,15 +55,21 @@ def atravessa_intro(client, j):
 
 
 def responde(client, sid, acao, domain, *, errando=None, conf="tenho certeza"):
-    """Responde a CIU que a ação aponta, pela API."""
+    """Responde a CIU que a ação aponta, pela API.
+
+    Escolhe pelo TEXTO, não pelo índice do YAML: as alternativas chegam
+    embaralhadas por sessão, e o cliente manda a POSIÇÃO em que o aluno
+    clicou. Um teste que mandasse o índice canônico estaria falando uma
+    língua que a interface real não fala.
+    """
     ciu = domain.cius[acao["ciu_id"]]
     corpo = {"ciu_id": ciu.id, "confidence": conf, "elapsed_ms": 4000}
     if ciu.is_choice:
         def escolhe(o):
             return o.misconception == errando if errando else o.correct
-        corpo["option_idx"] = next(
-            (i for i, o in enumerate(ciu.options) if escolhe(o)), 0
-        )
+        alvo = next((o for o in ciu.options if escolhe(o)), ciu.options[0])
+        exibidas = [x["text"] for x in acao.get("options", [])]
+        corpo["option_idx"] = exibidas.index(alvo.text)
     elif ciu.type == "fill_blank":
         corpo["text"] = ciu.answer if errando is None else "sei la"
     elif ciu.type == "parsons":
@@ -73,6 +79,19 @@ def responde(client, sid, acao, domain, *, errando=None, conf="tenho certeza"):
     r = client.post("/sessions/%s/answer" % sid, json=corpo)
     assert r.status_code == 200, r.text
     return r.json()
+
+
+def posicao(acao, domain, *, misconception=None, correta=False):
+    """Em que POSIÇÃO a alternativa pedida está sendo exibida.
+
+    As alternativas vêm embaralhadas por sessão, então nenhum teste pode
+    fixar um índice: teria de ser atualizado a cada mudança de id de
+    sessão, e passaria ou falharia por sorte.
+    """
+    ciu = domain.cius[acao["ciu_id"]]
+    alvo = next(o for o in ciu.options
+                if (o.correct if correta else o.misconception == misconception))
+    return [x["text"] for x in acao["options"]].index(alvo.text)
 
 
 def avanca_ate_o_fim(client, sid, j, domain, limite=200):
@@ -115,10 +134,12 @@ def test_criar_sessao_devolve_a_primeira_acao(client):
 
 
 def test_responder_devolve_outcome_e_deteccao(client):
+    from engine.loader import load
     j = abre(client)
     r = client.post("/sessions/%s/answer" % j["session_id"], json={
-        "ciu_id": "ciu_kc09_001", "confidence": "tenho certeza",
-        "elapsed_ms": 8000, "option_idx": 2})
+        "ciu_id": "ciu_kc09_001", "confidence": "tenho certeza", "elapsed_ms": 8000,
+        "option_idx": posicao(j["next_action"], load(),
+                              misconception="free_nullifies")})
     assert r.status_code == 200
     saida = r.json()
     assert saida["outcome"] == "incorrect"
@@ -128,10 +149,12 @@ def test_responder_devolve_outcome_e_deteccao(client):
 
 def test_chutar_nao_reporta_crenca_detectada(client):
     """A mesma alternativa, chutada, não é evidência de sustentar a crença."""
+    from engine.loader import load
     j = abre(client)
     saida = client.post("/sessions/%s/answer" % j["session_id"], json={
-        "ciu_id": "ciu_kc09_001", "confidence": "chutei",
-        "elapsed_ms": 8000, "option_idx": 2}).json()
+        "ciu_id": "ciu_kc09_001", "confidence": "chutei", "elapsed_ms": 8000,
+        "option_idx": posicao(j["next_action"], load(),
+                              misconception="free_nullifies")}).json()
     assert saida["outcome"] == "incorrect"
     assert saida["detected"] is None
     assert saida["vector"]["I1"] == "absent"
@@ -487,5 +510,77 @@ def test_total_ms_da_sessao_nao_e_zero(client):
         )
         assert fim.payload["total_ms"] > 0
         assert fim.payload["total_ms"] == gastos
+    finally:
+        conn.close()
+
+
+# --------------------------------------------------------------------------
+# Ordem das alternativas
+# --------------------------------------------------------------------------
+
+def test_participantes_diferentes_veem_ordens_diferentes(client):
+    """No catálogo a correta é a PRIMEIRA nas 40 CIUs de escolha. Sem
+    embaralhar, quem perceber acerta tudo sem ler — e a validação da
+    Q-matrix mede outra coisa."""
+    ordens = set()
+    for i in range(8):
+        j = abre(client, "PO%d" % i, kcs=["kc_09"])
+        ordens.add(tuple(o["text"] for o in j["next_action"]["options"]))
+    assert len(ordens) > 1, "todas as sessões viram a mesma ordem"
+
+
+def test_a_mesma_sessao_ve_sempre_a_mesma_ordem(client):
+    """Se a ordem fosse sorteada a cada apresentação, na retomada o aluno
+    veria outra — e o `option_idx` já gravado passaria a apontar para outra
+    alternativa. O dado se corromperia sem sinal nenhum."""
+    j = abre(client, "PORD", kcs=["kc_09"])
+    primeira = [o["text"] for o in j["next_action"]["options"]]
+    for _ in range(3):
+        r = client.get("/sessions/%s" % j["session_id"]).json()
+        assert [o["text"] for o in r["next_action"]["options"]] == primeira
+
+
+def test_a_crenca_detectada_e_a_do_texto_escolhido(client):
+    """O invariante que a tradução protege: o aluno clica numa POSIÇÃO, e o
+    sistema tem de diagnosticar a crença do TEXTO que estava ali."""
+    from engine.loader import load
+    d = load()
+    j = abre(client, "PTRAD", kcs=["kc_09"])
+    acao = j["next_action"]
+
+    escolhida = None
+    for i, o in enumerate(acao["options"]):
+        alvo = next(x for x in d.cius["ciu_kc09_001"].options if x.text == o["text"])
+        if alvo.misconception == "free_kills_pointer":
+            escolhida = i
+            break
+    assert escolhida is not None
+
+    saida = client.post("/sessions/%s/answer" % j["session_id"], json={
+        "ciu_id": "ciu_kc09_001", "confidence": "tenho certeza",
+        "elapsed_ms": 1000, "option_idx": escolhida}).json()
+    assert saida["detected"] == "free_kills_pointer"
+
+
+def test_o_log_guarda_a_posicao_exibida_e_o_indice_canonico(client):
+    """Os dois, e são coisas diferentes: `option_idx` é o que o catálogo e a
+    análise falam; `displayed_idx` permite medir viés de posição em vez de
+    apenas eliminá-lo."""
+    from engine.loader import load
+    d = load()
+    j = abre(client, "PLOG", kcs=["kc_09"])
+    pos = posicao(j["next_action"], d, misconception="free_nullifies")
+    client.post("/sessions/%s/answer" % j["session_id"], json={
+        "ciu_id": "ciu_kc09_001", "confidence": "tenho certeza",
+        "elapsed_ms": 1000, "option_idx": pos})
+
+    conn = store_events.connect(client.app.state.db_path)
+    try:
+        ev = store_events.read(conn, j["session_id"], types=["answer_submitted"])[0]
+        canonico = next(i for i, o in enumerate(d.cius["ciu_kc09_001"].options)
+                        if o.misconception == "free_nullifies")
+        assert ev.payload["option_idx"] == canonico
+        assert ev.payload["displayed_idx"] == pos
+        assert ev.payload["option_order"][pos] == canonico
     finally:
         conn.close()

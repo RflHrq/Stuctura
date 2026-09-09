@@ -71,7 +71,7 @@ def _hash_do_dominio(eventos: Sequence[store_events.Event]) -> str:
 COLUNAS_ANSWERS = [
     "participant", "arm", "session_id", "seq", "ts",
     "kc", "ciu_id", "ciu_type", "ciu_phase", "targets",
-    "option_idx", "option_text", "response_text",
+    "option_idx", "displayed_idx", "n_options", "option_text", "response_text",
     "correct", "confidence", "elapsed_ms",
     "chosen_misconception", "distractor_is_mapped",
     "belief_counted_active", "answer_index_in_kc",
@@ -133,6 +133,13 @@ def linhas_answers(d: Domain, sessao: dict, eventos: Sequence[store_events.Event
             "ciu_phase": ciu.phase if ciu else p.get("phase", ""),
             "targets": "|".join(ciu.targets) if ciu else "",
             "option_idx": "" if idx is None else idx,
+            # A POSIÇÃO em que a alternativa apareceu. As alternativas são
+            # embaralhadas por sessão, e guardar isto permite testar se a
+            # posição influenciou a escolha — em vez de só supor que não.
+            "displayed_idx": (
+                "" if p.get("displayed_idx") is None else p["displayed_idx"]
+            ),
+            "n_options": len(ciu.options) if ciu and ciu.is_choice else "",
             "option_text": opcao.text if opcao else "",
             # Texto cru, não JSON. `json.dumps` embrulhava a resposta em
             # aspas — o analista veria `"*(a + i)"` em vez de `*(a + i)` —

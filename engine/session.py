@@ -20,6 +20,7 @@ Sem essa guarda, um aluno travado entra em laço. Ver `_avanca_correcao`.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field, replace
 from typing import Any, Mapping, Sequence
 
@@ -121,6 +122,10 @@ class SessionState:
 
     arm: str
     kc_sequence: tuple[str, ...]
+    # Semente do embaralhamento das alternativas. É o id da sessão, então
+    # a ordem é a mesma em toda reconstrução do log (RNF06) e diferente
+    # entre participantes.
+    seed: str = ""
     kc_index: int = 0
     phase: str = ABERTA
     vector: Mapping[Ref, str] = field(default_factory=dict)
@@ -177,7 +182,8 @@ class Transition:
 # Início
 # --------------------------------------------------------------------------
 
-def start(domain: Domain, arm: str, kc_sequence: Sequence[str]) -> Transition:
+def start(domain: Domain, arm: str, kc_sequence: Sequence[str],
+          seed: str = "") -> Transition:
     """Abre a sessão no primeiro KC da sequência.
 
     Não emite `session_started`: quem o emite é `store.start_session`, que
@@ -189,7 +195,7 @@ def start(domain: Domain, arm: str, kc_sequence: Sequence[str]) -> Transition:
     ordem = selector.kc_order(domain, kc_sequence)
     if not ordem:
         raise ValueError("sequência de KCs vazia")
-    estado = SessionState(arm=arm, kc_sequence=ordem, phase=DIAGNOSTICO)
+    estado = SessionState(arm=arm, kc_sequence=ordem, seed=seed, phase=DIAGNOSTICO)
     # A introdução vem antes de tudo, e é idêntica nos dois braços — vem
     # antes de eles divergirem, então a simetria do §8.1 é estrutural.
     if domain.intro:
@@ -316,19 +322,46 @@ def _apresenta(domain: Domain, state: SessionState, ciu: CIU, fase: str) -> Tran
         else state.used_cius,
         last_ciu_type=ciu.type,
     )
+    ordem = option_order(domain, state.seed, ciu)
     evento = Emit("ciu_presented", {
         "ciu_id": ciu.id, "kc": ciu.kc, "targets": list(ciu.targets), "phase": ciu.phase,
         "type": ciu.type,
+        # A permutação vai para o log: a análise não precisa rededuzi-la, e
+        # fica registrado o que este participante viu, nesta posição.
+        "option_order": list(ordem),
     })
-    return Transition(novo, _acao_ciu(ciu), (evento,))
+    return Transition(novo, _acao_ciu(ciu, ordem), (evento,))
 
 
-def _acao_ciu(ciu: CIU) -> Action:
+def option_order(domain: Domain, seed: str, ciu: CIU) -> tuple[int, ...]:
+    """A ordem em que as alternativas de `ciu` são exibidas nesta sessão.
+
+    Devolve os índices CANÔNICOS na ordem de exibição. Fisher-Yates guiado
+    por um digest de (semente, id da atividade): mesma entrada, mesma
+    ordem, sempre — sem `random`, que traria estado e quebraria o replay.
+
+    `hash()` do Python NÃO serve: é salgado por processo, então reiniciar
+    o servidor no meio da coleta mudaria a ordem de quem retomasse.
+    """
+    n = len(ciu.options)
+    ordem = list(range(n))
+    if not domain.study.shuffle_options or n < 2 or not seed:
+        return tuple(ordem)
+
+    digest = hashlib.sha256(("%s|%s" % (seed, ciu.id)).encode("utf-8")).digest()
+    for i in range(n - 1, 0, -1):
+        j = digest[(n - 1 - i) % len(digest)] % (i + 1)
+        ordem[i], ordem[j] = ordem[j], ordem[i]
+    return tuple(ordem)
+
+
+def _acao_ciu(ciu: CIU, ordem: Sequence[int] = ()) -> Action:
     dados: dict[str, Any] = {
         "type": ciu.type, "phase": ciu.phase, "prompt": ciu.prompt,
     }
     if ciu.is_choice:
-        dados["options"] = [{"text": o.text} for o in ciu.options]
+        exibicao = list(ordem) or list(range(len(ciu.options)))
+        dados["options"] = [{"text": ciu.options[i].text} for i in exibicao]
     if ciu.type == "parsons":
         dados["steps"] = list(ciu.steps_correct)
     if ciu.type == "path_choice":
@@ -342,16 +375,43 @@ def _acao_ciu(ciu: CIU) -> Action:
 # Diagnóstico
 # --------------------------------------------------------------------------
 
+def _canonico(domain: Domain, state: SessionState, ciu: CIU,
+              exibido: int | None) -> tuple[int | None, list[int]]:
+    """Traduz o índice EXIBIDO para o índice canônico do YAML.
+
+    O cliente devolve a posição em que o aluno clicou; o catálogo, a
+    Q-matrix e todo o `answers.csv` falam em índice canônico. Sem esta
+    tradução, embaralhar faria o sistema diagnosticar a crença ERRADA —
+    silenciosamente, e em toda a coleta.
+    """
+    ordem = list(option_order(domain, state.seed, ciu))
+    if exibido is None or not ciu.is_choice:
+        return exibido, ordem
+    if not (0 <= exibido < len(ordem)):
+        raise ValueError(
+            "CIU %s: posição %r fora das %d alternativas exibidas"
+            % (ciu.id, exibido, len(ordem))
+        )
+    return ordem[exibido], ordem
+
+
 def _responde_diagnostico(domain: Domain, state: SessionState, ev: Answer) -> Transition:
     ciu = domain.cius[ev.ciu_id]
-    correto, mid = model.detect(ciu, ev.option_idx, ev.text)
+    canonico, ordem = _canonico(domain, state, ciu, ev.option_idx)
+    correto, mid = model.detect(ciu, canonico, ev.text)
     updates = model.ingest(domain, state.vector, ciu, correto, ev.confidence, mid)
     vetor = model.apply(state.vector, updates)
 
     # O distrator escolhido vai para o log SEMPRE: é o dado cru da
     # validação da Q-matrix, e independe de confiança.
+    #
+    # `option_idx` é o índice CANÔNICO — é o que o catálogo e a análise
+    # falam. `displayed_idx` é a posição em que a alternativa apareceu para
+    # este participante, e permite medir viés de posição em vez de só
+    # eliminá-lo.
     eventos = [Emit("answer_submitted", {
-        "ciu_id": ciu.id, "kc": ciu.kc, "option_idx": ev.option_idx,
+        "ciu_id": ciu.id, "kc": ciu.kc, "option_idx": canonico,
+        "displayed_idx": ev.option_idx, "option_order": ordem,
         "text": list(ev.text) if isinstance(ev.text, tuple) else ev.text,
         "confidence": ev.confidence, "elapsed_ms": ev.elapsed_ms,
         "correct": correto, "misconception_id": mid,
@@ -692,12 +752,14 @@ def _entra_variacao(domain: Domain, state: SessionState) -> Transition:
 
 def _responde_variacao(domain: Domain, state: SessionState, ev: Answer) -> Transition:
     ciu = domain.cius[ev.ciu_id]
-    correto, mid = model.detect(ciu, ev.option_idx, ev.text)
+    canonico, ordem = _canonico(domain, state, ciu, ev.option_idx)
+    correto, mid = model.detect(ciu, canonico, ev.text)
     updates = model.ingest(domain, state.vector, ciu, correto, ev.confidence, mid)
     vetor = model.apply(state.vector, updates)
 
     eventos = [Emit("answer_submitted", {
-        "ciu_id": ciu.id, "kc": ciu.kc, "option_idx": ev.option_idx,
+        "ciu_id": ciu.id, "kc": ciu.kc, "option_idx": canonico,
+        "displayed_idx": ev.option_idx, "option_order": ordem,
         "text": list(ev.text) if isinstance(ev.text, tuple) else ev.text,
         "confidence": ev.confidence, "elapsed_ms": ev.elapsed_ms,
         "correct": correto, "misconception_id": mid, "phase": "variation",

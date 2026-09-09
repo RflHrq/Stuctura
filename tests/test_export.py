@@ -61,16 +61,19 @@ def coleta(tmp_path_factory, d):
                     ciu = d.cius[a["ciu_id"]]
                     alvo, conf = None, "tenho certeza"
                     if primeira and erro:
-                        alvo = next((i for i, o in enumerate(ciu.options)
+                        alvo = next((o for o in ciu.options
                                      if o.misconception == erro), None)
                         conf = confianca
                         if alvo is not None:
                             primeira = False
                     if alvo is None:
-                        alvo = next(i for i, o in enumerate(ciu.options) if o.correct)
+                        alvo = next(o for o in ciu.options if o.correct)
+                    # posição exibida, não índice do YAML: elas vêm embaralhadas
+                    exibidas = [x["text"] for x in a.get("options", [])]
                     j = c.post("/sessions/%s/answer" % sid, json={
                         "ciu_id": ciu.id, "confidence": conf,
-                        "elapsed_ms": 5000, "option_idx": alvo}).json()
+                        "elapsed_ms": 5000,
+                        "option_idx": exibidas.index(alvo.text)}).json()
                 elif a["kind"] in ("ask", "explain"):
                     j = c.post("/sessions/%s/step" % sid, json={
                         "accepted": True, "elapsed_ms": 3000,

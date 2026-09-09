@@ -171,7 +171,7 @@ def create_session(
     sid = store_events.start_session(
         conn, participant, arm, sequencia, domain.hash
     )
-    t = fsm.start(domain, arm, sequencia)
+    t = fsm.start(domain, arm, sequencia, seed=sid)
     _persist(conn, sid, t.events)
     return SessionView(sid, arm, sequencia, t.state, t.action, t.events)
 
@@ -190,7 +190,7 @@ def load_session(conn: sqlite3.Connection, domain: Domain, session_id: str) -> S
 
     import json
     sequencia = tuple(json.loads(linha["kc_sequence"]))
-    t = fsm.start(domain, linha["arm"], sequencia)
+    t = fsm.start(domain, linha["arm"], sequencia, seed=session_id)
 
     for e in store_events.read(conn, session_id):
         entrada = _to_input(e)
@@ -209,10 +209,16 @@ def _to_input(e: store_events.Event) -> fsm.Event | None:
 
     if e.type == "answer_submitted":
         texto = p.get("text")
+        # `displayed_idx` e NAO `option_idx`. O log grava o indice CANONICO
+        # em `option_idx`, porque e nele que o catalogo e a analise falam;
+        # a FSM, porem, recebe a POSICAO em que o aluno clicou e traduz.
+        # Devolver o canonico aqui faria a traducao acontecer duas vezes, e
+        # a sessao reconstruida divergiria da original — em silencio.
+        exibido = p.get("displayed_idx", p.get("option_idx"))
         return fsm.Answer(
             ciu_id=p["ciu_id"], confidence=p["confidence"],
             elapsed_ms=int(p.get("elapsed_ms", 0)),
-            option_idx=p.get("option_idx"),
+            option_idx=exibido,
             text=tuple(texto) if isinstance(texto, list) else texto,
         )
     if e.type == "socratic_step_answered":
