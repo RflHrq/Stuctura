@@ -103,10 +103,9 @@ SECAO = """<section class="kc">
 """
 
 
-TEMPLATE = """<!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8">
+TEMPLATE = """<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Structura — premissas do domínio</title>
+<title>Enunciados das Premissas</title>
 <style>%(estilo)s</style>
 <style>
   body { padding: 28px 20px 80px; }
@@ -147,7 +146,7 @@ TEMPLATE = """<!doctype html>
   .fig { margin-top: 16px; }
   @media (max-width: 620px) { .par { grid-template-columns: 1fr; gap: 2px; } }
 </style>
-</head><body>
+
 <div class="folha">
   <div class="topo">
     <h1>Premissas do domínio</h1>
@@ -165,7 +164,6 @@ TEMPLATE = """<!doctype html>
     else caixa.remove();
   });
 </script>
-</body></html>
 """
 
 

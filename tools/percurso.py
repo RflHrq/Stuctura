@@ -206,7 +206,8 @@ def pagina(db: str, path: str | None = None) -> str:
     return TEMPLATE.replace("__DADOS__", json.dumps(d, ensure_ascii=False))
 
 
-TEMPLATE = r"""<title>Percursos dos Participantes</title>
+TEMPLATE = r"""<meta charset="utf-8">
+<title>Percursos dos Participantes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">

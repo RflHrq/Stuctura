@@ -303,7 +303,8 @@ def pagina(path: str | None = None) -> str:
             .replace("__HASH__", d.hash.replace("sha256:", "")[:8]))
 
 
-TEMPLATE = r"""<title>O Mapa das Premissas</title>
+TEMPLATE = r"""<meta charset="utf-8">
+<title>O Mapa das Premissas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
