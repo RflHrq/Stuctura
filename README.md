@@ -66,6 +66,77 @@ python -m pytest tests/ -q; if ($?) { python -m tools.validate --stats }
 150 testes; o validador tem de sair 0. Ele imprime avisos — 21 hoje, todos
 documentados e nenhum bloqueante. Erro é o que sai com código diferente de 0.
 
+## Como demonstrar o sistema
+
+Quatro páginas, geradas do próprio domínio e do próprio log. Nenhuma delas
+é o sistema — todas são **leituras** dele, e por isso nenhuma pode
+dessincronizar: regenere depois de qualquer mudança e o que aparece é o que
+o piloto vai rodar.
+
+```
+python -m tools.figuras  -o analise/premissas.html    # os 93 enunciados e figuras
+python -m tools.grafo    -o analise/mapa.html         # os 12 grafos e os 46 caminhos
+python -m tools.simular                               # 6 sessões, em banco separado
+python -m tools.percurso -o analise/percursos.html    # o caminho de cada participante
+```
+
+### A ordem que funciona numa conversa de 20 minutos
+
+**1 · O mapa** (`mapa.html`, nível de cima) — os 12 KCs, da esquerda para a
+direita por prerequisito. Estabelece o tamanho do domínio e onde o piloto
+corta: três KCs, marcados. O número `9 +1` em cada caixa já introduz o
+fecho alcançável, que volta depois.
+
+**2 · Um grafo, no modo “todos os caminhos”** (abra o KC 07) — mostra que a
+estrutura não é um mapa conceitual: as premissas de carga aparecem com
+borda grossa e `6×`, as folhas com `1×`. É aqui que se explica base contra
+inferência, e por que uma crença que nega um nó-base exige diagrama.
+
+**3 · Um caminho, percorrido** (modo “um caminho”, escolha
+`array_is_pointer`) — clique *Confirma* quatro vezes. O ponto é o passo 4:
+o aluno afirma o contrário da crença com que entrou, e as três premissas
+foram respostas dele. Depois clique *Erra* duas vezes para mostrar a
+regressão.
+
+**4 · Os enunciados** (`premissas.html`) — só se perguntarem o que o aluno
+lê de fato. Cada nó com o enunciado do grafo, a versão simples, a pergunta
+montada e a ilustração.
+
+**5 · Um percurso real** (`percursos.html`) — fecha o ciclo: o mesmo grafo,
+agora com o caminho que uma pessoa andou, reconstruído do log. Abra o
+`SIM01` no KC 09 e mostre os passos que caem em nós de **outros KCs** — é o
+fecho do item 1, aparecendo num percurso.
+
+### Sobre os dados simulados
+
+`tools/simular.py` grava sessões pelo caminho normal: chama o mesmo
+`api.service` que a interface chama, e o motor emite os mesmos eventos. Não
+há evento fabricado à mão — por isso a tela de percurso lê o dado simulado
+exatamente como lerá o real.
+
+Duas guardas, e as duas importam:
+
+- **banco separado.** O padrão é `data/simulado.db`, e o script **recusa**
+  gravar em algo chamado `structura*.db`. Participante simulado misturado ao
+  real contaminaria o export do §12, e o erro só apareceria na análise.
+- **código marcado.** `SIM01`, `SIM02`… O piloto usa `P01`–`P40`. A página
+  de percurso mostra um aviso enquanto houver qualquer `SIM…` no banco.
+
+Quando a coleta começar, é a mesma ferramenta apontada para o outro banco:
+
+```
+python -m tools.percurso --db data/structura.db -o analise/percursos.html
+```
+
+### O que a análise lê, e o que ela não lê
+
+Só a tabela `events`, que é append-only e é a **fonte**. Nunca `node_state`,
+que é projeção descartável (§4). Uma leitura de análise que dependesse do
+cache deixaria de valer como prova na defesa — e o estado cognitivo
+mostrado é calculado por `model.cognitive_state`, a mesma função que o motor
+usa em sessão, e não por uma segunda regra escrita na ferramenta.
+
+
 ## Estado da construção
 
 Ordem do §13 da spec. Marcos 1 a 3 são o caminho crítico.
