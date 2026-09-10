@@ -30,8 +30,25 @@ from engine.loader import load
 WEB = Path(__file__).resolve().parent.parent / "web"
 
 
-def pagina(kc_id: str, path: str | None = None) -> str:
+def pagina(kcs: list[str], path: str | None = None) -> str:
     d = load(path)
+    partes = [_secao(d, k) for k in kcs]
+    estilo = (WEB / "style.css").read_text(encoding="utf-8")
+    figuras = (WEB / "figures.js").read_text(encoding="utf-8")
+    nos = [n for k in kcs for n in d.kcs[k].nodes.values()]
+
+    return TEMPLATE % {
+        "titulo": html.escape(kcs[0] if len(kcs) == 1 else "domínio %s" % d.id),
+        "hash": html.escape(d.hash),
+        "total": len(nos),
+        "simples": sum(1 for n in nos if n.plain),
+        "estilo": estilo,
+        "figuras": figuras,
+        "secoes": "\n".join(partes),
+    }
+
+
+def _secao(d, kc_id: str) -> str:
     kc = d.kcs[kc_id]
 
     # A ordem da folha é a ordem do TRAVERSAL até a conclusão, não a ordem
@@ -65,33 +82,41 @@ def pagina(kc_id: str, path: str | None = None) -> str:
                 html.escape(json.dumps(no.figure or {}, ensure_ascii=False)),
             ))
 
-    estilo = (WEB / "style.css").read_text(encoding="utf-8")
-    figuras = (WEB / "figures.js").read_text(encoding="utf-8")
-
-    return TEMPLATE % {
+    return SECAO % {
         "kc": html.escape(kc_id),
         "nome": html.escape(kc.name),
         "conclusao": html.escape(kc.conclusion),
-        "hash": html.escape(d.hash),
-        "total": len(plano) + len(resto),
-        "simples": sum(1 for r in plano + resto if d.node(*r).plain),
-        "estilo": estilo,
-        "figuras": figuras,
         "blocos": "\n".join(blocos),
     }
+
+
+SECAO = """<section class="kc">
+  <div class="cabeca">
+    <h1>%(kc)s — %(nome)s</h1>
+    <div class="concl"><b>conclusão do KC:</b> %(conclusao)s</div>
+    <p class="sub">Na ordem em que o traversal percorre até a conclusão —
+      do mais primordial ao mais elaborado. Os nós fora dessa cadeia vêm
+      ao final da seção.</p>
+  </div>
+  %(blocos)s
+</section>
+"""
 
 
 TEMPLATE = """<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Structura — premissas do %(kc)s</title>
+<title>Structura — premissas do domínio</title>
 <style>%(estilo)s</style>
 <style>
   body { padding: 28px 20px 80px; }
   .folha { max-width: 860px; margin: 0 auto; }
+  .topo { margin-bottom: 30px; }
+  .topo h1 { margin: 0 0 4px; font-size: 26px; }
+  .kc { margin-bottom: 46px; }
   .cabeca { border-bottom: 2px solid var(--rule-2); padding-bottom: 18px;
             margin-bottom: 26px; }
-  .cabeca h1 { margin: 0 0 6px; font-size: 24px; }
+  .cabeca h1 { margin: 0 0 6px; font-size: 22px; }
   .cabeca .sub { color: var(--mute); font-size: 14px; }
   .cabeca .concl { margin-top: 14px; padding: 12px 14px; background: var(--sunk);
                    border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; }
@@ -124,16 +149,12 @@ TEMPLATE = """<!doctype html>
 </style>
 </head><body>
 <div class="folha">
-  <div class="cabeca">
-    <h1>%(kc)s — %(nome)s</h1>
+  <div class="topo">
+    <h1>Premissas do domínio</h1>
     <div class="sub">%(simples)d de %(total)d nós com versão simplificada ·
-      domínio %(hash)s</div>
-    <div class="concl"><b>conclusão do KC:</b> %(conclusao)s</div>
-    <p class="sub" style="margin-top:14px">Na ordem em que o traversal
-      percorre até a conclusão — do mais primordial ao mais elaborado.
-      Os nós fora dessa cadeia vêm ao final.</p>
+      %(hash)s</div>
   </div>
-  %(blocos)s
+  %(secoes)s
 </div>
 <script>%(figuras)s</script>
 <script>
@@ -150,12 +171,15 @@ TEMPLATE = """<!doctype html>
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("kc", help="id do KC, por exemplo kc_07")
+    p.add_argument("kc", nargs="*",
+                   help="ids dos KCs; sem nenhum, o domínio inteiro "
+                        "na ordem de ensino")
     p.add_argument("--path", default=None, help="diretório do domínio")
     p.add_argument("-o", "--out", default=None, help="arquivo de saída")
     args = p.parse_args(argv)
 
-    saida = pagina(args.kc, args.path)
+    alvos = args.kc or list(load(args.path).teaching_sequence())
+    saida = pagina(alvos, args.path)
     if args.out:
         Path(args.out).write_text(saida, encoding="utf-8")
         print("escrito em %s" % args.out)

@@ -74,6 +74,8 @@ intro:
         Guarde só isto: <b>endereço é o número da casa, não a casa</b>.
     figure:
       kind: street
+      alt: "Uma rua de casas numeradas"
+      axis: "endereço"
       caption: "Cada posição tem um número. O número não é o conteúdo."
       houses:
         - {addr: "0x1000", content: "…"}
@@ -94,6 +96,7 @@ intro:
         informações diferentes sobre a mesma caixa.
     figure:
       kind: boxes
+      alt: "Variáveis desenhadas como caixas com nome e endereço"
       caption: "Uma caixa tem nome, conteúdo — e um endereço, que é onde ela está."
       items:
         - {name: "x", value: "42", addr: "0x1004", tone: "plain"}
@@ -115,9 +118,15 @@ intro:
         tem outro.
     figure:
       kind: pointer_pair
+      alt: "Uma caixa guardando o endereço de outra"
+      # Estas frases estavam ESCRITAS no renderizador. Saíram de lá pelo
+      # mesmo motivo do rodapé de `regions`: o §1 não permite que o motor
+      # saiba de C, e a figura só servia a um caso enquanto a frase
+      # estivesse dentro dela.
+      arrow_label: "o conteúdo de p é o endereço de x"
+      pointer: {name: "p", value: "0x1004", addr: "0x2A00", foot: "uma caixa"}
+      target: {name: "x", value: "42", addr: "0x1004", foot: "outra caixa"}
       caption: "p e x são duas caixas separadas. p guarda o endereço de x."
-      pointer: {name: "p", value: "0x1004", addr: "0x2A00"}
-      target: {name: "x", value: "42", addr: "0x1004"}
 
   - id: regioes
     title: "Duas regiões, duas regras de arrumação"
@@ -138,10 +147,12 @@ intro:
       left:
         title: "arrumada sozinha"
         note: "nasce e some com a função"
+        foot: "somem sozinhas"
         icon: "armario"
       right:
         title: "arrumada por você"
         note: "você pede, você devolve"
+        foot: "ficam até você devolver"
         icon: "deposito"
 
   - id: confianca

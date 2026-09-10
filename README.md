@@ -264,28 +264,59 @@ Os dois braços leem sempre a mesma versão (§8.1). Simplificar um braço só
 seria dar-lhe um apoio que o outro não tem, e a variável isolada deixaria de
 ser a geração ativa. `tests/test_plain.py` afirma isso.
 
-**Hoje só o `kc_07` está simplificado** (9 nós, mais `kc_06:B2`, que o
-`kc_07:I4` puxa para dentro do traversal). É amostra deliberada: reescrever
-os 93 nós é trabalho de conteúdo, e o registro precisa ser julgado num KC
-antes de valer para os outros.
+**Os 93 nós dos 12 KCs estão simplificados e ilustrados.** O `kc_07` foi
+feito primeiro, sozinho, para o registro ser julgado antes de valer para o
+resto — e o resto seguiu esse registro.
 
-Dois avisos do validador cuidam da transição:
+O conector de discurso ("Então…", "Por isso…", "Mas…") pertence ao
+enunciado do nó, não ao molde da pergunta. O braço direto apresenta o
+mesmo texto **sem molde nenhum**: sem o conector, a frase chegaria solta.
+Com um conector no molde também, o participante lia "Juntando: Então p e a
+caixa…".
+
+Dois avisos do validador guardam a uniformidade — e continuam valendo para
+quem trocar o domínio:
 
 - **registro uniforme por KC** — um KC com metade dos nós simplificados
   misturaria os dois registros no mesmo traversal.
 - **pergunta com registro misto** — mais preciso: nomeia a pergunta em que
   parte das premissas citadas tem `plain` e parte não. Pega o caso que a
-  conferência por KC não pega, o do suporte que vem de outro KC.
+  conferência por KC não pega, o do suporte que vem de outro KC. Foi ele
+  que mostrou que simplificar não custa por KC, e sim por **fecho
+  alcançável**: o `kc_07` puxa um nó do `kc_06`; o `kc_09` puxa nove, de
+  `kc_04`, `kc_05` e `kc_06`.
 
-Para julgar o registro de um KC:
+Para julgar o registro:
 
 ```
-python -m tools.figuras kc_07 -o analise/figuras_kc07.html
+python -m tools.figuras -o analise/premissas.html
 ```
 
-A página põe lado a lado, para cada nó e na ordem do traversal, o enunciado
-do grafo, a versão simples, a pergunta montada e a ilustração — renderizada
-pelo mesmo `web/figures.js` do piloto.
+Sem argumentos, o domínio inteiro na ordem de ensino; com ids (`kc_07
+kc_11`), só esses. A página põe lado a lado, para cada nó e na ordem do
+traversal, o enunciado do grafo, a versão simples, a pergunta montada e a
+ilustração — renderizada pelo mesmo `web/figures.js` do piloto.
+
+### Os tipos de figura
+
+O tipo é vocabulário de apresentação e vive em `web/figures.js`; o
+conteúdo — rótulos, valores, legendas — vem do YAML. Nenhuma frase sobre C
+mora no renderizador, que é o que o §1 pede.
+
+| tipo | o que mostra |
+|---|---|
+| `street` | memória como posições numeradas |
+| `boxes` | variáveis como caixas com nome, valor e endereço |
+| `pointer_pair` | duas caixas, uma guardando o endereço da outra; `target.gone` desenha o destino que já não vale |
+| `chain` | caixas em fila, cada uma guardando a seguinte — a indireção |
+| `regions` | duas áreas com regras de arrumação diferentes |
+| `array_row` | caixas **grudadas**, com índice |
+| `array_decay` | a fileira mais o nome trocado pelo endereço da 1ª caixa |
+| `stride` | um salto sobre caixas de largura proporcional |
+| `sizes` | barras em escala, para comparar medida |
+| `call_frame` | o que atravessa a fronteira de uma chamada |
+| `two_cases` | dois painéis: o caso que vale e o que não vale |
+| `session_map`, `confidence` | só a introdução |
 
 ## O que a interface exige antes de começar
 

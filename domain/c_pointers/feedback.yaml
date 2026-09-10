@@ -121,10 +121,16 @@ prompts:
   # corrente viram um paragrafo em que nao se ve onde uma acaba e a outra
   # comeca — e a inferencia depende justamente de ve-las separadas.
   # {support} (prosa corrida) continua disponivel se preferir.
+  #
+  # SEM conector proprio antes de {node}. O enunciado dos nos de inferencia
+  # ja traz o seu — "Entao...", "Por isso...", "Mas...", "Juntando..." —, e
+  # ele precisa estar la: o braco direto apresenta o mesmo texto SEM molde
+  # nenhum, e sem o conector a frase chegaria solta. Com um conector aqui,
+  # o participante lia "Juntando: Entao p e a caixa...".
   inference: |-
     Você já confirmou:
     {support_list}
-    Juntando: {node}, certo?
+    {node}, certo?
   inference_no_support: "{node}, certo?"
 
   # Primeira tentativa depois de um erro: em vez de mudar de assunto,

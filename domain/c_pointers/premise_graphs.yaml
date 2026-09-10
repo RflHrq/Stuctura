@@ -9,55 +9,563 @@ graphs:
 
   kc_01:
     nodes:
-      B1: {type: base, text: "O programa tem memoria propria enquanto executa."}
-      B2: {type: base, text: "Variaveis locais nascem e morrem com a funcao."}
-      B3: {type: base, text: "malloc pede um bloco que nao morre com a funcao."}
-      I1: {type: inference, support: [B2, B3], text: "Existem duas disciplinas de vida distintas."}
-      I2: {type: inference, support: [B1, I1], text: "Logo ha duas regioes: stack e heap."}
+
+      B1:
+        type: base
+        text: "O programa tem memoria propria enquanto executa."
+        plain: "Enquanto o programa roda, ele tem um espaço de memória só dele — uma rua de posições numeradas."
+        figure:
+          kind: street
+          alt: "Posições numeradas que pertencem ao programa"
+          axis: "endereço"
+          houses:
+            - {content: "", addr: "0x1000"}
+            - {content: "", addr: "0x1004"}
+            - {content: "", addr: "0x1008"}
+            - {content: "", addr: "0x100C"}
+          caption: "Enquanto o programa executa, essas posições são dele. Cada uma tem um número."
+
+      B2:
+        type: base
+        text: "Variaveis locais nascem e morrem com a funcao."
+        plain: "As caixas criadas dentro de uma função aparecem quando ela começa e somem quando ela termina."
+        figure:
+          kind: two_cases
+          alt: "Uma caixa local durante e depois da função"
+          left:
+            title: "enquanto a função roda"
+            code: "int x = 7;"
+            result: "a caixa existe"
+          right:
+            title: "depois que ela termina"
+            code: "—"
+            result: "a caixa não existe mais"
+          note: "Você não pede nem devolve: acontece sozinho."
+          caption: "Nasce na entrada, some na saída. Ninguém precisa mandar."
+
+      B3:
+        type: base
+        text: "malloc pede um bloco que nao morre com a funcao."
+        plain: "Quando você pede um pedaço de memória com malloc, esse pedaço não some quando a função termina."
+        figure:
+          kind: two_cases
+          alt: "Um pedaço pedido, durante e depois da função"
+          left:
+            title: "enquanto a função roda"
+            code: "malloc(4)"
+            result: "o pedaço é seu"
+          right:
+            title: "depois que ela termina"
+            code: "—"
+            result: "o pedaço continua seu"
+          note: "Continua ocupado até você devolver."
+          caption: "Aqui a saída da função não devolve nada. Quem devolve é você."
+
+      I1:
+        type: inference
+        support: [B2, B3]
+        text: "Existem duas disciplinas de vida distintas."
+        plain: "Então existem dois jeitos de uma caixa durar: uma some sozinha, a outra fica até você devolver."
+        figure:
+          kind: regions
+          alt: "Dois jeitos de uma caixa durar"
+          left:
+            title: "some sozinha"
+            note: "vai embora quando a função acaba"
+            foot: "você não faz nada"
+          right:
+            title: "fica até você devolver"
+            note: "você pediu, você devolve"
+            foot: "some só quando você mandar"
+          caption: "Não é o tamanho que separa as duas. É quem arruma."
+
+      I2:
+        type: inference
+        support: [B1, I1]
+        text: "Logo ha duas regioes: stack e heap."
+        plain: "Logo a memória do programa tem duas áreas com regras de arrumação diferentes."
+        figure:
+          kind: regions
+          alt: "As duas áreas da memória do programa"
+          left:
+            title: "arrumada sozinha"
+            note: "as caixas das funções"
+            foot: "nascem e somem com a função"
+          right:
+            title: "arrumada por você"
+            note: "os pedaços que você pede"
+            foot: "ficam até o seu free"
+          caption: "Duas áreas do mesmo programa, com regras diferentes."
+
 
   kc_02:
     nodes:
-      B1: {type: base, text: "Todo objeto na memoria tem um endereco."}
-      B2: {type: base, text: "p e uma variavel: ocupa espaco e tem endereco proprio."}
-      B3: {type: base, text: "O valor guardado em p e um endereco."}
-      I1: {type: inference, support: [B2, B3], text: "p e o objeto apontado sao duas entidades."}
-      I2: {type: inference, support: [I1, kc_01.I2], text: "p vive onde foi declarado, nao onde aponta."}
-      I3: {type: inference, support: [B1, B3], text: "Endereco nao e inteiro: tem tipo e regras proprias."}
+
+      B1:
+        type: base
+        text: "Todo objeto na memoria tem um endereco."
+        plain: "Toda caixa na memória tem um endereço: o número que diz onde ela está."
+        figure:
+          kind: street
+          alt: "Cada posição da memória tem um número"
+          axis: "endereço"
+          houses:
+            - {content: "42", addr: "0x1000", highlight: true}
+            - {content: "7", addr: "0x1004"}
+            - {content: "0", addr: "0x1008"}
+          pin: {at: 0, label: "o número 0x1000 é o lugar, não o conteúdo"}
+          caption: "O endereço não é o que está dentro. É onde a caixa fica."
+
+      B2:
+        type: base
+        text: "p e uma variavel: ocupa espaco e tem endereco proprio."
+        plain: "p é uma caixa como qualquer outra: ocupa lugar e tem endereço próprio."
+        figure:
+          kind: boxes
+          alt: "A caixa de p, com endereço próprio"
+          items:
+            - {name: "p", value: "0x1000", addr: "0x2A00", tone: "pointer"}
+          caption: "Dentro está um endereço. Mas a caixa p também mora em algum lugar — em 0x2A00."
+
+      B3:
+        type: base
+        text: "O valor guardado em p e um endereco."
+        plain: "O que está guardado dentro de p é um endereço — o lugar de outra caixa."
+        figure:
+          kind: pointer_pair
+          alt: "O conteúdo de uma caixa sendo o endereço de outra"
+          arrow_label: "o que está em p leva até x"
+          pointer: {name: "p", value: "0x1000", addr: "0x2A00", foot: "guarda um endereço"}
+          target: {name: "x", value: "42", addr: "0x1000", foot: "mora nesse endereço"}
+          caption: "0x1000 dentro de p é o endereço de x."
+
+      I1:
+        type: inference
+        support: [B2, B3]
+        text: "p e o objeto apontado sao duas entidades."
+        plain: "Então p e a caixa apontada são duas caixas diferentes, cada uma no seu lugar."
+        figure:
+          kind: pointer_pair
+          alt: "Duas caixas separadas, com endereços diferentes"
+          arrow_label: "uma indica a outra"
+          pointer: {name: "p", value: "0x1000", addr: "0x2A00", foot: "está em 0x2A00"}
+          target: {name: "x", value: "42", addr: "0x1000", foot: "está em 0x1000"}
+          note: "Endereços diferentes: são duas caixas, não uma."
+          caption: "Apontar não é ser. Mexer numa não é mexer na outra."
+
+      I2:
+        type: inference
+        support: [I1, kc_01.I2]
+        text: "p vive onde foi declarado, nao onde aponta."
+        plain: "p fica na área onde foi criada. Apontar para a outra área não muda o lugar de p."
+        figure:
+          kind: regions
+          alt: "O ponteiro numa área, o pedaço apontado na outra"
+          left:
+            title: "onde p mora"
+            note: "a caixa p foi criada aqui"
+            foot: "some com a função"
+          right:
+            title: "para onde p aponta"
+            note: "o pedaço pedido está aqui"
+            foot: "fica até o free"
+          caption: "A seta atravessa a fronteira. A caixa p não."
+
+      I3:
+        type: inference
+        support: [B1, B3]
+        text: "Endereco nao e inteiro: tem tipo e regras proprias."
+        plain: "Endereço não é um número comum: ele carrega junto o tipo do que está no destino."
+        figure:
+          kind: two_cases
+          alt: "Um número comum e um endereço"
+          left:
+            title: "número comum"
+            code: "int n = 4096;"
+            result: "somar 1 dá 4097"
+          right:
+            title: "endereço"
+            code: "int *p = &x;"
+            result: "somar 1 anda uma caixa inteira"
+          note: "O mesmo + faz contas diferentes, porque o tipo é diferente."
+          caption: "Guardar um endereço num int perde justamente o que faz dele um endereço."
+
 
   kc_03:
     nodes:
-      B1: {type: base, text: "A declaracao reserva espaco para a variavel declarada."}
-      B2: {type: base, text: "int *p declara p, nao *p."}
-      B3: {type: base, text: "C nao zera variaveis automaticas."}
-      I1: {type: inference, support: [B1, B2], text: "Declarar p nao cria o objeto apontado."}
-      I2: {type: inference, support: [B3, I1], text: "p contem lixo, nao NULL."}
-      I3: {type: inference, support: [I1, I2], text: "Desreferenciar p antes de atribuir e invalido."}
+
+      B1:
+        type: base
+        text: "A declaracao reserva espaco para a variavel declarada."
+        plain: "Declarar uma variável cria a caixa dela. Uma caixa, a que você nomeou."
+        figure:
+          kind: boxes
+          alt: "Uma declaração cria uma caixa"
+          items:
+            - {name: "x", value: "?", addr: "0x1000"}
+          caption: "int x; cria esta caixa. Nada além dela."
+
+      B2:
+        type: base
+        text: "int *p declara p, nao *p."
+        plain: "Em int *p; quem é criado é p. O * faz parte do tipo, não é uma segunda caixa."
+        figure:
+          kind: two_cases
+          alt: "O que a declaração cria e o que não cria"
+          left:
+            title: "isto é criado"
+            code: "p"
+            result: "uma caixa, para guardar um endereço"
+          right:
+            title: "isto não é criado"
+            code: "*p"
+            result: "a caixa do outro lado da seta"
+          note: "O * está dizendo que tipo de coisa p guarda — não pedindo uma caixa a mais."
+          caption: "Uma declaração, uma caixa."
+
+      B3:
+        type: base
+        text: "C nao zera variaveis automaticas."
+        plain: "C não limpa as caixas novas. O que estava naquele lugar antes continua lá."
+        figure:
+          kind: boxes
+          alt: "Uma caixa nova com sobra dentro"
+          items:
+            - {name: "x", value: "0x7F3A9C", addr: "0x1000"}
+          caption: "Não é vazio nem zero: é o que sobrou de quem usou esse lugar antes."
+
+      I1:
+        type: inference
+        support: [B1, B2]
+        text: "Declarar p nao cria o objeto apontado."
+        plain: "Então declarar p não cria a caixa para onde p vai apontar. Só existe uma caixa até aqui."
+        figure:
+          kind: pointer_pair
+          alt: "Um ponteiro sem destino existente"
+          arrow_label: "aponta para onde?"
+          pointer: {name: "p", value: "?", addr: "0x2A00", foot: "esta existe"}
+          target: {gone: true, gone_label: "nenhuma caixa aqui", foot: "esta nunca foi criada"}
+          caption: "Ter um ponteiro não é ter para onde apontar."
+
+      I2:
+        type: inference
+        support: [B3, I1]
+        text: "p contem lixo, nao NULL."
+        plain: "Nesse ponto p guarda um valor qualquer, sobra do que estava ali. Não é NULL."
+        figure:
+          kind: two_cases
+          alt: "O que há dentro de p, e o que as pessoas supõem"
+          left:
+            title: "o que há"
+            code: "0x7F3A9C"
+            result: "sobra de quem usou o lugar antes"
+          right:
+            title: "o que se supõe"
+            code: "NULL"
+            result: "ninguém escreveu isso ali"
+          note: "NULL só está lá se você puser. C não põe."
+          caption: "É por isso que testar p == NULL aqui não protege de nada."
+
+      I3:
+        type: inference
+        support: [I1, I2]
+        text: "Desreferenciar p antes de atribuir e invalido."
+        plain: "Por isso usar *p antes de dar um endereço a p manda o programa a um lugar que ninguém escolheu."
+        figure:
+          kind: pointer_pair
+          alt: "Seguir um endereço que ninguém escolheu"
+          arrow_label: "*p vai até aqui"
+          pointer: {name: "p", value: "0x7F3A9C", addr: "0x2A00", foot: "sobra, não escolha"}
+          target: {gone: true, gone_label: "endereço qualquer", foot: "pode ser qualquer coisa"}
+          note: "Às vezes o programa quebra na hora. Às vezes não quebra — e é pior."
+          caption: "O endereço parece bom. Ninguém o escolheu."
+
 
   kc_04:
     nodes:
-      B1: {type: base, text: "So o que ocupa memoria tem endereco."}
-      B2: {type: base, text: "&x devolve o endereco de x; nao copia x."}
-      B3: {type: base, imported_from: kc_02.B3, text: "p guarda um endereco."}
-      B4: {type: base, text: "Na declaracao o * pertence ao tipo; na expressao e operador."}
-      I1: {type: inference, support: [B1], text: "&5 e invalido: 5 nao e objeto."}
-      I2: {type: inference, support: [B2, B3], text: "*p vai ate o endereco e acessa o que esta la."}
-      I3: {type: inference, support: [B2, I2], text: "* e & sao inversos: *(&x) e x."}
-      I4: {type: inference, support: [B4, I2], text: "*p = v escreve no objeto apontado, nao em p."}
+
+      B1:
+        type: base
+        text: "So o que ocupa memoria tem endereco."
+        plain: "Só tem endereço o que ocupa um lugar na memória."
+        figure:
+          kind: two_cases
+          alt: "O que ocupa lugar e o que não ocupa"
+          left:
+            title: "ocupa lugar"
+            code: "int x = 5;"
+            result: "x mora em algum endereço"
+          right:
+            title: "não ocupa lugar"
+            code: "5"
+            result: "é só o número escrito no código"
+          note: "Endereço é o número da posição. Sem posição, não há número."
+          caption: "A caixa tem endereço. O que está escrito no código, não."
+
+      B2:
+        type: base
+        text: "&x devolve o endereco de x; nao copia x."
+        plain: "&x dá o endereço de x — o número do lugar dela. Não faz cópia nenhuma de x."
+        figure:
+          kind: street
+          alt: "O endereço de uma posição, não o conteúdo dela"
+          axis: "endereço"
+          houses:
+            - {content: "7", addr: "0x1000"}
+            - {content: "42", addr: "0x1004", highlight: true}
+            - {content: "0", addr: "0x1008"}
+          pin: {at: 1, label: "&x devolve 0x1004, não devolve 42"}
+          caption: "Perguntar onde a caixa está não é abrir a caixa."
+
+      B3:
+        type: base
+        imported_from: kc_02.B3
+        text: "p guarda um endereco."
+        plain: "p guarda um endereço dentro dela."
+        figure:
+          kind: boxes
+          alt: "Uma caixa com um endereço dentro"
+          items:
+            - {name: "p", value: "0x1004", addr: "0x2A00", tone: "pointer"}
+          caption: "O que está dentro de p é o número de um lugar."
+
+      B4:
+        type: base
+        text: "Na declaracao o * pertence ao tipo; na expressao e operador."
+        plain: "O mesmo * quer dizer duas coisas: em int *p ele faz parte do tipo; em *p ele é a ação de ir até lá."
+        figure:
+          kind: two_cases
+          alt: "O asterisco na declaração e na expressão"
+          left:
+            title: "na declaração"
+            code: "int *p;"
+            result: "diz que tipo de coisa p guarda"
+          right:
+            title: "na expressão"
+            code: "*p = 7;"
+            result: "manda ir até o destino"
+          note: "Mesmo símbolo, dois trabalhos. É o lugar em que aparece que decide."
+          caption: "Ler o * sempre do mesmo jeito é uma das confusões mais comuns."
+
+      I1:
+        type: inference
+        support: [B1]
+        text: "&5 e invalido: 5 nao e objeto."
+        plain: "Por isso &5 não existe: 5 não ocupa lugar nenhum, então não há endereço para dar."
+        figure:
+          kind: two_cases
+          alt: "Pedir o endereço de uma caixa e de um número solto"
+          left:
+            title: "&x"
+            code: "0x1004"
+            result: "x ocupa lugar, o lugar tem número"
+          right:
+            title: "&5"
+            code: "não compila"
+            result: "não há lugar de que falar"
+          caption: "A pergunta 'onde fica?' só faz sentido para o que fica em algum lugar."
+
+      I2:
+        type: inference
+        support: [B2, B3]
+        text: "*p vai ate o endereco e acessa o que esta la."
+        plain: "Então *p vai até o endereço guardado em p e mexe no que está lá."
+        figure:
+          kind: pointer_pair
+          alt: "Seguir o endereço guardado até a caixa de destino"
+          arrow_label: "*p percorre esta seta"
+          pointer: {name: "p", value: "0x1004", addr: "0x2A00", foot: "o endereço está aqui"}
+          target: {name: "x", value: "42", addr: "0x1004", foot: "*p é este 42"}
+          caption: "p diz onde. * é o ato de ir até lá."
+
+      I3:
+        type: inference
+        support: [B2, I2]
+        text: "* e & sao inversos: *(&x) e x."
+        plain: "& pergunta onde a caixa está; * vai até lá. Um desfaz o outro: *(&x) é o próprio x."
+        figure:
+          kind: chain
+          alt: "Ir e voltar entre a caixa e o endereço dela"
+          links:
+            - {name: "&x", value: "0x1004", step: "*", foot: "o endereço de x"}
+            - {name: "x", value: "42", addr: "0x1004", foot: "a própria caixa"}
+          caption: "Perguntar onde e depois ir até lá devolve o ponto de partida."
+
+      I4:
+        type: inference
+        support: [B4, I2]
+        text: "*p = v escreve no objeto apontado, nao em p."
+        plain: "*p = 7 troca o que está dentro da caixa apontada. A caixa p continua com o mesmo endereço dentro."
+        figure:
+          kind: two_cases
+          alt: "Escrever no destino e escrever no ponteiro"
+          left:
+            title: "*p = 7;"
+            code: "muda x"
+            result: "p continua apontando para o mesmo lugar"
+          right:
+            title: "p = &y;"
+            code: "muda p"
+            result: "x não foi tocado"
+          note: "Uma linha mexe no destino, a outra mexe na seta."
+          caption: "O * é o que decide em qual das duas caixas você escreve."
 
   kc_05:
     nodes:
-      B1: {type: base, text: "Um ponteiro precisa poder indicar ausencia de destino."}
-      B2: {type: base, text: "A constante 0 em contexto de ponteiro vira o ponteiro nulo."}
-      B3: {type: base, text: "Nenhum objeto tem o endereco do ponteiro nulo."}
-      B4: {type: base, text: "A representacao interna do ponteiro nulo nao precisa ser zero."}
-      I1: {type: inference, support: [B1, B2], text: "NULL e um valor de ponteiro, nao um nao-valor."}
-      I2: {type: inference, support: [I1], text: "p == NULL e teste, nao desreferencia."}
-      I3: {type: inference, support: [B3, kc_04.I2], text: "*p com p nulo nao acessa objeto: comportamento indefinido."}
-      I4: {type: inference, support: [B2, B4], text: "NULL igual a 0 vale na linguagem-fonte, nao no padrao de bits."}
+
+      B1:
+        type: base
+        text: "Um ponteiro precisa poder indicar ausencia de destino."
+        plain: "Às vezes um ponteiro precisa dizer 'não aponto para lugar nenhum'. Isso também é uma informação."
+        figure:
+          kind: boxes
+          alt: "Uma caixa de ponteiro dizendo que não aponta para nada"
+          items:
+            - {name: "p", value: "NULL", addr: "0x2A00", tone: "pointer"}
+          caption: "Sem um jeito de dizer isso, não haveria como responder 'ainda não achei'."
+
+      B2:
+        type: base
+        text: "A constante 0 em contexto de ponteiro vira o ponteiro nulo."
+        plain: "Escrever 0 onde se espera um ponteiro dá exatamente esse valor de 'nenhum lugar'."
+        figure:
+          kind: two_cases
+          alt: "O mesmo zero em dois contextos"
+          left:
+            title: "onde se espera número"
+            code: "int n = 0;"
+            result: "o número zero"
+          right:
+            title: "onde se espera ponteiro"
+            code: "int *p = 0;"
+            result: "o valor 'nenhum lugar'"
+          note: "É o contexto que decide o que aquele 0 quer dizer."
+          caption: "Mesmo símbolo escrito, dois significados diferentes."
+
+      B3:
+        type: base
+        text: "Nenhum objeto tem o endereco do ponteiro nulo."
+        plain: "Nenhuma caixa mora nesse endereço. Ele é reservado justamente para significar 'nenhum lugar'."
+        figure:
+          kind: street
+          alt: "Um endereço reservado, onde não mora ninguém"
+          axis: "endereço"
+          houses:
+            - {content: "—", addr: "NULL", highlight: true}
+            - {content: "42", addr: "0x1000"}
+            - {content: "7", addr: "0x1004"}
+          pin: {at: 0, label: "reservado: nunca vai haver caixa aqui"}
+          caption: "Por ser reservado, ele nunca coincide com um endereço bom."
+
+      B4:
+        type: base
+        text: "A representacao interna do ponteiro nulo nao precisa ser zero."
+        plain: "O que a máquina guarda ali não precisa ser o número zero. Isso é detalhe de máquina, não do seu código."
+        figure:
+          kind: two_cases
+          alt: "O que você escreve e o que a máquina guarda"
+          left:
+            title: "o que você escreve"
+            code: "p = NULL;"
+            result: "sempre igual, em qualquer máquina"
+          right:
+            title: "o que a máquina guarda"
+            code: "pode não ser 0"
+            result: "detalhe da plataforma"
+          caption: "Você programa contra o primeiro. O segundo não é problema seu."
+
+      I1:
+        type: inference
+        support: [B1, B2]
+        text: "NULL e um valor de ponteiro, nao um nao-valor."
+        plain: "Então NULL é um valor de verdade, escrito dentro do ponteiro. Não é a caixa estar vazia."
+        figure:
+          kind: two_cases
+          alt: "Uma caixa com NULL dentro e uma caixa nunca escrita"
+          left:
+            title: "NULL"
+            code: "alguém escreveu"
+            result: "diz: não aponto para nada"
+          right:
+            title: "lixo"
+            code: "ninguém escreveu"
+            result: "não diz nada — é sobra"
+          note: "As duas parecem 'sem destino'. Só uma delas você pode testar."
+          caption: "NULL é uma resposta. Lixo é a falta de resposta."
+
+      I2:
+        type: inference
+        support: [I1]
+        text: "p == NULL e teste, nao desreferencia."
+        plain: "Comparar p == NULL só olha o que está dentro de p. Não vai a lugar nenhum."
+        figure:
+          kind: two_cases
+          alt: "Olhar dentro da caixa e ir até o destino"
+          left:
+            title: "p == NULL"
+            code: "olha dentro de p"
+            result: "sempre seguro"
+          right:
+            title: "*p"
+            code: "vai até o destino"
+            result: "só se houver destino"
+          note: "É por isso que o teste vem antes, e não depois."
+          caption: "Ler o endereço é uma coisa. Segui-lo é outra."
+
+      I3:
+        type: inference
+        support: [B3, kc_04.I2]
+        text: "*p com p nulo nao acessa objeto: comportamento indefinido."
+        plain: "Então *p com p em NULL manda o programa a um endereço onde não existe caixa nenhuma."
+        figure:
+          kind: pointer_pair
+          alt: "Seguir o endereço reservado, onde não há caixa"
+          arrow_label: "*p tenta ir até aqui"
+          pointer: {name: "p", value: "NULL", addr: "0x2A00", foot: "não aponta para nada"}
+          target: {gone: true, gone_label: "não há caixa aqui", foot: "endereço reservado"}
+          note: "Costuma derrubar o programa na hora — mas a garantia é que não há garantia."
+          caption: "Não é que dê erro. É que não existe promessa nenhuma sobre o que acontece."
+
+      I4:
+        type: inference
+        support: [B2, B4]
+        text: "NULL igual a 0 vale na linguagem-fonte, nao no padrao de bits."
+        plain: "p == 0 funciona no código que você escreve. Isso não quer dizer que os bits guardados sejam zeros."
+        figure:
+          kind: two_cases
+          alt: "A garantia no código e a ausência dela nos bits"
+          left:
+            title: "no seu código"
+            code: "p == 0"
+            result: "garantido pelo padrão"
+          right:
+            title: "nos bits da memória"
+            code: "memset(&p, 0, ...)"
+            result: "não garante NULL"
+          note: "Zerar a memória com bytes zero não é o mesmo que atribuir NULL."
+          caption: "Uma garantia é sobre a linguagem; a outra seria sobre a máquina — e não existe."
 
   kc_06:
     nodes:
-      B1: {type: base, text: "Ao chamar f(x), o parametro e variavel nova, local a f."}
+      B1:
+        type: base
+        text: "Ao chamar f(x), o parametro e variavel nova, local a f."
+        plain: "Ao chamar f(x), a função cria uma caixa nova para o parâmetro — uma caixa só dela."
+        figure:
+          kind: call_frame
+          alt: "A caixa nova que a função cria para o parâmetro"
+          caller:
+            title: "quem chama"
+            has: "tem a caixa x"
+            value: "7"
+          callee:
+            title: "dentro de f"
+            has: "cria uma caixa nova"
+            value: "7"
+            lost: "é outra caixa, com outro endereço"
+          crosses: "só o valor"
+          caption: "Duas caixas com o mesmo número dentro. Ainda são duas caixas."
+
       B2:
         type: base
         text: "O valor de x e copiado para essa variavel."
@@ -70,11 +578,98 @@ graphs:
             - {name: "x", value: "7", addr: "0x40"}
             - {name: "cópia em f", value: "7", addr: "0x88"}
           caption: "Duas caixas, o mesmo valor dentro. Mexer numa não mexe na outra."
-      I1: {type: inference, support: [B1, B2], text: "Modificar o parametro nao afeta x."}
-      I2: {type: inference, support: [B2, kc_04.B2], text: "Se o argumento e &x, f recebe copia do endereco."}
-      I3: {type: inference, support: [I2, kc_04.I4], text: "*p = v dentro de f altera x."}
-      I4: {type: inference, support: [I1, I2], text: "Atribuir a p dentro de f nao altera o ponteiro do chamador."}
-      I5: {type: inference, support: [I1, I3], text: "C nao tem passagem por referencia: passa enderecos por valor."}
+      I1:
+        type: inference
+        support: [B1, B2]
+        text: "Modificar o parametro nao afeta x."
+        plain: "Então mexer nessa caixa nova não mexe em x. São duas caixas em lugares diferentes."
+        figure:
+          kind: two_cases
+          alt: "A caixa de dentro mudou; a de fora não"
+          left:
+            title: "dentro de f"
+            code: "a = 99;"
+            result: "a caixa de f virou 99"
+          right:
+            title: "de volta em quem chamou"
+            code: "x"
+            result: "continua 7"
+          note: "Nada liga uma caixa à outra depois da cópia."
+          caption: "É por isso que uma função sozinha não consegue mudar o que recebeu."
+
+      I2:
+        type: inference
+        support: [B2, kc_04.B2]
+        text: "Se o argumento e &x, f recebe copia do endereco."
+        plain: "Se você passa &x, o que é copiado é o endereço de x. E um endereço copiado ainda leva ao mesmo lugar."
+        figure:
+          kind: call_frame
+          alt: "O endereço atravessando a chamada"
+          caller:
+            title: "quem chama"
+            has: "passa o endereço de x"
+            value: "&x = 0x1004"
+          callee:
+            title: "dentro de f"
+            has: "recebe uma cópia dele"
+            value: "0x1004"
+            lost: "cópia do endereço, mesmo destino"
+          crosses: "o endereço"
+          note: "Copiar o número do lugar não muda o lugar."
+          caption: "A caixa é outra. O lugar que ela indica é o mesmo."
+
+      I3:
+        type: inference
+        support: [I2, kc_04.I4]
+        text: "*p = v dentro de f altera x."
+        plain: "Por isso *p = 7 dentro de f troca o conteúdo de x: p leva até a caixa de x."
+        figure:
+          kind: pointer_pair
+          alt: "A função escrevendo na caixa de quem chamou"
+          arrow_label: "*p dentro de f chega aqui"
+          pointer: {name: "p (em f)", value: "0x1004", addr: "0x8800", foot: "cópia do endereço"}
+          target: {name: "x (fora)", value: "7", addr: "0x1004", foot: "a caixa original"}
+          caption: "A função não recebeu x. Recebeu como chegar até x."
+
+      I4:
+        type: inference
+        support: [I1, I2]
+        text: "Atribuir a p dentro de f nao altera o ponteiro do chamador."
+        plain: "Mas trocar o próprio p dentro de f não muda o ponteiro de quem chamou: esse p também é cópia."
+        figure:
+          kind: call_frame
+          alt: "Trocar a cópia do ponteiro não muda o original"
+          caller:
+            title: "quem chama"
+            has: "o ponteiro dele"
+            value: "0x1004"
+          callee:
+            title: "dentro de f"
+            has: "trocou a cópia"
+            value: "p = &y;"
+            lost: "a troca fica presa aqui dentro"
+          crosses: "só a cópia"
+          note: "Para mudar o ponteiro de fora, seria preciso receber o endereço DELE."
+          caption: "*p = v atravessa. p = ... não atravessa."
+
+      I5:
+        type: inference
+        support: [I1, I3]
+        text: "C nao tem passagem por referencia: passa enderecos por valor."
+        plain: "C sempre copia o que você passa. Passar um endereço é copiar o endereço — e é isso que dá acesso ao original."
+        figure:
+          kind: two_cases
+          alt: "As duas maneiras, e o que cada uma alcança"
+          left:
+            title: "passar o valor"
+            code: "f(x)"
+            result: "a função não alcança x"
+          right:
+            title: "passar o endereço"
+            code: "f(&x)"
+            result: "a função alcança x"
+          note: "Nos dois casos houve cópia. O que muda é o que foi copiado."
+          caption: "Não existe exceção: o que muda é o que você põe dentro da cópia."
 
   # ==========================================================================
   # KC 07 — o unico KC com `plain` e `figure` em todos os nos.
@@ -257,59 +852,761 @@ graphs:
 
   kc_11:
     nodes:
-      B1: {type: base, text: "p aponta para um objeto de um tipo definido."}
-      B2: {type: base, text: "Objetos de um tipo tem tamanho fixo, dado por sizeof."}
-      B3: {type: base, imported_from: kc_07.B1, text: "Elementos de um array sao contiguos."}
-      B4: {type: base, text: "O compilador conhece o tipo de p em tempo de compilacao."}
-      I1: {type: inference, support: [B1, B3], text: "p + 1 precisa chegar ao proximo objeto, nao ao proximo byte."}
-      I2: {type: inference, support: [B2, B4, I1], text: "Logo o compilador multiplica por sizeof(*p) sozinho."}
-      I3: {type: inference, support: [I2], text: "Multiplicar por sizeof na mao escala duas vezes."}
-      I4: {type: inference, support: [I1, kc_07.B3], text: "a[i] e exatamente *(a + i)."}
-      I5: {type: inference, support: [B1, I2], text: "void * nao tem aritmetica: sem tipo, nao ha escala."}
+      B1:
+        type: base
+        text: "p aponta para um objeto de um tipo definido."
+        plain: "Todo ponteiro sabe o tipo do que está no destino. Não existe ponteiro sem essa informação."
+        figure:
+          kind: pointer_pair
+          alt: "O ponteiro e o tipo do destino"
+          arrow_label: "e sabe que lá tem um int"
+          pointer: {name: "int *p", value: "0x1000", addr: "0x2A00", foot: "o tipo está na declaração"}
+          target: {name: "int", value: "42", addr: "0x1000", foot: "4 bytes"}
+          caption: "int *p não diz só 'aponta'. Diz 'aponta para um int'."
+
+      B2:
+        type: base
+        text: "Objetos de um tipo tem tamanho fixo, dado por sizeof."
+        plain: "Cada tipo tem um tamanho fixo, sempre o mesmo. sizeof diz qual é."
+        figure:
+          kind: sizes
+          alt: "Tamanhos fixos de três tipos"
+          bars:
+            - {label: "int", units: 4, note: "4 bytes"}
+            - {label: "double", units: 8, note: "8 bytes"}
+            - {label: "char", units: 1, note: "1 byte"}
+          caption: "Fixo por tipo, e conhecido antes de o programa rodar."
+
+      B3:
+        type: base
+        imported_from: kc_07.B1
+        text: "Elementos de um array sao contiguos."
+        plain: "Os elementos de um array ficam grudados, um logo depois do outro, sem buraco entre eles."
+        figure:
+          kind: array_row
+          alt: "Elementos vizinhos, sem espaço entre eles"
+          name: "a"
+          cells:
+            - {value: "10", label: "a[0]"}
+            - {value: "20", label: "a[1]"}
+            - {value: "30", label: "a[2]"}
+            - {value: "40", label: "a[3]"}
+          note: "Vizinhos, e sempre na mesma ordem."
+          caption: "É a contiguidade que faz 'a próxima' ser uma pergunta com resposta."
+
+      B4:
+        type: base
+        text: "O compilador conhece o tipo de p em tempo de compilacao."
+        plain: "O compilador já sabe o tipo de p antes de o programa rodar — está escrito na declaração."
+        figure:
+          kind: two_cases
+          alt: "O que já se sabe antes de rodar"
+          left:
+            title: "ao compilar"
+            code: "int *p;"
+            result: "o tamanho já é conhecido"
+          right:
+            title: "ao rodar"
+            code: "p + 1"
+            result: "a conta já vem pronta"
+          note: "Nada é descoberto durante a execução: já estava decidido."
+          caption: "É por isso que a conta pode ser feita por você, sem custo nenhum."
+
+      I1:
+        type: inference
+        support: [B1, B3]
+        text: "p + 1 precisa chegar ao proximo objeto, nao ao proximo byte."
+        plain: "Então p + 1 tem de cair na próxima caixa inteira. Cair no meio de uma caixa não serviria para nada."
+        figure:
+          kind: stride
+          alt: "O salto de um elemento para o seguinte"
+          cells:
+            - {value: "10", label: "a[0]"}
+            - {value: "20", label: "a[1]"}
+            - {value: "30", label: "a[2]"}
+            - {value: "40", label: "a[3]"}
+          marks: [0, 1]
+          hops:
+            - {from: 0, to: 1, label: "p + 1"}
+          note: "Do começo de uma caixa ao começo da seguinte."
+          caption: "Se caísse um byte adiante, pararia no meio do primeiro elemento."
+
+      I2:
+        type: inference
+        support: [B2, B4, I1]
+        text: "Logo o compilador multiplica por sizeof(*p) sozinho."
+        plain: "Como o compilador sabe o tamanho da caixa, ele mesmo faz a conta. Você escreve p + 1; ele anda uma caixa inteira."
+        figure:
+          kind: stride
+          alt: "O salto medido em bytes, feito pelo compilador"
+          cells:
+            - {value: "10", label: "0x1000"}
+            - {value: "20", label: "0x1004"}
+            - {value: "30", label: "0x1008"}
+            - {value: "40", label: "0x100C"}
+          marks: [0, 1]
+          hops:
+            - {from: 0, to: 1, label: "+1  =  +4 bytes"}
+          note: "Você conta elementos. Ele converte para bytes."
+          caption: "O 1 que você escreve é 'um elemento', nunca 'um byte'."
+
+      I3:
+        type: inference
+        support: [I2]
+        text: "Multiplicar por sizeof na mao escala duas vezes."
+        plain: "Se você multiplicar por sizeof também, a conta é feita duas vezes e o ponteiro pula longe demais."
+        figure:
+          kind: stride
+          alt: "O salto feito duas vezes, passando do destino"
+          cells:
+            - {value: "10", label: "a[0]"}
+            - {value: "20", label: "a[1]"}
+            - {value: "30", label: "a[2]"}
+            - {value: "40", label: "a[3]"}
+            - {value: "50", label: "a[4]"}
+          marks: [0]
+          hops:
+            - {from: 0, to: 1, label: "p + 1  (certo)"}
+            - {from: 0, to: 4, label: "p + 1*sizeof(int)  (4 caixas)"}
+          note: "A intenção era ajudar. O efeito é escalar duas vezes."
+          caption: "O compilador já fez a multiplicação. Fazê-la de novo a repete."
+
+      I4:
+        type: inference
+        support: [I1, kc_07.B3]
+        text: "a[i] e exatamente *(a + i)."
+        plain: "a[i] é só outro jeito de escrever *(a + i): ande i caixas a partir do começo e olhe o que tem lá."
+        figure:
+          kind: stride
+          alt: "O colchete como um salto seguido de uma olhada"
+          cells:
+            - {value: "10", label: "a[0]"}
+            - {value: "20", label: "a[1]"}
+            - {value: "30", label: "a[2]"}
+            - {value: "40", label: "a[3]"}
+          marks: [0, 2]
+          hops:
+            - {from: 0, to: 2, label: "a + 2"}
+          note: "O colchete não é outra operação: é esta, com outra escrita."
+          caption: "Por isso 2[a] também compila — e por isso ninguém escreve assim."
+
+      I5:
+        type: inference
+        support: [B1, I2]
+        text: "void * nao tem aritmetica: sem tipo, nao ha escala."
+        plain: "Um void * não sabe o tamanho do destino. Sem isso não há quanto andar, e a conta simplesmente não existe."
+        figure:
+          kind: two_cases
+          alt: "Com tipo e sem tipo no destino"
+          left:
+            title: "int *p"
+            code: "p + 1"
+            result: "anda 4 bytes: o tamanho é sabido"
+          right:
+            title: "void *v"
+            code: "v + 1"
+            result: "andar quanto? não há resposta"
+          note: "Não é proibição arbitrária: falta o número pelo qual multiplicar."
+          caption: "void * guarda um endereço e mais nada. É essa a diferença."
 
   kc_08:
     nodes:
-      B1: {type: base, text: "malloc(n) pede n bytes ao alocador."}
-      B2: {type: base, text: "malloc devolve o endereco do bloco, ou NULL."}
-      B3: {type: base, text: "O bloco devolvido nao tem conteudo definido."}
-      B4: {type: base, imported_from: kc_01.B3, text: "O bloco nao morre com a funcao que o pediu."}
-      I1: {type: inference, support: [B1, B2, kc_02.I1], text: "O ponteiro e uma variavel; o bloco e outra coisa."}
-      I2: {type: inference, support: [B2, kc_05.I1], text: "Verificar NULL e necessario: falhar e resultado possivel."}
-      I3: {type: inference, support: [B3], text: "O conteudo precisa ser escrito antes de lido."}
-      I4: {type: inference, support: [B4], text: "Ninguem libera o bloco por voce."}
+      B1:
+        type: base
+        text: "malloc(n) pede n bytes ao alocador."
+        plain: "malloc(n) pede emprestado um pedaço de memória com n bytes."
+        figure:
+          kind: regions
+          alt: "O pedido feito à área arrumada por você"
+          left:
+            title: "arrumada sozinha"
+            note: "as caixas das funções"
+            foot: "não é daqui que malloc tira"
+          right:
+            title: "arrumada por você"
+            note: "malloc(n) pede daqui"
+            foot: "você pede, você devolve"
+          caption: "Você está pedindo emprestado. Empréstimo se devolve."
+
+      B2:
+        type: base
+        text: "malloc devolve o endereco do bloco, ou NULL."
+        plain: "Ele devolve o endereço do pedaço que arrumou — ou NULL, se não conseguiu arrumar."
+        figure:
+          kind: two_cases
+          alt: "As duas respostas possíveis de um pedido"
+          left:
+            title: "conseguiu"
+            code: "0x9000"
+            result: "o endereço do pedaço"
+          right:
+            title: "não conseguiu"
+            code: "NULL"
+            result: "nenhum pedaço para você"
+          note: "As duas são respostas normais. A segunda é rara, não impossível."
+          caption: "Duas saídas. Seu código precisa dar conta das duas."
+
+      B3:
+        type: base
+        text: "O bloco devolvido nao tem conteudo definido."
+        plain: "O que está dentro desse pedaço é sobra: ninguém limpou antes de entregar."
+        figure:
+          kind: array_row
+          alt: "O pedaço entregue, com sobra dentro"
+          cells:
+            - {value: "3F", label: "byte 0"}
+            - {value: "A1", label: "byte 1"}
+            - {value: "00", label: "byte 2"}
+            - {value: "7C", label: "byte 3"}
+          note: "O que sobrou de quem usou este lugar antes."
+          caption: "Emprestaram o espaço, não a limpeza."
+
+      B4:
+        type: base
+        imported_from: kc_01.B3
+        text: "O bloco nao morre com a funcao que o pediu."
+        plain: "Esse pedaço não some quando a função que o pediu termina."
+        figure:
+          kind: two_cases
+          alt: "O pedaço antes e depois do fim da função"
+          left:
+            title: "durante a função"
+            code: "o pedaço é seu"
+            result: "e o ponteiro está aqui"
+          right:
+            title: "depois do return"
+            code: "o pedaço continua"
+            result: "mas o ponteiro pode ter sumido"
+          note: "É essa diferença que faz um pedaço ficar esquecido e ocupado."
+          caption: "Sobreviver à função é a vantagem — e é também o risco."
+
+      I1:
+        type: inference
+        support: [B1, B2, kc_02.I1]
+        text: "O ponteiro e uma variavel; o bloco e outra coisa."
+        plain: "A caixa do ponteiro e o pedaço emprestado são duas coisas diferentes, em áreas diferentes."
+        figure:
+          kind: pointer_pair
+          alt: "A caixa do ponteiro e o pedaço que ela indica"
+          arrow_label: "a caixa guarda o endereço do pedaço"
+          pointer: {name: "p", value: "0x9000", addr: "0x2A00", foot: "some com a função"}
+          target: {name: "pedaço", value: "…", addr: "0x9000", foot: "fica até o free"}
+          note: "Duas coisas, dois destinos diferentes."
+          caption: "Perder a caixa não devolve o pedaço. Ele fica ocupado, e sem ninguém que o alcance."
+
+      I2:
+        type: inference
+        support: [B2, kc_05.I1]
+        text: "Verificar NULL e necessario: falhar e resultado possivel."
+        plain: "Como NULL é uma das respostas possíveis, é preciso conferir antes de usar o que veio."
+        figure:
+          kind: two_cases
+          alt: "Usar direto e conferir antes"
+          left:
+            title: "usar direto"
+            code: "*p = 7;"
+            result: "se veio NULL, o programa vai a lugar nenhum"
+          right:
+            title: "conferir antes"
+            code: "if (p) *p = 7;"
+            result: "a falha vira um caminho previsto"
+          caption: "Não é desconfiança: é que a outra resposta existe."
+
+      I3:
+        type: inference
+        support: [B3]
+        text: "O conteudo precisa ser escrito antes de lido."
+        plain: "Você precisa escrever ali antes de ler, senão está lendo a sobra de outra pessoa."
+        figure:
+          kind: two_cases
+          alt: "Ler antes de escrever, e depois"
+          left:
+            title: "ler primeiro"
+            code: "int v = *p;"
+            result: "v recebe sobra"
+          right:
+            title: "escrever primeiro"
+            code: "*p = 7; int v = *p;"
+            result: "v recebe 7"
+          note: "O pedaço é seu. O conteúdo ainda não é."
+          caption: "Ter o espaço não é ter um valor lá dentro."
+
+      I4:
+        type: inference
+        support: [B4]
+        text: "Ninguem libera o bloco por voce."
+        plain: "E ninguém devolve esse pedaço por você. Enquanto não devolver, ele continua ocupado."
+        figure:
+          kind: regions
+          alt: "Quem arruma cada uma das áreas"
+          left:
+            title: "arrumada sozinha"
+            note: "a função termina e limpa"
+            foot: "ninguém precisa mandar"
+          right:
+            title: "arrumada por você"
+            note: "só o seu free devolve"
+            foot: "sem free, fica ocupado até o fim"
+          caption: "A conta do empréstimo é sua. Ninguém a paga no seu lugar."
 
   kc_09:
     nodes:
-      B1: {type: base, text: "free recebe o endereco do bloco."}
-      B2: {type: base, imported_from: kc_06.I1, text: "free(p) recebe uma copia de p."}
-      B3: {type: base, text: "Devolver o bloco o marca como nao mais valido."}
-      B4: {type: base, imported_from: kc_02.I2, text: "p e variavel do chamador."}
-      I1: {type: inference, support: [B2, kc_06.I4], text: "free nao pode alterar p, nem se quisesse."}
-      I2: {type: inference, support: [B4, I1], text: "p continua existindo, com o mesmo valor."}
-      I3: {type: inference, support: [B1, B3], text: "O bloco deixou de ser valido."}
-      I4: {type: inference, support: [I2, I3], text: "p guarda endereco que nao designa objeto: dangling pointer."}
-      I5: {type: inference, support: [I4], text: "Usar p depois, mesmo sem desreferenciar, e comportamento indefinido."}
-      I6: {type: inference, support: [I2, kc_05.I1], text: "Atribuir NULL a p e o que registra o estado."}
+      B1:
+        type: base
+        text: "free recebe o endereco do bloco."
+        plain: "free recebe o endereço do pedaço que você quer devolver."
+        figure:
+          kind: pointer_pair
+          alt: "O endereço que identifica o pedaço a devolver"
+          arrow_label: "é este endereço que free recebe"
+          pointer: {name: "p", value: "0x9000", addr: "0x2A00", foot: "guarda o endereço"}
+          target: {name: "pedaço", value: "…", addr: "0x9000", foot: "é este que volta"}
+          caption: "free não sabe de p. Sabe do número que veio dentro dela."
+
+      B2:
+        type: base
+        imported_from: kc_06.I1
+        text: "free(p) recebe uma copia de p."
+        plain: "Ao chamar free(p), o que entra na função é uma cópia de p — como em qualquer chamada."
+        figure:
+          kind: call_frame
+          alt: "A cópia do ponteiro entrando na função"
+          caller:
+            title: "quem chama"
+            has: "a caixa p"
+            value: "0x9000"
+          callee:
+            title: "dentro de free"
+            has: "uma cópia do valor"
+            value: "0x9000"
+            lost: "é outra caixa"
+          crosses: "só o endereço"
+          caption: "free não é especial. Recebe cópia, como toda função de C."
+
+      B3:
+        type: base
+        text: "Devolver o bloco o marca como nao mais valido."
+        plain: "Devolvido, o pedaço deixa de ser seu. Pode ser entregue a outro pedido a qualquer momento."
+        figure:
+          kind: two_cases
+          alt: "O pedaço antes e depois de ser devolvido"
+          left:
+            title: "antes do free"
+            code: "o pedaço é seu"
+            result: "ler e escrever ali é legítimo"
+          right:
+            title: "depois do free"
+            code: "o pedaço voltou"
+            result: "pode já ter outro dono"
+          note: "Nada apaga o conteúdo na hora — por isso o erro costuma passar despercebido."
+          caption: "O que muda é a permissão, não o que está escrito lá."
+
+      B4:
+        type: base
+        imported_from: kc_02.I2
+        text: "p e variavel do chamador."
+        plain: "A caixa p é sua, de quem chamou. Ela não pertence à função free."
+        figure:
+          kind: call_frame
+          alt: "De quem é a caixa do ponteiro"
+          caller:
+            title: "quem chama"
+            has: "a caixa p é daqui"
+            value: "p"
+          callee:
+            title: "dentro de free"
+            has: "não conhece essa caixa"
+            value: "só o valor"
+            lost: "não tem como alcançá-la"
+          crosses: "o valor"
+          caption: "free mexe no pedaço emprestado. Não na sua caixa."
+
+      I1:
+        type: inference
+        support: [B2, kc_06.I4]
+        text: "free nao pode alterar p, nem se quisesse."
+        plain: "Então free não tem como mudar o que está dentro de p: ela só recebeu uma cópia do valor."
+        figure:
+          kind: call_frame
+          alt: "A função sem alcance sobre a caixa de quem chamou"
+          caller:
+            title: "quem chama"
+            has: "p continua com"
+            value: "0x9000"
+          callee:
+            title: "dentro de free"
+            has: "mesmo que zerasse a cópia"
+            value: "—"
+            lost: "a mudança não sairia daqui"
+          crosses: "só o valor"
+          note: "Para zerar p, free teria de receber &p — e não é essa a assinatura dela."
+          caption: "Não é escolha de projeto: é o que a passagem por valor permite."
+
+      I2:
+        type: inference
+        support: [B4, I1]
+        text: "p continua existindo, com o mesmo valor."
+        plain: "Depois do free, a caixa p continua ali, com o mesmo endereço escrito dentro."
+        figure:
+          kind: boxes
+          alt: "A caixa do ponteiro, intacta depois da devolução"
+          items:
+            - {name: "p", value: "0x9000", addr: "0x2A00", tone: "pointer"}
+          caption: "Nada nela mudou. É justamente esse o problema."
+
+      I3:
+        type: inference
+        support: [B1, B3]
+        text: "O bloco deixou de ser valido."
+        plain: "Mas o pedaço para onde ela aponta já não é seu."
+        figure:
+          kind: pointer_pair
+          alt: "O ponteiro apontando para um pedaço que já voltou"
+          arrow_label: "aponta para onde havia o pedaço"
+          pointer: {name: "p", value: "0x9000", addr: "0x2A00", foot: "não mudou"}
+          target: {gone: true, gone_label: "devolvido", foot: "pode ter outro dono"}
+          caption: "A seta continua desenhada. O destino é que não é mais seu."
+
+      I4:
+        type: inference
+        support: [I2, I3]
+        text: "p guarda endereco que nao designa objeto: dangling pointer."
+        plain: "Juntando: p continua com um endereço bom de aparência, apontando para um lugar que já não guarda nada seu. E nada no programa avisa isso."
+        figure:
+          kind: pointer_pair
+          alt: "Um ponteiro intacto para um destino que já não vale"
+          arrow_label: "endereço bom, destino inválido"
+          pointer: {name: "p", value: "0x9000", addr: "0x2A00", foot: "intacta"}
+          target: {gone: true, gone_label: "já não é seu", foot: "sem aviso nenhum"}
+          note: "Não é NULL, não dá erro na hora, e o teste `if (p)` passa."
+          caption: "O ponteiro parece bom por fora. É por isso que este erro sobrevive tanto tempo."
+
+      I5:
+        type: inference
+        support: [I4]
+        text: "Usar p depois, mesmo sem desreferenciar, e comportamento indefinido."
+        plain: "Depois disso, até copiar ou comparar p já é território sem garantia — não é preciso chegar a usar *p."
+        figure:
+          kind: two_cases
+          alt: "O que já não tem garantia depois da devolução"
+          left:
+            title: "o que se espera que seja o problema"
+            code: "*p"
+            result: "seguir a seta"
+          right:
+            title: "o que também já é"
+            code: "q = p;  if (p == r)"
+            result: "só copiar ou comparar"
+          note: "A garantia acabou junto com o pedaço, não na hora de segui-lo."
+          caption: "A linha que quebra costuma estar muito depois da linha que errou."
+
+      I6:
+        type: inference
+        support: [I2, kc_05.I1]
+        text: "Atribuir NULL a p e o que registra o estado."
+        plain: "Escrever NULL em p logo depois do free deixa registrado que ela não aponta mais para nada."
+        figure:
+          kind: two_cases
+          alt: "Sem e com o registro do estado"
+          left:
+            title: "só free(p);"
+            code: "p == 0x9000"
+            result: "parece bom, não é"
+          right:
+            title: "free(p); p = NULL;"
+            code: "p == NULL"
+            result: "dá para testar"
+          note: "É o que transforma um estado invisível em um estado que o código consegue perguntar."
+          caption: "free devolve o pedaço. Só você pode atualizar a sua caixa."
 
   kc_12:
     nodes:
-      B1: {type: base, imported_from: kc_01.B2, text: "Variaveis locais existem durante a execucao da funcao."}
-      B2: {type: base, text: "O retorno da funcao encerra a existencia das suas locais."}
-      B3: {type: base, imported_from: kc_04.B2, text: "&local e endereco valido enquanto a funcao executa."}
-      B4: {type: base, imported_from: kc_06.B2, text: "O valor retornado e copiado para o chamador."}
-      I1: {type: inference, support: [B3, B4], text: "Retornar &local copia um endereco, nao o objeto."}
-      I2: {type: inference, support: [B1, B2, I1], text: "Quando o chamador recebe o endereco, o objeto ja nao existe."}
-      I3: {type: inference, support: [I2], text: "Logo ha dangling sem nenhum free."}
-      I4: {type: inference, support: [B2], text: "static muda a duracao, nao o escopo; por isso as vezes parece funcionar."}
-      I5: {type: inference, support: [I2, kc_06.I3], text: "O caminho correto e o chamador fornecer o armazenamento."}
+      B1:
+        type: base
+        imported_from: kc_01.B2
+        text: "Variaveis locais existem durante a execucao da funcao."
+        plain: "As caixas criadas dentro de uma função existem enquanto ela está rodando."
+        figure:
+          kind: call_frame
+          alt: "As caixas que existem enquanto a função roda"
+          caller:
+            title: "quem chamou"
+            has: "espera o retorno"
+            value: "—"
+          callee:
+            title: "dentro de f"
+            has: "tem as caixas dela"
+            value: "int local = 7;"
+            lost: "existem só aqui"
+          crosses: "a chamada"
+          caption: "Enquanto f roda, essas caixas são reais e têm endereço."
+
+      B2:
+        type: base
+        text: "O retorno da funcao encerra a existencia das suas locais."
+        plain: "Quando a função retorna, essas caixas deixam de existir. Ninguém precisa mandar apagar."
+        figure:
+          kind: two_cases
+          alt: "A caixa local antes e depois do retorno"
+          left:
+            title: "antes do return"
+            code: "local = 7"
+            result: "a caixa existe"
+          right:
+            title: "depois do return"
+            code: "—"
+            result: "o lugar já não é dela"
+          note: "O valor 7 muitas vezes continua escrito ali. Isso não devolve a caixa."
+          caption: "É a mesma limpeza automática que torna as locais baratas."
+
+      B3:
+        type: base
+        imported_from: kc_04.B2
+        text: "&local e endereco valido enquanto a funcao executa."
+        plain: "Enquanto a função roda, o endereço de uma caixa dela é um endereço perfeitamente bom."
+        figure:
+          kind: boxes
+          alt: "A caixa local com endereço válido durante a execução"
+          items:
+            - {name: "local", value: "7", addr: "0xBF20"}
+          caption: "Aqui não há erro nenhum. O endereço vale — enquanto a função durar."
+
+      B4:
+        type: base
+        imported_from: kc_06.B2
+        text: "O valor retornado e copiado para o chamador."
+        plain: "O que a função retorna é copiado para quem chamou. É sempre uma cópia do valor."
+        figure:
+          kind: call_frame
+          alt: "O valor de retorno sendo copiado para quem chamou"
+          caller:
+            title: "quem chamou"
+            has: "recebe a cópia"
+            value: "7"
+          callee:
+            title: "dentro de f"
+            has: "devolve o valor"
+            value: "return 7;"
+            lost: "as caixas ficam para trás"
+          crosses: "uma cópia do valor"
+          caption: "Atravessa o valor. Não atravessa a caixa que o guardava."
+
+      I1:
+        type: inference
+        support: [B3, B4]
+        text: "Retornar &local copia um endereco, nao o objeto."
+        plain: "Então retornar &local copia o endereço, não a caixa. A caixa fica para trás."
+        figure:
+          kind: call_frame
+          alt: "O endereço atravessando enquanto a caixa fica para trás"
+          caller:
+            title: "quem chamou"
+            has: "recebe o número"
+            value: "0xBF20"
+          callee:
+            title: "dentro de f"
+            has: "devolvia esta caixa"
+            value: "return &local;"
+            lost: "e ela não vai junto"
+          crosses: "só o endereço"
+          note: "Copiar o número do lugar não copia o que estava no lugar."
+          caption: "É o mesmo mecanismo de sempre — e é justamente aí que dá errado."
+
+      I2:
+        type: inference
+        support: [B1, B2, I1]
+        text: "Quando o chamador recebe o endereco, o objeto ja nao existe."
+        plain: "Quando quem chamou recebe esse endereço, a caixa já sumiu: ela sumiu no mesmo instante do retorno."
+        figure:
+          kind: pointer_pair
+          alt: "Um endereço recebido para uma caixa que já sumiu"
+          arrow_label: "aponta para onde havia a caixa"
+          pointer: {name: "q", value: "0xBF20", addr: "0x2A00", foot: "recebeu o endereço"}
+          target: {gone: true, gone_label: "a caixa acabou no return", foot: "não existe mais"}
+          note: "O endereço chegou. O destino foi embora um instante antes."
+          caption: "Não há momento nenhum em que os dois existam ao mesmo tempo."
+
+      I3:
+        type: inference
+        support: [I2]
+        text: "Logo ha dangling sem nenhum free."
+        plain: "Juntando: dá para acabar com um ponteiro apontando para o nada sem ter chamado free uma única vez."
+        figure:
+          kind: two_cases
+          alt: "Os dois caminhos que levam ao mesmo estado"
+          left:
+            title: "pelo free"
+            code: "free(p);"
+            result: "o pedaço voltou"
+          right:
+            title: "pelo escopo"
+            code: "return &local;"
+            result: "a caixa acabou sozinha"
+          note: "Mesmo estado final, e no segundo caso não há nenhuma chamada suspeita para procurar."
+          caption: "Procurar só por free deixa este caso passar inteiro."
+
+      I4:
+        type: inference
+        support: [B2]
+        text: "static muda a duracao, nao o escopo; por isso as vezes parece funcionar."
+        plain: "Marcar a caixa como static faz ela durar o programa inteiro, mas o nome continua só de dentro da função. Sem static, o lugar muitas vezes ainda guarda o valor antigo — e aí o erro parece funcionar."
+        figure:
+          kind: two_cases
+          alt: "Com static e sem static"
+          left:
+            title: "com static"
+            code: "static int local;"
+            result: "a caixa dura o programa todo"
+          right:
+            title: "sem static"
+            code: "int local;"
+            result: "o valor às vezes continua lá"
+          note: "No primeiro caso funciona de verdade. No segundo, funciona por acaso — até não funcionar."
+          caption: "Testar e ver o valor certo não prova nada aqui."
+
+      I5:
+        type: inference
+        support: [I2, kc_06.I3]
+        text: "O caminho correto e o chamador fornecer o armazenamento."
+        plain: "O jeito certo é quem chama criar a caixa e passar o endereço dela para a função preencher."
+        figure:
+          kind: call_frame
+          alt: "A caixa criada por quem chama, preenchida pela função"
+          caller:
+            title: "quem chama"
+            has: "cria a caixa e passa"
+            value: "f(&meu)"
+          callee:
+            title: "dentro de f"
+            has: "escreve no destino"
+            value: "*p = 7;"
+            lost: "a caixa não é dela — e sobrevive"
+          crosses: "o endereço da caixa de fora"
+          note: "A caixa pertence a quem vai continuar existindo."
+          caption: "A mesma solução do kc_06, usada para o problema oposto."
 
   kc_10:
     nodes:
-      B1: {type: base, imported_from: kc_02.B2, text: "Um ponteiro e variavel e, como toda variavel, tem endereco."}
-      B2: {type: base, imported_from: kc_04.B2, text: "&p produz o endereco de p, que e um int duplo ponteiro."}
-      B3: {type: base, text: "Cada aplicacao de * desfaz um nivel."}
-      B4: {type: base, text: "O tipo diz quantos niveis existem; nao e opcional."}
-      I1: {type: inference, support: [B1, B2], text: "pp e p sao variaveis distintas, em niveis distintos."}
-      I2: {type: inference, support: [B3, I1], text: "*pp e o ponteiro p; **pp e o int."}
-      I3: {type: inference, support: [I1, kc_06.I4], text: "Para uma funcao alterar o p do chamador, precisa receber &p."}
-      I4: {type: inference, support: [B4, kc_07.B3], text: "int a[N][M] nao e int duplo ponteiro: e bloco contiguo, nao vetor de ponteiros."}
+      B1:
+        type: base
+        imported_from: kc_02.B2
+        text: "Um ponteiro e variavel e, como toda variavel, tem endereco."
+        plain: "Um ponteiro é uma caixa. E toda caixa tem endereço próprio."
+        figure:
+          kind: boxes
+          alt: "A caixa do ponteiro, com endereço próprio"
+          items:
+            - {name: "p", value: "0x1000", addr: "0x2A00", tone: "pointer"}
+          caption: "Dentro dela há um endereço. Mas ela também está em algum lugar: 0x2A00."
+
+      B2:
+        type: base
+        imported_from: kc_04.B2
+        text: "&p produz o endereco de p, que e um int duplo ponteiro."
+        plain: "&p dá o endereço da caixa p. Guardar esse endereço exige uma caixa de mais um nível."
+        figure:
+          kind: chain
+          alt: "Uma caixa guardando o endereço de outra caixa de ponteiro"
+          links:
+            - {name: "pp", value: "0x2A00", addr: "0x5000", step: "*", foot: "guarda o endereço de p"}
+            - {name: "p", value: "0x1000", addr: "0x2A00", foot: "guarda o endereço de x"}
+          caption: "Não é ponteiro mais forte: é uma caixa a mais na fila."
+
+      B3:
+        type: base
+        text: "Cada aplicacao de * desfaz um nivel."
+        plain: "Cada * dá um passo: vai de uma caixa até a caixa cujo endereço ela guarda."
+        figure:
+          kind: chain
+          alt: "Cada asterisco avança um passo na fila"
+          links:
+            - {name: "pp", value: "0x2A00", addr: "0x5000", step: "um *", foot: "ponto de partida"}
+            - {name: "p", value: "0x1000", addr: "0x2A00", step: "outro *", foot: "um passo"}
+            - {name: "x", value: "42", addr: "0x1000", foot: "dois passos"}
+          caption: "Um * por passo. Nem mais, nem menos."
+
+      B4:
+        type: base
+        text: "O tipo diz quantos niveis existem; nao e opcional."
+        plain: "O tipo é que diz quantos passos existem até o valor. Não dá para chutar nem descobrir depois."
+        figure:
+          kind: two_cases
+          alt: "O tipo dizendo quantos passos há"
+          left:
+            title: "int *p"
+            code: "um passo"
+            result: "*p já é o número"
+          right:
+            title: "int **pp"
+            code: "dois passos"
+            result: "**pp é que é o número"
+          note: "Errar a contagem não dá erro de escrita: dá um endereço lido como número."
+          caption: "A quantidade de asteriscos na declaração é a resposta."
+
+      I1:
+        type: inference
+        support: [B1, B2]
+        text: "pp e p sao variaveis distintas, em niveis distintos."
+        plain: "Então pp e p são duas caixas diferentes, uma guardando o endereço da outra."
+        figure:
+          kind: chain
+          alt: "Três caixas distintas, uma indicando a seguinte"
+          links:
+            - {name: "pp", value: "0x2A00", addr: "0x5000", step: "", foot: "uma caixa"}
+            - {name: "p", value: "0x1000", addr: "0x2A00", step: "", foot: "outra caixa"}
+            - {name: "x", value: "42", addr: "0x1000", foot: "e a terceira"}
+          caption: "Três caixas, três endereços. Nenhuma é a outra."
+
+      I2:
+        type: inference
+        support: [B3, I1]
+        text: "*pp e o ponteiro p; **pp e o int."
+        plain: "*pp chega em p. **pp dá mais um passo e chega no número."
+        figure:
+          kind: chain
+          alt: "O que cada quantidade de asteriscos alcança"
+          links:
+            - {name: "pp", value: "0x2A00", addr: "0x5000", step: "*pp", foot: "onde você começa"}
+            - {name: "p", value: "0x1000", addr: "0x2A00", step: "**pp", foot: "*pp para aqui"}
+            - {name: "x", value: "42", addr: "0x1000", foot: "**pp chega aqui"}
+          caption: "Conte os asteriscos e conte os passos: é o mesmo número."
+
+      I3:
+        type: inference
+        support: [I1, kc_06.I4]
+        text: "Para uma funcao alterar o p do chamador, precisa receber &p."
+        plain: "Para uma função mudar o p de quem chamou, ela precisa receber o endereço de p — não o p."
+        figure:
+          kind: call_frame
+          alt: "O endereço do ponteiro atravessando a chamada"
+          caller:
+            title: "quem chama"
+            has: "quer que p mude"
+            value: "&p"
+          callee:
+            title: "dentro de f"
+            has: "recebe onde p está"
+            value: "*pp = novo;"
+            lost: "e daí consegue escrever em p"
+          crosses: "o endereço de p"
+          note: "É a mesma regra do int: para mudar a caixa de fora, receba o endereço dela."
+          caption: "Um nível a mais na chamada, pela mesma razão de sempre."
+
+      I4:
+        type: inference
+        support: [B4, kc_07.B3]
+        text: "int a[N][M] nao e int duplo ponteiro: e bloco contiguo, nao vetor de ponteiros."
+        plain: "int a[3][4] é um bloco de 12 caixas grudadas. Não são três caixas apontando para fileiras separadas."
+        figure:
+          kind: two_cases
+          alt: "Um bloco contíguo e um vetor de ponteiros"
+          left:
+            title: "int a[3][4]"
+            code: "12 caixas grudadas"
+            result: "uma fileira só, lida de 4 em 4"
+          right:
+            title: "int **m"
+            code: "3 caixas de endereço"
+            result: "3 fileiras separadas, em qualquer lugar"
+          note: "Os dois se escrevem a[i][j]. Na memória não se parecem em nada."
+          caption: "Passar um a int ** compila com aviso — e lê endereços onde há números."

@@ -46,16 +46,51 @@ def kc07(d):
     return [n for n in d.kcs["kc_07"].nodes.values()]
 
 
+import re  # noqa: E402  (usado só pelo teste do domínio sem `plain`)
+
+
 # --------------------------------------------------------------------------
 # 1. O grafo não muda
 # --------------------------------------------------------------------------
 
+def todos(d):
+    return [n for kc in d.kcs.values() for n in kc.nodes.values()]
+
+
 def test_o_enunciado_canonico_sobrevive_a_simplificacao(d):
     """`plain` é apresentação; `text` continua sendo o que o grafo afirma."""
-    for n in kc07(d):
+    for n in todos(d):
         assert n.plain, "%s:%s deveria estar simplificado" % (n.kc, n.id)
         assert n.text, "%s:%s perdeu o enunciado canônico" % (n.kc, n.id)
         assert n.plain != n.text
+
+
+def test_o_dominio_inteiro_esta_simplificado(d):
+    """93 nós, nenhum de fora. Um nó esquecido não aparece na carga nem
+    no validador — só na tela do participante, no meio de um traversal."""
+    faltando = [(n.kc, n.id) for n in todos(d) if not (n.plain and n.figure)]
+    assert faltando == [], faltando
+
+
+def test_a_proveniencia_cross_kc_sobreviveu(d):
+    """`imported_from` liga o nó à sua origem em outro KC. Reescrever os
+    nós em bloco é exatamente a operação que apaga esses vínculos sem
+    ninguém notar: o domínio carrega igual, e a origem se perde."""
+    esperado = {
+        ("kc_04", "B3"): ("kc_02", "B3"),
+        ("kc_07", "B2"): ("kc_03", "I1"),
+        ("kc_08", "B4"): ("kc_01", "B3"),
+        ("kc_09", "B2"): ("kc_06", "I1"),
+        ("kc_09", "B4"): ("kc_02", "I2"),
+        ("kc_10", "B1"): ("kc_02", "B2"),
+        ("kc_10", "B2"): ("kc_04", "B2"),
+        ("kc_11", "B3"): ("kc_07", "B1"),
+        ("kc_12", "B1"): ("kc_01", "B2"),
+        ("kc_12", "B3"): ("kc_04", "B2"),
+        ("kc_12", "B4"): ("kc_06", "B2"),
+    }
+    achado = {n.ref: n.imported_from for n in todos(d) if n.imported_from}
+    assert achado == esperado
 
 
 def test_o_passo_carrega_os_dois_textos(d):
@@ -66,14 +101,33 @@ def test_o_passo_carrega_os_dois_textos(d):
         assert p.canonical == d.study.mask(no.text)
 
 
-def test_no_sem_plain_cai_no_texto_do_grafo(d):
-    """A simplificação é opcional. Um KC sem ela funciona como sempre."""
-    for p in socratic.steps(d, "kc_02", "I1"):
-        no = d.node(p.kc, p.node)
-        assert not no.plain
+def test_dominio_sem_plain_cai_no_texto_do_grafo(d, tmp_path):
+    """A simplificação continua OPCIONAL, e este teste é o que garante isso.
+
+    Antes ele se apoiava num KC que por acaso não tinha `plain`. Agora
+    todos têm, e apoiar-se em conteúdo faria o teste morrer calado — ele
+    passaria sem exercitar nada. Constrói-se então um domínio COM o campo
+    removido, que é o caminho de código que precisa continuar vivo: outro
+    domínio, ou este antes da simplificação.
+    """
+    copia = tmp_path / "dominio"
+    copia.mkdir()
+    for f in d.source.glob("*.yaml"):
+        shutil.copy(f, copia / f.name)
+    alvo = copia / "premise_graphs.yaml"
+    alvo.write_text(
+        re.sub(r"^ *plain: .*$", "", alvo.read_text(encoding="utf-8"), flags=re.M),
+        encoding="utf-8")
+
+    sem = load(copia)
+    assert not any(n.plain for kc in sem.kcs.values() for n in kc.nodes.values())
+    for p in socratic.steps(sem, "kc_07", "I1"):
+        no = sem.node(p.kc, p.node)
         assert no.display_text == no.text
-        assert p.text == d.study.mask(no.text)
+        assert p.text == sem.study.mask(no.text)
         assert p.canonical == p.text
+    assert validate.check_mixed_question(sem) == []
+    assert validate.check_plain_consistency(sem) == []
 
 
 # --------------------------------------------------------------------------
@@ -127,11 +181,15 @@ def test_nenhuma_pergunta_do_piloto_mistura_os_registros(d):
     assert reais == [], reais
 
 
-def test_o_traversal_do_kc07_e_inteiro_em_linguagem_corrente(d):
-    """Inclusive kc_06:B2, que kc_07:I4 puxa de outro KC."""
-    for m in d.misconceptions_of("kc_07"):
+def test_todo_traversal_do_dominio_e_em_linguagem_corrente(d):
+    """Percorre o plano de refutação de TODAS as 34 crenças, incluindo os
+    nós que cada plano puxa de outros KCs. É a verificação que enxerga o
+    que o participante enxerga: a sequência inteira, não o nó isolado."""
+    for m in d.misconceptions.values():
         for p in socratic.steps(d, m.kc, m.node):
-            assert d.node(p.kc, p.node).plain, "%s:%s" % (p.kc, p.node)
+            assert d.node(p.kc, p.node).plain, \
+                "%s:%s aparece no plano de %s sem versão simples" % (
+                    p.kc, p.node, m.id)
 
 
 def test_a_mistura_e_detectada(d, tmp_path):
@@ -175,9 +233,17 @@ def test_toda_figura_usa_um_tipo_que_o_renderizador_desenha(d):
 
 def test_todo_no_simplificado_tem_figura(d):
     """O pedido era ilustrar CADA premissa. Meia ilustração é pior que
-    nenhuma: o aluno estranha o passo que não tem."""
-    for n in kc07(d):
+    nenhuma: o aluno estranha justamente o passo que não tem."""
+    for n in todos(d):
         assert n.figure, "%s:%s tem `plain` e nenhuma figura" % (n.kc, n.id)
+
+
+def test_toda_figura_tem_alt(d):
+    """`alt` é o que um leitor de tela anuncia. Sem ele a figura é um
+    buraco silencioso — e o rótulo genérico do tipo diria a mesma frase
+    em todas as figuras daquele tipo, o que é pior que nada."""
+    for n in todos(d):
+        assert (n.figure or {}).get("alt"), "%s:%s" % (n.kc, n.id)
 
 
 def test_figura_sem_kind_e_recusada_na_carga(d, tmp_path):

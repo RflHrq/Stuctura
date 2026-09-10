@@ -17,6 +17,8 @@
  *   sizes          duas barras de larguras diferentes, para comparar medida
  *   call_frame     o que atravessa a fronteira de uma chamada de função
  *   two_cases      dois painéis: o caso que vale e o que não vale
+ *   stride         um salto sobre caixas de largura proporcional
+ *   chain          caixas em fila, cada uma guardando a seguinte
  *
  * Por que SVG e não imagem: as cores vêm dos tokens do tema, então a
  * ilustração acompanha claro e escuro; e o texto é texto — selecionável,
@@ -173,7 +175,7 @@
     s.appendChild(el("text", {
       x: x0 - 4, y: 132, "text-anchor": "end", "font-family": SANS,
       "font-size": 11, fill: "var(--mute)"
-    }, "endereço"));
+    }, f.axis || ""));
     return s;
   }
 
@@ -207,31 +209,68 @@
 
   function pointerPair(f) {
     var W = 640, H = 176;
-    var s = svg(W, H, "Um ponteiro guarda o endereço de outra variável");
+    var s = svg(W, H, f.alt || "");
     var p = f.pointer || {}, t = f.target || {};
 
     var a = caixa(s, 78, 58, 148, 58, {
       name: p.name, value: p.value, addr: p.addr, tone: "pointer"
     });
-    var b = caixa(s, 410, 58, 148, 58, {
-      name: t.name, value: t.value, addr: t.addr
-    });
+
+    /* `target.gone` desenha o destino como um lugar que JA NAO EXISTE:
+     * contorno tracejado, conteudo apagado, rotulo por cima. E o desenho
+     * do ponteiro que sobreviveu ao que ele apontava — e a diferenca
+     * entre "aponta para outra caixa" e "aponta para onde havia uma". */
+    var b;
+    if (t.gone) {
+      s.appendChild(el("rect", {
+        x: 410, y: 58, width: 148, height: 58, rx: 5,
+        fill: "var(--sunk)", stroke: "var(--bad)", "stroke-width": 1.6,
+        "stroke-dasharray": "5 4", opacity: 0.75
+      }));
+      if (t.name) {
+        s.appendChild(el("text", {
+          x: 484, y: 49, "text-anchor": "middle", "font-family": MONO,
+          "font-size": 13, fill: "var(--mute)"
+        }, t.name));
+      }
+      s.appendChild(el("text", {
+        x: 484, y: 92, "text-anchor": "middle", "font-family": SANS,
+        "font-size": 12.5, "font-weight": 600, fill: "var(--bad)"
+      }, t.gone_label || ""));
+      b = { x: 410, y: 58, w: 148, h: 58 };
+    } else {
+      b = caixa(s, 410, 58, 148, 58, {
+        name: t.name, value: t.value, addr: t.addr
+      });
+    }
+
     seta(s, a.x + a.w + 6, a.y + a.h / 2, b.x - 8, b.y + b.h / 2,
-         "pp", "var(--accent)");
+         "pp", t.gone ? "var(--bad)" : "var(--accent)");
 
-    s.appendChild(el("text", {
-      x: (a.x + a.w + b.x) / 2, y: a.y + a.h / 2 - 12, "text-anchor": "middle",
-      "font-family": SANS, "font-size": 12.5, fill: "var(--accent)"
-    }, "o conteúdo de p é o endereço de x"));
-
-    s.appendChild(el("text", {
-      x: a.x + a.w / 2, y: 150, "text-anchor": "middle",
-      "font-family": SANS, "font-size": 12, fill: "var(--mute)"
-    }, "uma caixa"));
-    s.appendChild(el("text", {
-      x: b.x + b.w / 2, y: 150, "text-anchor": "middle",
-      "font-family": SANS, "font-size": 12, fill: "var(--mute)"
-    }, "outra caixa"));
+    if (f.arrow_label) {
+      /* halo, pelo mesmo motivo do `stride`: um rotulo longo encosta nas
+       * caixas dos dois lados e na propria seta. */
+      s.appendChild(el("text", {
+        x: (a.x + a.w + b.x) / 2, y: a.y + a.h / 2 - 13, "text-anchor": "middle",
+        "font-family": SANS, "font-size": 12.5,
+        fill: t.gone ? "var(--bad)" : "var(--accent)",
+        stroke: "var(--sunk)", "stroke-width": 4.5,
+        "paint-order": "stroke", "stroke-linejoin": "round"
+      }, f.arrow_label));
+    }
+    [[a, p.foot], [b, t.foot]].forEach(function (par) {
+      if (!par[1]) return;
+      s.appendChild(el("text", {
+        x: par[0].x + par[0].w / 2, y: 150, "text-anchor": "middle",
+        "font-family": SANS, "font-size": 12, fill: "var(--mute)"
+      }, par[1]));
+    });
+    if (f.note) {
+      s.appendChild(el("text", {
+        x: W / 2, y: 170, "text-anchor": "middle", "font-family": SANS,
+        "font-size": 12.5, fill: "var(--mute)"
+      }, f.note));
+    }
     return s;
   }
 
@@ -529,6 +568,122 @@
     return s;
   }
 
+  /* ----------------------------------------------------------- stride */
+
+  /* Um salto sobre caixas de largura fixa. A figura existe para mostrar
+   * que o salto e de UMA CAIXA, nao de um byte: por isso as caixas tem
+   * largura proporcional ao tamanho declarado e o rotulo do arco diz a
+   * distancia real. */
+  function stride(f) {
+    var cels = f.cells || [];
+    var W = 640, H = 212;
+    var s = svg(W, H, f.alt || "");
+    var larg = Math.min(96, Math.floor(500 / Math.max(cels.length, 1)));
+    /* y generoso: os arcos sobem ACIMA das caixas, e cada salto a mais
+     * sobe outra faixa. Com pouco espaco o rotulo de um arco cai em cima
+     * da curva do outro. */
+    var alt = 50, y = 108;
+    var x0 = (W - cels.length * larg) / 2;
+
+    cels.forEach(function (c, i) {
+      var marcado = (f.marks || []).indexOf(i) >= 0;
+      s.appendChild(el("rect", {
+        x: x0 + i * larg, y: y, width: larg, height: alt,
+        fill: marcado ? "var(--accent-soft)" : "var(--card)",
+        stroke: marcado ? "var(--accent)" : "var(--rule-2)",
+        "stroke-width": marcado ? 1.8 : 1.3
+      }));
+      s.appendChild(el("text", {
+        x: x0 + i * larg + larg / 2, y: y + alt / 2 + 5, "text-anchor": "middle",
+        "font-family": MONO, "font-size": 13, fill: "var(--ink)"
+      }, c.value !== undefined ? String(c.value) : ""));
+      if (c.label) {
+        s.appendChild(el("text", {
+          x: x0 + i * larg + larg / 2, y: y + alt + 16, "text-anchor": "middle",
+          "font-family": MONO, "font-size": 11, fill: "var(--mute)"
+        }, c.label));
+      }
+    });
+
+    /* arcos: cada salto declarado vira uma curva de uma caixa a outra */
+    (f.hops || []).forEach(function (h, k) {
+      var xa = x0 + (h.from + 0.5) * larg, xb = x0 + (h.to + 0.5) * larg;
+      var topo = y - 22 - k * 32;
+      var id = "hop" + k;
+      var defs = el("defs");
+      var mk = el("marker", {
+        id: id, markerWidth: 8, markerHeight: 8, refX: 7, refY: 3.5, orient: "auto"
+      });
+      mk.appendChild(el("path", { d: "M0,0 L8,3.5 L0,7 z", fill: "var(--accent)" }));
+      defs.appendChild(mk); s.appendChild(defs);
+      s.appendChild(el("path", {
+        d: "M" + xa + "," + (y - 4) + " C" + xa + "," + topo + " " + xb + "," + topo
+           + " " + xb + "," + (y - 6),
+        fill: "none", stroke: "var(--accent)", "stroke-width": 1.7,
+        "marker-end": "url(#" + id + ")"
+      }));
+      /* halo: o rotulo de um salto curto cai sobre a curva de um salto
+       * longo, e texto por cima de linha nao se le. O contorno na cor do
+       * fundo abre espaco para ele sem precisar adivinhar a geometria. */
+      s.appendChild(el("text", {
+        x: (xa + xb) / 2, y: topo - 5, "text-anchor": "middle",
+        "font-family": MONO, "font-size": 12, "font-weight": 600,
+        fill: "var(--accent)", stroke: "var(--sunk)", "stroke-width": 4.5,
+        "paint-order": "stroke", "stroke-linejoin": "round"
+      }, h.label || ""));
+    });
+
+    if (f.note) {
+      s.appendChild(el("text", {
+        x: W / 2, y: H - 10, "text-anchor": "middle", "font-family": SANS,
+        "font-size": 12.5, fill: "var(--mute)"
+      }, f.note));
+    }
+    return s;
+  }
+
+  /* ------------------------------------------------------------ chain */
+
+  /* Caixas em fila, cada uma guardando o endereco da seguinte. E a figura
+   * da INDIRECAO: quantos passos separam o que voce tem do que voce quer.
+   * O rotulo de cada seta diz o passo que a percorre. */
+  function chain(f) {
+    var elos = f.links || [];
+    var W = 640, H = 168;
+    var s = svg(W, H, f.alt || "");
+    var larg = Math.min(150, Math.floor((W - 60 - (elos.length - 1) * 54)
+                                        / Math.max(elos.length, 1)));
+    var gap = 54;
+    var total = elos.length * larg + (elos.length - 1) * gap;
+    var x0 = (W - total) / 2;
+
+    var caixas = elos.map(function (e, i) {
+      return caixa(s, x0 + i * (larg + gap), 62, larg, 54, {
+        name: e.name, value: e.value, addr: e.addr,
+        tone: i < elos.length - 1 ? "pointer" : null
+      });
+    });
+    for (var i = 0; i < caixas.length - 1; i++) {
+      var a = caixas[i], b = caixas[i + 1];
+      seta(s, a.x + a.w + 5, a.y + a.h / 2, b.x - 7, b.y + b.h / 2,
+           "ch" + i, "var(--accent)");
+      if (elos[i].step) {
+        s.appendChild(el("text", {
+          x: (a.x + a.w + b.x) / 2, y: a.y + a.h / 2 - 11, "text-anchor": "middle",
+          "font-family": MONO, "font-size": 12, fill: "var(--accent)"
+        }, elos[i].step));
+      }
+    }
+    elos.forEach(function (e, i) {
+      if (!e.foot) return;
+      s.appendChild(el("text", {
+        x: caixas[i].x + caixas[i].w / 2, y: 148, "text-anchor": "middle",
+        "font-family": SANS, "font-size": 11.5, fill: "var(--mute)"
+      }, e.foot));
+    });
+    return s;
+  }
+
   var TIPOS = {
     session_map: sessionMap,
     street: street,
@@ -540,7 +695,9 @@
     array_decay: arrayDecay,
     sizes: sizes,
     call_frame: callFrame,
-    two_cases: twoCases
+    two_cases: twoCases,
+    stride: stride,
+    chain: chain
   };
 
   /**
