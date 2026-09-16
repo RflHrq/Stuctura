@@ -214,6 +214,19 @@ class CIU:
     visual: Mapping[str, Any] | None = None
     notes: str | None = None
 
+    # Nível de entrada da atividade (1 a 3). NÃO é dificuldade percebida
+    # nem discriminação psicométrica: é quanto a atividade exige ANTES de
+    # poder ser respondida.
+    #
+    #   1  conceitual. Vocabulário da introdução — caixa, endereço, região.
+    #      Pergunta o que existe, quantos, onde. Código de 0 a 2 linhas.
+    #   2  previsão. Um trecho curto e o que ele faz.
+    #   3  caso de borda, regra do padrão, comparação de dois trechos.
+    #
+    # O padrão é 2: uma atividade sem nível declarado não vira nem a mais
+    # fácil nem a mais difícil por acidente.
+    nivel: int = 2
+
     @property
     def is_choice(self) -> bool:
         return self.type in ESCOLHA
@@ -447,6 +460,24 @@ def _ref(valor: Any, kc_atual: str, onde: str, problemas: list[str]) -> Ref | No
         kc, _, node = valor.partition(".")
         return (kc, node)
     return (kc_atual, valor)
+
+
+def _nivel(c: Mapping, problemas: list[str]) -> int:
+    """Lê `nivel`, recusando o que não for 1, 2 ou 3.
+
+    Um nível fora da escala ordenaria a sessão de um jeito que ninguém
+    pediu — e, pior, em silêncio.
+    """
+    bruto = c.get("nivel", 2)
+    try:
+        n = int(bruto)
+    except (TypeError, ValueError):
+        problemas.append("CIU %s: nivel %r não é número" % (c.get("id"), bruto))
+        return 2
+    if n not in (1, 2, 3):
+        problemas.append("CIU %s: nivel %d fora da escala 1-3" % (c.get("id"), n))
+        return 2
+    return n
 
 
 def _build_kcs(kcs_raw: Mapping, graphs_raw: Mapping, problemas: list[str]) -> dict[str, KC]:
@@ -730,6 +761,7 @@ def _build_cius(
             common_wrong_orders=ordens,
             paths=caminhos,
             visual=c.get("visual"),
+            nivel=_nivel(c, problemas),
             notes=c.get("notes"),
         )
         _check_ciu_shape(ciu, c, problemas)

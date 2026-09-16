@@ -122,7 +122,12 @@ def test_health_expoe_o_hash_do_dominio(client):
     """§15: conferir o hash antes de cada sessão responde "viram o mesmo?"."""
     j = client.get("/health").json()
     assert j["ok"] and j["domain_hash"].startswith("sha256:")
-    assert j["kcs"] == 12 and j["cius"] == 48
+    from engine.loader import load
+    d = load()
+    # Contra o domínio carregado, não contra um número escrito à mão: o
+    # número de atividades muda quando o conteúdo muda, e o que este teste
+    # afirma é que o /health EXPÕE o tamanho, não qual é.
+    assert j["kcs"] == len(d.kcs) and j["cius"] == len(d.cius)
 
 
 def test_criar_sessao_devolve_a_primeira_acao(client):
@@ -137,7 +142,8 @@ def test_responder_devolve_outcome_e_deteccao(client):
     from engine.loader import load
     j = abre(client)
     r = client.post("/sessions/%s/answer" % j["session_id"], json={
-        "ciu_id": "ciu_kc09_001", "confidence": "tenho certeza", "elapsed_ms": 8000,
+        "ciu_id": j["next_action"]["ciu_id"], "confidence": "tenho certeza",
+        "elapsed_ms": 8000,
         "option_idx": posicao(j["next_action"], load(),
                               misconception="free_nullifies")})
     assert r.status_code == 200
@@ -151,13 +157,18 @@ def test_chutar_nao_reporta_crenca_detectada(client):
     """A mesma alternativa, chutada, não é evidência de sustentar a crença."""
     from engine.loader import load
     j = abre(client)
+    d = load()
+    ciu = d.cius[j["next_action"]["ciu_id"]]
     saida = client.post("/sessions/%s/answer" % j["session_id"], json={
-        "ciu_id": "ciu_kc09_001", "confidence": "chutei", "elapsed_ms": 8000,
-        "option_idx": posicao(j["next_action"], load(),
+        "ciu_id": ciu.id, "confidence": "chutei", "elapsed_ms": 8000,
+        "option_idx": posicao(j["next_action"], d,
                               misconception="free_nullifies")}).json()
     assert saida["outcome"] == "incorrect"
     assert saida["detected"] is None
-    assert saida["vector"]["I1"] == "absent"
+    # chutar marca AUSENTE o que a atividade mirava, e não acusa a crença
+    for alvo in ciu.targets:
+        assert saida["vector"][alvo] == "absent"
+    assert saida["vector"]["I1"] != "wrong"
 
 
 def test_sessao_completa_por_http(client):
@@ -175,14 +186,15 @@ def test_sessao_desconhecida_da_404(client):
 
 def test_resposta_fora_de_ordem_da_409(client):
     """Botão voltar do navegador não pode gravar evento fora de ordem."""
+    from engine.loader import load
     j = abre(client)
     sid = j["session_id"]
-    client.post("/sessions/%s/answer" % sid, json={
-        "ciu_id": "ciu_kc09_001", "confidence": "chutei",
-        "elapsed_ms": 100, "option_idx": 2})
-    r = client.post("/sessions/%s/answer" % sid, json={
-        "ciu_id": "ciu_kc09_001", "confidence": "chutei",
-        "elapsed_ms": 100, "option_idx": 2})
+    acao = j["next_action"]
+    corpo = {"ciu_id": acao["ciu_id"], "confidence": "chutei", "elapsed_ms": 100,
+             "option_idx": posicao(acao, load(), correta=True)}
+    primeira = client.post("/sessions/%s/answer" % sid, json=corpo)
+    assert primeira.status_code == 200, primeira.text
+    r = client.post("/sessions/%s/answer" % sid, json=corpo)
     assert r.status_code == 409
 
 
@@ -196,7 +208,7 @@ def test_passo_no_momento_errado_da_409(client):
 def test_confianca_fora_da_escala_da_400(client):
     j = abre(client)
     r = client.post("/sessions/%s/answer" % j["session_id"], json={
-        "ciu_id": "ciu_kc09_001", "confidence": "mais ou menos",
+        "ciu_id": j["next_action"]["ciu_id"], "confidence": "mais ou menos",
         "elapsed_ms": 100, "option_idx": 0})
     assert r.status_code == 400
 
@@ -547,19 +559,20 @@ def test_a_crenca_detectada_e_a_do_texto_escolhido(client):
     d = load()
     j = abre(client, "PTRAD", kcs=["kc_09"])
     acao = j["next_action"]
+    ciu = d.cius[acao["ciu_id"]]
 
-    escolhida = None
+    escolhida, crenca = None, None
     for i, o in enumerate(acao["options"]):
-        alvo = next(x for x in d.cius["ciu_kc09_001"].options if x.text == o["text"])
-        if alvo.misconception == "free_kills_pointer":
-            escolhida = i
+        alvo = next(x for x in ciu.options if x.text == o["text"])
+        if alvo.misconception:
+            escolhida, crenca = i, alvo.misconception
             break
-    assert escolhida is not None
+    assert escolhida is not None, "%s não tem distrator com crença" % ciu.id
 
     saida = client.post("/sessions/%s/answer" % j["session_id"], json={
-        "ciu_id": "ciu_kc09_001", "confidence": "tenho certeza",
+        "ciu_id": ciu.id, "confidence": "tenho certeza",
         "elapsed_ms": 1000, "option_idx": escolhida}).json()
-    assert saida["detected"] == "free_kills_pointer"
+    assert saida["detected"] == crenca
 
 
 def test_o_log_guarda_a_posicao_exibida_e_o_indice_canonico(client):
@@ -569,15 +582,16 @@ def test_o_log_guarda_a_posicao_exibida_e_o_indice_canonico(client):
     from engine.loader import load
     d = load()
     j = abre(client, "PLOG", kcs=["kc_09"])
+    ciu = d.cius[j["next_action"]["ciu_id"]]
     pos = posicao(j["next_action"], d, misconception="free_nullifies")
     client.post("/sessions/%s/answer" % j["session_id"], json={
-        "ciu_id": "ciu_kc09_001", "confidence": "tenho certeza",
+        "ciu_id": ciu.id, "confidence": "tenho certeza",
         "elapsed_ms": 1000, "option_idx": pos})
 
     conn = store_events.connect(client.app.state.db_path)
     try:
         ev = store_events.read(conn, j["session_id"], types=["answer_submitted"])[0]
-        canonico = next(i for i, o in enumerate(d.cius["ciu_kc09_001"].options)
+        canonico = next(i for i, o in enumerate(ciu.options)
                         if o.misconception == "free_nullifies")
         assert ev.payload["option_idx"] == canonico
         assert ev.payload["displayed_idx"] == pos

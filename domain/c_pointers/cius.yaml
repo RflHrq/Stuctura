@@ -15,6 +15,7 @@ cius:
   # =============== KC 01 ===============
   - id: ciu_kc01_001
     kc: kc_01
+    nivel: 2
     type: mcq
     phase: diagnostic
     targets: [I2]
@@ -32,6 +33,7 @@ cius:
 
   - id: ciu_kc01_002
     kc: kc_01
+    nivel: 1
     type: prediction
     phase: diagnostic
     targets: [B2, I1]
@@ -46,6 +48,7 @@ cius:
 
   - id: ciu_kc01_003
     kc: kc_01
+    nivel: 2
     type: fill_blank
     phase: traversal
     targets: [B3, I1]
@@ -68,6 +71,7 @@ cius:
   # =============== KC 02 ===============
   - id: ciu_kc02_001
     kc: kc_02
+    nivel: 1
     type: mcq
     phase: diagnostic
     targets: [I1]
@@ -85,6 +89,7 @@ cius:
 
   - id: ciu_kc02_002
     kc: kc_02
+    nivel: 2
     type: prediction
     phase: diagnostic
     targets: [I2]
@@ -104,6 +109,7 @@ cius:
 
   - id: ciu_kc02_003
     kc: kc_02
+    nivel: 3
     type: mcq
     phase: traversal
     targets: [I3]
@@ -119,6 +125,7 @@ cius:
 
   - id: ciu_kc02_004
     kc: kc_02
+    nivel: 3
     type: mcq
     phase: traversal
     targets: [I3]
@@ -138,6 +145,7 @@ cius:
   # =============== KC 03 ===============
   - id: ciu_kc03_001
     kc: kc_03
+    nivel: 1
     type: mcq
     phase: diagnostic
     targets: [I1]
@@ -154,6 +162,7 @@ cius:
 
   - id: ciu_kc03_002
     kc: kc_03
+    nivel: 2
     type: prediction
     phase: diagnostic
     targets: [I2]
@@ -169,6 +178,7 @@ cius:
 
   - id: ciu_kc03_003
     kc: kc_03
+    nivel: 2
     type: parsons
     phase: traversal
     targets: [I1, I3]
@@ -184,6 +194,7 @@ cius:
   # =============== KC 11 ===============
   - id: ciu_kc11_001
     kc: kc_11
+    nivel: 3
     type: prediction
     phase: diagnostic
     targets: [I2, I3]
@@ -203,6 +214,7 @@ cius:
 
   - id: ciu_kc11_002
     kc: kc_11
+    nivel: 1
     type: mcq
     phase: traversal
     targets: [I1, I2]
@@ -217,6 +229,7 @@ cius:
 
   - id: ciu_kc11_003
     kc: kc_11
+    nivel: 2
     type: fill_blank
     phase: traversal
     targets: [I4]
@@ -226,6 +239,7 @@ cius:
 
   - id: ciu_kc11_004
     kc: kc_11
+    nivel: 2
     type: prediction
     phase: traversal
     targets: [I5]
@@ -243,6 +257,7 @@ cius:
 
   - id: ciu_kc11_005
     kc: kc_11
+    nivel: 3
     type: mcq
     phase: variation
     targets: [I1, I2]
@@ -260,9 +275,48 @@ cius:
         misconception: ptr_arith_is_bytes
     notes: "Variacao do KC 11: mesmo invariante de ciu_kc11_001, codigo sem array de int e sem sizeof explicito."
 
+  - id: ciu_kc11_006
+    kc: kc_11
+    nivel: 1
+    type: mcq
+    phase: diagnostic
+    targets: [I1]
+    prompt: |
+      int *p aponta para o primeiro de varios ints, um do lado do outro.
+      Escrevendo p + 1, voce chega onde?
+    options:
+      - text: "No proximo int."
+        correct: true
+      - text: "No proximo byte."
+        misconception: ptr_arith_is_bytes
+
+  # O degrau do meio. Sem ele o KC ia do conceito (nivel 1) direto ao
+  # deslocamento escalado duas vezes (nivel 3). Aqui o mesmo conceito
+  # aparece num trecho de tres linhas, para PREVER em vez de afirmar.
+  # A alternativa certa e a mais CURTA de proposito: o dominio tem vies de
+  # comprimento (a correta e em media a mais longa), e a atividade nova
+  # nao deve reforca-lo.
+  - id: ciu_kc11_007
+    kc: kc_11
+    nivel: 2
+    type: prediction
+    phase: diagnostic
+    targets: [I1, I2]
+    prompt: |
+      int a[3] = {10, 20, 30};
+      int *p = a;
+      printf("%d", *(p + 1));
+      O que e impresso?
+    options:
+      - text: "20: o segundo elemento."
+        correct: true
+      - text: "Um valor sem sentido: p + 1 andou so um byte e caiu no meio do 10."
+        misconception: ptr_arith_is_bytes
+      - text: "11: o + 1 soma no valor apontado."
   # =============== KC 09 ===============
   - id: ciu_kc09_001
     kc: kc_09
+    nivel: 2
     type: mcq
     phase: diagnostic
     targets: [I1, I2]
@@ -280,6 +334,7 @@ cius:
 
   - id: ciu_kc09_002
     kc: kc_09
+    nivel: 2
     type: prediction
     phase: diagnostic
     targets: [I3, I5]
@@ -300,6 +355,7 @@ cius:
 
   - id: ciu_kc09_003
     kc: kc_09
+    nivel: 3
     type: contrast
     phase: variation
     targets: [I4, I6]
@@ -316,9 +372,26 @@ cius:
       - text: "Os dois: depois do free nao da para usar p de qualquer jeito."
         misconception: double_free_is_safe
 
+  - id: ciu_kc09_004
+    kc: kc_09
+    nivel: 1
+    type: mcq
+    phase: diagnostic
+    targets: [I2]
+    prompt: |
+      int *p = malloc(sizeof(int));
+      free(p);
+      Depois dessas linhas, o que aconteceu com a caixa p?
+    options:
+      - text: "Continua com o mesmo endereco."
+        correct: true
+      - text: "Passou a valer NULL."
+        misconception: free_nullifies
+      - text: "Sumiu junto com o pedaco devolvido."
   # =============== KC 04 ===============
   - id: ciu_kc04_001
     kc: kc_04
+    nivel: 1
     type: mcq
     phase: diagnostic
     targets: [I1]
@@ -335,6 +408,7 @@ cius:
 
   - id: ciu_kc04_002
     kc: kc_04
+    nivel: 2
     type: mcq
     phase: diagnostic
     targets: [B4]
@@ -358,6 +432,7 @@ cius:
 
   - id: ciu_kc04_003
     kc: kc_04
+    nivel: 2
     type: prediction
     phase: traversal
     targets: [I2, I3]
@@ -375,6 +450,7 @@ cius:
 
   - id: ciu_kc04_004
     kc: kc_04
+    nivel: 2
     type: fill_blank
     phase: traversal
     targets: [I3]
@@ -388,6 +464,7 @@ cius:
   # =============== KC 05 ===============
   - id: ciu_kc05_001
     kc: kc_05
+    nivel: 2
     type: prediction
     phase: diagnostic
     targets: [I3]
@@ -405,6 +482,7 @@ cius:
 
   - id: ciu_kc05_002
     kc: kc_05
+    nivel: 3
     type: mcq
     phase: diagnostic
     targets: [I4]
@@ -419,6 +497,7 @@ cius:
 
   - id: ciu_kc05_003
     kc: kc_05
+    nivel: 1
     type: mcq
     phase: traversal
     targets: [I1, I2]
@@ -433,6 +512,7 @@ cius:
 
   - id: ciu_kc05_004
     kc: kc_05
+    nivel: 2
     type: fill_blank
     phase: traversal
     targets: [I1]
@@ -443,6 +523,7 @@ cius:
   # =============== KC 06 ===============
   - id: ciu_kc06_001
     kc: kc_06
+    nivel: 2
     type: prediction
     phase: diagnostic
     targets: [I1]
@@ -458,6 +539,7 @@ cius:
 
   - id: ciu_kc06_002
     kc: kc_06
+    nivel: 2
     type: prediction
     phase: diagnostic
     targets: [I4]
@@ -475,6 +557,7 @@ cius:
 
   - id: ciu_kc06_003
     kc: kc_06
+    nivel: 2
     type: mcq
     phase: traversal
     targets: [I2, I3]
@@ -490,6 +573,7 @@ cius:
 
   - id: ciu_kc06_004
     kc: kc_06
+    nivel: 3
     type: contrast
     phase: variation
     targets: [I3, I4]
@@ -507,6 +591,7 @@ cius:
   # =============== KC 07 ===============
   - id: ciu_kc07_001
     kc: kc_07
+    nivel: 2
     type: mcq
     phase: diagnostic
     targets: [I1]
@@ -524,6 +609,7 @@ cius:
 
   - id: ciu_kc07_002
     kc: kc_07
+    nivel: 3
     type: prediction
     phase: diagnostic
     targets: [I3]
@@ -542,6 +628,7 @@ cius:
 
   - id: ciu_kc07_003
     kc: kc_07
+    nivel: 2
     type: prediction
     phase: traversal
     targets: [I2]
@@ -560,6 +647,7 @@ cius:
 
   - id: ciu_kc07_004
     kc: kc_07
+    nivel: 2
     type: prediction
     phase: traversal
     targets: [I4]
@@ -576,6 +664,7 @@ cius:
 
   - id: ciu_kc07_005
     kc: kc_07
+    nivel: 3
     type: mcq
     phase: traversal
     targets: [I5]
@@ -590,6 +679,7 @@ cius:
 
   - id: ciu_kc07_006
     kc: kc_07
+    nivel: 2
     type: mcq
     phase: variation
     targets: [B1]
@@ -610,9 +700,25 @@ cius:
         - "s: uma caixa de ponteiro na stack, com seta para o literal"
       caption: "Mesma aparencia no codigo. Duas coisas diferentes na memoria."
 
+  - id: ciu_kc07_007
+    kc: kc_07
+    nivel: 1
+    type: mcq
+    phase: diagnostic
+    targets: [B1]
+    prompt: |
+      int a[5];
+      Quantas caixas de inteiro essa linha cria?
+    options:
+      - text: "Cinco, uma ao lado da outra."
+        correct: true
+      - text: "Uma, que guarda onde as outras comecam."
+        misconception: array_is_pointer
+      - text: "Nenhuma ainda: so quando a for usada."
   # =============== KC 08 ===============
   - id: ciu_kc08_001
     kc: kc_08
+    nivel: 2
     type: prediction
     phase: diagnostic
     targets: [I3]
@@ -628,6 +734,7 @@ cius:
 
   - id: ciu_kc08_002
     kc: kc_08
+    nivel: 2
     type: mcq
     phase: diagnostic
     targets: [I2]
@@ -643,6 +750,7 @@ cius:
 
   - id: ciu_kc08_003
     kc: kc_08
+    nivel: 1
     type: mcq
     phase: traversal
     targets: [I1]
@@ -657,6 +765,7 @@ cius:
 
   - id: ciu_kc08_004
     kc: kc_08
+    nivel: 2
     type: fill_blank
     phase: traversal
     targets: [I4]
@@ -672,6 +781,7 @@ cius:
   # =============== KC 12 ===============
   - id: ciu_kc12_001
     kc: kc_12
+    nivel: 2
     type: prediction
     phase: diagnostic
     targets: [I1, I2]
@@ -689,6 +799,7 @@ cius:
 
   - id: ciu_kc12_002
     kc: kc_12
+    nivel: 2
     type: mcq
     phase: diagnostic
     targets: [I4]
@@ -703,6 +814,7 @@ cius:
 
   - id: ciu_kc12_003
     kc: kc_12
+    nivel: 3
     type: contrast
     phase: traversal
     targets: [I3]
@@ -719,6 +831,7 @@ cius:
 
   - id: ciu_kc12_004
     kc: kc_12
+    nivel: 3
     type: path_choice
     phase: variation
     targets: [I5]
@@ -746,6 +859,7 @@ cius:
   # =============== KC 10 ===============
   - id: ciu_kc10_001
     kc: kc_10
+    nivel: 2
     type: prediction
     phase: diagnostic
     targets: [I3]
@@ -763,6 +877,7 @@ cius:
 
   - id: ciu_kc10_002
     kc: kc_10
+    nivel: 2
     type: mcq
     phase: diagnostic
     targets: [I2]
@@ -781,6 +896,7 @@ cius:
 
   - id: ciu_kc10_003
     kc: kc_10
+    nivel: 3
     type: prediction
     phase: traversal
     targets: [I4]
@@ -799,6 +915,7 @@ cius:
 
   - id: ciu_kc10_004
     kc: kc_10
+    nivel: 2
     type: fill_blank
     phase: traversal
     targets: [I1, I3]

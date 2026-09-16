@@ -342,6 +342,67 @@ def check_mixed_question(d: Domain) -> list[str]:
     return out
 
 
+def degraus(d: Domain, kc_id: str) -> list[int]:
+    """Os níveis das atividades diagnósticas, em ordem de nível."""
+    return sorted(c.nivel for c in d.cius_of(kc_id, "diagnostic"))
+
+
+def lacunas_de_degrau(niveis: list[int]) -> str | None:
+    """Por que uma sequência de níveis não é gradual, ou None se é.
+
+    Gradual quer dizer duas coisas: começa no 1, e nunca pula um degrau.
+    Repetir um nível é permitido — duas atividades de nível 2 seguidas são
+    o mesmo degrau, não um salto.
+    """
+    if not niveis:
+        return None
+    if niveis[0] != 1:
+        return "começa no nível %d" % niveis[0]
+    for a, b in zip(niveis, niveis[1:]):
+        if b - a > 1:
+            return "pula do nível %d para o %d" % (a, b)
+    return None
+
+
+def check_rampa(d: Domain) -> list[str]:
+    """As atividades diagnósticas de cada KC do piloto sobem devagar.
+
+    Começam no nível 1 e nunca pulam um degrau. A primeira tela depois da
+    introdução é a primeira impressão do sistema inteiro; um salto do
+    conceitual direto para o caso de borda é o ponto em que a pessoa
+    conclui que aquilo não é para ela, mesmo que continue clicando.
+
+    A ordem estática por nível é a mesma que o seletor apresenta: a
+    fronteira vem antes do nível no desempate, e `tests/test_rampa.py`
+    percorre todas as combinações de resposta para confirmar que ela não
+    embaralha os degraus.
+    """
+    out = []
+    for kc_id in d.pilot_sequence:
+        motivo = lacunas_de_degrau(degraus(d, kc_id))
+        if motivo:
+            out.append("%s não é gradual: %s (níveis %s)"
+                       % (kc_id, motivo, "-".join(map(str, degraus(d, kc_id)))))
+    return out
+
+
+def check_rampa_fora_do_piloto(d: Domain) -> list[str]:
+    """O mesmo, como aviso, para os KCs que ainda não estão no piloto.
+
+    Trocar a sequência do piloto é decisão de desenho do estudo. Quando
+    ela mudar, este aviso já terá dito quais KCs não estão prontos para
+    receber alguém na primeira tela.
+    """
+    out = []
+    for kc_id in d.teaching_sequence():
+        if kc_id in d.pilot_sequence:
+            continue
+        motivo = lacunas_de_degrau(degraus(d, kc_id))
+        if motivo:
+            out.append("%s não é gradual: %s (fora do piloto)" % (kc_id, motivo))
+    return out
+
+
 def check_hypotheses(d: Domain) -> list[str]:
     """Crenças cuja formulação ainda é hipótese, não achado.
 
@@ -367,6 +428,7 @@ BLOQUEANTES = (
     ("escopo da introdução", check_intro_scope),
     ("detectabilidade das crenças (§12)", check_detectability),
     ("coerência da Q-matrix", check_qmatrix_coherence),
+    ("gradação do piloto", check_rampa),
 )
 
 AVISOS = (
@@ -375,6 +437,7 @@ AVISOS = (
     ("CIUs diagnósticas", check_diagnostic_coverage),
     ("cobertura do grafo", check_node_coverage),
     ("crenças ainda hipotéticas", check_hypotheses),
+    ("gradação fora do piloto", check_rampa_fora_do_piloto),
     ("registro uniforme por KC", check_plain_consistency),
     ("pergunta com registro misto", check_mixed_question),
 )
@@ -415,6 +478,9 @@ def stats(d: Domain) -> str:
         "CIUs           %d  (%s)" % (
             len(d.cius), ", ".join("%s=%d" % kv for kv in sorted(fases.items()))),
         "tipos          %s" % ", ".join("%s=%d" % kv for kv in sorted(tipos.items())),
+        "níveis         %s" % "  ".join(
+            "n%d=%d" % (n, sum(1 for c in d.cius.values() if c.nivel == n))
+            for n in (1, 2, 3)),
         "mapeamentos    %d  (%d/%d crenças detectáveis)" % (
             mapeados,
             len({m for c in d.cius.values() for m in c.misconception_ids()}),

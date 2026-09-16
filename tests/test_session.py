@@ -199,8 +199,15 @@ def test_a_mesma_resposta_leva_a_estados_cognitivos_opostos(d):
 
     assert com_certeza == model.MISCONCEPTION
     assert chutando != model.MISCONCEPTION
+    # com certeza, o nó que a crença NEGA vira errado
     assert v1[("kc_09", "I1")] == model.WRONG
-    assert v2[("kc_09", "I1")] == model.ABSENT
+    assert v2.get(("kc_09", "I1")) != model.WRONG
+    # chutando, o que a atividade MIRAVA vira ausente: ele sabe que não sabe.
+    # Não se afirma I1 aqui de propósito — a atividade de abertura do kc_09
+    # mira I2, e o nó negado pela crença não precisa estar entre os alvos.
+    ciu = d.cius[comeca(d, "socratic", ["kc_09"]).action.ciu_id]
+    for alvo in ciu.targets:
+        assert v2[("kc_09", alvo)] == model.ABSENT
 
 
 def test_chutar_depois_de_acertar_algo_da_lacuna(d):

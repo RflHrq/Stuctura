@@ -4,9 +4,13 @@ Três regras, nesta ordem:
 
   1. alvo na fronteira do conhecimento — a atividade tem de tocar o ponto
      em que o aluno parou de conseguir avançar sozinho;
-  2. tipo diferente do anterior — evita que o aluno responda pelo formato
+  2. nível mais baixo primeiro — entre as que tocam o ponto certo, começa
+     pela mais leve e sobe. Sem isto, a ordem de apresentação era a ordem
+     de declaração no YAML, e a primeira tela da sessão era simplesmente a
+     primeira atividade escrita;
+  3. tipo diferente do anterior — evita que o aluno responda pelo formato
      em vez de pelo conteúdo;
-  3. fase compatível com o estado.
+  4. fase compatível com o estado.
 
 Sem CIU elegível, cai para qualquer não usada do KC na fase pedida.
 
@@ -40,11 +44,21 @@ def next_ciu(
     # Ordem de declaração no YAML: é o desempate determinístico (RNF02).
     declaracao = {cid: i for i, cid in enumerate(domain.cius)}
 
-    def pontua(c: CIU) -> tuple[int, int, int]:
-        # Menor é melhor. A ordem das chaves é a ordem das regras do §7.5.
+    def pontua(c: CIU) -> tuple[int, int, int, int]:
+        # Menor é melhor. A ordem das chaves é a ordem das regras do §7.5,
+        # com o NÍVEL entrando logo depois da fronteira.
+        #
+        # Por que o nível não vem primeiro: a fronteira é o que faz a
+        # atividade tocar o ponto em que o aluno parou de avançar. Uma
+        # atividade fácil sobre um nó que ele já domina é agradável e
+        # inútil. Entre as que tocam o ponto certo, aí sim vem a mais leve.
+        #
+        # Por que vem antes do tipo: variar o formato evita responder pelo
+        # padrão da pergunta, mas é preferência de desenho. Entrar pelo
+        # degrau certo é o que decide se a pessoa continua.
         na_fronteira = 0 if (set(c.targets) & fronteira) else 1
         tipo_novo = 0 if (last_type is None or c.type != last_type) else 1
-        return (na_fronteira, tipo_novo, declaracao[c.id])
+        return (na_fronteira, c.nivel, tipo_novo, declaracao[c.id])
 
     return min(candidatas, key=pontua)
 
