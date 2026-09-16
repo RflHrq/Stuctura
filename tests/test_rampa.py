@@ -172,3 +172,97 @@ def test_sem_nivel_declarado_vale_2(d, tmp_path):
     alvo.write_text(texto.replace(antes, "  - id: ciu_kc07_001\n    kc: kc_07\n"),
                     encoding="utf-8")
     assert load(dominio).cius["ciu_kc07_001"].nivel == 2
+
+
+# --------------------------------------------------------------------------
+# A crença mostrada com certeza fica ativa até ser refutada
+# --------------------------------------------------------------------------
+#
+# Consequência direta da gradação, e decisão do autor. A crença passou a
+# aparecer na atividade de nível 1, e a de nível 2 que mira o mesmo nó vem
+# depois. Se acertar a segunda confirmasse o nó, a evidência da primeira se
+# apagaria e quem mostrou a crença COM CERTEZA sairia sem refutação.
+
+def test_resposta_certa_nao_promove_no_errado(d):
+    """No modelo: a resposta certa confirma os outros alvos, mas não o nó
+    que uma crença marcou como errado."""
+    from engine import model
+
+    ciu = d.cius["ciu_kc09_001"]                     # mira I1 e I2
+    assert set(ciu.targets) == {"I1", "I2"}
+    vetor = {("kc_09", "I1"): model.WRONG}
+    feitas = {(u.kc, u.node): u.state
+              for u in model.ingest(d, vetor, ciu, True, "tenho certeza")}
+    assert ("kc_09", "I1") not in feitas
+    assert feitas[("kc_09", "I2")] == model.CONFIRMED
+
+
+def test_acertar_depois_nao_apaga_a_crenca(d):
+    """Na sessão: erra a de nível 1 com certeza, acerta todas as outras.
+    A crença continua ativa e o nó que ela nega é percorrido."""
+    from engine import model
+
+    t = S.start(d, "socratic", ["kc_09"])
+    while t.action.kind == "intro":
+        t = S.advance(d, t.state, S.Acknowledge(100))
+    assert d.cius[t.action.ciu_id].nivel == 1
+    t = _responde(d, t, "erra_com_certeza")
+
+    negado = d.misconceptions["free_nullifies"].negates
+    assert model.state_of(t.state.vector, *negado) == model.WRONG
+
+    while t.action.kind == "ciu" and t.state.phase == S.DIAGNOSTICO:
+        t = _responde(d, t, "acerta")
+    assert model.state_of(t.state.vector, *negado) == model.WRONG, \
+        "acertar a atividade de nível 2 apagou a crença"
+
+    perguntados = set()
+    for _ in range(400):
+        a = t.action
+        if a.kind == "done":
+            break
+        if a.kind in ("ask", "explain"):
+            perguntados.add((a.kc, a.node))
+            t = S.advance(d, t.state, S.StepAnswer(True, 10))
+        elif a.kind == "ciu":
+            t = _responde(d, t, "acerta")
+        else:
+            t = S.advance(d, t.state, S.Acknowledge(10))
+    assert t.action.kind == "done"
+    assert negado in perguntados, "a crença nunca foi refutada"
+
+
+def test_toda_combinacao_fecha_e_refuta_o_que_mostrou(d):
+    """O risco da regra: um nó errado que não pode mais ser apagado por
+    resposta certa poderia ficar fora de todo percurso, e a sessão não
+    fecharia. Aqui, para cada KC do piloto e cada combinação de resposta no
+    diagnóstico, a sessão vai até o fim — e toda crença detectada tem o nó
+    que ela nega percorrido."""
+    for kc in d.pilot_sequence:
+        n = len(d.cius_of(kc, "diagnostic"))
+        for combo in itertools.product(MODOS, repeat=n):
+            t = S.start(d, "socratic", [kc])
+            fila = list(combo)
+            crencas, perguntados = set(), set()
+            for _ in range(600):
+                for e in t.events:
+                    if e.type == "misconception_detected":
+                        crencas.add(e.payload["misconception_id"])
+                a = t.action
+                if a.kind == "done":
+                    break
+                if a.kind == "intro":
+                    t = S.advance(d, t.state, S.Acknowledge(10))
+                elif a.kind == "ciu":
+                    diag = t.state.phase == S.DIAGNOSTICO
+                    t = _responde(d, t, fila.pop(0) if (diag and fila) else "acerta")
+                elif a.kind in ("ask", "explain"):
+                    perguntados.add((a.kc, a.node))
+                    t = S.advance(d, t.state, S.StepAnswer(True, 10))
+                else:
+                    t = S.advance(d, t.state, S.Acknowledge(10))
+            onde = "%s respondendo %s" % (kc, "/".join(combo))
+            assert t.action.kind == "done", "não fechou: " + onde
+            for m in crencas:
+                assert d.misconceptions[m].negates in perguntados, \
+                    "%s detectada e não refutada: %s" % (m, onde)

@@ -7,7 +7,19 @@
 
 # Recorte do piloto (§4.1 do dossiê): os de melhor ancoragem, cobrindo os
 # dois regimes (KC 7 exige diagrama; 11 e 9 são socrático puro), em 30-40 min.
-pilot_sequence: [kc_07, kc_11, kc_09]
+#
+# kc_02 ENTRA COMO AQUECIMENTO, antes do KC 7. Decisão do autor depois de
+# usar o sistema: a sessão começava no sétimo KC, e a primeira pergunta
+# pressupunha saber o que é um ponteiro. Com o kc_02, a primeira atividade
+# vira "Quantas variáveis existem nesse trecho?".
+#
+# ATENÇÃO NA ANÁLISE: a introdução ensina exatamente o que o kc_02 mede
+# ("um ponteiro é uma caixa cujo conteúdo é um endereço"). As respostas do
+# kc_02 medem o que o aluno sabe DEPOIS da introdução, não a crença prévia.
+# Servem para aquecer, não como desfecho — os desfechos continuam sendo
+# kc_07, kc_11 e kc_09. A ordem de execução vem de `teaching_order`, não
+# desta lista.
+pilot_sequence: [kc_02, kc_07, kc_11, kc_09]
 
 # RF10, nomeação tardia. Termos que só podem aparecer no nó de conclusão
 # do seu KC — nunca num nó intermediário, numa pergunta socrática ou num

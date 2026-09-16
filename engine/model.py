@@ -168,11 +168,22 @@ def ingest(
 
     Um nó já confirmado nunca é rebaixado por um "chutei": o que ele já
     demonstrou não se apaga por uma resposta insegura depois.
+
+    E, simetricamente, um nó ERRADO nunca é promovido por uma resposta
+    certa numa atividade. Só o percurso de refutação o desfaz.
+
+    Por quê: com a gradação, a crença costuma aparecer na atividade de
+    nível 1, e a de nível 2 que mira o mesmo nó vem depois. Se acertar a
+    segunda confirmasse o nó, a evidência da primeira se apagaria e a
+    refutação não aconteceria — justamente para quem mostrou a crença com
+    certeza. Decisão do autor: a crença declarada com convicção fica ativa
+    até ser refutada. O dado cru das duas respostas continua no log.
     """
     alvos = [(ciu.kc, t) for t in ciu.targets]
 
     if correct:
-        return [Update(kc, n, CONFIRMED) for kc, n in alvos]
+        return [Update(kc, n, CONFIRMED) for kc, n in alvos
+                if vector.get((kc, n)) != WRONG]
 
     chutou = confidence == domain.study.guessed
     if chutou:

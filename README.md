@@ -84,7 +84,7 @@ python -m tools.percurso -o analise/percursos.html    # o caminho de cada partic
 
 **1 · O mapa** (`mapa.html`, nível de cima) — os 12 KCs, da esquerda para a
 direita por prerequisito. Estabelece o tamanho do domínio e onde o piloto
-corta: três KCs, marcados. O número `9 +1` em cada caixa já introduz o
+corta: o KC 02 de aquecimento e os três KCs medidos, marcados. O número `9 +1` em cada caixa já introduz o
 fecho alcançável, que volta depois.
 
 **2 · Um grafo, no modo “todos os caminhos”** (abra o KC 07) — mostra que a

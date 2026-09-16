@@ -142,6 +142,32 @@ cius:
       - text: "Sim, desde que se faca o cast de volta antes de chamar."
         misconception: voidptr_is_universal
 
+  # Encerramento do KC 02 (RF11): mesmo invariante, codigo novo. Sem uma
+  # atividade de variacao o KC nao tem como fechar, e o KC 02 so pode abrir
+  # o piloto se puder fechar.
+  #
+  # Pergunta o que esta DENTRO de q depois que c muda — e o teste mais
+  # direto de "o ponteiro e o proprio dado". Os dois distratores sao as duas
+  # formas dessa crenca: q acompanha o valor, ou q copiou o valor.
+  # A alternativa certa e a mais curta, contra o vies de comprimento.
+  - id: ciu_kc02_005
+    kc: kc_02
+    nivel: 2
+    type: prediction
+    phase: variation
+    targets: [I1]
+    prompt: |
+      char c = 'x';
+      char *q = &c;
+      c = 'y';
+      O que esta guardado dentro de q agora?
+    options:
+      - text: "O endereco de c, o mesmo de antes."
+        correct: true
+      - text: "A letra y: q acompanha o valor de c."
+        misconception: pointer_is_data
+      - text: "A letra x: q guardou o valor quando foi criado."
+        misconception: pointer_is_data
   # =============== KC 03 ===============
   - id: ciu_kc03_001
     kc: kc_03

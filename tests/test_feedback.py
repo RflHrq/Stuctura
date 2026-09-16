@@ -38,12 +38,11 @@ def roteiro(d, arm, kc="kc_09", crenca="free_nullifies", limite=120):
         if a.kind == "ciu":
             ciu = d.cius[a.ciu_id]
             # Quem TEM a crença a sustenta em toda atividade diagnóstica que a
-            # oferece, não só na primeira. Com a gradação, ela é detectada na
-            # atividade de nível 1; errar só ali e acertar depois a atividade
-            # que mira o mesmo nó apagaria a evidência (o modelo confia na
-            # resposta mais recente) — e o roteiro deixaria de ser o de um
-            # aluno com a crença. Fora do diagnóstico, responde certo: errar
-            # na variação impediria o KC de fechar.
+            # oferece, não só na primeira — é o perfil realista. (O modelo já
+            # não deixa uma resposta certa posterior apagar a crença; ver
+            # tests/test_rampa.py. Este roteiro não depende disso.) Fora do
+            # diagnóstico responde certo: errar na variação impediria o KC
+            # de fechar.
             erro = crenca if (t.state.phase == S.DIAGNOSTICO and any(
                 o.misconception == crenca for o in ciu.options)) else None
             t = responde(d, t, errando=erro)

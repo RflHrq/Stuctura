@@ -117,7 +117,7 @@ def test_sessao_completa_roda_ponta_a_ponta(d, arm):
 
 
 @pytest.mark.parametrize("arm", ["socratic", "direct"])
-def test_sessao_de_tres_kcs_do_piloto(d, arm):
+def test_sessao_com_todos_os_kcs_do_piloto(d, arm):
     estado, eventos, _ = roda(d, arm, list(d.pilot_sequence))
     assert estado.done
     assert set(estado.kc_status) == set(d.pilot_sequence)
