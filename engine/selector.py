@@ -33,12 +33,29 @@ def next_ciu(
     phase: str,
     used: Iterable[str] = (),
     last_type: str | None = None,
+    nivel_minimo: int = 1,
+    garantir_uma: bool = False,
 ) -> CIU | None:
-    """A próxima atividade, ou None se o KC não tem mais nenhuma na fase."""
+    """A próxima atividade, ou None se o KC não tem mais nenhuma na fase.
+
+    `nivel_minimo` é o DESAFIO: quem vem acertando com certeza pula as
+    atividades abaixo dele. Se nenhuma sobra acima do piso, não há o que
+    apresentar — exceto quando `garantir_uma`, que é o caso da primeira
+    atividade do KC: todo KC recebe pelo menos uma, e ela é a mais difícil
+    que houver. Pular o KC inteiro tiraria dele toda chance de diagnóstico.
+    """
     ja = set(used)
     candidatas = [c for c in domain.cius_of(kc, phase) if c.id not in ja]
     if not candidatas:
         return None
+
+    acima = [c for c in candidatas if c.nivel >= nivel_minimo]
+    if not acima:
+        if not garantir_uma:
+            return None
+        topo = max(c.nivel for c in candidatas)
+        acima = [c for c in candidatas if c.nivel == topo]
+    candidatas = acima
 
     fronteira = set(model.frontier(domain, vector, kc))
     # Ordem de declaração no YAML: é o desempate determinístico (RNF02).
@@ -69,8 +86,25 @@ def next_diagnostic(
     kc: str,
     used: Iterable[str] = (),
     last_type: str | None = None,
+    nivel_minimo: int = 1,
+    garantir_uma: bool = False,
 ) -> CIU | None:
-    return next_ciu(domain, vector, kc, "diagnostic", used, last_type)
+    return next_ciu(domain, vector, kc, "diagnostic", used, last_type,
+                    nivel_minimo, garantir_uma)
+
+
+def nivel_minimo(domain: Domain, sequencia_certa: int) -> int:
+    """O piso de nível para quem vem acertando com certeza.
+
+    Começa no 1 — todo mundo entra pelo degrau mais leve. A cada
+    `desafio_sequencia` acertos seguidos com a confiança mais alta, sobe um
+    degrau, até o 3. Um erro, ou um acerto sem certeza, zera a sequência e
+    devolve o piso ao 1: quem tropeça volta a ser levado pela mão.
+    """
+    passo = domain.study.desafio_sequencia
+    if passo <= 0:
+        return 1
+    return min(3, 1 + sequencia_certa // passo)
 
 
 def next_variation(

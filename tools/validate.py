@@ -372,10 +372,12 @@ def check_rampa(d: Domain) -> list[str]:
     conceitual direto para o caso de borda é o ponto em que a pessoa
     conclui que aquilo não é para ela, mesmo que continue clicando.
 
-    A ordem estática por nível é a mesma que o seletor apresenta: a
-    fronteira vem antes do nível no desempate, e `tests/test_rampa.py`
-    percorre todas as combinações de resposta para confirmar que ela não
-    embaralha os degraus.
+    A ordem estática por nível é a mesma que o seletor apresenta a quem
+    começa do zero: a fronteira vem antes do nível no desempate, e
+    `tests/test_rampa.py` percorre todas as combinações de resposta para
+    confirmar que ela não embaralha os degraus. Ao longo da sessão, o
+    DESAFIO pula degraus para quem acerta com certeza e desce para quem
+    tropeça — de propósito, e guardado em `tests/test_desafio.py`.
     """
     out = []
     for kc_id in d.pilot_sequence:
@@ -400,6 +402,26 @@ def check_rampa_fora_do_piloto(d: Domain) -> list[str]:
         motivo = lacunas_de_degrau(degraus(d, kc_id))
         if motivo:
             out.append("%s não é gradual: %s (fora do piloto)" % (kc_id, motivo))
+    return out
+
+
+def check_desafio(d: Domain) -> list[str]:
+    """KC do piloto sem atividade diagnóstica de nível 3.
+
+    Quem vem acertando com certeza chega ao KC com o piso de nível alto. Se
+    não houver atividade de nível 3, ele recebe a mais difícil que existir —
+    e não é desafiado de fato. Não impede a sessão; só avisa onde falta o
+    degrau de cima.
+    """
+    out = []
+    if d.study.desafio_sequencia <= 0:
+        return out
+    for kc_id in d.pilot_sequence:
+        niveis = degraus(d, kc_id)
+        if niveis and max(niveis) < 3:
+            out.append("%s não tem atividade diagnóstica de nível 3: quem chega "
+                       "acertando com certeza não é desafiado ali (níveis %s)"
+                       % (kc_id, "-".join(map(str, niveis))))
     return out
 
 
@@ -438,6 +460,7 @@ AVISOS = (
     ("cobertura do grafo", check_node_coverage),
     ("crenças ainda hipotéticas", check_hypotheses),
     ("gradação fora do piloto", check_rampa_fora_do_piloto),
+    ("desafio para quem acerta com certeza", check_desafio),
     ("registro uniforme por KC", check_plain_consistency),
     ("pergunta com registro misto", check_mixed_question),
 )

@@ -14,6 +14,10 @@ O validador confere a gradação no papel; este confere na sessão, porque o
 seletor põe a fronteira do conhecimento ANTES do nível, e uma resposta pode
 mudar a fronteira. Ele percorre todas as combinações de resposta e afirma
 que nenhuma embaralha os degraus.
+
+Estes testes começam cada KC do zero. Ao longo de uma sessão inteira o
+DESAFIO pula degraus para quem acerta com certeza e desce para quem
+tropeça — de propósito; isso é guardado em `tests/test_desafio.py`.
 """
 
 from __future__ import annotations

@@ -136,6 +136,11 @@ class SessionState:
 
     # Diagnóstico
     diagnostics_done: int = 0
+    # Acertos seguidos com a confiança mais alta, ao longo da SESSÃO (não
+    # zera ao trocar de KC). É o que sobe o nível mínimo das diagnósticas.
+    # Não é persistido à parte: a retomada o reconstrói reexecutando as
+    # respostas, como todo o resto do estado.
+    sequencia_certa: int = 0
     used_cius: tuple[str, ...] = ()
     last_ciu_type: str | None = None
     current_ciu: str | None = None
@@ -305,7 +310,9 @@ def _abre_kc(domain: Domain, state: SessionState) -> Transition:
 def _apresenta_diagnostica(domain: Domain, state: SessionState) -> Transition:
     kc = state.kc
     ciu = selector.next_diagnostic(
-        domain, state.vector, kc, state.used_cius, state.last_ciu_type
+        domain, state.vector, kc, state.used_cius, state.last_ciu_type,
+        nivel_minimo=selector.nivel_minimo(domain, state.sequencia_certa),
+        garantir_uma=state.diagnostics_done == 0,
     )
     if ciu is None:
         # Acabaram as diagnósticas: decide com o que já se sabe.
@@ -326,6 +333,11 @@ def _apresenta(domain: Domain, state: SessionState, ciu: CIU, fase: str) -> Tran
     evento = Emit("ciu_presented", {
         "ciu_id": ciu.id, "kc": ciu.kc, "targets": list(ciu.targets), "phase": ciu.phase,
         "type": ciu.type,
+        # O nível e o piso vão para o log: a análise precisa saber quem foi
+        # desafiado e quem foi levado pela mão, e por quê.
+        "nivel": ciu.nivel,
+        "sequencia_certa": state.sequencia_certa,
+        "nivel_minimo": selector.nivel_minimo(domain, state.sequencia_certa),
         # A permutação vai para o log: a análise não precisa rededuzi-la, e
         # fica registrado o que este participante viu, nesta posição.
         "option_order": list(ordem),
@@ -395,6 +407,19 @@ def _canonico(domain: Domain, state: SessionState, ciu: CIU,
     return ordem[exibido], ordem
 
 
+def _sequencia(domain: Domain, state: SessionState, correto: bool,
+              confianca: str) -> int:
+    """Acertos seguidos com certeza. Qualquer outra resposta zera.
+
+    Acerto com "acho que sei" também zera, de propósito: o desafio sobe para
+    quem SABE que sabe. Quem acerta hesitando ainda está construindo, e é
+    justamente quem precisa do degrau mais leve.
+    """
+    if correto and confianca == domain.study.certain:
+        return state.sequencia_certa + 1
+    return 0
+
+
 def _responde_diagnostico(domain: Domain, state: SessionState, ev: Answer) -> Transition:
     ciu = domain.cius[ev.ciu_id]
     canonico, ordem = _canonico(domain, state, ciu, ev.option_idx)
@@ -430,7 +455,8 @@ def _responde_diagnostico(domain: Domain, state: SessionState, ev: Answer) -> Tr
                             {"misconception_id": ativa, "kc": m.kc, "node": m.node}))
 
     novo = replace(state, vector=vetor, diagnostics_done=state.diagnostics_done + 1,
-                   detected=state.detected or ativa)
+                   detected=state.detected or ativa,
+                   sequencia_certa=_sequencia(domain, state, correto, ev.confidence))
 
     # Nenhum feedback é dado nesta fase (§6): só se decide se apresenta
     # mais uma diagnóstica ou se parte para a correção.
@@ -780,7 +806,8 @@ def _responde_variacao(domain: Domain, state: SessionState, ev: Answer) -> Trans
         "correct": correto, "misconception_id": mid, "phase": "variation",
         "node_updates": [u.as_payload() for u in updates],
     })]
-    novo = replace(state, vector=vetor)
+    novo = replace(state, vector=vetor,
+                   sequencia_certa=_sequencia(domain, state, correto, ev.confidence))
 
     if correto and model.is_complete(domain, vetor, state.kc):
         eventos.append(Emit("kc_completed", {

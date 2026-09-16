@@ -72,6 +72,19 @@ max_attempts_per_node: 3
 diagnostic_policy: all
 max_diagnostics_per_kc: 3
 
+# DESAFIO. Toda sessão começa no nível 1, segurando na mão. A cada
+# `desafio_sequencia` acertos SEGUIDOS com "tenho certeza", o nível mínimo das
+# atividades diagnósticas sobe um degrau (até o 3): quem demonstra que sabe
+# pula as atividades básicas e é desafiado. Um erro, ou um acerto com "acho que
+# sei" ou "chutei", zera a sequência e devolve o piso ao nível 1.
+#
+# Todo KC recebe pelo menos uma atividade diagnóstica, mesmo com o piso no
+# alto: nesse caso, a mais difícil que houver.
+#
+# Idêntico nos dois braços: depende só das respostas, que vêm antes de os
+# braços divergirem. 0 desliga (todos veem todas as atividades, em ordem).
+desafio_sequencia: 2
+
 # Experiência prévia declarada (§4.3).
 #
 # É a variável de ESTRATIFICAÇÃO da alocação aleatória. Sem coletá-la, a

@@ -283,6 +283,9 @@ class Study:
     max_diagnostics_per_kc: int = 3
     confidence_scale: tuple[str, ...] = ()
     shuffle_options: bool = True
+    # Quantos acertos SEGUIDOS com a confiança mais alta sobem um degrau no
+    # nível mínimo das atividades diagnósticas. 0 desliga o desafio.
+    desafio_sequencia: int = 2
     prior_c_options: tuple[str, ...] = ()
     consent_text: str = ""
 
@@ -290,6 +293,11 @@ class Study:
     def guessed(self) -> str:
         """O valor de confiança que marca premissa AUSENTE, não errada (§7.3)."""
         return self.confidence_scale[0] if self.confidence_scale else "chutei"
+
+    @property
+    def certain(self) -> str:
+        """O nível mais alto da escala: o que conta para o desafio."""
+        return self.confidence_scale[-1] if self.confidence_scale else "tenho certeza"
 
 
 @dataclass(frozen=True, slots=True)
@@ -443,6 +451,7 @@ def _load_study(path: str | Path | None, kcs: Mapping[str, KC],
         max_diagnostics_per_kc=int(dados.get("max_diagnostics_per_kc", 3)),
         confidence_scale=tuple(dados.get("confidence_scale") or ()),
         shuffle_options=bool(dados.get("shuffle_options", True)),
+        desafio_sequencia=max(0, int(dados.get("desafio_sequencia", 2))),
         prior_c_options=tuple(dados.get("prior_c_options") or ()),
         consent_text=(dados.get("consent_text") or "").strip(),
     )
