@@ -360,6 +360,16 @@ def _apresenta(domain: Domain, state: SessionState, ciu: CIU, fase: str) -> Tran
     evento = Emit("ciu_presented", {
         "ciu_id": ciu.id, "kc": ciu.kc, "targets": list(ciu.targets), "phase": ciu.phase,
         "type": ciu.type,
+        # `phase` é a do CATÁLOGO; esta é a da SESSÃO. As duas divergem no
+        # reteste: sem atividade de variação que ofereça a crença refutada,
+        # quem fecha o KC é uma diagnóstica que a ofereça. Sem este campo, a
+        # análise leria "diagnostic" e contaria uma tela de fechamento como
+        # tela de diagnóstico.
+        "session_phase": fase,
+        # Qual crença esta atividade está reperguntando, se for o caso.
+        # É o que permite ler no log, sem reconstruir nada, que aquela tela
+        # era a medida de correção e não uma atividade qualquer.
+        "retest_of": _reteste_de(domain, state, ciu),
         # O nível e o piso vão para o log: a análise precisa saber quem foi
         # desafiado e quem foi levado pela mão, e por quê.
         "nivel": ciu.nivel,
@@ -370,6 +380,20 @@ def _apresenta(domain: Domain, state: SessionState, ciu: CIU, fase: str) -> Tran
         "option_order": list(ordem),
     })
     return Transition(novo, _acao_ciu(ciu, ordem), (evento,))
+
+
+def _reteste_de(domain: Domain, state: SessionState, ciu: CIU) -> str | None:
+    """A crença que esta atividade repergunta, ou None.
+
+    Só há reteste depois de uma refutação: a crença precisa ter sido
+    detectada neste KC, e a atividade precisa oferecê-la de novo, noutra
+    superfície. É a medida de correção dentro da sessão — sem ela, dá para
+    dizer que o aluno percorreu a refutação, não que ele mudou de ideia.
+    """
+    crenca = state.detected
+    if not crenca:
+        return None
+    return crenca if crenca in selector.beliefs_of(ciu) else None
 
 
 def option_order(domain: Domain, seed: str, ciu: CIU) -> tuple[int, ...]:
@@ -467,6 +491,7 @@ def _responde_diagnostico(domain: Domain, state: SessionState, ev: Answer) -> Tr
         "text": list(ev.text) if isinstance(ev.text, tuple) else ev.text,
         "confidence": ev.confidence, "elapsed_ms": ev.elapsed_ms,
         "correct": correto, "misconception_id": mid,
+        "session_phase": state.phase,
         "node_updates": [u.as_payload() for u in updates],
     })]
 
@@ -834,8 +859,11 @@ def _fecha_em_aberto(domain: Domain, state: SessionState, motivo: str,
 def _entra_variacao(domain: Domain, state: SessionState) -> Transition:
     """RF11: mesmo invariante, código novo. É o que encerra o KC."""
     kc = state.kc
+    # RETESTE: com crença refutada neste KC, quem fecha é, de preferência,
+    # outra atividade que ofereça A MESMA crença. Ver `selector`.
     ciu = selector.next_variation(domain, state.vector, kc,
-                                 state.used_cius, state.last_ciu_type)
+                                 state.used_cius, state.last_ciu_type,
+                                 crenca=state.detected)
     if ciu is None:
         # Sem CIU de variação o KC não tem como ser encerrado. O validador
         # avisa antes da coleta; aqui a sessão não pode travar por isso.
@@ -856,16 +884,38 @@ def _responde_variacao(domain: Domain, state: SessionState, ev: Answer) -> Trans
         "text": list(ev.text) if isinstance(ev.text, tuple) else ev.text,
         "confidence": ev.confidence, "elapsed_ms": ev.elapsed_ms,
         "correct": correto, "misconception_id": mid, "phase": "variation",
+        "session_phase": state.phase,
+        "retest_of": _reteste_de(domain, state, ciu),
         "node_updates": [u.as_payload() for u in updates],
     })]
+
+    # O DESFECHO DE CORREÇÃO, num evento só: a crença foi refutada no
+    # percurso e reaparece aqui noutra superfície. `still_held` é o aluno
+    # escolhendo de novo a mesma ideia — o caso em que a refutação não
+    # pegou. A confiança vai junto porque um acerto chutado não é correção.
+    crenca_em_teste = _reteste_de(domain, state, ciu)
+    if crenca_em_teste:
+        eventos.append(Emit("belief_retested", {
+            "misconception_id": crenca_em_teste, "ciu_id": ciu.id, "kc": ciu.kc,
+            "still_held": (not correto) and mid == crenca_em_teste,
+            "correct": correto, "chose": mid, "confidence": ev.confidence,
+        }))
+
     novo = replace(state, vector=vetor,
                    sequencia_certa=_sequencia(domain, state, correto, ev.confidence))
 
     if correto and model.is_complete(domain, vetor, state.kc):
         eventos.append(Emit("kc_completed", {
             "kc": state.kc, "elapsed_ms": ev.elapsed_ms,
+            # Só os nós que têm estado. Um nó que nenhuma resposta tocou não
+            # aparece — antes ele entrava como `unknown`, e a projeção do
+            # log, que só conhece os nós que algum evento mencionou, não
+            # tinha como reproduzir essa chave. O checkpoint do RNF04
+            # comparava um vetor com o outro e acusava divergência onde não
+            # havia nenhuma. Nó ausente aqui significa nó nunca tocado.
             "vector": {n: model.state_of(vetor, state.kc, n)
-                       for n in domain.kcs[state.kc].nodes},
+                       for n in domain.kcs[state.kc].nodes
+                       if model.state_of(vetor, state.kc, n) != model.UNKNOWN},
         }))
         novo = replace(novo, kc_status={**novo.kc_status, state.kc: COMPLETO})
         seguinte = _proximo_kc(domain, novo)

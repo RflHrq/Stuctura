@@ -70,6 +70,13 @@ EVENT_SCHEMA: Mapping[str, tuple[str, ...]] = {
     "stage_acknowledged":       ("stage", "kc", "elapsed_ms"),
     "kc_completed":             ("kc", "vector", "elapsed_ms"),
     "kc_incomplete":            ("kc", "node", "attempts"),
+    # O DESFECHO DE CORRECAO. A crenca foi refutada no percurso e a
+    # atividade que fecha o KC a oferece de novo, noutra superficie:
+    # `still_held` e o aluno escolhendo a mesma ideia pela segunda vez.
+    # Da para derivar isso de answer_submitted + misconception_detected,
+    # mas derivar significa cada analise refazer a mesma juncao e errar de
+    # um jeito diferente. O desfecho primario merece uma linha propria.
+    "belief_retested":          ("misconception_id", "kc", "still_held", "correct"),
     "session_ended":            ("reason", "total_ms"),
 }
 

@@ -75,6 +75,7 @@ COLUNAS_ANSWERS = [
     "correct", "confidence", "elapsed_ms",
     "chosen_misconception", "distractor_is_mapped",
     "belief_counted_active", "answer_index_in_kc",
+    "session_phase", "retest_of", "retest_still_held",
 ]
 
 
@@ -101,6 +102,15 @@ def linhas_answers(d: Domain, sessao: dict, eventos: Sequence[store_events.Event
     }
     seqs_ativas = {s for s, _ in ativas}
     por_kc: dict[str, int] = defaultdict(int)
+
+    # RETESTE: a atividade que fecha o KC repergunta a crença refutada. O
+    # desfecho já vem pronto no evento `belief_retested`, que segue a
+    # resposta — ler dali evita que a análise refaça a regra e discorde do
+    # motor, que é o mesmo cuidado de `belief_counted_active`.
+    retestes = {
+        e.payload.get("ciu_id"): e.payload
+        for e in eventos if e.type == "belief_retested"
+    }
 
     for e in eventos:
         if e.type != "answer_submitted":
@@ -160,6 +170,15 @@ def linhas_answers(d: Domain, sessao: dict, eventos: Sequence[store_events.Event
             ),
             "belief_counted_active": 1 if ativa else 0,
             "answer_index_in_kc": por_kc[kc],
+            # A fase do CATÁLOGO está em `ciu_phase`; esta é a da SESSÃO.
+            # Divergem no reteste, quando uma atividade declarada como
+            # diagnóstica é usada para fechar o KC.
+            "session_phase": p.get("session_phase", ""),
+            "retest_of": p.get("retest_of") or "",
+            "retest_still_held": (
+                1 if retestes.get(p.get("ciu_id"), {}).get("still_held")
+                else (0 if p.get("retest_of") else "")
+            ),
         }
 
 
@@ -172,6 +191,10 @@ COLUNAS_SESSIONS = [
     "started_at", "ended_at", "end_reason", "completed",
     "kc_sequence", "kcs_completed", "kcs_in_progress",
     "n_answers", "n_correct", "n_beliefs_detected",
+    # O DESFECHO DE CORRECAO, por sessao: de quantas crencas refutadas o
+    # aluno foi reperguntado, em quantas ele escolheu a resposta certa e em
+    # quantas voltou a escolher a mesma ideia.
+    "n_beliefs_retested", "n_beliefs_corrected", "n_beliefs_still_held",
     "n_socratic_steps", "n_explanations", "n_regressions", "n_diagram_toggles",
     "ms_diagnostic", "ms_variation", "ms_correction", "ms_diagram", "ms_conclusion",
     "ms_total_recorded", "last_kc", "last_event",
@@ -239,6 +262,13 @@ def linha_sessions(d: Domain, sessao: dict, eventos: Sequence[store_events.Event
             if e.type == "answer_submitted" and e.payload.get("correct")
         ),
         "n_beliefs_detected": contagem["misconception_detected"],
+        "n_beliefs_retested": contagem["belief_retested"],
+        "n_beliefs_corrected": sum(
+            1 for e in eventos
+            if e.type == "belief_retested" and e.payload.get("correct")),
+        "n_beliefs_still_held": sum(
+            1 for e in eventos
+            if e.type == "belief_retested" and e.payload.get("still_held")),
         "n_socratic_steps": contagem["socratic_step_answered"],
         "n_explanations": contagem["explanation_acknowledged"],
         "n_regressions": contagem["regression_triggered"],

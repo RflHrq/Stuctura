@@ -186,6 +186,41 @@ cius:
         misconception: pointer_is_data
       - text: "A letra x: q guardou o valor quando foi criado."
         misconception: pointer_is_data
+  - id: ciu_kc02_006
+    kc: kc_02
+    nivel: 3
+    type: mcq
+    phase: variation
+    targets: [I3]
+    prompt: |
+      int v = 42;
+      int *p = &v;
+      if (p == 42) { }
+      O que o compilador diz da comparacao?
+    options:
+      - text: "Reclama: 42 e um inteiro e p e um endereco, com tipo junto."
+        correct: true
+      - text: "Nada: endereco e um numero como outro qualquer."
+        misconception: pointer_is_integer
+      - text: "Nada, desde que o programa seja de 64 bits."
+
+  - id: ciu_kc02_007
+    kc: kc_02
+    nivel: 3
+    type: prediction
+    phase: variation
+    targets: [I3]
+    prompt: |
+      void *v = malloc(10);
+      *v = 5;
+      A segunda linha compila?
+    options:
+      - text: "Nao: sem o tipo de destino nao ha o que ler nem quanto escrever."
+        correct: true
+      - text: "Compila: void * serve para qualquer coisa."
+        misconception: voidptr_is_universal
+      - text: "Compila e grava um byte, como em char *."
+
   # =============== KC 03 ===============
   - id: ciu_kc03_001
     kc: kc_03
@@ -357,6 +392,25 @@ cius:
       - text: "Um valor sem sentido: p + 1 andou so um byte e caiu no meio do 10."
         misconception: ptr_arith_is_bytes
       - text: "11: o + 1 soma no valor apontado."
+  - id: ciu_kc11_008
+    kc: kc_11
+    nivel: 3
+    type: contrast
+    phase: variation
+    targets: [I5]
+    prompt: |
+      void *v = malloc(100);
+      char *c = v;
+      Para andar 10 bytes, qual linha o padrao garante?
+      A:  v = v + 10;
+      B:  c = c + 10;
+    options:
+      - text: "So a B: void * nao tem tamanho de destino, entao nao ha conta."
+        correct: true
+      - text: "As duas: void * anda de byte em byte."
+        misconception: voidptr_arith_ok
+      - text: "So a A, que e a generica."
+
   # =============== KC 09 ===============
   - id: ciu_kc09_001
     kc: kc_09
@@ -466,6 +520,43 @@ cius:
       - text: "Nao serve: free ja deixa p em NULL."
         misconception: null_after_free_redundant
       - text: "Para devolver o pedaco outra vez, por seguranca."
+
+  - id: ciu_kc09_007
+    kc: kc_09
+    nivel: 2
+    type: prediction
+    phase: variation
+    targets: [I2]
+    prompt: |
+      int *p = malloc(sizeof(int));
+      free(p);
+      if (p != NULL) puts("ainda tem endereco");
+      O programa imprime a frase?
+    options:
+      - text: "Imprime: a caixa p continua la, com o mesmo endereco."
+        correct: true
+      - text: "Nao imprime: free apagou a variavel p."
+        misconception: free_kills_pointer
+      - text: "Nao imprime: comparar p com NULL deixou de ser possivel."
+
+  - id: ciu_kc09_008
+    kc: kc_09
+    nivel: 3
+    type: mcq
+    phase: variation
+    targets: [I3]
+    prompt: |
+      int *p = malloc(sizeof(int));
+      *p = 7;
+      free(p);
+      printf("%d", *p);
+      O 7 ainda esta la?
+    options:
+      - text: "Pode estar, e nao importa: o pedaco ja nao e seu."
+        correct: true
+      - text: "Esta: free devolve o bloco, mas ele continua valido."
+        misconception: heap_persists
+      - text: "Nao: free zera o conteudo antes de devolver."
 
   # =============== KC 04 ===============
   - id: ciu_kc04_001
@@ -812,6 +903,60 @@ cius:
       - text: "As duas: os dois guardam um array de caracteres."
         misconception: string_literal_is_array
       - text: "Nenhuma: nao se altera caractere de string em C."
+
+  - id: ciu_kc07_009
+    kc: kc_07
+    nivel: 2
+    type: prediction
+    phase: variation
+    targets: [I2]
+    prompt: |
+      int a[3] = {1, 2, 3};
+      int b[3];
+      b = a;
+      O que acontece na terceira linha?
+    options:
+      - text: "Nao compila: o nome do array nao e modificavel."
+        correct: true
+      - text: "Copia os tres elementos de a para b."
+        misconception: array_is_assignable
+      - text: "Compila e faz b passar a designar as caixas de a."
+
+  - id: ciu_kc07_010
+    kc: kc_07
+    nivel: 3
+    type: prediction
+    phase: variation
+    targets: [I4]
+    prompt: |
+      void f(int v[3]) { v = NULL; }
+      int a[3] = {1, 2, 3};
+      f(a);
+      Depois da chamada, a ainda designa as tres caixas?
+    options:
+      - text: "Sim: f mudou a copia do endereco, nao o array."
+        correct: true
+      - text: "Nao: array vai por referencia, entao a virou NULL."
+        misconception: array_passed_by_reference
+      - text: "Nao compila: nao se atribui NULL a um parametro assim."
+
+  - id: ciu_kc07_011
+    kc: kc_07
+    nivel: 3
+    type: contrast
+    phase: variation
+    targets: [I5]
+    prompt: |
+      int arr[5];
+      A:  arr + 1
+      B:  &arr + 1
+      Os dois avancam a mesma distancia?
+    options:
+      - text: "Nao: A anda um int; B anda os cinco de uma vez."
+        correct: true
+      - text: "Sim: arr e &arr sao a mesma coisa."
+        misconception: arr_equals_addr_of_arr
+      - text: "Nao: B nao compila, porque &arr nao existe."
 
   # =============== KC 08 ===============
   - id: ciu_kc08_001

@@ -3,7 +3,9 @@
 Sistema de refutação socrática para o domínio de ponteiros em C.
 Implementação da especificação técnica v1.0 (Rafael H. S. Simão, UFV–CRP).
 
-Piloto alvo: **30 de setembro de 2026**.
+Piloto alvo: **a definir**. A data anterior (30 set 2026) era meta interna e
+foi adiada para caber a evolução do sistema — cobertura do diagnóstico,
+fechamento do KC em aberto, reteste da crença e o que vem depois.
 
 ## Rodar
 
@@ -63,7 +65,7 @@ PowerShell:
 python -m pytest tests/ -q; if ($?) { python -m tools.validate --stats }
 ```
 
-150 testes; o validador tem de sair 0. Ele imprime avisos — 21 hoje, todos
+244 testes; o validador tem de sair 0. Ele imprime avisos — 22 hoje, todos
 documentados e nenhum bloqueante. Erro é o que sai com código diferente de 0.
 
 ## Como demonstrar o sistema
@@ -143,7 +145,7 @@ Ordem do §13 da spec. Marcos 1 a 3 são o caminho crítico.
 
 | # | Entrega | Estado |
 |---|---------|--------|
-| — | `domain/c_pointers/*.yaml` — canônicos, do autor. 12 KCs, 93 nós, 34 crenças, 57 CIUs | **completo** |
+| — | `domain/c_pointers/*.yaml` — canônicos, do autor. 12 KCs, 93 nós, 34 crenças, 65 CIUs | **completo** |
 | — | `engine/loader.py`, `socratic.py`, `tools/validate.py` | **feito** |
 | 1 | Regressão controlada (RF09) — `socratic.on_wrong()` | **feito**, falta a FSM chamar |
 | 2 | `store/`: esquema, append, projeção, `replay.py` | **feito** |
@@ -183,6 +185,13 @@ uma só: `chosen_misconception` é o distrator escolhido, **sempre**;
 `belief_counted_active` é se aquilo contou como crença ativa, o que exige
 errar com confiança declarada. Somadas, a frequência de cada crença na
 população vem inflada por chutes.
+
+**O desfecho de correção** vem de `retest_of` e `retest_still_held`: quando
+uma crença é refutada no percurso, quem fecha o KC é outra atividade que
+oferece a MESMA crença, e a coluna diz se o aluno voltou a escolhê-la. Em
+`sessions.csv`, as três contagens `n_beliefs_retested`,
+`n_beliefs_corrected` e `n_beliefs_still_held`. Sem isso o sistema sabia
+dizer que o aluno percorreu a refutação, não que ele mudou de ideia.
 
 `tools/export.py` sai com código 1 se as sessões viram hashes de domínio
 diferentes (§15). É a pergunta que precisa ser respondida **antes** da

@@ -390,7 +390,13 @@ def test_kc_so_fecha_com_vetor_completo_e_acerto_na_variacao(d):
     assert len(completou) == 1
     vetor = completou[0].payload["vector"]
     assert set(vetor.values()) == {model.CONFIRMED}
-    assert set(vetor) == set(d.kcs["kc_09"].nodes)
+    assert set(vetor) <= set(d.kcs["kc_09"].nodes)
+    # A cadeia até a conclusão (RF11) é o que precisa estar de pé. Nó fora
+    # dela pode nunca ter sido tocado, e então não aparece no payload: desde
+    # o RETESTE, quem fecha o KC é a atividade que repergunta a crença
+    # refutada, e ela não mira necessariamente os mesmos nós da variação
+    # que fechava antes.
+    assert set(model.core_nodes(d, "kc_09")) <= set(vetor)
 
 
 def test_errar_a_variacao_devolve_para_a_correcao(d):

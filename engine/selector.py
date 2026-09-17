@@ -163,13 +163,38 @@ def next_variation(
     kc: str,
     used: Iterable[str] = (),
     last_type: str | None = None,
+    crenca: str | None = None,
 ) -> CIU | None:
     """RF11: mesmo invariante, código novo. Encerra o KC.
 
-    Uma CIU de variação já usada pode ser reapresentada se for a única —
-    é melhor repetir o item do que deixar o KC sem fechamento. O evento
-    registra a reapresentação, e a análise pode descontá-la.
+    RETESTE: se uma crença foi refutada neste KC, a atividade que fecha é,
+    de preferência, outra que ofereça A MESMA crença. É o que separa
+    "corrigiu a ideia" de "aprendeu a resposta daquela tela" — sem isso, a
+    variação media outra coisa qualquer, e o desfecho de correção não
+    existia. A superfície é nova por construção: é outra atividade.
+
+    Ordem: variação com a crença, qualquer atividade não usada com a
+    crença, variação qualquer, variação já usada. Uma CIU já usada pode
+    ser reapresentada se for a única — é melhor repetir o item do que
+    deixar o KC sem fechamento. O evento registra a reapresentação, e a
+    análise pode descontá-la.
     """
+    ja = set(used)
+    if crenca:
+        com_a_crenca = [c for c in domain.cius_of(kc, "variation")
+                        if c.id not in ja and crenca in beliefs_of(c)]
+        if com_a_crenca:
+            return com_a_crenca[0]
+        # Sem variação que a carregue, serve qualquer atividade do KC que
+        # ofereça a crença e que este participante ainda não tenha visto.
+        # Entre elas, a de nível MAIS ALTO: um reteste mais fácil do que a
+        # atividade que revelou a crença não sustenta conclusão nenhuma
+        # sobre correção.
+        outras = [c for c in domain.cius_of(kc, "diagnostic")
+                  if c.id not in ja and crenca in beliefs_of(c)]
+        if outras:
+            return max(outras, key=lambda c: c.nivel)
+
     nova = next_ciu(domain, vector, kc, "variation", used, last_type)
     if nova is not None:
         return nova
