@@ -315,7 +315,10 @@ def test_regressao_nao_descarta_o_confirmado(d):
     confirmado = t.state.vector[("kc_09", primeiro)]
     t = S.advance(d, t.state, S.StepAnswer(False, 1000))
     t = S.advance(d, t.state, S.StepAnswer(False, 1000))
-    assert t.state.vector[("kc_09", primeiro)] == confirmado == model.CONFIRMED
+    # `accepted`, e nao `confirmed`: o no foi aceito no percurso, nao
+    # demonstrado numa atividade. O que o teste guarda e que a regressao nao
+    # descarta o que ja estava de pe.
+    assert t.state.vector[("kc_09", primeiro)] == confirmado == model.ACCEPTED
 
 
 def test_terceiro_erro_no_mesmo_no_encerra_o_kc_em_progresso(d):
@@ -389,7 +392,7 @@ def test_kc_so_fecha_com_vetor_completo_e_acerto_na_variacao(d):
     completou = [e for e in eventos if e.type == "kc_completed"]
     assert len(completou) == 1
     vetor = completou[0].payload["vector"]
-    assert set(vetor.values()) == {model.CONFIRMED}
+    assert set(vetor.values()) <= set(model.SUSTENTADOS)
     assert set(vetor) <= set(d.kcs["kc_09"].nodes)
     # A cadeia até a conclusão (RF11) é o que precisa estar de pé. Nó fora
     # dela pode nunca ter sido tocado, e então não aparece no payload: desde

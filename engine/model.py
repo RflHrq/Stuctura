@@ -24,7 +24,23 @@ UNKNOWN = "unknown"
 CONFIRMED = "confirmed"
 ABSENT = "absent"      # o aluno sabe que não sabe
 WRONG = "wrong"        # crença ativa
-NODE_STATES = (UNKNOWN, CONFIRMED, ABSENT, WRONG)
+# ACEITO no percurso: o aluno concordou com a premissa quando ela lhe foi
+# posta (braço A), ou leu e seguiu (braço B). Vale para o fluxo — a cadeia
+# se ergue com ele — mas NÃO é a mesma evidência que acertar uma atividade
+# que mira o nó. Antes os dois casos gravavam `confirmed`, e um clique em
+# "Sim, confirmo" ficava indistinguível de conhecimento demonstrado: o
+# vetor, o mapa e a Q-matrix liam a mesma palavra para as duas coisas.
+ACCEPTED = "accepted"
+NODE_STATES = (UNKNOWN, CONFIRMED, ACCEPTED, ABSENT, WRONG)
+
+# Os dois estados que sustentam uma cadeia. Todo lugar que pergunta "esta
+# premissa está de pé?" pergunta por aqui, e não comparando com CONFIRMED:
+# foi assim que a distinção entrou sem mudar o comportamento da sessão.
+SUSTENTADOS = (CONFIRMED, ACCEPTED)
+
+
+def sustentado(estado: str) -> bool:
+    return estado in SUSTENTADOS
 
 # Estados cognitivos possíveis num KC (§7.2).
 DESCONHECIMENTO = "desconhecimento"
@@ -70,9 +86,9 @@ def cognitive_state(domain: Domain, vector: Vector, kc: str) -> str:
 
     if any(e == WRONG for e in estados):
         return MISCONCEPTION
-    if all(e == CONFIRMED for e in estados):
+    if all(sustentado(e) for e in estados):
         return DOMINADO
-    if not any(e == CONFIRMED for e in estados):
+    if not any(sustentado(e) for e in estados):
         return DESCONHECIMENTO
     return LACUNA
 
@@ -87,7 +103,7 @@ def confirmed_refs(vector: Vector) -> tuple[Ref, ...]:
     É o que alimenta RF07: o traversal pula nó já confirmado na sessão,
     inclusive vindo de um KC prerequisito já dominado.
     """
-    return tuple(ref for ref, estado in vector.items() if estado == CONFIRMED)
+    return tuple(ref for ref, estado in vector.items() if sustentado(estado))
 
 
 def frontier(domain: Domain, vector: Vector, kc: str) -> tuple[str, ...]:
@@ -98,9 +114,9 @@ def frontier(domain: Domain, vector: Vector, kc: str) -> tuple[str, ...]:
     """
     out = []
     for node_id, node in domain.kcs[kc].nodes.items():
-        if state_of(vector, kc, node_id) == CONFIRMED:
+        if sustentado(state_of(vector, kc, node_id)):
             continue
-        if all(vector.get(s) == CONFIRMED for s in node.support):
+        if all(sustentado(vector.get(s, UNKNOWN)) for s in node.support):
             out.append(node_id)
     return tuple(out)
 
@@ -134,13 +150,13 @@ def is_complete(domain: Domain, vector: Vector, kc: str) -> bool:
     if wrong_nodes(domain, vector, kc):
         return False
     nucleo = core_nodes(domain, kc)
-    return bool(nucleo) and all(state_of(vector, kc, n) == CONFIRMED for n in nucleo)
+    return bool(nucleo) and all(sustentado(state_of(vector, kc, n)) for n in nucleo)
 
 
 def pending_nodes(domain: Domain, vector: Vector, kc: str) -> tuple[str, ...]:
     """O que ainda falta para encerrar: núcleo não confirmado, mais os errados."""
     faltando = [n for n in core_nodes(domain, kc)
-                if state_of(vector, kc, n) != CONFIRMED]
+                if not sustentado(state_of(vector, kc, n))]
     return tuple(dict.fromkeys(list(wrong_nodes(domain, vector, kc)) + faltando))
 
 
@@ -189,7 +205,7 @@ def ingest(
     if chutou:
         return [
             Update(kc, n, ABSENT) for kc, n in alvos
-            if vector.get((kc, n)) != CONFIRMED
+            if not sustentado(vector.get((kc, n), UNKNOWN))
         ]
 
     # Errou com confiança: crença ativa.
@@ -203,7 +219,7 @@ def ingest(
     for kc, n in alvos:
         if (kc, n) == negado:
             continue
-        if vector.get((kc, n)) in (CONFIRMED, WRONG):
+        if sustentado(vector.get((kc, n), UNKNOWN)) or vector.get((kc, n)) == WRONG:
             continue
         updates.append(Update(kc, n, ABSENT))
     return updates

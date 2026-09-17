@@ -720,7 +720,18 @@ def _avanca_correcao(domain: Domain, state: SessionState, ev: StepAnswer) -> Tra
     # Braço B não tem caminho de erro: o aluno lê e confirma. A regressão
     # só existe onde há geração ativa — que é justamente a variável isolada.
     if not socratico or ev.accepted:
-        updates = [model.Update(ref[0], ref[1], model.CONFIRMED)]
+        # ACEITO, não CONFIRMADO: o aluno concordou com a premissa que lhe
+        # foi posta, ou leu e seguiu. A cadeia se ergue com isso — o fluxo
+        # é o mesmo de antes —, mas não é a mesma evidência que acertar uma
+        # atividade que mira o nó, e o log precisa poder dizer qual das duas
+        # aconteceu. Ver `model.ACCEPTED`.
+        # Nó que o aluno JÁ demonstrou numa atividade não é rebaixado para
+        # aceito por passar de novo por aqui. O percurso pula nó sustentado,
+        # então isto é rede — mas é a rede que garante que a evidência mais
+        # forte nunca se perde por ordem de eventos.
+        ja = model.state_of(state.vector, ref[0], ref[1])
+        novo_estado = model.CONFIRMED if ja == model.CONFIRMED else model.ACCEPTED
+        updates = [model.Update(ref[0], ref[1], novo_estado)]
         vetor = model.apply(state.vector, updates)
         # Simétrico de propósito: cada braço tem um evento de apresentação
         # e um de resposta, os dois com o mesmo par (kc, node) e o mesmo

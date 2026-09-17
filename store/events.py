@@ -25,7 +25,10 @@ SCHEMA_PATH = Path(__file__).with_name("schema.sql")
 DEFAULT_DB = Path(__file__).resolve().parent.parent / "data" / "structura.db"
 
 # Estados possiveis de um no do grafo de premissas (§5.1, §7.2).
-NODE_STATES = ("unknown", "confirmed", "absent", "wrong")
+# `accepted` e o no aceito no percurso — o aluno concordou com a premissa
+# posta, ou leu e seguiu. Vale para erguer a cadeia, mas nao e a mesma
+# evidencia que acertar uma atividade que mira o no (`confirmed`).
+NODE_STATES = ("unknown", "confirmed", "accepted", "absent", "wrong")
 
 # Confianca declarada, coletada antes da submissao (RF02) e usada para
 # distinguir premissa ausente de errada (RF04, §7.3).

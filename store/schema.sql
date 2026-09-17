@@ -61,7 +61,12 @@ CREATE TABLE IF NOT EXISTS node_state (
   session_id    TEXT NOT NULL REFERENCES sessions(id),
   kc            TEXT NOT NULL,
   node          TEXT NOT NULL,
-  state         TEXT NOT NULL CHECK (state IN ('unknown','confirmed','absent','wrong')),
+  -- 'accepted' é o nó aceito no percurso: o aluno concordou com a premissa
+  -- posta, ou leu e seguiu. Sustenta a cadeia como 'confirmed', mas não é a
+  -- mesma evidência — 'confirmed' exige acertar uma atividade que mira o nó.
+  -- Banco criado antes desta linha mantém o CHECK antigo e recusa a escrita:
+  -- recrie o banco de desenvolvimento (a coleta começa com banco novo).
+  state         TEXT NOT NULL CHECK (state IN ('unknown','confirmed','accepted','absent','wrong')),
   updated_seq   INTEGER NOT NULL,
   PRIMARY KEY (session_id, kc, node)
 );

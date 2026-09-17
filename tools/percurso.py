@@ -362,7 +362,8 @@ td.n{font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:now
       <div class="barra"><h2 id="g-tit"></h2></div>
       <div class="rolar"><svg id="svg" role="img"></svg></div>
       <div class="legenda">
-        <span><i class="sw" style="background:var(--ok-bg);border:1.5px solid var(--ok)"></i>confirmado</span>
+        <span><i class="sw" style="background:var(--ok-bg);border:1.5px solid var(--ok)"></i>confirmado numa atividade</span>
+        <span><i class="sw" style="background:var(--ok-bg);border:1.5px dashed var(--ok)"></i>aceito no percurso</span>
         <span><i class="sw" style="background:var(--bad-bg);border:1.5px solid var(--bad)"></i>crença ativa</span>
         <span><i class="sw" style="background:var(--warn-bg);border:1.5px solid var(--warn)"></i>ausente (ele sabe que não sabe)</span>
         <span><i class="sw" style="background:var(--card);border:1.5px solid var(--rule-2)"></i>nunca visitado</span>
@@ -519,6 +520,10 @@ function desenha(){
     var est = b.vetor[n.node];              // só os nós do próprio KC têm estado
     var fill="var(--card)", stroke="var(--rule-2)", w=1.5, idc="var(--mute)", op=1;
     if (est === "confirmed"){ fill="var(--ok-bg)"; stroke="var(--ok)"; idc="var(--ok)"; }
+    // ACEITO no percurso: o aluno concordou com a premissa posta, ou leu e
+    // seguiu. Sustenta a cadeia, mas nao e evidencia de atividade — por isso
+    // contorno tracejado fino, e nao o cheio do confirmado.
+    else if (est === "accepted"){ fill="var(--ok-bg)"; stroke="var(--ok)"; idc="var(--ok)"; }
     else if (est === "wrong"){ fill="var(--bad-bg)"; stroke="var(--bad)"; w=2.2; idc="var(--bad)"; }
     else if (est === "absent"){ fill="var(--warn-bg)"; stroke="var(--warn)"; idc="var(--warn)"; }
     else if (!primeira[n.id]) op = 0.4;
@@ -526,7 +531,7 @@ function desenha(){
     var grp = el("g",{opacity:op});
     grp.appendChild(el("rect",{x:n.x,y:n.y,width:132,height:50,rx:6,
       fill:fill, stroke:stroke, "stroke-width":w,
-      "stroke-dasharray": n.fora ? "5 4" : null}));
+      "stroke-dasharray": n.fora ? "5 4" : (est === "accepted" ? "3 3" : null)}));
     grp.appendChild(el("text",{x:n.x+8,y:n.y+17,"class":"n-id",fill:idc},
       (n.fora ? n.kc.replace("kc_","")+"·" : "") + n.node));
 
