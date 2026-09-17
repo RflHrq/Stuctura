@@ -626,6 +626,12 @@ PROMPT_KEYS: Mapping[str, tuple[str, ...]] = {
     "retry_base_with_diagram": ("node",),
     "retry_base_plain":        ("node",),
     "retry_inference":         ("node", "support_list", "support"),
+    # A SONDAGEM não enuncia o nó: as duas frases entre as quais o aluno
+    # escolhe são o enunciado do nó e o que a crença afirma, e pôr uma
+    # delas na pergunta entregaria a resposta. Por isso são as únicas
+    # chaves que não recebem {node} — e a guarda abaixo as isenta.
+    "probe_inference":         ("support", "support_list"),
+    "probe_base":              (),
 }
 
 
@@ -649,7 +655,7 @@ def _build_prompts(raw: Mapping, problemas: list[str]) -> dict[str, str]:
                 "feedback.yaml prompts.%s usa marcador(es) que não recebe: %s; "
                 "aceita: %s" % (chave, ", ".join(maus), ", ".join(PROMPT_KEYS[chave]))
             )
-        if "node" not in usados:
+        if "node" not in usados and "node" in PROMPT_KEYS[chave]:
             problemas.append(
                 "feedback.yaml prompts.%s não usa {node}: a pergunta não diria "
                 "sobre o que é" % chave

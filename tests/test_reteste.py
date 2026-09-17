@@ -73,6 +73,9 @@ def _roda(d, kc, crenca, reteste_correto=True, arm="socratic",
             else:
                 t = S.advance(d, t.state, S.Answer(c.id, conf, 10, option_idx=idx))
             continue
+        if a.kind == "probe":
+            t = S.advance(d, t.state, S.Answer("", "", 10, option_idx=0))
+            continue
         if a.kind in ("ask", "explain"):
             t = S.advance(d, t.state, S.StepAnswer(True, 10))
             continue

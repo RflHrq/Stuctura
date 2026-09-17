@@ -65,7 +65,7 @@ PowerShell:
 python -m pytest tests/ -q; if ($?) { python -m tools.validate --stats }
 ```
 
-244 testes; o validador tem de sair 0. Ele imprime avisos — 22 hoje, todos
+252 testes; o validador tem de sair 0. Ele imprime avisos — 22 hoje, todos
 documentados e nenhum bloqueante. Erro é o que sai com código diferente de 0.
 
 ## Como demonstrar o sistema

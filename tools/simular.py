@@ -112,6 +112,16 @@ def uma_sessao(conn, domain, codigo: str, arm: str, perfil: str,
         elif k == "diagram":
             vista = service.acknowledge(conn, domain, sid, rng.randint(4000, 25000))
 
+        elif k == "probe":
+            # Sondagem: duas frases, e a escolha é por POSIÇÃO na tela, que
+            # muda por sessão. O perfil acerta com a mesma probabilidade com
+            # que acerta uma atividade — aqui não há gradiente de dificuldade
+            # a simular, são duas alternativas.
+            opcoes = acao.as_json().get("options") or []
+            vista = service.submit_probe(
+                conn, domain, sid, rng.randrange(len(opcoes) or 2),
+                rng.randint(4000, 30000), acao.kc, acao.node)
+
         elif k == "ask":
             vista = service.submit_step(
                 conn, domain, sid, rng.random() < p["p_passo"],

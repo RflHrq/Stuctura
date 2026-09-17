@@ -63,6 +63,8 @@ def sessao(d, politica, arm="socratic"):
             t = S.advance(d, t.state, S.Acknowledge(10))
         elif a.kind == "ciu":
             t = _responde(d, t, *politica(d, t))
+        elif a.kind == "probe":
+            t = S.advance(d, t.state, S.Answer("", "", 10, option_idx=0))
         elif a.kind in ("ask", "explain"):
             t = S.advance(d, t.state, S.StepAnswer(True, 10))
         else:

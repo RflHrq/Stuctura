@@ -74,6 +74,10 @@ def coleta(tmp_path_factory, d):
                         "ciu_id": ciu.id, "confidence": conf,
                         "elapsed_ms": 5000,
                         "option_idx": exibidas.index(alvo.text)}).json()
+                elif a["kind"] == "probe":
+                    j = c.post("/sessions/%s/probe" % sid, json={
+                        "option_idx": 0, "elapsed_ms": 700,
+                        "kc": a.get("kc"), "node": a.get("node")}).json()
                 elif a["kind"] in ("ask", "explain"):
                     j = c.post("/sessions/%s/step" % sid, json={
                         "accepted": True, "elapsed_ms": 3000,

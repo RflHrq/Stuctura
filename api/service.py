@@ -39,6 +39,10 @@ from store import projections
 # reproduzidos: os demais são consequência, e a FSM os reemite sozinha.
 ENTRADAS = {
     "answer_submitted",
+    # A SONDAGEM é entrada do aluno como qualquer outra: sem ela aqui, a
+    # sessão reconstruída pararia na mesma sondagem para sempre — a FSM a
+    # reapresentaria, e o passo seguinte nunca chegaria.
+    "probe_answered",
     "socratic_step_answered",
     "explanation_acknowledged",
     "stage_acknowledged",
@@ -221,6 +225,11 @@ def _to_input(e: store_events.Event) -> fsm.Event | None:
             option_idx=exibido,
             text=tuple(texto) if isinstance(texto, list) else texto,
         )
+    if e.type == "probe_answered":
+        # `displayed_idx`, como em answer_submitted: a FSM recebe a POSIÇÃO
+        # clicada e traduz para qual das duas frases era.
+        return fsm.Answer("", "", int(p.get("elapsed_ms", 0)),
+                          option_idx=int(p.get("displayed_idx", 0)))
     if e.type == "socratic_step_answered":
         return fsm.StepAnswer(bool(p.get("accepted")), int(p.get("elapsed_ms", 0)))
     if e.type == "explanation_acknowledged":
@@ -253,6 +262,28 @@ def submit_answer(
 
     ev = fsm.Answer(ciu_id, confidence, elapsed_ms, option_idx, text)
     return _avanca(conn, domain, vista, ev)
+
+
+def submit_probe(
+    conn: sqlite3.Connection, domain: Domain, session_id: str,
+    option_idx: int, elapsed_ms: int,
+    kc: str | None = None, node: str | None = None,
+) -> SessionView:
+    """A SONDAGEM: a escolha entre o enunciado do nó e o que a crença afirma.
+
+    Rota própria, e não `/answer`: a sondagem não tem CIU nem confiança
+    declarada, e fazê-la passar pelo corpo de resposta a atividade exigiria
+    campos inventados do lado do cliente.
+    """
+    vista = load_session(conn, domain, session_id)
+    _exige(vista, ("probe",))
+    if kc is not None and (kc, node) != (vista.action.kc, vista.action.node):
+        raise OutOfSync(
+            "a sessão sonda %s:%s, veio resposta de %s:%s"
+            % (vista.action.kc, vista.action.node, kc, node)
+        )
+    return _avanca(conn, domain, vista, fsm.Answer("", "", elapsed_ms,
+                                                   option_idx=option_idx))
 
 
 def submit_step(

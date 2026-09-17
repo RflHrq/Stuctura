@@ -178,6 +178,41 @@ def question(domain: Domain, kc: str, node: str,
                   support_list=chr(10).join("- " + t for t in textos))
 
 
+def probe(domain: Domain, kc: str, node: str, belief_id: str) -> tuple[str, tuple[str, str]]:
+    """A SONDAGEM do nó que a crença nega: a pergunta e as duas frases.
+
+    Devolve `(pergunta, (frase do nó, frase da crença))`, nesta ordem
+    canônica — quem apresenta embaralha, como faz com as alternativas de
+    qualquer atividade.
+
+    Nada disso é escrito à mão: a primeira frase é o enunciado do nó, a
+    segunda é o que a crença afirma, as duas já no YAML. É o único ponto do
+    percurso em que o aluno PRODUZ a conclusão em vez de concordar com a que
+    lhe foi posta — e é o ponto que decide se a refutação tem com que
+    trabalhar.
+
+    A pergunta não enuncia o nó, de propósito: uma das duas frases é a
+    resposta, e repeti-la acima a entregaria.
+    """
+    nd = domain.node(kc, node)
+    crenca = domain.study.mask(domain.misconceptions[belief_id].belief).strip()
+    frase_no = domain.study.mask(nd.display_text).strip()
+
+    if nd.is_base:
+        pergunta = _molde(domain, "probe_base", "Qual destas duas é o que acontece?")
+    else:
+        textos = [domain.study.mask(domain.node(*s).display_text).rstrip(".")
+                  for s in nd.support if _existe(domain, s)]
+        if textos:
+            pergunta = _molde(
+                domain, "probe_inference", "Qual destas duas segue do que você confirmou?",
+                support="; ".join(textos),
+                support_list=chr(10).join("- " + t for t in textos))
+        else:
+            pergunta = _molde(domain, "probe_base", "Qual destas duas é o que acontece?")
+    return pergunta, (frase_no, crenca)
+
+
 def _molde(domain: Domain, chave: str, reserva: str, **valores: str) -> str:
     """Preenche um molde de `feedback.yaml`.
 
@@ -187,7 +222,9 @@ def _molde(domain: Domain, chave: str, reserva: str, **valores: str) -> str:
     """
     molde = domain.prompts.get(chave)
     if not molde:
-        return reserva % valores.get("node", "")
+        # A reserva da sondagem não tem marcador nenhum: ela não enuncia o
+        # nó, porque uma das alternativas é a resposta.
+        return reserva % valores.get("node", "") if "%s" in reserva else reserva
     for marcador, valor in valores.items():
         molde = molde.replace("{" + marcador + "}", valor)
     return molde.strip()

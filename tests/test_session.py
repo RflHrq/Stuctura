@@ -86,6 +86,8 @@ def roda(d, arm, kcs, *, erra_primeira=None, limite=400):
             if erro:
                 primeira = False
             t = responde(d, t, errando=erro)
+        elif t.action.kind == "probe":
+            t = S.advance(d, t.state, S.Answer("", "", 3000, option_idx=0))
         elif t.action.kind in ("ask", "explain"):
             t = S.advance(d, t.state, S.StepAnswer(True, 3000))
         else:  # diagram | conclude
@@ -262,6 +264,8 @@ def test_crenca_derivacional_nao_passa_pelo_diagrama(d):
             break
         if t.action.kind == "ciu":
             t = responde(d, t)
+        elif t.action.kind == "probe":
+            t = S.advance(d, t.state, S.Answer("", "", 0, option_idx=0))
         else:
             t = S.advance(d, t.state, S.Acknowledge(0))
         acoes.append(t.action.kind)
@@ -277,6 +281,9 @@ def _ate_o_primeiro_ask(d, kc="kc_09", crenca="free_nullifies"):
     for _ in range(20):
         if t.action.kind == "ask":
             return t
+        if t.action.kind == "probe":
+            t = S.advance(d, t.state, S.Answer("", "", 10, option_idx=0))
+            continue
         if t.action.kind == "ciu":
             ciu = d.cius[t.action.ciu_id]
             erro = crenca if any(o.misconception == crenca for o in ciu.options) else None
@@ -361,6 +368,8 @@ def test_sessao_travada_nao_entra_em_laco(d):
             t = responde(d, t, errando="free_nullifies"
                          if any(o.misconception == "free_nullifies"
                                 for o in d.cius[t.action.ciu_id].options) else None)
+        elif t.action.kind == "probe":
+            t = S.advance(d, t.state, S.Answer("", "", 100, option_idx=1))  # erra
         elif t.action.kind in ("ask", "explain"):
             t = S.advance(d, t.state, S.StepAnswer(False, 100))  # erra SEMPRE
         else:
@@ -418,6 +427,14 @@ def test_errar_a_variacao_devolve_para_a_correcao(d):
     errado = next(o.misconception for o in ciu.options
                   if not o.correct and o.misconception)
     t = responde(d, t, errando=errado)
+
+    # A crença nova que ele acabou de mostrar ainda não foi sondada, então a
+    # correção abre pela SONDAGEM do nó que ela nega — e só depois vem o
+    # percurso. O que este teste guarda é que errar a variação devolve para
+    # a correção, e não que a primeira tela dela seja um passo.
+    if t.state.phase == S.SONDAGEM:
+        assert t.action.kind == "probe"
+        t = S.advance(d, t.state, S.Answer("", "", 100, option_idx=0))
     assert t.state.phase == S.CORRECAO
     assert t.action.kind in ("ask", "explain")
 
@@ -541,6 +558,13 @@ def test_com_confronto_visual_o_diagrama_segue_no_traversal(d):
     assert t.action.kind == "diagram"
 
     t = S.advance(d, t.state, S.Acknowledge(1000))     # fecha o confronto
+
+    # A crença nega um nó-base, e o primeiro a aparecer é a SONDAGEM dele: o
+    # diagrama tem de estar ali também, porque é nela que o aluno decide.
+    assert t.action.kind == "probe"
+    assert t.action.data.get("visual"), "o diagrama sumiu na sondagem"
+    t = S.advance(d, t.state, S.Answer("", "", 100, option_idx=0))
+
     assert t.action.kind in ("ask", "explain")
     assert t.action.data.get("visual"), "o diagrama sumiu ao entrar no traversal"
     assert "diagrama" in t.action.text.lower()
@@ -555,7 +579,10 @@ def test_o_diagrama_no_traversal_e_igual_nos_dois_bracos(d):
             a = t.action
             if a.kind == "done":
                 break
-            if a.kind in ("ask", "explain"):
+            if a.kind == "probe":
+                out.append((a.kc, a.node, bool((a.data or {}).get("visual"))))
+                t = S.advance(d, t.state, S.Answer("", "", 100, option_idx=0))
+            elif a.kind in ("ask", "explain"):
                 out.append((a.kc, a.node, bool((a.data or {}).get("visual"))))
                 t = S.advance(d, t.state, S.StepAnswer(True, 100))
             elif a.kind == "ciu":

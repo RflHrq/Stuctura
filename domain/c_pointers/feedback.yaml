@@ -160,6 +160,23 @@ prompts:
 
   # Primeira tentativa depois de um erro: em vez de mudar de assunto,
   # torna visivel a cadeia que sustenta a conclusao pedida.
+  # SONDAGEM, antes do passo que derruba a crença.
+  #
+  # Nao enuncia o no de proposito: as duas frases entre as quais o aluno
+  # escolhe sao o enunciado do no e o que a crenca afirma, e por a frase
+  # certa na pergunta entregaria a resposta. Sao as unicas perguntas do
+  # percurso sem {node} — o validador as isenta por isso, e so a elas.
+  #
+  # Aparece nos DOIS bracos, na mesma posicao, antes de o sistema dizer o
+  # que quer que seja sobre aquele no. E o unico ponto do percurso em que o
+  # aluno produz a conclusao em vez de concordar com ela, e e o ponto que
+  # importa: o no que a crenca dele nega.
+  probe_inference: |-
+    Você já confirmou:
+    {support_list}
+    Qual destas duas frases segue do que você confirmou?
+  probe_base: "Antes de eu dizer qualquer coisa: qual destas duas é o que acontece?"
+
   retry_base_with_diagram: "Olhe de novo o diagrama. {node} — é o que você vê?"
   retry_base_plain: "Vamos com calma. {node} — você concorda?"
   retry_inference: |-

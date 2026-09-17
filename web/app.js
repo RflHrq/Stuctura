@@ -22,7 +22,8 @@
   "use strict";
 
   var $ = function (id) { return document.getElementById(id); };
-  var TELAS = ["abertura", "intro", "ciu", "diagrama", "passo", "conclusao", "fim"];
+  var TELAS = ["abertura", "intro", "ciu", "diagrama", "sonda", "passo",
+               "conclusao", "fim"];
 
   var S = {
     sessao: null,
@@ -175,6 +176,7 @@
     if (k === "intro") return telaIntro();
     if (k === "ciu") return telaCiu();
     if (k === "diagram") return telaDiagrama();
+    if (k === "probe") return telaSonda();
     if (k === "ask" || k === "explain") return telaPasso();
     if (k === "conclude") return telaConclusao(j);
     if (k === "done") return telaFim(j);
@@ -278,7 +280,7 @@
     mostra("ciu");
   }
 
-  function corpoOpcoes(corpo, opcoes) {
+  function corpoOpcoes(corpo, opcoes, aoEscolher) {
     var lista = document.createElement("div");
     lista.className = "opts";
     opcoes.forEach(function (o, i) {
@@ -291,7 +293,9 @@
         Array.prototype.forEach.call(lista.children, function (x, k) {
           x.setAttribute("aria-pressed", String(k === i));
         });
-        atualizaBotao();
+        // A sondagem reaproveita esta lista, mas não tem escala de
+        // confiança nem o botão da atividade: quem habilita é ela.
+        if (aoEscolher) aoEscolher(i); else atualizaBotao();
       };
       lista.appendChild(b);
     });
@@ -484,6 +488,44 @@
   }
 
   /* ---------------------------------------------------------------- passo */
+
+  /* ------------------------------------------------------------- sondagem */
+
+  /* A sondagem e medida, nao tratamento: ela aparece igual nos dois bracos,
+   * na mesma posicao, e a escolha nao desvia o percurso. Por isso nao pede
+   * confianca — a pergunta nao e "o quanto voce sabe", e "o que voce diz
+   * que segue daqui". */
+  function telaSonda() {
+    var a = S.acao;
+    S.escolha = null;
+    limpaErro("erro-sonda");
+    var idx = (a.step && a.step.idx) || 1;
+    var total = (a.step && a.step.total) || 1;
+    $("sonda-contagem").textContent = "Passo " + idx + " de " + total;
+    $("sonda-barra").style.width = Math.round((idx - 1) / total * 100) + "%";
+    $("sonda-texto").textContent = a.text || "";
+
+    var corpo = $("sonda-corpo");
+    corpo.innerHTML = "";
+    corpoOpcoes(corpo, a.options || [], function () {
+      $("btn-sonda").disabled = S.escolha === null;
+    });
+    $("btn-sonda").disabled = true;
+    $("btn-sonda").onclick = async function () {
+      if (S.escolha === null) return;
+      $("btn-sonda").disabled = true;
+      try {
+        aplica(await api("POST", "/sessions/" + S.sessao + "/probe",
+                         { option_idx: S.escolha, elapsed_ms: decorrido(),
+                           kc: a.kc, node: a.node }));
+      } catch (e) {
+        if (e.status === 409) return realinha();
+        $("btn-sonda").disabled = false;
+        erroEm("erro-sonda", e.message || "não foi possível enviar");
+      }
+    };
+    mostra("sonda");
+  }
 
   function telaPasso() {
     var a = S.acao;

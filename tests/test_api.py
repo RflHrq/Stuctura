@@ -101,6 +101,10 @@ def avanca_ate_o_fim(client, sid, j, domain, limite=200):
             return j
         if a["kind"] == "ciu":
             j = responde(client, sid, a, domain)
+        elif a["kind"] == "probe":
+            j = post(client, "/sessions/%s/probe" % sid,
+                     {"option_idx": 0, "elapsed_ms": 900,
+                      "kc": a.get("kc"), "node": a.get("node")})
         elif a["kind"] in ("ask", "explain"):
             r = client.post("/sessions/%s/step" % sid, json={
                 "accepted": True, "elapsed_ms": 2000,
@@ -238,6 +242,10 @@ def test_retomada_devolve_o_aluno_exatamente_onde_parou(client):
         if a["kind"] == "ciu":
             j = responde(client, sid, a, d,
                          errando="free_nullifies" if a["ciu_id"] == "ciu_kc09_001" else None)
+        elif a["kind"] == "probe":
+            j = post(client, "/sessions/%s/probe" % sid,
+                     {"option_idx": 0, "elapsed_ms": 900,
+                      "kc": a.get("kc"), "node": a.get("node")})
         elif a["kind"] in ("ask", "explain"):
             j = client.post("/sessions/%s/step" % sid, json={
                 "accepted": True, "elapsed_ms": 1000,
@@ -361,7 +369,11 @@ def test_os_dois_bracos_percorrem_os_mesmos_nos_pela_api(client):
             a = j["next_action"]
             if a["kind"] == "done":
                 break
-            if a["kind"] in ("ask", "explain"):
+            if a["kind"] == "probe":
+                j = client.post("/sessions/%s/probe" % sid, json={
+                    "option_idx": 0, "elapsed_ms": 1000,
+                    "kc": a["kc"], "node": a["node"]}).json()
+            elif a["kind"] in ("ask", "explain"):
                 nos.append((a["kc"], a["node"]))
                 j = client.post("/sessions/%s/step" % sid, json={
                     "accepted": True, "elapsed_ms": 1000,
@@ -399,6 +411,10 @@ def test_latencia_por_interacao_respeita_o_rnf03(client):
         t0 = time.perf_counter()
         if a["kind"] == "ciu":
             j = responde(client, sid, a, d)
+        elif a["kind"] == "probe":
+            j = post(client, "/sessions/%s/probe" % sid,
+                     {"option_idx": 0, "elapsed_ms": 900,
+                      "kc": a.get("kc"), "node": a.get("node")})
         elif a["kind"] in ("ask", "explain"):
             j = client.post("/sessions/%s/step" % sid, json={
                 "accepted": True, "elapsed_ms": 500,

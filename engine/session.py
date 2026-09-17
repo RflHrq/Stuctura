@@ -39,6 +39,10 @@ CONCLUSAO = "CONCLUSAO"
 # a sessão pulava direto para o KC seguinte, e a pessoa saía dali com a
 # crença com que entrou. Agora ela lê a frase certa antes de seguir.
 FECHAMENTO = "FECHAMENTO"
+# SONDAGEM: a escolha entre o enunciado do nó e o que a crença afirma,
+# apresentada ANTES do passo que derruba a crença. Uma por KC, nos dois
+# braços. Ver `_talvez_sondagem`.
+SONDAGEM = "SONDAGEM"
 VARIACAO = "VARIACAO"
 FIM = "FIM"
 
@@ -165,6 +169,10 @@ class SessionState:
     visual: Mapping[str, Any] | None = None
     cursor: int = 0
     attempts: Mapping[Ref, int] = field(default_factory=dict)
+    # Nós já sondados nesta sessão. A sondagem acontece UMA vez por nó: ela
+    # mede o que o aluno produz antes de o sistema falar, e repeti-la depois
+    # da refutação mediria memória da tela anterior.
+    probed: tuple[Ref, ...] = ()
     rounds: int = 0                        # rodadas de correção neste KC
 
     # Encerramento
@@ -281,6 +289,11 @@ def advance(domain: Domain, state: SessionState, event: Event) -> Transition:
         })
         t = _proximo_kc(domain, state)
         return Transition(t.state, t.action, (ev,) + t.events)
+
+    if state.phase == SONDAGEM:
+        if not isinstance(event, Answer):
+            raise ValueError("SONDAGEM espera Answer, veio %s" % type(event).__name__)
+        return _responde_sondagem(domain, state, event)
 
     if state.phase == VARIACAO:
         if not isinstance(event, Answer):
@@ -680,6 +693,13 @@ def _apresenta_passo(domain: Domain, state: SessionState,
         return _entra_conclusao(domain, state)
 
     passo = passos[state.cursor]
+
+    # SONDAGEM antes do passo que derruba a crença, e antes de o sistema
+    # dizer qualquer coisa sobre aquele nó.
+    sonda = _talvez_sondagem(domain, state, passo)
+    if sonda is not None:
+        return sonda
+
     socratico = state.arm == strategy.ARM_SOCRATIC
 
     if socratico:
@@ -704,6 +724,115 @@ def _apresenta_passo(domain: Domain, state: SessionState,
             "step_idx": passo.idx, "total": passo.total,
         })  # apresentação; o tempo de exposição vem no acknowledged
     return Transition(state, acao, (evento,))
+
+
+def _talvez_sondagem(domain: Domain, state: SessionState,
+                     passo: socratic.Step) -> Transition | None:
+    """A única tela do percurso em que o aluno PRODUZ, em vez de concordar.
+
+    O percurso ergue a cadeia premissa por premissa, e cada passo põe a
+    frase na tela e pede confirmação. Isso basta para construir, mas não
+    mede: clicar em "Sim, confirmo" é indistinguível de saber (ver
+    `model.ACCEPTED`). Aqui, no nó que a crença nega — e só nele —, o
+    sistema pergunta ANTES de dizer: das duas frases, qual segue do que
+    você confirmou?
+
+    As duas alternativas saem do próprio domínio: o enunciado do nó e o que
+    a crença afirma. Nenhuma foi escrita para esta tela.
+
+    Acontece nos DOIS braços, na mesma posição e com o mesmo texto. É
+    medida, não tratamento — o que muda entre os braços continua sendo o
+    passo seguinte: pergunta no A, afirmação no B.
+
+    Sem confiança declarada, de propósito: a escolha não é "o quanto você
+    sabe", é "o que você diz que segue daqui". Uma escala a mais dentro do
+    percurso cobraria duas decisões do aluno no meio de uma cadeia.
+    """
+    crenca = state.detected
+    if not crenca or crenca not in domain.misconceptions:
+        return None
+    if passo.ref != domain.misconceptions[crenca].negates:
+        return None
+    if passo.ref in state.probed:
+        return None
+
+    pergunta, (frase_no, frase_crenca) = socratic.probe(
+        domain, passo.kc, passo.node, crenca)
+    ordem = _ordem_da_sondagem(state.seed, passo.ref)
+    frases = (frase_no, frase_crenca)
+    novo = replace(state, phase=SONDAGEM, probed=state.probed + (passo.ref,))
+    # O MESMO material do passo: o diagrama do confronto (RF08) quando há um,
+    # ou a figura do nó. A sondagem de um nó-base acontece logo depois do
+    # confronto visual, e perguntar "qual destas duas é o que acontece?" com
+    # o diagrama fora da tela mandaria o aluno decidir no vácuo.
+    dados = dict(_dados_do_passo(state, passo))
+    dados.update({"options": [{"text": frases[i]} for i in ordem],
+                  "misconception_id": crenca})
+    acao = Action("probe", kc=passo.kc, node=passo.node, text=pergunta,
+                  step_idx=passo.idx, step_total=passo.total, data=dados)
+    evento = Emit("probe_shown", {
+        "kc": passo.kc, "node": passo.node, "misconception_id": crenca,
+        "option_order": list(ordem), "arm": state.arm,
+    })
+    return Transition(novo, acao, (evento,))
+
+
+def _ordem_da_sondagem(seed: str, ref: Ref) -> tuple[int, ...]:
+    """Qual das duas frases aparece primeiro. Determinístico (RNF02).
+
+    Mesma semente e mesmo nó, mesma ordem — inclusive quando a sessão é
+    reconstruída do log. Sem isto, a posição da frase certa seria sempre a
+    mesma e o aluno poderia responder pela posição.
+    """
+    if not seed:
+        return (0, 1)
+    digest = hashlib.sha256(("%s|probe|%s:%s" % (seed, ref[0], ref[1]))
+                            .encode("utf-8")).digest()
+    return (0, 1) if digest[0] % 2 == 0 else (1, 0)
+
+
+def _responde_sondagem(domain: Domain, state: SessionState, ev: Answer) -> Transition:
+    """Registra o que o aluno produziu e segue para o passo, sem mudá-lo.
+
+    A sondagem NÃO desvia o fluxo: escolher a frase certa não pula a
+    refutação, e escolher a crença não acrescenta nada. Ela é medida —
+    desviar o percurso conforme a resposta faria dela tratamento, e aí o
+    que o braço A e o braço B recebem deixaria de ser o mesmo.
+
+    O que ela muda é o VETOR: acertar aqui é evidência produzida pelo
+    aluno, e o nó passa a `confirmed` em vez do `accepted` que o clique do
+    passo deixaria. São duas alternativas, então metade acerta no chute —
+    o evento registra a escolha, e a análise desconta isso se quiser.
+    """
+    passos = _passos(domain, state)
+    passo = passos[state.cursor]
+    ref = passo.ref
+    crenca = state.detected
+
+    ordem = _ordem_da_sondagem(state.seed, ref)
+    exibido = ev.option_idx
+    if exibido is None or not (0 <= exibido < 2):
+        raise ValueError("sondagem em %s:%s: posição %r fora das duas alternativas"
+                         % (ref[0], ref[1], exibido))
+    canonico = ordem[exibido]          # 0 = frase do nó, 1 = frase da crença
+    escolheu_o_no = canonico == 0
+
+    updates = ([model.Update(ref[0], ref[1], model.CONFIRMED)]
+               if escolheu_o_no else [])
+    vetor = model.apply(state.vector, updates)
+
+    evento = Emit("probe_answered", {
+        "kc": ref[0], "node": ref[1], "misconception_id": crenca,
+        "chose": "node" if escolheu_o_no else "belief",
+        "correct": escolheu_o_no, "displayed_idx": exibido,
+        "elapsed_ms": ev.elapsed_ms, "arm": state.arm,
+        "node_updates": [u.as_payload() for u in updates],
+    })
+
+    novo = replace(state, vector=vetor, phase=CORRECAO,
+                   total_ms=state.total_ms + max(0, ev.elapsed_ms))
+    seguinte = _apresenta_passo(domain, novo)
+    return Transition(seguinte.state, seguinte.action, (evento,) + seguinte.events)
 
 
 def _avanca_correcao(domain: Domain, state: SessionState, ev: StepAnswer) -> Transition:

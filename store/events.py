@@ -80,6 +80,12 @@ EVENT_SCHEMA: Mapping[str, tuple[str, ...]] = {
     # mas derivar significa cada analise refazer a mesma juncao e errar de
     # um jeito diferente. O desfecho primario merece uma linha propria.
     "belief_retested":          ("misconception_id", "kc", "still_held", "correct"),
+    # SONDAGEM: no no que a crenca nega, e antes de o sistema dizer qualquer
+    # coisa sobre ele, o aluno escolhe entre o enunciado do no e o que a
+    # crenca afirma. E o unico ponto do percurso em que ele PRODUZ em vez de
+    # concordar — e por isso o unico passo cuja resposta vale como evidencia.
+    "probe_shown":              ("kc", "node", "misconception_id"),
+    "probe_answered":           ("kc", "node", "chose", "correct", "elapsed_ms"),
     "session_ended":            ("reason", "total_ms"),
 }
 
@@ -123,7 +129,15 @@ def connect(db_path: str | Path | None = None) -> sqlite3.Connection:
     path = Path(db_path) if db_path is not None else DEFAULT_DB
     if str(path) != ":memory:":
         path.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(path), isolation_level=None)
+    # check_same_thread=False: a conexão é criada e fechada pelo mesmo
+    # escopo de requisição, mas o threadpool do FastAPI pode rodar a
+    # abertura numa thread e o fechamento em outra — e aí o sqlite3 levanta
+    # ProgrammingError, que chega ao participante como HTTP 500 no meio da
+    # sessão. Continua uma conexão POR REQUISIÇÃO: nada é compartilhado
+    # entre threads, e a serialização da escrita segue sendo o BEGIN
+    # IMMEDIATE do append.
+    conn = sqlite3.connect(str(path), isolation_level=None,
+                           check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     if str(path) != ":memory:":

@@ -54,6 +54,13 @@ class StepBody(BaseModel):
     node: str | None = None
 
 
+class ProbeBody(BaseModel):
+    option_idx: int = Field(ge=0, le=1)
+    elapsed_ms: int = Field(ge=0)
+    kc: str | None = None
+    node: str | None = None
+
+
 class AckBody(BaseModel):
     elapsed_ms: int = Field(default=0, ge=0)
 
@@ -152,6 +159,23 @@ def passo(session_id: str, body: StepBody, dep=Depends(ctx)):
     except Exception as exc:
         raise _erro(exc) from exc
     return vista.as_json(domain)
+
+
+@router.post("/sessions/{session_id}/probe")
+def sondar(session_id: str, body: ProbeBody, dep=Depends(ctx)):
+    """A sondagem do nó que a crença nega: qual das duas frases segue."""
+    domain, conn = dep
+    try:
+        vista = service.submit_probe(
+            conn, domain, session_id, body.option_idx, body.elapsed_ms,
+            body.kc, body.node,
+        )
+    except Exception as exc:
+        raise _erro(exc) from exc
+    saida = vista.as_json(domain)
+    resposta = vista.emitted_of("probe_answered") or {}
+    saida["outcome"] = "correct" if resposta.get("correct") else "incorrect"
+    return saida
 
 
 @router.post("/sessions/{session_id}/ack")

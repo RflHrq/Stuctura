@@ -57,7 +57,10 @@ def _recusa_ate_fechar(d, t, limite=40):
         eventos.extend(t.events)
         if t.action.kind in ("conclude", "done"):
             return t, eventos
-        if t.action.kind in ("ask", "explain"):
+        if t.action.kind == "probe":
+            # recusa tambem na sondagem: escolhe a frase da crenca
+            t = S.advance(d, t.state, S.Answer("", "", 10, option_idx=1))
+        elif t.action.kind in ("ask", "explain"):
             t = S.advance(d, t.state, S.StepAnswer(False, 10))
         elif t.action.kind == "diagram":
             t = S.advance(d, t.state, S.Acknowledge(10))

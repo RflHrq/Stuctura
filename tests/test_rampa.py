@@ -235,7 +235,9 @@ def test_acertar_depois_nao_apaga_a_crenca(d):
         a = t.action
         if a.kind == "done":
             break
-        if a.kind in ("ask", "explain"):
+        if a.kind == "probe":
+            t = S.advance(d, t.state, S.Answer("", "", 10, option_idx=0))
+        elif a.kind in ("ask", "explain"):
             perguntados.add((a.kc, a.node))
             t = S.advance(d, t.state, S.StepAnswer(True, 10))
         elif a.kind == "ciu":
@@ -270,6 +272,8 @@ def test_toda_combinacao_fecha_e_refuta_o_que_mostrou(d):
                 elif a.kind == "ciu":
                     diag = t.state.phase == S.DIAGNOSTICO
                     t = _responde(d, t, fila.pop(0) if (diag and fila) else "acerta")
+                elif a.kind == "probe":
+                    t = S.advance(d, t.state, S.Answer("", "", 10, option_idx=0))
                 elif a.kind in ("ask", "explain"):
                     perguntados.add((a.kc, a.node))
                     t = S.advance(d, t.state, S.StepAnswer(True, 10))

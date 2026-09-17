@@ -190,6 +190,8 @@ def test_o_teto_zera_a_cada_kc(d):
                 t = S.advance(d, t.state, S.Answer(c.id, "acho que sei", 10, option_idx=idx))
             else:
                 t = S.advance(d, t.state, S.Answer(c.id, "acho que sei", 10, text=c.answer))
+        elif a.kind == "probe":
+            t = S.advance(d, t.state, S.Answer("", "", 10, option_idx=0))
         elif a.kind in ("ask", "explain"):
             t = S.advance(d, t.state, S.StepAnswer(True, 10))
         else:

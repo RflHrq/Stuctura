@@ -46,6 +46,9 @@ def roteiro(d, arm, kc="kc_09", crenca="free_nullifies", limite=120):
             erro = crenca if (t.state.phase == S.DIAGNOSTICO and any(
                 o.misconception == crenca for o in ciu.options)) else None
             t = responde(d, t, errando=erro)
+        elif a.kind == "probe":
+            t = S.advance(d, t.state, S.Answer("", "", 10, option_idx=0))
+            continue
         elif a.kind in ("ask", "explain"):
             t = S.advance(d, t.state, S.StepAnswer(True, 1000))
         else:
