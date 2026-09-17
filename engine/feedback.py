@@ -28,7 +28,8 @@ from engine.loader import Domain, Ref
 VALIDATION = "validation"
 CONTRADICTION = "contradiction"
 RECONSTRUCTION = "reconstruction"
-STAGES = (VALIDATION, CONTRADICTION, RECONSTRUCTION)
+CLOSURE = "closure"
+STAGES = (VALIDATION, CONTRADICTION, RECONSTRUCTION, CLOSURE)
 
 # Marcadores que um molde pode usar. O validador recusa qualquer outro:
 # um `{premissa}` digitado errado apareceria cru na tela do participante.
@@ -146,6 +147,24 @@ def reconstruction(domain: Domain, kc: str, arm: str,
     if extra:
         return Feedback(RECONSTRUCTION, base.text + "\n\n" + _preenche(extra))
     return base
+
+
+def closure(domain: Domain, kc: str, belief_id: str | None) -> Feedback | None:
+    """Etapa 3b, quando o KC é deixado em aberto.
+
+    Não é a reconstrução: ali a conclusão é do aluno, e o texto diz de onde
+    ela veio. Aqui ele não chegou lá, e o sistema entrega a frase — porque
+    a alternativa é a pessoa sair do tópico com a ideia errada com que
+    entrou, que é o pior desfecho possível para quem veio participar.
+    """
+    moldes = domain.feedback.get(CLOSURE) or {}
+    conclusao = domain.study.mask(domain.kcs[kc].conclusion)
+    if belief_id and belief_id in domain.misconceptions:
+        return _monta(CLOSURE, moldes.get("with_belief"),
+                      belief=domain.study.mask(domain.misconceptions[belief_id].belief),
+                      conclusion=conclusao, kc_name=domain.kcs[kc].name)
+    return _monta(CLOSURE, moldes.get("without_belief"),
+                  conclusion=conclusao, kc_name=domain.kcs[kc].name)
 
 
 def _monta(stage: str, molde: str | None, **valores: str) -> Feedback | None:

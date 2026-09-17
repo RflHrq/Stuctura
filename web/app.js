@@ -598,12 +598,19 @@
 
   function telaConclusao(j) {
     var a = S.acao;
+    // KC deixado em aberto: o aluno não construiu esta conclusão, recebeu.
+    // Dizer "você acabou de construir isto" seria mentira na cara dele.
+    var aberto = !!a.incomplete;
+    $("conc-titulo").textContent = aberto
+      ? "Este tópico fica em aberto"
+      : "Você acabou de construir isto";
+    $("conc-texto").className = aberto ? "banner warn" : "banner ok";
     $("conc-texto").textContent = a.conclusion_text || a.text || "";
     pintaFeedback("conc-feedback", a.feedback);
-    var nome = a.technical_name;
+    var nome = aberto ? null : a.technical_name;
     $("conc-nome-linha").classList.toggle("hidden", !nome);
     if (nome) $("conc-nome").textContent = nome;
-    $("conc-nota").textContent = j && j.arm === "socratic"
+    $("conc-nota").textContent = (!aberto && j && j.arm === "socratic")
       ? "Nada disso foi explicado antes: cada premissa veio de uma resposta sua."
       : "";
     $("btn-conclusao").disabled = false;

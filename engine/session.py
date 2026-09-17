@@ -34,6 +34,11 @@ DIAGNOSTICO = "DIAGNOSTICO"
 CONFRONTO = "CONFRONTO"
 CORRECAO = "CORRECAO"
 CONCLUSAO = "CONCLUSAO"
+# KC deixado em aberto: o aluno recusou o mesmo passo três vezes, estourou
+# o limite de rodadas, ou o domínio não tinha como fechar o tópico. Antes
+# a sessão pulava direto para o KC seguinte, e a pessoa saía dali com a
+# crença com que entrou. Agora ela lê a frase certa antes de seguir.
+FECHAMENTO = "FECHAMENTO"
 VARIACAO = "VARIACAO"
 FIM = "FIM"
 
@@ -263,6 +268,18 @@ def advance(domain: Domain, state: SessionState, event: Event) -> Transition:
             "elapsed_ms": event.elapsed_ms,
         })
         t = _entra_variacao(domain, state)
+        return Transition(t.state, t.action, (ev,) + t.events)
+
+    if state.phase == FECHAMENTO:
+        if not isinstance(event, Acknowledge):
+            raise ValueError("FECHAMENTO espera Acknowledge, veio %s"
+                             % type(event).__name__)
+        ev = Emit("stage_acknowledged", {
+            "stage": "closure", "kc": state.kc,
+            "node": domain.kcs[state.kc].conclusion_node,
+            "elapsed_ms": event.elapsed_ms,
+        })
+        t = _proximo_kc(domain, state)
         return Transition(t.state, t.action, (ev,) + t.events)
 
     if state.phase == VARIACAO:
@@ -573,13 +590,9 @@ def _entra_correcao(domain: Domain, state: SessionState) -> Transition:
     # nenhum plano confirma, e o certo é registrar e seguir.
     if state.rounds >= MAX_ROUNDS:
         pendentes = model.pending_nodes(domain, state.vector, state.kc)
-        evento = Emit("kc_incomplete", {
-            "kc": state.kc, "node": pendentes[0] if pendentes else "",
-            "attempts": state.rounds, "reason": "limite de rodadas de correcao",
-        })
-        novo = replace(state, kc_status={**state.kc_status, state.kc: EM_PROGRESSO})
-        seguinte = _proximo_kc(domain, novo)
-        return Transition(seguinte.state, seguinte.action, (evento,) + seguinte.events)
+        return _fecha_em_aberto(
+            domain, state, "limite de rodadas de correcao",
+            node=pendentes[0] if pendentes else "", attempts=state.rounds)
 
     alvo = state.target or domain.kcs[state.kc].conclusion_ref
     plano = tuple(socratic.plan(
@@ -711,13 +724,10 @@ def _avanca_correcao(domain: Domain, state: SessionState, ev: StepAnswer) -> Tra
     })]
 
     if reg.action == "abandon":
-        eventos.append(Emit("kc_incomplete", {
-            "kc": state.kc, "node": ref[1], "attempts": reg.attempts,
-        }))
-        novo = replace(state, attempts=tentativas,
-                       kc_status={**state.kc_status, state.kc: EM_PROGRESSO})
-        seguinte = _proximo_kc(domain, novo)
-        return Transition(seguinte.state, seguinte.action, tuple(eventos) + seguinte.events)
+        fecho = _fecha_em_aberto(
+            domain, replace(state, attempts=tentativas),
+            "tentativas no mesmo no", node=ref[1], attempts=reg.attempts)
+        return Transition(fecho.state, fecho.action, tuple(eventos) + fecho.events)
 
     if reg.action == "regress":
         eventos.append(Emit("regression_triggered", {
@@ -785,6 +795,42 @@ def _entra_conclusao(domain: Domain, state: SessionState) -> Transition:
     return Transition(replace(state, phase=CONCLUSAO), acao)
 
 
+def _fecha_em_aberto(domain: Domain, state: SessionState, motivo: str,
+                     node: str = "", attempts: int = 0) -> Transition:
+    """Deixa o KC em aberto — mas não deixa o aluno sem a frase certa.
+
+    Ponto ÚNICO das três saídas por desistência: três recusas no mesmo nó,
+    limite de rodadas de correção, e domínio sem atividade de variação.
+    Antes cada uma pulava direto para o próximo KC, e quem travasse saía do
+    tópico com a crença com que entrou, sem nunca ler o que a cadeia
+    sustenta. Não dá para exigir que ele construa; dá para não deixá-lo
+    sair sem saber.
+
+    A tela NÃO revela o nome técnico: nomear é o fecho de quem construiu
+    (RF10). E o evento `kc_incomplete` continua o mesmo, com o motivo — a
+    análise não perde a diferença entre concluir e receber.
+    """
+    kc = state.kc
+    evento = Emit("kc_incomplete", {
+        "kc": kc, "node": node, "attempts": attempts, "reason": motivo,
+    })
+    dados: dict[str, Any] = {
+        "conclusion_text": domain.study.mask(domain.kcs[kc].conclusion),
+        # É o que faz a interface trocar o título: dizer "você acabou de
+        # construir isto" a quem não construiu seria mentira na cara dele.
+        "incomplete": True,
+        "reason": motivo,
+    }
+    acao = Action("conclude", kc=kc, node=domain.kcs[kc].conclusion_node,
+                  data=dados)
+    fecho = fb.closure(domain, kc, state.detected)
+    if fecho:
+        acao = _com_feedback(acao, fecho)
+    novo = replace(state, phase=FECHAMENTO,
+                   kc_status={**state.kc_status, kc: EM_PROGRESSO})
+    return Transition(novo, acao, (evento,))
+
+
 def _entra_variacao(domain: Domain, state: SessionState) -> Transition:
     """RF11: mesmo invariante, código novo. É o que encerra o KC."""
     kc = state.kc
@@ -793,11 +839,7 @@ def _entra_variacao(domain: Domain, state: SessionState) -> Transition:
     if ciu is None:
         # Sem CIU de variação o KC não tem como ser encerrado. O validador
         # avisa antes da coleta; aqui a sessão não pode travar por isso.
-        novo = replace(state, kc_status={**state.kc_status, kc: EM_PROGRESSO})
-        evento = Emit("kc_incomplete", {"kc": kc, "node": "", "attempts": 0,
-                                        "reason": "sem CIU de variacao"})
-        seguinte = _proximo_kc(domain, novo)
-        return Transition(seguinte.state, seguinte.action, (evento,) + seguinte.events)
+        return _fecha_em_aberto(domain, state, "sem CIU de variacao")
     return _apresenta(domain, replace(state, phase=VARIACAO), ciu, VARIACAO)
 
 

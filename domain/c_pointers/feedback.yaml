@@ -87,6 +87,31 @@ feedback:
       A ideia que voce trazia no comeco deste topico levava a outro lugar.
       Compare com o que a cadeia acima sustenta.
 
+  # ETAPA 3b — FECHAMENTO EM ABERTO
+  #
+  # So aparece quando o KC e deixado sem ser construido: o aluno recusou o
+  # mesmo passo tres vezes, estourou o limite de rodadas, ou o dominio nao
+  # tinha atividade para fechar o topico. Antes, nesse caso, a sessao
+  # simplesmente pulava para o proximo KC — e a pessoa saia dali com a
+  # crenca com que entrou, sem nunca ler a frase certa. Nao da para exigir
+  # que ele construa; da para nao deixa-lo sair sem saber.
+  #
+  # O nome tecnico NAO entra aqui: nomear e o fecho de quem construiu
+  # (RF10), e este nao construiu.
+  # NAO usa {conclusion}: a conclusao ja aparece no quadro logo acima, e
+  # repeti-la fazia o participante ler a mesma frase duas vezes na mesma
+  # tela — o mesmo problema que tirou {support} da contradicao. O marcador
+  # continua disponivel.
+  closure:
+    with_belief: >-
+      Vamos parar por aqui neste topico. Voce entrou partindo de que
+      {belief} A frase acima e o que as premissas sustentam. Fique com as
+      duas lado a lado: a distancia entre elas e o que ficou em aberto.
+    without_belief: >-
+      Este topico fica em aberto, e nao ha nada de errado nisso. A frase
+      acima nao precisa ser decorada: ela decorre dos passos, e eles
+      continuam aqui quando voce voltar.
+
 # ------------------------------------------------------------------------
 # MOLDES DAS PERGUNTAS DO TRAVERSAL
 #
