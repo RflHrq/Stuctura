@@ -32,7 +32,11 @@ Ref = tuple[str, str]
 
 NODE_TYPES = ("base", "inference")
 GRADES = ("D", "T", "L", "N", "E")
-CIU_PHASES = ("diagnostic", "traversal", "variation")
+# Duas fases, e não três. Houve uma `traversal`, com 20 atividades que o
+# sistema nunca apresentou: o percurso é feito de passos montados do grafo,
+# não de atividades. Elas eram atividades diagnósticas escritas no lugar
+# errado, e é como diagnósticas que valem — foi para lá que foram.
+CIU_PHASES = ("diagnostic", "variation")
 
 # Cada forma de CIU declara os campos que a definem. É o que permite ao
 # validador dizer "common_wrong_orders num path_choice" em vez de ignorar

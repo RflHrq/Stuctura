@@ -143,7 +143,7 @@ Ordem do §13 da spec. Marcos 1 a 3 são o caminho crítico.
 
 | # | Entrega | Estado |
 |---|---------|--------|
-| — | `domain/c_pointers/*.yaml` — canônicos, do autor. 12 KCs, 93 nós, 34 crenças, 48 CIUs | **completo** |
+| — | `domain/c_pointers/*.yaml` — canônicos, do autor. 12 KCs, 93 nós, 34 crenças, 57 CIUs | **completo** |
 | — | `engine/loader.py`, `socratic.py`, `tools/validate.py` | **feito** |
 | 1 | Regressão controlada (RF09) — `socratic.on_wrong()` | **feito**, falta a FSM chamar |
 | 2 | `store/`: esquema, append, projeção, `replay.py` | **feito** |

@@ -74,6 +74,16 @@ def diagnosticas(apresentadas, kc):
     return [p for p in apresentadas.get(kc, []) if p["phase"] == "diagnostic"]
 
 
+def _quantas(d, kc):
+    """Quantas atividades um KC apresenta a quem não é desafiado.
+
+    O pool do KC é maior do que o teto do estudo: o teto existe para o
+    tempo da sessão, e sobra atividade de propósito, para o seletor ter
+    de onde escolher a que cobre crença ainda não perguntada.
+    """
+    return min(d.study.max_diagnostics_per_kc, len(d.cius_of(kc, "diagnostic")))
+
+
 FORTE = lambda d, t: (True, d.study.certain)
 HESITANTE = lambda d, t: (True, "acho que sei")
 
@@ -145,7 +155,7 @@ def test_quem_hesita_ve_todos_os_degraus(d):
     for kc in d.pilot_sequence:
         diag = diagnosticas(apresentadas, kc)
         assert [p["ciu_id"] for p in diag] and diag[0]["nivel"] == 1, kc
-        assert len(diag) == len(d.cius_of(kc, "diagnostic")), \
+        assert len(diag) == _quantas(d, kc), \
             "%s pulou atividade de quem não acertou com certeza" % kc
         assert all(p["nivel_minimo"] == 1 for p in diag)
 
@@ -195,7 +205,7 @@ def test_desligado_todos_veem_todas_as_atividades(d):
     apresentadas, terminou = sessao(sem, FORTE)
     assert terminou
     for kc in sem.pilot_sequence:
-        assert len(diagnosticas(apresentadas, kc)) == len(sem.cius_of(kc, "diagnostic"))
+        assert len(diagnosticas(apresentadas, kc)) == _quantas(sem, kc)
 
 
 def test_o_log_diz_por_que_cada_atividade_foi_escolhida(d):

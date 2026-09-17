@@ -23,6 +23,7 @@ tropeça — de propósito; isso é guardado em `tests/test_desafio.py`.
 from __future__ import annotations
 
 import itertools
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -129,14 +130,23 @@ def test_o_dominio_do_piloto_e_gradual(d):
 
 
 def test_um_salto_de_degrau_e_detectado(d, tmp_path):
-    """A guarda tem de PEGAR. Tira o degrau do meio do kc_11 e confere."""
+    """A guarda tem de PEGAR. Tira o degrau do meio do kc_11 e confere.
+
+    Some com TODO o nível 2 do KC: desde que as atividades da antiga fase
+    `traversal` entraram no diagnóstico, o kc_11 tem mais de uma no degrau
+    do meio, e apagar só uma não abre buraco nenhum.
+    """
     dominio = copia(d, tmp_path / "dom")
     alvo = dominio / "cius.yaml"
     texto = alvo.read_text(encoding="utf-8")
-    antes = "  - id: ciu_kc11_007\n    kc: kc_11\n    nivel: 2\n"
-    assert antes in texto
-    alvo.write_text(texto.replace(antes, antes.replace("nivel: 2", "nivel: 3")),
-                    encoding="utf-8")
+    blocos = re.split(r"(?=^  - id: )", texto, flags=re.M)
+    trocados = 0
+    for i, b in enumerate(blocos):
+        if b.startswith("  - id: ciu_kc11_") and "nivel: 2" in b:
+            blocos[i] = b.replace("nivel: 2", "nivel: 3")
+            trocados += 1
+    assert trocados >= 1
+    alvo.write_text("".join(blocos), encoding="utf-8")
 
     achados = validate.check_rampa(load(dominio))
     assert any("kc_11" in a and "pula" in a for a in achados), achados

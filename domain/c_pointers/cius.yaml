@@ -50,7 +50,7 @@ cius:
     kc: kc_01
     nivel: 2
     type: fill_blank
-    phase: traversal
+    phase: diagnostic
     targets: [B3, I1]
     prompt: |
       Um bloco pedido ao malloc so deixa de existir quando ______.
@@ -67,6 +67,24 @@ cius:
       states: [dentro_da_funcao, apos_o_retorno]
       controlled_by: student
       caption: "O quadro da funcao sumiu. E o bloco no heap?"
+
+  - id: ciu_kc01_004
+    kc: kc_01
+    nivel: 2
+    type: prediction
+    phase: diagnostic
+    targets: [B3]
+    prompt: |
+      void f(void) {
+        int *p = malloc(100);
+      }
+      A funcao termina sem chamar free. O que acontece com os 100 bytes?
+    options:
+      - text: "Continuam ocupados ate alguem chamar free."
+        correct: true
+      - text: "O sistema devolve sozinho quando a funcao termina."
+        misconception: system_frees_auto
+      - text: "Somem junto com a caixa p."
 
   # =============== KC 02 ===============
   - id: ciu_kc02_001
@@ -111,7 +129,7 @@ cius:
     kc: kc_02
     nivel: 3
     type: mcq
-    phase: traversal
+    phase: diagnostic
     targets: [I3]
     prompt: |
       int n = 1000;
@@ -127,7 +145,7 @@ cius:
     kc: kc_02
     nivel: 3
     type: mcq
-    phase: traversal
+    phase: diagnostic
     targets: [I3]
     prompt: |
       void *v;
@@ -206,7 +224,7 @@ cius:
     kc: kc_03
     nivel: 2
     type: parsons
-    phase: traversal
+    phase: diagnostic
     targets: [I1, I3]
     prompt: "Ordene os passos para usar um ponteiro com seguranca."
     steps_correct:
@@ -242,7 +260,7 @@ cius:
     kc: kc_11
     nivel: 1
     type: mcq
-    phase: traversal
+    phase: diagnostic
     targets: [I1, I2]
     prompt: |
       double *d aponta para o inicio de um vetor de double.
@@ -257,7 +275,7 @@ cius:
     kc: kc_11
     nivel: 2
     type: fill_blank
-    phase: traversal
+    phase: diagnostic
     targets: [I4]
     prompt: "Escrever a[i] equivale exatamente a escrever ______."
     answer: "*(a + i)"
@@ -267,7 +285,7 @@ cius:
     kc: kc_11
     nivel: 2
     type: prediction
-    phase: traversal
+    phase: diagnostic
     targets: [I5]
     prompt: |
       void *v = malloc(100);
@@ -414,6 +432,41 @@ cius:
       - text: "Passou a valer NULL."
         misconception: free_nullifies
       - text: "Sumiu junto com o pedaco devolvido."
+  - id: ciu_kc09_005
+    kc: kc_09
+    nivel: 3
+    type: mcq
+    phase: diagnostic
+    targets: [I3]
+    prompt: |
+      int *p = malloc(sizeof(int));
+      free(p);
+      free(p);
+      O que o padrao C diz sobre a segunda chamada?
+    options:
+      - text: "E comportamento indefinido: o pedaco ja nao era seu."
+        correct: true
+      - text: "Nada acontece: free ignora quem ja foi liberado."
+        misconception: double_free_is_safe
+      - text: "E erro de compilacao: o compilador ve as duas chamadas."
+
+  - id: ciu_kc09_006
+    kc: kc_09
+    nivel: 2
+    type: mcq
+    phase: diagnostic
+    targets: [I6]
+    prompt: |
+      free(p);
+      p = NULL;
+      Para que serve a segunda linha?
+    options:
+      - text: "Para registrar em p que ela nao designa mais nada."
+        correct: true
+      - text: "Nao serve: free ja deixa p em NULL."
+        misconception: null_after_free_redundant
+      - text: "Para devolver o pedaco outra vez, por seguranca."
+
   # =============== KC 04 ===============
   - id: ciu_kc04_001
     kc: kc_04
@@ -460,7 +513,7 @@ cius:
     kc: kc_04
     nivel: 2
     type: prediction
-    phase: traversal
+    phase: diagnostic
     targets: [I2, I3]
     prompt: |
       int x = 7;
@@ -478,7 +531,7 @@ cius:
     kc: kc_04
     nivel: 2
     type: fill_blank
-    phase: traversal
+    phase: diagnostic
     targets: [I3]
     prompt: "Para qualquer variavel x, a expressao *(&x) vale sempre ______."
     answer: "x"
@@ -525,7 +578,7 @@ cius:
     kc: kc_05
     nivel: 1
     type: mcq
-    phase: traversal
+    phase: diagnostic
     targets: [I1, I2]
     prompt: |
       if (p) { ... }
@@ -540,7 +593,7 @@ cius:
     kc: kc_05
     nivel: 2
     type: fill_blank
-    phase: traversal
+    phase: diagnostic
     targets: [I1]
     prompt: "NULL nao e ausencia de valor: e um valor de ponteiro que nao designa ______."
     answer: "objeto algum"
@@ -585,7 +638,7 @@ cius:
     kc: kc_06
     nivel: 2
     type: mcq
-    phase: traversal
+    phase: diagnostic
     targets: [I2, I3]
     prompt: |
       void inc(int *q) { (*q)++; }
@@ -656,7 +709,7 @@ cius:
     kc: kc_07
     nivel: 2
     type: prediction
-    phase: traversal
+    phase: diagnostic
     targets: [I2]
     prompt: |
       char destino[10];
@@ -675,7 +728,7 @@ cius:
     kc: kc_07
     nivel: 2
     type: prediction
-    phase: traversal
+    phase: diagnostic
     targets: [I4]
     prompt: |
       void f(int a[10]) { printf("%zu", sizeof(a)); }
@@ -692,7 +745,7 @@ cius:
     kc: kc_07
     nivel: 3
     type: mcq
-    phase: traversal
+    phase: diagnostic
     targets: [I5]
     prompt: |
       int arr[5];
@@ -741,6 +794,25 @@ cius:
       - text: "Uma, que guarda onde as outras comecam."
         misconception: array_is_pointer
       - text: "Nenhuma ainda: so quando a for usada."
+  - id: ciu_kc07_008
+    kc: kc_07
+    nivel: 3
+    type: prediction
+    phase: diagnostic
+    targets: [B1]
+    prompt: |
+      char s[] = "abc";
+      char *t = "abc";
+      s[0] = 'X';
+      t[0] = 'X';
+      Qual das duas ultimas linhas e segura?
+    options:
+      - text: "So a de s: t aponta para um literal que nao se altera."
+        correct: true
+      - text: "As duas: os dois guardam um array de caracteres."
+        misconception: string_literal_is_array
+      - text: "Nenhuma: nao se altera caractere de string em C."
+
   # =============== KC 08 ===============
   - id: ciu_kc08_001
     kc: kc_08
@@ -778,7 +850,7 @@ cius:
     kc: kc_08
     nivel: 1
     type: mcq
-    phase: traversal
+    phase: diagnostic
     targets: [I1]
     prompt: |
       int *p = malloc(sizeof(int));
@@ -793,7 +865,7 @@ cius:
     kc: kc_08
     nivel: 2
     type: fill_blank
-    phase: traversal
+    phase: diagnostic
     targets: [I4]
     prompt: "Um bloco devolvido por malloc so volta ao alocador quando ______."
     answer: "o programa chama free"
@@ -842,7 +914,7 @@ cius:
     kc: kc_12
     nivel: 3
     type: contrast
-    phase: traversal
+    phase: diagnostic
     targets: [I3]
     prompt: |
       Dois ponteiros invalidos:
@@ -924,7 +996,7 @@ cius:
     kc: kc_10
     nivel: 3
     type: prediction
-    phase: traversal
+    phase: diagnostic
     targets: [I4]
     prompt: |
       void f(int **m);
@@ -943,7 +1015,7 @@ cius:
     kc: kc_10
     nivel: 2
     type: fill_blank
-    phase: traversal
+    phase: diagnostic
     targets: [I1, I3]
     prompt: "Para uma funcao alterar o ponteiro p do chamador, ela precisa receber ______."
     answer: "&p"

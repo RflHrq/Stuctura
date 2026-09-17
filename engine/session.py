@@ -141,6 +141,10 @@ class SessionState:
     # Não é persistido à parte: a retomada o reconstrói reexecutando as
     # respostas, como todo o resto do estado.
     sequencia_certa: int = 0
+    # Maior nível já apresentado NESTE KC. O piso diz de onde o aluno parte;
+    # este campo é o teto, e sobe um degrau por atividade: é o que impede o
+    # KC de pular do nível 1 para o 3. Zera a cada KC.
+    nivel_visto: int = 0
     used_cius: tuple[str, ...] = ()
     last_ciu_type: str | None = None
     current_ciu: str | None = None
@@ -298,6 +302,7 @@ def _abre_kc(domain: Domain, state: SessionState) -> Transition:
         return _encerra(domain, state)
 
     novo = replace(state, phase=DIAGNOSTICO, diagnostics_done=0, rounds=0,
+                   nivel_visto=0,
                    detected=None, target=None, plan=(), cursor=0, attempts={},
                    visual=None)
 
@@ -309,10 +314,14 @@ def _abre_kc(domain: Domain, state: SessionState) -> Transition:
 
 def _apresenta_diagnostica(domain: Domain, state: SessionState) -> Transition:
     kc = state.kc
+    piso = selector.nivel_minimo(domain, state.sequencia_certa)
     ciu = selector.next_diagnostic(
         domain, state.vector, kc, state.used_cius, state.last_ciu_type,
-        nivel_minimo=selector.nivel_minimo(domain, state.sequencia_certa),
+        nivel_minimo=piso,
         garantir_uma=state.diagnostics_done == 0,
+        # Um degrau por vez dentro do KC, a partir de onde o piso permitiu
+        # entrar. Ver `nivel_visto`.
+        nivel_maximo=max(state.nivel_visto + 1, piso),
     )
     if ciu is None:
         # Acabaram as diagnósticas: decide com o que já se sabe.
@@ -328,6 +337,7 @@ def _apresenta(domain: Domain, state: SessionState, ciu: CIU, fase: str) -> Tran
         used_cius=state.used_cius + (ciu.id,) if ciu.id not in state.used_cius
         else state.used_cius,
         last_ciu_type=ciu.type,
+        nivel_visto=max(state.nivel_visto, ciu.nivel),
     )
     ordem = option_order(domain, state.seed, ciu)
     evento = Emit("ciu_presented", {
