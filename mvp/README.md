@@ -5,10 +5,11 @@ treina → confirma**. Um nó só vira premissa correta depois de uma sequência
 de acertos no treino, nunca depois de um acerto isolado.
 
 Conteúdo: **kc_00, declaração de variáveis** — 5 premissas, 4 concepções
-errôneas, 21 atividades.
+errôneas, 10 atividades (uma teórica e uma de código por nó) e a analogia do
+quarto de hotel.
 
 ```bash
-python -m pytest mvp/ -q     # 16 testes
+python -m pytest mvp/ -q     # 22 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -16,13 +17,15 @@ python -m mvp.app            # http://127.0.0.1:8010
 
 | Passo | O que acontece | Onde |
 | --- | --- | --- |
-| **Identifica** | errar sem ter chutado, num distrator mapeado, levanta hipótese de crença | `motor._responde_diagnostico` |
+| **Identifica** | errar sem ter chutado levanta SUSPEITA; a segunda pergunta do nó, de outro formato, decide | `motor._responde_diagnostico` |
+| **Valida** | a analogia de resgate daquele nó, antes de qualquer refutação | `motor._inicia_validacao` |
 | **Refuta** | percurso pelas premissas que sustentam o nó negado, montado do grafo | `motor._plano` |
 | **Treina** | itens no mesmo nó, formato diferente a cada tentativa, até a sequência fechar | `motor._proximo_treino` |
 | **Confirma** | o nó vira verde no mapa, e só então | `training_streak_completed` |
 
-Errar chutando é lacuna, não crença: o sistema não refuta o que a pessoa
-não pensa.
+Errar chutando é lacuna, não crença: o sistema não refuta o que a pessoa não
+pensa. E um erro isolado é **vacilo** até prova em contrário — são precisos
+dois erros no mesmo nó, em formatos diferentes, para a refutação disparar.
 
 ## Os quatro requisitos, e o teste de cada um
 
@@ -64,21 +67,39 @@ mvp/
 │   ├── topic_kc00.yaml        o tópico
 │   ├── graph_kc00.yaml        5 premissas, suporte e crenças que as negam
 │   ├── beliefs_kc00.yaml      4 crenças com procedência e fonte
-│   └── atividades_kc00.yaml   21 atividades  ← TEXTO A REVISAR
+│   └── activities_kc00.yaml   10 atividades + a analogia de resgate por nó
 ├── dominio.py                 carga e validação (falha na carga, nunca em sessão)
 ├── motor.py                   o laço, puro: (estado, resposta) → (estado, tela, eventos)
 ├── log.py                     append-only, uma linha JSON por evento
 ├── app.py                     três rotas
 ├── web/                       a interface, que não decide nada
-└── test_motor.py              16 testes
+└── test_motor.py              22 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano
 falso (YAML 1.1). As atividades usam `premissa:` para apontar o nó.
 
+## O limite do banco atual
+
+Cada nó tem **dois** itens: a teórica e a de código. Os dois são consumidos na
+checagem de vacilo, então o treino depois da refutação não tem item inédito —
+ele **reapresenta** um dos dois, nunca o que acabou de aparecer, e registra
+`item_reapresentado` no log.
+
+Isso cumpre o critério literal do RF34 (não repetir o mesmo item *em
+sequência*), mas enfraquece a evidência: um streak de dois acertos em itens já
+vistos prova menos do que em itens novos. **Um terceiro item por nó resolve** —
+de preferência de transferência distante.
+
+Efeito colateral: com dois itens por nó, as duas metades do RF34 (não repetir
+item, não repetir formato) selecionam sempre a mesma coisa, e nenhum teste
+sobre este domínio consegue distinguir uma da outra. O teste
+`test_rf34_a_regra_de_formato_vale_mesmo_havendo_item_inedito` contorna isso
+montando um nó de três itens em memória.
+
 ## O que falta para isto virar coleta
 
-1. **Revisar as 21 atividades.** O texto é meu, não seu, e alimenta a medição.
+1. **Um terceiro item por nó**, para o treino não depender de reapresentação.
 2. **Decidir os parâmetros** com dados do ensaio: 2 acertos é chute informado.
 3. **Reconstrução do estado pelo log.** Hoje a sessão vive em memória; o log
    já guarda tudo o que seria preciso para reconstruir.

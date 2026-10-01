@@ -18,9 +18,14 @@ import yaml
 
 RAIZ = Path(__file__).resolve().parent / "dominio"
 
-FORMATOS = ("reconhecer", "achar_erro", "comparar", "prever")
-TRANSFERENCIAS = ("proxima", "media", "distante")
-FASES = ("diagnostico", "treino")
+# Formatos do banco de atividades. Não é taxonomia fechada: é o que a
+# regra de variação precisa comparar para não repetir o mesmo molde.
+FORMATOS = ("reconhecer_conceito", "comparar_casos", "achar_o_erro", "prever_saida")
+
+# Cada nó tem um par: a pergunta TEÓRICA e a de CÓDIGO. O par é o que
+# sustenta a checagem de vacilo — errar a teórica com confiança leva à de
+# código antes de a refutação disparar.
+TIPOS = ("teorica", "codigo")
 
 
 class DominioInvalido(Exception):
@@ -64,15 +69,21 @@ class Opcao:
 class Atividade:
     id: str
     no: str
-    fase: str
+    tipo: str                      # teorica | codigo
     formato: str
-    transferencia: str
     enunciado: str
     opcoes: tuple[Opcao, ...]
+    codigo: str = ""
+    crenca: str | None = None      # a crença que um erro aqui levanta
 
     @property
     def indice_correto(self) -> int:
         return next(i for i, o in enumerate(self.opcoes) if o.correta)
+
+    @property
+    def texto(self) -> str:
+        """O que o aluno lê: o código, quando há, e o enunciado."""
+        return (self.codigo.rstrip() + "\n\n" + self.enunciado).strip()
 
 
 @dataclass(frozen=True)
@@ -83,9 +94,19 @@ class Dominio:
     nos: Mapping[str, No]
     crencas: Mapping[str, Crenca]
     atividades: tuple[Atividade, ...] = ()
+    # Analogia única do tópico, e a versão dela para cada nó. Quem aparece
+    # na validação é a DO NÓ: o resumo mapeia os cinco de uma vez e
+    # entregaria a resposta das atividades que ainda não foram feitas.
+    analogia: str = ""
+    resgates: Mapping[str, str] = field(default_factory=dict)
 
-    def atividades_do_no(self, no: str, fase: str) -> tuple[Atividade, ...]:
-        return tuple(a for a in self.atividades if a.no == no and a.fase == fase)
+    def resgate(self, no: str) -> str:
+        return self.resgates.get(no) or self.analogia
+
+    def atividades_do_no(self, no: str) -> tuple[Atividade, ...]:
+        """As atividades do nó, teórica antes de código."""
+        itens = [a for a in self.atividades if a.no == no]
+        return tuple(sorted(itens, key=lambda a: TIPOS.index(a.tipo)))
 
     def crenca_que_nega(self, no: str) -> Crenca | None:
         return next((c for c in self.crencas.values() if c.nega == no), None)
@@ -107,7 +128,7 @@ def carrega(raiz: Path | None = None) -> Dominio:
     topico = yaml.safe_load((base / "topic_kc00.yaml").read_text(encoding="utf-8"))
     grafo = yaml.safe_load((base / "graph_kc00.yaml").read_text(encoding="utf-8"))
     cru_crencas = yaml.safe_load((base / "beliefs_kc00.yaml").read_text(encoding="utf-8"))
-    cru_atv = yaml.safe_load((base / "atividades_kc00.yaml").read_text(encoding="utf-8"))
+    cru_atv = yaml.safe_load((base / "activities_kc00.yaml").read_text(encoding="utf-8"))
 
     problemas: list[str] = []
 
@@ -161,52 +182,73 @@ def carrega(raiz: Path | None = None) -> Dominio:
 
     atividades: list[Atividade] = []
     vistos: set[str] = set()
-    for bruto in (cru_atv or {}).get("atividades") or ():
+    for bruto in (cru_atv or {}).get("activities") or ():
         aid = bruto.get("id")
         if aid in vistos:
             problemas.append("atividade %s duplicada" % aid)
         vistos.add(aid)
-        if bruto.get("premissa") not in nos:
-            problemas.append("atividade %s mira %r, que não é nó" % (aid, bruto.get("premissa")))
-        if bruto.get("fase") not in FASES:
-            problemas.append("atividade %s: fase inválida %r" % (aid, bruto.get("fase")))
+
+        # "kc00:B1", "kc_00:B1" e "B1" apontam o mesmo nó num domínio de um
+        # tópico só. O que importa é a parte depois dos dois-pontos.
+        alvo = str(bruto.get("node", "")).split(":")[-1]
+        if alvo not in nos:
+            problemas.append("atividade %s mira %r, que não é nó" % (aid, bruto.get("node")))
+        if bruto.get("tipo") not in TIPOS:
+            problemas.append("atividade %s: tipo inválido %r" % (aid, bruto.get("tipo")))
         if bruto.get("formato") not in FORMATOS:
             problemas.append("atividade %s: formato inválido %r" % (aid, bruto.get("formato")))
-        if bruto.get("transferencia") not in TRANSFERENCIAS:
-            problemas.append("atividade %s: transferência inválida %r"
-                             % (aid, bruto.get("transferencia")))
+
+        crenca = bruto.get("belief_context")
+        if crenca and crenca not in crencas:
+            problemas.append("atividade %s: belief_context %r não está no catálogo"
+                             % (aid, crenca))
+        if crenca and alvo in nos and crencas.get(crenca) and crencas[crenca].nega != alvo:
+            problemas.append(
+                "atividade %s mira %s mas carrega a crença %s, que nega %s"
+                % (aid, alvo, crenca, crencas[crenca].nega))
+
+        # As alternativas vêm como mapa (a/b/c, ou certo/errado) e o gabarito
+        # nomeia a chave certa. A ordem é a de escrita: o YAML a preserva.
+        alternativas = bruto.get("alternativas") or {}
+        gabarito = bruto.get("gabarito")
+        if gabarito not in alternativas:
+            problemas.append("atividade %s: gabarito %r não está entre as alternativas"
+                             % (aid, gabarito))
         opcoes = tuple(
-            Opcao(texto=_texto(o.get("texto")), correta=bool(o.get("correta")),
-                  crenca=o.get("crenca"))
-            for o in bruto.get("opcoes") or ()
+            Opcao(texto=_texto(txt), correta=(chave == gabarito),
+                  # Num banco assim, a crença não é de uma alternativa: é do
+                  # item. Qualquer erro aqui aponta para a mesma ideia.
+                  crenca=None if chave == gabarito else crenca)
+            for chave, txt in alternativas.items()
         )
-        if sum(1 for o in opcoes if o.correta) != 1:
-            problemas.append("atividade %s: precisa de exatamente uma correta" % aid)
-        for o in opcoes:
-            if o.crenca and o.crenca not in crencas:
-                problemas.append("atividade %s: distrator aponta crença %r inexistente"
-                                 % (aid, o.crenca))
-            if o.crenca and o.correta:
-                problemas.append("atividade %s: alternativa correta não carrega crença" % aid)
+        if len(opcoes) < 2:
+            problemas.append("atividade %s: menos de duas alternativas" % aid)
+
         atividades.append(Atividade(
-            id=aid, no=bruto["premissa"], fase=bruto["fase"], formato=bruto["formato"],
-            transferencia=bruto["transferencia"],
-            enunciado=(bruto.get("enunciado") or "").strip("\n"),
-            opcoes=opcoes,
+            id=aid, no=alvo, tipo=bruto.get("tipo", "teorica"),
+            formato=bruto.get("formato", "reconhecer_conceito"),
+            enunciado=_texto(bruto.get("enunciado")),
+            codigo=(bruto.get("codigo") or "").strip("\n"),
+            opcoes=opcoes, crenca=crenca,
         ))
 
-    # Sem diagnóstica não há como a crença aparecer; sem itens de treino
-    # suficientes, o nó nunca fecha a sequência (RF36 cuida do caso, mas o
-    # domínio não deveria nascer assim).
     for cid, c in crencas.items():
-        if not any(o.crenca == cid for a in atividades if a.fase == "diagnostico"
-                   for o in a.opcoes):
-            problemas.append("crença %s não é oferecida por nenhuma diagnóstica" % cid)
-    for nid in nos:
-        treino = [a for a in atividades if a.no == nid and a.fase == "treino"]
-        if nos[nid].negado_por and len({a.formato for a in treino}) < 2:
+        if not _texto(((cru_atv or {}).get("resgates") or {}).get(c.nega)):
             problemas.append(
-                "nó %s tem crença mapeada mas menos de dois formatos de treino" % nid)
+                "nó %s tem crença (%s) e não tem analogia de resgate" % (c.nega, cid))
+
+    # Toda crença precisa de atividade que a levante, e todo nó precisa do
+    # par teórica + código: é o par que sustenta a checagem de vacilo.
+    for cid in crencas:
+        if not any(a.crenca == cid for a in atividades):
+            problemas.append("crença %s não é levantada por nenhuma atividade" % cid)
+    for nid in nos:
+        tipos = {a.tipo for a in atividades if a.no == nid}
+        if not tipos:
+            problemas.append("nó %s não tem atividade nenhuma" % nid)
+        elif tipos != set(TIPOS):
+            problemas.append("nó %s não tem o par teórica + código (tem: %s)"
+                             % (nid, ", ".join(sorted(tipos))))
 
     if problemas:
         raise DominioInvalido(problemas)
@@ -216,4 +258,6 @@ def carrega(raiz: Path | None = None) -> Dominio:
         titulo=_texto(topico.get("title")),
         conclusao=topico.get("conclusion_node", "I1"),
         nos=nos, crencas=crencas, atividades=tuple(atividades),
+        analogia=_texto((cru_atv or {}).get("analogy")),
+        resgates={k: _texto(v) for k, v in ((cru_atv or {}).get("resgates") or {}).items()},
     )

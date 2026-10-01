@@ -1,0 +1,183 @@
+# Banco de atividades — kc_00
+#
+# Duas atividades por nó (teórica + código), seguindo o mesmo par que a
+# Regra 10 (detecção de vacilo) usa como segunda checagem de formato
+# diferente antes de confirmar uma hipótese de crença.
+#
+# `resgate` é o texto de analogia usado no passo de Validação da
+# refutação (não é conteúdo de ensino novo — é o que já existe no
+# percurso socrático, só que escrito).
+
+analogy: >
+  Quarto de hotel reservado. Usada do B1 ao I1: declarar = reservar o
+  quarto (o espaço já existe); valor indeterminado = o quarto pode vir
+  com a bagunça do hóspede anterior, o hotel não limpa sozinho; atribuir
+  = o hóspede novo substitui o antigo, nunca dois ao mesmo tempo;
+  inicializar vs atribuir-depois = chegar com a chave na mão ou pegar na
+  recepção, resultado igual; atribuição não é simétrica = dá pra mandar
+  o hóspede pro quarto, não dá pra mandar o quarto pro número do hóspede.
+
+# A analogia de resgate de CADA no, do documento. E ela que aparece no passo
+# de validacao, nao o resumo acima: o resumo mapeia os cinco nos de uma vez e
+# entregaria a resposta das atividades que ainda nao foram feitas.
+resgates:
+
+  B2: >
+    Quando voce reserva um quarto de hotel, o numero do quarto ja existe no
+    sistema, a porta ja tem aquele numero, o tamanho ja esta definido pela
+    categoria — tudo isso na hora da reserva, antes de qualquer hospede
+    chegar. "int x;" e a reserva: o quarto ja existe, so falta o hospede.
+
+  B3: >
+    O hotel nao manda limpeza toda vez que alguem reserva — so quando pedem.
+    Em C a politica e: nunca limpa sozinho. O quarto pode ter lencol
+    bagunçado do hospede anterior. So fica "zero" se alguem arrumar
+    explicitamente — e o que "int x = 0;" faz: voce mesmo arruma antes de
+    entrar.
+
+  B4: >
+    Um hospede novo nao divide o quarto com o anterior — ele substitui.
+    Quando a variavel recebe 20, o 10 nao fica guardado esperando em algum
+    canto: e sobrescrito, do mesmo jeito que o hospede novo desfaz a mala
+    onde o antigo desfez a dele. O quarto sempre tem so um hospede atual.
+
+  I1: >
+    Da para atribuir o hospede ao quarto 302 — esse hospede vai para o 302.
+    Agora, da para atribuir o quarto 302 ao numero 302? Nao faz sentido: o
+    numero e so rotulo, nao um lugar que recebe hospede. "x = 7" bota 7
+    dentro da caixa x; "7 = x" tentaria botar algo dentro do numero 7, e
+    numero nao e caixa.
+
+activities:
+
+  - id: ciu_kc00_001
+    node: kc00:B1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Quando você cria uma variável, o que o computador precisa fazer
+      antes de qualquer coisa?
+    alternativas:
+      a: "Decidir que valor ela vai ter"
+      b: "Separar um espaço na memória e marcar que tipo de dado cabe ali"
+      c: "Nada — ela só existe quando é usada pela primeira vez"
+    gabarito: b
+
+  - id: ciu_kc00_002
+    node: kc00:B1
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int idade;
+      char letra;
+    enunciado: "Depois dessas duas linhas, o que já existe na memória?"
+    alternativas:
+      a: "Nada ainda, nenhuma tem valor"
+      b: "Dois espaços reservados, cada um com seu próprio tamanho"
+      c: "Um espaço só, compartilhado pelas duas"
+    gabarito: b
+
+  - id: ciu_kc00_003
+    node: kc00:B2
+    formato: achar_o_erro
+    tipo: teorica
+    belief_context: no_value_no_memory
+    enunciado: >
+      Rafael diz: "Enquanto eu não atribuo um valor, a variável não
+      existe de verdade — é só uma promessa." Certo ou errado?
+    alternativas:
+      certo: "Certo"
+      errado: "Errado — a memória já foi reservada na declaração"
+    gabarito: errado
+
+  - id: ciu_kc00_004
+    node: kc00:B2
+    formato: comparar_casos
+    tipo: codigo
+    belief_context: no_value_no_memory
+    codigo: |
+      int total;
+      printf("%zu\n", sizeof(total));
+    enunciado: "Isso funciona mesmo sem total ter recebido valor?"
+    alternativas:
+      a: "Não, dá erro, porque total \"não existe\" ainda"
+      b: "Sim — sizeof mede o espaço já reservado, com ou sem valor dentro"
+    gabarito: b
+
+  - id: ciu_kc00_005
+    node: kc00:B3
+    formato: reconhecer_conceito
+    tipo: teorica
+    belief_context: declaration_zeroes
+    enunciado: "Depois de int x; sem atribuir nada, o que está guardado dentro de x?"
+    alternativas:
+      a: "Zero, porque C limpa toda variável nova"
+      b: "Lixo — o que quer que estivesse naquele espaço antes"
+      c: "Nada — x não tem conteúdo até receber um valor"
+    gabarito: b
+
+  - id: ciu_kc00_006
+    node: kc00:B3
+    formato: comparar_casos
+    tipo: codigo
+    belief_context: declaration_zeroes
+    codigo: |
+      int contador;
+      printf("%d\n", contador);
+    enunciado: "O que esse printf provavelmente mostra?"
+    alternativas:
+      a: "0, sempre"
+      b: "Um número imprevisível — pode mudar a cada execução"
+    gabarito: b
+
+  - id: ciu_kc00_007
+    node: kc00:B4
+    formato: reconhecer_conceito
+    tipo: teorica
+    belief_context: variable_remembers
+    enunciado: "Depois de x = 5; e depois x = 8;, o que x guarda agora?"
+    alternativas:
+      a: "Os dois valores, 5 e 8"
+      b: "Só 8 — o 5 foi substituído e não existe mais"
+    gabarito: b
+
+  - id: ciu_kc00_008
+    node: kc00:B4
+    formato: comparar_casos
+    tipo: codigo
+    belief_context: variable_remembers
+    codigo: |
+      int pontos = 10;
+      pontos = 20;
+      pontos = 30;
+      printf("%d\n", pontos);
+    enunciado: "O que aparece?"
+    alternativas:
+      a: "10 20 30, os três"
+      b: "30 — só o último valor escrito sobrevive"
+    gabarito: b
+
+  - id: ciu_kc00_009
+    node: kc00:I1
+    formato: achar_o_erro
+    tipo: teorica
+    belief_context: assignment_symmetric
+    enunciado: "x = 7 e 7 = x significam a mesma coisa?"
+    alternativas:
+      a: "Sim, duas formas da mesma igualdade"
+      b: "Não — só uma variável pode ficar à esquerda, recebendo o valor"
+    gabarito: b
+
+  - id: ciu_kc00_010
+    node: kc00:I1
+    formato: comparar_casos
+    tipo: codigo
+    belief_context: assignment_symmetric
+    codigo: |
+      int x;
+      3 = x;
+    enunciado: "Esse código compila?"
+    alternativas:
+      a: "Sim, é igual a x = 3;"
+      b: "Não — o compilador recusa, 3 não é um lugar que recebe valor"
+    gabarito: b

@@ -9,7 +9,7 @@
   "use strict";
 
   var $ = function (id) { return document.getElementById(id); };
-  var TELAS = ["ensino", "atividade", "retorno", "refutacao", "mapa"];
+  var TELAS = ["ensino", "atividade", "retorno", "validacao", "refutacao", "mapa"];
 
   var S = {
     sessao: null,
@@ -49,6 +49,7 @@
     var t = j.tela;
     if (t.tipo === "ensino") return telaEnsino(t);
     if (t.tipo === "atividade") return telaAtividade(t);
+    if (t.tipo === "validacao") return telaValidacao(t);
     if (t.tipo === "refutacao") return telaRefutacao(t);
     if (t.tipo === "mapa") return telaMapa(t);
   }
@@ -169,6 +170,18 @@
     }
     $("btn-retorno").onclick = function () { aplica(S.pendente); };
     mostra("retorno");
+  }
+
+  /* -------------------------------------------------------- validação */
+
+  /* Antes de refutar, reconhecer. A analogia é a mesma do começo ao fim do
+   * tópico: uma consistente se lembra melhor do que uma por conceito. */
+  function telaValidacao(t) {
+    $("trilha").textContent = "Vamos com calma";
+    $("val-crenca").textContent = t.crenca || "";
+    $("val-analogia").textContent = t.texto;
+    $("btn-validacao").onclick = function () { responde({}); };
+    mostra("validacao");
   }
 
   /* -------------------------------------------------------- refutação */
