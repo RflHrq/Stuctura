@@ -41,6 +41,12 @@ STREAK_ALVO = 2        # acertos seguidos, de formatos diferentes, para confirma
 TETO_TENTATIVAS = 4    # o dobro do streak: se não bastou, não é falta de repetição
 ERROS_PARA_CRENCA = 2  # erros no mesmo nó antes de a refutação disparar
 
+# Quantas vezes a mesma premissa pode ser reapresentada quando o aluno diz
+# que não entendeu. Depois disso o percurso segue: insistir uma quarta vez
+# na mesma frase não ensina, e o treino ainda vem depois para pegar o que
+# ficou. Quem não fechar lá termina o nó em aberto, que é honesto.
+LIMITE_REEXPLICACAO = 2
+
 # Estados de um nó.
 DESCONHECIDO = "desconhecido"
 CONFIRMADO = "confirmado"      # premissa correta e sustentada
@@ -62,11 +68,16 @@ FIM = "FIM"
 
 @dataclass(frozen=True)
 class Resposta:
-    """Entrada do aluno. `escolha` é a posição na tela."""
+    """Entrada do aluno. `escolha` é a posição na tela.
+
+    `repetir` é o "ainda não entendi" do percurso: não é erro, é pedido de
+    reexplicação, e o log registra os dois casos separados.
+    """
 
     escolha: int | None = None
     confianca: str = ""
     ms: int = 0
+    repetir: bool = False
 
 
 @dataclass(frozen=True)
@@ -118,6 +129,7 @@ class Estado:
     passo: int = 0
     plano: tuple[str, ...] = ()
     alvo: str | None = None
+    repeticoes: int = 0            # reexplicações pedidas NESTE passo
 
     def no(self, nid: str) -> EstadoNo:
         return self.nos.get(nid, EstadoNo())
@@ -162,7 +174,7 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     if e.fase == VALIDACAO:
         return _segue_validacao(d, e)
     if e.fase == REFUTACAO:
-        return _segue_refutacao(d, e)
+        return _segue_refutacao(d, e, repetir=r.repetir)
     if e.fase == TREINO:
         return _responde_treino(d, e, r)
     return Transicao(e, _mapa(d, e))
@@ -318,7 +330,7 @@ def _plano(d: Dominio, no: str) -> tuple[str, ...]:
 
 def _inicia_refutacao(d: Dominio, e: Estado, no: str) -> Transicao:
     plano = _plano(d, no)
-    novo = replace(e, fase=REFUTACAO, alvo=no, plano=plano, passo=0)
+    novo = replace(e, fase=REFUTACAO, alvo=no, plano=plano, passo=0, repeticoes=0)
     evento = Evento("refutacao_iniciada", {
         "no": no, "crenca": e.no(no).crenca, "passos": list(plano)})
     return Transicao(novo, _tela_refutacao(d, novo), (evento,))
@@ -334,20 +346,42 @@ def _tela_refutacao(d: Dominio, e: Estado) -> Tela:
         # No último passo — o nó que a crença nega — as duas frases ficam
         # lado a lado. A contradição é entre coisas que ele mesmo disse.
         "contradiz": crenca.afirma if (ultimo and crenca) else "",
+        # Pediu de novo: volta a mesma premissa, agora com a analogia
+        # daquele nó. É a mesma afirmação, dita por outro caminho.
+        "reexplicacao": d.resgate(nid) if e.repeticoes else "",
+        "repeticoes": e.repeticoes,
+        "pode_repetir": e.repeticoes < LIMITE_REEXPLICACAO,
     })
 
 
-def _segue_refutacao(d: Dominio, e: Estado) -> Transicao:
+def _segue_refutacao(d: Dominio, e: Estado, repetir: bool = False) -> Transicao:
+    nid = e.plano[e.passo]
+
+    # "Ainda não entendi" não é erro: é pedido de reexplicação. A premissa
+    # volta com a analogia, e o percurso não anda enquanto isso.
+    if repetir and e.repeticoes < LIMITE_REEXPLICACAO:
+        novo = replace(e, repeticoes=e.repeticoes + 1)
+        evento = Evento("premissa_reapresentada", {
+            "no": nid, "alvo": e.alvo, "vez": novo.repeticoes})
+        return Transicao(novo, _tela_refutacao(d, novo), (evento,))
+
+    eventos: tuple[Evento, ...] = ()
+    if repetir:
+        # Estourou o limite: segue, e o log diz que esta premissa ficou sem
+        # ser entendida. O treino depois é quem vai pegar isso.
+        eventos = (Evento("premissa_nao_fechou", {
+            "no": nid, "alvo": e.alvo, "repeticoes": e.repeticoes}),)
+
     proximo = e.passo + 1
     if proximo < len(e.plano):
-        novo = replace(e, passo=proximo)
-        return Transicao(novo, _tela_refutacao(d, novo))
+        novo = replace(e, passo=proximo, repeticoes=0)
+        return Transicao(novo, _tela_refutacao(d, novo), eventos)
 
     # RF33: a refutação NÃO confirma o nó. Ela o põe em treino.
     alvo = e.alvo or e.plano[-1]
     novo = e.com(alvo, estado=EM_TREINO, streak=0, tentativas=0)
-    novo = replace(novo, fase=TREINO, plano=(), passo=0)
-    eventos = (
+    novo = replace(novo, fase=TREINO, plano=(), passo=0, repeticoes=0)
+    eventos = eventos + (
         Evento("refutacao_concluida", {"no": alvo}),
         Evento("treino_iniciado", {"no": alvo, "streak_alvo": STREAK_ALVO}),
     )

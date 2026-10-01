@@ -155,6 +155,7 @@
     $("trilha").textContent = "Aprendendo";
     $("ensino-passo").textContent = "Ideia " + t.indice + " de " + t.total;
     $("ensino-texto").textContent = t.texto;
+    Figuras.dentro($("ensino-figura"), t.no);
     $("btn-ensino").onclick = function () { responde({}); };
     mostra("ensino");
   }
@@ -274,6 +275,7 @@
   function telaValidacao(t) {
     $("trilha").textContent = "Vamos com calma";
     $("val-crenca").textContent = t.crenca || "";
+    Figuras.dentro($("val-figura"), t.no);
     $("val-analogia").textContent = t.texto;
     $("btn-validacao").onclick = function () { responde({}); };
     mostra("validacao");
@@ -291,7 +293,21 @@
       $("ref-crenca").textContent = t.contradiz;
       $("ref-certo").textContent = t.texto;
     }
+
+    /* A figura entra sempre; a reexplicação, só quando ele pediu. A mesma
+     * premissa volta dita pela analogia — não é conteúdo novo, é outro
+     * caminho para a mesma afirmação. */
+    Figuras.dentro($("ref-figura"), t.no);
+    var caixa = $("ref-reexplicacao");
+    caixa.textContent = t.reexplicacao || "";
+    caixa.classList.toggle("oculto", !t.reexplicacao);
+
     $("btn-refutacao").onclick = function () { responde({}); };
+    var naoEntendi = $("btn-refutacao-nao");
+    naoEntendi.hidden = !t.pode_repetir;
+    naoEntendi.textContent = t.repeticoes ? "Ainda assim não entendi"
+                                          : "Ainda não entendi";
+    naoEntendi.onclick = function () { responde({ repetir: true }); };
     mostra("refutacao");
   }
 

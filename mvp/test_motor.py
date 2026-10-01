@@ -150,6 +150,65 @@ def test_a_validacao_traz_a_analogia_antes_da_refutacao(d):
 
 
 # --------------------------------------------------------------------------
+# "Ainda não entendi": a premissa volta, com a analogia
+# --------------------------------------------------------------------------
+
+def _ate_a_refutacao(d, no="B3"):
+    """Erra as duas perguntas do nó e passa da validação."""
+    t = motor.inicia(d)
+    pol = _politica(erra_no=no, erra_diagnostico=2)
+    for _ in range(40):
+        if t.tela.tipo == "refutacao":
+            return t
+        t = motor.avanca(d, t.estado, pol(t.tela, t.estado))
+    raise AssertionError("não chegou à refutação")
+
+
+def test_pedir_de_novo_repete_a_premissa_com_a_analogia(d):
+    t = _ate_a_refutacao(d)
+    premissa = t.tela.no
+    assert not t.tela.dados["reexplicacao"], "a analogia apareceu sem ser pedida"
+
+    t2 = motor.avanca(d, t.estado, Resposta(repetir=True))
+    assert t2.tela.no == premissa, "o percurso andou em vez de repetir"
+    assert t2.tela.dados["reexplicacao"] == d.resgate(premissa)
+    assert [e.tipo for e in t2.eventos] == ["premissa_reapresentada"]
+    assert t2.eventos[0].dados["vez"] == 1
+
+
+def test_o_percurso_nao_anda_enquanto_ele_pede_de_novo(d):
+    t = _ate_a_refutacao(d)
+    passo = t.tela.dados["passo"]
+    for vez in (1, 2):
+        t = motor.avanca(d, t.estado, Resposta(repetir=True))
+        assert t.tela.dados["passo"] == passo
+        assert t.tela.dados["repeticoes"] == vez
+
+
+def test_depois_do_limite_o_percurso_segue_e_o_log_diz(d):
+    t = _ate_a_refutacao(d)
+    for _ in range(motor.LIMITE_REEXPLICACAO):
+        t = motor.avanca(d, t.estado, Resposta(repetir=True))
+    assert t.tela.dados["pode_repetir"] is False
+
+    t = motor.avanca(d, t.estado, Resposta(repetir=True))
+    tipos = [e.tipo for e in t.eventos]
+    assert "premissa_nao_fechou" in tipos, tipos
+    assert t.tela.tipo != "refutacao" or t.tela.dados["passo"] > 1,         "insistiu numa quarta vez na mesma premissa"
+
+
+def test_a_contagem_de_reexplicacao_zera_a_cada_premissa(d):
+    """Pedir de novo numa premissa não gasta a cota da seguinte."""
+    t = _ate_a_refutacao(d, no="I1")        # percurso de cinco passos
+    t = motor.avanca(d, t.estado, Resposta(repetir=True))
+    assert t.tela.dados["repeticoes"] == 1
+    t = motor.avanca(d, t.estado, Resposta())      # entendeu, segue
+    assert t.tela.dados["passo"] == 2
+    assert t.tela.dados["repeticoes"] == 0
+    assert t.tela.dados["pode_repetir"] is True
+
+
+# --------------------------------------------------------------------------
 # RF33 — depois da refutação, treino; nunca confirmado direto
 # --------------------------------------------------------------------------
 

@@ -9,7 +9,7 @@ errôneas, 10 atividades (uma teórica e uma de código por nó) e a analogia do
 quarto de hotel.
 
 ```bash
-python -m pytest mvp/ -q     # 22 testes
+python -m pytest mvp/ -q     # 26 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -26,6 +26,35 @@ python -m mvp.app            # http://127.0.0.1:8010
 Errar chutando é lacuna, não crença: o sistema não refuta o que a pessoa não
 pensa. E um erro isolado é **vacilo** até prova em contrário — são precisos
 dois erros no mesmo nó, em formatos diferentes, para a refutação disparar.
+
+## A analogia, desenhada
+
+A mesma analogia do começo ao fim — **quarto de hotel reservado** — e um
+desenho por premissa, em `web/figuras.js`. A regra do desenho não muda: o
+quarto é a variável, o hóspede é o valor, a placa é o nome, a categoria é o
+tipo.
+
+| Premissa | O desenho mostra |
+| --- | --- |
+| B1 | dois quartos de categorias diferentes, cada um com sua placa |
+| B2 | o quarto reservado e vazio: existe antes do hóspede |
+| B3 | a bagunça do hóspede anterior — C não manda limpeza |
+| B4 | o hóspede novo entrando e o antigo saindo: um por vez |
+| I1 | a seta que vale (hóspede → quarto) e a que não vale |
+
+A figura aparece em três momentos: no ensino, na validação (junto da analogia
+escrita) e em cada passo da refutação.
+
+## Quando ele não entende a premissa
+
+Todo passo da refutação tem **"Ainda não entendi"**. O percurso não anda: a
+mesma premissa volta, agora dita pela analogia daquele nó. Até
+`LIMITE_REEXPLICACAO` vezes (2) — depois disso o percurso segue e o log
+registra `premissa_nao_fechou`.
+
+Insistir numa quarta vez na mesma frase não ensina, e o treino ainda vem
+depois para pegar o que ficou. Quem não fechar lá termina o nó em aberto, que
+é honesto.
 
 ## O grafo durante a atividade
 
@@ -89,7 +118,8 @@ mvp/
 ├── log.py                     append-only, uma linha JSON por evento
 ├── app.py                     três rotas
 ├── web/                       a interface, que não decide nada
-└── test_motor.py              22 testes
+├── web/figuras.js             a analogia desenhada, uma por premissa
+└── test_motor.py              26 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano

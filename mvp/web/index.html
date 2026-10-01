@@ -29,6 +29,7 @@
   <section id="tela-ensino" class="cartao oculto">
     <p class="etiqueta" id="ensino-passo"></p>
     <p class="ideia" id="ensino-texto"></p>
+    <div class="figura" id="ensino-figura" hidden></div>
     <button class="btn" id="btn-ensino">Entendi</button>
   </section>
 
@@ -56,6 +57,7 @@
     <p class="etiqueta">Antes de seguir</p>
     <p class="rotulo">Você partiu de</p>
     <p class="crenca" id="val-crenca"></p>
+    <div class="figura" id="val-figura" hidden></div>
     <p class="ideia" id="val-analogia"></p>
     <button class="btn" id="btn-validacao">Continuar</button>
   </section>
@@ -64,13 +66,18 @@
   <section id="tela-refutacao" class="cartao oculto">
     <p class="etiqueta" id="ref-passo"></p>
     <p class="ideia" id="ref-texto"></p>
+    <div class="figura" id="ref-figura" hidden></div>
+    <div class="reexplicacao oculto" id="ref-reexplicacao"></div>
     <div class="contraste oculto" id="ref-contraste">
       <p class="rotulo">Você partiu de</p>
       <p class="crenca" id="ref-crenca"></p>
       <p class="rotulo">As premissas que você acabou de confirmar levam a</p>
       <p class="certo" id="ref-certo"></p>
     </div>
-    <button class="btn" id="btn-refutacao">Continuar</button>
+    <div class="acoes">
+      <button class="btn" id="btn-refutacao">Faz sentido, continuar</button>
+      <button class="btn secundario" id="btn-refutacao-nao">Ainda não entendi</button>
+    </div>
   </section>
 
   <!-- mapa final -->
@@ -86,6 +93,7 @@
 
 </main>
 
+<script src="/web/figuras.js"></script>
 <script src="/web/app.js"></script>
 </body>
 </html>

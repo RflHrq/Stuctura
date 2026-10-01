@@ -34,6 +34,8 @@ class RespostaBody(BaseModel):
     escolha: int | None = None
     confianca: str = ""
     ms: int = 0
+    # "ainda não entendi" num passo da refutação: pede a premissa de novo.
+    repetir: bool = False
 
 
 def _resposta(sessao: str, t: motor.Transicao) -> dict:
@@ -79,7 +81,8 @@ def responde(sessao: str, body: RespostaBody) -> dict:
         raise HTTPException(status_code=404, detail="sessão desconhecida")
     if body.confianca and body.confianca not in motor.CONFIANCAS:
         raise HTTPException(status_code=400, detail="confiança fora da escala")
-    r = motor.Resposta(escolha=body.escolha, confianca=body.confianca, ms=body.ms)
+    r = motor.Resposta(escolha=body.escolha, confianca=body.confianca, ms=body.ms,
+                       repetir=body.repetir)
     return _resposta(sessao, motor.avanca(dominio, estado, r))
 
 
