@@ -1,0 +1,85 @@
+:root{
+  --papel:#f6f7f5; --cartao:#fff; --tinta:#16181a; --tinta2:#4a5157;
+  --linha:#e2e4e0; --linha2:#c7cbc5;
+  --acento:#1f5668; --acento-fundo:#e2eef2;
+  --ok:#1b6647; --ok-fundo:#e0efe7;
+  --erro:#94372a; --erro-fundo:#f8e6e2;
+  --aviso:#8a6212; --aviso-fundo:#f7eedc;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --papel:#121416; --cartao:#1a1d1f; --tinta:#eceef0; --tinta2:#b9c0c5;
+    --linha:#282c2f; --linha2:#3c4247;
+    --acento:#7cb9ce; --acento-fundo:#13272f;
+    --ok:#63c69a; --ok-fundo:#102a20;
+    --erro:#e18d7d; --erro-fundo:#31201d;
+    --aviso:#d9ae5b; --aviso-fundo:#2d2313;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--papel); color:var(--tinta);
+     font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.oculto{display:none !important}
+
+.topo{display:flex; align-items:center; justify-content:space-between;
+      padding:14px 20px; border-bottom:1px solid var(--linha); background:var(--cartao)}
+.marca{font-weight:650; letter-spacing:-.01em}
+.trilha{font-size:13px; color:var(--tinta2); font-variant-numeric:tabular-nums}
+
+.palco{max-width:640px; margin:0 auto; padding:28px 18px 60px}
+.cartao{background:var(--cartao); border:1px solid var(--linha); border-radius:12px;
+        padding:24px}
+h2{margin:0 0 14px; font-size:20px}
+
+.etiqueta{font-size:12px; letter-spacing:.09em; text-transform:uppercase;
+          color:var(--tinta2); margin:0 0 10px}
+.ideia{font-size:19px; line-height:1.45; margin:0 0 20px}
+.codigo{font:14px/1.5 ui-monospace,Consolas,monospace; white-space:pre-wrap;
+        background:var(--papel); border:1px solid var(--linha); border-radius:8px;
+        padding:12px 14px; margin:0 0 16px}
+
+.opcoes{display:flex; flex-direction:column; gap:8px; margin-bottom:18px}
+.opcao{text-align:left; font:inherit; color:inherit; cursor:pointer;
+       background:var(--cartao); border:1.5px solid var(--linha2);
+       border-radius:9px; padding:12px 14px}
+.opcao:hover{border-color:var(--acento)}
+.opcao[aria-pressed="true"]{border-color:var(--acento); background:var(--acento-fundo)}
+
+.confianca{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px}
+.conf{font:inherit; color:inherit; cursor:pointer; background:var(--cartao);
+      border:1.5px solid var(--linha2); border-radius:999px; padding:7px 15px}
+.conf[aria-pressed="true"]{border-color:var(--acento); background:var(--acento-fundo)}
+
+.btn{font:inherit; font-weight:600; cursor:pointer; color:#fff;
+     background:var(--acento); border:0; border-radius:9px; padding:11px 20px}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+
+.veredito{font-size:20px; font-weight:650; margin:0 0 8px}
+.veredito.certo{color:var(--ok)}
+.veredito.errado{color:var(--erro)}
+.veredito.neutro{color:var(--aviso)}
+
+.contraste{border-left:3px solid var(--aviso); background:var(--aviso-fundo);
+           border-radius:0 8px 8px 0; padding:12px 16px; margin:0 0 18px}
+.rotulo{font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+        color:var(--tinta2); margin:0 0 4px}
+.crenca{margin:0 0 12px; color:var(--erro)}
+.certo{margin:0; color:var(--ok)}
+
+.mapa{display:flex; flex-direction:column; gap:10px; margin-bottom:18px}
+.premissa{display:grid; grid-template-columns:34px 1fr; gap:12px; align-items:start;
+          border:1px solid var(--linha); border-radius:9px; padding:12px 14px}
+.premissa .id{font:13px ui-monospace,Consolas,monospace; color:var(--tinta2)}
+.premissa .frase{margin:0}
+.premissa .nota{margin:6px 0 0; font-size:13px; color:var(--tinta2)}
+.premissa.confirmado{border-color:var(--ok); background:var(--ok-fundo)}
+.premissa.treino{border-color:var(--ok); border-style:dashed; background:var(--ok-fundo)}
+.premissa.aberto{border-color:var(--aviso); background:var(--aviso-fundo)}
+
+.legenda{display:flex; flex-wrap:wrap; gap:14px; font-size:13px; color:var(--tinta2);
+         margin:0}
+.pino{display:inline-block; width:14px; height:14px; border-radius:4px;
+      border:1.5px solid var(--linha2); margin-right:5px; vertical-align:-2px}
+.pino.confirmado{border-color:var(--ok); background:var(--ok-fundo)}
+.pino.treino{border-color:var(--ok); border-style:dashed; background:var(--ok-fundo)}
+.pino.aberto{border-color:var(--aviso); background:var(--aviso-fundo)}

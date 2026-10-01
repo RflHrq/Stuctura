@@ -1,0 +1,9 @@
+id: kc_00
+title: "Declaracao de variaveis"
+pilot: false
+prerequisites: []
+conclusion_node: I1
+summary: >
+  Fundacao antes de kc_01. Uma variavel e um espaco de memoria nomeado
+  e tipado; declarar reserva esse espaco, mas so atribuir (ou inicializar)
+  lhe da um valor conhecido.

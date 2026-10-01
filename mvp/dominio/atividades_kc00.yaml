@@ -1,0 +1,323 @@
+# Atividades do kc_00, no formato que o MVP le.
+#
+# Cada atividade mira UM no do grafo. Duas fases:
+#
+#   diagnostico  revela a crenca: um dos distratores carrega `misconception`
+#   treino       vem DEPOIS da refutacao, e confirma por sequencia de acertos
+#
+# Dois campos governam a escolha do proximo item de treino (RF34):
+#
+#   formato        reconhecer | achar_erro | comparar | prever
+#   transferencia  proxima | media | distante
+#
+# A regra e simples: a tentativa seguinte no mesmo no nao repete nem o
+# activity_id, nem o formato da tentativa anterior. Por isso cada no tem
+# tres itens de treino, de tres formatos diferentes.
+#
+# ATENCAO - TEXTO A REVISAR. Os enunciados abaixo foram escritos junto com
+# o motor, nao extraidos de fonte. Sao lidos pelo participante e alimentam a
+# medicao: revisar antes de qualquer coleta.
+
+topic: kc_00
+
+atividades:
+
+  # =================== B2 - declarar ja reserva espaco ===================
+  - id: a_b2_diag
+    premissa: B2
+    fase: diagnostico
+    formato: prever
+    transferencia: proxima
+    enunciado: |
+      int x;
+      printf("%p", (void *) &x);
+      A segunda linha imprime um endereco valido?
+    opcoes:
+      - texto: "Sim: o espaco de x ja existe, mesmo sem valor definido."
+        correta: true
+      - texto: "Nao: x so passa a existir quando recebe um valor."
+        crenca: no_value_no_memory
+      - texto: "Nao: so da para pegar o endereco depois de inicializar com NULL."
+
+  - id: a_b2_t1
+    premissa: B2
+    fase: treino
+    formato: reconhecer
+    transferencia: proxima
+    enunciado: |
+      int n;
+      Neste ponto do programa, a caixa de n ja existe?
+    opcoes:
+      - texto: "Ja existe; o que esta dentro e que nao foi definido."
+        correta: true
+      - texto: "Ainda nao: ela nasce quando n recebe um valor."
+        crenca: no_value_no_memory
+
+  - id: a_b2_t2
+    premissa: B2
+    fase: treino
+    formato: achar_erro
+    transferencia: media
+    enunciado: |
+      Um colega diz: "declarei a variavel mas nao usei, entao ela nao
+      ocupa memoria nenhuma".
+      Onde esta o erro?
+    opcoes:
+      - texto: "Declarar ja reserva o espaco, usando ou nao."
+        correta: true
+      - texto: "Nao ha erro: sem valor, nao ha memoria."
+        crenca: no_value_no_memory
+      - texto: "O erro e outro: memoria so e reservada com malloc."
+
+  - id: a_b2_t3
+    premissa: B2
+    fase: treino
+    formato: comparar
+    transferencia: distante
+    enunciado: |
+      int a;
+      int b = 0;
+      Qual das duas ja tem espaco reservado?
+    opcoes:
+      - texto: "As duas."
+        correta: true
+      - texto: "So b, que recebeu valor."
+        crenca: no_value_no_memory
+
+  # ============ B3 - sem valor, conteudo indeterminado (nao zero) ========
+  - id: a_b3_diag
+    premissa: B3
+    fase: diagnostico
+    formato: prever
+    transferencia: proxima
+    enunciado: |
+      int x;
+      printf("%d", x);
+      O que esse programa imprime?
+    opcoes:
+      - texto: "Nao da para saber: x nunca recebeu valor."
+        correta: true
+      - texto: "0, porque declarar ja zera a variavel."
+        crenca: declaration_zeroes
+      - texto: "Nada: o programa nao compila."
+
+  - id: a_b3_t1
+    premissa: B3
+    fase: treino
+    formato: reconhecer
+    transferencia: proxima
+    enunciado: |
+      Em C, uma variavel local declarada e nao inicializada contem o que?
+    opcoes:
+      - texto: "O que ja estava naquele pedaco de memoria."
+        correta: true
+      - texto: "Zero, ate alguem escrever outra coisa."
+        crenca: declaration_zeroes
+
+  - id: a_b3_t2
+    premissa: B3
+    fase: treino
+    formato: achar_erro
+    transferencia: media
+    enunciado: |
+      int soma;
+      for (int i = 0; i < n; i++) soma += v[i];
+      O que esta errado nesse trecho?
+    opcoes:
+      - texto: "soma nunca recebeu um valor inicial."
+        correta: true
+      - texto: "Nada: soma comeca em zero."
+        crenca: declaration_zeroes
+      - texto: "O i deveria ser declarado antes do for."
+
+  - id: a_b3_t3
+    premissa: B3
+    fase: treino
+    formato: comparar
+    transferencia: distante
+    enunciado: |
+      void f(void) {
+        int a;
+        static int b;
+      }
+      Qual das duas vale zero com garantia?
+    opcoes:
+      - texto: "So b: variavel static comeca zerada."
+        correta: true
+      - texto: "As duas: declarar zera."
+        crenca: declaration_zeroes
+      - texto: "Nenhuma das duas."
+
+  # ============== B4 - um valor por vez; o novo substitui ================
+  - id: a_b4_diag
+    premissa: B4
+    fase: diagnostico
+    formato: prever
+    transferencia: proxima
+    enunciado: |
+      int x = 3;
+      x = 7;
+      printf("%d", x);
+      O que aparece na tela?
+    opcoes:
+      - texto: "7: o valor novo substituiu o anterior."
+        correta: true
+      - texto: "3 e 7: a variavel guarda os dois."
+        crenca: variable_remembers
+      - texto: "3: a primeira atribuicao e a que vale."
+
+  - id: a_b4_t1
+    premissa: B4
+    fase: treino
+    formato: reconhecer
+    transferencia: proxima
+    enunciado: |
+      int x = 1;
+      x = 2;
+      x = 3;
+      Quantos valores x guarda AGORA?
+    opcoes:
+      - texto: "Um so: o ultimo."
+        correta: true
+      - texto: "Tres: um para cada atribuicao."
+        crenca: variable_remembers
+
+  - id: a_b4_t2
+    premissa: B4
+    fase: treino
+    formato: achar_erro
+    transferencia: media
+    enunciado: |
+      Um colega quer recuperar o valor antigo de x depois de x = 7 e diz
+      que basta "olhar o historico da variavel".
+      Onde esta o erro?
+    opcoes:
+      - texto: "Nao ha historico: o valor anterior se perdeu na atribuicao."
+        correta: true
+      - texto: "Nao ha erro, mas ele precisa de um comando especifico."
+        crenca: variable_remembers
+      - texto: "O erro e so de sintaxe."
+
+  - id: a_b4_t3
+    premissa: B4
+    fase: treino
+    formato: comparar
+    transferencia: distante
+    enunciado: |
+      int a = 1, b = 2;
+      a = b;
+      b = a;
+      Quanto valem a e b no fim?
+    opcoes:
+      - texto: "Os dois valem 2: o valor antigo de a se perdeu."
+        correta: true
+      - texto: "a vale 2 e b vale 1: eles trocam de valor."
+        crenca: variable_remembers
+      - texto: "Os dois valem 1."
+
+  # ====== I1 - atribuicao tem um lado que recebe e um que fornece =======
+  - id: a_i1_diag
+    premissa: I1
+    fase: diagnostico
+    formato: prever
+    transferencia: proxima
+    enunciado: |
+      int x = 3;
+      5 = x;
+      A segunda linha e valida em C?
+    opcoes:
+      - texto: "Nao: do lado esquerdo tem de haver um lugar onde cabe valor."
+        correta: true
+      - texto: "Sim: atribuicao e igualdade, vale dos dois lados."
+        crenca: assignment_symmetric
+      - texto: "Sim, desde que se escreva (int) 5 = x."
+
+  - id: a_i1_t1
+    premissa: I1
+    fase: treino
+    formato: reconhecer
+    transferencia: proxima
+    enunciado: |
+      Em x = y;, qual das duas variaveis muda?
+    opcoes:
+      - texto: "So x, que recebe uma copia do valor de y."
+        correta: true
+      - texto: "As duas, porque passam a ser iguais."
+        crenca: assignment_symmetric
+
+  - id: a_i1_t2
+    premissa: I1
+    fase: treino
+    formato: achar_erro
+    transferencia: media
+    enunciado: |
+      total = soma;
+      Um colega conclui que, depois dessa linha, soma passou a valer o
+      que total valia.
+      Onde esta o erro?
+    opcoes:
+      - texto: "A copia vai de soma para total; soma nao muda."
+        correta: true
+      - texto: "Nao ha erro: os dois lados ficam iguais."
+        crenca: assignment_symmetric
+      - texto: "O erro e que faltou declarar total."
+
+  - id: a_i1_t3
+    premissa: I1
+    fase: treino
+    formato: comparar
+    transferencia: distante
+    enunciado: |
+      int a = 1, b = 2;
+      a = b;
+      b = 9;
+      Quanto vale a no fim?
+    opcoes:
+      - texto: "2: a copia aconteceu antes de b mudar."
+        correta: true
+      - texto: "9: a ficou ligada a b pela atribuicao."
+        crenca: assignment_symmetric
+      - texto: "1: a atribuicao nao teve efeito."
+
+  # ====================== B1 - nome e tipo =============================
+  - id: a_b1_diag
+    premissa: B1
+    fase: diagnostico
+    formato: reconhecer
+    transferencia: proxima
+    enunciado: |
+      double preco;
+      O que o "double" dessa linha informa?
+    opcoes:
+      - texto: "Que especie de valor cabe em preco, e quanto espaco ele ocupa."
+        correta: true
+      - texto: "Que preco e uma variavel do sistema, nao sua."
+      - texto: "Nada em tempo de execucao: e so documentacao."
+
+  - id: a_b1_t1
+    premissa: B1
+    fase: treino
+    formato: comparar
+    transferencia: media
+    enunciado: |
+      int contador;
+      char letra;
+      O que essas duas declaracoes tem em comum?
+    opcoes:
+      - texto: "As duas dao um nome a um espaco e dizem o que cabe nele."
+        correta: true
+      - texto: "Nada: tipos diferentes nao se comparam."
+
+  - id: a_b1_t2
+    premissa: B1
+    fase: treino
+    formato: achar_erro
+    transferencia: distante
+    enunciado: |
+      Um colega diz que o nome da variavel e so para ele se lembrar, e
+      que o compilador ignora.
+      Onde esta o erro?
+    opcoes:
+      - texto: "O nome e como o programa chega aquele espaco; sem ele nao ha acesso."
+        correta: true
+      - texto: "Nao ha erro: nome e comentario."

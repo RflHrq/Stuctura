@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structura — declaração de variáveis</title>
+<link rel="stylesheet" href="/web/style.css">
+</head>
+<body>
+
+<header class="topo">
+  <span class="marca">Structura</span>
+  <span class="trilha" id="trilha"></span>
+</header>
+
+<main class="palco">
+
+  <!-- ensino -->
+  <section id="tela-ensino" class="cartao oculto">
+    <p class="etiqueta" id="ensino-passo"></p>
+    <p class="ideia" id="ensino-texto"></p>
+    <button class="btn" id="btn-ensino">Entendi</button>
+  </section>
+
+  <!-- atividade: diagnóstico e treino usam a mesma tela -->
+  <section id="tela-atividade" class="cartao oculto">
+    <p class="etiqueta" id="atv-etiqueta"></p>
+    <pre class="codigo" id="atv-enunciado"></pre>
+    <div class="opcoes" id="atv-opcoes"></div>
+    <div id="atv-confianca-bloco">
+      <p class="etiqueta">Quanta confiança você tem nessa resposta?</p>
+      <div class="confianca" id="atv-confianca"></div>
+    </div>
+    <button class="btn" id="btn-responder" disabled>Confirmar</button>
+  </section>
+
+  <!-- retorno imediato -->
+  <section id="tela-retorno" class="cartao oculto">
+    <p class="veredito" id="ret-veredito"></p>
+    <p class="ideia" id="ret-texto"></p>
+    <button class="btn" id="btn-retorno">Continuar</button>
+  </section>
+
+  <!-- refutação -->
+  <section id="tela-refutacao" class="cartao oculto">
+    <p class="etiqueta" id="ref-passo"></p>
+    <p class="ideia" id="ref-texto"></p>
+    <div class="contraste oculto" id="ref-contraste">
+      <p class="rotulo">Você partiu de</p>
+      <p class="crenca" id="ref-crenca"></p>
+      <p class="rotulo">As premissas que você acabou de confirmar levam a</p>
+      <p class="certo" id="ref-certo"></p>
+    </div>
+    <button class="btn" id="btn-refutacao">Continuar</button>
+  </section>
+
+  <!-- mapa final -->
+  <section id="tela-mapa" class="cartao oculto">
+    <h2>O que você construiu</h2>
+    <div class="mapa" id="mapa"></div>
+    <p class="legenda">
+      <i class="pino confirmado"></i> premissa confirmada
+      <i class="pino treino"></i> confirmada depois de treino
+      <i class="pino aberto"></i> ficou em aberto
+    </p>
+  </section>
+
+</main>
+
+<script src="/web/app.js"></script>
+</body>
+</html>

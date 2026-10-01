@@ -1,0 +1,23 @@
+- id: no_value_no_memory
+  negates: kc_00:B2
+  provenance: L
+  label_pt: "Se eu nao dei valor, a variavel ainda nao existe na memoria."
+  source: "Kaczmarczyk, Petrick, East & Herman, 2010, SIGCSE, 'Identifying Student Misconceptions of Programming' (PVR2)"
+
+- id: declaration_zeroes
+  negates: kc_00:B3
+  provenance: L
+  label_pt: "Declarar ja zera a variavel, tipo em outras linguagens."
+  source: "Kernighan & Ritchie, The C Programming Language, 2a ed., secao 2.4 — contradiz diretamente esta crenca"
+
+- id: variable_remembers
+  negates: kc_00:B4
+  provenance: T
+  label_pt: "A variavel lembra os valores antigos, nao so o ultimo."
+  source: "du Boulay, 1986; Hermans, Swidan, Aivaloglou & Smit, 2018, WiPSCE, 'Thinking out of the Box'"
+
+- id: assignment_symmetric
+  negates: kc_00:I1
+  provenance: L
+  label_pt: "Atribuicao funciona dos dois lados, tipo igualdade matematica."
+  source: "Ma, Ferguson, Roper & Wood, SIGCSE 2007, 'Investigating the Viability of Mental Models Held by Novice Programmers'"

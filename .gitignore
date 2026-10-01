@@ -20,3 +20,4 @@ analise/
 # Copias de seguranca de coleta (§15).
 backup/
 data/simulado.db*
+mvp/dados/
