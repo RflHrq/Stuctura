@@ -354,6 +354,28 @@
 
   /* ------------------------------------------------------------ início */
 
+  /* Recomeçar abre uma SESSÃO NOVA, não desfaz a atual: o percurso que
+   * acabou de acontecer continua inteiro no log, e é isso que permite
+   * rodar o mesmo caso várias vezes e comparar depois. */
+  function recomeca() {
+    var b = $("btn-recomecar");
+    b.disabled = true;
+    api("/sessoes").then(function (j) {
+      b.disabled = false;
+      aplica(j);
+    }).catch(function (e) {
+      b.disabled = false;
+      erro(e);
+    });
+  }
+
+  function erro(e) {
+    document.body.innerHTML =
+      '<p style="padding:24px">Não consegui falar com o servidor: ' + e.message + "</p>";
+  }
+
+  $("btn-recomecar").onclick = recomeca;
+
   api("/sessoes").then(aplica).catch(function (e) {
     document.body.innerHTML =
       '<p style="padding:24px">Não consegui falar com o servidor: ' + e.message + "</p>";
