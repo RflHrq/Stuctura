@@ -451,8 +451,13 @@ def _encerra(d: Dominio, e: Estado) -> Transicao:
     return Transicao(novo, _mapa(d, novo), (evento,))
 
 
-def _mapa(d: Dominio, e: Estado) -> Tela:
-    """O mapa de premissas: o que ficou verde, e por qual caminho."""
+def estado_dos_nos(d: Dominio, e: Estado) -> list[dict]:
+    """O grafo com o estado de cada premissa, pronto para desenhar.
+
+    Serve às duas telas: o mapa do fim e o painel que fica à vista DURANTE
+    a unidade. O aluno vê a cadeia inteira o tempo todo e acompanha o que
+    já está de pé — é o mesmo dado, desenhado em dois tamanhos.
+    """
     nos = []
     for nid in d.ordem:
         en = e.no(nid)
@@ -466,4 +471,9 @@ def _mapa(d: Dominio, e: Estado) -> Tela:
             "vacilou": en.vacilou,
             "crenca": en.crenca,
         })
-    return Tela("mapa", texto=d.nos[d.conclusao].simples, dados={"nos": nos})
+    return nos
+
+
+def _mapa(d: Dominio, e: Estado) -> Tela:
+    return Tela("mapa", texto=d.nos[d.conclusao].simples,
+                dados={"nos": estado_dos_nos(d, e)})

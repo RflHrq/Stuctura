@@ -27,6 +27,22 @@ Errar chutando é lacuna, não crença: o sistema não refuta o que a pessoa nã
 pensa. E um erro isolado é **vacilo** até prova em contrário — são precisos
 dois erros no mesmo nó, em formatos diferentes, para a refutação disparar.
 
+## O grafo durante a atividade
+
+O painel do topo fica visível a unidade inteira, e vem do mesmo dado do mapa
+final: toda resposta do servidor carrega o estado dos cinco nós. O aluno vê a
+cadeia se erguendo enquanto responde.
+
+| No painel | Significa |
+| --- | --- |
+| `B2 ✓` cheio | premissa confirmada |
+| `B2 ✓` tracejado | confirmada depois de refutação e treino |
+| `B2 ✗` | crença detectada, ainda não trabalhada |
+| `B2 1/2` | em treino: acertos seguidos até confirmar |
+| `B2 —` | ficou em aberto |
+
+A aresta entre duas premissas acende quando as duas pontas estão de pé.
+
 ## Os quatro requisitos, e o teste de cada um
 
 | Código | Regra | Teste |

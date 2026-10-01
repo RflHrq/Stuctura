@@ -41,11 +41,106 @@
     return r.json();
   }
 
+  /* ------------------------------------------------------------- grafo */
+
+  /* Desenhado a cada resposta, com o estado que o servidor manda. Os nos
+   * observaveis ficam na linha de cima; a conclusao, embaixo, ligada a
+   * todos eles. A aresta acende quando as duas pontas estao de pe. */
+  var NS = "http://www.w3.org/2000/svg";
+
+  function el(nome, atributos, texto) {
+    var n = document.createElementNS(NS, nome);
+    Object.keys(atributos || {}).forEach(function (k) {
+      if (atributos[k] !== null) n.setAttribute(k, atributos[k]);
+    });
+    if (texto !== undefined) n.textContent = texto;
+    return n;
+  }
+
+  function desenhaGrafo(g) {
+    if (!g || !g.nos || !g.nos.length) return;
+    var svg = $("grafo-svg");
+    svg.innerHTML = "";
+    $("grafo").hidden = false;
+
+    var base = g.nos.filter(function (n) { return n.tipo === "observavel"; });
+    var topo = g.nos.filter(function (n) { return n.tipo !== "observavel"; });
+    var L = 92, A = 34, gap = 16, y0 = 14, y1 = 96;
+    var larguraBase = base.length * L + (base.length - 1) * gap;
+    var x0 = (520 - larguraBase) / 2;
+    var pos = {};
+
+    base.forEach(function (n, i) { pos[n.no] = { x: x0 + i * (L + gap), y: y0 }; });
+    topo.forEach(function (n, i) {
+      pos[n.no] = { x: (520 - L) / 2 + i * (L + gap), y: y1 };
+    });
+
+    /* arestas primeiro, para ficarem atras das caixas */
+    g.nos.forEach(function (n) {
+      (n.suporte || []).forEach(function (s) {
+        if (!pos[s] || !pos[n.no]) return;
+        var de = pos[s], para = pos[n.no];
+        var viva = sustentado(porId(g, s)) && sustentado(n);
+        svg.appendChild(el("path", {
+          "class": "g-aresta" + (viva ? " viva" : ""),
+          d: "M" + (de.x + L / 2) + "," + (de.y + A) +
+             " C" + (de.x + L / 2) + "," + (de.y + A + 24) +
+             " " + (para.x + L / 2) + "," + (para.y - 24) +
+             " " + (para.x + L / 2) + "," + para.y
+        }));
+      });
+    });
+
+    g.nos.forEach(function (n) {
+      var p = pos[n.no];
+      if (!p) return;
+      var classe = "g-no " + classeDe(n) + (n.no === g.foco ? " foco" : "");
+      svg.appendChild(el("rect", {
+        "class": classe, x: p.x, y: p.y, width: L, height: A, rx: 8
+      }));
+      svg.appendChild(el("text", {
+        "class": "g-rot", x: p.x + L / 2, y: p.y + A / 2
+      }, n.no + rotuloEstado(n)));
+    });
+
+    $("grafo-nota").textContent = notaGrafo(g);
+  }
+
+  function porId(g, id) {
+    return g.nos.filter(function (n) { return n.no === id; })[0];
+  }
+
+  function sustentado(n) { return !!n && n.estado === "confirmado"; }
+
+  function classeDe(n) {
+    if (n.estado === "confirmado") return n.via_treino ? "treino" : "confirmado";
+    return n.estado;
+  }
+
+  function rotuloEstado(n) {
+    if (n.estado === "confirmado") return " ✓";
+    if (n.estado === "refutado") return " ✗";
+    if (n.estado === "em_treino") return " " + n.streak + "/2";
+    if (n.estado === "em_aberto") return " —";
+    return "";
+  }
+
+  function notaGrafo(g) {
+    var prontos = g.nos.filter(sustentado).length;
+    var treinando = g.nos.filter(function (n) { return n.estado === "em_treino"; })[0];
+    if (treinando) {
+      return "Treinando " + treinando.no + ": " + treinando.streak +
+             " de 2 acertos seguidos para confirmar.";
+    }
+    return prontos + " de " + g.nos.length + " premissas de pé.";
+  }
+
   /* ---------------------------------------------------------- despacho */
 
   function aplica(j) {
     S.sessao = j.sessao;
     S.tela = j.tela;
+    desenhaGrafo(j.grafo);
     var t = j.tela;
     if (t.tipo === "ensino") return telaEnsino(t);
     if (t.tipo === "atividade") return telaAtividade(t);
@@ -251,6 +346,7 @@
     var j = await api("/sessoes/" + S.sessao + "/responder", corpo);
     if (contexto) {
       S.pendente = j;
+      desenhaGrafo(j.grafo);     // o grafo acompanha já no retorno
       return mostraRetorno(j, contexto);
     }
     aplica(j);

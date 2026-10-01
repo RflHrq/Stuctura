@@ -83,3 +83,21 @@ h2{margin:0 0 14px; font-size:20px}
 .pino.confirmado{border-color:var(--ok); background:var(--ok-fundo)}
 .pino.treino{border-color:var(--ok); border-style:dashed; background:var(--ok-fundo)}
 .pino.aberto{border-color:var(--aviso); background:var(--aviso-fundo)}
+
+/* ----------------------------------------------------------------- grafo */
+/* Fica acima do cartao, visivel o tempo todo. Em tela estreita ele encolhe,
+   nunca some: ver a cadeia e parte do que a unidade ensina. */
+.grafo{max-width:640px; margin:18px auto 0; padding:0 18px}
+.grafo svg{width:100%; height:auto; display:block}
+.grafo-nota{margin:6px 2px 0; font-size:12.5px; color:var(--tinta2); min-height:1.2em}
+.g-no{fill:var(--cartao); stroke:var(--linha2); stroke-width:1.5}
+.g-no.confirmado{fill:var(--ok-fundo); stroke:var(--ok); stroke-width:2}
+.g-no.treino{fill:var(--ok-fundo); stroke:var(--ok); stroke-width:2; stroke-dasharray:4 3}
+.g-no.em_treino{fill:var(--aviso-fundo); stroke:var(--aviso); stroke-width:2}
+.g-no.refutado{fill:var(--erro-fundo); stroke:var(--erro); stroke-width:2}
+.g-no.em_aberto{fill:var(--aviso-fundo); stroke:var(--aviso); stroke-dasharray:4 3}
+.g-no.foco{stroke-width:3.5}
+.g-rot{font:600 12px ui-monospace,Consolas,monospace; fill:var(--tinta2);
+       text-anchor:middle; dominant-baseline:middle}
+.g-aresta{stroke:var(--linha2); stroke-width:1.5; fill:none}
+.g-aresta.viva{stroke:var(--ok)}

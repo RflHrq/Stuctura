@@ -58,6 +58,10 @@ def _resposta(sessao: str, t: motor.Transicao) -> dict:
         "sessao": sessao,
         "tela": t.tela.json(),
         "veredito": veredito,
+        # O grafo vai em TODA resposta, não só no fim: ele fica à vista
+        # durante a unidade, e o aluno acompanha a cadeia se erguendo.
+        "grafo": {"nos": motor.estado_dos_nos(dominio, t.estado),
+                  "foco": t.tela.no or t.estado.alvo},
         "eventos": [e.tipo for e in t.eventos],
     }
 
