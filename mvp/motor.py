@@ -162,8 +162,13 @@ def _cartoes(d: Dominio) -> tuple[str, ...]:
 
 def _tela_ensino(d: Dominio, e: Estado) -> Tela:
     nid = _cartoes(d)[e.cartao]
-    return Tela("ensino", no=nid, texto=d.nos[nid].simples,
-                dados={"indice": e.cartao + 1, "total": len(_cartoes(d))})
+    return Tela("ensino", no=nid, texto=d.nos[nid].simples, dados={
+        "indice": e.cartao + 1, "total": len(_cartoes(d)),
+        # A frase sozinha fica abstrata para quem nunca declarou uma
+        # variável. O exemplo ancora, e é o mesmo código que as atividades
+        # daquele nó usam.
+        "codigo": d.exemplo(nid),
+    })
 
 
 def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
@@ -201,7 +206,7 @@ def _proxima_diagnostica(d: Dominio, e: Estado) -> Transicao:
     for nid in d.ordem:
         if e.no(nid).estado in (CONFIRMADO, EM_ABERTO):
             continue
-        for a in d.atividades_do_no(nid):
+        for a in d.atividades_do_no(nid, "diagnostico"):
             if a.id in e.no(nid).usadas:
                 continue
             return _apresenta(d, replace(e, fase=DIAGNOSTICO, alvo=nid), a)
@@ -267,7 +272,8 @@ def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
 
     erros = en.erros + 1
     novo = e.com(a.no, erros=erros)
-    restantes = [x for x in d.atividades_do_no(a.no) if x.id not in novo.no(a.no).usadas]
+    restantes = [x for x in d.atividades_do_no(a.no, "diagnostico")
+                 if x.id not in novo.no(a.no).usadas]
 
     # Um erro só não basta. Vem a outra pergunta do nó, de formato diferente,
     # antes de a refutação disparar.
@@ -396,16 +402,26 @@ def _segue_refutacao(d: Dominio, e: Estado, repetir: bool = False) -> Transicao:
 def proximo_item(d: Dominio, e: Estado, no: str) -> tuple[Atividade | None, bool]:
     """O próximo item de treino do nó, e se ele está sendo reapresentado.
 
-    RF34 pede formato diferente do anterior e nenhum item repetido EM
-    SEQUÊNCIA. Com duas atividades por nó — a teórica e a de código —, as
-    duas já foram usadas no diagnóstico quando o treino começa; exigir item
-    inédito deixaria todo nó refutado sem treino nenhum. Então o treino pode
-    reapresentar um item de antes da refutação, desde que não seja o que
-    acabou de aparecer e que mude de formato. A reapresentação vai para o
-    log, e a análise pode descontá-la.
+    O treino tem banco PRÓPRIO (`uso: treino`): a sequência de acertos não
+    é feita das perguntas que o aluno acabou de responder no diagnóstico —
+    isso seria reapresentar a mesma pergunta logo depois de ela ter sido
+    discutida, e provaria pouco.
+
+    RF34 pede formato diferente do anterior e nenhum item repetido em
+    sequência. Esgotado o banco de treino, o seletor aceita reapresentar um
+    item do diagnóstico em vez de deixar o nó sem como fechar — e marca a
+    reapresentação no log, para a análise poder descontá-la.
     """
     en = e.no(no)
+    proprios = [a for a in d.atividades_do_no(no, "treino")
+                if a.id not in en.usadas and a.id != en.ultima_atividade]
+    if proprios:
+        outro = [a for a in proprios if a.formato != en.ultimo_formato]
+        return (outro or proprios)[0], False
+
     todas = [a for a in d.atividades_do_no(no) if a.id != en.ultima_atividade]
+    if not todas:
+        return None, False
     if not todas:
         return None, False
     outro_formato = [a for a in todas if a.formato != en.ultimo_formato]

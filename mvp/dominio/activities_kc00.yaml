@@ -48,6 +48,25 @@ resgates:
     dentro da caixa x; "7 = x" tentaria botar algo dentro do numero 7, e
     numero nao e caixa.
 
+# O codigo que acompanha cada premissa na tela de ENSINO. A frase sozinha
+# fica abstrata para quem nunca declarou uma variavel; o exemplo ancora.
+exemplos:
+  B1: |
+    int idade;
+    char letra;
+  B2: |
+    int x;
+  B3: |
+    int x;
+    printf("%d", x);
+  B4: |
+    int x = 3;
+    x = 7;
+  I1: |
+    int x;
+    x = 7;
+    7 = x;
+
 activities:
 
   - id: ciu_kc00_001
@@ -92,17 +111,18 @@ activities:
 
   - id: ciu_kc00_004
     node: kc00:B2
-    formato: comparar_casos
+    formato: reconhecer_conceito
     tipo: codigo
     belief_context: no_value_no_memory
     codigo: |
       int total;
-      printf("%zu\n", sizeof(total));
-    enunciado: "Isso funciona mesmo sem total ter recebido valor?"
+      total = 7;
+    enunciado: "Em que momento o espaco de total passou a existir?"
     alternativas:
-      a: "Não, dá erro, porque total \"não existe\" ainda"
-      b: "Sim — sizeof mede o espaço já reservado, com ou sem valor dentro"
-    gabarito: b
+      a: "Na primeira linha, quando total foi declarado"
+      b: "Na segunda, quando total recebeu o 7"
+      c: "Nas duas: a primeira reserva metade, a segunda o resto"
+    gabarito: a
 
   - id: ciu_kc00_005
     node: kc00:B3
@@ -181,3 +201,163 @@ activities:
       a: "Sim, é igual a x = 3;"
       b: "Não — o compilador recusa, 3 não é um lugar que recebe valor"
     gabarito: b
+
+  # ==================== TREINO ====================
+  # Itens que SO aparecem depois da refutacao. Dois por no, de formatos
+  # diferentes entre si e diferentes do par do diagnostico — e de
+  # transferencia mais distante: e a mesma ideia noutra roupa, nao a mesma
+  # pergunta de novo.
+
+  - id: ciu_kc00_t01
+    node: kc00:B1
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      char a;
+      double b;
+    enunciado: "Por que b ocupa mais espaco que a?"
+    alternativas:
+      a: "Porque o tipo diz quanto espaco cabe ali"
+      b: "Porque o nome b vem depois no alfabeto"
+      c: "Nao ocupa: toda variavel ocupa o mesmo"
+    gabarito: a
+
+  - id: ciu_kc00_t02
+    node: kc00:B1
+    uso: treino
+    formato: achar_o_erro
+    tipo: teorica
+    enunciado: >
+      Um colega diz que o nome da variavel serve so para ele se lembrar, e
+      que o compilador ignora. Onde esta o erro?
+    alternativas:
+      a: "O nome e como o programa chega aquele espaco; sem ele nao ha acesso"
+      b: "Nao ha erro: nome e comentario"
+    gabarito: a
+
+  - id: ciu_kc00_t03
+    node: kc00:B2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    belief_context: no_value_no_memory
+    codigo: |
+      int a;
+      int b;
+      a = 5;
+    enunciado: "Antes da terceira linha rodar, quantos espacos ja existem?"
+    alternativas:
+      a: "Dois: a e b"
+      b: "Nenhum: nenhuma das duas recebeu valor"
+      c: "Um: so o de a, que vai receber valor"
+    gabarito: a
+
+  - id: ciu_kc00_t04
+    node: kc00:B2
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    belief_context: no_value_no_memory
+    codigo: |
+      int total;
+      printf("%zu", sizeof(total));
+    enunciado: >
+      sizeof devolve o tamanho do espaco de uma variavel. Isso funciona
+      mesmo sem total ter recebido valor?
+    alternativas:
+      a: "Sim: o espaco ja esta reservado, com ou sem valor dentro"
+      b: "Nao: sem valor nao ha espaco para medir"
+    gabarito: a
+
+  - id: ciu_kc00_t05
+    node: kc00:B3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    belief_context: declaration_zeroes
+    codigo: |
+      int soma;
+      soma = soma + 10;
+      printf("%d", soma);
+    enunciado: "Da para saber o que aparece na tela?"
+    alternativas:
+      a: "Nao: soma entrou na conta com lixo"
+      b: "Sim: aparece 10, porque soma comecava em zero"
+    gabarito: a
+
+  - id: ciu_kc00_t06
+    node: kc00:B3
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    belief_context: declaration_zeroes
+    codigo: |
+      int a;
+      int b = 0;
+    enunciado: "Qual das duas voce pode usar numa conta agora, com seguranca?"
+    alternativas:
+      a: "So b, que recebeu valor"
+      b: "As duas: declarar ja zera"
+    gabarito: a
+
+  - id: ciu_kc00_t07
+    node: kc00:B4
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    belief_context: variable_remembers
+    codigo: |
+      int x = 2;
+      x = x + 3;
+      printf("%d", x);
+    enunciado: "O que aparece?"
+    alternativas:
+      a: "5: x virou 2 + 3, e so isso ficou"
+      b: "2 e 5: os dois valores ficam guardados"
+      c: "3: o valor novo substitui o antigo"
+    gabarito: a
+
+  - id: ciu_kc00_t08
+    node: kc00:B4
+    uso: treino
+    formato: achar_o_erro
+    tipo: teorica
+    belief_context: variable_remembers
+    enunciado: >
+      Depois de x = 7, um colega quer o valor anterior de x e diz que basta
+      olhar o historico da variavel. Onde esta o erro?
+    alternativas:
+      a: "Nao ha historico: o valor anterior se perdeu na atribuicao"
+      b: "Nao ha erro, mas ele precisa de um comando especifico"
+    gabarito: a
+
+  - id: ciu_kc00_t09
+    node: kc00:I1
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    belief_context: assignment_symmetric
+    codigo: |
+      int a = 1, b = 2;
+      a = b;
+      b = 9;
+      printf("%d", a);
+    enunciado: "Quanto vale a no fim?"
+    alternativas:
+      a: "2: a copia aconteceu antes de b mudar"
+      b: "9: a ficou ligada a b pela atribuicao"
+      c: "1: a atribuicao nao teve efeito"
+    gabarito: a
+
+  - id: ciu_kc00_t10
+    node: kc00:I1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    belief_context: assignment_symmetric
+    enunciado: "Em y = x;, qual das duas muda?"
+    alternativas:
+      a: "So y, que recebe uma copia do valor de x"
+      b: "As duas, porque passam a ser iguais"
+    gabarito: a

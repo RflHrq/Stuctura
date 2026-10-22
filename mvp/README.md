@@ -5,11 +5,17 @@ treina → confirma**. Um nó só vira premissa correta depois de uma sequência
 de acertos no treino, nunca depois de um acerto isolado.
 
 Conteúdo: **kc_00, declaração de variáveis** — 5 premissas, 4 concepções
-errôneas, 10 atividades (uma teórica e uma de código por nó) e a analogia do
-quarto de hotel.
+errôneas, 20 atividades e a analogia do quarto de hotel.
+
+As atividades vêm em **dois bancos**, e a diferença importa:
+
+| Banco | Quantas | Quando aparece |
+| --- | --- | --- |
+| diagnóstico | 10 — uma teórica e uma de código por nó | antes de qualquer refutação; o par sustenta a checagem de vacilo |
+| treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 26 testes
+python -m pytest mvp/ -q     # 28 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -43,7 +49,10 @@ tipo.
 | I1 | a seta que vale (hóspede → quarto) e a que não vale |
 
 A figura aparece em três momentos: no ensino, na validação (junto da analogia
-escrita) e em cada passo da refutação.
+escrita) e em cada passo da refutação. A tela de ensino mostra ainda o
+**código de exemplo** daquele nó: a frase, o código e o desenho são a mesma
+ideia em três registros, e a frase sozinha fica abstrata para quem nunca
+declarou uma variável.
 
 ## Quando ele não entende a premissa
 
@@ -112,40 +121,36 @@ mvp/
 │   ├── topic_kc00.yaml        o tópico
 │   ├── graph_kc00.yaml        5 premissas, suporte e crenças que as negam
 │   ├── beliefs_kc00.yaml      4 crenças com procedência e fonte
-│   └── activities_kc00.yaml   10 atividades + a analogia de resgate por nó
+│   └── activities_kc00.yaml   20 atividades, exemplos e analogias de resgate
 ├── dominio.py                 carga e validação (falha na carga, nunca em sessão)
 ├── motor.py                   o laço, puro: (estado, resposta) → (estado, tela, eventos)
 ├── log.py                     append-only, uma linha JSON por evento
 ├── app.py                     três rotas
 ├── web/                       a interface, que não decide nada
 ├── web/figuras.js             a analogia desenhada, uma por premissa
-└── test_motor.py              26 testes
+└── test_motor.py              28 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano
 falso (YAML 1.1). As atividades usam `premissa:` para apontar o nó.
 
-## O limite do banco atual
+## Por que o treino tem banco próprio
 
-Cada nó tem **dois** itens: a teórica e a de código. Os dois são consumidos na
-checagem de vacilo, então o treino depois da refutação não tem item inédito —
-ele **reapresenta** um dos dois, nunca o que acabou de aparecer, e registra
-`item_reapresentado` no log.
+Antes o treino reapresentava as duas perguntas do diagnóstico, e a teórica
+voltava logo depois da de código — estranho de responder, e evidência fraca:
+um acerto numa pergunta que a pessoa acabou de discutir prova pouco.
 
-Isso cumpre o critério literal do RF34 (não repetir o mesmo item *em
-sequência*), mas enfraquece a evidência: um streak de dois acertos em itens já
-vistos prova menos do que em itens novos. **Um terceiro item por nó resolve** —
-de preferência de transferência distante.
+Agora o treino tem itens próprios (`uso: treino`), e só cai na reapresentação
+quando eles acabam — registrando `item_reapresentado` no log. Com dois itens
+de treino por nó e um teto de quatro tentativas, isso acontece quando a pessoa
+erra duas vezes no mesmo nó.
 
-Efeito colateral: com dois itens por nó, as duas metades do RF34 (não repetir
-item, não repetir formato) selecionam sempre a mesma coisa, e nenhum teste
-sobre este domínio consegue distinguir uma da outra. O teste
-`test_rf34_a_regra_de_formato_vale_mesmo_havendo_item_inedito` contorna isso
-montando um nó de três itens em memória.
+**Um terceiro item de treino por nó** eliminaria a reapresentação de vez.
 
 ## O que falta para isto virar coleta
 
-1. **Um terceiro item por nó**, para o treino não depender de reapresentação.
+1. **Revisar as 20 atividades.** Dez vieram do seu documento; as dez de treino
+   e a de código do B2 foram escritas aqui, e alimentam a medição.
 2. **Decidir os parâmetros** com dados do ensaio: 2 acertos é chute informado.
 3. **Reconstrução do estado pelo log.** Hoje a sessão vive em memória; o log
    já guarda tudo o que seria preciso para reconstruir.

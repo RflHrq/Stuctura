@@ -155,6 +155,9 @@
     $("trilha").textContent = "Aprendendo";
     $("ensino-passo").textContent = "Ideia " + t.indice + " de " + t.total;
     $("ensino-texto").textContent = t.texto;
+    // A frase, o código e o desenho: a mesma ideia em três registros.
+    $("ensino-codigo").textContent = t.codigo || "";
+    $("ensino-codigo").hidden = !t.codigo;
     Figuras.dentro($("ensino-figura"), t.no);
     $("btn-ensino").onclick = function () { responde({}); };
     mostra("ensino");
@@ -165,10 +168,13 @@
   function telaAtividade(t) {
     S.escolha = null;
     S.confianca = null;
-    $("trilha").textContent = t.fase === "treino"
+    // `fase` vem do motor em maiúsculas (TREINO / DIAGNOSTICO): é o mesmo
+    // nome que o log grava, e comparar com minúsculas quebrava em silêncio.
+    var emTreino = t.fase === "TREINO";
+    $("trilha").textContent = emTreino
       ? "Treinando · premissa " + t.no
       : "Praticando";
-    $("atv-etiqueta").textContent = t.fase === "treino"
+    $("atv-etiqueta").textContent = emTreino
       ? "Treino · " + rotuloFormato(t.formato)
       : "Atividade";
     $("atv-enunciado").textContent = t.texto;
@@ -231,8 +237,10 @@
   }
 
   function rotuloFormato(f) {
-    return { reconhecer: "reconhecer o conceito", achar_erro: "achar o erro",
-             comparar: "comparar casos", prever: "prever o resultado" }[f] || f;
+    return { reconhecer_conceito: "reconhecer o conceito",
+             achar_o_erro: "achar o erro",
+             comparar_casos: "comparar casos",
+             prever_saida: "prever o resultado" }[f] || f;
   }
 
   /* -------------------------------------------------- retorno imediato */
@@ -245,7 +253,7 @@
   function mostraRetorno(j, contexto) {
     // A trilha do topo descreve a tela que está no ar. Sem isto ela ficava
     // congelada no passo anterior enquanto o retorno estava visível.
-    $("trilha").textContent = contexto.fase === "treino" ? "Treinando" : "Praticando";
+    $("trilha").textContent = contexto.fase === "TREINO" ? "Treinando" : "Praticando";
     var v = $("ret-veredito");
     if (j.veredito === "crenca") {
       v.textContent = "Vamos olhar isso com calma";

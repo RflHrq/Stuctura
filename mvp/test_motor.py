@@ -256,37 +256,61 @@ def test_rf34_o_seletor_recusa_o_item_e_o_formato_anteriores(d):
 
 
 def test_rf34_a_regra_de_formato_vale_mesmo_havendo_item_inedito(d):
-    """O teste acima não distingue as duas metades da regra.
+    """A regra de formato precisa valer mesmo quando há item inédito.
 
-    Com dois itens por nó — um de cada formato —, "não repetir o item
-    anterior" e "não repetir o formato anterior" selecionam a mesma coisa:
-    tirar qualquer uma das duas do motor não muda nada, e nenhum teste sobre
-    este domínio consegue pegar. Aqui o nó recebe um TERCEIRO item, do mesmo
-    formato do anterior, e aí as duas regras se separam: sem a de formato, o
-    seletor escolheria o item novo do mesmo molde.
+    Monta um terceiro item de treino, do MESMO formato do que acabou de
+    aparecer, e põe-no na frente da fila. Sem a regra de formato o seletor
+    pegaria esse; com ela, pula para o de formato diferente.
     """
-    extra = replace(d.atividades_do_no("B4")[1], id="a_b4_extra")
-    tres = replace(d, atividades=d.atividades + (extra,))
-    itens = tres.atividades_do_no("B4")
-    assert len({a.formato for a in itens}) == 2, "o cenário do teste mudou"
+    treino = d.atividades_do_no("B2", "treino")
+    assert len({a.formato for a in treino}) >= 2, "o cenário do teste mudou"
+    repetido, outro = treino[1], treino[0]
+    extra = replace(repetido, id="a_b2_extra")
+    tres = replace(d, atividades=(extra,) + d.atividades)
 
-    anterior = itens[1]                       # comparar_casos, já apresentado
-    e = motor.Estado().com("B4", estado=motor.EM_TREINO,
-                           usadas=(itens[0].id, anterior.id),
-                           ultima_atividade=anterior.id,
-                           ultimo_formato=anterior.formato)
-    escolhido, _ = motor.proximo_item(tres, e, "B4")
+    e = motor.Estado().com("B2", estado=motor.EM_TREINO,
+                           usadas=(repetido.id,),
+                           ultima_atividade=repetido.id,
+                           ultimo_formato=repetido.formato)
+    escolhido, _ = motor.proximo_item(tres, e, "B2")
     assert escolhido is not None
-    assert escolhido.formato != anterior.formato, \
-        "o seletor pegou o item inédito do mesmo formato (%s)" % escolhido.id
+    assert escolhido.formato != repetido.formato,         "o seletor pegou o item inédito do mesmo formato (%s)" % escolhido.id
+    assert escolhido.id == outro.id
 
 
-def test_a_reapresentacao_de_item_fica_registrada(d):
-    """Com dois itens por nó, o treino reusa o que o diagnóstico já mostrou.
-    Isso é aceitável — nunca em sequência —, mas tem de aparecer no log."""
+def test_o_treino_tem_banco_proprio(d):
+    """A sequência de acertos não é feita das perguntas que o aluno acabou
+    de responder: isso seria reapresentar a pergunta logo depois de ela ter
+    sido discutida, e provaria pouco."""
     t, eventos = roda(d, _politica(erra_no="B2", erra_diagnostico=2))
-    assert _dos(eventos, "item_reapresentado", "B2"), \
-        "o treino usou item inédito: o banco cresceu?"
+    usados = [x["atividade"] for x in _dos(eventos, "treino_tentativa", "B2")]
+    do_treino = {a.id for a in d.atividades_do_no("B2", "treino")}
+    assert usados, "não houve treino"
+    assert set(usados) <= do_treino, usados
+    assert not _dos(eventos, "item_reapresentado", "B2")
+
+
+def test_o_treino_prefere_o_banco_proprio_a_uma_diagnostica_inedita(d):
+    """Se a segunda pergunta do diagnóstico não chegou a ser usada, ela
+    continua sendo pergunta de diagnóstico: o treino não a toma emprestada
+    enquanto tiver item próprio."""
+    diag = d.atividades_do_no("B2", "diagnostico")
+    e = motor.Estado().com("B2", estado=motor.EM_TREINO,
+                           usadas=(diag[0].id,),
+                           ultima_atividade=diag[0].id,
+                           ultimo_formato=diag[0].formato)
+    escolhido, reapresentada = motor.proximo_item(d, e, "B2")
+    assert escolhido is not None and not reapresentada
+    assert escolhido.uso == "treino", escolhido.id
+
+
+def test_esgotado_o_banco_de_treino_o_item_volta_e_fica_registrado(d):
+    """Melhor repetir um item do que deixar o nó sem como fechar — mas a
+    reapresentação tem de aparecer no log."""
+    t, eventos = roda(d, _politica(erra_no="B2", erra_diagnostico=2, erra_treino=99))
+    tentativas = _dos(eventos, "treino_tentativa", "B2")
+    assert len(tentativas) > len(d.atividades_do_no("B2", "treino")),         "o teto parou antes de o banco de treino acabar"
+    assert _dos(eventos, "item_reapresentado", "B2")
 
 
 # --------------------------------------------------------------------------

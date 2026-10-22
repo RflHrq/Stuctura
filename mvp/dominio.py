@@ -27,6 +27,11 @@ FORMATOS = ("reconhecer_conceito", "comparar_casos", "achar_o_erro", "prever_sai
 # código antes de a refutação disparar.
 TIPOS = ("teorica", "codigo")
 
+# Onde a atividade entra. O par teorica+codigo do diagnostico sustenta a
+# checagem de vacilo; o treino tem banco PROPRIO, para a sequencia de
+# acertos nao ser feita de perguntas que o aluno acabou de ver.
+USOS = ("diagnostico", "treino")
+
 
 class DominioInvalido(Exception):
     def __init__(self, problemas):
@@ -75,6 +80,7 @@ class Atividade:
     opcoes: tuple[Opcao, ...]
     codigo: str = ""
     crenca: str | None = None      # a crença que um erro aqui levanta
+    uso: str = "diagnostico"       # diagnostico | treino
 
     @property
     def indice_correto(self) -> int:
@@ -103,10 +109,17 @@ class Dominio:
     def resgate(self, no: str) -> str:
         return self.resgates.get(no) or self.analogia
 
-    def atividades_do_no(self, no: str) -> tuple[Atividade, ...]:
+    exemplos: Mapping[str, str] = field(default_factory=dict)
+
+    def atividades_do_no(self, no: str, uso: str | None = None) -> tuple[Atividade, ...]:
         """As atividades do nó, teórica antes de código."""
-        itens = [a for a in self.atividades if a.no == no]
+        itens = [a for a in self.atividades
+                 if a.no == no and (uso is None or a.uso == uso)]
         return tuple(sorted(itens, key=lambda a: TIPOS.index(a.tipo)))
+
+    def exemplo(self, no: str) -> str:
+        """O código que acompanha a premissa na tela de ensino."""
+        return self.exemplos.get(no, "")
 
     def crenca_que_nega(self, no: str) -> Crenca | None:
         return next((c for c in self.crencas.values() if c.nega == no), None)
@@ -193,6 +206,8 @@ def carrega(raiz: Path | None = None) -> Dominio:
         alvo = str(bruto.get("node", "")).split(":")[-1]
         if alvo not in nos:
             problemas.append("atividade %s mira %r, que não é nó" % (aid, bruto.get("node")))
+        if bruto.get("uso", "diagnostico") not in USOS:
+            problemas.append("atividade %s: uso inválido %r" % (aid, bruto.get("uso")))
         if bruto.get("tipo") not in TIPOS:
             problemas.append("atividade %s: tipo inválido %r" % (aid, bruto.get("tipo")))
         if bruto.get("formato") not in FORMATOS:
@@ -230,6 +245,7 @@ def carrega(raiz: Path | None = None) -> Dominio:
             enunciado=_texto(bruto.get("enunciado")),
             codigo=(bruto.get("codigo") or "").strip("\n"),
             opcoes=opcoes, crenca=crenca,
+            uso=bruto.get("uso", "diagnostico"),
         ))
 
     for cid, c in crencas.items():
@@ -243,12 +259,21 @@ def carrega(raiz: Path | None = None) -> Dominio:
         if not any(a.crenca == cid for a in atividades):
             problemas.append("crença %s não é levantada por nenhuma atividade" % cid)
     for nid in nos:
-        tipos = {a.tipo for a in atividades if a.no == nid}
-        if not tipos:
-            problemas.append("nó %s não tem atividade nenhuma" % nid)
+        diag = [a for a in atividades if a.no == nid and a.uso == "diagnostico"]
+        tipos = {a.tipo for a in diag}
+        if not diag:
+            problemas.append("nó %s não tem atividade de diagnóstico" % nid)
         elif tipos != set(TIPOS):
             problemas.append("nó %s não tem o par teórica + código (tem: %s)"
                              % (nid, ", ".join(sorted(tipos))))
+
+        # O treino precisa de pelo menos dois itens próprios, de formatos
+        # diferentes: é esse o tamanho da sequência que confirma o nó.
+        treino = [a for a in atividades if a.no == nid and a.uso == "treino"]
+        if len({a.formato for a in treino}) < 2:
+            problemas.append(
+                "nó %s tem menos de dois formatos no banco de treino "
+                "(tem %d item(ns))" % (nid, len(treino)))
 
     if problemas:
         raise DominioInvalido(problemas)
@@ -260,4 +285,6 @@ def carrega(raiz: Path | None = None) -> Dominio:
         nos=nos, crencas=crencas, atividades=tuple(atividades),
         analogia=_texto((cru_atv or {}).get("analogy")),
         resgates={k: _texto(v) for k, v in ((cru_atv or {}).get("resgates") or {}).items()},
+        exemplos={k: (v or "").strip("\n")
+                  for k, v in ((cru_atv or {}).get("exemplos") or {}).items()},
     )
