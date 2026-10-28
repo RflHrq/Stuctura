@@ -23,6 +23,23 @@ passos de um argumento, não associações.
 **Conclusão do tópico.** A premissa que fecha a cadeia. O que o tópico
 ensina.
 
+**Unidade de conhecimento (KC).** Uma habilidade com grafo próprio:
+"declaração de variáveis", "o que é um ponteiro", "aritmética de
+ponteiros". Dentro dela, premissas; fora dela, outras KCs.
+
+**Grafo interno e grafo externo.** São dois níveis, e a palavra "grafo"
+sozinha é ambígua a partir daqui:
+
+- **interno:** as premissas de uma KC ligadas por "portanto", até a
+  conclusão. É o que o aluno percorre numa unidade.
+- **externo:** as KCs ligadas por pré-requisito. A conclusão de uma KC é
+  premissa de entrada da seguinte. É o que decide a ordem das unidades.
+
+O externo já existe em `domain/c_pointers/kcs.yaml`: 12 KCs com
+`prerequisites`, `teaching_order` e `conclusion_node`. O que falta é dizer
+**qual premissa** de uma KC sustenta **qual premissa** da seguinte — hoje a
+aresta liga KC a KC, não premissa a premissa.
+
 **Crença (concepção errônea).** Uma afirmação que a pessoa sustenta e que
 **nega exatamente uma premissa** do grafo. É isso que a torna endereçável:
 `declaration_zeroes` nega `kc_00:B3`. Se não nega nenhuma, falta premissa no

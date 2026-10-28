@@ -312,6 +312,7 @@ resultado entra no log como evento próprio.
 | D-3 | Unificar os dois esquemas de domínio (P2-3) | só compensa quando um segundo tópico entrar |
 | D-4 | Exportação em CSV para análise | o log em JSONL basta para 10 a 15 participantes |
 | D-5 | Revisar as 20 atividades | é revisão sua, não tarefa de código |
+| D-6 | **Mapear o grafo externo no nível da premissa**: qual premissa de uma KC sustenta qual premissa da seguinte | `kcs.yaml` já liga KC a KC; falta a aresta fina. É curadoria de domínio, e precisa de você — não dá para inferir do código |
 
 ## Dúvidas
 
@@ -324,6 +325,14 @@ resultado entra no log como evento próprio.
    sessão de 10 itens, se a pessoa só comete um. Isso é aceitável? Proponho
    que sim: um falso positivo isolado é registrado e tratado com outra
    superfície, e o log guarda o caso para a análise.
-3. **T12 precisa de "outra coisa no meio"** e só o kc_00 existe. Com uma
-   unidade só, o intervalo é o resto da própria unidade. Fica declarado como
-   limitação, ou o reteste espera o segundo tópico?
+3. ~~T12 precisa de "outra coisa no meio" e só o kc_00 existe.~~
+   **Resolvida em 28/10/2026.** O intervalo é a **KC seguinte**: as
+   premissas de kc_00 que a kc_01 usa como entrada são retestadas na
+   abertura da kc_01, de graça, porque a kc_01 depende delas. O reteste
+   deixa de ser tela extra e vira **checagem de pré-requisito** — a mesma
+   pergunta serve às duas coisas.
+
+   Consequência para o ciclo 1: T12 fica **dentro** da unidade, como está
+   escrito, e isso é declarado como limitação de ter uma KC só. Quando a
+   segunda KC existir, o reteste migra para a abertura dela, sem mudar o
+   evento que o log grava.

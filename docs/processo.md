@@ -66,6 +66,8 @@ pergunta.
 | 12 | A confiança fica em **tela própria**, não no pé da tela da razão | PRD | o passo a mais compra independência entre as camadas, que é o que sustenta a classificação na banca |
 | 13 | O falso positivo é **contado** à pessoa: "a resposta está certa, a explicação leva a outro lugar" | PRD | calar desperdiça o único momento em que ela percebe a própria rota torta; trocar custa uma linha depois do ensaio |
 | 14 | Parâmetros aceitos como propostos: 2 superfícies, 2 falsos positivos até virar crença, treino 2/4/2, 2+2 itens por nó | Issues | nenhum deles muda arquitetura; são constantes no topo do motor, e o ensaio ajusta |
+| 15 | O conhecimento tem **dois níveis de grafo**: premissas dentro de uma KC (interno) e KCs ligadas por pré-requisito (externo) | Issues | é a tese do usuário, e o grafo externo já existe em `kcs.yaml` com 12 KCs |
+| 16 | O **reteste de uma crença acontece na abertura da KC seguinte**, como checagem de pré-requisito | Issues | a KC seguinte depende das premissas da anterior; a mesma pergunta serve ao reteste e ao pré-requisito, sem tela extra |
 
 ## Perguntas em aberto
 
@@ -76,8 +78,8 @@ Nenhuma bloqueia a fase 4.
 3. Quem classifica as frases abertas do teach-back, e com que codebook.
 4. A crença nova de B1 (procedência E) fica como hipótese a testar, ou você
    quer procurar fonte empírica antes da coleta.
-5. As três dúvidas de `tasks.md` (premissa nunca visitada, falso positivo
-   isolado, reteste com uma unidade só) — cada uma com proposta minha.
+5. Quais premissas de uma KC sustentam quais premissas da seguinte (a
+   aresta fina do grafo externo). Curadoria de domínio, com o usuário.
 
 ## Artefatos
 
