@@ -4,8 +4,8 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** 2 — Research (entender o que existe). Nenhum código é
-alterado nas fases 1 a 5.
+**Fase atual:** 3 — Prototype (protótipo descartável das telas novas).
+Nenhum código é alterado nas fases 1 a 5.
 
 **Reformulação, não recomeço:** o motor atual (`mvp/`) e o antigo (`engine/`)
 ficam onde estão, versionados. O que está em reconstrução é o CONCEITO de
@@ -62,6 +62,7 @@ pergunta.
 | 8 | A **razão é uma segunda tela**: a resposta tranca antes de as razões aparecerem; a confiança vem uma vez, no fim | Research | razão errada é enunciado de crença — lida antes, dá a pista e muda a resposta de quem ia acertar |
 | 9 | A razão errada é **qualquer crença do grafo**, e a crença ativa é registrada **no nó que ela nega**, não no nó do item | Research | os distratores de B1 já apontam para `no_value_no_memory`, que nega B2; atribuir ao nó certo é diagnóstico melhor |
 | 10 | O **painel do pesquisador lê o log**, em processo separado, nunca a sessão viva | Research | não pode derrubar a sessão de um participante, e força o log a bastar — a mesma tarefa da reconstrução do estado |
+| 11 | *Acho que sei*, o meio da escala, puxa para o **lado conservador de cada linha**: não confirma acerto, e não livra erro de refutação | Prototype | a tabela tinha dois níveis e a escala tem três; o protótipo obrigou a decidir |
 
 ## Perguntas em aberto
 
@@ -72,6 +73,9 @@ Nenhuma bloqueia a fase 4.
 3. Quem classifica as frases abertas do teach-back, e com que codebook.
 4. A crença nova de B1 (procedência E) fica como hipótese a testar, ou você
    quer procurar fonte empírica antes da coleta.
+5. Confiança em tela própria ou no pé da tela da razão (as duas estão no
+   protótipo, na régua de baixo).
+6. Contar ou não contar o falso positivo à pessoa (idem).
 
 ## Artefatos
 
@@ -80,6 +84,7 @@ Nenhuma bloqueia a fase 4.
 | 1 Grill | `docs/context.md` | **pronto** — glossário fechado |
 | 1 Grill | `docs/problema.md` | **pronto** — critério, instrumento e escopo do 1º ciclo |
 | 2 Research | `docs/research.md` | **pronto** — linha de base, 6 achados, o que serve e o que muda |
+| 3 Prototype | `prototipo/telas-novas.html` | **pronto** — fluxo clicável, descartável, fora de `mvp/` |
 
 ## Vereditos das auxiliares
 
@@ -98,4 +103,4 @@ Python. Qualquer mudança futura é comparada com isto.
 
 ## Orçamento
 
-Fase 1: 4 iterações. Fase 2: 2 iterações.
+Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração.

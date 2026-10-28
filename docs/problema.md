@@ -57,13 +57,20 @@ O cruzamento classifica o episódio:
 
 | Resposta | Razão | Confiança | Estado | O que o sistema faz |
 | --- | --- | --- | --- | --- |
-| certa | certa | alta | **confirmada** | segue; conta para a força |
-| certa | certa | baixa | **frágil** | mais uma superfície antes de confirmar |
+| certa | certa | *tenho certeza* | **confirmada** | segue; conta para a força |
+| certa | certa | *acho que sei* ou *chutei* | **frágil** | mais uma superfície antes de confirmar |
 | certa | **errada** | qualquer | **falso positivo** | não confirma; investiga |
 | errada | **certa** | qualquer | **falso negativo** (vacilo) | não refuta; segue |
-| errada | errada | alta | **crença ativa** | valida, refuta, treina |
-| errada | errada | baixa | **lacuna** | constrói |
+| errada | errada | *tenho certeza* ou *acho que sei* | **crença ativa** | valida, refuta, treina |
+| errada | errada | *chutei* | **lacuna** | constrói |
 | "não sei" em qualquer camada | — | — | **lacuna** | constrói |
+
+A escala tem **três** pontos e a tabela tinha dois: o protótipo da fase 3
+obrigou a decidir onde encaixa *acho que sei*. Ele puxa para o lado
+**conservador de cada linha** — não confirma um acerto, e não deixa de
+tratar uma crença. Errar no meio da escala é errar acreditando o
+suficiente para merecer refutação; acertar no meio não é evidência de
+premissa de pé.
 
 O falso positivo é o que mais protege o dado: hoje, quem acerta por sorte
 tem a premissa marcada como verde.

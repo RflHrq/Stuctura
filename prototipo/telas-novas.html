@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structura — telas novas</title>
+<!--
+  PROTOTIPO DESCARTAVEL — fase 3 do processo.
+
+  Nao e codigo de producao e nao pertence a mvp/. Serve para uma coisa so:
+  decidir se o fluxo de tres camadas e o teach-back funcionam na mao, antes
+  de o motor mudar. Depois da decisao, este arquivo pode ser apagado.
+
+  O que ele implementa de verdade:
+    - as tres camadas (resposta tranca, razao, confianca) — decisao D-8
+    - a razao errada como crenca do grafo, atribuida ao no que ELA nega — D-9
+    - o painel do pesquisador lendo o log de eventos — D-10
+    - "nao sei" em toda camada, e o teach-back do comeco e do fim
+    - a tabela de classificacao de problema.md, rodando
+
+  O que ele NAO implementa: validacao, refutacao, treino e figuras. Essas
+  telas existem e funcionam no MVP; nao estao em discussao.
+
+  Conteudo: kc_00, item ciu_kc00_002, escolhido de proposito — os distratores
+  dele apontam para uma crenca que nega OUTRO no (B2), que e o caso que a
+  decisao D-9 criou.
+-->
+<style>
+:root{
+  --papel:#f6f7f5; --cartao:#fff; --tinta:#16181a; --tinta2:#4a5157;
+  --linha:#e2e4e0; --linha2:#c7cbc5;
+  --acento:#1f5668; --acento-fundo:#e2eef2;
+  --ok:#1b6647; --ok-fundo:#e0efe7;
+  --erro:#94372a; --erro-fundo:#f8e6e2;
+  --aviso:#8a6212; --aviso-fundo:#f7eedc;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --papel:#121416; --cartao:#1a1d1f; --tinta:#eceef0; --tinta2:#b9c0c5;
+    --linha:#282c2f; --linha2:#3c4247;
+    --acento:#7cb9ce; --acento-fundo:#13272f;
+    --ok:#63c69a; --ok-fundo:#102a20;
+    --erro:#e18d7d; --erro-fundo:#31201d;
+    --aviso:#d9ae5b; --aviso-fundo:#2d2313;
+  }
+}
+:root[data-theme="dark"]{
+  --papel:#121416; --cartao:#1a1d1f; --tinta:#eceef0; --tinta2:#b9c0c5;
+  --linha:#282c2f; --linha2:#3c4247;
+  --acento:#7cb9ce; --acento-fundo:#13272f;
+  --ok:#63c69a; --ok-fundo:#102a20;
+  --erro:#e18d7d; --erro-fundo:#31201d;
+  --aviso:#d9ae5b; --aviso-fundo:#2d2313;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--papel); color:var(--tinta);
+     font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.oculto{display:none !important}
+
+.topo{display:flex; align-items:center; gap:10px; padding:14px 20px;
+      border-bottom:1px solid var(--linha); background:var(--cartao)}
+.marca{font-weight:650; letter-spacing:-.01em}
+.selo{font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+      color:var(--aviso); border:1px solid var(--aviso); border-radius:999px;
+      padding:2px 8px}
+.trilha{font-size:13px; color:var(--tinta2); font-variant-numeric:tabular-nums;
+        margin-left:auto; margin-right:4px}
+.btn-topo{font:inherit; font-size:13px; cursor:pointer; color:var(--tinta2);
+          background:transparent; border:1px solid var(--linha2);
+          border-radius:999px; padding:5px 13px}
+.btn-topo:hover{border-color:var(--acento); color:var(--acento)}
+
+.palco{max-width:640px; margin:0 auto; padding:22px 18px 40px}
+.cartao{background:var(--cartao); border:1px solid var(--linha); border-radius:12px;
+        padding:24px}
+h2{margin:0 0 14px; font-size:20px}
+
+.etiqueta{font-size:12px; letter-spacing:.09em; text-transform:uppercase;
+          color:var(--tinta2); margin:0 0 10px}
+.ideia{font-size:19px; line-height:1.45; margin:0 0 20px}
+.codigo{font:14px/1.5 ui-monospace,Consolas,monospace; white-space:pre-wrap;
+        background:var(--papel); border:1px solid var(--linha); border-radius:8px;
+        padding:12px 14px; margin:0 0 16px}
+
+.opcoes{display:flex; flex-direction:column; gap:8px; margin-bottom:18px}
+.opcao{text-align:left; font:inherit; color:inherit; cursor:pointer;
+       background:var(--cartao); border:1.5px solid var(--linha2);
+       border-radius:9px; padding:12px 14px}
+.opcao:hover{border-color:var(--acento)}
+.opcao[aria-pressed="true"]{border-color:var(--acento); background:var(--acento-fundo)}
+/* "Nao sei" e opcao de verdade, nao desistencia: fica na lista, separada por
+   uma linha, para nao competir visualmente com o conteudo. */
+.opcao.nao-sei{border-style:dashed; color:var(--tinta2); margin-top:4px}
+.opcao.nao-sei[aria-pressed="true"]{color:var(--tinta); border-style:solid}
+
+.confianca{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px}
+.conf{font:inherit; color:inherit; cursor:pointer; background:var(--cartao);
+      border:1.5px solid var(--linha2); border-radius:999px; padding:7px 15px}
+.conf[aria-pressed="true"]{border-color:var(--acento); background:var(--acento-fundo)}
+
+.btn{font:inherit; font-weight:600; cursor:pointer; color:#fff;
+     background:var(--acento); border:0; border-radius:9px; padding:11px 20px}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btn.secundario{background:transparent; color:var(--tinta2);
+                border:1.5px solid var(--linha2)}
+.acoes{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+
+.veredito{font-size:20px; font-weight:650; margin:0 0 8px}
+.veredito.certo{color:var(--ok)}
+.veredito.errado{color:var(--erro)}
+.veredito.neutro{color:var(--aviso)}
+
+.rotulo{font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+        color:var(--tinta2); margin:0 0 4px}
+
+/* A resposta trancada: ela fica a vista na tela da razao, para a pessoa nao
+   precisar lembrar o que escolheu — e para ficar claro que nao da mais para
+   mudar. */
+.trancada{border:1px solid var(--linha); border-radius:9px; padding:10px 14px;
+          margin:0 0 18px; background:var(--papel)}
+.trancada p{margin:0}
+.trancada .valor{font-size:15px}
+.cadeado{float:right; font-size:12px; color:var(--tinta2)}
+
+.contraste{border-left:3px solid var(--aviso); background:var(--aviso-fundo);
+           border-radius:0 8px 8px 0; padding:12px 16px; margin:0 0 18px}
+.contraste p{margin:0 0 6px}
+.contraste p:last-child{margin:0}
+
+textarea{width:100%; font:inherit; color:inherit; background:var(--papel);
+         border:1.5px solid var(--linha2); border-radius:9px; padding:12px 14px;
+         resize:vertical; min-height:92px; margin-bottom:14px}
+textarea:focus{outline:2px solid var(--acento); outline-offset:1px}
+.contador{font-size:12.5px; color:var(--tinta2); margin:-8px 0 16px}
+
+/* As duas frases do teach-back, lado a lado. Em tela estreita viram uma
+   coluna, porque ler a de antes e a de depois importa mais que o paralelo. */
+.par{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 0 18px}
+@media (max-width:560px){ .par{grid-template-columns:1fr} }
+.frase{border:1px solid var(--linha); border-radius:9px; padding:14px}
+.frase.antes{background:var(--papel)}
+.frase.depois{background:var(--ok-fundo); border-color:var(--ok)}
+.frase p{margin:0; font-size:15px}
+.frase .rotulo{margin-bottom:6px}
+
+.mapa{display:flex; flex-direction:column; gap:10px; margin-bottom:18px}
+.premissa{display:grid; grid-template-columns:34px 1fr; gap:12px; align-items:start;
+          border:1px solid var(--linha); border-radius:9px; padding:12px 14px}
+.premissa .id{font:13px ui-monospace,Consolas,monospace; color:var(--tinta2)}
+.premissa .frase2{margin:0}
+.premissa .nota{margin:6px 0 0; font-size:13px; color:var(--tinta2)}
+.premissa.confirmada{border-color:var(--ok); background:var(--ok-fundo)}
+.premissa.fragil{border-color:var(--ok); border-style:dashed; background:var(--ok-fundo)}
+.premissa.crenca{border-color:var(--erro); background:var(--erro-fundo)}
+.premissa.falso_positivo{border-color:var(--aviso); background:var(--aviso-fundo)}
+.premissa.lacuna{border-style:dashed}
+
+/* ------------------------------------------------------------------ grafo */
+.grafo{max-width:640px; margin:16px auto 0; padding:0 18px}
+.grafo svg{width:100%; height:auto; display:block}
+.grafo-nota{margin:6px 2px 0; font-size:12.5px; color:var(--tinta2); min-height:1.2em}
+.g-no{fill:var(--cartao); stroke:var(--linha2); stroke-width:1.5}
+.g-no.confirmada{fill:var(--ok-fundo); stroke:var(--ok); stroke-width:2}
+.g-no.fragil{fill:var(--ok-fundo); stroke:var(--ok); stroke-width:2; stroke-dasharray:4 3}
+.g-no.crenca{fill:var(--erro-fundo); stroke:var(--erro); stroke-width:2}
+.g-no.falso_positivo{fill:var(--aviso-fundo); stroke:var(--aviso); stroke-width:2}
+.g-no.lacuna{fill:var(--cartao); stroke:var(--linha2); stroke-dasharray:4 3}
+.g-no.foco{stroke-width:3.5}
+.g-rot{font:600 12px ui-monospace,Consolas,monospace; fill:var(--tinta2);
+       text-anchor:middle; dominant-baseline:middle}
+.g-aresta{stroke:var(--linha2); stroke-width:1.5; fill:none}
+.g-aresta.viva{stroke:var(--ok)}
+
+/* --------------------------------------------- regua e painel do pesquisador */
+/* Isto nao existe no produto: e andaime do prototipo, para ele poder sentir
+   as duas alternativas de desenho sem eu construir duas versoes. */
+.regua{max-width:640px; margin:26px auto 0; padding:14px 18px;
+       border-top:1px dashed var(--linha2); color:var(--tinta2); font-size:13.5px}
+.regua h3{margin:0 0 10px; font-size:12px; letter-spacing:.09em;
+          text-transform:uppercase; color:var(--tinta2)}
+.chave{display:flex; align-items:flex-start; gap:9px; margin-bottom:9px; cursor:pointer}
+.chave input{margin:4px 0 0}
+.chave span b{color:var(--tinta); font-weight:600}
+
+.painel{max-width:860px; margin:0 auto; padding:22px 18px 60px}
+.painel table{width:100%; border-collapse:collapse; font-size:13.5px;
+              margin-bottom:22px}
+.painel th,.painel td{text-align:left; padding:7px 9px;
+                      border-bottom:1px solid var(--linha)}
+.painel th{font-size:11.5px; letter-spacing:.07em; text-transform:uppercase;
+           color:var(--tinta2); font-weight:600}
+.painel td.mono{font:12.5px ui-monospace,Consolas,monospace; color:var(--tinta2)}
+.marca-estado{font-size:12px; padding:2px 8px; border-radius:999px;
+              border:1px solid var(--linha2)}
+.marca-estado.confirmada{color:var(--ok); border-color:var(--ok); background:var(--ok-fundo)}
+.marca-estado.fragil{color:var(--ok); border-color:var(--ok)}
+.marca-estado.crenca{color:var(--erro); border-color:var(--erro); background:var(--erro-fundo)}
+.marca-estado.falso_positivo{color:var(--aviso); border-color:var(--aviso); background:var(--aviso-fundo)}
+.marca-estado.lacuna{color:var(--tinta2)}
+.vazio{color:var(--tinta2); font-size:14px; margin:0 0 22px}
+.nota-painel{font-size:13px; color:var(--tinta2); border-left:3px solid var(--linha2);
+             padding-left:12px; margin:0}
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <span class="marca">Structura</span>
+  <span class="selo">protótipo</span>
+  <span class="trilha" id="trilha"></span>
+  <button class="btn-topo" id="btn-painel" type="button">Painel do pesquisador</button>
+  <button class="btn-topo" id="btn-recomecar" type="button">Recomeçar</button>
+</header>
+
+<!-- O grafo continua à vista, como já está no MVP. O que muda são os estados
+     que ele sabe desenhar: entraram falso positivo e lacuna. -->
+<section class="grafo" id="grafo">
+  <svg id="grafo-svg" viewBox="0 0 520 150" role="img"
+       aria-label="Mapa das premissas desta unidade"></svg>
+  <p class="grafo-nota" id="grafo-nota"></p>
+</section>
+
+<main class="palco" id="palco">
+
+  <!-- ============================== teach-back do começo ============== -->
+  <section id="tela-antes" class="cartao oculto">
+    <p class="etiqueta">Antes de começar</p>
+    <p class="ideia">Em uma frase, com suas palavras: o que acontece quando
+      você escreve <code>int x;</code> num programa em C?</p>
+    <textarea id="frase-antes" placeholder="Escreva como você explicaria para alguém."
+              aria-label="Sua frase"></textarea>
+    <p class="contador" id="contador-antes">Não tem resposta certa aqui. Ninguém
+      corrige esta frase — ela volta no fim para você comparar.</p>
+    <div class="acoes">
+      <button class="btn" id="btn-antes">Começar</button>
+      <button class="btn secundario" id="btn-antes-naosei">Não sei dizer ainda</button>
+    </div>
+  </section>
+
+  <!-- ============================== camada 1: a resposta ============== -->
+  <section id="tela-resposta" class="cartao oculto">
+    <p class="etiqueta">Pergunta 1 de 10 &middot; o que acontece</p>
+    <pre class="codigo" id="item-codigo"></pre>
+    <p class="ideia" id="item-enunciado"></p>
+    <div class="opcoes" id="opcoes-resposta"></div>
+    <div class="acoes">
+      <button class="btn" id="btn-resposta" disabled>Confirmar resposta</button>
+    </div>
+  </section>
+
+  <!-- ============================== camada 2: a razão ================= -->
+  <section id="tela-razao" class="cartao oculto">
+    <p class="etiqueta">Pergunta 1 de 10 &middot; por quê</p>
+    <div class="trancada">
+      <span class="cadeado">trancada</span>
+      <p class="rotulo">Você respondeu</p>
+      <p class="valor" id="razao-trancada"></p>
+    </div>
+    <p class="ideia">Qual destas ideias explica a sua resposta?</p>
+    <div class="opcoes" id="opcoes-razao"></div>
+    <!-- Alternativa de desenho B: a confiança no pé desta tela, em vez de
+         uma terceira tela. A régua embaixo troca entre as duas. -->
+    <div id="conf-embutida" class="oculto">
+      <p class="rotulo" style="margin-top:4px">Quanta confiança nesta dupla</p>
+      <div class="confianca" id="confianca-embutida"></div>
+    </div>
+    <div class="acoes">
+      <button class="btn" id="btn-razao" disabled>Continuar</button>
+    </div>
+  </section>
+
+  <!-- ============================== camada 3: a confiança ============= -->
+  <section id="tela-confianca" class="cartao oculto">
+    <p class="etiqueta">Pergunta 1 de 10 &middot; confiança</p>
+    <div class="trancada">
+      <span class="cadeado">trancadas</span>
+      <p class="rotulo">Você respondeu</p>
+      <p class="valor" id="conf-resposta"></p>
+      <p class="rotulo" style="margin-top:10px">Porque</p>
+      <p class="valor" id="conf-razao"></p>
+    </div>
+    <p class="ideia">Quanta confiança você tem nessa dupla?</p>
+    <div class="confianca" id="confianca-tela"></div>
+    <div class="acoes">
+      <button class="btn" id="btn-confianca" disabled>Enviar</button>
+    </div>
+  </section>
+
+  <!-- ============================== o retorno ========================= -->
+  <section id="tela-retorno" class="cartao oculto">
+    <p class="veredito" id="ret-veredito"></p>
+    <p class="ideia" id="ret-texto"></p>
+    <div class="contraste oculto" id="ret-contraste"></div>
+    <div class="acoes">
+      <button class="btn" id="btn-retorno">Continuar</button>
+      <button class="btn secundario" id="btn-encerrar">Encerrar a unidade</button>
+    </div>
+  </section>
+
+  <!-- ============================== teach-back do fim ================= -->
+  <section id="tela-depois" class="cartao oculto">
+    <p class="etiqueta">Para fechar</p>
+    <p class="ideia">A mesma pergunta do começo: o que acontece quando você
+      escreve <code>int x;</code>?</p>
+    <textarea id="frase-depois" placeholder="Escreva de novo, sem olhar a de antes."
+              aria-label="Sua frase, agora"></textarea>
+    <div class="acoes">
+      <button class="btn" id="btn-depois">Ver as duas</button>
+    </div>
+  </section>
+
+  <!-- ============================== o mapa =========================== -->
+  <section id="tela-mapa" class="cartao oculto">
+    <h2>O que você construiu</h2>
+    <div class="par">
+      <div class="frase antes">
+        <p class="rotulo">Antes</p>
+        <p id="mapa-antes"></p>
+      </div>
+      <div class="frase depois">
+        <p class="rotulo">Agora</p>
+        <p id="mapa-depois"></p>
+      </div>
+    </div>
+    <div class="mapa" id="mapa"></div>
+  </section>
+
+</main>
+
+<!-- ============================== painel do pesquisador ============== -->
+<!-- D-10: lê o log, não a sessão. Aqui o "log" é o mesmo array de eventos que
+     o fluxo acima só escreve, nunca lê — é a mesma separação que no produto
+     será processo separado lendo eventos.jsonl. -->
+<section class="painel oculto" id="painel">
+  <h2>Painel do pesquisador</h2>
+  <p class="nota-painel">Somente leitura, construído do log de eventos. Não
+    toca a sessão de quem está respondendo: no produto é outro processo lendo
+    <code>mvp/dados/eventos.jsonl</code>.</p>
+
+  <h3 class="etiqueta" style="margin-top:22px">Estado das premissas</h3>
+  <table>
+    <thead><tr><th>Nó</th><th>Estado</th><th>Veio de</th><th>Confiança</th></tr></thead>
+    <tbody id="painel-nos"></tbody>
+  </table>
+
+  <h3 class="etiqueta">Log</h3>
+  <p class="vazio oculto" id="painel-vazio">Nenhum evento ainda.</p>
+  <table id="painel-tabela">
+    <thead><tr><th>#</th><th>Evento</th><th>Dados</th></tr></thead>
+    <tbody id="painel-log"></tbody>
+  </table>
+</section>
+
+<!-- ============================== régua do prototipo ================= -->
+<section class="regua" id="regua">
+  <h3>Régua do protótipo — não existe no produto</h3>
+  <label class="chave">
+    <input type="checkbox" id="ch-conf">
+    <span><b>Confiança no pé da tela da razão</b>, em vez de uma terceira tela.
+      Economiza um passo por item; em troca, a pessoa declara confiança antes
+      de ter visto as duas escolhas juntas.</span>
+  </label>
+  <label class="chave">
+    <input type="checkbox" id="ch-fp" checked>
+    <span><b>Contar o falso positivo à pessoa</b> — dizer "a resposta está
+      certa, mas a explicação não é essa". Informa, e pode gerar defesa em
+      quem acertou.</span>
+  </label>
+</section>
+
+<script>
+(function(){
+"use strict";
+
+// ---------------------------------------------------------------- dominio
+// Copiado de mvp/dominio/, com acentos. Nada e inventado: os textos sao os
+// dos YAMLs, e as duas crencas sem dono viraram a crenca E nova de B1.
+
+var NOS = {
+  B1: {texto:"Toda variável tem um nome e um tipo — o tipo diz que espécie de valor cabe ali.", suporte:[]},
+  B2: {texto:"Quando você escreve int x;, a caixa de x já existe — só o que tem dentro ainda não está definido.", suporte:[]},
+  B3: {texto:"C não limpa a caixa para você: o que estava lá antes continua lá até você escrever algo.", suporte:[]},
+  B4: {texto:"Escrever um valor novo apaga o antigo. A caixa nunca guarda dois valores ao mesmo tempo.", suporte:[]},
+  I1: {texto:"Dar o valor ao declarar ou declarar e só depois atribuir chegam no mesmo lugar: uma variável pronta.", suporte:["B1","B2","B3","B4"]}
+};
+var ORDEM = ["B1","B2","B3","B4","I1"];
+
+var CRENCAS = {
+  no_value_no_memory: {nega:"B2", procedencia:"L",
+    afirma:"Se eu não dei valor, a variável ainda não existe na memória."},
+  type_is_a_hint: {nega:"B1", procedencia:"E",
+    afirma:"Toda variável ocupa o mesmo espaço; o tipo é só um aviso para o compilador."}
+};
+
+// O item. Escolhido porque os distratores dele apontam para uma crenca que
+// nega OUTRO no — o caso que a decisao D-9 criou.
+var ITEM = {
+  id:"ciu_kc00_002", no:"B1", formato:"comparar_casos", tipo:"codigo",
+  codigo:"int idade;\nchar letra;",
+  enunciado:"Depois dessas duas linhas, o que já existe na memória?",
+  opcoes:[
+    {texto:"Nada ainda, nenhuma tem valor", crenca:"no_value_no_memory"},
+    {texto:"Dois espaços reservados, cada um com seu próprio tamanho", correta:true},
+    {texto:"Um espaço só, compartilhado pelas duas", crenca:"type_is_a_hint"}
+  ]
+};
+
+// As razoes NAO sao escritas a mao: a certa e o enunciado do no do item, as
+// erradas sao as crencas que aparecem nos distratores. E o que a fase 1
+// chamou de "a razao ja esta no grafo".
+function razoesDe(item){
+  var saida = [{texto:NOS[item.no].texto, correta:true, no:item.no}];
+  var vistas = {};
+  item.opcoes.forEach(function(o){
+    if (o.crenca && !vistas[o.crenca]) {
+      vistas[o.crenca] = true;
+      saida.push({texto:CRENCAS[o.crenca].afirma, crenca:o.crenca,
+                  no:CRENCAS[o.crenca].nega});
+    }
+  });
+  return saida;
+}
+
+var CONFIANCAS = [
+  {id:"chutei",      rotulo:"Chutei",         nivel:"baixa"},
+  {id:"acho",        rotulo:"Acho que sei",   nivel:"media"},
+  {id:"certeza",     rotulo:"Tenho certeza",  nivel:"alta"}
+];
+
+// ------------------------------------------------------- classificacao
+// A tabela de docs/problema.md, rodando. "nao sei" em qualquer camada e
+// lacuna: a pessoa declarou, nao foi inferido de confianca baixa.
+function classifica(resp, razao, conf){
+  if (resp === "nao_sei" || razao === "nao_sei") {
+    return {estado:"lacuna", no:ITEM.no, trata:"constrói"};
+  }
+  var certa = !!ITEM.opcoes[resp].correta;
+  var razaoCerta = !!razoesDe(ITEM)[razao].correta;
+  var nivel = CONFIANCAS[conf].nivel;
+
+  if (certa && razaoCerta) {
+    return nivel === "alta"
+      ? {estado:"confirmada", no:ITEM.no, trata:"segue"}
+      : {estado:"fragil", no:ITEM.no, trata:"mais uma superfície"};
+  }
+  if (certa && !razaoCerta) {
+    return {estado:"falso_positivo", no:ITEM.no, trata:"não confirma; investiga",
+            crenca:razoesDe(ITEM)[razao].crenca,
+            // D-9: a crenca vai para o no que ELA nega, nao o no do item.
+            no_crenca:razoesDe(ITEM)[razao].no};
+  }
+  if (!certa && razaoCerta) {
+    return {estado:"falso_negativo", no:ITEM.no, trata:"não refuta; segue"};
+  }
+  if (nivel === "baixa") {
+    return {estado:"lacuna", no:ITEM.no, trata:"constrói"};
+  }
+  return {estado:"crenca", no:ITEM.no, trata:"valida, refuta, treina",
+          crenca:razoesDe(ITEM)[razao].crenca,
+          no_crenca:razoesDe(ITEM)[razao].no};
+}
+
+var ROTULO_ESTADO = {
+  confirmada:"confirmada", fragil:"frágil", falso_positivo:"falso positivo",
+  falso_negativo:"falso negativo", crenca:"crença ativa", lacuna:"lacuna"
+};
+
+// ---------------------------------------------------------------- estado
+var S, LOG;
+
+function zera(){
+  S = {tela:"antes", resposta:null, razao:null, conf:null,
+       antes:"", depois:"", nos:{}, classe:null, t0:Date.now()};
+  LOG = [];
+}
+
+function grava(tipo, dados){
+  LOG.push({n:LOG.length + 1, tipo:tipo, dados:dados || {}});
+  if (!$("painel").classList.contains("oculto")) desenhaPainel();
+}
+
+function $(id){ return document.getElementById(id); }
+
+// ---------------------------------------------------------------- telas
+var TELAS = ["antes","resposta","razao","confianca","retorno","depois","mapa"];
+
+function mostra(nome){
+  S.tela = nome;
+  TELAS.forEach(function(t){
+    $("tela-" + t).classList.toggle("oculto", t !== nome);
+  });
+  $("palco").classList.remove("oculto");
+  $("painel").classList.add("oculto");
+  $("btn-painel").textContent = "Painel do pesquisador";
+  desenhaGrafo();
+  window.scrollTo(0, 0);
+}
+
+// ------------------------------------------------------------- camada 1
+function desenhaResposta(){
+  $("item-codigo").textContent = ITEM.codigo;
+  $("item-enunciado").textContent = ITEM.enunciado;
+  var caixa = $("opcoes-resposta");
+  caixa.innerHTML = "";
+  ITEM.opcoes.forEach(function(o, i){
+    caixa.appendChild(botaoOpcao(o.texto, i, function(){ marca(i); }));
+  });
+  caixa.appendChild(botaoOpcao("Não sei", "nao_sei", function(){ marca("nao_sei"); },
+                               "nao-sei"));
+
+  function marca(v){
+    S.resposta = v;
+    Array.prototype.forEach.call(caixa.children, function(b){
+      b.setAttribute("aria-pressed", String(b.dataset.v === String(v)));
+    });
+    $("btn-resposta").disabled = false;
+  }
+  $("btn-resposta").disabled = true;
+}
+
+function botaoOpcao(texto, valor, aoClicar, extra){
+  var b = document.createElement("button");
+  b.type = "button";
+  b.className = "opcao" + (extra ? " " + extra : "");
+  b.textContent = texto;
+  b.dataset.v = String(valor);
+  b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", aoClicar);
+  return b;
+}
+
+// ------------------------------------------------------------- camada 2
+function desenhaRazao(){
+  $("razao-trancada").textContent = S.resposta === "nao_sei"
+    ? "Não sei" : ITEM.opcoes[S.resposta].texto;
+
+  var razoes = razoesDe(ITEM);
+  var caixa = $("opcoes-razao");
+  caixa.innerHTML = "";
+  // Embaralhar e necessario: a razao certa e sempre a primeira na montagem.
+  ordem(razoes.length).forEach(function(i){
+    caixa.appendChild(botaoOpcao(razoes[i].texto, i, function(){ marca(i); }));
+  });
+  caixa.appendChild(botaoOpcao("Não sei dizer por quê", "nao_sei",
+                               function(){ marca("nao_sei"); }, "nao-sei"));
+
+  var embutida = $("ch-conf").checked;
+  $("conf-embutida").classList.toggle("oculto", !embutida);
+  if (embutida) desenhaConfianca("confianca-embutida", revisa);
+
+  function marca(v){
+    S.razao = v;
+    Array.prototype.forEach.call(caixa.children, function(b){
+      b.setAttribute("aria-pressed", String(b.dataset.v === String(v)));
+    });
+    revisa();
+  }
+  function revisa(){
+    $("btn-razao").disabled = S.razao === null ||
+      (embutida && S.conf === null && S.razao !== "nao_sei");
+  }
+  S.razao = null;
+  revisa();
+}
+
+// Ordem estavel por sessao, para o prototipo nao reembaralhar a cada clique.
+var SEMENTE = [];
+function ordem(n){
+  if (SEMENTE.length !== n) {
+    SEMENTE = [];
+    for (var i = 0; i < n; i++) SEMENTE.push(i);
+    for (var j = n - 1; j > 0; j--) {
+      var k = Math.floor(Math.random() * (j + 1));
+      var t = SEMENTE[j]; SEMENTE[j] = SEMENTE[k]; SEMENTE[k] = t;
+    }
+  }
+  return SEMENTE;
+}
+
+// ------------------------------------------------------------- camada 3
+function desenhaConfianca(destino, aoEscolher){
+  var caixa = $(destino);
+  caixa.innerHTML = "";
+  CONFIANCAS.forEach(function(c, i){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "conf"; b.textContent = c.rotulo;
+    b.dataset.v = String(i);
+    b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", function(){
+      S.conf = i;
+      Array.prototype.forEach.call(caixa.children, function(x){
+        x.setAttribute("aria-pressed", String(x.dataset.v === String(i)));
+      });
+      if (aoEscolher) aoEscolher();
+    });
+    caixa.appendChild(b);
+  });
+}
+
+function desenhaTelaConfianca(){
+  $("conf-resposta").textContent = S.resposta === "nao_sei"
+    ? "Não sei" : ITEM.opcoes[S.resposta].texto;
+  $("conf-razao").textContent = S.razao === "nao_sei"
+    ? "Não sei dizer por quê" : razoesDe(ITEM)[S.razao].texto;
+  S.conf = null;
+  desenhaConfianca("confianca-tela", function(){
+    $("btn-confianca").disabled = false;
+  });
+  $("btn-confianca").disabled = true;
+}
+
+// -------------------------------------------------------------- retorno
+function desenhaRetorno(){
+  var c = S.classe;
+  var v = $("ret-veredito"), t = $("ret-texto"), k = $("ret-contraste");
+  k.classList.add("oculto");
+  k.innerHTML = "";
+
+  if (c.estado === "confirmada" || c.estado === "fragil") {
+    v.className = "veredito certo";
+    v.textContent = "Certo, e pelo motivo certo.";
+    t.textContent = c.estado === "fragil"
+      ? "Guardei esta premissa como de pé, mas ainda frágil: ela volta mais tarde, de outra forma."
+      : "Esta premissa está de pé.";
+  } else if (c.estado === "falso_positivo") {
+    // A alternativa de desenho: contar ou nao contar.
+    if ($("ch-fp").checked) {
+      v.className = "veredito neutro";
+      v.textContent = "A resposta está certa.";
+      t.textContent = "Mas a explicação que você escolheu leva a outro lugar — e é dela que eu quero cuidar agora.";
+      k.classList.remove("oculto");
+      k.innerHTML = "<p class='rotulo'>Você explicou por</p><p>" +
+        esc(razoesDe(ITEM)[S.razao].texto) + "</p>" +
+        "<p class='rotulo' style='margin-top:10px'>E isso contradiz</p><p>" +
+        esc(NOS[c.no_crenca].texto) + "</p>";
+    } else {
+      v.className = "veredito certo";
+      v.textContent = "Certo.";
+      t.textContent = "Vamos seguir — e esta ideia volta logo, de outro jeito.";
+    }
+  } else if (c.estado === "falso_negativo") {
+    v.className = "veredito neutro";
+    v.textContent = "A resposta não está certa.";
+    t.textContent = "Mas o seu raciocínio está. Isso parece ter sido um escorregão, não um mal-entendido: sigo sem contestar a sua ideia.";
+  } else if (c.estado === "crenca") {
+    // Retorno NEUTRO de proposito: e a refutacao que ensina, nao a correcao.
+    v.className = "veredito neutro";
+    v.textContent = "Vamos olhar isso com calma.";
+    t.textContent = "Você partiu de uma ideia que tem lógica, e ela merece ser examinada em vez de corrigida de cima.";
+    k.classList.remove("oculto");
+    k.innerHTML = "<p class='rotulo'>No produto, daqui segue para</p>" +
+      "<p>a validação dessa ideia, o percurso de refutação e o treino — " +
+      "telas que já funcionam no MVP e não estão em discussão aqui.</p>";
+  } else {
+    v.className = "veredito neutro";
+    v.textContent = "Você disse que não sabe.";
+    t.textContent = "Isso é informação, não erro: aqui não há nada para corrigir, há algo para construir.";
+  }
+}
+
+function esc(s){
+  return String(s).replace(/[&<>]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];
+  });
+}
+
+// ----------------------------------------------------------------- grafo
+function desenhaGrafo(){
+  var svg = $("grafo-svg"), partes = [];
+  var pos = {B1:[70,100], B2:[175,100], B3:[280,100], B4:[385,100], I1:[227,38]};
+  var r = 24;
+
+  NOS.I1.suporte.forEach(function(s){
+    var a = pos[s], b = pos.I1;
+    var viva = dePe(s) && dePe("I1");
+    partes.push("<path class='g-aresta" + (viva ? " viva" : "") +
+      "' d='M" + a[0] + " " + (a[1] - r) + " Q" + a[0] + " 62 " + b[0] + " " + (b[1] + r) + "'/>");
+  });
+
+  ORDEM.forEach(function(n){
+    var p = pos[n], e = S.nos[n] || "";
+    var foco = (n === ITEM.no) ? " foco" : "";
+    partes.push("<circle class='g-no " + e + foco + "' cx='" + p[0] + "' cy='" + p[1] +
+                "' r='" + r + "'/>");
+    partes.push("<text class='g-rot' x='" + p[0] + "' y='" + p[1] + "'>" +
+                n + glifo(e) + "</text>");
+  });
+  svg.innerHTML = partes.join("");
+
+  var nota = "";
+  if (S.classe) {
+    nota = "Premissa " + S.classe.no + ": " + ROTULO_ESTADO[S.classe.estado];
+    if (S.classe.no_crenca && S.classe.no_crenca !== S.classe.no) {
+      nota += " — e a crença escolhida nega " + S.classe.no_crenca +
+              ", onde ela foi registrada";
+    }
+  }
+  $("grafo-nota").textContent = nota;
+}
+
+function dePe(n){
+  return (S.nos[n] === "confirmada" || S.nos[n] === "fragil");
+}
+
+function glifo(e){
+  return {confirmada:" ✓", fragil:" ✓", crenca:" ✗",
+          falso_positivo:" !", lacuna:" ?"}[e] || "";
+}
+
+// ---------------------------------------------------------------- painel
+function desenhaPainel(){
+  var corpo = $("painel-nos");
+  corpo.innerHTML = "";
+  ORDEM.forEach(function(n){
+    var e = S.nos[n] || "";
+    var tr = document.createElement("tr");
+    tr.innerHTML = "<td class='mono'>" + n + "</td>" +
+      "<td>" + (e ? "<span class='marca-estado " + e + "'>" +
+                ROTULO_ESTADO[e] + "</span>" : "<span class='marca-estado'>sem evidência</span>") + "</td>" +
+      "<td>" + viaDe(n) + "</td>" +
+      "<td>" + (e && S.conf !== null ? CONFIANCAS[S.conf].rotulo : "—") + "</td>";
+    corpo.appendChild(tr);
+  });
+
+  var log = $("painel-log");
+  log.innerHTML = "";
+  LOG.forEach(function(ev){
+    var tr = document.createElement("tr");
+    tr.innerHTML = "<td class='mono'>" + ev.n + "</td>" +
+      "<td class='mono'>" + ev.tipo + "</td>" +
+      "<td class='mono'>" + esc(JSON.stringify(ev.dados)) + "</td>";
+    log.appendChild(tr);
+  });
+  $("painel-vazio").classList.toggle("oculto", LOG.length > 0);
+  $("painel-tabela").classList.toggle("oculto", LOG.length === 0);
+}
+
+function viaDe(n){
+  if (!S.classe) return "—";
+  if (n === S.classe.no_crenca && n !== S.classe.no) {
+    return "crença escolhida no item de " + S.classe.no;
+  }
+  if (n === S.classe.no) return "item " + ITEM.id;
+  return "—";
+}
+
+// -------------------------------------------------------------- navegação
+$("btn-antes").addEventListener("click", function(){
+  S.antes = $("frase-antes").value.trim();
+  grava("teachback_inicial", {chars:S.antes.length, vazio:!S.antes});
+  mostra("resposta"); desenhaResposta();
+});
+$("btn-antes-naosei").addEventListener("click", function(){
+  S.antes = "";
+  grava("teachback_inicial", {chars:0, nao_sei:true});
+  mostra("resposta"); desenhaResposta();
+});
+
+$("btn-resposta").addEventListener("click", function(){
+  grava("camada1_respondida", {
+    item:ITEM.id, no:ITEM.no,
+    escolha:S.resposta,
+    correta:S.resposta !== "nao_sei" && !!ITEM.opcoes[S.resposta].correta,
+    ms:Date.now() - S.t0
+  });
+  S.t0 = Date.now();
+  mostra("razao"); desenhaRazao();
+});
+
+$("btn-razao").addEventListener("click", function(){
+  var r = S.razao === "nao_sei" ? null : razoesDe(ITEM)[S.razao];
+  grava("camada2_respondida", {
+    item:ITEM.id, escolha:S.razao,
+    razao_correta:!!(r && r.correta),
+    crenca:(r && r.crenca) || null,
+    nega:(r && r.crenca) ? r.no : null,
+    ms:Date.now() - S.t0
+  });
+  S.t0 = Date.now();
+  if ($("ch-conf").checked) { fecha(); } else { mostra("confianca"); desenhaTelaConfianca(); }
+});
+
+$("btn-confianca").addEventListener("click", fecha);
+
+function fecha(){
+  if (S.conf === null) S.conf = 0;
+  grava("camada3_respondida", {confianca:CONFIANCAS[S.conf].id,
+                               nivel:CONFIANCAS[S.conf].nivel,
+                               ms:Date.now() - S.t0});
+  S.classe = classifica(S.resposta, S.razao, S.conf);
+  S.nos[S.classe.no] = S.classe.estado;
+  // D-9: quando a razao escolhida e uma crenca que nega OUTRO no, e lá que o
+  // estado de crenca e registrado.
+  if (S.classe.no_crenca && S.classe.no_crenca !== S.classe.no) {
+    S.nos[S.classe.no_crenca] = "crenca";
+    grava("crenca_atribuida", {crenca:S.classe.crenca,
+                               no:S.classe.no_crenca,
+                               veio_do_item_de:S.classe.no});
+  }
+  grava("episodio_classificado", {no:S.classe.no, estado:S.classe.estado,
+                                  trata:S.classe.trata});
+  mostra("retorno"); desenhaRetorno();
+}
+
+$("btn-retorno").addEventListener("click", function(){
+  // No produto, aqui vem a próxima premissa. No protótipo há um item só.
+  alert("No produto: a próxima premissa, escolhida pela mais fraca do grafo.\n\n" +
+        "Este protótipo tem um item só — use Recomeçar para testar outra " +
+        "combinação de resposta e razão.");
+});
+$("btn-encerrar").addEventListener("click", function(){
+  mostra("depois");
+});
+
+$("btn-depois").addEventListener("click", function(){
+  S.depois = $("frase-depois").value.trim();
+  grava("teachback_final", {chars:S.depois.length});
+  $("mapa-antes").textContent = S.antes || "(você preferiu não escrever)";
+  $("mapa-depois").textContent = S.depois || "(em branco)";
+  desenhaMapa();
+  mostra("mapa");
+});
+
+function desenhaMapa(){
+  var caixa = $("mapa");
+  caixa.innerHTML = "";
+  ORDEM.forEach(function(n){
+    var e = S.nos[n] || "";
+    var d = document.createElement("div");
+    d.className = "premissa" + (e ? " " + e : "");
+    d.innerHTML = "<span class='id'>" + n + "</span><div><p class='frase2'>" +
+      esc(NOS[n].texto) + "</p>" +
+      (e ? "<p class='nota'>" + ROTULO_ESTADO[e] + "</p>" : "") + "</div>";
+    caixa.appendChild(d);
+  });
+}
+
+$("btn-painel").addEventListener("click", function(){
+  var p = $("painel"), escondido = p.classList.contains("oculto");
+  p.classList.toggle("oculto", !escondido);
+  $("palco").classList.toggle("oculto", escondido);
+  this.textContent = escondido ? "Voltar à sessão" : "Painel do pesquisador";
+  if (escondido) desenhaPainel();
+});
+
+$("btn-recomecar").addEventListener("click", function(){
+  SEMENTE = [];
+  zera();
+  $("frase-antes").value = "";
+  $("frase-depois").value = "";
+  mostra("antes");
+});
+
+$("ch-conf").addEventListener("change", function(){
+  if (S.tela === "razao") desenhaRazao();
+});
+$("ch-fp").addEventListener("change", function(){
+  if (S.tela === "retorno") desenhaRetorno();
+});
+
+// -------------------------------------------------------------- arranque
+$("trilha").textContent = "kc_00 · declaração de variáveis";
+zera();
+mostra("antes");
+})();
+</script>
+</body>
+</html>
