@@ -125,6 +125,9 @@ class Resposta:
     confianca: str = ""
     ms: int = 0
     repetir: bool = False
+    # "Não sei", em qualquer das três camadas. Não é o mesmo que não
+    # responder: é uma declaração, e vale como dado.
+    nao_sei: bool = False
 
 
 @dataclass(frozen=True)
@@ -156,6 +159,7 @@ class Pendente:
     crenca_da_opcao: str | None
     ms: int
     origem: str = DIAGNOSTICO          # DIAGNOSTICO ou TREINO
+    nao_sei: str = ""                  # camada1 | camada2 | camada3
     confianca: str = ""
     razoes: tuple[Razao, ...] = ()
     razao: Razao | None = None         # a escolhida na camada 2
@@ -380,12 +384,21 @@ def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         atividade=a.id, escolha=r.escolha, correta=certo,
         crenca_da_opcao=(escolhida.crenca if escolhida else None),
         ms=r.ms, origem=DIAGNOSTICO,
+        nao_sei="camada1" if r.nao_sei else "",
     )
     evento = Evento("camada1_respondida", {
         "atividade": a.id, "no": a.no, "item": a.tipo, "origem": "diagnostico",
-        "escolha": r.escolha, "correta": certo,
+        "escolha": r.escolha, "correta": certo, "nao_sei": r.nao_sei,
         "crenca_da_opcao": pendente.crenca_da_opcao, "ms": r.ms,
     })
+
+    # Quem diz que não sabe não tem resposta a justificar nem convicção a
+    # declarar. Perguntar as outras duas camadas seria teatro, e a tabela
+    # já decidiu: "não sei" em qualquer camada é lacuna.
+    if r.nao_sei:
+        seguinte = _resolve_diagnostico(d, e, a, pendente)
+        return Transicao(seguinte.estado, seguinte.tela,
+                         (evento,) + seguinte.eventos)
 
     razoes = razoes_de(d, a)
     # Com uma razão só não há escolha a fazer, e perguntar seria teatro.
@@ -424,8 +437,13 @@ def _responde_razao(d: Dominio, e: Estado, r: Resposta) -> Transicao:
                  if r.escolha is not None and 0 <= r.escolha < len(p.razoes)
                  else None)
 
+    if r.nao_sei:
+        escolhida = None
+        p = replace(p, nao_sei="camada2")
+
     evento = Evento("camada2_respondida", {
         "atividade": a.id, "no": a.no, "escolha": r.escolha,
+        "nao_sei": r.nao_sei,
         "razao_correta": bool(escolhida and escolhida.correta),
         "crenca": escolhida.crenca if escolhida else None,
         # O nó de que a razão fala. Diferente de `no` quando a pessoa
@@ -433,7 +451,11 @@ def _responde_razao(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         "fala_do_no": escolhida.no if escolhida else None,
         "ms": r.ms,
     })
-    seguinte = _pede_confianca(d, e, a, replace(p, razao=escolhida))
+    p = replace(p, razao=escolhida)
+    if r.nao_sei:
+        seguinte = _resolve_diagnostico(d, e, a, p)
+    else:
+        seguinte = _pede_confianca(d, e, a, p)
     return Transicao(seguinte.estado, seguinte.tela, (evento,) + seguinte.eventos)
 
 
@@ -469,11 +491,12 @@ def _responde_confianca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     p = e.pendente
     assert p is not None, "fase CONFIANCA sem resposta trancada"
     a = next(x for x in d.atividades if x.id == p.atividade)
-    p = replace(p, confianca=r.confianca)
+    p = replace(p, confianca=r.confianca,
+                nao_sei="camada3" if r.nao_sei else p.nao_sei)
 
     evento = Evento("camada3_respondida", {
         "atividade": a.id, "no": a.no, "confianca": r.confianca,
-        "origem": p.origem.lower(), "ms": r.ms,
+        "nao_sei": r.nao_sei, "origem": p.origem.lower(), "ms": r.ms,
     })
     if p.origem == TREINO:
         seguinte = _resolve_treino(d, e, a, p)
@@ -503,7 +526,9 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
     certo = p.correta
     r = Resposta(escolha=p.escolha, confianca=p.confianca, ms=p.ms)
     en = e.no(a.no)
-    episodio = classifica(certo, p.razao, p.confianca)
+    # CS-4: "não sei" em QUALQUER camada é lacuna, e lacuna declarada —
+    # observada, não inferida de confiança baixa.
+    episodio = LACUNA_EP if p.nao_sei else classifica(certo, p.razao, p.confianca)
 
     eventos = [
         Evento("resposta_registrada", {
@@ -514,6 +539,7 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
         Evento("episodio_classificado", {
             "atividade": a.id, "no": a.no, "estado": episodio,
             "correta": certo, "confianca": r.confianca,
+            "nao_sei": p.nao_sei or None,
             "razao_correta": bool(p.razao and p.razao.correta),
             "crenca": p.razao.crenca if p.razao else None,
         }),
@@ -575,7 +601,8 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
     if episodio == LACUNA_EP:
         # Não refuta o que a pessoa não pensa.
         eventos.append(Evento("lacuna_registrada", {
-            "no": a.no, "confianca": r.confianca}))
+            "no": a.no, "confianca": r.confianca,
+            "declarada": p.nao_sei or None}))
         novo = e.com(a.no, estado=LACUNA)
         return _segue(d, novo, eventos)
 
@@ -778,19 +805,27 @@ def _responde_treino(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     sustenta em outra superfície — e com quanta convicção.
     """
     a = next(x for x in d.atividades if x.id == e.atividade)
-    escolhida = a.opcoes[r.escolha] if r.escolha is not None else None
+    escolhida = None if r.nao_sei else (
+        a.opcoes[r.escolha] if r.escolha is not None else None)
     certo = bool(escolhida and escolhida.correta)
 
     pendente = Pendente(
         atividade=a.id, escolha=r.escolha, correta=certo,
         crenca_da_opcao=(escolhida.crenca if escolhida else None),
         ms=r.ms, origem=TREINO,
+        nao_sei="camada1" if r.nao_sei else "",
     )
     evento = Evento("camada1_respondida", {
         "atividade": a.id, "no": a.no, "item": a.tipo, "origem": "treino",
-        "escolha": r.escolha, "correta": certo,
+        "escolha": r.escolha, "correta": certo, "nao_sei": r.nao_sei,
         "crenca_da_opcao": pendente.crenca_da_opcao, "ms": r.ms,
     })
+    # No treino "não sei" zera a sequência como um erro zeraria: a
+    # sequência mede premissa de pé, e quem não sabe não a tem de pé.
+    if r.nao_sei:
+        seguinte = _resolve_treino(d, e, a, pendente)
+        return Transicao(seguinte.estado, seguinte.tela,
+                         (evento,) + seguinte.eventos)
     seguinte = _pede_confianca(d, e, a, pendente)
     return Transicao(seguinte.estado, seguinte.tela, (evento,) + seguinte.eventos)
 

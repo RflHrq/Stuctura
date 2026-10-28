@@ -238,3 +238,85 @@ def test_a_projecao_conta_as_superficies(d):
                     confianca="tenho certeza")
     b1 = next(n for n in motor.estado_dos_nos(d, t.estado) if n["no"] == "B1")
     assert b1["estado"] == motor.FRAGIL and b1["superficies"] == 1
+
+
+# --------------------------------------------------------------------------
+# CS-4 — "não sei" nas três camadas, e nunca vira crença
+# --------------------------------------------------------------------------
+
+def _no_item(d, item):
+    a = next(x for x in d.atividades if x.id == item)
+    return motor.replace(motor.Estado(), fase=motor.DIAGNOSTICO,
+                         atividade=a.id, alvo=a.no), a
+
+
+def test_cs4_nao_sei_na_camada_1_e_lacuna_declarada(d):
+    """Obrigar a escolher FABRICA chute: o sistema cria o falso positivo
+    que depois tenta detectar. Com a opção disponível, a lacuna vira dado
+    observado em vez de inferido de confiança baixa."""
+    estado, a = _no_item(d, "ciu_kc00_002")
+    t = motor.avanca(d, estado, Resposta(nao_sei=True, ms=1))
+    ep = next(e for e in t.eventos if e.tipo == "episodio_classificado").dados
+    assert ep["estado"] == motor.LACUNA_EP
+    assert ep["nao_sei"] == "camada1"
+    assert t.estado.no(a.no).estado == motor.LACUNA
+
+
+def test_cs4_nao_sei_na_camada_1_nao_pergunta_as_outras_duas(d):
+    """Quem não respondeu não tem o que justificar nem convicção a
+    declarar. Perguntar assim mesmo seria teatro."""
+    estado, _ = _no_item(d, "ciu_kc00_002")
+    t = motor.avanca(d, estado, Resposta(nao_sei=True, ms=1))
+    tipos = [e.tipo for e in t.eventos]
+    assert "camada2_respondida" not in tipos
+    assert "camada3_respondida" not in tipos
+    assert t.tela.tipo not in ("razao", "confianca")
+
+
+def test_cs4_nao_sei_na_camada_2_e_lacuna(d):
+    estado, _ = _no_item(d, "ciu_kc00_002")
+    a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
+    t = motor.avanca(d, estado, Resposta(escolha=a.indice_correto, ms=1))
+    t = motor.avanca(d, t.estado, Resposta(nao_sei=True, ms=1))
+    ep = next(e for e in t.eventos if e.tipo == "episodio_classificado").dados
+    assert ep["estado"] == motor.LACUNA_EP
+    assert ep["nao_sei"] == "camada2"
+
+
+def test_cs4_nao_sei_na_camada_3_e_lacuna(d):
+    estado, _ = _no_item(d, "ciu_kc00_002")
+    a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
+    t = motor.avanca(d, estado, Resposta(escolha=a.indice_correto, ms=1))
+    certa = next(i for i, z in enumerate(t.estado.pendente.razoes) if z.correta)
+    t = motor.avanca(d, t.estado, Resposta(escolha=certa, ms=1))
+    t = motor.avanca(d, t.estado, Resposta(nao_sei=True, ms=1))
+    ep = next(e for e in t.eventos if e.tipo == "episodio_classificado").dados
+    assert ep["estado"] == motor.LACUNA_EP
+    assert ep["nao_sei"] == "camada3"
+
+
+def test_cs4_nao_sei_nunca_vira_crenca(d):
+    """A regra que protege a pessoa: o sistema não refuta o que ela não
+    pensa. Errar e dizer que não sabe o porquê não é sustentar uma ideia."""
+    estado, _ = _no_item(d, "ciu_kc00_002")
+    a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
+    errada = next(i for i, o in enumerate(a.opcoes) if not o.correta)
+    for camada in range(3):
+        t = motor.avanca(d, estado, Resposta(nao_sei=(camada == 0),
+                                             escolha=None if camada == 0 else errada,
+                                             ms=1))
+        if camada >= 1 and t.tela.tipo == "razao":
+            t = motor.avanca(d, t.estado, Resposta(nao_sei=True, ms=1))
+        tipos = [e.tipo for e in t.eventos]
+        assert "crenca_detectada" not in tipos, camada
+        assert "refutacao_iniciada" not in tipos, camada
+
+
+def test_cs4_nao_sei_no_treino_zera_a_sequencia(d):
+    """A sequência mede premissa de pé; quem não sabe não a tem de pé."""
+    e = motor.Estado(fase=motor.TREINO, atividade="ciu_kc00_t03", alvo="B2")
+    e = e.com("B2", estado=motor.EM_TREINO, streak=1)
+    t = motor.avanca(d, e, Resposta(nao_sei=True, ms=1))
+    assert t.estado.no("B2").streak == 0
+    tentativa = next(ev for ev in t.eventos if ev.tipo == "treino_tentativa")
+    assert tentativa.dados["correta"] is False

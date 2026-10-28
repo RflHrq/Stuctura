@@ -264,6 +264,12 @@
       });
     }
 
+    botaoNaoSei(caixa, "Não sei", function () {
+      $("btn-responder").disabled = true;
+      responde({ nao_sei: true, ms: decorrido() },
+               { texto: "Você disse que não sabe", fase: t.fase });
+    });
+
     $("btn-responder").disabled = true;
     $("btn-responder").onclick = function () {
       $("btn-responder").disabled = true;
@@ -301,6 +307,12 @@
         $("btn-razao").disabled = false;
       };
       caixa.appendChild(b);
+    });
+
+    botaoNaoSei(caixa, "Não sei dizer por quê", function () {
+      $("btn-razao").disabled = true;
+      responde({ nao_sei: true, ms: decorrido() },
+               { texto: "Você disse que não sabe explicar", fase: "DIAGNOSTICO" });
     });
 
     $("btn-razao").disabled = true;
@@ -345,6 +357,12 @@
       caixa.appendChild(b);
     });
 
+    botaoNaoSei(caixa, "Não sei dizer", function () {
+      $("btn-confianca").disabled = true;
+      responde({ nao_sei: true, ms: decorrido() },
+               { texto: t.resposta, fase: "DIAGNOSTICO" });
+    });
+
     $("btn-confianca").disabled = true;
     $("btn-confianca").onclick = function () {
       $("btn-confianca").disabled = true;
@@ -352,6 +370,19 @@
                { texto: t.resposta, fase: "DIAGNOSTICO" });
     };
     mostra("confianca");
+  }
+
+  /* "Nao sei" entra nas tres camadas. Responder por ela encerra o
+   * episodio: quem nao sabe nao tem o que justificar nem convicção a
+   * declarar, e a tabela ja decidiu que isso e lacuna. */
+  function botaoNaoSei(caixa, texto, aoClicar) {
+    var b = document.createElement("button");
+    b.className = (caixa.id === "conf-escala" ? "conf nao-sei" : "opcao nao-sei");
+    b.type = "button";
+    b.textContent = texto;
+    b.onclick = aoClicar;
+    caixa.appendChild(b);
+    return b;
   }
 
   function habilita(t) {
@@ -384,6 +415,12 @@
       $("ret-texto").textContent =
         "Sua resposta não foi aleatória: ela segue de uma ideia. Vamos" +
         " examinar de onde ela vem, passo a passo.";
+    } else if (j.veredito === "lacuna") {
+      v.textContent = "Você disse que não sabe";
+      v.className = "veredito neutro";
+      $("ret-texto").textContent =
+        "Isso é informação, não erro: aqui não há nada para corrigir, há" +
+        " algo para construir.";
     } else if (j.veredito === "certa") {
       v.textContent = "Isso mesmo";
       v.className = "veredito certo";

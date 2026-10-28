@@ -36,6 +36,8 @@ class RespostaBody(BaseModel):
     ms: int = 0
     # "ainda não entendi" num passo da refutação: pede a premissa de novo.
     repetir: bool = False
+    # "não sei", em qualquer das três camadas.
+    nao_sei: bool = False
 
 
 def _resposta(sessao: str, t: motor.Transicao) -> dict:
@@ -50,9 +52,13 @@ def _resposta(sessao: str, t: motor.Transicao) -> dict:
 
     resposta = next((e for e in t.eventos if e.tipo == "resposta_registrada"), None)
     crenca = next((e for e in t.eventos if e.tipo == "crenca_detectada"), None)
+    lacuna = next((e for e in t.eventos if e.tipo == "lacuna_registrada"
+                   and e.dados.get("declarada")), None)
     veredito = None
     if crenca is not None:
         veredito = "crenca"        # retorno NEUTRO: a refutação é que ensina
+    elif lacuna is not None:
+        veredito = "lacuna"        # ela DISSE que não sabe: não é erro
     elif resposta is not None:
         veredito = "certa" if resposta.dados.get("correta") else "errada"
 
@@ -84,7 +90,7 @@ def responde(sessao: str, body: RespostaBody) -> dict:
     if body.confianca and body.confianca not in motor.CONFIANCAS:
         raise HTTPException(status_code=400, detail="confiança fora da escala")
     r = motor.Resposta(escolha=body.escolha, confianca=body.confianca, ms=body.ms,
-                       repetir=body.repetir)
+                       repetir=body.repetir, nao_sei=body.nao_sei)
     return _resposta(sessao, motor.avanca(dominio, estado, r))
 
 

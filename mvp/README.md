@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 83 testes
+python -m pytest mvp/ -q     # 89 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -32,6 +32,25 @@ python -m mvp.app            # http://127.0.0.1:8010
 
 Errar chutando é lacuna, não crença: o sistema não refuta o que a pessoa não
 pensa.
+
+## "Não sei", opção de verdade
+
+Nas **três** camadas. Obrigar a escolher **fabrica chute**: o sistema
+criaria o falso positivo que depois tenta detectar. Com a opção
+disponível, a lacuna vira dado **observado** — `"declarada": "camada2"` no
+log — em vez de inferido de confiança baixa.
+
+Dizer "não sei" numa camada **encerra o episódio**: quem não respondeu não
+tem o que justificar, e quem não sabe explicar não tem convicção a
+declarar. Perguntar assim mesmo seria teatro.
+
+No treino, "não sei" zera a sequência como um erro zeraria — a sequência
+mede premissa de pé, e quem não sabe não a tem de pé.
+
+E o retorno é diferente de errar:
+
+> **Você disse que não sabe.** Isso é informação, não erro: aqui não há
+> nada para corrigir, há algo para construir.
 
 ## Os cinco estados, e em que nó cada um fica
 
@@ -175,7 +194,7 @@ mvp/
 ├── test_motor.py              o laço, 28 testes
 ├── test_dominio.py            a carga e as invariantes, 14 testes
 ├── test_razao.py              as camadas 2 e 3, 18 testes
-└── test_classificacao.py      os cinco estados e a projeção, 25 testes
+└── test_classificacao.py      os cinco estados, a projeção e CS-4, 31 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano
