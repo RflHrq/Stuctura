@@ -9,8 +9,8 @@
   "use strict";
 
   var $ = function (id) { return document.getElementById(id); };
-  var TELAS = ["ensino", "atividade", "razao", "retorno", "validacao",
-             "refutacao", "mapa"];
+  var TELAS = ["ensino", "atividade", "razao", "confianca", "retorno",
+             "validacao", "refutacao", "mapa"];
 
   var S = {
     sessao: null,
@@ -146,6 +146,7 @@
     if (t.tipo === "ensino") return telaEnsino(t);
     if (t.tipo === "atividade") return telaAtividade(t);
     if (t.tipo === "razao") return telaRazao(t);
+    if (t.tipo === "confianca") return telaConfianca(t);
     if (t.tipo === "validacao") return telaValidacao(t);
     if (t.tipo === "refutacao") return telaRefutacao(t);
     if (t.tipo === "mapa") return telaMapa(t);
@@ -227,7 +228,7 @@
     $("btn-responder").onclick = function () {
       $("btn-responder").disabled = true;
       var escolhida = t.opcoes[S.escolha].texto;
-      responde({ escolha: S.escolha, confianca: S.confianca || "", ms: decorrido() },
+      responde({ escolha: S.escolha, ms: decorrido() },
                { texto: escolhida, fase: t.fase });
     };
     mostra("atividade");
@@ -265,10 +266,52 @@
     $("btn-razao").disabled = true;
     $("btn-razao").onclick = function () {
       $("btn-razao").disabled = true;
-      responde({ escolha: S.escolha, ms: decorrido() },
-               { texto: t.opcoes[S.escolha].texto, fase: "DIAGNOSTICO" });
+      responde({ escolha: S.escolha, ms: decorrido() });
     };
     mostra("razao");
+  }
+
+  /* ----------------------------------------------- camada 3: confianca */
+
+  /* Tela propria, e nao no pe da tela da razao: a pergunta e sobre as DUAS
+   * escolhas juntas, e declarar confianca antes de ver o par formado mede
+   * outra coisa. Vale no treino tambem — o criterio fala em "sem queda de
+   * confianca", e queda exige duas medidas. */
+  function telaConfianca(t) {
+    S.confianca = null;
+    $("trilha").textContent = "Praticando · confiança";
+    $("conf-resposta").textContent = t.resposta || "";
+    var temRazao = !!t.razao;
+    $("conf-rotulo-razao").hidden = !temRazao;
+    $("conf-razao").hidden = !temRazao;
+    $("conf-razao").textContent = t.razao || "";
+    $("conf-pergunta").textContent = t.texto;
+
+    var caixa = $("conf-escala");
+    caixa.innerHTML = "";
+    t.escala.forEach(function (nome) {
+      var b = document.createElement("button");
+      b.className = "conf";
+      b.type = "button";
+      b.textContent = nome;
+      b.setAttribute("aria-pressed", "false");
+      b.onclick = function () {
+        S.confianca = nome;
+        Array.prototype.forEach.call(caixa.children, function (x) {
+          x.setAttribute("aria-pressed", String(x === b));
+        });
+        $("btn-confianca").disabled = false;
+      };
+      caixa.appendChild(b);
+    });
+
+    $("btn-confianca").disabled = true;
+    $("btn-confianca").onclick = function () {
+      $("btn-confianca").disabled = true;
+      responde({ confianca: S.confianca, ms: decorrido() },
+               { texto: t.resposta, fase: "DIAGNOSTICO" });
+    };
+    mostra("confianca");
   }
 
   function habilita(t) {

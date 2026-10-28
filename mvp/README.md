@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 54 testes
+python -m pytest mvp/ -q     # 60 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -131,7 +131,7 @@ mvp/
 ├── web/figuras.js             a analogia desenhada, uma por premissa
 ├── test_motor.py              o laço, 28 testes
 ├── test_dominio.py            a carga e as invariantes, 14 testes
-└── test_razao.py              a camada 2, 12 testes
+└── test_razao.py              as camadas 2 e 3, 18 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano
@@ -199,6 +199,36 @@ quem está lendo.
 
 **Item sem crença nas alternativas pula a camada 2**, registrando
 `razao_pulada`: com uma alternativa só não há escolha a fazer.
+
+## A camada da confiança
+
+Tela própria, depois das duas escolhas, **em toda atividade** — inclusive
+no treino. Duas decisões:
+
+**Própria, e não no pé da tela da razão.** A pergunta é sobre as duas
+escolhas juntas; declarar confiança antes de ver o par formado mede outra
+coisa. Custa um passo a mais por item, e compra independência entre as
+camadas — que é o que sustenta a tabela de classificação.
+
+**Em toda atividade, não só no diagnóstico.** O critério de sucesso diz
+que a razão muda *sem queda de confiança*. Queda exige **duas** medidas, e
+a segunda acontece depois da refutação, no treino. Antes a confiança só
+era pedida no diagnóstico, e esse número não existia.
+
+O treino não pergunta o porquê, só a confiança: a razão é do diagnóstico,
+onde ela separa chute, vacilo e crença. No treino o nó já foi refutado, e
+o que está em jogo é se a premissa se sustenta noutra superfície.
+
+Cada camada grava o **próprio tempo**:
+
+```
+camada1_respondida  {correta: true,  ms: 301}
+camada2_respondida  {razao_correta: true, fala_do_no: "B1", ms: 703}
+camada3_respondida  {confianca: "tenho certeza", ms: 6582}
+```
+
+Sem isso não dá para saber se a pessoa demorou a responder ou a
+justificar — e é a segunda que interessa.
 
 ## As invariantes, cobradas na carga
 

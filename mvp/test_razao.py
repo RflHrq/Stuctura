@@ -108,7 +108,9 @@ def test_responder_a_razao_nao_muda_a_camada_1(d):
     t = ate_a_primeira_razao(d)
     p = t.estado.pendente
     errada = next(i for i, z in enumerate(p.razoes) if not z.correta)
-    depois = motor.avanca(d, t.estado, Resposta(escolha=errada))
+    t = motor.avanca(d, t.estado, Resposta(escolha=errada))
+    # Camada 3 no meio (T3): a confiança vem depois das duas escolhas.
+    depois = motor.avanca(d, t.estado, Resposta(confianca="tenho certeza"))
     registrada = next(e for e in depois.eventos if e.tipo == "resposta_registrada")
     assert registrada.dados["escolha"] == p.escolha
     assert registrada.dados["correta"] is True
@@ -164,3 +166,82 @@ def test_a_mesma_semente_devolve_a_mesma_ordem(d):
 def test_a_ordem_e_uma_permutacao_completa(d):
     for n in (2, 3, 4):
         assert sorted(motor.ordem_das_razoes("s", "a", n)) == list(range(n))
+
+
+# --------------------------------------------------------------------------
+# Camada 3: a confiança, em tela própria e em toda atividade (T3)
+# --------------------------------------------------------------------------
+
+def _episodio(d, erra=False, semente=""):
+    """Um episódio de diagnóstico inteiro, devolvendo os eventos."""
+    t = motor.inicia(d, semente=semente)
+    eventos = []
+    for _ in range(80):
+        eventos.extend(t.eventos)
+        tela = t.tela
+        if tela.tipo == "atividade":
+            a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
+            i = (next(k for k, o in enumerate(a.opcoes) if not o.correta)
+                 if erra else a.indice_correto)
+            t = motor.avanca(d, t.estado, Resposta(escolha=i, ms=11))
+        elif tela.tipo == "razao":
+            i = (0 if erra else
+                 next(k for k, z in enumerate(t.estado.pendente.razoes) if z.correta))
+            t = motor.avanca(d, t.estado, Resposta(escolha=i, ms=22))
+        elif tela.tipo == "confianca":
+            t = motor.avanca(d, t.estado,
+                             Resposta(confianca="tenho certeza", ms=33))
+            eventos.extend(t.eventos)
+            return eventos
+        else:
+            t = motor.avanca(d, t.estado, Resposta())
+    raise AssertionError("o episódio não fechou")
+
+
+def test_as_tres_camadas_gravam_eventos_separados_e_em_ordem(d):
+    eventos = _episodio(d)
+    camadas = [e.tipo for e in eventos if e.tipo.startswith("camada")]
+    assert camadas == ["camada1_respondida", "camada2_respondida",
+                       "camada3_respondida"]
+
+
+def test_cada_camada_tem_o_proprio_tempo(d):
+    """Sem isto não dá para saber se a pessoa demorou a responder ou a
+    justificar — e é a segunda que interessa."""
+    por = {e.tipo: e.dados["ms"] for e in _episodio(d)
+           if e.tipo.startswith("camada")}
+    assert por == {"camada1_respondida": 11, "camada2_respondida": 22,
+                   "camada3_respondida": 33}
+
+
+def test_a_confianca_nao_e_mais_pedida_na_tela_da_atividade(d):
+    t = motor.inicia(d)
+    while t.tela.tipo != "atividade":
+        t = motor.avanca(d, t.estado, Resposta())
+    assert t.tela.dados["pede_confianca"] is False
+
+
+def test_a_tela_da_confianca_mostra_as_duas_escolhas_ja_feitas(d):
+    t = ate_a_primeira_razao(d)
+    certa = next(i for i, z in enumerate(t.estado.pendente.razoes) if z.correta)
+    t = motor.avanca(d, t.estado, Resposta(escolha=certa))
+    assert t.tela.tipo == "confianca"
+    assert t.tela.dados["resposta"]
+    assert t.tela.dados["razao"] == t.estado.pendente.razao.texto
+
+
+def test_o_treino_tambem_pergunta_a_confianca(d):
+    """O critério diz 'a razão muda SEM QUEDA DE CONFIANÇA'. Duas medidas,
+    não uma — e a segunda acontece depois da refutação, no treino."""
+    from mvp.test_motor import _politica, roda
+    _, eventos = roda(d, _politica(erra_no="B3", erra_diagnostico=2, d=d))
+    no_treino = [e for e in eventos
+                 if e.tipo == "camada3_respondida" and e.dados["origem"] == "treino"]
+    assert no_treino, "nenhuma confiança registrada no treino"
+    assert all(e.dados["confianca"] for e in no_treino)
+
+
+def test_a_confianca_declarada_chega_inteira_ao_registro(d):
+    eventos = _episodio(d)
+    registrada = next(e for e in eventos if e.tipo == "resposta_registrada")
+    assert registrada.dados["confianca"] == "tenho certeza"

@@ -68,6 +68,10 @@ def _politica(*, erra_no=None, erra_diagnostico=99, erra_treino=0,
         if tela.tipo in ("ensino", "validacao", "refutacao", "mapa"):
             return Resposta()
 
+        # Camada 3 (T3): tela própria, em toda atividade.
+        if tela.tipo == "confianca":
+            return Resposta(confianca=confianca)
+
         # Camada 2 (T2): escolhe a razão COERENTE com a resposta que acabou
         # de dar — quem errou de propósito explica pela crença daquela
         # alternativa. Sem isso, a política erraria a camada 1 e acertaria a

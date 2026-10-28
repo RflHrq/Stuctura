@@ -62,6 +62,7 @@ CHUTE = "chutei"
 ENSINO = "ENSINO"
 DIAGNOSTICO = "DIAGNOSTICO"
 RAZAO = "RAZAO"
+CONFIANCA = "CONFIANCA"
 VALIDACAO = "VALIDACAO"
 REFUTACAO = "REFUTACAO"
 TREINO = "TREINO"
@@ -109,9 +110,11 @@ class Pendente:
     escolha: int | None
     correta: bool
     crenca_da_opcao: str | None
-    confianca: str
     ms: int
+    origem: str = DIAGNOSTICO          # DIAGNOSTICO ou TREINO
+    confianca: str = ""
     razoes: tuple[Razao, ...] = ()
+    razao: Razao | None = None         # a escolhida na camada 2
 
 
 @dataclass(frozen=True)
@@ -216,6 +219,8 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         return _responde_diagnostico(d, e, r)
     if e.fase == RAZAO:
         return _responde_razao(d, e, r)
+    if e.fase == CONFIANCA:
+        return _responde_confianca(d, e, r)
     if e.fase == VALIDACAO:
         return _segue_validacao(d, e)
     if e.fase == REFUTACAO:
@@ -262,9 +267,9 @@ def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = Fal
     tela = Tela("atividade", no=a.no, texto=a.texto, dados={
         "atividade": a.id, "fase": e.fase, "formato": a.formato, "item": a.tipo,
         "opcoes": [{"texto": o.texto} for o in a.opcoes],
-        # A confiança só é pedida no diagnóstico: é lá que ela decide se o
-        # erro vira lacuna ou suspeita de crença.
-        "pede_confianca": e.fase == DIAGNOSTICO,
+        # A confiança saiu daqui: ela é da DUPLA resposta-razão, e tem tela
+        # própria depois das duas (T3).
+        "pede_confianca": False,
     })
     eventos = [Evento("atividade_apresentada", {
         "atividade": a.id, "no": a.no, "fase": e.fase, "formato": a.formato,
@@ -319,10 +324,10 @@ def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     pendente = Pendente(
         atividade=a.id, escolha=r.escolha, correta=certo,
         crenca_da_opcao=(escolhida.crenca if escolhida else None),
-        confianca=r.confianca, ms=r.ms,
+        ms=r.ms, origem=DIAGNOSTICO,
     )
     evento = Evento("camada1_respondida", {
-        "atividade": a.id, "no": a.no, "item": a.tipo,
+        "atividade": a.id, "no": a.no, "item": a.tipo, "origem": "diagnostico",
         "escolha": r.escolha, "correta": certo,
         "crenca_da_opcao": pendente.crenca_da_opcao, "ms": r.ms,
     })
@@ -331,7 +336,7 @@ def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     # Com uma razão só não há escolha a fazer, e perguntar seria teatro.
     # Acontece em item cujos distratores não apontam crença nenhuma.
     if len(razoes) < 2:
-        seguinte = _resolve_diagnostico(d, e, a, pendente)
+        seguinte = _pede_confianca(d, e, a, pendente)
         return Transicao(seguinte.estado, seguinte.tela,
                          (evento, Evento("razao_pulada", {
                              "atividade": a.id, "no": a.no,
@@ -373,7 +378,52 @@ def _responde_razao(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         "fala_do_no": escolhida.no if escolhida else None,
         "ms": r.ms,
     })
-    seguinte = _resolve_diagnostico(d, replace(e, pendente=None), a, p)
+    seguinte = _pede_confianca(d, e, a, replace(p, razao=escolhida))
+    return Transicao(seguinte.estado, seguinte.tela, (evento,) + seguinte.eventos)
+
+
+# --------------------------------------------------------------------------
+# Camada 3: a confiança
+# --------------------------------------------------------------------------
+
+def _pede_confianca(d: Dominio, e: Estado, a: Atividade,
+                    p: Pendente) -> Transicao:
+    """Tela própria, uma vez por atividade, depois das duas escolhas.
+
+    Própria, e não no pé da tela da razão, porque é das duas escolhas
+    JUNTAS que se pergunta a confiança — e porque declarar confiança antes
+    de ver o par formado mede outra coisa.
+
+    Em **toda** atividade, não só no diagnóstico: o critério de sucesso diz
+    que a razão muda *sem queda de confiança*, e isso exige duas medidas.
+    """
+    novo = replace(e, fase=CONFIANCA, pendente=p)
+    tela = Tela("confianca", no=a.no,
+                texto="Quanta confiança você tem nessa dupla?",
+                dados={
+                    "atividade": a.id,
+                    "resposta": (a.opcoes[p.escolha].texto
+                                 if p.escolha is not None else ""),
+                    "razao": p.razao.texto if p.razao else "",
+                    "escala": list(CONFIANCAS),
+                })
+    return Transicao(novo, tela, ())
+
+
+def _responde_confianca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
+    p = e.pendente
+    assert p is not None, "fase CONFIANCA sem resposta trancada"
+    a = next(x for x in d.atividades if x.id == p.atividade)
+    p = replace(p, confianca=r.confianca)
+
+    evento = Evento("camada3_respondida", {
+        "atividade": a.id, "no": a.no, "confianca": r.confianca,
+        "origem": p.origem.lower(), "ms": r.ms,
+    })
+    if p.origem == TREINO:
+        seguinte = _resolve_treino(d, e, a, p)
+    else:
+        seguinte = _resolve_diagnostico(d, e, a, p)
     return Transicao(seguinte.estado, seguinte.tela, (evento,) + seguinte.eventos)
 
 
@@ -615,9 +665,35 @@ def _proximo_treino(d: Dominio, e: Estado, no: str) -> Transicao:
 
 
 def _responde_treino(d: Dominio, e: Estado, r: Resposta) -> Transicao:
+    """O treino não pergunta o porquê — pergunta a confiança.
+
+    A razão é do diagnóstico: é lá que ela separa chute, vacilo e crença.
+    No treino o nó já foi refutado e o que está em jogo é se a premissa se
+    sustenta em outra superfície — e com quanta convicção.
+    """
     a = next(x for x in d.atividades if x.id == e.atividade)
     escolhida = a.opcoes[r.escolha] if r.escolha is not None else None
     certo = bool(escolhida and escolhida.correta)
+
+    pendente = Pendente(
+        atividade=a.id, escolha=r.escolha, correta=certo,
+        crenca_da_opcao=(escolhida.crenca if escolhida else None),
+        ms=r.ms, origem=TREINO,
+    )
+    evento = Evento("camada1_respondida", {
+        "atividade": a.id, "no": a.no, "item": a.tipo, "origem": "treino",
+        "escolha": r.escolha, "correta": certo,
+        "crenca_da_opcao": pendente.crenca_da_opcao, "ms": r.ms,
+    })
+    seguinte = _pede_confianca(d, e, a, pendente)
+    return Transicao(seguinte.estado, seguinte.tela, (evento,) + seguinte.eventos)
+
+
+def _resolve_treino(d: Dominio, e: Estado, a: Atividade,
+                    p: Pendente) -> Transicao:
+    e = replace(e, fase=TREINO, pendente=None)
+    certo = p.correta
+    r = Resposta(escolha=p.escolha, confianca=p.confianca, ms=p.ms)
     en = e.no(a.no)
 
     # RF35: a sequência é do nó. Zerar aqui não toca em nenhum outro.
