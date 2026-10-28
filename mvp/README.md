@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 104 testes
+python -m pytest mvp/ -q     # 119 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -83,6 +83,51 @@ E o retorno é diferente de errar:
 
 > **Você disse que não sabe.** Isso é informação, não erro: aqui não há
 > nada para corrigir, há algo para construir.
+
+## A sessão volta depois de uma queda
+
+O estado vive em memória, e a memória morre com o processo. Numa coleta de
+10 a 15 pessoas, **perder uma é perder 7%** — e ela não volta para repetir.
+
+Agora o log guarda **duas coisas diferentes** no mesmo arquivo:
+
+| Linha | O que é | Quem lê |
+| --- | --- | --- |
+| `entrada_recebida` | o que a pessoa fez, uma por chamada ao motor | a reexecução |
+| os eventos | o que aquilo significou | a análise |
+
+`log.reconstroi` reexecuta **só as entradas**, do começo, no motor puro. Não
+lê evento nenhum — e por isso não pode divergir das regras: é o mesmo
+código que rodou na primeira vez. A alternativa, projetar o estado a partir
+de `no_confirmado`, `crenca_detectada` e companhia, seria uma segunda
+implementação das regras, livre para discordar da primeira sem ninguém
+perceber.
+
+A semente da reexecução é o **código da sessão**, que já era a semente da
+ordem das alternativas. Por isso volta também a tela: as mesmas razões, na
+mesma ordem em que a pessoa as estava lendo.
+
+Uma resposta que chega sem estado na memória é retomada assim, e a retomada
+**vira linha no log** (`sessao_retomada`): uma sessão que teve queda no
+meio não é igual às outras, e a análise precisa ver isso sem perguntar a
+ninguém.
+
+**Portão M.** Dois casos em que reconstruir seria mentir, e os dois
+estouram em vez de devolver estado:
+
+- **log sem entradas** — gravado antes desta tarefa. Reexecutá-lo devolveria
+  a tela de abertura: uma sessão em branco com cara de sessão válida.
+- **log de outro tópico** — as entradas são posições de alternativas;
+  aplicadas a outro banco elas apontam para outras opções, e o estado sai
+  plausível e errado.
+
+O que **não** está resolvido: recarregar a página começa uma sessão nova,
+porque o navegador não guarda o código da sessão. A queda que esta tarefa
+cobre é a do servidor, com a página aberta.
+
+**O preço, declarado:** o texto do teach-back aparece duas vezes na mesma
+sessão — uma como entrada, outra como evento. Apagar um participante
+continua sendo apagar as linhas com o código dele.
 
 ## Os cinco estados, e em que nó cada um fica
 
@@ -238,7 +283,7 @@ mvp/
 │   └── activities_kc00.yaml   20 atividades, exemplos e analogias de resgate
 ├── dominio.py                 carga e validação (falha na carga, nunca em sessão)
 ├── motor.py                   o laço, puro: (estado, resposta) → (estado, tela, eventos)
-├── log.py                     append-only, uma linha JSON por evento
+├── log.py                     append-only; grava as entradas e reexecuta a sessão
 ├── app.py                     três rotas
 ├── web/                       a interface, que não decide nada
 ├── web/figuras.js             a analogia desenhada, uma por premissa
@@ -246,7 +291,8 @@ mvp/
 ├── test_dominio.py            a carga e as invariantes, 14 testes
 ├── test_razao.py              as camadas 2 e 3, 18 testes
 ├── test_classificacao.py      os cinco estados, a projeção, CS-4 e o falso positivo, 37 testes
-└── test_teachback.py          a frase do começo e a do fim, 9 testes
+├── test_teachback.py          a frase do começo e a do fim, 9 testes
+└── test_reconstrucao.py       a sessão de volta pelo log, 15 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano
@@ -376,6 +422,4 @@ erra duas vezes no mesmo nó.
 1. **Revisar as 20 atividades.** Dez vieram do seu documento; as dez de treino
    e a de código do B2 foram escritas aqui, e alimentam a medição.
 2. **Decidir os parâmetros** com dados do ensaio: 2 acertos é chute informado.
-3. **Reconstrução do estado pelo log.** Hoje a sessão vive em memória; o log
-   já guarda tudo o que seria preciso para reconstruir.
-4. **Mais um tópico**, para o reteste da pesquisa acontecer longe do treino.
+3. **Mais um tópico**, para o reteste da pesquisa acontecer longe do treino.

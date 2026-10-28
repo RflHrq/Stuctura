@@ -6,30 +6,69 @@ linha é um evento com carimbo de tempo, e a sessão inteira é legível com
 eventos.
 
 O estado da sessão NÃO é gravado: ele é reconstruído reexecutando as
-respostas do log. É o que mantém o log como fonte única.
+respostas do log (`reconstroi`). É o que mantém o log como fonte única.
+
+DUAS COISAS DIFERENTES NO MESMO ARQUIVO
+---------------------------------------
+**As entradas** (`entrada_recebida`) são o que a pessoa fez: uma linha por
+chamada ao motor. São o registro de recuperação, e só elas são reexecutadas.
+
+**Os eventos** são o que aquilo significou. São o registro de pesquisa, e
+mudam de forma conforme o instrumento evolui.
+
+Separá-los é o que permite reconstruir uma sessão sem reimplementar as
+regras: a reexecução não lê nenhum evento, e por isso não pode divergir do
+motor. O preço é que o texto do teach-back aparece duas vezes na mesma
+linha de sessão — uma como entrada, outra como evento. Apagar um
+participante continua sendo apagar as linhas com o código dele.
 """
 
 from __future__ import annotations
 
 import json
-from dataclasses import asdict
+from dataclasses import asdict, fields
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
+from mvp import motor
 from mvp.motor import Evento
 
 DESTINO = Path(__file__).resolve().parent / "dados" / "eventos.jsonl"
+
+# O tipo da linha de entrada. Não é um evento do motor: o motor não sabe
+# que existe log.
+ENTRADA = "entrada_recebida"
+
+CAMPOS_DA_ENTRADA = tuple(f.name for f in fields(motor.Resposta))
+
+
+class LogIncompleto(Exception):
+    """O log existe e não dá para reexecutar o que está nele.
+
+    Devolver um estado parcial seria pior do que falhar: uma sessão em
+    branco tem a mesma cara de uma sessão que acabou de começar.
+    """
 
 
 def agora() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
 
-def grava(sessao: str, eventos: Iterable[Evento], destino: Path | None = None) -> None:
+def grava(sessao: str, eventos: Iterable[Evento], destino: Path | None = None,
+          entrada: motor.Resposta | None = None) -> None:
+    """Uma chamada ao motor, gravada: a entrada e o que ela provocou.
+
+    A entrada vem primeiro, na ordem em que aconteceu — quem lê o arquivo
+    direto vê causa e efeito, e a reexecução não precisa reordenar nada.
+    """
     caminho = Path(destino) if destino else DESTINO
     caminho.parent.mkdir(parents=True, exist_ok=True)
     with caminho.open("a", encoding="utf-8") as f:
+        if entrada is not None:
+            f.write(json.dumps({"ts": agora(), "sessao": sessao,
+                                "tipo": ENTRADA, **asdict(entrada)},
+                               ensure_ascii=False) + "\n")
         for e in eventos:
             linha = {"ts": agora(), "sessao": sessao, "tipo": e.tipo, **dict(e.dados)}
             f.write(json.dumps(linha, ensure_ascii=False) + "\n")
@@ -47,3 +86,55 @@ def le(sessao: str | None = None, destino: Path | None = None) -> list[dict]:
         if sessao is None or dado.get("sessao") == sessao:
             saida.append(dado)
     return saida
+
+
+def _entrada_de(linha: dict) -> motor.Resposta:
+    """Campo que o log não tem assume o padrão; campo que o motor não
+    conhece é ignorado. É o que faz um log de ontem rodar no motor de hoje.
+    """
+    return motor.Resposta(**{c: linha[c] for c in CAMPOS_DA_ENTRADA
+                             if c in linha})
+
+
+def reconstroi(d: motor.Dominio, sessao: str,
+               destino: Path | None = None) -> motor.Transicao | None:
+    """A sessão de volta, reexecutando o log no motor.
+
+    Devolve a transição inteira — estado e tela —, porque quem retoma
+    precisa saber não só em que ponto a pessoa parou, mas o que estava na
+    frente dela: a ordem das alternativas vem da semente, que é o código
+    da sessão.
+
+    Não grava nada. Reexecutar produz os mesmos eventos outra vez, e
+    gravá-los duplicaria a sessão no arquivo que a análise vai ler.
+
+    `None` quando a sessão não está no log. `LogIncompleto` quando ela
+    está e não é reexecutável.
+    """
+    linhas = le(sessao, destino)
+    if not linhas:
+        return None
+
+    abertura = next((x for x in linhas if x["tipo"] == "unidade_iniciada"), None)
+    if abertura is None:
+        raise LogIncompleto(
+            "a sessão %r não tem abertura no log" % sessao)
+    if abertura.get("topico") != d.id:
+        # As entradas são posições de alternativas. Aplicadas a outro banco
+        # de atividades elas apontam para outras opções, e o estado sai
+        # plausível e errado.
+        raise LogIncompleto(
+            "a sessão %r é do tópico %r, e o domínio carregado é %r"
+            % (sessao, abertura.get("topico"), d.id))
+
+    entradas = [x for x in linhas if x["tipo"] == ENTRADA]
+    if not entradas and len(linhas) > 1:
+        raise LogIncompleto(
+            "a sessão %r tem %d linhas e nenhuma entrada: log gravado antes "
+            "de as entradas existirem, não é reexecutável"
+            % (sessao, len(linhas)))
+
+    t = motor.inicia(d, semente=sessao)
+    for linha in entradas:
+        t = motor.avanca(d, t.estado, _entrada_de(linha))
+    return t

@@ -5,9 +5,11 @@
 A interface não decide nada: ela recebe a próxima tela e desenha. Toda
 transição acontece no motor, e o que acontece vira evento no log.
 
-O estado da sessão vive em memória, num dicionário por sessão. É o que um
-MVP precisa: a coleta de verdade vai querer reconstrução do log, e o log já
-guarda tudo para isso.
+O estado da sessão vive em memória, num dicionário por sessão — e o
+dicionário é só um atalho. A fonte é o log: se o processo reinicia no meio
+de uma coleta, a sessão que chegar sem estado na memória é reexecutada a
+partir dele (`_retoma`). Numa coleta de 10 a 15 pessoas, perder uma é
+perder 7%, e a pessoa não volta para repetir.
 """
 
 from __future__ import annotations
@@ -43,15 +45,19 @@ class RespostaBody(BaseModel):
     texto: str = ""
 
 
-def _resposta(sessao: str, t: motor.Transicao) -> dict:
+def _resposta(sessao: str, t: motor.Transicao,
+              entrada: motor.Resposta | None = None) -> dict:
     """A transição, pronta para desenhar.
 
     `veredito` vem daqui, e não do cliente: quem decide se a resposta foi
     certa, e se o retorno deve ser neutro, é o motor. O front não pode
     inferir isso de tipos de evento — seria regra no lugar errado.
+
+    A entrada vai junto para o log, antes dos eventos que ela provocou: é
+    o que permite reexecutar a sessão depois de uma queda.
     """
     sessoes[sessao] = t.estado
-    log.grava(sessao, t.eventos)
+    log.grava(sessao, t.eventos, entrada=entrada)
 
     resposta = next((e for e in t.eventos if e.tipo == "resposta_registrada"), None)
     crenca = next((e for e in t.eventos if e.tipo == "crenca_detectada"), None)
@@ -105,17 +111,42 @@ def cria_sessao() -> dict:
     return _resposta(sessao, motor.inicia(dominio, semente=sessao))
 
 
+def _retoma(sessao: str) -> motor.Estado:
+    """Uma sessão que o servidor não tem mais na memória volta pelo log.
+
+    O caso é o servidor ter sido reiniciado no meio de uma coleta: a
+    página de quem responde continua aberta, e a próxima resposta precisa
+    cair no estado certo em vez de num 404.
+
+    A retomada vira uma linha no log — não é um detalhe de operação: uma
+    sessão que teve queda no meio não é igual às outras, e a análise
+    precisa poder ver isso sem perguntar a ninguém.
+    """
+    try:
+        t = log.reconstroi(dominio, sessao)
+    except log.LogIncompleto as erro:
+        # 409: a sessão existe, e este servidor não consegue continuá-la.
+        # Dizer 404 esconderia um log que precisa de atenção humana.
+        raise HTTPException(status_code=409, detail=str(erro)) from erro
+    if t is None:
+        raise HTTPException(status_code=404, detail="sessão desconhecida")
+    sessoes[sessao] = t.estado
+    log.grava(sessao, (motor.Evento("sessao_retomada",
+                                    {"fase": t.estado.fase}),))
+    return t.estado
+
+
 @app.post("/sessoes/{sessao}/responder")
 def responde(sessao: str, body: RespostaBody) -> dict:
     estado = sessoes.get(sessao)
     if estado is None:
-        raise HTTPException(status_code=404, detail="sessão desconhecida")
+        estado = _retoma(sessao)
     if body.confianca and body.confianca not in motor.CONFIANCAS:
         raise HTTPException(status_code=400, detail="confiança fora da escala")
     r = motor.Resposta(escolha=body.escolha, confianca=body.confianca, ms=body.ms,
                        repetir=body.repetir, nao_sei=body.nao_sei,
                        texto=body.texto)
-    return _resposta(sessao, motor.avanca(dominio, estado, r))
+    return _resposta(sessao, motor.avanca(dominio, estado, r), entrada=r)
 
 
 @app.get("/saude")

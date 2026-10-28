@@ -4,8 +4,8 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** 5 — Issues (as tarefas do ciclo 1). A fase 6 é a primeira
-que altera código.
+**Fase atual:** 6 — Implement. Uma tarefa por commit, com sabotagem antes
+de acreditar em teste verde.
 
 **Reformulação, não recomeço:** o motor atual (`mvp/`) e o antigo (`engine/`)
 ficam onde estão, versionados. O que está em reconstrução é o CONCEITO de
@@ -92,6 +92,34 @@ Nenhuma bloqueia a fase 4.
 | 4 PRD | `docs/PRD.md` | **pronto** — 12 critérios de sucesso, parâmetros aceitos |
 | 5 Issues | `docs/tasks.md` | **pronto** — 13 tarefas, da T0 à T12 |
 
+## Fase 6 — as tarefas, uma por commit
+
+Cada linha é um commit. "Sabotagem" é a conferência de que o teste morde:
+quebrar de propósito a regra que ele defende tem de derrubá-lo.
+
+| Tarefa | Commit | O que entregou | Testes do MVP | Sabotagem |
+| --- | --- | --- | --- | --- |
+| T0 | `a45cb7b` | `scripts/verify.sh`: segredos antes dos testes | 28 | segredo plantado faz falhar |
+| T1 | `8e5be7f` | a crença desce da atividade para a alternativa | 42 | sim |
+| T2 | `ce0d44d` | a camada da razão; a resposta tranca | 54 | sim |
+| T3 | `16efa89` | a confiança em tela própria, em toda atividade | 60 | sim |
+| T4 | `a8ac020` | os cinco estados; a crença no nó que ELA nega | 70 | sim — **2 testes aposentados e 2 reescritos**, com aprovação |
+| T7 | `9ae992d` | o mapa com os cinco estados e o caso cruzado | 74 | sim |
+| T5 | `72233e8` | "não sei" nas três camadas | 80 | **fraca**, declarada: o curto-circuito da lacuna derruba 1 teste só |
+| T6 | `8a7447d` | o falso positivo traz outra superfície | 86 | sim — o primeiro teste **não mordia**, reescrito |
+| T9 | `33f16c0` | o teach-back do começo e do fim | 95 | sim |
+| T10 | — | a sessão reconstruída pelo log (CS-6) | 110 | sim — 6 de 6 |
+
+A coluna conta funções `def test_` em `mvp/`, apuradas com `git grep` em
+cada commit. O pytest coleta mais do que isso porque quatro testes são
+parametrizados: hoje são 110 funções e **119 casos**, mais 252 da suíte
+antiga.
+
+**Em aberto na fase 6:** T8 (a força da premissa escolhe o próximo item),
+T11 (o painel do pesquisador), T12 (o reteste). E uma lacuna de escopo
+registrada e **não** transformada em tarefa por conta própria: o caminho
+"lacuna → constrói" aparece no fluxo do PRD e não tem tarefa de T1 a T12.
+
 ## Vereditos das auxiliares
 
 | Fase | Auxiliar | Modo | Veredito |
@@ -112,4 +140,6 @@ Python. Qualquer mudança futura é comparada com isto.
 
 ## Orçamento
 
-Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração. Fase 4: 1 iteração. Fase 5: 1 iteração.
+Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração. Fase 4: 1
+iteração. Fase 5: 1 iteração. Fase 6: 1 iteração por tarefa, de T0 a T10 —
+nenhuma precisou de uma segunda.

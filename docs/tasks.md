@@ -262,6 +262,14 @@ idêntico ao que estava em memória.
 
 **Portões:** M, T.
 
+**Feito.** O log passou a guardar as **entradas** (`entrada_recebida`), e
+`log.reconstroi` reexecuta só elas no motor puro — sem ler evento nenhum,
+e por isso sem poder divergir das regras. Uma resposta que chega sem
+estado na memória é retomada, e a retomada vira linha no log. Dois casos
+estouram em vez de devolver estado: log sem entradas (anterior a esta
+tarefa) e log de outro tópico. **Fora do alcance, declarado:** recarregar
+a página começa sessão nova — o navegador não guarda o código da sessão.
+
 ---
 
 ## T11 — O painel do pesquisador
