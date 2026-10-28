@@ -9,7 +9,8 @@
   "use strict";
 
   var $ = function (id) { return document.getElementById(id); };
-  var TELAS = ["ensino", "atividade", "retorno", "validacao", "refutacao", "mapa"];
+  var TELAS = ["ensino", "atividade", "razao", "retorno", "validacao",
+             "refutacao", "mapa"];
 
   var S = {
     sessao: null,
@@ -144,6 +145,7 @@
     var t = j.tela;
     if (t.tipo === "ensino") return telaEnsino(t);
     if (t.tipo === "atividade") return telaAtividade(t);
+    if (t.tipo === "razao") return telaRazao(t);
     if (t.tipo === "validacao") return telaValidacao(t);
     if (t.tipo === "refutacao") return telaRefutacao(t);
     if (t.tipo === "mapa") return telaMapa(t);
@@ -229,6 +231,44 @@
                { texto: escolhida, fase: t.fase });
     };
     mostra("atividade");
+  }
+
+  /* --------------------------------------------------- camada 2: razao */
+
+  /* A resposta ja esta trancada no servidor: esta tela nao tem como
+   * mudar a camada 1, e o cadeado diz isso. As razoes vem prontas do
+   * motor, montadas do grafo — o cliente nao sabe qual e a certa. */
+  function telaRazao(t) {
+    S.escolha = null;
+    $("trilha").textContent = "Praticando · por quê";
+    $("raz-trancada").textContent = t.trancada || "";
+    $("raz-pergunta").textContent = t.texto;
+
+    var caixa = $("raz-opcoes");
+    caixa.innerHTML = "";
+    t.opcoes.forEach(function (o, i) {
+      var b = document.createElement("button");
+      b.className = "opcao";
+      b.type = "button";
+      b.textContent = o.texto;
+      b.setAttribute("aria-pressed", "false");
+      b.onclick = function () {
+        S.escolha = i;
+        Array.prototype.forEach.call(caixa.children, function (x, k) {
+          x.setAttribute("aria-pressed", String(k === i));
+        });
+        $("btn-razao").disabled = false;
+      };
+      caixa.appendChild(b);
+    });
+
+    $("btn-razao").disabled = true;
+    $("btn-razao").onclick = function () {
+      $("btn-razao").disabled = true;
+      responde({ escolha: S.escolha, ms: decorrido() },
+               { texto: t.opcoes[S.escolha].texto, fase: "DIAGNOSTICO" });
+    };
+    mostra("razao");
   }
 
   function habilita(t) {
@@ -368,7 +408,10 @@
 
   async function responde(corpo, contexto) {
     var j = await api("/sessoes/" + S.sessao + "/responder", corpo);
-    if (contexto) {
+    /* Sem veredito nao ha o que devolver ainda: e o caso da camada 1 de
+     * uma diagnostica, que agora tranca e chama a tela da razao. O
+     * retorno imediato so faz sentido quando o episodio fechou. */
+    if (contexto && j.veredito) {
       S.pendente = j;
       desenhaGrafo(j.grafo);     // o grafo acompanha já no retorno
       return mostraRetorno(j, contexto);

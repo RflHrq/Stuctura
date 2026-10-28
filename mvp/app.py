@@ -71,7 +71,9 @@ def _resposta(sessao: str, t: motor.Transicao) -> dict:
 @app.post("/sessoes")
 def cria_sessao() -> dict:
     sessao = uuid.uuid4().hex[:12]
-    return _resposta(sessao, motor.inicia(dominio))
+    # A sessão é a semente da ordem das razões: o motor continua puro, e
+    # recarregar a página não reembaralha as alternativas debaixo da pessoa.
+    return _resposta(sessao, motor.inicia(dominio, semente=sessao))
 
 
 @app.post("/sessoes/{sessao}/responder")

@@ -141,3 +141,12 @@ h2{margin:0 0 14px; font-size:20px}
 .reexplicacao{border-left:3px solid var(--acento); background:var(--acento-fundo);
               border-radius:0 8px 8px 0; padding:12px 16px; margin:0 0 18px;
               font-size:15px; color:var(--tinta2)}
+
+/* ------------------------------------------------- camada 2: a razao */
+/* A resposta fica a vista enquanto ele escolhe o porque: nao e so
+   lembrete, e o aviso de que aquela escolha nao muda mais. */
+.trancada{border:1px solid var(--linha); border-radius:9px; padding:10px 14px;
+          margin:0 0 18px; background:var(--papel)}
+.trancada p{margin:0}
+.trancada .valor{font-size:15px}
+.cadeado{float:right; font-size:12px; color:var(--tinta2)}

@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 42 testes
+python -m pytest mvp/ -q     # 54 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -23,7 +23,8 @@ python -m mvp.app            # http://127.0.0.1:8010
 
 | Passo | O que acontece | Onde |
 | --- | --- | --- |
-| **Identifica** | errar sem ter chutado levanta SUSPEITA; a segunda pergunta do nó, de outro formato, decide | `motor._responde_diagnostico` |
+| **Pergunta** | camada 1 responde, tranca, e a camada 2 pergunta por quê | `motor._responde_diagnostico`, `motor.razoes_de` |
+| **Identifica** | errar sem ter chutado levanta SUSPEITA; a segunda pergunta do nó, de outro formato, decide | `motor._resolve_diagnostico` |
 | **Valida** | a analogia de resgate daquele nó, antes de qualquer refutação | `motor._inicia_validacao` |
 | **Refuta** | percurso pelas premissas que sustentam o nó negado, montado do grafo | `motor._plano` |
 | **Treina** | itens no mesmo nó, formato diferente a cada tentativa, até a sequência fechar | `motor._proximo_treino` |
@@ -129,7 +130,8 @@ mvp/
 ├── web/                       a interface, que não decide nada
 ├── web/figuras.js             a analogia desenhada, uma por premissa
 ├── test_motor.py              o laço, 28 testes
-└── test_dominio.py            a carga e as invariantes, 14 testes
+├── test_dominio.py            a carga e as invariantes, 14 testes
+└── test_razao.py              a camada 2, 12 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano
@@ -165,6 +167,38 @@ a única do catálogo: elaborada do modelo de máquina, sem fonte empírica,
 declarada como hipótese a testar. E o distrator *"porque o nome b vem
 depois no alfabeto"* saiu: ninguém sustenta essa ideia, e como razão seria
 uma opção que nunca é escolhida.
+
+## A camada da razão
+
+Depois de responder, a resposta **tranca** e vem a segunda pergunta: *por
+quê*. Trancar não é detalhe de interface. As razões erradas são enunciados
+de crenças — lê-las antes de responder entrega a pista e muda a resposta de
+quem ia acertar. Com a camada 1 fechada, o par resposta-razão é
+independente, que é o que a classificação pressupõe.
+
+**As razões vêm do grafo, nunca de um banco de razões:**
+
+| Razão | De onde sai |
+| --- | --- |
+| a certa | o enunciado do nó que o item mira |
+| as erradas | o que afirmam as crenças apontadas pelas alternativas |
+
+Se houvesse um banco de razões escritas à mão, a razão e a premissa
+poderiam divergir, e o diagnóstico passaria a medir a redação do item.
+
+**Uma razão pode falar de outro nó.** O item `ciu_kc00_002` mira B1 e
+oferece, entre as razões, a crença de que sem valor não há memória — que
+nega **B2**. Explicar por ela é informação sobre B2, e o evento
+`camada2_respondida` grava isso em `fala_do_no`. O que o sistema **faz**
+com essa informação é a tarefa seguinte (T4); por ora ele registra.
+
+A ordem das razões é embaralhada por uma permutação derivada da sessão:
+`ordem_das_razoes(semente, atividade, n)`. O motor continua puro — não
+sorteia — e recarregar a página não reembaralha as alternativas debaixo de
+quem está lendo.
+
+**Item sem crença nas alternativas pula a camada 2**, registrando
+`razao_pulada`: com uma alternativa só não há escolha a fazer.
 
 ## As invariantes, cobradas na carga
 

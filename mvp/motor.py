@@ -30,6 +30,7 @@ reteste da pesquisa continua sendo outra medida, longe do treino.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field, replace
 from typing import Any, Mapping
 
@@ -60,6 +61,7 @@ CHUTE = "chutei"
 # Fases da unidade.
 ENSINO = "ENSINO"
 DIAGNOSTICO = "DIAGNOSTICO"
+RAZAO = "RAZAO"
 VALIDACAO = "VALIDACAO"
 REFUTACAO = "REFUTACAO"
 TREINO = "TREINO"
@@ -78,6 +80,38 @@ class Resposta:
     confianca: str = ""
     ms: int = 0
     repetir: bool = False
+
+
+@dataclass(frozen=True)
+class Razao:
+    """Uma justificativa oferecida na camada 2.
+
+    `no` é o nó que esta razão **afirma** (quando correta) ou **nega**
+    (quando é crença). Os dois podem ser diferentes do nó do item: é essa
+    diferença que permite registrar a crença onde ela pertence.
+    """
+
+    texto: str
+    correta: bool = False
+    crenca: str | None = None
+    no: str = ""
+
+
+@dataclass(frozen=True)
+class Pendente:
+    """A resposta trancada, esperando a razão.
+
+    Existir é o que garante que a camada 1 não pode ser mudada depois de a
+    camada 2 aparecer: o motor não aceita outra escolha para esta atividade.
+    """
+
+    atividade: str
+    escolha: int | None
+    correta: bool
+    crenca_da_opcao: str | None
+    confianca: str
+    ms: int
+    razoes: tuple[Razao, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -130,6 +164,10 @@ class Estado:
     plano: tuple[str, ...] = ()
     alvo: str | None = None
     repeticoes: int = 0            # reexplicações pedidas NESTE passo
+    pendente: Pendente | None = None   # camada 1 trancada, esperando a razão
+    # Embaralha as razões sem sortear: o motor continua puro, e a mesma
+    # semente devolve a mesma ordem. Quem fornece é a sessão.
+    semente: str = ""
 
     def no(self, nid: str) -> EstadoNo:
         return self.nos.get(nid, EstadoNo())
@@ -149,8 +187,8 @@ class Transicao:
 # Início e ensino
 # --------------------------------------------------------------------------
 
-def inicia(d: Dominio) -> Transicao:
-    estado = Estado(fase=ENSINO, cartao=0)
+def inicia(d: Dominio, semente: str = "") -> Transicao:
+    estado = Estado(fase=ENSINO, cartao=0, semente=semente)
     return Transicao(estado, _tela_ensino(d, estado),
                      (Evento("unidade_iniciada", {"topico": d.id}),))
 
@@ -176,6 +214,8 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         return _segue_ensino(d, e)
     if e.fase == DIAGNOSTICO:
         return _responde_diagnostico(d, e, r)
+    if e.fase == RAZAO:
+        return _responde_razao(d, e, r)
     if e.fase == VALIDACAO:
         return _segue_validacao(d, e)
     if e.fase == REFUTACAO:
@@ -236,10 +276,121 @@ def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = Fal
     return Transicao(novo, tela, tuple(eventos))
 
 
+def razoes_de(d: Dominio, a: Atividade) -> tuple[Razao, ...]:
+    """As razões de um item, montadas DO GRAFO.
+
+    A certa é o enunciado do nó que o item mira. As erradas são as crenças
+    que as alternativas apontam — e elas podem negar **outros** nós: um
+    distrator do item de B1 pode ser uma crença sobre B2. Nenhuma destas
+    frases está escrita num banco de razões, porque banco de razões não
+    existe: se existisse, a razão e a premissa poderiam divergir.
+
+    Ordem canônica, a correta primeiro. Quem apresenta embaralha.
+    """
+    saida = [Razao(texto=d.nos[a.no].simples, correta=True, no=a.no)]
+    vistas: set[str] = set()
+    for o in a.opcoes:
+        if o.crenca and o.crenca not in vistas and o.crenca in d.crencas:
+            vistas.add(o.crenca)
+            c = d.crencas[o.crenca]
+            saida.append(Razao(texto=c.afirma, crenca=o.crenca, no=c.nega))
+    return tuple(saida)
+
+
+def ordem_das_razoes(semente: str, atividade: str, n: int) -> tuple[int, ...]:
+    """Permutação estável, derivada da semente. Sem sortear: o motor é puro
+    e a mesma sessão redesenha a mesma tela depois de um recarregamento."""
+    digest = hashlib.sha256(("%s|razoes|%s" % (semente, atividade)).encode()).digest()
+    return tuple(i for _, i in sorted((digest[i % len(digest)], i) for i in range(n)))
+
+
 def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
+    """Camada 1: a resposta TRANCA, e vem a pergunta do porquê.
+
+    Trancar não é detalhe de interface: as razões erradas são enunciados de
+    crenças, e lê-las antes de responder entrega a pista — pior, muda a
+    resposta de quem ia acertar. Com a camada 1 fechada, o par
+    resposta-razão é independente, que é o que a classificação pressupõe.
+    """
     a = next(x for x in d.atividades if x.id == e.atividade)
     escolhida = a.opcoes[r.escolha] if r.escolha is not None else None
     certo = bool(escolhida and escolhida.correta)
+
+    pendente = Pendente(
+        atividade=a.id, escolha=r.escolha, correta=certo,
+        crenca_da_opcao=(escolhida.crenca if escolhida else None),
+        confianca=r.confianca, ms=r.ms,
+    )
+    evento = Evento("camada1_respondida", {
+        "atividade": a.id, "no": a.no, "item": a.tipo,
+        "escolha": r.escolha, "correta": certo,
+        "crenca_da_opcao": pendente.crenca_da_opcao, "ms": r.ms,
+    })
+
+    razoes = razoes_de(d, a)
+    # Com uma razão só não há escolha a fazer, e perguntar seria teatro.
+    # Acontece em item cujos distratores não apontam crença nenhuma.
+    if len(razoes) < 2:
+        seguinte = _resolve_diagnostico(d, e, a, pendente)
+        return Transicao(seguinte.estado, seguinte.tela,
+                         (evento, Evento("razao_pulada", {
+                             "atividade": a.id, "no": a.no,
+                             "motivo": "item sem crença nas alternativas"}))
+                         + seguinte.eventos)
+
+    ordem = ordem_das_razoes(e.semente, a.id, len(razoes))
+    pendente = replace(pendente, razoes=tuple(razoes[i] for i in ordem))
+    novo = replace(e, fase=RAZAO, pendente=pendente)
+    tela = Tela("razao", no=a.no,
+                texto="Qual destas ideias explica a sua resposta?",
+                dados={
+                    "atividade": a.id,
+                    "trancada": escolhida.texto if escolhida else "",
+                    "opcoes": [{"texto": z.texto} for z in pendente.razoes],
+                })
+    return Transicao(novo, tela, (evento, Evento("razoes_apresentadas", {
+        "atividade": a.id, "no": a.no,
+        "quantas": len(pendente.razoes),
+        "crencas": [z.crenca for z in pendente.razoes if z.crenca],
+    })))
+
+
+def _responde_razao(d: Dominio, e: Estado, r: Resposta) -> Transicao:
+    """Camada 2: a razão escolhida, e em qual nó ela fala."""
+    p = e.pendente
+    assert p is not None, "fase RAZAO sem resposta trancada"
+    a = next(x for x in d.atividades if x.id == p.atividade)
+    escolhida = (p.razoes[r.escolha]
+                 if r.escolha is not None and 0 <= r.escolha < len(p.razoes)
+                 else None)
+
+    evento = Evento("camada2_respondida", {
+        "atividade": a.id, "no": a.no, "escolha": r.escolha,
+        "razao_correta": bool(escolhida and escolhida.correta),
+        "crenca": escolhida.crenca if escolhida else None,
+        # O nó de que a razão fala. Diferente de `no` quando a pessoa
+        # explicou um item por uma crença que nega o vizinho.
+        "fala_do_no": escolhida.no if escolhida else None,
+        "ms": r.ms,
+    })
+    seguinte = _resolve_diagnostico(d, replace(e, pendente=None), a, p)
+    return Transicao(seguinte.estado, seguinte.tela, (evento,) + seguinte.eventos)
+
+
+def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
+                         p: Pendente) -> Transicao:
+    """O que o episódio faz com o nó.
+
+    Por enquanto decide só pela camada 1 — a classificação nos cinco
+    estados, que usa também a razão, é a tarefa seguinte (T4). A razão já
+    é coletada e registrada: o dado existe antes de o motor saber usá-lo.
+    """
+    # A resolução acontece sempre a partir do DIAGNÓSTICO, venha ela da
+    # camada 2 ou do atalho de item sem razões: `_apresenta` não mexe na
+    # fase, e a segunda pergunta do nó sairia marcada como RAZAO.
+    e = replace(e, fase=DIAGNOSTICO, pendente=None)
+    certo = p.correta
+    r = Resposta(escolha=p.escolha, confianca=p.confianca, ms=p.ms)
     en = e.no(a.no)
 
     eventos = [Evento("resposta_registrada", {

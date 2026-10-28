@@ -62,17 +62,38 @@ def _politica(*, erra_no=None, erra_diagnostico=99, erra_treino=0,
     `erra_treino`: quantas tentativas de treino daquele nó errar.
     """
     feitos = {"diagnostico": 0, "treino": 0}
+    ultimo = {"errou": False, "crenca": None}
 
     def politica(tela, estado):
         if tela.tipo in ("ensino", "validacao", "refutacao", "mapa"):
             return Resposta()
+
+        # Camada 2 (T2): escolhe a razão COERENTE com a resposta que acabou
+        # de dar — quem errou de propósito explica pela crença daquela
+        # alternativa. Sem isso, a política erraria a camada 1 e acertaria a
+        # camada 2, que é um caso diferente (falso negativo) e tem teste
+        # próprio.
+        if tela.tipo == "razao":
+            razoes = estado.pendente.razoes
+            if not ultimo["errou"]:
+                return Resposta(escolha=next(i for i, z in enumerate(razoes)
+                                             if z.correta))
+            i = next((i for i, z in enumerate(razoes)
+                      if z.crenca and z.crenca == ultimo["crenca"]), None)
+            if i is None:
+                i = next(i for i, z in enumerate(razoes) if not z.correta)
+            return Resposta(escolha=i)
+
         a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
         treino = tela.dados["fase"] == motor.TREINO
         chave = "treino" if treino else "diagnostico"
         limite = erra_treino if treino else erra_diagnostico
         if a.no == erra_no and feitos[chave] < limite:
             feitos[chave] += 1
-            return Resposta(escolha=_errada(a), confianca=confianca)
+            i = _errada(a)
+            ultimo.update(errou=True, crenca=a.opcoes[i].crenca)
+            return Resposta(escolha=i, confianca=confianca)
+        ultimo.update(errou=False, crenca=None)
         return Resposta(escolha=a.indice_correto, confianca=confianca)
 
     return politica
