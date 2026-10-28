@@ -4,8 +4,8 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** 1 — Grill (alinhar a ideia). Nenhum código é alterado nas
-fases 1 a 5.
+**Fase atual:** 2 — Research (entender o que existe). Nenhum código é
+alterado nas fases 1 a 5.
 
 **Reformulação, não recomeço:** o motor atual (`mvp/`) e o antigo (`engine/`)
 ficam onde estão, versionados. O que está em reconstrução é o CONCEITO de
@@ -74,10 +74,23 @@ Nenhuma bloqueia a fase 2.
 | --- | --- | --- |
 | 1 Grill | `docs/context.md` | **pronto** — glossário fechado |
 | 1 Grill | `docs/problema.md` | **pronto** — critério, instrumento e escopo do 1º ciclo |
+| 2 Research | `docs/research.md` | **pronto** — linha de base, 6 achados, o que serve e o que muda |
 
-**Fase 1 fechada.** Próxima: fase 2 (Research) — leitura do que existe
-hoje contra este conceito, sem alterar código.
+## Vereditos das auxiliares
+
+| Fase | Auxiliar | Modo | Veredito |
+| --- | --- | --- | --- |
+| 2 | S (segurança, camadas 1 e 2) | focada, método aplicado direto | **passou** — nenhum segredo em arquivo versionado; token e logs fora do versionamento |
+| 2 | U (interface) | **não executada** | as telas mudam na próxima fase; auditar o que será redesenhado é trabalho jogado fora |
+| 2 | G (privacidade) e M (dados) | **não executadas** | adiadas para o PRD, onde o teach-back entra e cria dado pessoal novo (texto livre) |
+| 2 | T (documentação) e E (pós-entrega) | **não executadas** | sem usuários reais antes do piloto |
+| 2 | D (desempenho) | não aplicável | perfil do projeto |
+
+## Linha de base da fase 2
+
+280 testes passando (28 no MVP, 252 no sistema antigo), 13.788 linhas de
+Python. Qualquer mudança futura é comparada com isto.
 
 ## Orçamento
 
-Fase 1: 4 iterações.
+Fase 1: 4 iterações. Fase 2: 1 iteração.
