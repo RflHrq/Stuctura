@@ -408,6 +408,7 @@
     // A trilha do topo descreve a tela que está no ar. Sem isto ela ficava
     // congelada no passo anterior enquanto o retorno estava visível.
     $("trilha").textContent = contexto.fase === "TREINO" ? "Treinando" : "Praticando";
+    $("ret-contraste").classList.add("oculto");
     var v = $("ret-veredito");
     if (j.veredito === "crenca") {
       v.textContent = "Vamos olhar isso com calma";
@@ -415,6 +416,20 @@
       $("ret-texto").textContent =
         "Sua resposta não foi aleatória: ela segue de uma ideia. Vamos" +
         " examinar de onde ela vem, passo a passo.";
+    } else if (j.veredito === "falso_positivo") {
+      /* Decisao 13: contar. A resposta esta certa — dizer o contrario
+       * seria mentira — mas a explicacao escolhida leva a outro lugar, e e
+       * dela que o sistema vai cuidar. */
+      v.textContent = "A resposta está certa.";
+      v.className = "veredito neutro";
+      $("ret-texto").textContent =
+        "Mas a explicação que você escolheu leva a outro lugar — e é dela" +
+        " que eu quero cuidar agora.";
+      if (j.retorno) {
+        $("ret-contraste").classList.remove("oculto");
+        $("ret-crenca").textContent = j.retorno.crenca;
+        $("ret-certo").textContent = j.retorno.contradiz;
+      }
     } else if (j.veredito === "lacuna") {
       v.textContent = "Você disse que não sabe";
       v.className = "veredito neutro";

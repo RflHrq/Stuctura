@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 89 testes
+python -m pytest mvp/ -q     # 95 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -70,6 +70,25 @@ linha a linha sem rodar nada:
 ser reconhecimento do molde da pergunta, não da ideia. Confirmar exige dois
 formatos diferentes, pela razão certa, com certeza — e é para isso que o
 par teórica + código existe.
+
+**O falso positivo não fica parado.** A pessoa ouve que a resposta está
+certa *e* que a explicação leva a outro lugar — com as duas frases lado a
+lado, vindas do domínio:
+
+> **Você explicou por:** "Se eu não dei valor, a variável ainda não existe
+> na memória."
+> **E isso contradiz:** "Quando você escreve `int x;`, a caixa de x já
+> existe — só o que tem dentro ainda não está definido."
+
+Depois o sistema traz **outra superfície do mesmo nó**: a pergunta em
+aberto é sobre aquela premissa, e seguir adiante não a responde. Na
+**segunda** vez com a mesma crença, isso vira refutação — no nó que a
+crença nega. Uma vez pode ser acidente de alternativa; duas, na mesma
+ideia, é a ideia.
+
+A conta é **por crença**, não por pessoa: explicar mal duas perguntas por
+ideias diferentes não é sustentar nenhuma delas. E um nó já confirmado por
+duas superfícies não é derrubado por uma explicação ruim noutra pergunta.
 
 **CS-2, a crença vai para o nó que ELA nega.** Errar um item de B1
 explicando pela crença de que sem valor não há memória é informação sobre
@@ -194,7 +213,7 @@ mvp/
 ├── test_motor.py              o laço, 28 testes
 ├── test_dominio.py            a carga e as invariantes, 14 testes
 ├── test_razao.py              as camadas 2 e 3, 18 testes
-└── test_classificacao.py      os cinco estados, a projeção e CS-4, 31 testes
+└── test_classificacao.py      os cinco estados, a projeção, CS-4 e o falso positivo, 37 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano

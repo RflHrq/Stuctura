@@ -54,18 +54,38 @@ def _resposta(sessao: str, t: motor.Transicao) -> dict:
     crenca = next((e for e in t.eventos if e.tipo == "crenca_detectada"), None)
     lacuna = next((e for e in t.eventos if e.tipo == "lacuna_registrada"
                    and e.dados.get("declarada")), None)
+    falso = next((e for e in t.eventos if e.tipo == "falso_positivo"), None)
     veredito = None
     if crenca is not None:
         veredito = "crenca"        # retorno NEUTRO: a refutação é que ensina
+    elif falso is not None:
+        # Decisão 13: contar. Calar desperdiça o único momento em que a
+        # pessoa percebe que acertou por um caminho que não leva ali.
+        veredito = "falso_positivo"
     elif lacuna is not None:
         veredito = "lacuna"        # ela DISSE que não sabe: não é erro
     elif resposta is not None:
         veredito = "certa" if resposta.dados.get("correta") else "errada"
 
+    # O contraste do falso positivo vem montado do domínio, não do cliente:
+    # a frase da crença e o enunciado do nó que ela nega.
+    retorno = None
+    if falso is not None:
+        cid = falso.dados.get("crenca")
+        alvo = falso.dados.get("fala_do_no")
+        if cid in dominio.crencas and alvo in dominio.nos:
+            retorno = {
+                "crenca": dominio.crencas[cid].afirma,
+                "contradiz": dominio.nos[alvo].simples,
+                "no": alvo,
+                "vezes": falso.dados.get("vezes"),
+            }
+
     return {
         "sessao": sessao,
         "tela": t.tela.json(),
         "veredito": veredito,
+        "retorno": retorno,
         # O grafo vai em TODA resposta, não só no fim: ele fica à vista
         # durante a unidade, e o aluno acompanha a cadeia se erguendo.
         "grafo": {"nos": motor.estado_dos_nos(dominio, t.estado),

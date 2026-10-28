@@ -33,6 +33,12 @@ def episodio(d, item: str, *, certa: bool, razao_certa: bool,
     """Um episódio inteiro num item escolhido, com as três camadas."""
     a = next(x for x in d.atividades if x.id == item)
     base = estado or motor.Estado()
+    # O que `_apresenta` faria: marcar o item como visto. Sem isto o seletor
+    # ofereceria a MESMA pergunta de novo, e o teste mediria o atalho em vez
+    # da regra.
+    en = base.no(a.no)
+    base = base.com(a.no, usadas=en.usadas + (a.id,),
+                    ultimo_formato=a.formato, ultima_atividade=a.id)
     t = motor.avanca(
         d, motor.replace(base, fase=motor.DIAGNOSTICO, atividade=a.id, alvo=a.no),
         Resposta(escolha=(a.indice_correto if certa else _errada(a, crenca)),
@@ -320,3 +326,75 @@ def test_cs4_nao_sei_no_treino_zera_a_sequencia(d):
     assert t.estado.no("B2").streak == 0
     tentativa = next(ev for ev in t.eventos if ev.tipo == "treino_tentativa")
     assert tentativa.dados["correta"] is False
+
+
+# --------------------------------------------------------------------------
+# T6 — o falso positivo deixa de ficar parado
+# --------------------------------------------------------------------------
+
+def _falso_positivo(d, item, crenca, estado=None):
+    return episodio(d, item, certa=True, razao_certa=False,
+                    confianca="tenho certeza", crenca=crenca, estado=estado)
+
+
+def test_t6_um_falso_positivo_traz_outra_superficie_do_mesmo_no(d):
+    """A pergunta em aberto é sobre AQUELA premissa. Seguir adiante não a
+    responde — e o item seguinte sai do mesmo nó, noutro formato.
+
+    O item é de **B3**, e não de B1, de propósito: B1 é o primeiro da ordem
+    do grafo, e um teste em B1 passaria mesmo sem a regra, porque a fila
+    normal já voltaria para lá. O teste tem de morder.
+    """
+    t, _ = _falso_positivo(d, "ciu_kc00_005", "declaration_zeroes")
+    assert t.tela.tipo == "atividade"
+    assert t.tela.no == "B3", "seguiu adiante em vez de insistir no nó"
+    seguinte = next(x for x in d.atividades if x.id == t.tela.dados["atividade"])
+    assert seguinte.id != "ciu_kc00_005"
+    assert seguinte.tipo == "codigo"
+
+
+def test_t6_um_falso_positivo_nao_refuta(d):
+    t, eventos = _falso_positivo(d, "ciu_kc00_002", "no_value_no_memory")
+    assert not any(e.tipo == "crenca_detectada" for e in eventos)
+    assert t.estado.no("B2").estado != motor.REFUTADO
+
+
+def test_t6_dois_na_mesma_crenca_refutam_o_no_que_ela_nega(d):
+    """Uma vez pode ser acidente de alternativa; duas, na mesma ideia, é a
+    ideia. E quem é refutado é B2 — o nó que a crença nega —, não B1."""
+    t, _ = _falso_positivo(d, "ciu_kc00_002", "no_value_no_memory")
+    t2, eventos = _falso_positivo(d, "ciu_kc00_001", "no_value_no_memory",
+                                  estado=t.estado)
+    detectada = next(e for e in eventos if e.tipo == "crenca_detectada").dados
+    assert detectada["no"] == "B2"
+    assert detectada["via"] == "falso positivo repetido"
+    assert detectada["vezes"] == 2
+    assert t2.estado.no("B2").estado == motor.REFUTADO
+    assert t2.tela.tipo == "validacao" and t2.tela.no == "B2"
+
+
+def test_t6_o_limiar_e_o_parametro_aceito(d):
+    assert motor.FALSOS_POSITIVOS_PARA_CRENCA == 2
+
+
+def test_t6_dois_falsos_positivos_de_crencas_diferentes_nao_refutam(d):
+    """A conta é por crença, não por pessoa: explicar mal duas perguntas
+    por ideias diferentes não é sustentar nenhuma delas."""
+    t, _ = _falso_positivo(d, "ciu_kc00_002", "no_value_no_memory")
+    t2, eventos = _falso_positivo(d, "ciu_kc00_002", "type_is_a_hint",
+                                  estado=t.estado)
+    assert not any(e.tipo == "crenca_detectada" for e in eventos)
+    assert t2.estado.no("B2").falsos_positivos == 1
+    assert t2.estado.no("B1").falsos_positivos == 1
+
+
+def test_t6_nao_refuta_um_no_ja_confirmado(d):
+    """Se a premissa já está de pé por duas superfícies, uma explicação
+    ruim noutra pergunta não derruba o que foi demonstrado."""
+    e = motor.Estado().com("B2", estado=motor.CONFIRMADO,
+                           superficies=("reconhecer_conceito", "comparar_casos"))
+    t, _ = _falso_positivo(d, "ciu_kc00_002", "no_value_no_memory", estado=e)
+    t2, eventos = _falso_positivo(d, "ciu_kc00_001", "no_value_no_memory",
+                                  estado=t.estado)
+    assert not any(ev.tipo == "crenca_detectada" for ev in eventos)
+    assert t2.estado.no("B2").estado == motor.CONFIRMADO

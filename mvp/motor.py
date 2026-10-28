@@ -55,6 +55,10 @@ TETO_TENTATIVAS = 4    # o dobro do streak: se não bastou, não é falta de rep
 # ficou. Quem não fechar lá termina o nó em aberto, que é honesto.
 LIMITE_REEXPLICACAO = 2
 
+# Quantos falsos positivos na MESMA crença até ela virar refutação. Um
+# isolado pode ser acidente de alternativa; dois, na mesma ideia, é a ideia.
+FALSOS_POSITIVOS_PARA_CRENCA = 2
+
 # Estados de um nó.
 DESCONHECIDO = "desconhecido"
 LACUNA = "lacuna"              # a pessoa sabe que não sabe
@@ -301,13 +305,21 @@ def _segue_ensino(d: Dominio, e: Estado) -> Transicao:
 # Diagnóstico, com checagem de vacilo
 # --------------------------------------------------------------------------
 
-def _proxima_diagnostica(d: Dominio, e: Estado) -> Transicao:
+def _proxima_diagnostica(d: Dominio, e: Estado,
+                         preferir: str | None = None) -> Transicao:
     """A próxima premissa não resolvida, na ordem do grafo.
 
-    Dentro do nó, a teórica vem antes da de código: é o par que sustenta a
-    checagem de vacilo.
+    Dentro do nó, a teórica vem antes da de código: é o par que fornece as
+    duas superfícies de CS-5.
+
+    `preferir` põe um nó na frente da fila. É o que faz o falso positivo
+    trazer outra superfície do MESMO nó em vez de seguir adiante: a
+    pergunta em aberto é sobre aquela premissa, e adiar não a responde.
     """
-    for nid in d.ordem:
+    ordem = d.ordem
+    if preferir in d.nos:
+        ordem = (preferir,) + tuple(n for n in d.ordem if n != preferir)
+    for nid in ordem:
         if e.no(nid).estado in (CONFIRMADO, EM_ABERTO):
             continue
         for a in d.atividades_do_no(nid, "diagnostico"):
@@ -573,21 +585,36 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
         return _segue(d, novo, eventos)
 
     if episodio == FALSO_POSITIVO_EP:
-        # Acertou pela razão errada: o nó do item NÃO confirma. A crença
-        # escolhida é contada no nó que ela nega — dois falsos positivos na
-        # mesma crença viram refutação (T6).
+        # Acertou pela razão errada: o nó do item NÃO confirma, e a crença
+        # escolhida é contada no nó que ela nega.
         crenca = p.razao.crenca if p.razao else None
         alvo = p.razao.no if p.razao else a.no
         novo = e.com(a.no, estado=FALSO_POSITIVO)
-        if crenca:
-            alvo_en = novo.no(alvo)
-            novo = novo.com(alvo, falsos_positivos=alvo_en.falsos_positivos + 1,
-                            crenca=crenca,
-                            origem_crenca=a.no if alvo != a.no else "")
-            eventos.append(Evento("falso_positivo", {
-                "no": a.no, "crenca": crenca, "fala_do_no": alvo,
-                "vezes": novo.no(alvo).falsos_positivos}))
-        return _segue(d, novo, eventos)
+        if not crenca:
+            return _segue(d, novo, eventos)
+
+        alvo_en = novo.no(alvo)
+        vezes = alvo_en.falsos_positivos + 1
+        novo = novo.com(alvo, falsos_positivos=vezes, crenca=crenca,
+                        origem_crenca=a.no if alvo != a.no else "")
+        eventos.append(Evento("falso_positivo", {
+            "no": a.no, "crenca": crenca, "fala_do_no": alvo, "vezes": vezes}))
+
+        # Uma vez pode ser acidente de alternativa — ela marcou a certa por
+        # eliminação e explicou mal. Duas vezes, na MESMA ideia, é a ideia.
+        if vezes >= FALSOS_POSITIVOS_PARA_CRENCA and not sustentado(alvo_en.estado):
+            eventos.append(Evento("crenca_detectada", {
+                "crenca": crenca, "no": alvo, "veio_do_item_de": a.no,
+                "via": "falso positivo repetido", "vezes": vezes,
+                "confianca": r.confianca}))
+            novo = novo.com(alvo, estado=REFUTADO)
+            inicio = _inicia_validacao(d, novo, alvo)
+            return Transicao(inicio.estado, inicio.tela,
+                             tuple(eventos) + inicio.eventos)
+
+        # Ainda não refuta: traz OUTRA superfície do mesmo nó, para ver se
+        # a explicação errada se repete ou foi tropeço de alternativa.
+        return _segue(d, novo, eventos, preferir=a.no)
 
     # ----------------------------------------------------------- errou
     if episodio == FALSO_NEGATIVO_EP:
@@ -619,8 +646,14 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
     return Transicao(inicio.estado, inicio.tela, tuple(eventos) + inicio.eventos)
 
 
-def _segue(d: Dominio, e: Estado, eventos: list[Evento]) -> Transicao:
-    seguinte = _proxima_diagnostica(d, e)
+def sustentado(estado: str) -> bool:
+    """A premissa está de pé? Nem frágil nem falso positivo contam."""
+    return estado == CONFIRMADO
+
+
+def _segue(d: Dominio, e: Estado, eventos: list[Evento],
+           preferir: str | None = None) -> Transicao:
+    seguinte = _proxima_diagnostica(d, e, preferir=preferir)
     return Transicao(seguinte.estado, seguinte.tela,
                      tuple(eventos) + seguinte.eventos)
 
