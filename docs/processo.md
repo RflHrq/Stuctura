@@ -4,8 +4,8 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** 4 — PRD (o que o primeiro ciclo entrega). Nenhum código é
-alterado nas fases 1 a 5.
+**Fase atual:** 5 — Issues (as tarefas do ciclo 1). A fase 6 é a primeira
+que altera código.
 
 **Reformulação, não recomeço:** o motor atual (`mvp/`) e o antigo (`engine/`)
 ficam onde estão, versionados. O que está em reconstrução é o CONCEITO de
@@ -65,6 +65,7 @@ pergunta.
 | 11 | *Acho que sei*, o meio da escala, puxa para o **lado conservador de cada linha**: não confirma acerto, e não livra erro de refutação | Prototype | a tabela tinha dois níveis e a escala tem três; o protótipo obrigou a decidir |
 | 12 | A confiança fica em **tela própria**, não no pé da tela da razão | PRD | o passo a mais compra independência entre as camadas, que é o que sustenta a classificação na banca |
 | 13 | O falso positivo é **contado** à pessoa: "a resposta está certa, a explicação leva a outro lugar" | PRD | calar desperdiça o único momento em que ela percebe a própria rota torta; trocar custa uma linha depois do ensaio |
+| 14 | Parâmetros aceitos como propostos: 2 superfícies, 2 falsos positivos até virar crença, treino 2/4/2, 2+2 itens por nó | Issues | nenhum deles muda arquitetura; são constantes no topo do motor, e o ensaio ajusta |
 
 ## Perguntas em aberto
 
@@ -75,8 +76,8 @@ Nenhuma bloqueia a fase 4.
 3. Quem classifica as frases abertas do teach-back, e com que codebook.
 4. A crença nova de B1 (procedência E) fica como hipótese a testar, ou você
    quer procurar fonte empírica antes da coleta.
-5. Os parâmetros do PRD (superfícies para confirmar, falsos positivos até
-   virar crença, itens por nó).
+5. As três dúvidas de `tasks.md` (premissa nunca visitada, falso positivo
+   isolado, reteste com uma unidade só) — cada uma com proposta minha.
 
 ## Artefatos
 
@@ -86,7 +87,8 @@ Nenhuma bloqueia a fase 4.
 | 1 Grill | `docs/problema.md` | **pronto** — critério, instrumento e escopo do 1º ciclo |
 | 2 Research | `docs/research.md` | **pronto** — linha de base, 6 achados, o que serve e o que muda |
 | 3 Prototype | `prototipo/telas-novas.html` | **pronto** — fluxo clicável, descartável, fora de `mvp/` |
-| 4 PRD | `docs/PRD.md` | **pronto** — 12 critérios de sucesso, parâmetros aguardando seu aceite |
+| 4 PRD | `docs/PRD.md` | **pronto** — 12 critérios de sucesso, parâmetros aceitos |
+| 5 Issues | `docs/tasks.md` | **pronto** — 13 tarefas, da T0 à T12 |
 
 ## Vereditos das auxiliares
 
@@ -108,4 +110,4 @@ Python. Qualquer mudança futura é comparada com isto.
 
 ## Orçamento
 
-Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração. Fase 4: 1 iteração.
+Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração. Fase 4: 1 iteração. Fase 5: 1 iteração.
