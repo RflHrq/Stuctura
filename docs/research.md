@@ -180,12 +180,84 @@ precedente de formato no domínio, não implementação de tela.
 - **Qualidade de conteúdo das 20 atividades.** Não é leitura de código: é
   revisão sua, pendente desde o MVP.
 
-## Perguntas que esta fase levanta
+## Decisões desta fase
 
-1. A razão vira uma **segunda tela**, depois de responder, ou as duas camadas
-   aparecem juntas? Muda o que se mede: ver as razões antes de escolher a
-   resposta contamina a resposta.
-2. B1 ganha uma crença, ou fica declarado como nó sem camada de razão?
-3. O painel do pesquisador lê o mesmo processo (rota nova no MVP) ou lê o
-   arquivo de log por fora? O segundo é mais barato e não pode quebrar a
-   sessão de quem está respondendo.
+As três perguntas que a leitura levantou, decididas em 28/10/2026. São
+decisões de desenho: entram no PRD, e nenhuma delas alterou código aqui.
+
+### D-8 — A razão é uma segunda tela, depois da resposta
+
+A pessoa escolhe **o que acontece**, a resposta **tranca**, e só então
+aparecem as razões. A confiança vem por último, uma vez, cobrindo as duas.
+
+O motivo é de medição, não de interface: as razões erradas são **enunciados
+de crenças**, e crença escrita em forma de alternativa é informação. Ler
+"se eu não dei valor, a variável ainda não existe" antes de responder dá a
+pista; e, pior, muda a resposta de quem já ia acertar. Com a resposta
+trancada, o par resposta-razão é independente — é o que a tabela de
+classificação pressupõe.
+
+**Custo:** mais um passo de tela por atividade, e o `ms` passa a ser medido
+por camada, não por item.
+
+### D-9 — A razão errada é qualquer crença do grafo, e o estado vai para o nó que ela nega
+
+Esta era a pergunta "B1 ganha uma crença?". O banco responde melhor do que
+a pergunta supunha. Os distratores dos itens de B1, lidos um por um
+**[verificado]**:
+
+| Alternativa errada | A que crença ela corresponde de fato |
+| --- | --- |
+| "Nada — ela só existe quando é usada pela primeira vez" (`ciu_kc00_001`) | `no_value_no_memory` — que nega **B2** |
+| "Nada ainda, nenhuma tem valor" (`ciu_kc00_002`) | `no_value_no_memory` — nega **B2** |
+| "Decidir que valor ela vai ter" (`ciu_kc00_001`) | `no_value_no_memory` — nega **B2** |
+| "Um espaço só, compartilhado pelas duas" (`ciu_kc00_002`) | **nenhuma no catálogo** |
+| "Não ocupa: toda variável ocupa o mesmo" (`ciu_kc00_t01`) | **nenhuma no catálogo** |
+| "Não há erro: nome é comentário" (`ciu_kc00_t02`) | **nenhuma no catálogo** |
+| "Porque o nome b vem depois no alfabeto" (`ciu_kc00_t01`) | nenhuma, e nem deveria: é distrator vazio |
+
+Daí três decisões, não uma:
+
+1. **As razões oferecidas num item não precisam negar o nó daquele item.**
+   Elas são crenças do grafo. Quando a pessoa escolhe uma, o estado de
+   crença ativa vai para o nó que **aquela crença nega** — que pode ser um
+   vizinho. Isso é diagnóstico melhor, não concessão: errar B1 dizendo que
+   a variável não existe sem valor é uma informação sobre **B2**, e é lá
+   que ela deve ser registrada.
+2. **B1 ganha uma crença nova**, cobrindo as três alternativas sem dono:
+   *"toda variável ocupa o mesmo espaço; o tipo é só um aviso para o
+   compilador"*. Procedência **E** — elaborada a partir do modelo de
+   máquina, hipótese a testar. Hoje o catálogo tem **0 crenças E em 34**
+   ([fundamentacao.md](fundamentacao.md)); esta seria a primeira, e é honesto
+   que seja: não tenho fonte empírica para ela, e o estudo é justamente onde
+   ela ganharia ou perderia evidência.
+3. **O distrator vazio sai.** "Porque o nome b vem depois no alfabeto" não
+   corresponde a nenhuma ideia que alguém sustente; como razão, é alternativa
+   que ninguém escolhe, e enfraquece o item.
+
+### D-10 — O painel do pesquisador lê o log, não a sessão
+
+Processo separado, só leitura, lendo `mvp/dados/eventos.jsonl`. **Não** uma
+rota que toque o dicionário de sessões ([mvp/app.py:30](mvp/app.py:30)).
+
+Três razões, em ordem de peso: (a) o painel não pode derrubar a sessão de
+quem está respondendo — um erro meu numa consulta não pode custar um
+participante; (b) o log é append-only, então ler é seguro por construção; e
+(c) assim o painel funciona depois de um travamento, quando é mais
+necessário.
+
+**O efeito colateral é a melhor parte:** se o painel só lê o log, o log tem
+de conter tudo. Isso é exatamente o trabalho do P1-2 — a reconstrução do
+estado. **As duas coisas passam a ser a mesma tarefa**, e o painel vira o
+teste de que o log basta: se é possível desenhar o estado dos nós a partir
+dele, a reconstrução existe.
+
+## O que isto deixa para o PRD
+
+| Item | Origem |
+| --- | --- |
+| Camada de razão em duas telas, confiança uma vez | D-8 |
+| Crença na alternativa, e atribuição ao nó que a crença nega | P1-1, D-9 |
+| Uma crença E nova para B1, e um distrator a trocar | D-9 |
+| Painel lendo o log, e a reconstrução do estado como a mesma tarefa | D-10, P1-2 |
+| `nao_sei` em toda camada, teach-back no começo e no fim | decisão 7 da fase 1 |

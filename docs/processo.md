@@ -59,14 +59,19 @@ pergunta.
 | 5 | O instrumento tem **três camadas** (resposta, razão, confiança uma vez no fim), não quatro | Grill, rodada 4 | duas confianças cansam e não separam nenhum estado a mais |
 | 6 | O **teach-back** entra, no fim da unidade, emparelhado com uma frase escrita antes de começar | Grill, rodada 4 | é o antes-e-depois nas palavras da própria pessoa — o dado mais forte que um estudo deste tamanho produz |
 | 7 | Primeiro ciclo leva **"não sei", frase do começo/fim e painel do pesquisador**; **montar a cadeia** fica para o segundo | Grill, rodada 4 | as três primeiras mexem na qualidade do dado e são baratas; a quarta é formato novo de exercício e custa interface |
+| 8 | A **razão é uma segunda tela**: a resposta tranca antes de as razões aparecerem; a confiança vem uma vez, no fim | Research | razão errada é enunciado de crença — lida antes, dá a pista e muda a resposta de quem ia acertar |
+| 9 | A razão errada é **qualquer crença do grafo**, e a crença ativa é registrada **no nó que ela nega**, não no nó do item | Research | os distratores de B1 já apontam para `no_value_no_memory`, que nega B2; atribuir ao nó certo é diagnóstico melhor |
+| 10 | O **painel do pesquisador lê o log**, em processo separado, nunca a sessão viva | Research | não pode derrubar a sessão de um participante, e força o log a bastar — a mesma tarefa da reconstrução do estado |
 
 ## Perguntas em aberto
 
-Nenhuma bloqueia a fase 2.
+Nenhuma bloqueia a fase 4.
 
 1. Quantos tópicos a coleta usa, e em que ordem.
 2. Onde fica o reteste do fim da sessão enquanto só o kc_00 existe.
 3. Quem classifica as frases abertas do teach-back, e com que codebook.
+4. A crença nova de B1 (procedência E) fica como hipótese a testar, ou você
+   quer procurar fonte empírica antes da coleta.
 
 ## Artefatos
 
@@ -93,4 +98,4 @@ Python. Qualquer mudança futura é comparada com isto.
 
 ## Orçamento
 
-Fase 1: 4 iterações. Fase 2: 1 iteração.
+Fase 1: 4 iterações. Fase 2: 2 iterações.
