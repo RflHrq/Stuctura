@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 79 testes
+python -m pytest mvp/ -q     # 83 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -103,11 +103,25 @@ cadeia se erguendo enquanto responde.
 
 | No painel | Significa |
 | --- | --- |
-| `B2 ✓` cheio | premissa confirmada |
+| `B2 ✓` cheio | premissa confirmada, em duas formas de pergunta |
 | `B2 ✓` tracejado | confirmada depois de refutação e treino |
+| `B2 ✓?` | de pé numa forma só, ou sem convicção — falta superfície |
+| `B2 !` | acertou por outro motivo: não confirma |
 | `B2 ✗` | crença detectada, ainda não trabalhada |
+| `B2 ?` | disse que não sabe |
 | `B2 1/2` | em treino: acertos seguidos até confirmar |
 | `B2 —` | ficou em aberto |
+
+**Símbolo antes de cor.** Cada estado tem símbolo, traço (cheio, tracejado
+ou pontilhado) e **nome por extenso** no mapa. Daltonismo e impressão em
+preto e branco não podem apagar a diferença entre "de pé" e "crença ativa".
+
+**O caso cruzado ganha frase.** Um nó pode ficar vermelho sem a pessoa ter
+respondido nada sobre ele — porque ela explicou *outra* pergunta por uma
+crença que nega este. Sem texto, isso parece bug. Com texto:
+
+> A ideia que você usou na pergunta de B1 é uma afirmação sobre B2 — é lá
+> que ela ficou registrada.
 
 A aresta entre duas premissas acende quando as duas pontas estão de pé.
 
@@ -161,7 +175,7 @@ mvp/
 ├── test_motor.py              o laço, 28 testes
 ├── test_dominio.py            a carga e as invariantes, 14 testes
 ├── test_razao.py              as camadas 2 e 3, 18 testes
-└── test_classificacao.py      os cinco estados, 21 testes
+└── test_classificacao.py      os cinco estados e a projeção, 25 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano

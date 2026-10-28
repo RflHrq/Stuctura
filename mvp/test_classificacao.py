@@ -196,3 +196,45 @@ def test_cs5_acerto_sem_conviccao_nao_conta_superficie(d):
                     confianca="acho que sei")
     assert t.estado.no("B1").estado == motor.FRAGIL
     assert t.estado.no("B1").superficies == ()
+
+
+# --------------------------------------------------------------------------
+# T7 — o que a tela recebe para desenhar os cinco estados
+# --------------------------------------------------------------------------
+
+def test_estado_dos_nos_entrega_os_cinco_estados(d):
+    """O motor conhece cinco estados; a projeção que vai para a tela tem de
+    saber dizer os cinco, ou o mapa mostra menos do que o sistema sabe."""
+    e = motor.Estado()
+    for no, estado in (("B1", motor.FRAGIL), ("B2", motor.FALSO_POSITIVO),
+                       ("B3", motor.REFUTADO), ("B4", motor.LACUNA),
+                       ("I1", motor.CONFIRMADO)):
+        e = e.com(no, estado=estado)
+    vistos = {n["no"]: n["estado"] for n in motor.estado_dos_nos(d, e)}
+    assert vistos == {"B1": motor.FRAGIL, "B2": motor.FALSO_POSITIVO,
+                      "B3": motor.REFUTADO, "B4": motor.LACUNA,
+                      "I1": motor.CONFIRMADO}
+
+
+def test_a_projecao_diz_de_onde_a_crenca_veio(d):
+    """O caso cruzado precisa de explicação na tela: um nó fica vermelho sem
+    a pessoa ter respondido nada sobre ele."""
+    t, _ = episodio(d, "ciu_kc00_002", certa=False, razao_certa=False,
+                    confianca="tenho certeza", crenca="no_value_no_memory")
+    b2 = next(n for n in motor.estado_dos_nos(d, t.estado) if n["no"] == "B2")
+    assert b2["origem_crenca"] == "B1"
+    assert b2["crenca_afirma"].startswith("Se eu nao dei valor")
+
+
+def test_uma_crenca_do_proprio_no_nao_tem_origem_cruzada(d):
+    t, _ = episodio(d, "ciu_kc00_002", certa=False, razao_certa=False,
+                    confianca="tenho certeza", crenca="type_is_a_hint")
+    b1 = next(n for n in motor.estado_dos_nos(d, t.estado) if n["no"] == "B1")
+    assert b1["origem_crenca"] == ""
+
+
+def test_a_projecao_conta_as_superficies(d):
+    t, _ = episodio(d, "ciu_kc00_002", certa=True, razao_certa=True,
+                    confianca="tenho certeza")
+    b1 = next(n for n in motor.estado_dos_nos(d, t.estado) if n["no"] == "B1")
+    assert b1["estado"] == motor.FRAGIL and b1["superficies"] == 1

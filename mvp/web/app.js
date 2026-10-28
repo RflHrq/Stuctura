@@ -118,11 +118,44 @@
     return n.estado;
   }
 
+  /* Simbolo antes de cor: daltonismo e impressao em preto e branco nao
+   * podem apagar a diferenca entre "de pe" e "crenca ativa". */
   function rotuloEstado(n) {
     if (n.estado === "confirmado") return " ✓";
+    if (n.estado === "fragil") return " ✓?";
+    if (n.estado === "falso_positivo") return " !";
     if (n.estado === "refutado") return " ✗";
+    if (n.estado === "lacuna") return " ?";
     if (n.estado === "em_treino") return " " + n.streak + "/2";
     if (n.estado === "em_aberto") return " —";
+    return "";
+  }
+
+  var NOME_ESTADO = {
+    confirmado: "premissa confirmada",
+    fragil: "de pé, mas numa superfície só",
+    falso_positivo: "acertou por outro motivo",
+    refutado: "crença detectada",
+    lacuna: "disse que não sabe",
+    em_treino: "em treino",
+    em_aberto: "ficou em aberto"
+  };
+
+  /* O caso cruzado precisa de texto: um no pode ficar vermelho sem a pessoa
+   * ter respondido NADA sobre ele — porque ela explicou outra pergunta por
+   * uma crenca que nega este no. Sem esta frase, o grafo parece um bug. */
+  function porqueDe(n) {
+    if (n.origem_crenca && n.crenca_afirma) {
+      return "Você explicou a pergunta de " + n.origem_crenca + " por: “" +
+             n.crenca_afirma + "” — e isso é uma afirmação sobre " + n.no + ".";
+    }
+    if (n.estado === "falso_positivo") {
+      return "A resposta estava certa, mas por outro motivo. Esta premissa" +
+             " volta de outro jeito.";
+    }
+    if (n.estado === "fragil") {
+      return "Falta ver a mesma ideia noutra forma de pergunta.";
+    }
     return "";
   }
 
@@ -132,6 +165,13 @@
     if (treinando) {
       return "Treinando " + treinando.no + ": " + treinando.streak +
              " de 2 acertos seguidos para confirmar.";
+    }
+    /* O cruzado manda na nota: e a informacao mais surpreendente da tela. */
+    var cruzado = g.nos.filter(function (n) { return !!n.origem_crenca; })[0];
+    if (cruzado) {
+      return "A ideia que você usou na pergunta de " + cruzado.origem_crenca +
+             " é uma afirmação sobre " + cruzado.no + " — é lá que ela ficou" +
+             " registrada.";
     }
     return prontos + " de " + g.nos.length + " premissas de pé.";
   }
@@ -412,7 +452,7 @@
       var div = document.createElement("div");
       var classe = n.estado === "confirmado"
         ? (n.via_treino ? "treino" : "confirmado")
-        : (n.estado === "em_aberto" ? "aberto" : "");
+        : (n.estado === "em_aberto" ? "aberto" : n.estado);
       div.className = "premissa " + classe;
       var id = document.createElement("span");
       id.className = "id";
@@ -422,12 +462,25 @@
       frase.className = "frase";
       frase.textContent = n.texto;
       corpo.appendChild(frase);
+      /* O simbolo e o nome do estado andam juntos: quem imprime o mapa em
+       * preto e branco continua lendo o que aconteceu. */
+      var marca = document.createElement("p");
+      marca.className = "marca";
+      marca.textContent = rotuloEstado(n).trim() + " " + (NOME_ESTADO[n.estado] || "");
+      corpo.appendChild(marca);
       var nota = notaDe(n);
       if (nota) {
         var p = document.createElement("p");
         p.className = "nota";
         p.textContent = nota;
         corpo.appendChild(p);
+      }
+      var porque = porqueDe(n);
+      if (porque) {
+        var q = document.createElement("p");
+        q.className = "porque";
+        q.textContent = porque;
+        corpo.appendChild(q);
       }
       div.appendChild(id);
       div.appendChild(corpo);
@@ -443,7 +496,12 @@
     if (n.estado === "em_aberto") {
       return "ficou em aberto: o treino não fechou a sequência";
     }
-    if (n.estado === "confirmado") return "confirmada de primeira";
+    if (n.estado === "confirmado") {
+      return "confirmada em " + n.superficies + " formas de pergunta";
+    }
+    if (n.estado === "lacuna") {
+      return "nada para corrigir aqui: há algo para construir";
+    }
     return "";
   }
 

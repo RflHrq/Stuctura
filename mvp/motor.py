@@ -206,6 +206,10 @@ class EstadoNo:
     # Quantas vezes explicou alguma coisa por ESTA crença acertando a
     # resposta. Dois falsos positivos na mesma crença viram refutação (T6).
     falsos_positivos: int = 0
+    # De qual nó veio o item em que a crença foi escolhida, quando não foi
+    # deste. É o que permite a tela dizer por que ESTE nó ficou vermelho
+    # sem a pessoa ter respondido nada sobre ele.
+    origem_crenca: str = ""
 
 
 @dataclass(frozen=True)
@@ -552,7 +556,8 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
         if crenca:
             alvo_en = novo.no(alvo)
             novo = novo.com(alvo, falsos_positivos=alvo_en.falsos_positivos + 1,
-                            crenca=crenca)
+                            crenca=crenca,
+                            origem_crenca=a.no if alvo != a.no else "")
             eventos.append(Evento("falso_positivo", {
                 "no": a.no, "crenca": crenca, "fala_do_no": alvo,
                 "vezes": novo.no(alvo).falsos_positivos}))
@@ -581,7 +586,8 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
         "crenca": crenca, "no": alvo, "veio_do_item_de": a.no,
         "erros": en.erros + 1, "confianca": r.confianca}))
     novo = e.com(a.no, erros=en.erros + 1)
-    novo = novo.com(alvo, estado=REFUTADO, crenca=crenca)
+    novo = novo.com(alvo, estado=REFUTADO, crenca=crenca,
+                    origem_crenca=a.no if alvo != a.no else "")
     inicio = _inicia_validacao(d, novo, alvo)
     return Transicao(inicio.estado, inicio.tela, tuple(eventos) + inicio.eventos)
 
@@ -847,6 +853,13 @@ def estado_dos_nos(d: Dominio, e: Estado) -> list[dict]:
             "via_treino": en.estado == CONFIRMADO and bool(en.crenca),
             "vacilou": en.vacilou,
             "crenca": en.crenca,
+            # Para a tela poder dizer POR QUE este nó ficou assim sem a
+            # pessoa ter respondido nada sobre ele.
+            "crenca_afirma": (d.crencas[en.crenca].afirma
+                              if en.crenca in d.crencas else ""),
+            "origem_crenca": en.origem_crenca,
+            "superficies": len(set(en.superficies)),
+            "falsos_positivos": en.falsos_positivos,
         })
     return nos
 
