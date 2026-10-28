@@ -7,14 +7,17 @@ uma entrada, devolve o estado novo, a próxima tela e os eventos a gravar.
 
 AS DUAS PEÇAS QUE ESTE MVP ACRESCENTA
 -------------------------------------
-**Um erro isolado é vacilo até prova em contrário.** Errar a pergunta
-teórica com confiança não dispara a refutação: dispara a pergunta de código
-do mesmo nó. Acertou ali, foi vacilo e o nó segue confirmado; errou de novo,
-aí sim há hipótese de crença. Dois erros no mesmo nó, não um.
+**A razão é a prova.** Errar não basta para refutar, e errar duas vezes
+também não era prova de nada: era proxy. Quem erra a resposta e acerta a
+RAZÃO escorregou, e o sistema não contesta uma ideia que a pessoa acabou de
+enunciar direito. Quem erra a resposta e explica por uma crença, com
+confiança, nomeou a própria rota torta — e a refutação começa no nó que
+**aquela crença** nega, que pode ser o vizinho.
 
-**Um acerto isolado não confirma.** Depois da refutação o nó entra em
-treino e só vira premissa correta depois de `STREAK_ALVO` acertos seguidos,
-em formatos diferentes. Um acerto logo depois da refutação pode ser sorte,
+**Um acerto isolado não confirma.** Nem no diagnóstico (CS-5: duas
+superfícies diferentes, pela razão certa, com confiança) nem depois da
+refutação, onde o nó entra em treino e só vira premissa correta depois de
+`STREAK_ALVO` acertos seguidos, em formatos diferentes. Um acerto logo depois da refutação pode ser sorte,
 decoreba do item, ou apenas responder o oposto do que acabou de ser
 contestado.
 
@@ -40,7 +43,11 @@ from mvp.dominio import Atividade, Dominio
 # no ensaio antes da coleta.
 STREAK_ALVO = 2        # acertos seguidos, de formatos diferentes, para confirmar
 TETO_TENTATIVAS = 4    # o dobro do streak: se não bastou, não é falta de repetição
-ERROS_PARA_CRENCA = 2  # erros no mesmo nó antes de a refutação disparar
+# ERROS_PARA_CRENCA saiu na T4. Ele valia 2, e existia porque não havia como
+# saber POR QUE a pessoa errou: o segundo erro era um proxy de "não foi
+# escorregão". A camada 2 substituiu o proxy pela coisa — quem erra pelo
+# motivo certo escorregou, e quem erra pelo motivo errado com confiança já
+# disse qual é a crença.
 
 # Quantas vezes a mesma premissa pode ser reapresentada quando o aluno diz
 # que não entendeu. Depois disso o percurso segue: insistir uma quarta vez
@@ -50,13 +57,50 @@ LIMITE_REEXPLICACAO = 2
 
 # Estados de um nó.
 DESCONHECIDO = "desconhecido"
+LACUNA = "lacuna"              # a pessoa sabe que não sabe
+FRAGIL = "fragil"              # certa pela razão certa, mas numa superfície só
 CONFIRMADO = "confirmado"      # premissa correta e sustentada
+FALSO_POSITIVO = "falso_positivo"   # certa pela razão errada
 REFUTADO = "refutado"          # crença detectada, ainda não trabalhada
 EM_TREINO = "em_treino"        # a refutação passou; falta fechar a sequência
 EM_ABERTO = "em_aberto"        # o banco de itens acabou antes da sequência
 
 CONFIANCAS = ("chutei", "acho que sei", "tenho certeza")
 CHUTE = "chutei"
+CERTEZA = "tenho certeza"
+
+# Como se chama cada episódio. Não é o estado do nó: é o que aconteceu numa
+# atividade. O estado do nó é o que o motor FAZ com isso, logo abaixo.
+CONFIRMADA = "confirmada"
+FRAGIL_EP = "fragil"
+FALSO_POSITIVO_EP = "falso_positivo"
+FALSO_NEGATIVO_EP = "falso_negativo"
+CRENCA_EP = "crenca"
+LACUNA_EP = "lacuna"
+
+
+def classifica(certa: bool, razao: Razao | None, confianca: str) -> str:
+    """Resposta × razão × confiança, nos cinco estados do instrumento.
+
+    É a tabela de `docs/problema.md`, e é função pura de propósito: a banca
+    pode conferir linha a linha, sem rodar nada.
+
+    O meio da escala (*acho que sei*) puxa para o lado **conservador de
+    cada linha**: não confirma um acerto, e não livra um erro de
+    refutação. Acertar acreditando pela metade não é evidência de premissa
+    de pé; errar acreditando pela metade é acreditar o bastante.
+    """
+    if razao is None:
+        return LACUNA_EP
+    if certa and razao.correta:
+        return CONFIRMADA if confianca == CERTEZA else FRAGIL_EP
+    if certa:
+        # Acertou pela razão errada. NÃO confirma: investiga.
+        return FALSO_POSITIVO_EP
+    if razao.correta:
+        # Errou pelo motivo certo — escorregão, não mal-entendido.
+        return FALSO_NEGATIVO_EP
+    return LACUNA_EP if confianca == CHUTE else CRENCA_EP
 
 # Fases da unidade.
 ENSINO = "ENSINO"
@@ -155,6 +199,13 @@ class EstadoNo:
     ultima_atividade: str = ""
     crenca: str | None = None           # a hipótese levantada aqui
     vacilou: bool = False               # errou uma vez e corrigiu sozinho
+    # CS-5: formatos em que a pessoa acertou PELA RAZÃO CERTA, com
+    # confiança. Confirmar exige dois diferentes — um acerto só pode ser
+    # reconhecimento do molde da pergunta.
+    superficies: tuple[str, ...] = ()
+    # Quantas vezes explicou alguma coisa por ESTA crença acertando a
+    # resposta. Dois falsos positivos na mesma crença viram refutação (T6).
+    falsos_positivos: int = 0
 
 
 @dataclass(frozen=True)
@@ -429,11 +480,17 @@ def _responde_confianca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
 
 def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
                          p: Pendente) -> Transicao:
-    """O que o episódio faz com o nó.
+    """O que o episódio faz com o nó — e com qual nó.
 
-    Por enquanto decide só pela camada 1 — a classificação nos cinco
-    estados, que usa também a razão, é a tarefa seguinte (T4). A razão já
-    é coletada e registrada: o dado existe antes de o motor saber usá-lo.
+    Aqui a camada 2 passa a mandar. O erro isolado deixa de ser tratado
+    como vacilo "até prova em contrário": a razão **é** a prova. Quem erra
+    pelo motivo certo escorregou; quem erra pelo motivo errado, com
+    confiança, nomeou a própria crença, e não há por que fazer uma segunda
+    pergunta para descobrir o que já foi dito.
+
+    E a crença vai para o nó que **ela** nega, não para o nó do item: errar
+    uma pergunta sobre B1 dizendo que sem valor não há memória é informação
+    sobre **B2**, e é lá que ela pertence.
     """
     # A resolução acontece sempre a partir do DIAGNÓSTICO, venha ela da
     # camada 2 ou do atalho de item sem razões: `_apresenta` não mexe na
@@ -442,54 +499,97 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
     certo = p.correta
     r = Resposta(escolha=p.escolha, confianca=p.confianca, ms=p.ms)
     en = e.no(a.no)
+    episodio = classifica(certo, p.razao, p.confianca)
 
-    eventos = [Evento("resposta_registrada", {
-        "atividade": a.id, "no": a.no, "fase": "diagnostico", "item": a.tipo,
-        "escolha": r.escolha, "correta": certo,
-        "crenca_em_jogo": a.crenca, "confianca": r.confianca, "ms": r.ms,
-    })]
+    eventos = [
+        Evento("resposta_registrada", {
+            "atividade": a.id, "no": a.no, "fase": "diagnostico", "item": a.tipo,
+            "escolha": r.escolha, "correta": certo,
+            "crenca_em_jogo": a.crenca, "confianca": r.confianca, "ms": r.ms,
+        }),
+        Evento("episodio_classificado", {
+            "atividade": a.id, "no": a.no, "estado": episodio,
+            "correta": certo, "confianca": r.confianca,
+            "razao_correta": bool(p.razao and p.razao.correta),
+            "crenca": p.razao.crenca if p.razao else None,
+        }),
+    ]
 
-    if certo:
-        # Acertar depois de um erro com confiança é VACILO, não domínio
-        # frágil: a pessoa demonstrou o conceito noutro formato. Fica
-        # registrado, porque o pesquisador quer saber quão direto foi o
-        # caminho até o verde.
-        if en.erros:
-            eventos.append(Evento("vacilo_detectado", {
-                "no": a.no, "crenca_suspeita": a.crenca, "atividade": a.id}))
-        novo = e.com(a.no, estado=CONFIRMADO, vacilou=bool(en.erros))
-        eventos.append(Evento("no_confirmado", {
-            "no": a.no, "via": "vacilo" if en.erros else "diagnostico"}))
-        seguinte = _proxima_diagnostica(d, novo)
-        return Transicao(seguinte.estado, seguinte.tela, tuple(eventos) + seguinte.eventos)
+    # ---------------------------------------------------------- acertou
+    if episodio == CONFIRMADA:
+        # CS-5: duas superfícies diferentes. Um acerto só pode ser
+        # reconhecimento do molde da pergunta, não da ideia.
+        superficies = en.superficies + (a.formato,)
+        fechou = len(set(superficies)) >= 2
+        novo = e.com(a.no, superficies=superficies,
+                     estado=CONFIRMADO if fechou else FRAGIL,
+                     vacilou=bool(en.erros))
+        if fechou:
+            eventos.append(Evento("no_confirmado", {
+                "no": a.no, "via": "vacilo" if en.erros else "diagnostico",
+                "superficies": sorted(set(superficies))}))
+        else:
+            eventos.append(Evento("no_fragil", {
+                "no": a.no, "motivo": "uma superfície só",
+                "superficies": sorted(set(superficies))}))
+        return _segue(d, novo, eventos)
 
-    # Errar chutando é lacuna: não refuta o que a pessoa não pensa, e não
-    # conta como evidência para a hipótese de crença.
-    if r.confianca == CHUTE or not a.crenca:
-        eventos.append(Evento("lacuna_registrada", {"no": a.no, "confianca": r.confianca}))
-        novo = e.com(a.no, estado=DESCONHECIDO)
-        seguinte = _proxima_diagnostica(d, novo)
-        return Transicao(seguinte.estado, seguinte.tela, tuple(eventos) + seguinte.eventos)
+    if episodio == FRAGIL_EP:
+        # Certa pela razão certa, mas sem convicção. Não conta superfície.
+        novo = e.com(a.no, estado=FRAGIL)
+        eventos.append(Evento("no_fragil", {
+            "no": a.no, "motivo": "confiança abaixo de certeza",
+            "confianca": r.confianca}))
+        return _segue(d, novo, eventos)
 
-    erros = en.erros + 1
-    novo = e.com(a.no, erros=erros)
-    restantes = [x for x in d.atividades_do_no(a.no, "diagnostico")
-                 if x.id not in novo.no(a.no).usadas]
+    if episodio == FALSO_POSITIVO_EP:
+        # Acertou pela razão errada: o nó do item NÃO confirma. A crença
+        # escolhida é contada no nó que ela nega — dois falsos positivos na
+        # mesma crença viram refutação (T6).
+        crenca = p.razao.crenca if p.razao else None
+        alvo = p.razao.no if p.razao else a.no
+        novo = e.com(a.no, estado=FALSO_POSITIVO)
+        if crenca:
+            alvo_en = novo.no(alvo)
+            novo = novo.com(alvo, falsos_positivos=alvo_en.falsos_positivos + 1,
+                            crenca=crenca)
+            eventos.append(Evento("falso_positivo", {
+                "no": a.no, "crenca": crenca, "fala_do_no": alvo,
+                "vezes": novo.no(alvo).falsos_positivos}))
+        return _segue(d, novo, eventos)
 
-    # Um erro só não basta. Vem a outra pergunta do nó, de formato diferente,
-    # antes de a refutação disparar.
-    if erros < ERROS_PARA_CRENCA and restantes:
-        eventos.append(Evento("suspeita_de_crenca", {
-            "no": a.no, "crenca": a.crenca, "erros": erros,
-            "confirma_com": restantes[0].id}))
-        seguinte = _apresenta(d, novo, restantes[0])
-        return Transicao(seguinte.estado, seguinte.tela, tuple(eventos) + seguinte.eventos)
+    # ----------------------------------------------------------- errou
+    if episodio == FALSO_NEGATIVO_EP:
+        # CS-3: errar pelo motivo certo não dispara refutação. O sistema
+        # não contesta uma ideia que a pessoa acabou de enunciar direito.
+        novo = e.com(a.no, erros=en.erros + 1, vacilou=True)
+        eventos.append(Evento("vacilo_detectado", {
+            "no": a.no, "crenca_suspeita": None, "atividade": a.id}))
+        return _segue(d, novo, eventos)
 
+    if episodio == LACUNA_EP:
+        # Não refuta o que a pessoa não pensa.
+        eventos.append(Evento("lacuna_registrada", {
+            "no": a.no, "confianca": r.confianca}))
+        novo = e.com(a.no, estado=LACUNA)
+        return _segue(d, novo, eventos)
+
+    # --------------------------------------------------- crença ativa
+    crenca = p.razao.crenca if p.razao else a.crenca
+    alvo = p.razao.no if (p.razao and p.razao.crenca) else a.no
     eventos.append(Evento("crenca_detectada", {
-        "crenca": a.crenca, "no": a.no, "erros": erros, "confianca": r.confianca}))
-    novo = novo.com(a.no, estado=REFUTADO, crenca=a.crenca)
-    inicio = _inicia_validacao(d, novo, a.no)
+        "crenca": crenca, "no": alvo, "veio_do_item_de": a.no,
+        "erros": en.erros + 1, "confianca": r.confianca}))
+    novo = e.com(a.no, erros=en.erros + 1)
+    novo = novo.com(alvo, estado=REFUTADO, crenca=crenca)
+    inicio = _inicia_validacao(d, novo, alvo)
     return Transicao(inicio.estado, inicio.tela, tuple(eventos) + inicio.eventos)
+
+
+def _segue(d: Dominio, e: Estado, eventos: list[Evento]) -> Transicao:
+    seguinte = _proxima_diagnostica(d, e)
+    return Transicao(seguinte.estado, seguinte.tela,
+                     tuple(eventos) + seguinte.eventos)
 
 
 # --------------------------------------------------------------------------

@@ -55,11 +55,13 @@ def roda(d, politica, limite=300):
 
 
 def _politica(*, erra_no=None, erra_diagnostico=99, erra_treino=0,
-              confianca="tenho certeza", d=D):
+              confianca="tenho certeza", so_a_resposta=False, d=D):
     """Acerta tudo, menos no nó pedido.
 
     `erra_diagnostico`: quantas atividades de diagnóstico daquele nó errar.
     `erra_treino`: quantas tentativas de treino daquele nó errar.
+    `so_a_resposta`: erra a camada 1 mas acerta a razão — o escorregão, que
+    desde a T4 é o que o sistema NÃO contesta.
     """
     feitos = {"diagnostico": 0, "treino": 0}
     ultimo = {"errou": False, "crenca": None}
@@ -79,7 +81,7 @@ def _politica(*, erra_no=None, erra_diagnostico=99, erra_treino=0,
         # próprio.
         if tela.tipo == "razao":
             razoes = estado.pendente.razoes
-            if not ultimo["errou"]:
+            if not ultimo["errou"] or so_a_resposta:
                 return Resposta(escolha=next(i for i, z in enumerate(razoes)
                                              if z.correta))
             i = next((i for i, z in enumerate(razoes)
@@ -116,25 +118,33 @@ def _dos(eventos, tipo, no=None):
 # Um erro isolado é vacilo, não crença
 # --------------------------------------------------------------------------
 
-def test_errar_uma_vez_leva_a_segunda_pergunta_do_no_e_nao_a_refutacao(d):
-    t, eventos = roda(d, _politica(erra_no="B3", erra_diagnostico=1))
-    assert _dos(eventos, "suspeita_de_crenca", "B3"), "não houve segunda checagem"
-    assert not _dos(eventos, "crenca_detectada", "B3"), "refutou com um erro só"
-    assert _dos(eventos, "vacilo_detectado", "B3")
-    assert _dos(eventos, "no_confirmado", "B3")[0]["via"] == "vacilo"
-
-
-def test_errar_as_duas_perguntas_do_no_dispara_a_refutacao(d):
-    t, eventos = roda(d, _politica(erra_no="B3", erra_diagnostico=2))
-    detectadas = _dos(eventos, "crenca_detectada", "B3")
-    assert detectadas and detectadas[0]["crenca"] == "declaration_zeroes"
-    assert detectadas[0]["erros"] == motor.ERROS_PARA_CRENCA
+# APOSENTADOS NA T4 — `test_errar_uma_vez_leva_a_segunda_pergunta_do_no...`
+# e `test_errar_as_duas_perguntas_do_no_dispara_a_refutacao`.
+#
+# Os dois afirmavam a regra dos DOIS ERROS: um erro isolado era "vacilo até
+# prova em contrário", e o sistema fazia uma segunda pergunta do mesmo nó
+# para decidir. Essa regra existia porque não havia como saber POR QUE a
+# pessoa errou — o segundo erro era um proxy.
+#
+# A camada 2 substituiu o proxy pela coisa. Quem erra pelo motivo certo
+# escorregou; quem erra pelo motivo errado, com confiança, nomeou a própria
+# crença, e não há o que descobrir numa segunda pergunta. A intenção dos
+# dois sobrevive, mais forte, em `test_classificacao.py`:
+#
+#   um erro isolado não refuta  ->  test_cs3_errar_pela_razao_certa_nao_dispara_refutacao
+#   o erro com crença refuta    ->  test_cs2_a_crenca_vai_para_o_no_que_ela_nega_e_so_para_ele
 
 
 def test_a_segunda_pergunta_e_de_outro_formato(d):
     """O par teórica + código existe para isso: a segunda checagem não pode
-    ser o mesmo molde da primeira."""
-    t, eventos = roda(d, _politica(erra_no="B4", erra_diagnostico=2))
+    ser o mesmo molde da primeira.
+
+    Até a T3 o par sustentava a checagem de vacilo. Desde a T4 ele sustenta
+    CS-5: confirmar exige duas superfícies DIFERENTES, e é esse par que as
+    fornece. A asserção é a mesma; o roteiro que a alcança é que mudou —
+    quem erra agora é refutado no primeiro item, e a segunda pergunta não
+    chega a aparecer."""
+    t, eventos = roda(d, _politica())
     vistas = [e.dados for e in eventos if e.tipo == "atividade_apresentada"
               and e.dados["no"] == "B4" and e.dados["fase"] == motor.DIAGNOSTICO]
     assert len(vistas) == 2
@@ -431,15 +441,24 @@ def test_a_unidade_sempre_termina(d):
 
 
 def test_o_mapa_distingue_os_tres_caminhos_ate_o_verde(d):
+    """Três caminhos até o verde, e o mapa guarda qual foi.
+
+    O do meio mudou de nome na T4. Era "errou e corrigiu sozinho na
+    pergunta seguinte"; agora é o **escorregão**: errou a resposta e
+    acertou a razão, no mesmo item. É a mesma distinção — chegar ao verde
+    tropeçando não é a mesma coisa que chegar direto — medida de um jeito
+    que não precisa de uma segunda pergunta para ser descoberta.
+    """
     direto, _ = roda(d, _politica())
     assert all(not n["via_treino"] and not n["vacilou"]
                for n in direto.tela.dados["nos"])
 
-    vacilo, _ = roda(d, _politica(erra_no="B3", erra_diagnostico=1))
+    vacilo, _ = roda(d, _politica(erra_no="B3", erra_diagnostico=1,
+                                  so_a_resposta=True))
     b3 = next(n for n in vacilo.tela.dados["nos"] if n["no"] == "B3")
     assert b3["vacilou"] is True and b3["via_treino"] is False
 
-    treino, _ = roda(d, _politica(erra_no="B3", erra_diagnostico=2))
+    treino, _ = roda(d, _politica(erra_no="B3", erra_diagnostico=1))
     b3 = next(n for n in treino.tela.dados["nos"] if n["no"] == "B3")
     assert b3["via_treino"] is True and b3["crenca"] == "declaration_zeroes"
 

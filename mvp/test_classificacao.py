@@ -1,0 +1,198 @@
+"""Os cinco estados, e o nó em que cada um é registrado.
+
+A tabela de `docs/problema.md`, virada teste. É aqui que moram CS-1, CS-2,
+CS-3 e CS-5 do PRD — os quatro critérios que separam este sistema de um
+questionário de múltipla escolha.
+
+O que a camada 2 mudou, e que estes testes defendem: **a razão é a prova**.
+Antes, um erro isolado era "vacilo até prova em contrário" e o sistema
+fazia uma segunda pergunta para decidir. Agora quem erra pelo motivo certo
+escorregou, e quem erra pelo motivo errado com confiança nomeou a própria
+crença — não há o que descobrir numa segunda pergunta.
+"""
+
+from __future__ import annotations
+
+import pytest
+
+from mvp import motor
+from mvp.dominio import carrega
+from mvp.motor import Razao, Resposta
+
+D = carrega()
+
+
+@pytest.fixture(scope="module")
+def d():
+    return D
+
+
+def episodio(d, item: str, *, certa: bool, razao_certa: bool,
+             confianca: str, crenca: str | None = None,
+             estado: motor.Estado | None = None):
+    """Um episódio inteiro num item escolhido, com as três camadas."""
+    a = next(x for x in d.atividades if x.id == item)
+    base = estado or motor.Estado()
+    t = motor.avanca(
+        d, motor.replace(base, fase=motor.DIAGNOSTICO, atividade=a.id, alvo=a.no),
+        Resposta(escolha=(a.indice_correto if certa else _errada(a, crenca)),
+                 ms=1))
+    eventos = list(t.eventos)
+    if t.tela.tipo == "razao":
+        razoes = t.estado.pendente.razoes
+        i = (next(k for k, z in enumerate(razoes) if z.correta) if razao_certa
+             else next(k for k, z in enumerate(razoes)
+                       if not z.correta and (crenca is None or z.crenca == crenca)))
+        t = motor.avanca(d, t.estado, Resposta(escolha=i, ms=1))
+        eventos.extend(t.eventos)
+    t = motor.avanca(d, t.estado, Resposta(confianca=confianca, ms=1))
+    eventos.extend(t.eventos)
+    return t, eventos
+
+
+def _errada(a, crenca=None):
+    if crenca:
+        return next(i for i, o in enumerate(a.opcoes) if o.crenca == crenca)
+    return next(i for i, o in enumerate(a.opcoes) if not o.correta)
+
+
+def classificado(eventos):
+    return next(e for e in eventos if e.tipo == "episodio_classificado").dados["estado"]
+
+
+# --------------------------------------------------------------------------
+# A tabela, linha por linha — função pura, sem motor
+# --------------------------------------------------------------------------
+
+CERTA = Razao(texto="x", correta=True, no="B1")
+ERRADA = Razao(texto="y", crenca="c", no="B2")
+
+TABELA = [
+    (True,  CERTA,  "tenho certeza", motor.CONFIRMADA),
+    (True,  CERTA,  "acho que sei",  motor.FRAGIL_EP),
+    (True,  CERTA,  "chutei",        motor.FRAGIL_EP),
+    (True,  ERRADA, "tenho certeza", motor.FALSO_POSITIVO_EP),
+    (True,  ERRADA, "chutei",        motor.FALSO_POSITIVO_EP),
+    (False, CERTA,  "tenho certeza", motor.FALSO_NEGATIVO_EP),
+    (False, CERTA,  "chutei",        motor.FALSO_NEGATIVO_EP),
+    (False, ERRADA, "tenho certeza", motor.CRENCA_EP),
+    (False, ERRADA, "acho que sei",  motor.CRENCA_EP),
+    (False, ERRADA, "chutei",        motor.LACUNA_EP),
+]
+
+
+@pytest.mark.parametrize("certa,razao,confianca,esperado", TABELA)
+def test_a_tabela_de_classificacao(certa, razao, confianca, esperado):
+    assert motor.classifica(certa, razao, confianca) == esperado
+
+
+def test_o_meio_da_escala_puxa_para_o_lado_conservador():
+    """Decisão 11, escrita como teste: *acho que sei* não confirma um
+    acerto, e não livra um erro de refutação."""
+    assert motor.classifica(True, CERTA, "acho que sei") == motor.FRAGIL_EP
+    assert motor.classifica(False, ERRADA, "acho que sei") == motor.CRENCA_EP
+
+
+# --------------------------------------------------------------------------
+# CS-1 — acerto com razão errada não confirma
+# --------------------------------------------------------------------------
+
+def test_cs1_acertar_pela_razao_errada_nao_confirma_a_premissa(d):
+    t, eventos = episodio(d, "ciu_kc00_002", certa=True, razao_certa=False,
+                          confianca="tenho certeza", crenca="type_is_a_hint")
+    assert classificado(eventos) == motor.FALSO_POSITIVO_EP
+    assert t.estado.no("B1").estado == motor.FALSO_POSITIVO
+    assert not any(e.tipo == "no_confirmado" for e in eventos)
+
+
+def test_cs1_o_falso_positivo_fica_contado_na_crenca(d):
+    """Contado no nó que a crença nega: é lá que ele vai virar refutação
+    quando acontecer de novo (T6)."""
+    t, _ = episodio(d, "ciu_kc00_002", certa=True, razao_certa=False,
+                    confianca="tenho certeza", crenca="no_value_no_memory")
+    assert t.estado.no("B2").falsos_positivos == 1
+    assert t.estado.no("B1").falsos_positivos == 0
+
+
+# --------------------------------------------------------------------------
+# CS-2 — a crença é registrada no nó que ELA nega
+# --------------------------------------------------------------------------
+
+def test_cs2_a_crenca_vai_para_o_no_que_ela_nega_e_so_para_ele(d):
+    """O item mira B1; a razão escolhida nega B2. Quem fica vermelho é B2."""
+    t, eventos = episodio(d, "ciu_kc00_002", certa=False, razao_certa=False,
+                          confianca="tenho certeza", crenca="no_value_no_memory")
+    assert classificado(eventos) == motor.CRENCA_EP
+    detectada = next(e for e in eventos if e.tipo == "crenca_detectada").dados
+    assert detectada["no"] == "B2"
+    assert detectada["veio_do_item_de"] == "B1"
+    assert t.estado.no("B2").estado == motor.REFUTADO
+    assert t.estado.no("B1").estado != motor.REFUTADO
+
+
+def test_cs2_a_refutacao_percorre_o_no_negado_nao_o_do_item(d):
+    t, _ = episodio(d, "ciu_kc00_002", certa=False, razao_certa=False,
+                    confianca="tenho certeza", crenca="no_value_no_memory")
+    assert t.tela.tipo == "validacao"
+    assert t.tela.no == "B2"
+    assert t.estado.alvo == "B2"
+
+
+def test_cs2_uma_crenca_do_proprio_no_continua_indo_para_ele(d):
+    t, eventos = episodio(d, "ciu_kc00_002", certa=False, razao_certa=False,
+                          confianca="tenho certeza", crenca="type_is_a_hint")
+    assert next(e for e in eventos
+                if e.tipo == "crenca_detectada").dados["no"] == "B1"
+    assert t.estado.no("B1").estado == motor.REFUTADO
+
+
+# --------------------------------------------------------------------------
+# CS-3 — erro pelo motivo certo não refuta
+# --------------------------------------------------------------------------
+
+def test_cs3_errar_pela_razao_certa_nao_dispara_refutacao(d):
+    t, eventos = episodio(d, "ciu_kc00_002", certa=False, razao_certa=True,
+                          confianca="tenho certeza")
+    assert classificado(eventos) == motor.FALSO_NEGATIVO_EP
+    tipos = [e.tipo for e in eventos]
+    assert "crenca_detectada" not in tipos
+    assert "refutacao_iniciada" not in tipos
+    assert t.tela.tipo != "validacao"
+
+
+def test_cs3_o_vacilo_fica_registrado_mesmo_sem_refutar(d):
+    """Não contestar não é ignorar: o pesquisador quer saber quão direto
+    foi o caminho até o verde."""
+    t, eventos = episodio(d, "ciu_kc00_002", certa=False, razao_certa=True,
+                          confianca="tenho certeza")
+    assert any(e.tipo == "vacilo_detectado" for e in eventos)
+    assert t.estado.no("B1").vacilou is True
+
+
+# --------------------------------------------------------------------------
+# CS-5 — duas superfícies para confirmar
+# --------------------------------------------------------------------------
+
+def test_cs5_um_acerto_so_deixa_a_premissa_fragil(d):
+    t, eventos = episodio(d, "ciu_kc00_002", certa=True, razao_certa=True,
+                          confianca="tenho certeza")
+    assert classificado(eventos) == motor.CONFIRMADA
+    assert t.estado.no("B1").estado == motor.FRAGIL
+    assert any(e.tipo == "no_fragil" for e in eventos)
+
+
+def test_cs5_duas_superficies_diferentes_confirmam(d):
+    t, _ = episodio(d, "ciu_kc00_002", certa=True, razao_certa=True,
+                    confianca="tenho certeza")
+    t2, eventos = episodio(d, "ciu_kc00_001", certa=True, razao_certa=True,
+                           confianca="tenho certeza", estado=t.estado)
+    assert t2.estado.no("B1").estado == motor.CONFIRMADO
+    confirmado = next(e for e in eventos if e.tipo == "no_confirmado").dados
+    assert len(confirmado["superficies"]) == 2
+
+
+def test_cs5_acerto_sem_conviccao_nao_conta_superficie(d):
+    t, _ = episodio(d, "ciu_kc00_002", certa=True, razao_certa=True,
+                    confianca="acho que sei")
+    assert t.estado.no("B1").estado == motor.FRAGIL
+    assert t.estado.no("B1").superficies == ()

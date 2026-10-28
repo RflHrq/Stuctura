@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 60 testes
+python -m pytest mvp/ -q     # 79 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -24,15 +24,44 @@ python -m mvp.app            # http://127.0.0.1:8010
 | Passo | O que acontece | Onde |
 | --- | --- | --- |
 | **Pergunta** | camada 1 responde, tranca, e a camada 2 pergunta por quê | `motor._responde_diagnostico`, `motor.razoes_de` |
-| **Identifica** | errar sem ter chutado levanta SUSPEITA; a segunda pergunta do nó, de outro formato, decide | `motor._resolve_diagnostico` |
+| **Classifica** | resposta × razão × confiança nos cinco estados, e a crença vai para o nó que ela nega | `motor.classifica`, `motor._resolve_diagnostico` |
 | **Valida** | a analogia de resgate daquele nó, antes de qualquer refutação | `motor._inicia_validacao` |
 | **Refuta** | percurso pelas premissas que sustentam o nó negado, montado do grafo | `motor._plano` |
 | **Treina** | itens no mesmo nó, formato diferente a cada tentativa, até a sequência fechar | `motor._proximo_treino` |
 | **Confirma** | o nó vira verde no mapa, e só então | `training_streak_completed` |
 
 Errar chutando é lacuna, não crença: o sistema não refuta o que a pessoa não
-pensa. E um erro isolado é **vacilo** até prova em contrário — são precisos
-dois erros no mesmo nó, em formatos diferentes, para a refutação disparar.
+pensa.
+
+## Os cinco estados, e em que nó cada um fica
+
+`motor.classifica(certa, razao, confianca)` é função pura — a banca confere
+linha a linha sem rodar nada:
+
+| Resposta | Razão | Confiança | Estado | O que o motor faz |
+| --- | --- | --- | --- | --- |
+| certa | certa | tenho certeza | **confirmada** | conta uma superfície |
+| certa | certa | acho que sei / chutei | **frágil** | não conta superfície |
+| certa | **errada** | qualquer | **falso positivo** | não confirma; conta na crença |
+| errada | **certa** | qualquer | **falso negativo** | não refuta; registra o vacilo |
+| errada | errada | certeza / acho que sei | **crença ativa** | valida, refuta, treina |
+| errada | errada | chutei | **lacuna** | registra |
+
+**CS-5, duas superfícies.** Um acerto só deixa a premissa `fragil`: pode
+ser reconhecimento do molde da pergunta, não da ideia. Confirmar exige dois
+formatos diferentes, pela razão certa, com certeza — e é para isso que o
+par teórica + código existe.
+
+**CS-2, a crença vai para o nó que ELA nega.** Errar um item de B1
+explicando pela crença de que sem valor não há memória é informação sobre
+**B2**: é B2 que fica vermelho, é B2 que a refutação percorre, e B1 segue
+em aberto. O evento guarda os dois: `{"no": "B2", "veio_do_item_de": "B1"}`.
+
+**A regra dos dois erros foi aposentada.** Ela existia porque não havia
+como saber *por que* a pessoa errou — o segundo erro era um proxy de "não
+foi escorregão". A camada 2 substituiu o proxy pela coisa: quem erra pelo
+motivo certo escorregou (CS-3), e quem erra pelo motivo errado já disse
+qual é a crença.
 
 ## A analogia, desenhada
 
@@ -131,7 +160,8 @@ mvp/
 ├── web/figuras.js             a analogia desenhada, uma por premissa
 ├── test_motor.py              o laço, 28 testes
 ├── test_dominio.py            a carga e as invariantes, 14 testes
-└── test_razao.py              as camadas 2 e 3, 18 testes
+├── test_razao.py              as camadas 2 e 3, 18 testes
+└── test_classificacao.py      os cinco estados, 21 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano
