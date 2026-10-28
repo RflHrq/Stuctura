@@ -10,7 +10,8 @@ nodes:
     plain_text: >
       Toda variavel tem um nome e um tipo — o tipo diz que especie de
       valor cabe ali.
-    negated_by: []
+    negated_by:
+      - type_is_a_hint
 
   B2:
     type: observavel

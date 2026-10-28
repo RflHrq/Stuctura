@@ -22,6 +22,12 @@ analogy: >
 # entregaria a resposta das atividades que ainda nao foram feitas.
 resgates:
 
+  B1: >
+    A categoria do quarto decide o tamanho: uma suite e um quarto simples nao
+    ocupam o mesmo espaco no predio, mesmo os dois tendo uma placa na porta.
+    O tipo e a categoria — "int" e "char" reservam quartos de tamanhos
+    diferentes. E a placa e o nome: e por ela que a recepcao acha o quarto.
+
   B2: >
     Quando voce reserva um quarto de hotel, o numero do quarto ja existe no
     sistema, a porta ja tem aquele numero, o tamanho ja esta definido pela
@@ -81,6 +87,9 @@ activities:
       b: "Separar um espaço na memória e marcar que tipo de dado cabe ali"
       c: "Nada — ela só existe quando é usada pela primeira vez"
     gabarito: b
+    crencas:
+      a: no_value_no_memory
+      c: no_value_no_memory
 
   - id: ciu_kc00_002
     node: kc00:B1
@@ -95,12 +104,14 @@ activities:
       b: "Dois espaços reservados, cada um com seu próprio tamanho"
       c: "Um espaço só, compartilhado pelas duas"
     gabarito: b
+    crencas:
+      a: no_value_no_memory
+      c: type_is_a_hint
 
   - id: ciu_kc00_003
     node: kc00:B2
     formato: achar_o_erro
     tipo: teorica
-    belief_context: no_value_no_memory
     enunciado: >
       Rafael diz: "Enquanto eu não atribuo um valor, a variável não
       existe de verdade — é só uma promessa." Certo ou errado?
@@ -108,12 +119,13 @@ activities:
       certo: "Certo"
       errado: "Errado — a memória já foi reservada na declaração"
     gabarito: errado
+    crencas:
+      certo: no_value_no_memory
 
   - id: ciu_kc00_004
     node: kc00:B2
     formato: reconhecer_conceito
     tipo: codigo
-    belief_context: no_value_no_memory
     codigo: |
       int total;
       total = 7;
@@ -123,24 +135,27 @@ activities:
       b: "Na segunda, quando total recebeu o 7"
       c: "Nas duas: a primeira reserva metade, a segunda o resto"
     gabarito: a
+    crencas:
+      b: no_value_no_memory
 
   - id: ciu_kc00_005
     node: kc00:B3
     formato: reconhecer_conceito
     tipo: teorica
-    belief_context: declaration_zeroes
     enunciado: "Depois de int x; sem atribuir nada, o que está guardado dentro de x?"
     alternativas:
       a: "Zero, porque C limpa toda variável nova"
       b: "Lixo — o que quer que estivesse naquele espaço antes"
       c: "Nada — x não tem conteúdo até receber um valor"
     gabarito: b
+    crencas:
+      a: declaration_zeroes
+      c: no_value_no_memory
 
   - id: ciu_kc00_006
     node: kc00:B3
     formato: comparar_casos
     tipo: codigo
-    belief_context: declaration_zeroes
     codigo: |
       int contador;
       printf("%d\n", contador);
@@ -149,23 +164,25 @@ activities:
       a: "0, sempre"
       b: "Um número imprevisível — pode mudar a cada execução"
     gabarito: b
+    crencas:
+      a: declaration_zeroes
 
   - id: ciu_kc00_007
     node: kc00:B4
     formato: reconhecer_conceito
     tipo: teorica
-    belief_context: variable_remembers
     enunciado: "Depois de x = 5; e depois x = 8;, o que x guarda agora?"
     alternativas:
       a: "Os dois valores, 5 e 8"
       b: "Só 8 — o 5 foi substituído e não existe mais"
     gabarito: b
+    crencas:
+      a: variable_remembers
 
   - id: ciu_kc00_008
     node: kc00:B4
     formato: comparar_casos
     tipo: codigo
-    belief_context: variable_remembers
     codigo: |
       int pontos = 10;
       pontos = 20;
@@ -176,23 +193,25 @@ activities:
       a: "10 20 30, os três"
       b: "30 — só o último valor escrito sobrevive"
     gabarito: b
+    crencas:
+      a: variable_remembers
 
   - id: ciu_kc00_009
     node: kc00:I1
     formato: achar_o_erro
     tipo: teorica
-    belief_context: assignment_symmetric
     enunciado: "x = 7 e 7 = x significam a mesma coisa?"
     alternativas:
       a: "Sim, duas formas da mesma igualdade"
       b: "Não — só uma variável pode ficar à esquerda, recebendo o valor"
     gabarito: b
+    crencas:
+      a: assignment_symmetric
 
   - id: ciu_kc00_010
     node: kc00:I1
     formato: comparar_casos
     tipo: codigo
-    belief_context: assignment_symmetric
     codigo: |
       int x;
       3 = x;
@@ -201,6 +220,8 @@ activities:
       a: "Sim, é igual a x = 3;"
       b: "Não — o compilador recusa, 3 não é um lugar que recebe valor"
     gabarito: b
+    crencas:
+      a: assignment_symmetric
 
   # ==================== TREINO ====================
   # Itens que SO aparecem depois da refutacao. Dois por no, de formatos
@@ -219,9 +240,10 @@ activities:
     enunciado: "Por que b ocupa mais espaco que a?"
     alternativas:
       a: "Porque o tipo diz quanto espaco cabe ali"
-      b: "Porque o nome b vem depois no alfabeto"
       c: "Nao ocupa: toda variavel ocupa o mesmo"
     gabarito: a
+    crencas:
+      c: type_is_a_hint
 
   - id: ciu_kc00_t02
     node: kc00:B1
@@ -241,7 +263,6 @@ activities:
     uso: treino
     formato: prever_saida
     tipo: codigo
-    belief_context: no_value_no_memory
     codigo: |
       int a;
       int b;
@@ -252,13 +273,15 @@ activities:
       b: "Nenhum: nenhuma das duas recebeu valor"
       c: "Um: so o de a, que vai receber valor"
     gabarito: a
+    crencas:
+      b: no_value_no_memory
+      c: no_value_no_memory
 
   - id: ciu_kc00_t04
     node: kc00:B2
     uso: treino
     formato: comparar_casos
     tipo: codigo
-    belief_context: no_value_no_memory
     codigo: |
       int total;
       printf("%zu", sizeof(total));
@@ -269,13 +292,14 @@ activities:
       a: "Sim: o espaco ja esta reservado, com ou sem valor dentro"
       b: "Nao: sem valor nao ha espaco para medir"
     gabarito: a
+    crencas:
+      b: no_value_no_memory
 
   - id: ciu_kc00_t05
     node: kc00:B3
     uso: treino
     formato: prever_saida
     tipo: codigo
-    belief_context: declaration_zeroes
     codigo: |
       int soma;
       soma = soma + 10;
@@ -285,13 +309,14 @@ activities:
       a: "Nao: soma entrou na conta com lixo"
       b: "Sim: aparece 10, porque soma comecava em zero"
     gabarito: a
+    crencas:
+      b: declaration_zeroes
 
   - id: ciu_kc00_t06
     node: kc00:B3
     uso: treino
     formato: comparar_casos
     tipo: codigo
-    belief_context: declaration_zeroes
     codigo: |
       int a;
       int b = 0;
@@ -300,13 +325,14 @@ activities:
       a: "So b, que recebeu valor"
       b: "As duas: declarar ja zera"
     gabarito: a
+    crencas:
+      b: declaration_zeroes
 
   - id: ciu_kc00_t07
     node: kc00:B4
     uso: treino
     formato: prever_saida
     tipo: codigo
-    belief_context: variable_remembers
     codigo: |
       int x = 2;
       x = x + 3;
@@ -317,13 +343,14 @@ activities:
       b: "2 e 5: os dois valores ficam guardados"
       c: "3: o valor novo substitui o antigo"
     gabarito: a
+    crencas:
+      b: variable_remembers
 
   - id: ciu_kc00_t08
     node: kc00:B4
     uso: treino
     formato: achar_o_erro
     tipo: teorica
-    belief_context: variable_remembers
     enunciado: >
       Depois de x = 7, um colega quer o valor anterior de x e diz que basta
       olhar o historico da variavel. Onde esta o erro?
@@ -331,13 +358,14 @@ activities:
       a: "Nao ha historico: o valor anterior se perdeu na atribuicao"
       b: "Nao ha erro, mas ele precisa de um comando especifico"
     gabarito: a
+    crencas:
+      b: variable_remembers
 
   - id: ciu_kc00_t09
     node: kc00:I1
     uso: treino
     formato: prever_saida
     tipo: codigo
-    belief_context: assignment_symmetric
     codigo: |
       int a = 1, b = 2;
       a = b;
@@ -349,15 +377,18 @@ activities:
       b: "9: a ficou ligada a b pela atribuicao"
       c: "1: a atribuicao nao teve efeito"
     gabarito: a
+    crencas:
+      b: assignment_symmetric
 
   - id: ciu_kc00_t10
     node: kc00:I1
     uso: treino
     formato: reconhecer_conceito
     tipo: teorica
-    belief_context: assignment_symmetric
     enunciado: "Em y = x;, qual das duas muda?"
     alternativas:
       a: "So y, que recebe uma copia do valor de x"
       b: "As duas, porque passam a ser iguais"
     gabarito: a
+    crencas:
+      b: assignment_symmetric

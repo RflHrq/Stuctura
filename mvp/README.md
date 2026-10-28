@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 28 testes
+python -m pytest mvp/ -q     # 42 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -128,11 +128,56 @@ mvp/
 ├── app.py                     três rotas
 ├── web/                       a interface, que não decide nada
 ├── web/figuras.js             a analogia desenhada, uma por premissa
-└── test_motor.py              28 testes
+├── test_motor.py              o laço, 28 testes
+└── test_dominio.py            a carga e as invariantes, 14 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano
-falso (YAML 1.1). As atividades usam `premissa:` para apontar o nó.
+falso (YAML 1.1). As atividades usam `node:` para apontar o nó.
+
+## A crença é da alternativa, não do item
+
+Cada alternativa errada aponta para **uma** crença, ou para nenhuma:
+
+```yaml
+alternativas:
+  a: "Nada ainda, nenhuma tem valor"
+  b: "Dois espacos reservados, cada um com seu proprio tamanho"
+  c: "Um espaco so, compartilhado pelas duas"
+gabarito: b
+crencas:
+  a: no_value_no_memory     # nega B2
+  c: type_is_a_hint         # nega B1
+```
+
+Antes, toda alternativa errada recebia a crença do item inteiro: com três
+alternativas, as duas erradas eram indistinguíveis. O exemplo acima é o
+caso — um distrator é sobre valor e memória, o outro sobre tipo e tamanho.
+São ideias diferentes, e negam nós diferentes.
+
+`Atividade.crenca` passou a ser **derivada**: entre os distratores, a que
+nega o nó que o item mira. Distrator que nega outro nó é informação sobre o
+vizinho, e quem vai tratar disso é a camada de razão.
+
+**B1 ganhou crença própria:** `type_is_a_hint` — *"toda variável ocupa o
+mesmo espaço; o tipo é só um aviso para o compilador"*. Procedência **E**,
+a única do catálogo: elaborada do modelo de máquina, sem fonte empírica,
+declarada como hipótese a testar. E o distrator *"porque o nome b vem
+depois no alfabeto"* saiu: ninguém sustenta essa ideia, e como razão seria
+uma opção que nunca é escolhida.
+
+## As invariantes, cobradas na carga
+
+| # | Regra | Teste |
+| --- | --- | --- |
+| 1 | uma crença nega **exatamente um** nó, e o grafo concorda | `test_invariante_1_uma_crenca_nega_exatamente_um_no` |
+| 2 | toda crença é apontada por **alguma alternativa** | `test_invariante_2_toda_crenca_aparece_em_alguma_alternativa` |
+| 3 | todo nó tem pelo menos **duas superfícies** | `test_invariante_3_todo_no_tem_duas_superficies` |
+| — | o gabarito nunca carrega crença | `test_uma_crenca_so_pode_ser_apontada_por_alternativa_errada` |
+| — | todo nó com crença tem analogia de resgate | `test_todo_no_com_crenca_tem_analogia_de_resgate` |
+
+Cada uma tem um domínio que a quebra, montado do real com uma mutação
+cirúrgica — e `test_o_dominio_real_carrega_sem_problema` é a contraprova.
 
 ## Por que o treino tem banco próprio
 

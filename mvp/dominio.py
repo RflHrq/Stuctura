@@ -213,15 +213,6 @@ def carrega(raiz: Path | None = None) -> Dominio:
         if bruto.get("formato") not in FORMATOS:
             problemas.append("atividade %s: formato inválido %r" % (aid, bruto.get("formato")))
 
-        crenca = bruto.get("belief_context")
-        if crenca and crenca not in crencas:
-            problemas.append("atividade %s: belief_context %r não está no catálogo"
-                             % (aid, crenca))
-        if crenca and alvo in nos and crencas.get(crenca) and crencas[crenca].nega != alvo:
-            problemas.append(
-                "atividade %s mira %s mas carrega a crença %s, que nega %s"
-                % (aid, alvo, crenca, crencas[crenca].nega))
-
         # As alternativas vêm como mapa (a/b/c, ou certo/errado) e o gabarito
         # nomeia a chave certa. A ordem é a de escrita: o YAML a preserva.
         alternativas = bruto.get("alternativas") or {}
@@ -229,15 +220,43 @@ def carrega(raiz: Path | None = None) -> Dominio:
         if gabarito not in alternativas:
             problemas.append("atividade %s: gabarito %r não está entre as alternativas"
                              % (aid, gabarito))
+
+        # A crença é DA ALTERNATIVA, não do item (P1-1). Antes, toda
+        # alternativa errada recebia a crença do item inteiro: com três
+        # alternativas, as duas erradas ficavam indistinguíveis, e a camada
+        # de razão não teria de onde sair.
+        if "belief_context" in bruto:
+            problemas.append(
+                "atividade %s ainda usa belief_context; a crença agora é da "
+                "alternativa, em `crencas:`" % aid)
+        por_alternativa = bruto.get("crencas") or {}
+        for chave, cid in por_alternativa.items():
+            if chave not in alternativas:
+                problemas.append("atividade %s: crença em %r, que não é alternativa"
+                                 % (aid, chave))
+            elif chave == gabarito:
+                problemas.append(
+                    "atividade %s: %r é o gabarito e não pode carregar crença"
+                    % (aid, chave))
+            if cid not in crencas:
+                problemas.append("atividade %s: crença %r não está no catálogo"
+                                 % (aid, cid))
+
         opcoes = tuple(
             Opcao(texto=_texto(txt), correta=(chave == gabarito),
-                  # Num banco assim, a crença não é de uma alternativa: é do
-                  # item. Qualquer erro aqui aponta para a mesma ideia.
-                  crenca=None if chave == gabarito else crenca)
+                  crenca=None if chave == gabarito else por_alternativa.get(chave))
             for chave, txt in alternativas.items()
         )
         if len(opcoes) < 2:
             problemas.append("atividade %s: menos de duas alternativas" % aid)
+
+        # A crença DO ITEM é derivada: entre os distratores, a que nega o nó
+        # que o item mira. Um distrator que nega outro nó não vira a crença
+        # do item — ele é informação sobre o vizinho, e quem trata disso é a
+        # camada de razão, que sabe em qual nó registrar.
+        crenca = next((o.crenca for o in opcoes
+                       if o.crenca and crencas.get(o.crenca)
+                       and crencas[o.crenca].nega == alvo), None)
 
         atividades.append(Atividade(
             id=aid, no=alvo, tipo=bruto.get("tipo", "teorica"),
@@ -253,11 +272,14 @@ def carrega(raiz: Path | None = None) -> Dominio:
             problemas.append(
                 "nó %s tem crença (%s) e não tem analogia de resgate" % (c.nega, cid))
 
-    # Toda crença precisa de atividade que a levante, e todo nó precisa do
-    # par teórica + código: é o par que sustenta a checagem de vacilo.
+    # Toda crença precisa de uma ALTERNATIVA que a levante, e todo nó precisa
+    # do par teórica + código: é o par que sustenta a checagem de vacilo.
+    # A conta é por alternativa, não por item: uma crença que só exista no
+    # catálogo é uma razão que nunca vai poder ser escolhida.
     for cid in crencas:
-        if not any(a.crenca == cid for a in atividades):
-            problemas.append("crença %s não é levantada por nenhuma atividade" % cid)
+        if not any(o.crenca == cid for a in atividades for o in a.opcoes):
+            problemas.append(
+                "crença %s não é apontada por nenhuma alternativa" % cid)
     for nid in nos:
         diag = [a for a in atividades if a.no == nid and a.uso == "diagnostico"]
         tipos = {a.tipo for a in diag}

@@ -1,3 +1,13 @@
+- id: type_is_a_hint
+  negates: kc_00:B1
+  provenance: E
+  label_pt: "Toda variavel ocupa o mesmo espaco; o tipo e so um aviso para o compilador."
+  source: >
+    Elaborada a partir do modelo de maquina, nao de fonte empirica: e a unica
+    crenca E do catalogo, e entra declarada como HIPOTESE A TESTAR. Os tres
+    distratores de B1 que nao tinham dono apontam para ela. Se nenhum
+    participante a sustentar, o achado e esse.
+
 - id: no_value_no_memory
   negates: kc_00:B2
   provenance: L
