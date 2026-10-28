@@ -33,6 +33,9 @@ def ate_a_primeira_razao(d, semente=""):
     for _ in range(50):
         if t.tela.tipo == "razao":
             return t
+        if t.tela.tipo == "frase":
+            t = motor.avanca(d, t.estado, Resposta(texto="x"))
+            continue
         if t.tela.tipo == "atividade":
             a = next(x for x in d.atividades if x.id == t.tela.dados["atividade"])
             t = motor.avanca(d, t.estado,
@@ -179,6 +182,9 @@ def _episodio(d, erra=False, semente=""):
     for _ in range(80):
         eventos.extend(t.eventos)
         tela = t.tela
+        if tela.tipo == "frase":
+            t = motor.avanca(d, t.estado, Resposta(texto="x"))
+            continue
         if tela.tipo == "atividade":
             a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
             i = (next(k for k, o in enumerate(a.opcoes) if not o.correta)

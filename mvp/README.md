@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 95 testes
+python -m pytest mvp/ -q     # 104 testes
 python -m mvp.app            # http://127.0.0.1:8010
 ```
 
@@ -32,6 +32,38 @@ python -m mvp.app            # http://127.0.0.1:8010
 
 Errar chutando é lacuna, não crença: o sistema não refuta o que a pessoa não
 pensa.
+
+## A frase do começo e a do fim
+
+A mesma pergunta duas vezes — antes da unidade e no fim —, e **as duas
+lado a lado** no mapa. É a resposta direta ao "não estou sentindo
+melhora": a mudança fica visível para a própria pessoa, nas palavras dela.
+
+```
+ANTES   acho que so reserva o nome, o espaco vem depois quando da o valor
+AGORA   int x; ja reserva o espaco na hora; o que falta e o valor, nao o espaco
+```
+
+Três decisões:
+
+**A pergunta vem do domínio** (`teachback:` no YAML do tópico), pelo mesmo
+motivo que as razões vêm do grafo: o motor não escreve conteúdo. Trocar de
+tópico troca a pergunta sem tocar no código.
+
+**No fim, a frase de antes NÃO aparece.** Escrever olhando a própria frase
+antiga é copiá-la ou corrigi-la, não reformulá-la. As duas só se encontram
+depois, no mapa.
+
+**O sistema não corrige e não classifica.** Nada no log diz se a frase está
+certa — nem `correta`, nem `estado`. Quem classifica é o pesquisador,
+depois, com codebook. Frase em branco é aceita e registrada como tal: isso
+também é dado.
+
+**Portão G.** Texto livre escrito por participante é **dado pessoal**. A
+tela diz, antes de a pessoa escrever:
+
+> O que você escrever fica guardado com o seu código de participante, sem
+> nome. Ninguém corrige esta frase.
 
 ## "Não sei", opção de verdade
 
@@ -213,7 +245,8 @@ mvp/
 ├── test_motor.py              o laço, 28 testes
 ├── test_dominio.py            a carga e as invariantes, 14 testes
 ├── test_razao.py              as camadas 2 e 3, 18 testes
-└── test_classificacao.py      os cinco estados, a projeção, CS-4 e o falso positivo, 37 testes
+├── test_classificacao.py      os cinco estados, a projeção, CS-4 e o falso positivo, 37 testes
+└── test_teachback.py          a frase do começo e a do fim, 9 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano

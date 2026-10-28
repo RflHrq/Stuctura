@@ -107,6 +107,7 @@ def classifica(certa: bool, razao: Razao | None, confianca: str) -> str:
     return LACUNA_EP if confianca == CHUTE else CRENCA_EP
 
 # Fases da unidade.
+ABERTURA = "ABERTURA"          # a frase do começo
 ENSINO = "ENSINO"
 DIAGNOSTICO = "DIAGNOSTICO"
 RAZAO = "RAZAO"
@@ -114,6 +115,7 @@ CONFIANCA = "CONFIANCA"
 VALIDACAO = "VALIDACAO"
 REFUTACAO = "REFUTACAO"
 TREINO = "TREINO"
+FECHAMENTO = "FECHAMENTO"      # a frase do fim
 FIM = "FIM"
 
 
@@ -132,6 +134,9 @@ class Resposta:
     # "Não sei", em qualquer das três camadas. Não é o mesmo que não
     # responder: é uma declaração, e vale como dado.
     nao_sei: bool = False
+    # Texto livre do teach-back. O sistema NÃO corrige e NÃO classifica:
+    # guarda, e devolve para a própria pessoa comparar.
+    texto: str = ""
 
 
 @dataclass(frozen=True)
@@ -231,6 +236,8 @@ class Estado:
     alvo: str | None = None
     repeticoes: int = 0            # reexplicações pedidas NESTE passo
     pendente: Pendente | None = None   # camada 1 trancada, esperando a razão
+    frase_inicial: str = ""
+    frase_final: str = ""
     # Embaralha as razões sem sortear: o motor continua puro, e a mesma
     # semente devolve a mesma ordem. Quem fornece é a sessão.
     semente: str = ""
@@ -254,9 +261,27 @@ class Transicao:
 # --------------------------------------------------------------------------
 
 def inicia(d: Dominio, semente: str = "") -> Transicao:
-    estado = Estado(fase=ENSINO, cartao=0, semente=semente)
-    return Transicao(estado, _tela_ensino(d, estado),
+    estado = Estado(fase=ABERTURA, cartao=0, semente=semente)
+    return Transicao(estado, _tela_frase(d, "inicio"),
                      (Evento("unidade_iniciada", {"topico": d.id}),))
+
+
+def _tela_frase(d: Dominio, momento: str, antes: str = "") -> Tela:
+    """A mesma pergunta, duas vezes: antes da unidade e no fim.
+
+    Não tem resposta certa e o sistema não corrige — quem classifica é o
+    pesquisador, depois, com codebook. O que a pessoa ganha é ver as duas
+    frases lado a lado: é o teach-back de Feynman com antes e depois, e é
+    o momento em que a mudança fica visível para ela mesma.
+    """
+    return Tela("frase", texto=d.teachback, dados={
+        "momento": momento,
+        "antes": antes,
+        # Portão G: dado pessoal é texto livre. A tela diz que fica
+        # guardado, e nunca pede nada que identifique.
+        "aviso": ("O que você escrever fica guardado com o seu código de "
+                  "participante, sem nome. Ninguém corrige esta frase."),
+    })
 
 
 def _cartoes(d: Dominio) -> tuple[str, ...]:
@@ -276,6 +301,10 @@ def _tela_ensino(d: Dominio, e: Estado) -> Tela:
 
 
 def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
+    if e.fase == ABERTURA:
+        return _abre(d, e, r)
+    if e.fase == FECHAMENTO:
+        return _fecha_unidade(d, e, r)
     if e.fase == ENSINO:
         return _segue_ensino(d, e)
     if e.fase == DIAGNOSTICO:
@@ -291,6 +320,24 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     if e.fase == TREINO:
         return _responde_treino(d, e, r)
     return Transicao(e, _mapa(d, e))
+
+
+def _abre(d: Dominio, e: Estado, r: Resposta) -> Transicao:
+    frase = (r.texto or "").strip()
+    novo = replace(e, fase=ENSINO, cartao=0, frase_inicial=frase)
+    evento = Evento("teachback_inicial", {
+        "topico": d.id, "texto": frase,
+        "caracteres": len(frase), "em_branco": not frase, "ms": r.ms})
+    return Transicao(novo, _tela_ensino(d, novo), (evento,))
+
+
+def _fecha_unidade(d: Dominio, e: Estado, r: Resposta) -> Transicao:
+    frase = (r.texto or "").strip()
+    novo = replace(e, fase=FIM, frase_final=frase)
+    evento = Evento("teachback_final", {
+        "topico": d.id, "texto": frase,
+        "caracteres": len(frase), "em_branco": not frase, "ms": r.ms})
+    return Transicao(novo, _mapa(d, novo), (evento,))
 
 
 def _segue_ensino(d: Dominio, e: Estado) -> Transicao:
@@ -894,12 +941,16 @@ def _resolve_treino(d: Dominio, e: Estado, a: Atividade,
 # --------------------------------------------------------------------------
 
 def _encerra(d: Dominio, e: Estado) -> Transicao:
-    novo = replace(e, fase=FIM, atividade=None, alvo=None)
+    """As atividades acabaram. Antes do mapa, a frase do fim."""
+    novo = replace(e, fase=FECHAMENTO, atividade=None, alvo=None)
     evento = Evento("unidade_encerrada", {
         "confirmados": [n for n in d.ordem if novo.no(n).estado == CONFIRMADO],
         "em_aberto": [n for n in d.ordem if novo.no(n).estado == EM_ABERTO],
     })
-    return Transicao(novo, _mapa(d, novo), (evento,))
+    # A pergunta volta SEM a frase de antes à vista: escrever olhando a
+    # própria frase antiga é copiá-la ou corrigi-la, não reformulá-la. As
+    # duas aparecem juntas só depois, no mapa.
+    return Transicao(novo, _tela_frase(d, "fim"), (evento,))
 
 
 def estado_dos_nos(d: Dominio, e: Estado) -> list[dict]:
@@ -934,4 +985,6 @@ def estado_dos_nos(d: Dominio, e: Estado) -> list[dict]:
 
 def _mapa(d: Dominio, e: Estado) -> Tela:
     return Tela("mapa", texto=d.nos[d.conclusao].simples,
-                dados={"nos": estado_dos_nos(d, e)})
+                dados={"nos": estado_dos_nos(d, e),
+                       "frase_inicial": e.frase_inicial,
+                       "frase_final": e.frase_final})

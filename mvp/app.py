@@ -38,6 +38,9 @@ class RespostaBody(BaseModel):
     repetir: bool = False
     # "não sei", em qualquer das três camadas.
     nao_sei: bool = False
+    # Texto livre do teach-back. DADO PESSOAL: vai para o log com o código
+    # da sessão, nunca com nome.
+    texto: str = ""
 
 
 def _resposta(sessao: str, t: motor.Transicao) -> dict:
@@ -110,7 +113,8 @@ def responde(sessao: str, body: RespostaBody) -> dict:
     if body.confianca and body.confianca not in motor.CONFIANCAS:
         raise HTTPException(status_code=400, detail="confiança fora da escala")
     r = motor.Resposta(escolha=body.escolha, confianca=body.confianca, ms=body.ms,
-                       repetir=body.repetir, nao_sei=body.nao_sei)
+                       repetir=body.repetir, nao_sei=body.nao_sei,
+                       texto=body.texto)
     return _resposta(sessao, motor.avanca(dominio, estado, r))
 
 

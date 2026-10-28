@@ -70,6 +70,10 @@ def _politica(*, erra_no=None, erra_diagnostico=99, erra_treino=0,
         if tela.tipo in ("ensino", "validacao", "refutacao", "mapa"):
             return Resposta()
 
+        # Teach-back (T9): a mesma pergunta no começo e no fim.
+        if tela.tipo == "frase":
+            return Resposta(texto="uma frase de " + tela.dados["momento"])
+
         # Camada 3 (T3): tela própria, em toda atividade.
         if tela.tipo == "confianca":
             return Resposta(confianca=confianca)

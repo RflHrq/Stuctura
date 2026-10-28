@@ -7,3 +7,8 @@ summary: >
   Fundacao antes de kc_01. Uma variavel e um espaco de memoria nomeado
   e tipado; declarar reserva esse espaco, mas so atribuir (ou inicializar)
   lhe da um valor conhecido.
+
+# A pergunta do teach-back, feita duas vezes: antes da unidade e no fim.
+# Fica no dominio, e nao no motor, pela mesma razao que as razoes ficam no
+# grafo — o motor nao escreve conteudo.
+teachback: "o que acontece quando voce escreve int x; num programa em C"

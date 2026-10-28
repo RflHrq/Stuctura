@@ -184,3 +184,20 @@ h2{margin:0 0 14px; font-size:20px}
 .opcao.nao-sei{border-style:dashed; color:var(--tinta2); margin-top:4px}
 .opcao.nao-sei:hover{color:var(--tinta)}
 .conf.nao-sei{border-style:dashed; color:var(--tinta2)}
+
+/* ----------------------------------------------------------- teach-back */
+textarea{width:100%; font:inherit; color:inherit; background:var(--papel);
+         border:1.5px solid var(--linha2); border-radius:9px; padding:12px 14px;
+         resize:vertical; min-height:96px; margin-bottom:10px}
+textarea:focus{outline:2px solid var(--acento); outline-offset:1px}
+.aviso{font-size:12.5px; color:var(--tinta2); margin:0 0 16px}
+
+/* As duas frases lado a lado. Em tela estreita viram uma coluna: ler a de
+   antes e a de depois importa mais que o paralelo geometrico. */
+.par{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 0 20px}
+@media (max-width:560px){ .par{grid-template-columns:1fr} }
+.frase-cartao{border:1px solid var(--linha); border-radius:9px; padding:14px}
+.frase-cartao.antes{background:var(--papel)}
+.frase-cartao.depois{background:var(--ok-fundo); border-color:var(--ok)}
+.frase-cartao p{margin:0; font-size:15px}
+.frase-cartao .rotulo{margin-bottom:6px}

@@ -9,8 +9,8 @@
   "use strict";
 
   var $ = function (id) { return document.getElementById(id); };
-  var TELAS = ["ensino", "atividade", "razao", "confianca", "retorno",
-             "validacao", "refutacao", "mapa"];
+  var TELAS = ["frase", "ensino", "atividade", "razao", "confianca",
+             "retorno", "validacao", "refutacao", "mapa"];
 
   var S = {
     sessao: null,
@@ -183,6 +183,7 @@
     S.tela = j.tela;
     desenhaGrafo(j.grafo);
     var t = j.tela;
+    if (t.tipo === "frase") return telaFrase(t);
     if (t.tipo === "ensino") return telaEnsino(t);
     if (t.tipo === "atividade") return telaAtividade(t);
     if (t.tipo === "razao") return telaRazao(t);
@@ -190,6 +191,34 @@
     if (t.tipo === "validacao") return telaValidacao(t);
     if (t.tipo === "refutacao") return telaRefutacao(t);
     if (t.tipo === "mapa") return telaMapa(t);
+  }
+
+  /* -------------------------------------------------------- teach-back */
+
+  /* A mesma pergunta duas vezes. Ninguem corrige esta frase: o sistema
+   * guarda e devolve, e quem classifica e o pesquisador, com codebook.
+   * No fim, a de antes NAO aparece aqui — escrever olhando a propria
+   * frase antiga e copia-la ou corrigi-la, nao reformula-la. */
+  function telaFrase(t) {
+    var fim = t.momento === "fim";
+    $("trilha").textContent = fim ? "Para fechar" : "Antes de começar";
+    $("frase-etiqueta").textContent = fim ? "A mesma pergunta do começo"
+                                          : "Antes de começar";
+    $("frase-pergunta").textContent = "Em uma frase, com suas palavras: " +
+      t.texto + "?";
+    $("frase-aviso").textContent = t.aviso || "";
+    var caixa = $("frase-texto");
+    caixa.value = "";
+    caixa.placeholder = fim ? "Escreva de novo, sem olhar a de antes."
+                            : "Escreva como você explicaria para alguém.";
+    $("btn-frase").onclick = function () {
+      responde({ texto: caixa.value, ms: decorrido() });
+    };
+    var pular = $("btn-frase-pular");
+    pular.textContent = fim ? "Prefiro não escrever" : "Não sei dizer ainda";
+    pular.onclick = function () { responde({ texto: "", ms: decorrido() }); };
+    mostra("frase");
+    caixa.focus();
   }
 
   /* ------------------------------------------------------------ ensino */
@@ -498,6 +527,16 @@
 
   function telaMapa(t) {
     $("trilha").textContent = "Unidade concluída";
+    /* As duas frases so aparecem se houver pelo menos uma: quem preferiu
+     * nao escrever nao precisa ver dois cartoes vazios. */
+    var temPar = !!(t.frase_inicial || t.frase_final);
+    $("mapa-par").classList.toggle("oculto", !temPar);
+    if (temPar) {
+      $("mapa-antes").textContent = t.frase_inicial ||
+        "(você preferiu não escrever)";
+      $("mapa-depois").textContent = t.frase_final ||
+        "(você preferiu não escrever)";
+    }
     var caixa = $("mapa");
     caixa.innerHTML = "";
     t.nos.forEach(function (n) {

@@ -25,6 +25,19 @@
 
 <main class="palco">
 
+  <!-- teach-back: a mesma pergunta no comeco e no fim -->
+  <section id="tela-frase" class="cartao oculto">
+    <p class="etiqueta" id="frase-etiqueta"></p>
+    <p class="ideia" id="frase-pergunta"></p>
+    <textarea id="frase-texto" aria-label="Sua frase"
+              placeholder="Escreva como você explicaria para alguém."></textarea>
+    <p class="aviso" id="frase-aviso"></p>
+    <div class="acoes">
+      <button class="btn" id="btn-frase">Continuar</button>
+      <button class="btn secundario" id="btn-frase-pular">Não sei dizer ainda</button>
+    </div>
+  </section>
+
   <!-- ensino -->
   <section id="tela-ensino" class="cartao oculto">
     <p class="etiqueta" id="ensino-passo"></p>
@@ -120,6 +133,18 @@
   <!-- mapa final -->
   <section id="tela-mapa" class="cartao oculto">
     <h2>O que você construiu</h2>
+    <!-- As duas frases lado a lado: o momento em que a mudanca fica
+         visivel para a propria pessoa. -->
+    <div class="par oculto" id="mapa-par">
+      <div class="frase-cartao antes">
+        <p class="rotulo">Antes</p>
+        <p id="mapa-antes"></p>
+      </div>
+      <div class="frase-cartao depois">
+        <p class="rotulo">Agora</p>
+        <p id="mapa-depois"></p>
+      </div>
+    </div>
     <div class="mapa" id="mapa"></div>
     <p class="legenda">
       <i class="pino confirmado"></i> ✓ confirmada

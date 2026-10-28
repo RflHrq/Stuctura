@@ -104,6 +104,8 @@ class Dominio:
     # na validação é a DO NÓ: o resumo mapeia os cinco de uma vez e
     # entregaria a resposta das atividades que ainda não foram feitas.
     analogia: str = ""
+    # A pergunta do teach-back, do YAML do tópico.
+    teachback: str = ""
     resgates: Mapping[str, str] = field(default_factory=dict)
 
     def resgate(self, no: str) -> str:
@@ -304,6 +306,7 @@ def carrega(raiz: Path | None = None) -> Dominio:
         id=topico.get("id", "kc_00"),
         titulo=_texto(topico.get("title")),
         conclusao=topico.get("conclusion_node", "I1"),
+        teachback=_texto(topico.get("teachback")),
         nos=nos, crencas=crencas, atividades=tuple(atividades),
         analogia=_texto((cru_atv or {}).get("analogy")),
         resgates={k: _texto(v) for k, v in ((cru_atv or {}).get("resgates") or {}).items()},
