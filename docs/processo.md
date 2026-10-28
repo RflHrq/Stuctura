@@ -4,8 +4,8 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** 3 — Prototype (protótipo descartável das telas novas).
-Nenhum código é alterado nas fases 1 a 5.
+**Fase atual:** 4 — PRD (o que o primeiro ciclo entrega). Nenhum código é
+alterado nas fases 1 a 5.
 
 **Reformulação, não recomeço:** o motor atual (`mvp/`) e o antigo (`engine/`)
 ficam onde estão, versionados. O que está em reconstrução é o CONCEITO de
@@ -63,6 +63,8 @@ pergunta.
 | 9 | A razão errada é **qualquer crença do grafo**, e a crença ativa é registrada **no nó que ela nega**, não no nó do item | Research | os distratores de B1 já apontam para `no_value_no_memory`, que nega B2; atribuir ao nó certo é diagnóstico melhor |
 | 10 | O **painel do pesquisador lê o log**, em processo separado, nunca a sessão viva | Research | não pode derrubar a sessão de um participante, e força o log a bastar — a mesma tarefa da reconstrução do estado |
 | 11 | *Acho que sei*, o meio da escala, puxa para o **lado conservador de cada linha**: não confirma acerto, e não livra erro de refutação | Prototype | a tabela tinha dois níveis e a escala tem três; o protótipo obrigou a decidir |
+| 12 | A confiança fica em **tela própria**, não no pé da tela da razão | PRD | o passo a mais compra independência entre as camadas, que é o que sustenta a classificação na banca |
+| 13 | O falso positivo é **contado** à pessoa: "a resposta está certa, a explicação leva a outro lugar" | PRD | calar desperdiça o único momento em que ela percebe a própria rota torta; trocar custa uma linha depois do ensaio |
 
 ## Perguntas em aberto
 
@@ -73,9 +75,8 @@ Nenhuma bloqueia a fase 4.
 3. Quem classifica as frases abertas do teach-back, e com que codebook.
 4. A crença nova de B1 (procedência E) fica como hipótese a testar, ou você
    quer procurar fonte empírica antes da coleta.
-5. Confiança em tela própria ou no pé da tela da razão (as duas estão no
-   protótipo, na régua de baixo).
-6. Contar ou não contar o falso positivo à pessoa (idem).
+5. Os parâmetros do PRD (superfícies para confirmar, falsos positivos até
+   virar crença, itens por nó).
 
 ## Artefatos
 
@@ -85,6 +86,7 @@ Nenhuma bloqueia a fase 4.
 | 1 Grill | `docs/problema.md` | **pronto** — critério, instrumento e escopo do 1º ciclo |
 | 2 Research | `docs/research.md` | **pronto** — linha de base, 6 achados, o que serve e o que muda |
 | 3 Prototype | `prototipo/telas-novas.html` | **pronto** — fluxo clicável, descartável, fora de `mvp/` |
+| 4 PRD | `docs/PRD.md` | **pronto** — 12 critérios de sucesso, parâmetros aguardando seu aceite |
 
 ## Vereditos das auxiliares
 
@@ -95,6 +97,9 @@ Nenhuma bloqueia a fase 4.
 | 2 | G (privacidade) e M (dados) | **não executadas** | adiadas para o PRD, onde o teach-back entra e cria dado pessoal novo (texto livre) |
 | 2 | T (documentação) e E (pós-entrega) | **não executadas** | sem usuários reais antes do piloto |
 | 2 | D (desempenho) | não aplicável | perfil do projeto |
+| 4 | S, P, U, I, M, G, T, E | consulta, método aplicado direto | requisitos escritos no PRD; as skills não foram invocadas, para não gastar o orçamento em oito saídas longas numa fase de texto |
+| 4 | G (privacidade) | **atenção** | o teach-back cria dado pessoal novo (texto livre); termo e aviso entram como **rascunho**, para o orientador e o comitê de ética |
+| 4 | D, X, W | não aplicáveis | perfil do projeto |
 
 ## Linha de base da fase 2
 
@@ -103,4 +108,4 @@ Python. Qualquer mudança futura é comparada com isto.
 
 ## Orçamento
 
-Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração.
+Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração. Fase 4: 1 iteração.
