@@ -162,8 +162,10 @@ footer{padding:12px 20px; border-top:1px solid var(--linha);
       b.setAttribute("aria-current", s.codigo === atual ? "true" : "false");
       b.appendChild(el("span", s.codigo, "codigo"));
       var partes = [hora(s.inicio), s.respostas + " respostas"];
-      if (s.encerrada) partes.push("encerrada");
-      else partes.push(s.fase ? s.fase.toLowerCase() : "em andamento");
+      /* A FASE nao aparece aqui de proposito: saber em que fase a sessao
+       * parou exige reexecutar o log, e esta lista e pedida de 3 em 3
+       * segundos. A fase esta no detalhe, que e de uma sessao por vez. */
+      partes.push(s.encerrada ? "encerrada" : "em andamento");
       if (s.retomadas) partes.push(s.retomadas + "× retomada");
       if (!s.reexecutavel) {
         partes.push("não reexecutável");

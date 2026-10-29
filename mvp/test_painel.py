@@ -299,3 +299,98 @@ def test_o_painel_mostra_quantas_crencas_ficaram_sem_reteste(cliente, d):
     assert j["refutadas"] == 1
     assert j["retestadas"] == 0
     assert j["sem_item"] == 1
+
+
+# --------------------------------------------------------------------------
+# R2: a lista não reexecuta (P1-B da revisão do ciclo 1)
+# --------------------------------------------------------------------------
+
+def test_a_lista_nao_reexecuta_nenhuma_sessao(cliente, d, monkeypatch):
+    """A prova direta, e não uma medida de tempo que varia de máquina.
+
+    Com `reconstroi` sabotado para estourar, a lista continua
+    respondendo — porque não chama. A tela pede esta rota de três em três
+    segundos, no mesmo computador que atende quem está respondendo.
+    """
+    c, arquivo = cliente
+    percorre(d, arquivo, "p1", _politica(d=d))
+    percorre(d, arquivo, "p2", _politica(erra_no="B2", erra_diagnostico=2, d=d))
+
+    def explode(*_a, **_k):
+        raise AssertionError("a lista reexecutou uma sessão")
+
+    monkeypatch.setattr(log, "reconstroi", explode)
+    j = c.get("/sessoes").json()
+    assert {x["codigo"] for x in j["sessoes"]} == {"p1", "p2"}
+    assert all(x["reexecutavel"] for x in j["sessoes"])
+
+
+def test_a_lista_le_o_arquivo_uma_vez_so(cliente, d, monkeypatch):
+    """Antes eram 1 + N leituras completas: uma para agrupar, e mais uma
+    dentro de cada reconstrução."""
+    c, arquivo = cliente
+    for codigo in ("a", "b", "c"):
+        percorre(d, arquivo, codigo, _politica(d=d))
+
+    leituras = []
+    original = log.le
+    monkeypatch.setattr(log, "le",
+                        lambda s=None, dst=None: leituras.append(s) or original(s, dst))
+    c.get("/sessoes")
+    assert len(leituras) == 1, leituras
+
+
+def test_a_lista_ainda_marca_a_sessao_que_nao_reexecuta(cliente, d):
+    """A recusa continua a mesma, só que apurada sem refazer a sessão."""
+    c, arquivo = cliente
+    percorre(d, arquivo, "boa2", _politica(d=d))
+    t = motor.inicia(d, semente="velha2")
+    log.grava("velha2", t.eventos, destino=arquivo)
+    log.grava("velha2", motor.avanca(d, t.estado, Resposta(texto="x")).eventos,
+              destino=arquivo)                       # sem entrada: log antigo
+
+    lista = {x["codigo"]: x for x in c.get("/sessoes").json()["sessoes"]}
+    assert lista["boa2"]["reexecutavel"] is True
+    assert lista["velha2"]["reexecutavel"] is False
+    assert "entrada" in lista["velha2"]["motivo"]
+    # E o detalhe, que reexecuta de verdade, concorda com a lista.
+    assert c.get("/sessoes/velha2").status_code == 409
+    assert c.get("/sessoes/boa2").status_code == 200
+
+
+def test_a_lista_recusa_o_log_de_outro_topico_sem_reexecutar(cliente):
+    c, arquivo = cliente
+    arquivo.write_text(json.dumps({
+        "ts": "2026-10-29T00:00:00.000+00:00", "sessao": "x",
+        "tipo": "unidade_iniciada", "topico": "kc_99"}) + "\n", encoding="utf-8")
+    linha = c.get("/sessoes").json()["sessoes"][0]
+    assert linha["reexecutavel"] is False
+    assert "kc_99" in linha["motivo"]
+
+
+def test_a_lista_adianta_e_o_detalhe_decide(cliente, d):
+    """A checagem barata da lista é uma APROXIMAÇÃO, e isto fixa isso.
+
+    Uma sessão pode passar na lista e falhar ao ser aberta — log antigo
+    com uma entrada que o motor de hoje recusa só aparece reexecutando.
+    O painel tem de dizer o motivo, não estourar erro de servidor.
+    """
+    c, arquivo = cliente
+    t = motor.inicia(d, semente="z1")
+    log.grava("z1", t.eventos, destino=arquivo)
+    t = motor.avanca(d, t.estado, Resposta(texto="f"))
+    log.grava("z1", t.eventos, destino=arquivo, entrada=Resposta(texto="f"))
+    for _ in range(6):
+        if t.tela.tipo == "atividade":
+            break
+        t = motor.avanca(d, t.estado, Resposta())
+        log.grava("z1", t.eventos, destino=arquivo, entrada=Resposta())
+    log.grava("z1", (), destino=arquivo, entrada=Resposta(escolha=-1))
+
+    linha = next(x for x in c.get("/sessoes").json()["sessoes"]
+                 if x["codigo"] == "z1")
+    assert linha["reexecutavel"] is True, "a lista não tem como saber"
+
+    r = c.get("/sessoes/z1")
+    assert r.status_code == 409
+    assert "não aceita mais" in r.json()["detail"]

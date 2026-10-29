@@ -142,8 +142,45 @@ def _resumo(linhas: list[dict]) -> dict:
     }
 
 
+def _reexecutavel(linhas: list[dict]) -> tuple[bool, str]:
+    """A mesma recusa de `log.reconstroi`, sem reexecutar nada.
+
+    São as duas condições que `reconstroi` confere ANTES do primeiro
+    passo: existir abertura do tópico carregado, e existir entrada quando
+    a sessão andou. Conferi-las é ler três campos; reexecutar para
+    descobrir o mesmo é refazer a sessão inteira.
+
+    **É uma aproximação, de propósito.** Uma sessão pode passar por aqui
+    e ainda assim falhar ao ser aberta — é o caso de um log antigo com
+    uma entrada que o motor de hoje recusa, que só aparece reexecutando.
+    Quem decide é o detalhe, que reexecuta e diz o motivo; a lista
+    adianta o que dá para adiantar sem custar uma sessão por pedido.
+    """
+    abertura = next((x for x in linhas if x["tipo"] == "unidade_iniciada"), None)
+    if abertura is None:
+        return False, "a sessão não tem abertura no log"
+    if abertura.get("topico") != dominio.id:
+        return False, ("a sessão é do tópico %r, e o domínio carregado é %r"
+                       % (abertura.get("topico"), dominio.id))
+    if not any(x["tipo"] == log.ENTRADA for x in linhas) and len(linhas) > 1:
+        return False, ("a sessão tem %d linhas e nenhuma entrada: log gravado "
+                       "antes de as entradas existirem" % len(linhas))
+    return True, ""
+
+
 def sessoes(destino: Path | None = None) -> list[dict]:
     """Uma linha por sessão do log, da mais recente para a mais antiga.
+
+    **Não reexecuta nada.** A tela pede esta lista de três em três
+    segundos, e antes aqui havia uma reconstrução por sessão — cada uma
+    relendo e reparseando o arquivo inteiro. Com 36 sessões dava 966 ms
+    por chamada, no mesmo computador que atende quem está respondendo. O
+    PRD diz que observar não pode custar o dado, e gastar CPU em laço vai
+    pelo mesmo caminho que derrubar a sessão, só que por outra porta.
+
+    O que a lista mostra sai do log literalmente: código, horários,
+    respostas, retomadas, encerrada. A **fase** exige reexecução e
+    pertence ao detalhe, que já é de uma sessão por vez.
 
     Sem nenhum texto livre: ver a lista não pode ser ver o que quarenta
     pessoas escreveram.
@@ -153,17 +190,12 @@ def sessoes(destino: Path | None = None) -> list[dict]:
         por_sessao.setdefault(linha.get("sessao", ""), []).append(linha)
 
     saida = []
-    for codigo, linhas in por_sessao.items():
+    for linhas in por_sessao.values():
         resumo = _resumo(linhas)
-        try:
-            t = log.reconstroi(dominio, codigo, destino)
-        except log.LogIncompleto as erro:
-            # Sessão que este painel não consegue reexecutar continua
-            # aparecendo, dizendo por quê. Esconder seria esconder dado.
-            resumo.update(reexecutavel=False, fase="", motivo=str(erro))
-        else:
-            resumo.update(reexecutavel=True, motivo="",
-                          fase=t.estado.fase if t else "")
+        # Sessão que este painel não conseguiria reexecutar continua
+        # aparecendo, dizendo por quê. Esconder seria esconder dado.
+        ok, motivo = _reexecutavel(linhas)
+        resumo.update(reexecutavel=ok, motivo=motivo)
         saida.append(resumo)
     return sorted(saida, key=lambda x: x["inicio"], reverse=True)
 

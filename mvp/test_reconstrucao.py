@@ -254,3 +254,28 @@ def test_uma_sessao_que_nunca_existiu_continua_dando_404(cliente):
     c, _, _ = cliente
     r = c.post("/sessoes/naoexiste/responder", json={})
     assert r.status_code == 404
+
+
+def test_entrada_que_o_motor_nao_aceita_mais_falha_alto(d, caminho):
+    """Consequência direta da R1, e ela apareceu sozinha.
+
+    `{"escolha": -1}` era aceito e virava um episódio. Logs gravados
+    antes disso têm entradas que o motor de hoje recusa — e reexecutá-las
+    daria outro resultado. A sessão não é reexecutável, e dizer isso é
+    melhor do que estourar um erro de servidor no painel.
+    """
+    t = motor.inicia(d, semente="antiga")
+    log.grava("antiga", t.eventos, destino=caminho)
+    t = motor.avanca(d, t.estado, Resposta(texto="f"))
+    log.grava("antiga", t.eventos, destino=caminho, entrada=Resposta(texto="f"))
+    for _ in range(5):
+        if t.tela.tipo == "atividade":
+            break
+        t = motor.avanca(d, t.estado, Resposta())
+        log.grava("antiga", t.eventos, destino=caminho, entrada=Resposta())
+    # A entrada que a versão antiga gravava e a de hoje recusa.
+    log.grava("antiga", (), destino=caminho, entrada=Resposta(escolha=-1))
+
+    with pytest.raises(log.LogIncompleto) as erro:
+        log.reconstroi(d, "antiga", caminho)
+    assert "não aceita mais" in str(erro.value)

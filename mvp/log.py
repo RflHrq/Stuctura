@@ -160,6 +160,17 @@ def reconstroi(d: motor.Dominio, sessao: str,
             % (sessao, len(linhas)))
 
     t = motor.inicia(d, semente=sessao)
-    for linha in entradas:
-        t = motor.avanca(d, t.estado, _entrada_de(linha))
+    for i, linha in enumerate(entradas, 1):
+        try:
+            t = motor.avanca(d, t.estado, _entrada_de(linha))
+        except motor.EscolhaInvalida as erro:
+            # Entrada que o motor de HOJE recusa. Acontece com log escrito
+            # antes de a R1 fechar o buraco: `{"escolha": -1}` era aceito e
+            # virava um episódio. Reexecutar agora daria outro resultado —
+            # então esta sessão não é reexecutável, e isso é dito em voz
+            # alta em vez de virar erro de servidor.
+            raise LogIncompleto(
+                "a sessão %r tem na entrada %d algo que o motor não aceita "
+                "mais (%s): log escrito por uma versão anterior"
+                % (sessao, i, erro)) from erro
     return t
