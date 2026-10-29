@@ -286,12 +286,124 @@ def confere(topico: str, novas: list[dict]) -> list[str]:
 
 
 # --------------------------------------------------------------------------
+# Ler, e aprovar
+# --------------------------------------------------------------------------
+
+def folha(d, topico: str) -> str:
+    """Os candidatos como uma PESSOA lê, não como YAML.
+
+    Revisar item de instrumento de pesquisa é leitura, não diff: o que
+    precisa ser conferido é se a pergunta mede o que diz medir, e isso não
+    se vê em chave e valor.
+    """
+    import yaml
+
+    pasta = CANDIDATOS / topico
+    linhas = [
+        "# Revisão dos candidatos — %s" % topico,
+        "",
+        "Leia item a item. Para aprovar, escreva seu nome em `revisado_por`",
+        "no arquivo `.yaml` do nó e rode:",
+        "",
+        "```bash",
+        "python scripts/gerar.py --topico %s --aprovar" % topico,
+        "```",
+        "",
+        "Só entra no domínio o que tiver `revisado_por` preenchido.",
+        "",
+        "**O que conferir em cada item** (docs/linguagem.md):",
+        "",
+        "- a resposta certa está certa, e as erradas estão erradas;",
+        "- cada distrator é a crença **dita bem** — alguém escolheria aquilo;",
+        "- o enunciado não entrega a resposta;",
+        "- o degrau bate: 1 responde na analogia, 2 aplica em C, 3 distingue;",
+        "- o código compila e faz o que o enunciado diz.",
+        "",
+    ]
+    total = 0
+    for arq in sorted(pasta.glob("*.yaml")):
+        cru = yaml.safe_load(arq.read_text(encoding="utf-8"))["activities"]
+        no = arq.stem
+        linhas += ["---", "", "## %s — %s" % (no, d.nos[no].simples), ""]
+        for a in cru:
+            total += 1
+            linhas += [
+                "### %s · degrau %d · %s · %s"
+                % (a["id"], a["nivel"], a["formato"], a["tipo"]),
+                "",
+                a["enunciado"].strip(),
+                "",
+            ]
+            if a.get("codigo"):
+                linhas += ["```c", a["codigo"].rstrip(), "```", ""]
+            for chave, texto in a["alternativas"].items():
+                cid = a.get("crencas", {}).get(chave)
+                if chave == a["gabarito"]:
+                    linhas.append("- **[certa]** %s" % texto)
+                elif cid:
+                    linhas.append("- [%s → nega %s] %s"
+                                  % (cid, d.crencas[cid].nega, texto))
+                else:
+                    linhas.append("- [SEM CRENÇA] %s" % texto)
+            linhas += [
+                "",
+                "> %s" % a.get("por_que_este_distrator", ""),
+                "",
+                "`revisado_por:` %s" % (a.get("revisado_por") or "________"),
+                "",
+            ]
+    linhas.insert(1, "")
+    linhas.insert(2, "**%d itens**, em %d nós." % (total, len(list(pasta.glob('*.yaml')))))
+    return "\n".join(linhas) + "\n"
+
+
+def aprova(topico: str) -> tuple[int, list[str]]:
+    """Move para o domínio só o que tem `revisado_por` preenchido.
+
+    Confere ANTES de escrever: se o domínio com os aprovados dentro não
+    carregar, não escreve nada. Meio banco gravado é pior do que nenhum.
+    """
+    import yaml
+
+    from mvp.dominio import RAIZ as DOMINIO
+
+    pasta = CANDIDATOS / topico
+    aprovados, pendentes = [], []
+    for arq in sorted(pasta.glob("*.yaml")):
+        for a in yaml.safe_load(arq.read_text(encoding="utf-8"))["activities"]:
+            (aprovados if (a.get("revisado_por") or "").strip()
+             else pendentes).append(a)
+    if not aprovados:
+        return 0, ["nenhum item tem `revisado_por` preenchido"]
+
+    problemas = confere(topico, aprovados)
+    if problemas:
+        return 0, problemas
+
+    destino = DOMINIO / ("activities_%s.yaml" % topico.replace("_", ""))
+    cru = yaml.safe_load(destino.read_text(encoding="utf-8"))
+    ja = {x["id"] for x in cru.get("activities") or ()}
+    novos = [a for a in aprovados if a["id"] not in ja]
+    texto = destino.read_text(encoding="utf-8").rstrip("\n")
+    bloco = yaml.safe_dump({"activities": novos}, allow_unicode=True,
+                           sort_keys=False, width=78)
+    # Acrescenta no fim, preservando os comentários do arquivo: um
+    # safe_dump do arquivo inteiro apagaria o contrato escrito nele.
+    bloco = "\n".join("  " + l if l.strip() and not l.startswith("activities:")
+                      else l for l in bloco.split("\n"))
+    bloco = bloco.replace("activities:\n", "", 1)
+    destino.write_text(texto + "\n\n  # Aprovados em revisão.\n" + bloco,
+                       encoding="utf-8", newline="\n")
+    return len(novos), ["%d ainda sem revisão" % len(pendentes)] if pendentes else []
+
+
+# --------------------------------------------------------------------------
 
 def main(argv):
     import yaml
 
     topico, no, degrau, quantas, so_prompt = "kc_02", None, 1, 2, False
-    importar, por_quem = None, ""
+    importar, por_quem, acao = None, "", None
     i = 0
     while i < len(argv):
         if argv[i] == "--topico": topico = argv[i + 1]; i += 2
@@ -301,8 +413,25 @@ def main(argv):
         elif argv[i] == "--prompt": so_prompt = True; i += 1
         elif argv[i] == "--importar": importar = argv[i + 1]; i += 2
         elif argv[i] == "--por": por_quem = argv[i + 1]; i += 2
+        elif argv[i] == "--revisar": acao = "revisar"; i += 1
+        elif argv[i] == "--aprovar": acao = "aprovar"; i += 1
         else: raise SystemExit(__doc__)
     d = carrega(topico=topico)
+
+    if acao == "revisar":
+        alvo = CANDIDATOS / topico / "REVISAO.md"
+        alvo.write_text(folha(d, topico), encoding="utf-8", newline="\n")
+        print("folha de revisão em", alvo.relative_to(RAIZ))
+        return
+    if acao == "aprovar":
+        quantos, avisos = aprova(topico)
+        for x in avisos:
+            print("  -", x)
+        if not quantos:
+            raise SystemExit("nada foi movido.")
+        print("%d item(ns) entraram em mvp/dominio/." % quantos)
+        return
+
     if no not in d.nos:
         raise SystemExit("nó: %s" % ", ".join(d.ordem))
     if degrau not in NIVEIS:

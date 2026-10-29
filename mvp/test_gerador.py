@@ -174,3 +174,91 @@ def test_o_candidato_nao_toca_o_dominio_de_verdade():
     antes = {p.name: p.read_bytes() for p in DOMINIO.glob("*.yaml")}
     gerar.confere("kc_02", [_item(nivel=9)])
     assert {p.name: p.read_bytes() for p in DOMINIO.glob("*.yaml")} == antes
+
+
+# --------------------------------------------------------------------------
+# A folha de revisão, e o portão da aprovação
+#
+# O mecanismo só vale se a aprovação for de PESSOA. Testar isso é testar
+# que o programa recusa o que ninguém leu.
+# --------------------------------------------------------------------------
+
+def test_a_folha_mostra_o_item_como_uma_pessoa_le(d2):
+    """Revisar é leitura, não diff: a folha tem de dizer qual é a certa e
+    que crença cada distrator levanta — inclusive em qual nó ela bate,
+    que é a atribuição cruzada ficando visível."""
+    texto = gerar.folha(d2, "kc_02")
+    assert "**[certa]**" in texto
+    assert "nega B3" in texto or "nega B2" in texto
+    assert "revisado_por" in texto
+    assert "degrau 1" in texto and "degrau 3" in texto
+
+
+def test_nao_aprova_o_que_ninguem_revisou(tmp_path, monkeypatch):
+    """O portão. Sem nome em `revisado_por`, nada entra.
+
+    O espelho NÃO é zelo excessivo. Na primeira versão este teste chamava
+    `aprova` contra o domínio de verdade: passava normalmente, e quando a
+    sabotagem tirou o portão ele gravou os 18 candidatos em
+    `mvp/dominio/activities_kc02.yaml`. Teste que pode estragar o projeto
+    quando o código falha é teste perigoso — quem achou foi o `git status`.
+    """
+    import shutil
+    from mvp import dominio as mod
+
+    espelho = tmp_path / "dominio"
+    shutil.copytree(mod.RAIZ, espelho)
+    monkeypatch.setattr(mod, "RAIZ", espelho)
+    antes = (espelho / "activities_kc02.yaml").read_bytes()
+
+    quantos, avisos = gerar.aprova("kc_02")
+    assert quantos == 0
+    assert any("revisado_por" in a for a in avisos)
+    assert (espelho / "activities_kc02.yaml").read_bytes() == antes
+
+
+def _candidatos_falsos(tmp_path, monkeypatch, item):
+    import yaml
+    pasta = tmp_path / "candidatos" / "kc_02"
+    pasta.mkdir(parents=True)
+    (pasta / "B2.yaml").write_text(
+        yaml.safe_dump({"activities": [item]}, allow_unicode=True),
+        encoding="utf-8")
+    monkeypatch.setattr(gerar, "CANDIDATOS", tmp_path / "candidatos")
+
+
+def test_aprovado_e_valido_entra_no_dominio(tmp_path, monkeypatch):
+    import shutil
+    import yaml
+    from mvp import dominio as mod
+
+    espelho = tmp_path / "dominio"
+    shutil.copytree(mod.RAIZ, espelho)
+    monkeypatch.setattr(mod, "RAIZ", espelho)
+    _candidatos_falsos(tmp_path, monkeypatch, _item(revisado_por="Rafael"))
+
+    quantos, avisos = gerar.aprova("kc_02")
+    assert quantos == 1, avisos
+    cru = yaml.safe_load((espelho / "activities_kc02.yaml").read_text(encoding="utf-8"))
+    assert any(a["id"] == "t_1" for a in cru["activities"])
+    # e o arquivo continua carregando, com os comentários do contrato nele
+    assert "REGRA DE DISTRATOR" in (espelho / "activities_kc02.yaml").read_text(encoding="utf-8")
+    assert carrega(espelho, topico="kc_02")
+
+
+def test_aprovado_mas_invalido_nao_escreve_nada(tmp_path, monkeypatch):
+    """Meio banco gravado é pior do que nenhum: confere ANTES de escrever."""
+    import shutil
+    from mvp import dominio as mod
+
+    espelho = tmp_path / "dominio"
+    shutil.copytree(mod.RAIZ, espelho)
+    monkeypatch.setattr(mod, "RAIZ", espelho)
+    antes = (espelho / "activities_kc02.yaml").read_bytes()
+    _candidatos_falsos(tmp_path, monkeypatch,
+                       _item(revisado_por="Rafael", nivel=9))
+
+    quantos, avisos = gerar.aprova("kc_02")
+    assert quantos == 0
+    assert avisos
+    assert (espelho / "activities_kc02.yaml").read_bytes() == antes
