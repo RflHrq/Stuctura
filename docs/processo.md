@@ -4,10 +4,13 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** fim do ciclo 2, a caminho da **revisão final total**. O
-ciclo 1 fechou com treze tarefas; a [revisão](revisao-ciclo-1.md) deu
-**parcial**, com dois P1 e seis P2; o [ciclo 2](tasks-ciclo-2.md) fechou
-os oito em seis tarefas.
+**Fase atual:** **revisão final total feita**, veredito
+[**NO-GO para a coleta com participantes**](revisao-final.md) — GO para
+seguir o desenvolvimento e ensaiar com você mesmo. O ciclo 1 fechou com
+treze tarefas; a [revisão](revisao-ciclo-1.md) deu **parcial**, com dois P1
+e seis P2; o [ciclo 2](tasks-ciclo-2.md) fechou os oito em seis tarefas; a
+revisão final achou um **P0** (fechado nela, `d34f12c`) e quatro P1, dois
+dos quais não são software.
 
 **Reformulação, não recomeço:** o motor atual (`mvp/`) e o antigo (`engine/`)
 ficam onde estão, versionados. O que está em reconstrução é o CONCEITO de
@@ -93,6 +96,9 @@ Nenhuma bloqueia a fase 4.
 | 3 Prototype | `prototipo/telas-novas.html` | **pronto** — fluxo clicável, descartável, fora de `mvp/` |
 | 4 PRD | `docs/PRD.md` | **pronto** — 12 critérios de sucesso, parâmetros aceitos |
 | 5 Issues | `docs/tasks.md` | **pronto** — 13 tarefas, da T0 à T12 |
+| 7 Review | `docs/revisao-ciclo-1.md` | **pronto** — parcial, 2 P1 e 6 P2 |
+| 5 Issues (2º ciclo) | `docs/tasks-ciclo-2.md` | **pronto** — 6 tarefas, R1 a R6 |
+| 7 Revisão final | `docs/revisao-final.md` | **pronto** — NO-GO para a coleta, com a lista do que o levanta |
 
 ## Fase 6 — as tarefas, uma por commit
 
@@ -164,12 +170,21 @@ morder. É a conta que justifica a prática.
 | 7 | T (documentação) | focada, método aplicado direto | **parcial** — o README acompanha as tarefas; faltam os procedimentos de cópia e exclusão |
 | 7 | I (operação) | focada, método aplicado direto | **parcial** — P2-F: a cópia depois de cada sessão que o PRD exige não existe |
 | 6/T11 | U (interface) | **não executada** | o painel tem um usuário só, que é quem construiu; a skill entra na revisão final, junto das telas de quem responde |
+| final | S (camadas 0 a 4) | completa, método aplicado direto | **parcial** — P0 do log versionado, fechado na própria revisão; P2 do hook de pré-commit e do token no histórico |
+| final | D (desempenho) | completa, método aplicado direto | **passou** — p50 6,3 ms e p95 28,2 ms em 1.832 chamadas; painel de 966 ms para 36–67 ms |
+| final | M (dados) | completa, método aplicado direto | **passou** — invariantes de pé, CS-9 coberto, restauração com impressão digital idêntica |
+| final | G (privacidade) | completa, método aplicado direto | **falhou** — a exclusão não alcança as cópias; termo de consentimento e plano de incidente não existem |
+| final | U (interface) | completa, método aplicado direto | **parcial** — teclado e contraste medidos e em ordem; CS-11 sem evidência |
+| final | I (operação) | completa, quatro ensaios executados | **parcial** — subida do zero, queda, restauração e reversão passaram; dois commits não restauram no Windows |
+| final | T (documentação) | completa, comandos executados | **parcial** — README corrigido; guia nunca testado com pessoa de fora |
+| final | E (pós-entrega) | completa | **não aplicável como canal** — não há usuários depois da entrega |
 
 ## Correções do perfil
 
 | Quando | O que mudou | Por quê |
 | --- | --- | --- |
 | fase 7 | **D (desempenho) deixou de ser "não aplicável"** | o painel introduziu uma consulta repetida sobre um arquivo que cresce (P1-B). É a primeira vez neste processo que um "não aplicável" se mostrou errado, e fica registrado em vez de corrigido em silêncio |
+| revisão final | **o ensaio de subida do zero virou obrigatório, e não formalidade** | foi o primeiro comando da revisão e falhou, e a falha revelou 2,8 MB de log de desenvolvimento versionados por dois commits. Nada no projeto — nem a varredura de segredos, nem os 214 testes — tinha percebido, porque ninguém tinha tentado clonar |
 
 ## Linha de base da fase 2
 

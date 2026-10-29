@@ -4,7 +4,7 @@ Implementa o laço do documento de 01/10/2026: **identifica → refuta →
 treina → confirma**. Um nó só vira premissa correta depois de uma sequência
 de acertos no treino, nunca depois de um acerto isolado.
 
-Conteúdo: **kc_00, declaração de variáveis** — 5 premissas, 4 concepções
+Conteúdo: **kc_00, declaração de variáveis** — 5 premissas, 5 concepções
 errôneas, 20 atividades e a analogia do quarto de hotel.
 
 As atividades vêm em **dois bancos**, e a diferença importa:
@@ -523,7 +523,7 @@ mvp/
 ├── dominio/
 │   ├── topic_kc00.yaml        o tópico
 │   ├── graph_kc00.yaml        5 premissas, suporte e crenças que as negam
-│   ├── beliefs_kc00.yaml      4 crenças com procedência e fonte
+│   ├── beliefs_kc00.yaml      5 crenças com procedência e fonte
 │   └── activities_kc00.yaml   20 atividades, exemplos e analogias de resgate
 ├── dominio.py                 carga e validação (falha na carga, nunca em sessão)
 ├── motor.py                   o laço, puro: (estado, resposta) → (estado, tela, eventos)
