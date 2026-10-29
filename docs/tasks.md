@@ -221,6 +221,18 @@ e um teste de que nenhuma premissa é visitada duas vezes seguidas.
 
 **Portões:** nenhum.
 
+**Feito.** `motor.forca(EstadoNo)` implementa a tabela de
+[problema.md](problema.md) linha a linha, inclusive os dois zeros (falso
+positivo não conta, vacilo não enfraquece). O seletor ordena por força,
+com empate pela ordem do grafo e a preferência do falso positivo (T6)
+acima dela. A unidade passou a varrer o grafo em largura.
+
+**Limite declarado:** "termina quando a mais fraca está de pé" **não é
+alcançável** com duas atividades de diagnóstico por nó — uma premissa
+frágil nas duas não tem terceira superfície a oferecer. Em vez de afirmar
+o critério, o encerramento registra `forcas`, `mais_fraca` e
+`mais_fraca_de_pe`. Fechar a lacuna exige um terceiro item por nó.
+
 ---
 
 ## T9 — O teach-back do começo e do fim

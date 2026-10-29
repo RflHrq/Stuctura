@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 135 testes
+python -m pytest mvp/ -q     # 159 testes
 python -m mvp.app            # http://127.0.0.1:8010  quem responde
 python -m mvp.painel         # http://127.0.0.1:8011  quem observa
 ```
@@ -191,6 +191,73 @@ O processo morre no meio de uma escrita e o arquivo termina truncado. A
 última linha é descartada; qualquer outra linha quebrada **estoura**.
 Pular uma do meio em silêncio significaria reexecutar a sessão sem uma das
 respostas, e o estado sairia plausível e errado.
+
+## A força da premissa escolhe o próximo item
+
+A unidade não é uma fila fixa. O próximo item é o da premissa **mais fraca
+que ainda não está de pé** — o "trabalhar onde está fraco" sem inventar
+número. `motor.forca(EstadoNo)` é função pura, e a banca confere linha a
+linha sem rodar nada:
+
+| Evidência | Efeito |
+| --- | --- |
+| certa pela razão certa, com confiança, numa superfície nova | **+2** |
+| sobreviveu à troca de superfície | é a segunda superfície, já contada |
+| acerto pela razão errada | **0** — não conta |
+| erro pela razão certa (vacilo) | **0** — não enfraquece |
+| acerto no treino | **+1** |
+| precisou de reexplicação | **−1** |
+| tropeçou no treino | **−1** |
+| veio de refutação de crença | **−2**, frágil até o reteste |
+
+**Os dois zeros são decisões, não omissões.** Tratar o falso positivo como
+erro puniria esta premissa pelo que aconteceu com **outra** — a crença
+escolhida fala de outro nó. E quem erra enunciando a premissa direito
+escorregou: escorregão não é premissa bamba.
+
+**Empate vale a ordem do grafo.** Não pode virar sorteio — o motor é puro —
+e premissa que vem antes sustenta as de depois.
+
+**O falso positivo vence a força** (T6): a pergunta em aberto é sobre
+aquela premissa, e adiar não a responde.
+
+### O que mudou na tela
+
+A unidade varre o grafo em largura em vez de esgotar um nó de cada vez:
+
+```
+antes   B1/teo  B1/cod  B2/teo  B2/cod  B3/teo  B3/cod  …
+agora   B1/teo  B2/teo  B3/teo  B4/teo  I1/teo  B1/cod  …
+```
+
+Duas perguntas seguidas sobre a mesma premissa medem o que ficou do item
+anterior, não a premissa. Dentro do nó a ordem não mudou: a teórica antes
+da de código, que é o par das duas superfícies do CS-5.
+
+### "Confirmada · força −2" não é contradição
+
+São duas medidas, separadas de propósito. `CONFIRMADO` é mecanismo de
+**produto**: decide o que o mapa mostra ao aluno, e o streak do treino
+basta para chegar lá. A força é medida de **pesquisa**, e nela uma
+premissa reconstruída depois de uma crença vale menos do que uma que nunca
+caiu. Misturar as duas faria o treino virar uma segunda forma de medir o
+reteste.
+
+### O limite, declarado
+
+O documento diz que a unidade termina quando a premissa mais fraca está de
+pé. **Com duas atividades de diagnóstico por nó nem sempre dá para chegar
+lá**: uma premissa que ficou frágil nas duas não tem terceira superfície
+para oferecer, e a unidade encerra com ela ainda frágil. Então o
+encerramento **registra** onde cada uma parou:
+
+```json
+{"tipo": "unidade_encerrada", "forcas": {"B1": 2, "B2": -5, ...},
+ "mais_fraca": "B2", "mais_fraca_de_pe": false}
+```
+
+O critério vira dado conferível em vez de afirmação. Fechar a lacuna exige
+uma terceira atividade por nó — a mesma falta que o treino já tem.
 
 ## Os cinco estados, e em que nó cada um fica
 

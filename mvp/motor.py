@@ -223,6 +223,11 @@ class EstadoNo:
     # deste. É o que permite a tela dizer por que ESTE nó ficou vermelho
     # sem a pessoa ter respondido nada sobre ele.
     origem_crenca: str = ""
+    # As duas evidências que ENFRAQUECEM uma premissa, na tabela de força:
+    # ter precisado ouvir a mesma premissa de novo, e ter errado no treino
+    # dela. Ficam no nó, e não no passo, porque força é histórico do nó.
+    reexplicacoes: int = 0
+    tropecos: int = 0
 
 
 @dataclass(frozen=True)
@@ -352,20 +357,68 @@ def _segue_ensino(d: Dominio, e: Estado) -> Transicao:
 # Diagnóstico, com checagem de vacilo
 # --------------------------------------------------------------------------
 
+def forca(en: EstadoNo) -> int:
+    """Quão sustentada está esta premissa **agora**.
+
+    Sem modelo probabilístico e sem parâmetro estimado. O Duolingo estima
+    quando você vai esquecer, o que exige medir retenção ao longo de dias;
+    aqui a pergunta é outra, e a resposta sai só do histórico do nó. É a
+    tabela de `docs/problema.md`, e é função pura de propósito: a banca
+    confere linha a linha sem rodar nada.
+
+    | Evidência | Efeito |
+    | --- | --- |
+    | certa pela razão certa, com confiança, numa superfície nova | +2 |
+    | sobreviveu à troca de superfície | é a SEGUNDA superfície, já contada |
+    | acerto pela razão errada | 0 — não conta |
+    | erro pela razão certa (vacilo) | 0 — não enfraquece |
+    | acerto no treino | +1 |
+    | precisou de reexplicação | −1 |
+    | tropeçou no treino | −1 |
+    | veio de refutação de crença | −2, frágil até o reteste |
+
+    Os dois zeros são decisões, não omissões. Tratar o falso positivo como
+    erro puniria esta premissa pelo que aconteceu com **outra** — a crença
+    escolhida fala de outro nó. E quem erra enunciando a premissa direito
+    escorregou: escorregão não é premissa bamba.
+    """
+    pontos = 2 * len(set(en.superficies))
+    pontos += en.streak
+    pontos -= en.reexplicacoes
+    pontos -= en.tropecos
+    if en.crenca:
+        pontos -= 2
+    return pontos
+
+
+def _de_pe(en: EstadoNo) -> bool:
+    return en.estado == CONFIRMADO
+
+
 def _proxima_diagnostica(d: Dominio, e: Estado,
                          preferir: str | None = None) -> Transicao:
-    """A próxima premissa não resolvida, na ordem do grafo.
+    """A próxima premissa é a **mais fraca que ainda não está de pé**.
 
-    Dentro do nó, a teórica vem antes da de código: é o par que fornece as
-    duas superfícies de CS-5.
+    É o "trabalhar onde está fraco" sem inventar número: a ordem sai de
+    `forca`, que sai do histórico. Empate vale a ordem do grafo — não pode
+    virar sorteio, e premissa que vem antes sustenta as de depois.
 
-    `preferir` põe um nó na frente da fila. É o que faz o falso positivo
-    trazer outra superfície do MESMO nó em vez de seguir adiante: a
-    pergunta em aberto é sobre aquela premissa, e adiar não a responde.
+    O efeito que se vê na tela é a unidade varrer o grafo em largura em
+    vez de esgotar um nó de cada vez. Duas perguntas seguidas sobre a
+    mesma premissa medem o que ficou do item anterior, não a premissa.
+
+    Dentro do nó, a teórica continua vindo antes da de código: é o par que
+    fornece as duas superfícies de CS-5.
+
+    `preferir` põe um nó na frente, **acima da força**. É o que faz o
+    falso positivo trazer outra superfície do MESMO nó em vez de seguir
+    adiante: a pergunta em aberto é sobre aquela premissa, e adiar não a
+    responde.
     """
-    ordem = d.ordem
+    posicao = {nid: i for i, nid in enumerate(d.ordem)}
+    ordem = sorted(d.ordem, key=lambda nid: (forca(e.no(nid)), posicao[nid]))
     if preferir in d.nos:
-        ordem = (preferir,) + tuple(n for n in d.ordem if n != preferir)
+        ordem = [preferir] + [nid for nid in ordem if nid != preferir]
     for nid in ordem:
         if e.no(nid).estado in (CONFIRMADO, EM_ABERTO):
             continue
@@ -781,6 +834,9 @@ def _segue_refutacao(d: Dominio, e: Estado, repetir: bool = False) -> Transicao:
     # volta com a analogia, e o percurso não anda enquanto isso.
     if repetir and e.repeticoes < LIMITE_REEXPLICACAO:
         novo = replace(e, repeticoes=e.repeticoes + 1)
+        # Enfraquece a premissa REAPRESENTADA, não o alvo da refutação: foi
+        # ela que a pessoa disse não ter entendido.
+        novo = novo.com(nid, reexplicacoes=novo.no(nid).reexplicacoes + 1)
         evento = Evento("premissa_reapresentada", {
             "no": nid, "alvo": e.alvo, "vez": novo.repeticoes})
         return Transicao(novo, _tela_refutacao(d, novo), (evento,))
@@ -919,7 +975,8 @@ def _resolve_treino(d: Dominio, e: Estado, a: Atividade,
 
     # RF35: a sequência é do nó. Zerar aqui não toca em nenhum outro.
     streak = en.streak + 1 if certo else 0
-    novo = e.com(a.no, streak=streak, tentativas=en.tentativas + 1)
+    novo = e.com(a.no, streak=streak, tentativas=en.tentativas + 1,
+                 tropecos=en.tropecos + (0 if certo else 1))
 
     eventos = [
         Evento("resposta_registrada", {
@@ -941,11 +998,24 @@ def _resolve_treino(d: Dominio, e: Estado, a: Atividade,
 # --------------------------------------------------------------------------
 
 def _encerra(d: Dominio, e: Estado) -> Transicao:
-    """As atividades acabaram. Antes do mapa, a frase do fim."""
+    """Não há mais evidência a coletar. Antes do mapa, a frase do fim.
+
+    O critério do documento é "a unidade termina quando a premissa mais
+    fraca está de pé". Com DUAS atividades de diagnóstico por nó nem
+    sempre dá para chegar lá: uma premissa que ficou frágil nas duas não
+    tem terceira superfície para oferecer. Então o encerramento registra
+    onde cada uma parou e qual era a mais fraca — o critério vira dado
+    conferível, em vez de afirmação.
+    """
     novo = replace(e, fase=FECHAMENTO, atividade=None, alvo=None)
+    forcas = {n: forca(novo.no(n)) for n in d.ordem}
+    mais_fraca = min(d.ordem, key=lambda n: (forcas[n], d.ordem.index(n)))
     evento = Evento("unidade_encerrada", {
         "confirmados": [n for n in d.ordem if novo.no(n).estado == CONFIRMADO],
         "em_aberto": [n for n in d.ordem if novo.no(n).estado == EM_ABERTO],
+        "forcas": forcas,
+        "mais_fraca": mais_fraca,
+        "mais_fraca_de_pe": _de_pe(novo.no(mais_fraca)),
     })
     # A pergunta volta SEM a frase de antes à vista: escrever olhando a
     # própria frase antiga é copiá-la ou corrigi-la, não reformulá-la. As
@@ -979,6 +1049,9 @@ def estado_dos_nos(d: Dominio, e: Estado) -> list[dict]:
             "origem_crenca": en.origem_crenca,
             "superficies": len(set(en.superficies)),
             "falsos_positivos": en.falsos_positivos,
+            # Quão sustentada a premissa está agora. Quem lê é o painel do
+            # pesquisador: é o número que responde "qual está mais fraca".
+            "forca": forca(en),
         })
     return nos
 

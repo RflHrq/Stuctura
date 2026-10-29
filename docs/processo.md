@@ -109,15 +109,15 @@ quebrar de propósito a regra que ele defende tem de derrubá-lo.
 | T6 | `8a7447d` | o falso positivo traz outra superfície | 86 | sim — o primeiro teste **não mordia**, reescrito |
 | T9 | `33f16c0` | o teach-back do começo e do fim | 95 | sim |
 | T10 | `6ffd6d9` | a sessão reconstruída pelo log (CS-6) | 110 | sim — 6 de 6 |
-| T11 | — | o painel do pesquisador, só leitura (CS-7) | 126 | sim — 7 de 7 |
+| T11 | `b4bb73c` | o painel do pesquisador, só leitura (CS-7) | 126 | sim — 7 de 7 |
+| T8 | — | a força da premissa escolhe o próximo item | 150 | sim — 11 de 11, **uma não mordia** e foi corrigida |
 
 A coluna conta funções `def test_` em `mvp/`, apuradas com `git grep` em
 cada commit. O pytest coleta mais do que isso porque quatro testes são
 parametrizados: hoje são 110 funções e **119 casos**, mais 252 da suíte
 antiga.
 
-**Em aberto na fase 6:** T8 (a força da premissa escolhe o próximo item)
-e T12 (o reteste). E uma lacuna de escopo
+**Em aberto na fase 6:** T12 (o reteste). E uma lacuna de escopo
 registrada e **não** transformada em tarefa por conta própria: o caminho
 "lacuna → constrói" aparece no fluxo do PRD e não tem tarefa de T1 a T12.
 
@@ -145,5 +145,5 @@ Python. Qualquer mudança futura é comparada com isto.
 ## Orçamento
 
 Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração. Fase 4: 1
-iteração. Fase 5: 1 iteração. Fase 6: 1 iteração por tarefa, de T0 a T11 —
+iteração. Fase 5: 1 iteração. Fase 6: 1 iteração por tarefa, de T0 a T11 e T8 —
 nenhuma precisou de uma segunda.

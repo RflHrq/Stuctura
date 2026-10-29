@@ -240,12 +240,20 @@ footer{padding:12px 20px; border-top:1px solid var(--linha);
     alvo.appendChild(el("p", linha.join(" · "), "meta"));
 
     alvo.appendChild(el("h2", "Premissas"));
+    /* A mais fraca que ainda nao esta de pe: e a que o motor vai escolher
+     * a seguir, e a que o pesquisador quer estar olhando. */
+    var defe = j.nos.filter(function (n) { return n.estado !== "confirmado"; });
+    var fraca = defe.length
+      ? defe.reduce(function (a, b) { return b.forca < a.forca ? b : a; }).no
+      : null;
     var caixa = el("div", null, "nos");
     j.nos.forEach(function (n) {
       var c = el("div", null, "no");
       var b = el("b", n.no + " " + (SIMBOLO[n.estado] || ""), CLASSE[n.estado]);
       c.appendChild(b);
       c.appendChild(el("span", NOME[n.estado] || n.estado, "nome"));
+      c.appendChild(el("span", "força " + n.forca +
+                       (n.no === fraca ? " · a mais fraca" : ""), "nome"));
       if (n.origem_crenca) {
         c.appendChild(el("span", "crença veio do item de " + n.origem_crenca,
                          "nome"));
