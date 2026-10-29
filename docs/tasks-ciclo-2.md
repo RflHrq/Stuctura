@@ -1,5 +1,7 @@
 # Tarefas — ciclo 2
 
+**Fechado.** Seis tarefas, seis commits, de `8ebafb0` a `15cd3c3`.
+
 Artefato da fase 5 do segundo ciclo. Fecha os oito achados da
 [revisão do ciclo 1](revisao-ciclo-1.md): dois P1 e seis P2.
 
@@ -33,6 +35,8 @@ episódio no log depois de qualquer um deles.
 
 **Portões:** S, M.
 
+**Feito** (`8ebafb0`). As três camadas passam por `_indice()`: `None` vale, índice que existe vale, o resto estoura `EscolhaInvalida` e a rota devolve 400. A camada 2 tinha o mesmo defeito por outro caminho — índice fora da faixa virava `None`, e `None` na razão é lacuna; um erro de cliente entrava na base como alguém declarando que não sabe. A revisão não tinha visto esse.
+
 ---
 
 ## R2 — A lista do painel para de reexecutar  · P1-B
@@ -57,6 +61,8 @@ o mesmo log.
 
 **Portões:** D, U.
 
+**Feito** (`3f0023e`). 966 ms → **7 ms**, no mesmo log. A fase saiu da lista; `reexecutavel` é apurado sem reexecutar, e isso é uma aproximação declarada — quem decide é o detalhe. Apareceu junto uma consequência da R1: logs do ciclo 1 têm entradas que o motor de hoje recusa, e reexecutá-las estourava erro de servidor; agora vira 409 com o motivo.
+
 ---
 
 ## R3 — Limite no que entra  · P2-B
@@ -75,6 +81,8 @@ escrito em disco, e número impossível entrando na base de análise.
 **Teste:** o limite exato, um caractere acima, e `ms` negativo.
 
 **Portões:** G, M, U.
+
+**Feito** (`d500edd`). Teto de 2.000 caracteres no teach-back, `0 <= ms <= 2h`, e a tela diz o limite com um contador que só aparece nos últimos 200 — contador que grita o tempo todo compete com a pergunta.
 
 ---
 
@@ -97,6 +105,8 @@ reconstrução daquela sessão continua estourando.
 
 **Portões:** S.
 
+**Feito** (`4fb254d`). `log.le_tolerante()` pula linhas ilegíveis e **conta** quantas; a tela mostra o número. A reconstrução continua estrita, que é garantia da T10.
+
 ---
 
 ## R5 — O log diz em que versão foi escrito  · P2-D
@@ -117,6 +127,8 @@ campo, continuam legíveis e aparecem como anteriores à versão 1.
 distingue as duas origens.
 
 **Portões:** M.
+
+**Feito** (`5489db2`). Campo `v` em toda linha nova; linha sem o campo é lida como `VERSAO_ZERO`. Um log misto continua legível e separa as duas origens — que é o caso do arquivo de desenvolvimento aqui.
 
 ---
 
@@ -140,6 +152,8 @@ nenhuma de outro; copiar confere o que copiou.
 a cópia bate byte a byte.
 
 **Portões:** G, I, T.
+
+**Feito** (`15cd3c3`). `scripts/participante.sh` e `scripts/copia.sh`, com teste que roda os scripts de verdade. Três cuidados no apagar: código comparado campo a campo (apagar `P1` não leva `P10`), linha ilegível fica, confirmação errada não apaga nada.
 
 ---
 

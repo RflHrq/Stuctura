@@ -4,9 +4,10 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** 7 — Review. A fase 6 fechou com treze tarefas e treze
-commits. A revisão do ciclo 1 está em [revisao-ciclo-1.md](revisao-ciclo-1.md):
-veredito **parcial**, dois P1 e seis P2, nenhum P0.
+**Fase atual:** fim do ciclo 2, a caminho da **revisão final total**. O
+ciclo 1 fechou com treze tarefas; a [revisão](revisao-ciclo-1.md) deu
+**parcial**, com dois P1 e seis P2; o [ciclo 2](tasks-ciclo-2.md) fechou
+os oito em seis tarefas.
 
 **Reformulação, não recomeço:** o motor atual (`mvp/`) e o antigo (`engine/`)
 ficam onde estão, versionados. O que está em reconstrução é o CONCEITO de
@@ -126,6 +127,20 @@ e não tem tarefa de T1 a T12. E fica a decisão de conteúdo que a T12
 levantou: o banco de itens não alimenta o reteste. E uma lacuna de escopo
 registrada e **não** transformada em tarefa por conta própria: o caminho
 "lacuna → constrói" aparece no fluxo do PRD e não tem tarefa de T1 a T12.
+
+## Ciclo 2 — os oito achados da revisão
+
+| Tarefa | Commit | Fecha | Testes do MVP | Sabotagem |
+| --- | --- | --- | --- | --- |
+| R1 | `8ebafb0` | P1-A, P2-A | 185 | sim — 6 de 6 |
+| R2 | `3f0023e` | P1-B | 191 | sim — 4 de 4 |
+| R3 | `d500edd` | P2-B | 194 | sim — 4 de 4, **uma não mordia** |
+| R4 | `4fb254d` | P2-C | 197 | sim — 5 de 5 |
+| R5 | `5489db2` | P2-D | 200 | sim — 4 de 4 |
+| R6 | `15cd3c3` | P2-E, P2-F | 214 | sim — 9 de 9, **duas não mordiam** |
+
+Em três das seis tarefas a sabotagem pegou um teste que passava sem
+morder. É a conta que justifica a prática.
 
 ## Vereditos das auxiliares
 
