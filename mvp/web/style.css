@@ -201,3 +201,10 @@ textarea:focus{outline:2px solid var(--acento); outline-offset:1px}
 .frase-cartao.depois{background:var(--ok-fundo); border-color:var(--ok)}
 .frase-cartao p{margin:0; font-size:15px}
 .frase-cartao .rotulo{margin-bottom:6px}
+
+/* R3: o limite do teach-back, dito antes de a pessoa esbarrar nele.
+ * Discreto ate sobrar pouco — contador que grita o tempo todo compete
+ * com a pergunta, e a pergunta e que importa. */
+.contagem{margin:4px 0 0; font-size:13px; color:var(--tinta2);
+          text-align:right}
+.contagem.perto{color:var(--aviso)}

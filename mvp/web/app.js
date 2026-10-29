@@ -211,8 +211,23 @@
     caixa.value = "";
     caixa.placeholder = fim ? "Escreva de novo, sem olhar a de antes."
                             : "Escreva como você explicaria para alguém.";
+    /* O limite dito antes de a pessoa esbarrar nele. O maxlength ja
+     * impede de passar; sem o contador, ela digita e o texto simplesmente
+     * para de aparecer, o que parece defeito. */
+    var limite = caixa.getAttribute("maxlength") | 0;
+    var contagem = $("frase-contagem");
+    function conta() {
+      var usados = caixa.value.length;
+      var sobra = limite - usados;
+      contagem.textContent = sobra > 200 ? ""
+        : sobra + " caracteres restantes de " + limite;
+      contagem.classList.toggle("perto", sobra <= 200);
+    }
+    caixa.oninput = conta;
+    conta();
+
     $("btn-frase").onclick = function () {
-      responde({ texto: caixa.value, ms: decorrido() });
+      responde({ texto: caixa.value.slice(0, limite), ms: decorrido() });
     };
     var pular = $("btn-frase-pular");
     pular.textContent = fim ? "Prefiro não escrever" : "Não sei dizer ainda";

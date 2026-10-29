@@ -191,3 +191,60 @@ def test_o_corpo_recusa_tipo_errado_antes_de_chegar_ao_motor(cliente):
     _ate_a_atividade(c, sessao)
     r = c.post("/sessoes/%s/responder" % sessao, json={"escolha": 1.5})
     assert r.status_code == 422, "pydantic devia recusar float em int"
+
+
+# --------------------------------------------------------------------------
+# R3: limite no que entra (P2-B da revisão do ciclo 1)
+# --------------------------------------------------------------------------
+
+def _no_limite(c, sessao, tamanho):
+    return c.post("/sessoes/%s/responder" % sessao,
+                  json={"texto": "a" * tamanho, "ms": 1000})
+
+
+def test_a_frase_no_limite_passa_e_um_caractere_acima_nao(cliente):
+    """O teach-back é dado pessoal escrito em disco. Sem teto, uma
+    colagem acidental põe meio megabyte de sabe-se lá o quê no log da
+    coleta — a revisão achou 200.000 caracteres sendo aceitos."""
+    from mvp.app import LIMITE_DA_FRASE
+
+    c, arquivo = cliente
+    sessao = c.post("/sessoes").json()["sessao"]
+    assert _no_limite(c, sessao, LIMITE_DA_FRASE).status_code == 200
+
+    sessao = c.post("/sessoes").json()["sessao"]
+    r = _no_limite(c, sessao, LIMITE_DA_FRASE + 1)
+    assert r.status_code == 422
+    assert not any(x.get("texto") for x in log.le(sessao, arquivo))
+
+
+def test_o_tempo_negativo_e_o_impossivel_nao_entram_na_base(cliente):
+    """`ms: -5` era aceito. Tempo negativo não é tempo, e duas horas num
+    episódio não é alguém pensando."""
+    from mvp.app import LIMITE_MS
+
+    c, _ = cliente
+    sessao = c.post("/sessoes").json()["sessao"]
+    for ms in (-1, LIMITE_MS + 1):
+        r = c.post("/sessoes/%s/responder" % sessao, json={"texto": "x", "ms": ms})
+        assert r.status_code == 422, ms
+    assert c.post("/sessoes/%s/responder" % sessao,
+                  json={"texto": "x", "ms": 0}).status_code == 200
+
+
+def test_a_tela_diz_o_limite_e_impede_de_passar():
+    """Sem o `maxlength`, o servidor recusaria 2.001 caracteres depois de
+    a pessoa ter escrito tudo — e ela perderia o texto."""
+    from mvp.app import LIMITE_DA_FRASE
+
+    import pathlib
+    import re
+
+    html = pathlib.Path("mvp/web/index.html").read_text(encoding="utf-8")
+    campo = re.search(r"<textarea[^>]*id=\"frase-texto\"[^>]*>", html)
+    assert campo, "a caixa do teach-back sumiu"
+    # O atributo de verdade, não uma substring dele: `data-maxlength`
+    # contém `maxlength` e não limita nada. A primeira versão deste teste
+    # caía nessa, e a sabotagem pegou.
+    assert re.search(r"(^|\s)maxlength=\"%d\"" % LIMITE_DA_FRASE, campo.group())
+    assert 'id="frase-contagem"' in html

@@ -20,7 +20,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from mvp import log, motor
 from mvp.dominio import carrega
@@ -32,17 +32,29 @@ dominio = carrega()
 sessoes: dict[str, motor.Estado] = {}
 
 
+# Teto do teach-back. Não é limite de pensamento: duas ou três frases é o
+# que a pergunta pede, e 2.000 caracteres cabem com folga. O limite existe
+# porque isto é DADO PESSOAL escrito em disco — sem teto, uma colagem
+# acidental põe meio megabyte de sabe-se lá o quê no log da coleta.
+LIMITE_DA_FRASE = 2000
+
+# Um episódio inteiro leva minutos, não horas. O teto corta número
+# impossível antes de ele entrar na base de análise; `ge=0` corta o
+# negativo, que não é tempo.
+LIMITE_MS = 2 * 60 * 60 * 1000
+
+
 class RespostaBody(BaseModel):
     escolha: int | None = None
     confianca: str = ""
-    ms: int = 0
+    ms: int = Field(default=0, ge=0, le=LIMITE_MS)
     # "ainda não entendi" num passo da refutação: pede a premissa de novo.
     repetir: bool = False
     # "não sei", em qualquer das três camadas.
     nao_sei: bool = False
     # Texto livre do teach-back. DADO PESSOAL: vai para o log com o código
     # da sessão, nunca com nome.
-    texto: str = ""
+    texto: str = Field(default="", max_length=LIMITE_DA_FRASE)
 
 
 def _resposta(sessao: str, t: motor.Transicao,
@@ -168,6 +180,7 @@ def saude() -> dict:
         "atividades": len(dominio.atividades),
         "streak_alvo": motor.STREAK_ALVO,
         "teto_tentativas": motor.TETO_TENTATIVAS,
+        "limite_da_frase": LIMITE_DA_FRASE,
     }
 
 
