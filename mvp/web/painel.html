@@ -152,6 +152,13 @@ footer{padding:12px 20px; border-top:1px solid var(--linha);
   function desenhaLista(j) {
     var alvo = $("lista");
     alvo.textContent = "";
+    /* Linha ilegivel no arquivo. Zero e o normal; qualquer outro numero
+     * e um buraco no log, e esconder seria pior do que o buraco. */
+    if (j.ilegiveis) {
+      alvo.appendChild(el("p", j.ilegiveis +
+        (j.ilegiveis === 1 ? " linha ilegível no arquivo de log"
+                           : " linhas ilegíveis no arquivo de log"), "alerta"));
+    }
     if (!j.sessoes.length) {
       alvo.appendChild(el("p", "Nenhuma sessão no log ainda.", "vazio"));
       return;

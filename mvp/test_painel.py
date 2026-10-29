@@ -333,11 +333,15 @@ def test_a_lista_le_o_arquivo_uma_vez_so(cliente, d, monkeypatch):
         percorre(d, arquivo, codigo, _politica(d=d))
 
     leituras = []
-    original = log.le
+    estrita, tolerante = log.le, log.le_tolerante
+    # As DUAS portas de leitura, para a conta não escapar por uma delas
+    # quando o modo tolerante da R4 entrou em cena.
     monkeypatch.setattr(log, "le",
-                        lambda s=None, dst=None: leituras.append(s) or original(s, dst))
+                        lambda s=None, dst=None: leituras.append("estrita") or estrita(s, dst))
+    monkeypatch.setattr(log, "le_tolerante",
+                        lambda dst=None: leituras.append("tolerante") or tolerante(dst))
     c.get("/sessoes")
-    assert len(leituras) == 1, leituras
+    assert leituras == ["tolerante"], leituras
 
 
 def test_a_lista_ainda_marca_a_sessao_que_nao_reexecuta(cliente, d):
@@ -394,3 +398,50 @@ def test_a_lista_adianta_e_o_detalhe_decide(cliente, d):
     r = c.get("/sessoes/z1")
     assert r.status_code == 409
     assert "não aceita mais" in r.json()["detail"]
+
+
+# --------------------------------------------------------------------------
+# R4: uma linha corrompida não esconde as outras sessões (P2-C)
+# --------------------------------------------------------------------------
+
+def _corrompe(arquivo, indice):
+    linhas = arquivo.read_text(encoding="utf-8").splitlines()
+    linhas[indice] = '{"ts": "2026-'
+    arquivo.write_text("\n".join(linhas) + "\n", encoding="utf-8")
+
+
+def test_uma_linha_ilegivel_nao_esconde_as_outras_sessoes(cliente, d):
+    """O painel existe, entre outras razões, para funcionar DEPOIS de um
+    travamento. Perder todas as sessões por causa de uma linha é o
+    oposto disso — e era o que acontecia."""
+    c, arquivo = cliente
+    for codigo in ("c1", "c2", "c3"):
+        percorre(d, arquivo, codigo, _politica(d=d))
+    _corrompe(arquivo, 3)
+
+    r = c.get("/sessoes")
+    assert r.status_code == 200
+    assert {x["codigo"] for x in r.json()["sessoes"]} == {"c1", "c2", "c3"}
+
+
+def test_a_linha_ilegivel_e_contada_e_dita(cliente, d):
+    """Contar é o que separa tolerar de esconder."""
+    c, arquivo = cliente
+    percorre(d, arquivo, "c4", _politica(d=d))
+    assert c.get("/sessoes").json()["ilegiveis"] == 0
+    _corrompe(arquivo, 2)
+    _corrompe(arquivo, 4)
+    assert c.get("/sessoes").json()["ilegiveis"] == 2
+
+
+def test_a_reconstrucao_continua_estrita(cliente, d):
+    """A tolerância é da lista, e só dela. Pular uma entrada aqui
+    produziria uma sessão sem uma das respostas — estado plausível e
+    errado, que é exatamente o que a T10 existe para impedir."""
+    c, arquivo = cliente
+    percorre(d, arquivo, "c5", _politica(d=d))
+    _corrompe(arquivo, 2)
+    assert c.get("/sessoes").status_code == 200
+    with pytest.raises(log.LinhaCorrompida):
+        log.reconstroi(d, "c5", arquivo)
+    assert c.get("/sessoes/c5").status_code == 409

@@ -185,8 +185,9 @@ def sessoes(destino: Path | None = None) -> list[dict]:
     Sem nenhum texto livre: ver a lista não pode ser ver o que quarenta
     pessoas escreveram.
     """
+    linhas, ilegiveis = log.le_tolerante(destino)
     por_sessao: dict[str, list[dict]] = {}
-    for linha in log.le(None, destino):
+    for linha in linhas:
         por_sessao.setdefault(linha.get("sessao", ""), []).append(linha)
 
     saida = []
@@ -195,7 +196,7 @@ def sessoes(destino: Path | None = None) -> list[dict]:
         # Sessão que este painel não conseguiria reexecutar continua
         # aparecendo, dizendo por quê. Esconder seria esconder dado.
         ok, motivo = _reexecutavel(linhas)
-        resumo.update(reexecutavel=ok, motivo=motivo)
+        resumo.update(reexecutavel=ok, motivo=motivo, ilegiveis=ilegiveis)
         saida.append(resumo)
     return sorted(saida, key=lambda x: x["inicio"], reverse=True)
 
@@ -226,7 +227,11 @@ def detalhe(sessao: str, destino: Path | None = None) -> dict | None:
 
 @app.get("/sessoes")
 def lista() -> dict:
-    return {"sessoes": sessoes(), "topico": dominio.id}
+    s = sessoes()
+    # Linhas ilegíveis no arquivo. Zero é o normal; qualquer outro número
+    # é o pesquisador precisando saber que o log tem buraco.
+    return {"sessoes": s, "topico": dominio.id,
+            "ilegiveis": s[0]["ilegiveis"] if s else 0}
 
 
 @app.get("/sessoes/{sessao}")

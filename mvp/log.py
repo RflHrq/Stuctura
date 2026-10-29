@@ -83,20 +83,44 @@ def grava(sessao: str, eventos: Iterable[Evento], destino: Path | None = None,
             f.write(json.dumps(linha, ensure_ascii=False) + "\n")
 
 
+def le_tolerante(destino: Path | None = None) -> tuple[list[dict], int]:
+    """O arquivo inteiro, pulando linhas ilegíveis, e quantas pulou.
+
+    Modo da LISTA do painel, e só dela. O painel existe para funcionar
+    **depois** de um travamento, e perder trinta e cinco sessões por causa
+    de uma linha é o oposto disso. Contar as puladas é o que separa
+    tolerar de esconder — a tela diz quantas.
+
+    A reexecução nunca passa por aqui: pular uma entrada produziria uma
+    sessão sem uma das respostas, e o estado sairia plausível e errado.
+    Isso é garantia da T10, e não se abre mão dela.
+    """
+    return _le(None, destino, estrito=False)
+
+
 def le(sessao: str | None = None, destino: Path | None = None) -> list[dict]:
-    """As linhas do log, na ordem em que foram escritas.
+    """As linhas do log, na ordem em que foram escritas. Estrito."""
+    return _le(sessao, destino, estrito=True)[0]
+
+
+def _le(sessao: str | None, destino: Path | None,
+        *, estrito: bool) -> tuple[list[dict], int]:
+    """A leitura de verdade. Devolve as linhas e quantas foram puladas.
 
     A ÚLTIMA linha pode estar pela metade: o processo morre no meio de uma
     escrita, e é justamente a queda que a retomada existe para atender.
     Perder o arquivo inteiro por causa dela seria o pior desfecho
-    possível, então ela é descartada. Qualquer outra linha quebrada é
-    corrupção, e estoura.
+    possível, então ela é descartada — nos dois modos.
+
+    Qualquer OUTRA linha quebrada é corrupção, e só o modo tolerante a
+    pula.
     """
     caminho = Path(destino) if destino else DESTINO
     if not caminho.exists():
-        return []
+        return [], 0
     linhas = caminho.read_text(encoding="utf-8").splitlines()
-    saida = []
+    saida: list[dict] = []
+    ilegiveis = 0
     for i, linha in enumerate(linhas):
         if not linha.strip():
             continue
@@ -105,12 +129,15 @@ def le(sessao: str | None = None, destino: Path | None = None) -> list[dict]:
         except json.JSONDecodeError as erro:
             if i == len(linhas) - 1:
                 continue
-            raise LinhaCorrompida(
-                "linha %d de %s não é JSON: %s" % (i + 1, caminho.name, erro)
-            ) from erro
+            if estrito:
+                raise LinhaCorrompida(
+                    "linha %d de %s não é JSON: %s" % (i + 1, caminho.name, erro)
+                ) from erro
+            ilegiveis += 1
+            continue
         if sessao is None or dado.get("sessao") == sessao:
             saida.append(dado)
-    return saida
+    return saida, ilegiveis
 
 
 def _entrada_de(linha: dict) -> motor.Resposta:
