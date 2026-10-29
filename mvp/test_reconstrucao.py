@@ -279,3 +279,51 @@ def test_entrada_que_o_motor_nao_aceita_mais_falha_alto(d, caminho):
     with pytest.raises(log.LogIncompleto) as erro:
         log.reconstroi(d, "antiga", caminho)
     assert "não aceita mais" in str(erro.value)
+
+
+# --------------------------------------------------------------------------
+# R5: o log diz em que versão foi escrito (P2-D da revisão do ciclo 1)
+# --------------------------------------------------------------------------
+
+def test_toda_linha_gravada_carrega_a_versao(d, caminho):
+    """O formato já mudou duas vezes no primeiro ciclo e a única pista
+    era a ausência de campos. Com coleta em andamento e código
+    evoluindo, é o caminho curto para uma análise que mistura formatos
+    sem perceber qual participante foi medido com qual instrumento."""
+    t = motor.inicia(d, semente="v1")
+    log.grava("v1", t.eventos, destino=caminho)
+    log.grava("v1", motor.avanca(d, t.estado, Resposta(texto="f")).eventos,
+              destino=caminho, entrada=Resposta(texto="f"))
+    cruas = [json.loads(x) for x in
+             caminho.read_text(encoding="utf-8").splitlines()]
+    assert cruas, "nada foi gravado"
+    assert all(x["v"] == log.VERSAO for x in cruas)
+    # A entrada também: ela é o registro de recuperação, e envelhece junto.
+    assert any(x["tipo"] == log.ENTRADA for x in cruas)
+
+
+def test_linha_do_ciclo_1_e_lida_como_versao_zero(d, caminho):
+    """Log antigo continua legível, e aparece como o que é: anterior ao
+    versionamento. Preencher na leitura evita testar a ausência de um
+    campo em cada lugar do código."""
+    caminho.write_text(json.dumps({
+        "ts": "2026-10-28T00:00:00.000+00:00", "sessao": "antiga",
+        "tipo": "unidade_iniciada", "topico": d.id}) + "\n", encoding="utf-8")
+    linhas = log.le("antiga", caminho)
+    assert linhas[0]["v"] == log.VERSAO_ZERO
+    assert log.VERSAO_ZERO < log.VERSAO
+
+
+def test_um_log_misto_distingue_as_duas_origens(d, caminho):
+    """O caso real: o arquivo de desenvolvimento tem sessões dos dois
+    ciclos, e a análise precisa poder separá-las sem adivinhar."""
+    caminho.write_text(json.dumps({
+        "ts": "2026-10-28T00:00:00.000+00:00", "sessao": "antiga",
+        "tipo": "unidade_iniciada", "topico": d.id}) + "\n", encoding="utf-8")
+    t = motor.inicia(d, semente="nova")
+    log.grava("nova", t.eventos, destino=caminho)
+
+    por_versao = {}
+    for x in log.le(None, caminho):
+        por_versao.setdefault(x["v"], set()).add(x["sessao"])
+    assert por_versao == {log.VERSAO_ZERO: {"antiga"}, log.VERSAO: {"nova"}}

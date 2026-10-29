@@ -40,6 +40,24 @@ DESTINO = Path(__file__).resolve().parent / "dados" / "eventos.jsonl"
 # que existe log.
 ENTRADA = "entrada_recebida"
 
+# Versão do formato, em toda linha gravada.
+#
+# O formato já mudou duas vezes no primeiro ciclo — a T10 acrescentou
+# `entrada_recebida`, a T12 acrescentou `belief_retested` — e a única
+# pista era a ausência de campos. Com coleta em andamento e código
+# evoluindo, é o caminho curto para uma análise que mistura formatos sem
+# perceber qual participante foi medido com qual instrumento.
+#
+# Sobe quando o significado de uma linha muda, não quando o código muda.
+#
+#   1  primeiro formato versionado (ciclo 2). As três camadas, o
+#      teach-back, a entrada para reexecução e o reteste já estão aqui.
+#
+# Linha sem o campo é anterior a isto: veio do ciclo 1, e `VERSAO_ZERO`
+# é como ela aparece na leitura.
+VERSAO = 1
+VERSAO_ZERO = 0
+
 CAMPOS_DA_ENTRADA = tuple(f.name for f in fields(motor.Resposta))
 
 
@@ -75,11 +93,12 @@ def grava(sessao: str, eventos: Iterable[Evento], destino: Path | None = None,
     caminho.parent.mkdir(parents=True, exist_ok=True)
     with caminho.open("a", encoding="utf-8") as f:
         if entrada is not None:
-            f.write(json.dumps({"ts": agora(), "sessao": sessao,
+            f.write(json.dumps({"v": VERSAO, "ts": agora(), "sessao": sessao,
                                 "tipo": ENTRADA, **asdict(entrada)},
                                ensure_ascii=False) + "\n")
         for e in eventos:
-            linha = {"ts": agora(), "sessao": sessao, "tipo": e.tipo, **dict(e.dados)}
+            linha = {"v": VERSAO, "ts": agora(), "sessao": sessao,
+                     "tipo": e.tipo, **dict(e.dados)}
             f.write(json.dumps(linha, ensure_ascii=False) + "\n")
 
 
@@ -135,6 +154,10 @@ def _le(sessao: str | None, destino: Path | None,
                 ) from erro
             ilegiveis += 1
             continue
+        # Linha sem versão veio do ciclo 1. Preencher na leitura é o que
+        # permite ao resto do código comparar números em vez de testar a
+        # ausência de um campo em cada lugar.
+        dado.setdefault("v", VERSAO_ZERO)
         if sessao is None or dado.get("sessao") == sessao:
             saida.append(dado)
     return saida, ilegiveis
