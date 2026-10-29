@@ -68,6 +68,12 @@ FALSO_POSITIVO = "falso_positivo"   # certa pela razão errada
 REFUTADO = "refutado"          # crença detectada, ainda não trabalhada
 EM_TREINO = "em_treino"        # a refutação passou; falta fechar a sequência
 EM_ABERTO = "em_aberto"        # o banco de itens acabou antes da sequência
+# O banco do nó acabou e NENHUM episódio foi atribuído a ele: ou não houve
+# item, ou toda razão errada escolhida nos itens dele apontou um vizinho.
+# Não é o mesmo que `desconhecido`, que significa "ainda não chegou a vez" —
+# e a diferença importa: uma premissa que a unidade não mediu precisa
+# aparecer como não medida, no mapa e na análise.
+NAO_MEDIDO = "nao_medido"
 
 CONFIANCAS = ("chutei", "acho que sei", "tenho certeza")
 CHUTE = "chutei"
@@ -486,7 +492,8 @@ def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = Fal
     return Transicao(novo, tela, tuple(eventos))
 
 
-def razoes_de(d: Dominio, a: Atividade) -> tuple[Razao, ...]:
+def razoes_de(d: Dominio, a: Atividade,
+              e: Estado | None = None) -> tuple[Razao, ...]:
     """As razões de um item, montadas DO GRAFO.
 
     A certa é o enunciado do nó que o item mira. As erradas são as crenças
@@ -494,6 +501,23 @@ def razoes_de(d: Dominio, a: Atividade) -> tuple[Razao, ...]:
     distrator do item de B1 pode ser uma crença sobre B2. Nenhuma destas
     frases está escrita num banco de razões, porque banco de razões não
     existe: se existisse, a razão e a premissa poderiam divergir.
+
+    COM O ESTADO, a crença de um nó já SUSTENTADO sai do cardápio. Sem
+    isso o nó hospedeiro morre de fome: foi medido no kc_02, e o rastro é
+
+        nó B2 — os três itens dele apresentados
+        razão escolhida em 004 -> crença de I1
+        razão escolhida em 005 -> crença de B3
+        razão escolhida em 006 -> crença de I1   (I1 já confirmado)
+        estado final de B2: desconhecido
+
+    A crença do próprio B2 estava na cédula nas três vezes. Oferecer para
+    sempre uma ideia que a unidade já tratou é o que gasta os itens do nó
+    sem nunca medi-lo — e quem checa se ela voltou é o reteste, que é
+    explícito e tem fase própria.
+
+    Nunca reduz o cardápio a menos de duas: com uma razão só não há
+    escolha, e a camada 2 vira teatro. Nesse caso devolve a lista inteira.
 
     Ordem canônica, a correta primeiro. Quem apresenta embaralha.
     """
@@ -504,7 +528,11 @@ def razoes_de(d: Dominio, a: Atividade) -> tuple[Razao, ...]:
             vistas.add(o.crenca)
             c = d.crencas[o.crenca]
             saida.append(Razao(texto=c.afirma, crenca=o.crenca, no=c.nega))
-    return tuple(saida)
+    if e is None:
+        return tuple(saida)
+    vivas = [z for z in saida
+             if z.correta or not sustentado(e.no(z.no).estado)]
+    return tuple(vivas) if len(vivas) >= 2 else tuple(saida)
 
 
 def ordem_das_razoes(semente: str, atividade: str, n: int) -> tuple[int, ...]:
@@ -549,7 +577,7 @@ def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         return Transicao(seguinte.estado, seguinte.tela,
                          (evento,) + seguinte.eventos)
 
-    razoes = razoes_de(d, a)
+    razoes = razoes_de(d, a, e)
     # Com uma razão só não há escolha a fazer, e perguntar seria teatro.
     # Acontece em item cujos distratores não apontam crença nenhuma.
     if len(razoes) < 2:
@@ -1019,6 +1047,22 @@ def _responde_treino(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         seguinte = _resolve_treino(d, e, a, pendente)
         return Transicao(seguinte.estado, seguinte.tela,
                          (evento,) + seguinte.eventos)
+    # A confiança do TREINO fica só no item que FECHA a sequência. Nas
+    # tentativas do meio ela custa uma tela por item — 33 por sessão de
+    # quem erra muito, medido — e não entra em decisão nenhuma: a
+    # classificação não roda no treino (`_resolve_treino` só olha
+    # certo/errado). O que a medida exige são DUAS: a confiança de quando a
+    # crença foi detectada, e a de quando a premissa foi confirmada. Essas
+    # duas continuam.
+    en = e.no(a.no)
+    fecha = bool(pendente.correta) and en.streak + 1 >= STREAK_ALVO
+    if not fecha:
+        seguinte = _resolve_treino(d, e, a, pendente)
+        return Transicao(seguinte.estado, seguinte.tela,
+                         (evento, Evento("confianca_pulada", {
+                             "atividade": a.id, "no": a.no, "fase": "treino",
+                             "motivo": "tentativa intermediária do treino"}))
+                         + seguinte.eventos)
     seguinte = _pede_confianca(d, e, a, pendente)
     return Transicao(seguinte.estado, seguinte.tela, (evento,) + seguinte.eventos)
 
@@ -1191,6 +1235,26 @@ def _fecha(d: Dominio, e: Estado) -> Transicao:
     conferível, em vez de afirmação.
     """
     novo = replace(e, fase=FECHAMENTO, atividade=None, alvo=None)
+
+    # O que a unidade NÃO mediu, dito em voz alta. `desconhecido` no fim da
+    # unidade não é "ainda não chegou a vez": é o banco do nó ter acabado
+    # sem nenhum episódio atribuído a ele. Calar isso faz a premissa sumir
+    # do dado com a mesma cara de quem nunca foi perguntado.
+    nao_medidos = []
+    for nid in d.ordem:
+        en = novo.no(nid)
+        if en.estado != DESCONHECIDO:
+            continue
+        novo = novo.com(nid, estado=NAO_MEDIDO)
+        nao_medidos.append(Evento("no_nao_medido", {
+            "no": nid,
+            "itens_gastos": len(en.usadas),
+            "motivo": ("os itens do nó foram gastos e toda razão errada "
+                       "escolhida neles apontou outro nó"
+                       if en.usadas else
+                       "nenhum item deste nó chegou a ser apresentado"),
+        }))
+
     forcas = {n: forca(novo.no(n)) for n in d.ordem}
     mais_fraca = min(d.ordem, key=lambda n: (forcas[n], d.ordem.index(n)))
     evento = Evento("unidade_encerrada", {
@@ -1203,11 +1267,12 @@ def _fecha(d: Dominio, e: Estado) -> Transicao:
         # diferença entre os dois números é o que o banco de itens não deu.
         "refutadas": len({n.crenca for n in novo.nos.values() if n.crenca}),
         "retestadas": len(set(e.retestadas)),
+        "nao_medidos": [x.dados["no"] for x in nao_medidos],
     })
     # A pergunta volta SEM a frase de antes à vista: escrever olhando a
     # própria frase antiga é copiá-la ou corrigi-la, não reformulá-la. As
     # duas aparecem juntas só depois, no mapa.
-    return Transicao(novo, _tela_frase(d, "fim"), (evento,))
+    return Transicao(novo, _tela_frase(d, "fim"), tuple(nao_medidos) + (evento,))
 
 
 def estado_dos_nos(d: Dominio, e: Estado) -> list[dict]:

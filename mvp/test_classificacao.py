@@ -388,13 +388,43 @@ def test_t6_dois_falsos_positivos_de_crencas_diferentes_nao_refutam(d):
     assert t2.estado.no("B1").falsos_positivos == 1
 
 
+def _b2_confirmado():
+    return motor.Estado().com(
+        "B2", estado=motor.CONFIRMADO,
+        superficies=("reconhecer_conceito", "comparar_casos"))
+
+
+def test_t6_a_crenca_de_um_no_confirmado_sai_do_cardapio(d):
+    """A cena que o T6 testava deixou de ser alcançável, e é de propósito.
+
+    Era assim: B2 confirmado, e a pessoa escolhendo `no_value_no_memory`
+    — que nega B2 — como razão num item de B1. A unidade já tratou aquela
+    ideia; continuar oferecendo-a em toda cédula é o que gasta os itens do
+    nó hospedeiro sem nunca medi-lo (C1). Quem checa se ela voltou é o
+    reteste, que tem fase própria.
+    """
+    a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
+    sem_estado = {z.crenca for z in motor.razoes_de(d, a)}
+    com_estado = {z.crenca for z in motor.razoes_de(d, a, _b2_confirmado())}
+    assert "no_value_no_memory" in sem_estado
+    assert "no_value_no_memory" not in com_estado
+    assert len(com_estado) >= 1, "sobrou razão errada nenhuma"
+
+
 def test_t6_nao_refuta_um_no_ja_confirmado(d):
-    """Se a premissa já está de pé por duas superfícies, uma explicação
-    ruim noutra pergunta não derruba o que foi demonstrado."""
-    e = motor.Estado().com("B2", estado=motor.CONFIRMADO,
-                           superficies=("reconhecer_conceito", "comparar_casos"))
-    t, _ = _falso_positivo(d, "ciu_kc00_002", "no_value_no_memory", estado=e)
-    t2, eventos = _falso_positivo(d, "ciu_kc00_001", "no_value_no_memory",
-                                  estado=t.estado)
+    """A garantia original, viva onde a cena ainda acontece.
+
+    Em `ciu_kc00_001` os DOIS distratores apontam a mesma crença: filtrar
+    deixaria uma razão só, então o fallback devolve a lista inteira e a
+    explicação ruim continua podendo ser dada. É exatamente aí que a regra
+    precisa valer — se a premissa já está de pé por duas superfícies, uma
+    explicação ruim noutra pergunta não derruba o que foi demonstrado.
+    """
+    a = next(x for x in d.atividades if x.id == "ciu_kc00_001")
+    oferecidas = {z.crenca for z in motor.razoes_de(d, a, _b2_confirmado())}
+    assert "no_value_no_memory" in oferecidas, "o fallback não valeu; o teste perdeu a cena"
+
+    t, eventos = _falso_positivo(d, "ciu_kc00_001", "no_value_no_memory",
+                                 estado=_b2_confirmado())
     assert not any(ev.tipo == "crenca_detectada" for ev in eventos)
-    assert t2.estado.no("B2").estado == motor.CONFIRMADO
+    assert t.estado.no("B2").estado == motor.CONFIRMADO
