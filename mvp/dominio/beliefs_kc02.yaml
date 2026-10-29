@@ -11,69 +11,102 @@
 # memória, existência do ponteiro, conteúdo, identidade, tipo e
 # finalidade. É o que faz o diagnóstico separar coisas de verdade em vez
 # de medir a mesma confusão seis vezes.
+#
+# AS FONTES FORAM CONFERIDAS NA OBRA PRIMÁRIA, não de memória: o catálogo
+# do Sorva (2012), Apêndice A, Tabela A.1, e o FAQ do comp.lang.c. O
+# relatório da conferência está em docs/revisao-crencas-kc02.md.
 
 - id: memory_is_by_name
   negates: kc_02:B1
-  provenance: T
+  provenance: D
   label_pt: "O computador acha a variável pelo nome dela; número de lugar é detalhe do compilador."
   source: >
-    TRANSPOSIÇÃO, com a analogia declarada: em Python, Java e JavaScript a
-    pessoa programa anos sem ver um endereço — o nome basta, e nada na
-    linguagem sugere que exista um número por baixo. Transposto para C, o
-    endereço vira detalhe de implementação em vez de valor manipulável, e
-    o ponteiro inteiro perde a razão de existir.
-    PRECISA DE FONTE antes da coleta, ou desce para E (hipótese).
+    Sorva (2012), p. 360, item 14: "A variable is (merely) a pairing of a
+    name to a changeable value (with a type). It is not stored inside the
+    computer" (Sorva 2008; Doukakis et al. 2007). Reforçada pelo item 64,
+    p. 362: "A variable [...] is merely a name which can be used to
+    manipulate an object" (Sorva 2008; Ma 2007).
+    Os estudos são em Java e BASIC; a crença é sobre a ausência de um
+    lugar numerado, que é a mesma em C.
 
 - id: pointer_has_no_address
   negates: kc_02:B2
   provenance: E
   label_pt: "O ponteiro não ocupa lugar nenhum: ele é só a seta que liga uma caixa à outra."
   source: >
-    ELABORADA a partir do modelo de máquina, e entra declarada como
-    HIPÓTESE A TESTAR. A suspeita é que a própria figura a produz: todo
-    material desenha o ponteiro como flecha, e flecha não tem endereço.
-    Se a crença existir, ela aparece quando &p entra em cena (kc_10) e
-    explica por que ponteiro para ponteiro trava tanta gente.
+    ELABORADA, e entra declarada como HIPÓTESE A TESTAR. PROCUREI no
+    catálogo do Sorva (2012) e NÃO ESTÁ LÁ: nenhum dos 162 itens afirma
+    que a referência não ocupa espaço. A suspeita é que a própria figura
+    a produza — todo material desenha o ponteiro como flecha, e flecha
+    não tem endereço. Se existir, aparece quando &p entra em cena (kc_10)
+    e explica por que ponteiro para ponteiro trava tanta gente.
     Se nenhum participante a sustentar, o achado é esse.
 
 - id: pointer_is_data
   negates: kc_02:B3
   provenance: T
   label_pt: "O ponteiro é o próprio dado: o que está dentro dele é o valor, não o endereço."
-  source: "Sorva (2012), p. 360, item 14 (Sorva 2008; Doukakis et al. 2007)"
+  source: >
+    Sorva (2012), p. 362, item 65: "A (non-primitive Java) variable does
+    not hold a reference but a set of object properties" (Sorva 2008;
+    Ma 2007).
+    CORREÇÃO DE CITAÇÃO: a curadoria antiga apontava o item 14, que é
+    sobre variável ser um par nome-valor e não é sobre ponteiro. O item
+    que descreve esta crença é o 65.
 
 - id: pointer_and_target_are_one
   negates: kc_02:I1
   provenance: T
   label_pt: "Mexer no ponteiro é mexer na variável apontada: os dois são a mesma coisa."
   source: >
-    TRANSPOSIÇÃO, com a analogia declarada: em Java e Python a variável de
-    referência e o objeto se comportam como uma coisa só na maior parte do
-    uso — `a = b` e depois mexer em `a` mexe no mesmo objeto. Em C a
-    diferença entre `p = q` e `*p = *q` é justamente onde isso quebra.
-    PRECISA DE FONTE antes da coleta, ou desce para E (hipótese).
+    Sorva (2012), p. 362-363, itens 66, 67 e 68, todos de Ma (2007):
+    "Assigning an object means 'sending' an object (or a copy) to a
+    variable"; "Assigning to an object causes it to become equal to the
+    assigned object"; "Assigning to an object means that (some) instance
+    variables get new values from the assigned object".
+    TRANSPOSIÇÃO declarada: os três são sobre atribuição de referência em
+    Java, e em C a diferença entre `p = q` e `*p = *q` é onde ela quebra.
 
 - id: pointer_is_integer
   negates: kc_02:I2
   provenance: L
   label_pt: "Ponteiro é só um número inteiro; dá para trocar um pelo outro."
-  source: "FAQ comp.lang.c 4.14 e 4.15"
+  source: >
+    FAQ comp.lang.c 4.14, "How are integers converted to and from
+    pointers? Can I temporarily stuff an integer into a pointer, or vice
+    versa?", e 4.15, "How do I convert an int to a char *? I tried a
+    cast, but it's not working." Texto conferido em c-faq.com.
+    É evidência de que a pergunta é feita o tempo todo, não estudo
+    empírico de crença — por isso L, e não D.
 
 - id: pointer_is_pointless
   negates: kc_02:I3
   provenance: E
   label_pt: "Ponteiro é um jeito complicado de fazer o que uma variável comum já faz."
   source: >
-    ELABORADA, declarada como HIPÓTESE A TESTAR. Não é um erro sobre o
-    mecanismo: é sobre a finalidade, e por isso ela sobrevive a quem
-    acerta todas as outras premissas. Quem a sustenta decora a sintaxe e
-    não usa ponteiro quando precisaria.
+    ELABORADA, declarada como HIPÓTESE A TESTAR. PROCUREI no catálogo do
+    Sorva (2012) e NÃO ESTÁ LÁ — o catálogo é sobre mecanismo, e esta é
+    sobre finalidade. É por isso que ela sobrevive a quem acerta todas as
+    outras premissas: quem a sustenta decora a sintaxe e não usa ponteiro
+    quando precisaria.
     Se nenhum participante a sustentar, o achado é esse.
 
+# CANDIDATAS A ENTRAR, com fonte, aguardando decisão — ver o relatório:
+#
+# two_pointers_two_objects   Sorva (2012), p. 363, item 75, Holland et al.
+#                            (1997): "Two different variables must refer to
+#                            two different objects". É o apelidamento, e é
+#                            dificuldade clássica de C.
+# pointer_never_repoints     Sorva (2012), p. 363, itens 73 e 74, Holland
+#                            et al. (1997). Cabe melhor em kc_03.
+# arrow_points_backwards     Sorva (2012), p. 363, item 78, Holland et al.
+#                            (1997); Sajaniemi et al. (2008). Cabe em kc_04.
+#
 # FORA DESTE TÓPICO, de propósito:
 #
 # pointer_lives_in_heap  — nega "p vive onde foi declarado", que depende de
 #                          stack e heap (kc_01). Volta com aquele nó.
-# voidptr_is_universal   — "void * aceita qualquer coisa, inclusive ponteiro
-#                          de função". É erro de quem já sabe o que é um
-#                          ponteiro; cabe num tópico de conversão, não neste.
+# voidptr_is_universal   — FAQ comp.lang.c 4.13, conferido: "My compiler
+#                          complained when I tried to stuff function
+#                          pointers into a void *". É erro de quem já sabe
+#                          o que é um ponteiro; cabe num tópico de conversão.
