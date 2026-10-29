@@ -51,6 +51,15 @@ class LogIncompleto(Exception):
     """
 
 
+class LinhaCorrompida(LogIncompleto):
+    """Uma linha do meio do arquivo não é JSON.
+
+    A última linha tem desculpa — o processo pode ter morrido no meio da
+    escrita. Uma do meio, não: pular em silêncio significaria reexecutar a
+    sessão sem uma das respostas, e o estado sairia plausível e errado.
+    """
+
+
 def agora() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
@@ -75,14 +84,30 @@ def grava(sessao: str, eventos: Iterable[Evento], destino: Path | None = None,
 
 
 def le(sessao: str | None = None, destino: Path | None = None) -> list[dict]:
+    """As linhas do log, na ordem em que foram escritas.
+
+    A ÚLTIMA linha pode estar pela metade: o processo morre no meio de uma
+    escrita, e é justamente a queda que a retomada existe para atender.
+    Perder o arquivo inteiro por causa dela seria o pior desfecho
+    possível, então ela é descartada. Qualquer outra linha quebrada é
+    corrupção, e estoura.
+    """
     caminho = Path(destino) if destino else DESTINO
     if not caminho.exists():
         return []
+    linhas = caminho.read_text(encoding="utf-8").splitlines()
     saida = []
-    for linha in caminho.read_text(encoding="utf-8").splitlines():
+    for i, linha in enumerate(linhas):
         if not linha.strip():
             continue
-        dado = json.loads(linha)
+        try:
+            dado = json.loads(linha)
+        except json.JSONDecodeError as erro:
+            if i == len(linhas) - 1:
+                continue
+            raise LinhaCorrompida(
+                "linha %d de %s não é JSON: %s" % (i + 1, caminho.name, erro)
+            ) from erro
         if sessao is None or dado.get("sessao") == sessao:
             saida.append(dado)
     return saida

@@ -15,8 +15,9 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 119 testes
-python -m mvp.app            # http://127.0.0.1:8010
+python -m pytest mvp/ -q     # 135 testes
+python -m mvp.app            # http://127.0.0.1:8010  quem responde
+python -m mvp.painel         # http://127.0.0.1:8011  quem observa
 ```
 
 ## O laço
@@ -128,6 +129,68 @@ cobre é a do servidor, com a página aberta.
 **O preço, declarado:** o texto do teach-back aparece duas vezes na mesma
 sessão — uma como entrada, outra como evento. Apagar um participante
 continua sendo apagar as linhas com o código dele.
+
+## O painel do pesquisador
+
+Processo **separado**, em `127.0.0.1:8011`, e só leitura. Você acompanha
+quem está respondendo sem interromper quem está pensando em voz alta.
+
+A garantia não é cuidado, é **ausência de caminho**: `painel.py` não
+importa `mvp.app`, não conhece o dicionário de sessões e não escreve em
+lugar nenhum. Tudo o que ele mostra saiu de `mvp/dados/eventos.jsonl`.
+Tem teste lendo a árvore sintática do arquivo — a única garantia que não
+depende de eu lembrar.
+
+Três razões, em ordem de peso: o painel não pode derrubar a sessão de um
+participante; o log é append-only, então ler é seguro por construção; e
+assim ele funciona **depois** de um travamento, que é quando mais importa.
+
+O efeito colateral é a melhor parte: se o painel só lê o log, o log tem de
+bastar. **O painel é a prova de que basta.**
+
+### A tabela de episódios é o dado do TCC
+
+Uma linha por atividade respondida, com as três camadas lado a lado:
+
+```
+#  FASE   NÓ  ITEM     RESPOSTA  RAZÃO                       CONFIANÇA      ESTADO   MS R/Z/C
+1  diag.  B1  teorica  ✗ errada  ✗ no_value_no_memory → B2   tenho certeza  crença   17972 / 478 / 17082
+```
+
+A seta `→ B2` é o caso cruzado (CS-2): a pergunta era de B1, a ideia que a
+pessoa usou é uma afirmação sobre B2, e é lá que ela ficou registrada. É o
+achado mais difícil de enxergar à mão, e some se não for escrito.
+
+Os três tempos separados respondem à pergunta que o tempo total não
+responde: se a pessoa demorou a **responder** ou a **justificar**.
+
+### Portão G: a lista não mostra texto livre
+
+As frases do teach-back aparecem **só na tela de uma sessão**, nunca na
+lista. Uma tela com o que quarenta pessoas escreveram não serve a nada que
+este estudo precise, e existir já é risco. Tem teste.
+
+A identificação é só o código da sessão, e o painel atende em `127.0.0.1`
+— não há motivo para ele atender à rede.
+
+### Portão S: o código da sessão nunca vira caminho
+
+O painel abre **um** arquivo, decidido no servidor. O que vem do cliente é
+valor de filtro, nunca pedaço de caminho. O teste prova a propriedade
+direta: para qualquer código hostil, nenhuma leitura escolheu o arquivo a
+partir do que o cliente mandou.
+
+### Uma sessão que não volta aparece dizendo por quê
+
+Sessões gravadas antes da T10 não são reexecutáveis. Elas continuam na
+lista, marcadas, e abrir mostra o motivo — esconder seria esconder dado.
+
+### A última linha pode estar pela metade
+
+O processo morre no meio de uma escrita e o arquivo termina truncado. A
+última linha é descartada; qualquer outra linha quebrada **estoura**.
+Pular uma do meio em silêncio significaria reexecutar a sessão sem uma das
+respostas, e o estado sairia plausível e errado.
 
 ## Os cinco estados, e em que nó cada um fica
 
@@ -285,14 +348,17 @@ mvp/
 ├── motor.py                   o laço, puro: (estado, resposta) → (estado, tela, eventos)
 ├── log.py                     append-only; grava as entradas e reexecuta a sessão
 ├── app.py                     três rotas
+├── painel.py                  o painel do pesquisador, só leitura, processo à parte
 ├── web/                       a interface, que não decide nada
+├── web/painel.html            o painel, numa página só
 ├── web/figuras.js             a analogia desenhada, uma por premissa
 ├── test_motor.py              o laço, 28 testes
 ├── test_dominio.py            a carga e as invariantes, 14 testes
 ├── test_razao.py              as camadas 2 e 3, 18 testes
 ├── test_classificacao.py      os cinco estados, a projeção, CS-4 e o falso positivo, 37 testes
 ├── test_teachback.py          a frase do começo e a do fim, 9 testes
-└── test_reconstrucao.py       a sessão de volta pelo log, 15 testes
+├── test_reconstrucao.py       a sessão de volta pelo log, 15 testes
+└── test_painel.py             o painel que não pode atrapalhar, 16 testes
 ```
 
 **Uma armadilha de YAML**, já resolvida: a chave `no:` é lida como booleano

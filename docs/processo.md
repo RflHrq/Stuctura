@@ -108,15 +108,16 @@ quebrar de propósito a regra que ele defende tem de derrubá-lo.
 | T5 | `72233e8` | "não sei" nas três camadas | 80 | **fraca**, declarada: o curto-circuito da lacuna derruba 1 teste só |
 | T6 | `8a7447d` | o falso positivo traz outra superfície | 86 | sim — o primeiro teste **não mordia**, reescrito |
 | T9 | `33f16c0` | o teach-back do começo e do fim | 95 | sim |
-| T10 | — | a sessão reconstruída pelo log (CS-6) | 110 | sim — 6 de 6 |
+| T10 | `6ffd6d9` | a sessão reconstruída pelo log (CS-6) | 110 | sim — 6 de 6 |
+| T11 | — | o painel do pesquisador, só leitura (CS-7) | 126 | sim — 7 de 7 |
 
 A coluna conta funções `def test_` em `mvp/`, apuradas com `git grep` em
 cada commit. O pytest coleta mais do que isso porque quatro testes são
 parametrizados: hoje são 110 funções e **119 casos**, mais 252 da suíte
 antiga.
 
-**Em aberto na fase 6:** T8 (a força da premissa escolhe o próximo item),
-T11 (o painel do pesquisador), T12 (o reteste). E uma lacuna de escopo
+**Em aberto na fase 6:** T8 (a força da premissa escolhe o próximo item)
+e T12 (o reteste). E uma lacuna de escopo
 registrada e **não** transformada em tarefa por conta própria: o caminho
 "lacuna → constrói" aparece no fluxo do PRD e não tem tarefa de T1 a T12.
 
@@ -132,6 +133,9 @@ registrada e **não** transformada em tarefa por conta própria: o caminho
 | 4 | S, P, U, I, M, G, T, E | consulta, método aplicado direto | requisitos escritos no PRD; as skills não foram invocadas, para não gastar o orçamento em oito saídas longas numa fase de texto |
 | 4 | G (privacidade) | **atenção** | o teach-back cria dado pessoal novo (texto livre); termo e aviso entram como **rascunho**, para o orientador e o comitê de ética |
 | 4 | D, X, W | não aplicáveis | perfil do projeto |
+| 6/T11 | S (segurança) | focada, método aplicado direto | **passou** — painel só leitura, em 127.0.0.1, sem rota de escrita; o código da sessão nunca entra num caminho de arquivo, com teste da propriedade |
+| 6/T11 | G (privacidade) | focada, método aplicado direto | **passou com regra** — texto livre do participante só na tela de uma sessão, nunca na lista; identificação só pelo código |
+| 6/T11 | U (interface) | **não executada** | o painel tem um usuário só, que é quem construiu; a skill entra na revisão final, junto das telas de quem responde |
 
 ## Linha de base da fase 2
 
@@ -141,5 +145,5 @@ Python. Qualquer mudança futura é comparada com isto.
 ## Orçamento
 
 Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração. Fase 4: 1
-iteração. Fase 5: 1 iteração. Fase 6: 1 iteração por tarefa, de T0 a T10 —
+iteração. Fase 5: 1 iteração. Fase 6: 1 iteração por tarefa, de T0 a T11 —
 nenhuma precisou de uma segunda.

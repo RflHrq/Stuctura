@@ -289,6 +289,16 @@ sessões; matar o painel no meio de uma sessão não afeta a sessão.
 
 **Portões:** U, S, G.
 
+**Feito.** `mvp/painel.py` em `127.0.0.1:8011`, processo à parte, todas as
+rotas GET. A garantia é ausência de caminho: o módulo não importa
+`mvp.app`, e tem teste lendo a árvore sintática do arquivo. Mostra o grafo
+dos cinco nós, a tabela de episódios com as três camadas e os três tempos
+(incluindo o caso cruzado, `→ B2`), as duas frases e a cauda do log.
+**Portão G:** texto livre só na tela de uma sessão, nunca na lista.
+**Portão S:** o código da sessão é valor de filtro, nunca pedaço de
+caminho. Verificado com o painel morto no meio de uma sessão: a sessão
+seguiu da refutação para o treino.
+
 ---
 
 ## T12 — O reteste do fim da sessão

@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structura — painel do pesquisador</title>
+<style>
+/* Instrumento de observação, não vitrine: nada pisca, nada anima, nada
+ * chama atenção. Quem olha esta tela está ouvindo outra pessoa pensar em
+ * voz alta, e a tela não pode disputar essa atenção. */
+:root{
+  --papel:#f6f7f5; --cartao:#fff; --tinta:#16181a; --tinta2:#4a5157;
+  --linha:#e2e4e0; --linha2:#c7cbc5;
+  --acento:#1f5668; --acento-fundo:#e2eef2;
+  --ok:#1b6647; --erro:#94372a; --aviso:#8a6212;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --papel:#121416; --cartao:#1a1d1f; --tinta:#eceef0; --tinta2:#b9c0c5;
+    --linha:#282c2f; --linha2:#3c4247;
+    --acento:#7cb9ce; --acento-fundo:#13272f;
+    --ok:#63c69a; --erro:#e18d7d; --aviso:#d9ae5b;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--papel); color:var(--tinta);
+     font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:14px 20px; border-bottom:1px solid var(--linha);
+       display:flex; gap:16px; align-items:baseline; flex-wrap:wrap}
+h1{font-size:17px; margin:0; font-weight:600}
+.selo{font-size:12px; color:var(--tinta2); border:1px solid var(--linha2);
+      border-radius:3px; padding:1px 7px}
+main{display:grid; grid-template-columns:300px 1fr; gap:0; align-items:start}
+@media (max-width:860px){ main{grid-template-columns:1fr} }
+#lista{border-right:1px solid var(--linha); min-height:70vh; padding:10px}
+#detalhe{padding:16px 20px; min-width:0}
+h2{font-size:13px; text-transform:uppercase; letter-spacing:.06em;
+   color:var(--tinta2); margin:22px 0 8px; font-weight:600}
+h2:first-child{margin-top:0}
+button.sessao{display:block; width:100%; text-align:left; cursor:pointer;
+  background:var(--cartao); border:1px solid var(--linha); border-radius:4px;
+  padding:8px 10px; margin-bottom:6px; color:inherit; font:inherit}
+button.sessao:hover{border-color:var(--linha2)}
+button.sessao[aria-current="true"]{border-color:var(--acento);
+  background:var(--acento-fundo)}
+button.sessao:focus-visible{outline:2px solid var(--acento); outline-offset:1px}
+.codigo{font-family:ui-monospace,Consolas,monospace; font-size:13px}
+.meta{font-size:12px; color:var(--tinta2); margin-top:2px}
+table{border-collapse:collapse; width:100%; font-size:13px}
+th,td{text-align:left; padding:5px 8px; border-bottom:1px solid var(--linha);
+      vertical-align:top}
+th{font-weight:600; color:var(--tinta2); font-size:12px;
+   text-transform:uppercase; letter-spacing:.04em}
+td.num{text-align:right; font-variant-numeric:tabular-nums;
+       font-family:ui-monospace,Consolas,monospace}
+.frases{display:grid; grid-template-columns:70px 1fr; gap:6px 12px;
+        background:var(--cartao); border:1px solid var(--linha);
+        border-radius:4px; padding:12px}
+.rotulo{font-size:12px; color:var(--tinta2); text-transform:uppercase;
+        letter-spacing:.06em; padding-top:2px}
+.nos{display:flex; gap:8px; flex-wrap:wrap}
+.no{border:1px solid var(--linha2); border-radius:4px; padding:6px 10px;
+    background:var(--cartao); font-size:13px}
+.no b{font-family:ui-monospace,Consolas,monospace}
+.no .nome{display:block; font-size:11px; color:var(--tinta2)}
+.ok{color:var(--ok)} .erro{color:var(--erro)} .aviso{color:var(--aviso)}
+pre{background:var(--cartao); border:1px solid var(--linha); border-radius:4px;
+    padding:10px; overflow:auto; max-height:260px; font-size:12px;
+    font-family:ui-monospace,Consolas,monospace; margin:0}
+.vazio{color:var(--tinta2); font-style:italic}
+.alerta{border-left:3px solid var(--aviso); padding:8px 12px;
+        background:var(--cartao); font-size:13px}
+footer{padding:12px 20px; border-top:1px solid var(--linha);
+       font-size:12px; color:var(--tinta2)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Painel do pesquisador</h1>
+  <span class="selo">somente leitura</span>
+  <span class="selo" id="origem">lendo o log</span>
+  <span class="meta" id="atualizado"></span>
+</header>
+
+<main>
+  <nav id="lista" aria-label="Sessões no log"><p class="vazio">carregando…</p></nav>
+  <section id="detalhe"><p class="vazio">Escolha uma sessão à esquerda.</p></section>
+</main>
+
+<footer>
+  Este painel não escreve nada e não fala com a sessão de quem está
+  respondendo: tudo o que ele mostra saiu do arquivo de log.
+  As frases são texto do participante — identificação só pelo código.
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* Simbolo ANTES de cor, como no mapa do aluno: daltonismo e impressao em
+   * preto e branco nao podem apagar a diferenca entre "de pe" e "crenca". */
+  var SIMBOLO = {
+    confirmado: "✓", fragil: "✓?", falso_positivo: "!", refutado: "✗",
+    lacuna: "?", em_treino: "…", em_aberto: "—", desconhecido: "·"
+  };
+  var NOME = {
+    confirmado: "confirmada", fragil: "frágil", falso_positivo: "falso positivo",
+    refutado: "crença", lacuna: "lacuna", em_treino: "em treino",
+    em_aberto: "em aberto", desconhecido: "não tocada"
+  };
+  var CLASSE = {
+    confirmado: "ok", fragil: "aviso", falso_positivo: "aviso",
+    refutado: "erro", lacuna: "aviso", em_treino: "", em_aberto: "",
+    desconhecido: ""
+  };
+
+  var atual = null;
+  /* Sessao que ja recusou abrir. Sem isto o ciclo de 3 em 3 segundos
+   * repete para sempre um pedido que o servidor ja recusou — barulho no
+   * log do servidor e no console, por nada. */
+  var recusada = null;
+
+  function $(id) { return document.getElementById(id); }
+
+  function el(tag, texto, classe) {
+    var n = document.createElement(tag);
+    if (texto !== undefined && texto !== null) n.textContent = String(texto);
+    if (classe) n.className = classe;
+    return n;
+  }
+
+  function hora(ts) {
+    if (!ts) return "";
+    var d = new Date(ts);
+    if (isNaN(d)) return ts;
+    /* A lista ordena por data e hora. Mostrar so a hora faz uma coleta de
+     * varios dias parecer fora de ordem — entao o dia aparece sempre que
+     * nao for hoje. */
+    var hoje = new Date();
+    var mesmoDia = d.toDateString() === hoje.toDateString();
+    return (mesmoDia ? "" : d.toLocaleDateString("pt-BR",
+             { day: "2-digit", month: "2-digit" }) + " ") +
+           d.toLocaleTimeString("pt-BR");
+  }
+
+  function ms(v) { return v === null || v === undefined ? "" : v; }
+
+  /* ------------------------------------------------------------- lista */
+
+  function desenhaLista(j) {
+    var alvo = $("lista");
+    alvo.textContent = "";
+    if (!j.sessoes.length) {
+      alvo.appendChild(el("p", "Nenhuma sessão no log ainda.", "vazio"));
+      return;
+    }
+    j.sessoes.forEach(function (s) {
+      var b = el("button", null, "sessao");
+      b.type = "button";
+      b.setAttribute("aria-current", s.codigo === atual ? "true" : "false");
+      b.appendChild(el("span", s.codigo, "codigo"));
+      var partes = [hora(s.inicio), s.respostas + " respostas"];
+      if (s.encerrada) partes.push("encerrada");
+      else partes.push(s.fase ? s.fase.toLowerCase() : "em andamento");
+      if (s.retomadas) partes.push(s.retomadas + "× retomada");
+      if (!s.reexecutavel) {
+        partes.push("não reexecutável");
+        b.title = s.motivo;
+      }
+      b.appendChild(el("div", partes.join(" · "), "meta"));
+      b.onclick = function () {
+        atual = s.codigo;
+        recusada = null;          // escolher de novo é pedir de novo
+        carregaDetalhe();
+        atualiza();
+      };
+      alvo.appendChild(b);
+    });
+  }
+
+  /* ----------------------------------------------------------- detalhe */
+
+  function tabelaEpisodios(eps) {
+    var t = el("table");
+    var cab = el("tr");
+    ["#", "fase", "nó", "item", "resposta", "razão", "confiança", "estado",
+     "ms r/z/c"].forEach(function (h) { cab.appendChild(el("th", h)); });
+    t.appendChild(cab);
+
+    eps.forEach(function (e) {
+      var tr = el("tr");
+      tr.appendChild(el("td", e.ordem, "num"));
+      tr.appendChild(el("td", e.fase === "treino" ? "treino" : "diag."));
+      tr.appendChild(el("td", e.no));
+      tr.appendChild(el("td", e.item || ""));
+
+      var r = el("td", e.correta ? "✓ certa" : "✗ errada",
+                 e.correta ? "ok" : "erro");
+      tr.appendChild(r);
+
+      var z;
+      if (e.nao_sei) z = el("td", "não sei (" + e.nao_sei + ")", "aviso");
+      else if (e.razao_correta === null) z = el("td", e.crenca || "—", "vazio");
+      else if (e.razao_correta) z = el("td", "✓ certa", "ok");
+      else {
+        z = el("td", "✗ " + (e.crenca || ""), "erro");
+        /* O caso cruzado: a razao fala de OUTRO no que o do item. E o
+         * achado mais dificil de ver a mao, e some se nao for escrito. */
+        if (e.fala_do_no && e.fala_do_no !== e.no) {
+          z.appendChild(el("span", " → " + e.fala_do_no, "aviso"));
+        }
+      }
+      tr.appendChild(z);
+
+      tr.appendChild(el("td", e.confianca || "—"));
+      tr.appendChild(el("td",
+        e.fase === "treino"
+          ? (e.streak === null ? "" : "sequência " + e.streak)
+          : (NOME[e.estado] || e.estado || "")));
+      tr.appendChild(el("td",
+        [ms(e.ms_resposta), ms(e.ms_razao), ms(e.ms_confianca)].join(" / "),
+        "num"));
+      t.appendChild(tr);
+    });
+    return t;
+  }
+
+  function desenhaDetalhe(j) {
+    var alvo = $("detalhe");
+    alvo.textContent = "";
+
+    alvo.appendChild(el("h2", "Sessão " + j.codigo));
+    var linha = [hora(j.inicio) + " → " + hora(j.ultimo),
+                 j.respostas + " respostas",
+                 j.encerrada ? "encerrada" : "na fase " + j.fase.toLowerCase()];
+    if (j.retomadas) {
+      linha.push(j.retomadas + "× retomada depois de queda");
+    }
+    alvo.appendChild(el("p", linha.join(" · "), "meta"));
+
+    alvo.appendChild(el("h2", "Premissas"));
+    var caixa = el("div", null, "nos");
+    j.nos.forEach(function (n) {
+      var c = el("div", null, "no");
+      var b = el("b", n.no + " " + (SIMBOLO[n.estado] || ""), CLASSE[n.estado]);
+      c.appendChild(b);
+      c.appendChild(el("span", NOME[n.estado] || n.estado, "nome"));
+      if (n.origem_crenca) {
+        c.appendChild(el("span", "crença veio do item de " + n.origem_crenca,
+                         "nome"));
+      }
+      if (n.estado === "em_treino") {
+        c.appendChild(el("span", "sequência " + n.streak + "/2", "nome"));
+      }
+      caixa.appendChild(c);
+    });
+    alvo.appendChild(caixa);
+
+    alvo.appendChild(el("h2", "Episódios"));
+    if (j.episodios.length) alvo.appendChild(tabelaEpisodios(j.episodios));
+    else alvo.appendChild(el("p", "Nenhuma atividade respondida ainda.", "vazio"));
+
+    alvo.appendChild(el("h2", "Teach-back"));
+    alvo.appendChild(el("p", j.pergunta, "meta"));
+    var f = el("div", null, "frases");
+    f.appendChild(el("div", "Antes", "rotulo"));
+    f.appendChild(el("div", j.frases.inicial || "— em branco —",
+                     j.frases.inicial ? "" : "vazio"));
+    f.appendChild(el("div", "Depois", "rotulo"));
+    f.appendChild(el("div", j.frases.final || "— ainda não escreveu —",
+                     j.frases.final ? "" : "vazio"));
+    alvo.appendChild(f);
+
+    alvo.appendChild(el("h2", "Log, as últimas linhas"));
+    alvo.appendChild(el("pre", j.cauda.map(function (x) {
+      return JSON.stringify(x);
+    }).join("\n")));
+  }
+
+  /* -------------------------------------------------------------- rede */
+
+  async function carrega(rota) {
+    var r = await fetch(rota);
+    if (r.ok) return r.json();
+    /* O servidor diz POR QUE recusou — um log sem entradas, um log de
+     * outro topico. Trocar isso por "HTTP 409" devolveria ao pesquisador
+     * o trabalho de ir descobrir no terminal. */
+    var motivo = "";
+    try { motivo = (await r.json()).detail || ""; } catch (e) { motivo = ""; }
+    throw new Error(motivo || "HTTP " + r.status + " em " + rota);
+  }
+
+  async function carregaDetalhe() {
+    if (!atual || atual === recusada) return;
+    try {
+      desenhaDetalhe(await carrega("/sessoes/" + encodeURIComponent(atual)));
+    } catch (e) {
+      recusada = atual;
+      var alvo = $("detalhe");
+      alvo.textContent = "";
+      alvo.appendChild(el("p", "Esta sessão não abriu: " + e.message, "alerta"));
+    }
+  }
+
+  async function atualiza() {
+    try {
+      desenhaLista(await carrega("/sessoes"));
+      $("atualizado").textContent = "atualizado " + hora(new Date().toISOString());
+    } catch (e) {
+      $("atualizado").textContent = "sem contato com o painel";
+    }
+  }
+
+  /* A cada tres segundos: acompanha quem esta respondendo sem virar um
+   * piscapisca ao lado de alguem tentando pensar. */
+  async function ciclo() {
+    await atualiza();
+    await carregaDetalhe();
+  }
+
+  ciclo();
+  setInterval(ciclo, 3000);
+})();
+</script>
+</body>
+</html>
