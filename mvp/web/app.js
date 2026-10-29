@@ -128,6 +128,10 @@
     if (n.estado === "lacuna") return " ?";
     if (n.estado === "em_treino") return " " + n.streak + "/2";
     if (n.estado === "em_aberto") return " —";
+    /* Nao medida: a unidade acabou sem nenhuma resposta atribuida a esta
+     * premissa. Nao e o mesmo que "em aberto", onde houve treino e ele nao
+     * fechou — e nao pode ficar com a mesma cara de quem nem comecou. */
+    if (n.estado === "nao_medido") return " ?!";
     return "";
   }
 
@@ -138,7 +142,8 @@
     refutado: "crença detectada",
     lacuna: "disse que não sabe",
     em_treino: "em treino",
-    em_aberto: "ficou em aberto"
+    em_aberto: "ficou em aberto",
+    nao_medido: "esta unidade não chegou a medir"
   };
 
   /* O caso cruzado precisa de texto: um no pode ficar vermelho sem a pessoa

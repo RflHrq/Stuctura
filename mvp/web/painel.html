@@ -102,18 +102,20 @@ footer{padding:12px 20px; border-top:1px solid var(--linha);
    * preto e branco nao podem apagar a diferenca entre "de pe" e "crenca". */
   var SIMBOLO = {
     confirmado: "✓", fragil: "✓?", falso_positivo: "!", refutado: "✗",
-    lacuna: "?", em_treino: "…", em_aberto: "—", desconhecido: "·"
+    lacuna: "?", em_treino: "…", em_aberto: "—", desconhecido: "·",
+    nao_medido: "?!"
   };
   var NOME = {
     confirmado: "confirmada", fragil: "frágil", falso_positivo: "falso positivo",
     refutado: "crença", lacuna: "lacuna", em_treino: "em treino",
-    em_aberto: "em aberto", desconhecido: "não tocada"
+    em_aberto: "em aberto", desconhecido: "não tocada",
+    nao_medido: "não medida"
   };
   var FASE = { diagnostico: "diag.", treino: "treino", reteste: "RETESTE" };
   var CLASSE = {
     confirmado: "ok", fragil: "aviso", falso_positivo: "aviso",
     refutado: "erro", lacuna: "aviso", em_treino: "", em_aberto: "",
-    desconhecido: ""
+    desconhecido: "", nao_medido: "aviso"
   };
 
   var atual = null;

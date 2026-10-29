@@ -4,8 +4,14 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** **ciclo de conteúdo** — o kc_02 ("o que é um ponteiro")
-tem grafo, crenças conferidas na fonte e banco de 36 atividades. A
+**Fase atual:** **ciclo 3 fechado** ([tarefas](tasks-ciclo-3.md)). As três
+decisões que a medição do kc_02 deixou em aberto eram de motor, e foram
+resolvidas: a crença já tratada sai da cédula, a premissa não medida diz o
+nome, e a confiança ficou onde decide alguma coisa. Quem erra e aprende
+agora termina com **todas** as premissas medidas — era 4 em 10 sem medida.
+
+Antes disso, o **ciclo de conteúdo**: o kc_02 ganhou grafo, crenças
+conferidas na fonte e banco de 36 atividades, e a
 [medição com o caminhante](#o-que-a-medição-do-kc_02-mostrou) derrubou a
 hipótese de que mais itens fechariam o buraco da CS-10.
 
@@ -112,6 +118,7 @@ Nenhuma bloqueia a fase 4.
 | conteúdo | `docs/linguagem.md` | **pronto** — contrato de linguagem e três formatos propostos |
 | conteúdo | `docs/revisao-crencas-kc02.md` | **pronto** — crenças conferidas na obra primária |
 | conteúdo | `mvp/dominio/*_kc02.yaml` | **pronto** — 6 nós, 6 crenças, 36 atividades |
+| 5 Issues (3º ciclo) | `docs/tasks-ciclo-3.md` | **pronto** — 3 tarefas, C1 a C3 |
 
 ## Fase 6 — as tarefas, uma por commit
 
@@ -290,3 +297,36 @@ telas de confiança por sessão que não alimentam nenhuma decisão.
 2. **A confiança no treino** é dado que você quer, ou tela a menos?
 3. **O tamanho do tópico.** Seis nós com 3+3 estoura o orçamento de
    sessão. Cinco nós, ou 2+3, ou sessão mais longa — é escolha sua.
+
+
+## Ciclo 3 — o que a medição mandou consertar
+
+| Tarefa | Commit | O que entregou |
+| --- | --- | --- |
+| C1 | `23de1e5` | a crença de nó sustentado sai do cardápio; `nao_medido` com motivo |
+| C2 | `23de1e5` | a confiança do treino só no item que fecha a sequência |
+| C3 | — | medição: seis nós com 3+3 cabem na sessão |
+
+### O caminhante, antes e depois
+
+| Persona | antes | depois | sem medida |
+| --- | --- | --- | --- |
+| acerta tudo | 42 passos | 42 | 0/10 → 0/10 |
+| erra e aprende | 84–123 | **81** | 4/10 → **0/10** |
+| erra e não muda | 110–149 | **90–118** | 6/10 → 4/10, agora **nomeadas** |
+
+A confiança caiu de 44,8 para 12,0 telas por sessão de quem erra muito —
+de 34% para 12% da sessão.
+
+### O que a sabotagem pegou neste ciclo
+
+Duas de sete não mordiam:
+
+- apagar a marcação do `nao_medido` passava limpo, porque nenhuma sessão
+  normal deixava nó sem estado. Entrou uma **política de pior caso**, que
+  explica sempre pela crença do vizinho e produz o caso de forma
+  determinística;
+- renomear `nao_medido` para `nao_medidoX` na tela passava, porque o teste
+  procurava **substring** e o nome novo contém o antigo. É a terceira vez
+  que a mesma armadilha aparece neste projeto (R3, R6 e agora). Virou
+  checagem com fronteira de palavra.

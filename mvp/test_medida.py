@@ -36,6 +36,9 @@ from __future__ import annotations
 
 import pytest
 
+import pathlib
+import re
+
 from mvp import motor
 from mvp.dominio import carrega
 from mvp.motor import Resposta
@@ -224,3 +227,43 @@ def test_a_confianca_continua_em_toda_atividade_de_diagnostico(d):
     perguntas = [e for e in _dos(eventos, "camada3_respondida")
                  if e.dados.get("origem") == "diagnostico"]
     assert len(perguntas) == len(itens)
+
+
+# --------------------------------------------------------------------------
+# A tela sabe desenhar todos os estados
+# --------------------------------------------------------------------------
+
+ESTADOS_DO_NO = (motor.DESCONHECIDO, motor.LACUNA, motor.FRAGIL,
+                 motor.CONFIRMADO, motor.FALSO_POSITIVO, motor.REFUTADO,
+                 motor.EM_TREINO, motor.EM_ABERTO, motor.NAO_MEDIDO)
+
+WEB = pathlib.Path(__file__).resolve().parent / "web"
+
+
+def _citado(estado, fonte):
+    """O estado aparece como VALOR ou como CHAVE, inteiro.
+
+    Substring não serve: renomear `nao_medido` para `nao_medidoX` passava
+    limpo na primeira versão deste teste, porque o nome novo contém o
+    antigo. A sabotagem pegou.
+    """
+    return re.search(r'["\']%s["\']|\b%s\s*:' % (estado, estado), fonte) is not None
+
+
+def test_a_tela_de_quem_responde_desenha_todo_estado():
+    """Estado novo no motor e esquecido na tela sai em branco — a premissa
+    aparece sem marca nenhuma, igual às que nem começaram. Foi o que quase
+    aconteceu com `nao_medido`."""
+    js = (WEB / "app.js").read_text(encoding="utf-8")
+    # `desconhecido` é o único sem marca de propósito: ainda não chegou a vez.
+    faltam = [s for s in ESTADOS_DO_NO
+              if s != motor.DESCONHECIDO and not _citado(s, js)]
+    assert faltam == [], faltam
+
+
+def test_o_painel_desenha_todo_estado():
+    """No painel até `desconhecido` tem símbolo: quem lê é o pesquisador, e
+    ele precisa distinguir 'não tocada' de 'não medida'."""
+    html = (WEB / "painel.html").read_text(encoding="utf-8")
+    faltam = [s for s in ESTADOS_DO_NO if not _citado(s, html)]
+    assert faltam == [], faltam
