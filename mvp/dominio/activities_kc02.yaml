@@ -1,0 +1,773 @@
+# Banco de atividades — kc_02, "o que é um ponteiro"
+#
+# TRÊS de diagnóstico e TRÊS de treino por nó, contra as 2+2 do kc_00. A
+# revisão final mediu o custo do banco pequeno: com dois itens de
+# diagnóstico, uma razão que aponta o vizinho gasta os dois e o nó termina
+# `desconhecido` — aconteceu em 9 de 30 sessões.
+#
+# REGRA DE DISTRATOR, que vem de `motor.razoes_de`: as razões da camada 2
+# são montadas DAS ALTERNATIVAS DO PRÓPRIO ITEM. Um item cujos distratores
+# não apontam crença nenhuma deixa a camada 2 com uma opção só, e a
+# camada 2 é onde o diagnóstico mora.
+#
+# Por isso, em todo item de diagnóstico:
+#   - um distrator aponta a crença DO PRÓPRIO NÓ (para o nó poder receber
+#     atribuição e não morrer de fome, que foi o defeito do kc_00);
+#   - outro aponta a crença de um VIZINHO (a atribuição cruzada da CS-2,
+#     que é desenho, não acidente).
+#
+# Nos itens de TREINO a camada 2 não roda (`_resolve_treino` só olha
+# certo/errado), mas o distrator com a crença do nó continua: é dele que
+# sai `crenca_em_jogo`, que o reteste lê.
+#
+# Três alternativas, não duas: 13 dos 20 itens do kc_00 são binários, e
+# dois terços do banco em cara ou coroa é a fraqueza mais barata de
+# corrigir que existe.
+
+# A METÁFORA DO TÓPICO: a rua de casas numeradas.
+#
+# Declarada aqui e declarada onde quebra, como manda docs/linguagem.md.
+analogy: >
+  Rua de casas numeradas. Cada lugar da memória é uma casa: tem um número
+  na porta, que é o endereço, e alguma coisa dentro, que é o valor. Um
+  ponteiro é uma casa como as outras — e o que está guardado dentro dela é
+  o número de outra casa, escrito num papel.
+  ONDE QUEBRA: números de casa andam de um em um, endereços andam do
+  tamanho do objeto (isso é kc_11, e aqui a metáfora cala). E a casa que
+  guarda o papel não deixa de ser casa — é por isso que nunca se diz que
+  o ponteiro É a seta: seta não tem número na porta, e aí &p perde o
+  sentido.
+
+# A analogia de resgate de CADA nó. É ela que aparece no passo de
+# validação — o resumo acima mapeia os seis de uma vez e entregaria a
+# resposta dos itens que ainda não foram feitos.
+resgates:
+
+  B1: >
+    Numa rua, o que identifica uma casa é o número na porta, não quem mora
+    nela nem o que tem na sala. Duas casas podem ter sofás iguais e
+    continuam sendo duas casas, com dois números. Na memória é igual: o
+    endereço é o número do lugar, e não tem nada a ver com o valor que
+    está guardado ali.
+
+  B2: >
+    O papel com o número da casa 1000 escrito nele está em algum lugar —
+    em cima de uma mesa, dentro de outra casa, que também tem número na
+    porta. O papel não flutua. Um ponteiro é essa casa: ela guarda um
+    número, e ela mesma tem o seu.
+
+  B3: >
+    Quando você abre o papel que está dentro da casa 2A00, não encontra o
+    sofá da outra casa: encontra o número dela. O que está guardado num
+    ponteiro é o endereço, não o conteúdo do destino — para ver o
+    conteúdo é preciso ir até lá.
+
+  I1: >
+    A casa do papel e a casa do número escrito nele são duas casas, em
+    dois pontos da rua. Rasgar o papel e escrever outro número não derruba
+    nenhuma parede da outra casa; trocar o sofá da outra casa não muda o
+    que está escrito no papel.
+
+  I2: >
+    O número 1000 numa conta de luz e o número 1000 numa porta de rua são
+    o mesmo rabisco e não são a mesma coisa: um você soma, o outro você
+    usa para chegar a um lugar. Quem sabe qual é qual não é o papel: é
+    quem lê. No programa, quem lê é o compilador, pela declaração.
+
+  I3: >
+    Para um vizinho regar a sua planta, você não manda a planta para a
+    casa dele: manda o número da sua casa. Com o endereço na mão ele chega
+    à mesma planta — a sua, não uma cópia. É para isso que o endereço
+    serve.
+
+# O código que acompanha cada premissa na tela de ENSINO. A frase sozinha
+# fica abstrata para quem nunca escreveu um ponteiro; o exemplo ancora.
+exemplos:
+
+  B1: |
+    int idade = 20;
+    printf("%p\n", (void *)&idade);   /* o lugar */
+    printf("%d\n", idade);            /* o que tem nele */
+
+  B2: |
+    int x = 42;
+    int *p = &x;
+    printf("%p\n", (void *)&p);       /* p tambem tem endereco */
+
+  B3: |
+    int x = 42;
+    int *p = &x;
+    printf("%p\n", (void *)p);        /* dentro de p: o endereco de x */
+
+  I1: |
+    int x = 42, y = 7;
+    int *p = &x;
+    p = &y;        /* muda p  */
+    *p = 99;       /* muda y  */
+
+  I2: |
+    int x = 42;
+    int *p = &x;
+    printf("%p\n", (void *)(p + 1));  /* anda sizeof(int), nao 1 */
+
+  I3: |
+    void dobra(int *q) { *q = *q * 2; }
+
+    int n = 10;
+    dobra(&n);     /* n agora e 20 */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — cada lugar da memória tem um número que o identifica
+  # crença do nó: memory_is_by_name
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc02_001
+    node: kc02:B1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que é o endereço de uma variável?"
+    alternativas:
+      a: "O número do lugar da memória onde ela está"
+      b: "O nome dela — é por ele que o programa a encontra enquanto roda"
+      c: "O valor que está guardado dentro dela"
+    gabarito: a
+    crencas:
+      b: memory_is_by_name
+      c: pointer_is_data
+
+  - id: ciu_kc02_002
+    node: kc02:B1
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      printf("%p\n", (void *)&x);
+      printf("%d\n", x);
+    enunciado: "As duas linhas imprimem coisas diferentes. O que a primeira mostra?"
+    alternativas:
+      a: "O lugar da memória onde x está guardado"
+      b: "42, igual à segunda: o endereço de x é o conteúdo dele"
+      c: "O nome x convertido em número"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: memory_is_by_name
+
+  - id: ciu_kc02_003
+    node: kc02:B1
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int a = 7;
+      int b = a;
+    enunciado: "Depois dessas duas linhas, a e b:"
+    alternativas:
+      a: "ocupam dois lugares diferentes, cada um com uma cópia do 7"
+      b: "ocupam o mesmo lugar: b passou a ser outro nome para a"
+      c: "ocupam dois lugares, mas mudar b agora muda a junto"
+    gabarito: a
+    crencas:
+      b: memory_is_by_name
+      c: pointer_and_target_are_one
+
+  - id: ciu_kc02_t01
+    node: kc02:B1
+    uso: treino
+    formato: achar_o_erro
+    tipo: teorica
+    enunciado: >
+      Um colega diz: "variável comum não tem endereço; endereço é coisa de
+      ponteiro". O que você responde?
+    alternativas:
+      a: "Errado: toda variável ocupa um lugar, e todo lugar tem endereço"
+      b: "Certo: o endereço só passa a existir quando você declara um ponteiro"
+      c: "Certo: variável comum o programa acha pelo nome"
+    gabarito: a
+    crencas:
+      b: pointer_has_no_address
+      c: memory_is_by_name
+
+  - id: ciu_kc02_t02
+    node: kc02:B1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: codigo
+    codigo: |
+      int n = 5;
+    enunciado: "Qual expressão vale o endereço de n?"
+    alternativas:
+      a: "&n"
+      b: "n"
+      c: "*n"
+    gabarito: a
+    crencas:
+      b: memory_is_by_name
+
+  - id: ciu_kc02_t03
+    node: kc02:B1
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int a = 7;
+      int b = 7;
+    enunciado: "a e b guardam o mesmo valor. E os endereços?"
+    alternativas:
+      a: "São diferentes: são dois lugares distintos na memória"
+      b: "São iguais: o mesmo valor mora no mesmo lugar"
+      c: "Só existe endereço depois que alguém escrever &a no programa"
+    gabarito: a
+    crencas:
+      b: memory_is_by_name
+      c: pointer_has_no_address
+
+  # ------------------------------------------------------------------
+  # B2 — um ponteiro é uma variável: ocupa lugar e tem endereço próprio
+  # crença do nó: pointer_has_no_address
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc02_004
+    node: kc02:B2
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Depois de int *p = &x;, quantos lugares da memória estão em jogo?"
+    alternativas:
+      a: "Dois: o de x e o de p, cada um com o seu endereço"
+      b: "Um: o de x. p é a ligação entre ele e o resto do programa"
+      c: "Um: p e x passaram a ser o mesmo lugar, com dois nomes"
+    gabarito: a
+    crencas:
+      b: pointer_has_no_address
+      c: pointer_and_target_are_one
+
+  - id: ciu_kc02_005
+    node: kc02:B2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      int *p = &x;
+      printf("%p\n", (void *)&p);
+    enunciado: "O que essa linha imprime?"
+    alternativas:
+      a: "O endereço da própria variável p"
+      b: "Erro: p é um ponteiro, não tem endereço para pegar"
+      c: "O endereço de x, que é o que p guarda"
+    gabarito: a
+    crencas:
+      b: pointer_has_no_address
+      c: pointer_is_data
+
+  - id: ciu_kc02_006
+    node: kc02:B2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      int *p = &x;
+    enunciado: >
+      Um colega desenhou isso como uma seta saindo de x. O que falta no
+      desenho dele?
+    alternativas:
+      a: "Uma caixa para p, com endereço próprio, de onde a seta sai"
+      b: "Nada: a seta é o ponteiro, e seta não ocupa lugar"
+      c: "Nada: p é só o apelido que x ganhou"
+    gabarito: a
+    crencas:
+      b: pointer_has_no_address
+      c: pointer_and_target_are_one
+
+  - id: ciu_kc02_t04
+    node: kc02:B2
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      int *p = &x;
+    enunciado: "&x e &p são:"
+    alternativas:
+      a: "dois endereços diferentes: o de x e o de p"
+      b: "o mesmo endereço, escrito de dois jeitos"
+      c: "o primeiro é um endereço; o segundo não existe"
+    gabarito: a
+    crencas:
+      b: pointer_and_target_are_one
+      c: pointer_has_no_address
+
+  - id: ciu_kc02_t05
+    node: kc02:B2
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Um ponteiro ocupa espaço na memória?"
+    alternativas:
+      a: "Sim: é uma variável, e precisa de lugar para o endereço"
+      b: "Não: ele só faz a ligação entre duas variáveis, sem ocupar espaço"
+      c: "Só depois que receber um endereço de verdade"
+    gabarito: a
+    crencas:
+      b: pointer_has_no_address
+      c: pointer_has_no_address
+
+  - id: ciu_kc02_t06
+    node: kc02:B2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      int *p = &x;
+      printf("%d\n", &p == &x);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "0 — são endereços de duas variáveis diferentes"
+      b: "1 — p e x são a mesma coisa vista de dois jeitos"
+      c: "0, mas só porque p ainda não foi usado com *"
+    gabarito: a
+    crencas:
+      b: pointer_and_target_are_one
+      c: pointer_has_no_address
+
+  # ------------------------------------------------------------------
+  # B3 — o valor guardado num ponteiro é um endereço
+  # crença do nó: pointer_is_data
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc02_007
+    node: kc02:B3
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que está guardado dentro de um ponteiro?"
+    alternativas:
+      a: "Um endereço: o número do lugar onde outra variável está"
+      b: "O valor da variável apontada, copiado quando p recebeu o &x"
+      c: "O nome da variável apontada, para o programa procurar por ele"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: memory_is_by_name
+
+  - id: ciu_kc02_008
+    node: kc02:B3
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      int *p = &x;
+      printf("%d\n", *p);
+    enunciado: "Por que é preciso escrever *p, e não só p, para sair 42?"
+    alternativas:
+      a: "Porque dentro de p está o endereço; o * é que vai até lá buscar o valor"
+      b: "Não é preciso: p sozinho já vale 42"
+      c: "Porque p guarda o nome de x, e o * é que resolve esse nome até o valor"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: memory_is_by_name
+
+  - id: ciu_kc02_009
+    node: kc02:B3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      int *p = &x;
+      int  y = *p;
+      int *q =  p;
+    enunciado: "y e q receberam coisas diferentes. Quais?"
+    alternativas:
+      a: "y recebeu 42, o valor; q recebeu o endereço de x"
+      b: "os dois receberam 42: p vale 42"
+      c: "os dois receberam o endereço: * e nada são a mesma coisa"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_and_target_are_one
+
+  - id: ciu_kc02_t07
+    node: kc02:B3
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Dois ponteiros guardam o mesmo endereço. O que isso quer dizer?"
+    alternativas:
+      a: "Que os dois levam à mesma variável"
+      b: "Que os dois guardam o mesmo valor da variável apontada"
+      c: "Que os dois são a mesma variável"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_and_target_are_one
+
+  - id: ciu_kc02_t08
+    node: kc02:B3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 10;
+      int *p = &x;
+      x = 20;
+      printf("%d\n", *p);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "20 — p guarda o endereço, e lá dentro agora está 20"
+      b: "10 — p copiou o valor quando recebeu &x"
+      c: "Erro — x mudou e p ficou apontando para o valor antigo"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_is_data
+
+  - id: ciu_kc02_t09
+    node: kc02:B3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      int *p = x;
+    enunciado: "O que está errado na segunda linha?"
+    alternativas:
+      a: "p espera um endereço, e x é um valor: falta o &"
+      b: "Nada: p guarda o valor de x, que é o que se quer"
+      c: "Falta o *: o certo seria int *p = *x"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+
+  # ------------------------------------------------------------------
+  # I1 — o ponteiro e o objeto apontado são duas coisas
+  # crença do nó: pointer_and_target_are_one
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc02_010
+    node: kc02:I1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Quando você escreve p = &y, o que muda?"
+    alternativas:
+      a: "Só p: ele passa a guardar outro endereço"
+      b: "p e a variável que ele apontava antes: as duas andam juntas"
+      c: "Nada visível: p já era um atalho para a variável"
+    gabarito: a
+    crencas:
+      b: pointer_and_target_are_one
+      c: pointer_has_no_address
+
+  - id: ciu_kc02_011
+    node: kc02:I1
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 1, y = 2;
+      int *p = &x;
+      int *q = &y;
+      p = q;
+      printf("%d %d\n", x, y);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1 2 — mudou p, não mudou x nem y"
+      b: "2 2 — p = q copiou o valor de y para x"
+      c: "1 1 — p = q fez x e y virarem a mesma variável"
+    gabarito: a
+    crencas:
+      b: pointer_and_target_are_one
+      c: pointer_and_target_are_one
+
+  - id: ciu_kc02_012
+    node: kc02:I1
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 1, y = 2;
+      int *p = &x;
+      int *q = &y;
+      p = q;
+    enunciado: >
+      Um colega quer copiar o valor de y para x e escreveu p = q. Por que
+      não funciona?
+    alternativas:
+      a: "p = q copia o endereço; para copiar o valor seria *p = *q"
+      b: "Funciona: mexer no ponteiro é mexer na variável"
+      c: "Não funciona porque p e q têm endereços diferentes"
+    gabarito: a
+    crencas:
+      b: pointer_and_target_are_one
+      c: pointer_has_no_address
+
+  - id: ciu_kc02_t10
+    node: kc02:I1
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 1, y = 2;
+      int *p = &x;
+      int *q = &y;
+      *p = *q;
+      printf("%d %d\n", x, y);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "2 2 — o valor de y foi copiado para x"
+      b: "1 2 — *p = *q mexe nos ponteiros, não nas variáveis"
+      c: "2 1 — os valores trocaram de lugar"
+    gabarito: a
+    crencas:
+      b: pointer_and_target_are_one
+
+  - id: ciu_kc02_t11
+    node: kc02:I1
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* caso 1 */  p = q;
+      /* caso 2 */  *p = *q;
+    enunciado: "Qual a diferença entre os dois casos?"
+    alternativas:
+      a: "O 1 muda para onde p aponta; o 2 muda o valor que está lá"
+      b: "Nenhuma: os dois fazem p e q apontarem para a mesma coisa"
+      c: "O 1 é inválido; só o 2 compila"
+    gabarito: a
+    crencas:
+      b: pointer_and_target_are_one
+
+  - id: ciu_kc02_t12
+    node: kc02:I1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Se dois ponteiros apontam para a mesma variável e um deles faz *p = 9:"
+    alternativas:
+      a: "o outro passa a enxergar 9 também, porque a variável é a mesma"
+      b: "o outro continua enxergando o valor antigo, que é a cópia dele"
+      c: "os dois ponteiros passam a valer 9"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_is_data
+
+  # ------------------------------------------------------------------
+  # I2 — um ponteiro tem tipo, e por isso não é um inteiro qualquer
+  # crença do nó: pointer_is_integer
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc02_013
+    node: kc02:I2
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Por que int *p e char *c não são a mesma coisa, se os dois guardam endereços?"
+    alternativas:
+      a: "Porque o tipo diz o que existe no destino, e é ele que decide quanto p + 1 anda"
+      b: "Não são diferentes: endereço é endereço, os dois guardam um número"
+      c: "Porque cada um guarda o endereço junto com o tipo do destino"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_is_data
+
+  - id: ciu_kc02_014
+    node: kc02:I2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      int n = &x;
+    enunciado: "Por que o compilador reclama da segunda linha?"
+    alternativas:
+      a: "&x é um ponteiro para int, e n é um int: são tipos diferentes"
+      b: "Não deveria reclamar: endereço é um número, e int guarda número"
+      c: "Porque &x só existe se x também for um ponteiro"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_has_no_address
+
+  - id: ciu_kc02_015
+    node: kc02:I2
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int  *p;   /* suponha p = 1000 */
+      char *c;   /* suponha c = 1000 */
+    enunciado: "Os dois guardam 1000. Para onde p + 1 e c + 1 apontam?"
+    alternativas:
+      a: "p + 1 anda o tamanho de um int; c + 1 anda um byte"
+      b: "Os dois vão para 1001: somar 1 é somar 1"
+      c: "Depende do valor que estiver guardado em cada um deles"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_is_data
+
+  - id: ciu_kc02_t13
+    node: kc02:I2
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Quem sabe o tipo do que está no fim de um ponteiro, enquanto o programa roda?"
+    alternativas:
+      a: "Ninguém: o compilador já resolveu isso pela declaração, antes de rodar"
+      b: "O próprio endereço, que carrega o tipo do destino junto com o número"
+      c: "O programa descobre olhando o que está guardado lá"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_is_integer
+
+  - id: ciu_kc02_t14
+    node: kc02:I2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      double d = 3.5;
+      int *p = &d;
+    enunciado: "O que está errado?"
+    alternativas:
+      a: "&d é ponteiro para double, e p é ponteiro para int"
+      b: "Nada: os dois guardam endereço, e endereço é endereço"
+      c: "Falta converter d para int antes"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+
+  - id: ciu_kc02_t15
+    node: kc02:I2
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int  a[3];
+      char b[3];
+    enunciado: "Andar uma posição em cada um desses arrays anda quantos bytes?"
+    alternativas:
+      a: "Em a, o tamanho de um int; em b, um byte"
+      b: "Um byte nos dois: uma posição é uma posição"
+      c: "Depende do valor guardado em cada posição"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_is_data
+
+  # ------------------------------------------------------------------
+  # I3 — guardar um endereço permite alcançar a mesma caixa de longe
+  # crença do nó: pointer_is_pointless
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc02_016
+    node: kc02:I3
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Para que serve passar o endereço de uma variável para uma função?"
+    alternativas:
+      a: "Para a função chegar à variável original, e não a uma cópia dela"
+      b: "Para nada que uma variável comum não resolva: é o jeito difícil"
+      c: "Para a função guardar o valor com mais segurança"
+    gabarito: a
+    crencas:
+      b: pointer_is_pointless
+      c: pointer_is_data
+
+  - id: ciu_kc02_017
+    node: kc02:I3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      void a(int  v) { v = 99; }
+      void b(int *v) { *v = 99; }
+
+      int n = 1;
+      a(n);   printf("%d\n", n);
+      b(&n);  printf("%d\n", n);
+    enunciado: "O que as duas impressões mostram?"
+    alternativas:
+      a: "1 e depois 99: só b alcançou o n de fora"
+      b: "99 e 99: as duas mudam n, só muda o jeito de escrever"
+      c: "1 e 1: função nenhuma consegue mudar uma variável de fora"
+    gabarito: a
+    crencas:
+      b: pointer_is_pointless
+      c: pointer_is_pointless
+
+  - id: ciu_kc02_018
+    node: kc02:I3
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void zera(int *v) { *v = 0; }
+
+      int n = 7;
+      zera(&n);
+      printf("%d\n", n);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "0 — zera recebeu o endereço de n e escreveu no lugar certo"
+      b: "7 — a função trabalhou numa cópia e a cópia morreu no fim"
+      c: "0, mas só porque n é global"
+    gabarito: a
+    crencas:
+      b: pointer_is_pointless
+      c: pointer_has_no_address
+
+  - id: ciu_kc02_t16
+    node: kc02:I3
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Uma função precisa devolver dois resultados. Como o endereço ajuda?
+    alternativas:
+      a: "Quem chama passa o endereço de duas variáveis, e a função escreve nelas"
+      b: "Não ajuda: para devolver dois resultados só mudando de linguagem"
+      c: "A função guarda os dois dentro de um ponteiro só"
+    gabarito: a
+    crencas:
+      b: pointer_is_pointless
+      c: pointer_is_data
+
+  - id: ciu_kc02_t17
+    node: kc02:I3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void troca(int *a, int *b) {
+          int t = *a; *a = *b; *b = t;
+      }
+
+      int x = 1, y = 2;
+      troca(&x, &y);
+      printf("%d %d\n", x, y);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "2 1 — a função chegou às duas variáveis originais"
+      b: "1 2 — trocar dentro da função não muda nada fora"
+      c: "2 1, e x e y agora são a mesma variável"
+    gabarito: a
+    crencas:
+      b: pointer_is_pointless
+      c: pointer_and_target_are_one
+
+  - id: ciu_kc02_t18
+    node: kc02:I3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void zera(int v) { v = 0; }
+
+      int n = 7;
+      zera(n);
+    enunciado: "Depois disso n continua 7. Por quê?"
+    alternativas:
+      a: "zera recebeu uma cópia do valor; sem o endereço não dá para alcançar n"
+      b: "Porque faltou chamar zera uma segunda vez, depois da primeira"
+      c: "Não continua: n vira 0, a função mexeu na variável"
+    gabarito: a
+    crencas:
+      c: pointer_is_pointless

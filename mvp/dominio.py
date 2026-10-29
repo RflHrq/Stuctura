@@ -10,6 +10,7 @@ de qualquer participante ver a tela.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Mapping
@@ -17,6 +18,16 @@ from typing import Mapping
 import yaml
 
 RAIZ = Path(__file__).resolve().parent / "dominio"
+
+# O tópico que uma execução carrega. UM por processo: o motor é de uma
+# unidade, e o log registra o tópico na abertura da sessão — misturar dois
+# num mesmo arquivo faria a reexecução aplicar o domínio errado.
+#
+#   STRUCTURA_TOPICO=kc_02 python -m mvp.app
+#
+# Era fixo em "kc_00" dentro de `carrega`, o que bastava enquanto havia um
+# tópico só.
+TOPICO_PADRAO = os.environ.get("STRUCTURA_TOPICO", "kc_00")
 
 # Formatos do banco de atividades. Não é taxonomia fechada: é o que a
 # regra de variação precisa comparar para não repetir o mesmo molde.
@@ -138,12 +149,27 @@ def _texto(valor) -> str:
     return " ".join(str(valor or "").split())
 
 
-def carrega(raiz: Path | None = None) -> Dominio:
+def carrega(raiz: Path | None = None, topico: str | None = None) -> Dominio:
     base = Path(raiz) if raiz else RAIZ
-    topico = yaml.safe_load((base / "topic_kc00.yaml").read_text(encoding="utf-8"))
-    grafo = yaml.safe_load((base / "graph_kc00.yaml").read_text(encoding="utf-8"))
-    cru_crencas = yaml.safe_load((base / "beliefs_kc00.yaml").read_text(encoding="utf-8"))
-    cru_atv = yaml.safe_load((base / "activities_kc00.yaml").read_text(encoding="utf-8"))
+    alvo = topico or TOPICO_PADRAO
+
+    # O id do tópico tem underscore (`kc_02`) e o nome do arquivo não
+    # (`topic_kc02.yaml`). A convenção veio do kc_00 e fica: normalizar
+    # aqui custa uma linha e evita um erro de digitação por tópico novo.
+    sufixo = alvo.replace("_", "")
+
+    def le(prefixo: str):
+        caminho = base / ("%s_%s.yaml" % (prefixo, sufixo))
+        if not caminho.exists():
+            raise DominioInvalido(
+                ["não achei %s: o tópico %r não está em %s"
+                 % (caminho.name, alvo, base)])
+        return yaml.safe_load(caminho.read_text(encoding="utf-8"))
+
+    cru_topico = le("topic")
+    grafo = le("graph")
+    cru_crencas = le("beliefs")
+    cru_atv = le("activities")
 
     problemas: list[str] = []
 
@@ -303,10 +329,10 @@ def carrega(raiz: Path | None = None) -> Dominio:
         raise DominioInvalido(problemas)
 
     return Dominio(
-        id=topico.get("id", "kc_00"),
-        titulo=_texto(topico.get("title")),
-        conclusao=topico.get("conclusion_node", "I1"),
-        teachback=_texto(topico.get("teachback")),
+        id=cru_topico.get("id", alvo),
+        titulo=_texto(cru_topico.get("title")),
+        conclusao=cru_topico.get("conclusion_node", "I1"),
+        teachback=_texto(cru_topico.get("teachback")),
         nos=nos, crencas=crencas, atividades=tuple(atividades),
         analogia=_texto((cru_atv or {}).get("analogy")),
         resgates={k: _texto(v) for k, v in ((cru_atv or {}).get("resgates") or {}).items()},
