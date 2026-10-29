@@ -4,8 +4,9 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** 6 — Implement. Uma tarefa por commit, com sabotagem antes
-de acreditar em teste verde.
+**Fase atual:** 7 — Review. A fase 6 fechou com treze tarefas e treze
+commits. A revisão do ciclo 1 está em [revisao-ciclo-1.md](revisao-ciclo-1.md):
+veredito **parcial**, dois P1 e seis P2, nenhum P0.
 
 **Reformulação, não recomeço:** o motor atual (`mvp/`) e o antigo (`engine/`)
 ficam onde estão, versionados. O que está em reconstrução é o CONCEITO de
@@ -140,7 +141,20 @@ registrada e **não** transformada em tarefa por conta própria: o caminho
 | 4 | D, X, W | não aplicáveis | perfil do projeto |
 | 6/T11 | S (segurança) | focada, método aplicado direto | **passou** — painel só leitura, em 127.0.0.1, sem rota de escrita; o código da sessão nunca entra num caminho de arquivo, com teste da propriedade |
 | 6/T11 | G (privacidade) | focada, método aplicado direto | **passou com regra** — texto livre do participante só na tela de uma sessão, nunca na lista; identificação só pelo código |
+| 7 | S (segurança, camadas 0 a 3) | focada, método aplicado direto | **parcial** — camadas 0 e 1 limpas; P1-A e P2-A na validação de entrada, P2-C em disponibilidade |
+| 7 | D (desempenho) | focada, método aplicado direto | **falhou** — P1-B: a lista do painel custa 966 ms com 36 sessões e é pedida de 3 em 3 segundos |
+| 7 | U (interface) | focada, método aplicado direto | **parcial** — teclado e símbolo-antes-de-cor em ordem; sem teste com pessoas, P3 de acessibilidade abertos |
+| 7 | M (dados) | focada, método aplicado direto | **parcial** — P2-B (entrada sem limite) e P2-D (log sem versão de formato) |
+| 7 | G (privacidade) | focada, método aplicado direto | **parcial** — P2-B e P2-E: o direito de exclusão está declarado no PRD e não tem mecanismo |
+| 7 | T (documentação) | focada, método aplicado direto | **parcial** — o README acompanha as tarefas; faltam os procedimentos de cópia e exclusão |
+| 7 | I (operação) | focada, método aplicado direto | **parcial** — P2-F: a cópia depois de cada sessão que o PRD exige não existe |
 | 6/T11 | U (interface) | **não executada** | o painel tem um usuário só, que é quem construiu; a skill entra na revisão final, junto das telas de quem responde |
+
+## Correções do perfil
+
+| Quando | O que mudou | Por quê |
+| --- | --- | --- |
+| fase 7 | **D (desempenho) deixou de ser "não aplicável"** | o painel introduziu uma consulta repetida sobre um arquivo que cresce (P1-B). É a primeira vez neste processo que um "não aplicável" se mostrou errado, e fica registrado em vez de corrigido em silêncio |
 
 ## Linha de base da fase 2
 
