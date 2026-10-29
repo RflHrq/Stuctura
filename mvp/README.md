@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 176 testes
+python -m pytest mvp/ -q     # 212 testes
 python -m mvp.app            # http://127.0.0.1:8010  quem responde
 python -m mvp.painel         # http://127.0.0.1:8011  quem observa
 ```
@@ -322,6 +322,49 @@ O critério diz "com **outra unidade** no meio". Só existe uma unidade
 pronta, então o que fica no meio são as outras premissas desta. É menos
 separação do que o critério pede. O reteste de verdade acontece na
 abertura da KC seguinte, pelo grafo externo — e isso é o próximo ciclo.
+
+## Operar: copiar e apagar
+
+Dois procedimentos que o PRD exige e que até o ciclo 2 só existiam como
+lembrete. Script que nunca foi executado é documentação, não
+procedimento — os dois têm teste que roda o script de verdade.
+
+### Depois de cada sessão, a cópia
+
+```bash
+bash scripts/copia.sh /caminho/da/segunda/midia
+```
+
+Datada, não sobrescreve a de ontem, e **confere** byte a byte depois de
+copiar. O log de uma coleta é irreproduzível: a pessoa não volta para
+refazer, e a perda tolerável é zero.
+
+A pasta de destino precisa estar em **outra mídia** — cópia no mesmo
+disco não protege contra o disco. E cópia conferida ainda não é backup
+restaurado: o ensaio de restauração é da revisão final.
+
+### O pedido de exclusão de um participante
+
+```bash
+bash scripts/participante.sh ver     P07
+bash scripts/participante.sh apagar  P07
+```
+
+O PRD declara o direito; declarar um direito sem ter como exercê-lo é
+problema de conformidade, e o texto vai ao comitê de ética.
+
+`ver` mostra o que seria apagado, inclusive quantas linhas têm texto
+livre. `apagar` pede o código **de novo** antes de agir e guarda uma cópia
+do arquivo anterior — irreversível merece rede. Quem confere o pedido
+apaga essa cópia depois.
+
+Três cuidados, cada um com teste:
+
+- o código é comparado **campo a campo**, nunca como expressão regular ou
+  pedaço de texto: apagar `P1` não pode levar `P10` junto;
+- linha ilegível não é de ninguém e **fica** — apagar o que não se
+  consegue ler seria apagar o que não se sabe;
+- confirmação errada não apaga nada.
 
 ## Os cinco estados, e em que nó cada um fica
 

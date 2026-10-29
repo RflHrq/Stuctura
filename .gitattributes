@@ -1,0 +1,4 @@
+# Scripts de shell com fim de linha LF, sempre. No Windows o Git converte
+# para CRLF no diretorio de trabalho, e o bash le `set -euo pipefail\r`
+# como opcao invalida — o script morre na primeira linha.
+*.sh text eol=lf
