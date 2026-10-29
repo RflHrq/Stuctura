@@ -20,6 +20,8 @@ nunca foi executado é documentação, não procedimento.
 from __future__ import annotations
 
 import json
+import os
+import re
 import subprocess
 import pathlib
 
@@ -30,6 +32,27 @@ RAIZ = pathlib.Path(__file__).resolve().parent.parent
 # barras invertidas, e os testes rodam com `cwd=RAIZ`.
 APAGAR = "scripts/participante.sh"
 COPIAR = "scripts/copia.sh"
+
+# O que um clone consegue criar em qualquer sistema. Usado pelo teste de
+# higiene do repositório, e é a mesma lista branca do `scripts/verify.sh`.
+SEGURO = re.compile(r"^[A-Za-z0-9._/-]+$")
+
+
+def rel(caminho: pathlib.Path) -> str:
+    """O caminho como este bash consegue abrir: relativo à raiz.
+
+    O bash que o Python encontra aqui não resolve caminho absoluto do
+    Windows em forma nenhuma — nem `C:\\x`, nem `C:/x`, nem `/c/x`; foi
+    medido. O que ele resolve é caminho relativo ao diretório de trabalho,
+    inclusive com `..`.
+
+    É por isso que a área de teste pode ficar FORA do repositório, que é
+    onde ela tem de ficar: a primeira versão deste arquivo pôs a área
+    dentro, e três cópias do log de desenvolvimento ficaram versionadas por
+    dois commits. Quem achou foi a revisão final, na primeira tentativa de
+    clonar o repositório.
+    """
+    return pathlib.Path(os.path.relpath(caminho, RAIZ)).as_posix()
 
 
 def roda(script, *args, log=None, confirma=None):
@@ -43,10 +66,7 @@ def roda(script, *args, log=None, confirma=None):
     (O bash deste ambiente não recebe a entrada padrão de um
     subprocesso, então testar pela pergunta não era possível aqui.)
     """
-    # Caminho RELATIVO à raiz: o bash que o Python encontra no PATH aqui
-    # é o de `Git/usr/bin`, que não traduz caminho com letra de unidade.
-    # Por isso o log de teste vive dentro do repositório.
-    extra = ["--log", log.relative_to(RAIZ).as_posix()] if log is not None else []
+    extra = ["--log", rel(log)] if log is not None else []
     if confirma is not None:
         extra += ["--confirmo", confirma]
     return subprocess.run(["bash", script, *args, *extra], cwd=RAIZ,
@@ -54,20 +74,14 @@ def roda(script, *args, log=None, confirma=None):
 
 
 @pytest.fixture
-def area(tmp_path_factory):
-    """Área de trabalho DENTRO do repositório, apagada no fim.
+def area(tmp_path):
+    """Área de trabalho FORA do repositório — a pasta temporária do pytest.
 
-    Os scripts recebem um caminho relativo à raiz — ver `roda`.
+    Os scripts a recebem como caminho relativo à raiz, com `..` — ver
+    `rel`. Nada que um teste escreva pode cair dentro do repositório: o
+    `copia.sh` agora recusa destino aqui dentro, e é por bom motivo.
     """
-    import shutil
-    import tempfile
-
-    pasta = pathlib.Path(tempfile.mkdtemp(prefix="teste-procedimentos-",
-                                          dir=RAIZ))
-    try:
-        yield pasta
-    finally:
-        shutil.rmtree(pasta, ignore_errors=True)
+    return tmp_path
 
 
 @pytest.fixture
@@ -167,7 +181,7 @@ def test_a_linha_ilegivel_nao_e_apagada(log_de_teste):
 
 def test_a_copia_bate_byte_a_byte(log_de_teste, area):
     destino = area / "midia"
-    r = roda(COPIAR, destino.relative_to(RAIZ).as_posix(), log=log_de_teste)
+    r = roda(COPIAR, rel(destino), log=log_de_teste)
     assert r.returncode == 0, r.stderr
     copias = list(destino.glob("eventos-*.jsonl"))
     assert len(copias) == 1
@@ -184,7 +198,7 @@ def test_copiar_duas_vezes_nao_sobrescreve_a_primeira(log_de_teste, area):
     """A cópia de ontem continua lá. Sobrescrever transformaria a rotina
     de proteção numa forma de perder a versão anterior."""
     destino = area / "midia"
-    roda(COPIAR, destino.relative_to(RAIZ).as_posix(), log=log_de_teste)
+    roda(COPIAR, rel(destino), log=log_de_teste)
     primeira = list(destino.glob("eventos-*.jsonl"))[0]
     conteudo = primeira.read_bytes()
 
@@ -193,7 +207,7 @@ def test_copiar_duas_vezes_nao_sobrescreve_a_primeira(log_de_teste, area):
                             encoding="utf-8")
     import time
     time.sleep(1.1)             # o carimbo tem segundos
-    roda(COPIAR, destino.relative_to(RAIZ).as_posix(), log=log_de_teste)
+    roda(COPIAR, rel(destino), log=log_de_teste)
 
     assert len(list(destino.glob("eventos-*.jsonl"))) == 2
     assert primeira.read_bytes() == conteudo
@@ -203,7 +217,7 @@ def test_copiar_sem_log_falha_em_vez_de_criar_arquivo_vazio(area):
     """Uma cópia vazia de um log que não foi achado seria pior do que
     erro: pareceria proteção."""
     destino = area / "midia"
-    r = roda(COPIAR, destino.relative_to(RAIZ).as_posix(),
+    r = roda(COPIAR, rel(destino),
              log=area / "nao-existe.jsonl")
     assert r.returncode != 0
     assert not list(destino.glob("*.jsonl"))
@@ -262,10 +276,87 @@ def test_a_conferencia_da_copia_acusa_diferenca(area):
 
     def conferir(x, y):
         return roda(COPIAR, "conferir",
-                    x.relative_to(RAIZ).as_posix(),
-                    y.relative_to(RAIZ).as_posix())
+                    rel(x),
+                    rel(y))
 
     assert conferir(igual_a, igual_b).returncode == 0
     ruim = conferir(igual_a, diferente)
     assert ruim.returncode != 0
     assert "NAO confere" in ruim.stdout
+
+
+# --------------------------------------------------------------------------
+# O destino da cópia, e o repositório
+#
+# Tudo nesta seção vem de um único incidente, achado na revisão final: três
+# cópias do log de desenvolvimento — 2,8 MB, 38 sessões, 23 linhas de texto
+# livre — ficaram versionadas por dois commits, e `git clone` passou a
+# falhar no Windows. A causa não foi descuido de quem escreveu o comando:
+# foi o script dizer **"copiado e conferido"** para uma cópia que estava em
+# outro lugar.
+# --------------------------------------------------------------------------
+
+def test_destino_em_formato_windows_e_recusado(log_de_teste):
+    r"""`D:\coleta` chega literal quando quem chama não é shell, e
+    `mkdir -p` cria uma PASTA com esse nome dentro do diretório atual.
+
+    O desfecho antigo era o pior possível: código de saída 0, a frase
+    "copiado e conferido" na tela, e o backup em lugar nenhum.
+    """
+    antes = set(os.listdir(RAIZ))
+    r = roda(COPIAR, "D:\\coleta", log=log_de_teste)
+    assert r.returncode != 0
+    assert "formato Windows" in r.stdout
+    assert "copiado e conferido" not in r.stdout
+    assert set(os.listdir(RAIZ)) == antes
+
+
+def test_destino_cuja_pasta_nao_existe_e_recusado(log_de_teste, area):
+    """Mídia desmontada, ou letra errada, tem de falhar alto.
+
+    `mkdir -p` inventando uma árvore de diretórios é o mesmo engano por
+    outro caminho: a cópia existe, e não está na segunda mídia.
+    """
+    r = roda(COPIAR, rel(area / "nao-montada" / "midia"), log=log_de_teste)
+    assert r.returncode != 0
+    assert "nao existe" in r.stdout
+    assert not (area / "nao-montada").exists()
+
+
+def test_destino_dentro_do_repositorio_e_recusado(log_de_teste):
+    """Cópia no mesmo disco não protege contra o disco — e dado de coleta
+    dentro do repositório é commit acidental esperando acontecer."""
+    antes = set(os.listdir(RAIZ / "docs"))
+    r = roda(COPIAR, "docs/midia-de-teste", log=log_de_teste)
+    assert r.returncode != 0
+    assert "dentro do repositorio" in r.stdout
+    assert set(os.listdir(RAIZ / "docs")) == antes
+
+
+def test_nenhum_caminho_versionado_e_inclonavel():
+    r"""O repositório tem de chegar de pé num clone.
+
+    `:` e `\` dentro de um nome de arquivo viram caracteres de uso privado
+    no Windows, e `git clone` falha no checkout — foi assim que o incidente
+    apareceu, e nada no projeto o teria percebido sem tentar clonar.
+    """
+    bruto = subprocess.run(["git", "ls-files", "-z"], cwd=RAIZ,
+                           capture_output=True).stdout
+    caminhos = [c.decode("utf-8") for c in bruto.split(b"\0") if c]
+    assert caminhos, "git ls-files nao devolveu nada"
+    ruins = [c for c in caminhos if not SEGURO.match(c)]
+    assert ruins == [], ruins
+
+
+def test_nenhum_log_versionado():
+    """O único JSONL deste projeto é log, e log não entra no repositório.
+
+    A regra existia e era estreita: pegava `eventos.jsonl` e deixava passar
+    `eventos-20261029-133345.jsonl`, que é justamente o nome que a cópia
+    datada gera.
+    """
+    bruto = subprocess.run(["git", "ls-files", "-z"], cwd=RAIZ,
+                           capture_output=True).stdout
+    jsonl = [c.decode("utf-8") for c in bruto.split(b"\0")
+             if c.endswith(b".jsonl")]
+    assert jsonl == [], jsonl

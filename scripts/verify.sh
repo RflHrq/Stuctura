@@ -45,7 +45,31 @@ padroes() {
 
 # Arquivos que nunca devem ser versionados, por conterem dado de coleta ou
 # credencial. Entram aqui por nome, nao por conteudo.
-PROIBIDOS='(^|/)(export_token\.txt|.*\.db|.*\.db-wal|.*\.db-shm|eventos\.jsonl|\.env)$'
+# `.*\.jsonl` e proposital, e nao so `eventos.jsonl`: a copia datada se chama
+# `eventos-20261029-133345.jsonl`, passou por fora da regra estreita, e tres
+# copias do log de desenvolvimento ficaram versionadas por dois commits. O
+# unico JSONL deste projeto e log; nenhum tem por que entrar no repositorio.
+PROIBIDOS='(^|/)(export_token\.txt|.*\.db|.*\.db-wal|.*\.db-shm|.*\.jsonl|\.env)$'
+
+# Caminho que um clone nao consegue criar. No Windows `:` e `\` dentro de um
+# nome de arquivo viram caracteres de uso privado, e `git clone` falha no
+# checkout: o repositorio deixa de ser reproduzivel do zero. A varredura de
+# conteudo nao pegava isso porque o teste `-f` nem abria um arquivo cujo nome
+# nao resolve. Lista branca, que e o unico jeito de pegar o que nao se previu.
+SEGURO='^[A-Za-z0-9._/-]+$'
+
+caminhos() {
+  # caminhos <caminho>... -> 0 limpo, 1 sujo. Escreve os achados em $TMP/caminhos
+  local sujo=0 arq
+  : > "$TMP/caminhos"
+  for arq in "$@"; do
+    if ! printf '%s' "$arq" | grep -qE "$SEGURO"; then
+      echo "$arq: caminho que um clone nao cria" >> "$TMP/caminhos"
+      sujo=1
+    fi
+  done
+  return $sujo
+}
 
 varre() {
   # varre <arquivo>... -> 0 limpo, 1 sujo. Escreve os achados em $TMP/segredos
@@ -83,7 +107,26 @@ autoteste() {
     cat "$TMP/segredos"
     falhas=1
   fi
-  [ "$falhas" -eq 0 ] && verde "autoteste: a varredura morde, e nao morde errado"
+
+  # O nome que escapou: a copia datada do log, que a regra estreita nao pegava.
+  : > "$TMP/eventos-20261029-133345.jsonl"
+  if varre "$TMP/eventos-20261029-133345.jsonl"; then
+    vermelho "autoteste: a varredura NAO pegou uma copia datada do log"
+    falhas=1
+  fi
+
+  # E o caminho que um clone nao cria.
+  if caminhos 'pasta/C:\Users\x/eventos.jsonl'; then
+    vermelho "autoteste: a checagem NAO pegou um caminho inclonavel"
+    falhas=1
+  fi
+  if ! caminhos 'mvp/app.py' 'docs/PRD.md'; then
+    vermelho "autoteste: a checagem acusou um caminho normal"
+    cat "$TMP/caminhos"
+    falhas=1
+  fi
+
+  [ "$falhas" -eq 0 ] && verde "autoteste: as duas checagens mordem, e nao mordem errado"
   return "$falhas"
 }
 
@@ -120,6 +163,14 @@ else
 fi
 
 cd "$RAIZ"
+if ! caminhos "${ALVOS[@]}"; then
+  vermelho "FALHOU   caminhos (${#ALVOS[@]} $ESCOPO)"
+  head -n "$LIMITE_LINHAS" "$TMP/caminhos"
+  echo
+  vermelho "Nada foi testado: um clone destes nao chega de pe."
+  exit 1
+fi
+
 if ! varre "${ALVOS[@]}"; then
   vermelho "FALHOU   segredos (${#ALVOS[@]} $ESCOPO)"
   head -n "$LIMITE_LINHAS" "$TMP/segredos"

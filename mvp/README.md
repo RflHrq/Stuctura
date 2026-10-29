@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 212 testes
+python -m pytest mvp/ -q     # 219 testes
 python -m mvp.app            # http://127.0.0.1:8010  quem responde
 python -m mvp.painel         # http://127.0.0.1:8011  quem observa
 ```
@@ -342,6 +342,13 @@ refazer, e a perda tolerável é zero.
 A pasta de destino precisa estar em **outra mídia** — cópia no mesmo
 disco não protege contra o disco. E cópia conferida ainda não é backup
 restaurado: o ensaio de restauração é da revisão final.
+
+**O caminho vai no formato do shell:** `/d/coleta`, e não `D:\coleta`.
+Chamado de fora de um shell, um caminho com barra invertida chega literal
+e vira uma **pasta com esse nome** dentro do diretório atual — o script
+dizia "copiado e conferido" e o backup estava em outro lugar. Hoje ele
+recusa três casos: caminho em formato Windows, pasta de destino cuja mãe
+não existe (mídia desmontada) e destino dentro do repositório.
 
 ### O pedido de exclusão de um participante
 

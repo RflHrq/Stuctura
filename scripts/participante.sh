@@ -40,6 +40,16 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+# Caminho estilo Windows chega literal quando quem chama nao e shell, e aqui
+# o estrago seria dizer "nenhuma linha com este codigo" sobre um arquivo que
+# nunca foi aberto — a pessoa pediria a exclusao e nada seria apagado.
+case "$LOG" in
+  *\\*|[A-Za-z]:*)
+    vermelho "log em formato Windows: $LOG"
+    echo "use o caminho no formato do shell: /d/eventos.jsonl"
+    exit 2 ;;
+esac
+
 [ -f "$LOG" ] || { vermelho "nao achei o log: $LOG"; exit 1; }
 
 # O código entra como VALOR comparado campo a campo, nunca como pedaço de

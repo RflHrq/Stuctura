@@ -15,7 +15,7 @@
 # ensaio de restauracao e outra coisa, e e da revisao final.
 set -euo pipefail
 
-AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 LOG="${STRUCTURA_LOG:-$AQUI/mvp/dados/eventos.jsonl}"
 
 verde() { printf '\033[32m%s\033[0m\n' "$1"; }
@@ -50,6 +50,43 @@ fi
 [ $# -eq 0 ] || uso
 
 [ -f "$LOG" ] || { vermelho "nao achei o log: $LOG"; exit 1; }
+
+# TRES GUARDAS NO DESTINO. Cada uma existe por um jeito real de a copia
+# nao estar onde se pensa que ela esta — e backup que o operador acredita
+# ter e nao tem e pior do que nenhum: ele para de conferir.
+
+# 1. Caminho estilo Windows. Chamado por quem nao e shell (um teste, o
+# PowerShell, outro script), `D:\coleta` chega LITERAL: `mkdir -p` cria uma
+# pasta com esse nome dentro do diretorio atual, `cp` escreve nela, e o
+# script diz "copiado e conferido". Foi exatamente assim que 2,8 MB de log
+# de desenvolvimento entraram no repositorio, achados na revisao final.
+case "$destino" in
+  *\\*|[A-Za-z]:*)
+    vermelho "destino em formato Windows: $destino"
+    echo "use o caminho no formato do shell: /d/coleta em vez de D:\\coleta"
+    exit 2 ;;
+esac
+
+# 2. A pasta que vai CONTER o destino tem de existir. Midia desmontada ou
+# letra errada precisa falhar alto, nao inventar uma arvore de diretorios.
+pai="$(dirname "$destino")"
+if [ ! -d "$pai" ]; then
+  vermelho "a pasta que conteria o destino nao existe: $pai"
+  echo "a segunda midia precisa estar montada antes de copiar."
+  exit 1
+fi
+
+# 3. Copia dentro do repositorio nao e segunda midia: e o mesmo disco, e e
+# o caminho curto para dado de coleta virar commit.
+pai_real="$(cd "$pai" && pwd -P)"
+case "$pai_real/" in
+  "$AQUI"/*)
+    vermelho "o destino esta dentro do repositorio: $pai_real"
+    echo "copia no mesmo disco nao protege contra o disco, e dado de"
+    echo "coleta versionado por acidente ja aconteceu neste projeto."
+    exit 2 ;;
+esac
+
 mkdir -p "$destino"
 
 carimbo="$(date +%Y%m%d-%H%M%S)"
