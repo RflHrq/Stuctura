@@ -201,10 +201,15 @@ def gera(d, no: str, degrau: int, quantas: int) -> list[dict]:
 # O YAML, e a conferência
 # --------------------------------------------------------------------------
 
-def para_yaml(d, no: str, degrau: int, brutas: list[dict]) -> list[dict]:
-    """A forma do banco, com a procedência do item junto."""
+def para_yaml(d, no: str, degrau: int, brutas: list[dict],
+              por_quem: str = "") -> list[dict]:
+    """A forma do banco, com a procedência do item junto.
+
+    Cada item pode trazer o próprio `degrau`; sem isso vale o pedido.
+    """
     saida = []
     for i, a in enumerate(brutas, 1):
+        degrau = a.get("degrau", degrau)
         alternativas = {x["chave"]: x["texto"] for x in a["alternativas"]}
         crencas = {x["chave"]: x["crenca"] for x in a["alternativas"]
                    if x["crenca"] and x["chave"] != a["gabarito"]}
@@ -222,7 +227,8 @@ def para_yaml(d, no: str, degrau: int, brutas: list[dict]) -> list[dict]:
             # Procedência do ITEM, como as crenças já têm a delas. Vai para
             # o método do TCC: item gerado com assistência de modelo, sob
             # contrato declarado, e validado um a um por uma pessoa.
-            "gerado_por": "%s em %s" % (MODELO, date.today().isoformat()),
+            "gerado_por": "%s em %s" % (por_quem or MODELO,
+                                        date.today().isoformat()),
             "revisado_por": "",
             "por_que_este_distrator": a["por_que_este_distrator"],
         })
@@ -285,6 +291,7 @@ def main(argv):
     import yaml
 
     topico, no, degrau, quantas, so_prompt = "kc_02", None, 1, 2, False
+    importar, por_quem = None, ""
     i = 0
     while i < len(argv):
         if argv[i] == "--topico": topico = argv[i + 1]; i += 2
@@ -292,6 +299,8 @@ def main(argv):
         elif argv[i] == "--degrau": degrau = int(argv[i + 1]); i += 2
         elif argv[i] == "--quantas": quantas = int(argv[i + 1]); i += 2
         elif argv[i] == "--prompt": so_prompt = True; i += 1
+        elif argv[i] == "--importar": importar = argv[i + 1]; i += 2
+        elif argv[i] == "--por": por_quem = argv[i + 1]; i += 2
         else: raise SystemExit(__doc__)
     d = carrega(topico=topico)
     if no not in d.nos:
@@ -313,9 +322,20 @@ def main(argv):
         print("prompt escrito em", alvo.relative_to(RAIZ))
         return
 
-    print("gerando %d item(ns) para %s:%s, degrau %d..." % (quantas, topico, no, degrau))
-    novas = para_yaml(d, no, degrau, gera(d, no, degrau, quantas))
-    alvo = pasta / ("%s-degrau%d.yaml" % (no, degrau))
+    if importar:
+        # O mesmo esquema, vindo de fora: quem escreveu pode ter sido a API,
+        # uma conversa, ou uma pessoa. A conferência é a mesma — e é ela
+        # que decide se o item serve, não quem o escreveu.
+        brutas = json.loads(pathlib.Path(importar).read_text(encoding="utf-8"))
+        brutas = brutas["atividades"] if isinstance(brutas, dict) else brutas
+        print("importando %d item(ns) de %s" % (len(brutas), importar))
+        novas = para_yaml(d, no, degrau, brutas, por_quem)
+    else:
+        print("gerando %d item(ns) para %s:%s, degrau %d..."
+              % (quantas, topico, no, degrau))
+        novas = para_yaml(d, no, degrau, gera(d, no, degrau, quantas))
+    alvo = pasta / ("%s-degrau%d.yaml" % (no, degrau) if not importar
+                    else "%s.yaml" % no)
     alvo.write_text(yaml.safe_dump({"activities": novas}, allow_unicode=True,
                                    sort_keys=False, width=78),
                     encoding="utf-8", newline="\n")

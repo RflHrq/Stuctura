@@ -1,0 +1,82 @@
+{
+ "atividades": [
+  {
+   "degrau": 1,
+   "formato": "reconhecer_conceito",
+   "tipo": "teorica",
+   "codigo": "",
+   "enunciado": "Um vizinho tem o número da sua casa. O que ele consegue fazer que não conseguiria sem o número?",
+   "por_que_este_distrator": "sem o endereço só dá para trabalhar numa cópia",
+   "alternativas": [
+    {
+     "chave": "a",
+     "texto": "Chegar até a sua casa sem você levar nada",
+     "crenca": ""
+    },
+    {
+     "chave": "b",
+     "texto": "Nada que uma cópia da planta não resolva",
+     "crenca": "pointer_is_pointless"
+    },
+    {
+     "chave": "c",
+     "texto": "Entrar na casa dele achando que é a sua",
+     "crenca": "pointer_and_target_are_one"
+    }
+   ],
+   "gabarito": "a"
+  },
+  {
+   "degrau": 2,
+   "formato": "prever_saida",
+   "tipo": "codigo",
+   "codigo": "void soma(int *total, int valor) { *total += valor; }\n\nint t = 0;\nsoma(&t, 5);\nsoma(&t, 3);\nprintf(\"%d\n\", t);",
+   "enunciado": "O que sai?",
+   "por_que_este_distrator": "as duas chamadas escrevem no mesmo t de fora",
+   "alternativas": [
+    {
+     "chave": "a",
+     "texto": "8: as duas chamadas somaram no mesmo t",
+     "crenca": ""
+    },
+    {
+     "chave": "b",
+     "texto": "0: a função soma numa cópia",
+     "crenca": "pointer_is_pointless"
+    },
+    {
+     "chave": "c",
+     "texto": "8, e t passou a guardar um endereço",
+     "crenca": "pointer_is_data"
+    }
+   ],
+   "gabarito": "a"
+  },
+  {
+   "degrau": 3,
+   "formato": "achar_o_erro",
+   "tipo": "codigo",
+   "codigo": "void troca(int a, int b) { int t = a; a = b; b = t; }\n\nint x = 1, y = 2;\ntroca(x, y);",
+   "enunciado": "Depois disso x e y não trocaram. O que falta?",
+   "por_que_este_distrator": "sem endereço a função mexe em cópias e nada sai dali",
+   "alternativas": [
+    {
+     "chave": "a",
+     "texto": "Passar os endereços, e usar *a e *b",
+     "crenca": ""
+    },
+    {
+     "chave": "b",
+     "texto": "Nada: trocar dentro da função basta",
+     "crenca": "pointer_is_pointless"
+    },
+    {
+     "chave": "c",
+     "texto": "Nada: a e b são apelidos de x e y",
+     "crenca": "pointer_and_target_are_one"
+    }
+   ],
+   "gabarito": "a"
+  }
+ ]
+}

@@ -1,0 +1,71 @@
+activities:
+- id: kc02_gb1_n1_1
+  node: kc02:B1
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: Duas casas da mesma rua têm sofás idênticos. O que distingue uma da
+    outra?
+  codigo: ''
+  alternativas:
+    a: O número de cada porta
+    b: 'Nada: com o mesmo conteúdo, são a mesma casa'
+    c: O nome de quem mora em cada uma
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: memory_is_by_name
+  gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
+  revisado_por: ''
+  por_que_este_distrator: confundir o lugar com o conteúdo é a raiz de B1
+- id: kc02_gb1_n2_2
+  node: kc02:B1
+  nivel: 2
+  formato: prever_saida
+  tipo: codigo
+  enunciado: O que sai?
+  codigo: 'int a = 5;
+
+    int b = 5;
+
+    printf("%d
+
+    ", &a == &b);'
+  alternativas:
+    a: 0, porque são dois lugares diferentes
+    b: 1, porque guardam o mesmo valor
+    c: '1: o que identifica é o nome, não o lugar'
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: memory_is_by_name
+  gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
+  revisado_por: ''
+  por_que_este_distrator: 'mesmo valor, mesmo lugar: a confusão de B1 em C'
+- id: kc02_gb1_n3_3
+  node: kc02:B1
+  nivel: 3
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: Um colega esperava que essa impressão mudasse depois de x = 20. Por
+    que ele está errado?
+  codigo: 'int x = 10;
+
+    int *p = &x;
+
+    x = 20;
+
+    printf("%p
+
+    ", (void *)p);'
+  alternativas:
+    a: p guarda o lugar de x, e o lugar não mudou
+    b: p guarda o valor de x, e o valor mudou
+    c: p guarda o nome x, e o nome não muda
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: memory_is_by_name
+  gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
+  revisado_por: ''
+  por_que_este_distrator: o endereço é do lugar, e o lugar não muda com o valor

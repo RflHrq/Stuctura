@@ -1,0 +1,72 @@
+activities:
+- id: kc02_gi3_n1_1
+  node: kc02:I3
+  nivel: 1
+  formato: reconhecer_conceito
+  tipo: teorica
+  enunciado: Um vizinho tem o número da sua casa. O que ele consegue fazer que não
+    conseguiria sem o número?
+  codigo: ''
+  alternativas:
+    a: Chegar até a sua casa sem você levar nada
+    b: Nada que uma cópia da planta não resolva
+    c: Entrar na casa dele achando que é a sua
+  gabarito: a
+  crencas:
+    b: pointer_is_pointless
+    c: pointer_and_target_are_one
+  gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
+  revisado_por: ''
+  por_que_este_distrator: sem o endereço só dá para trabalhar numa cópia
+- id: kc02_gi3_n2_2
+  node: kc02:I3
+  nivel: 2
+  formato: prever_saida
+  tipo: codigo
+  enunciado: O que sai?
+  codigo: 'void soma(int *total, int valor) { *total += valor; }
+
+
+    int t = 0;
+
+    soma(&t, 5);
+
+    soma(&t, 3);
+
+    printf("%d
+
+    ", t);'
+  alternativas:
+    a: '8: as duas chamadas somaram no mesmo t'
+    b: '0: a função soma numa cópia'
+    c: 8, e t passou a guardar um endereço
+  gabarito: a
+  crencas:
+    b: pointer_is_pointless
+    c: pointer_is_data
+  gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
+  revisado_por: ''
+  por_que_este_distrator: as duas chamadas escrevem no mesmo t de fora
+- id: kc02_gi3_n3_3
+  node: kc02:I3
+  nivel: 3
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: Depois disso x e y não trocaram. O que falta?
+  codigo: 'void troca(int a, int b) { int t = a; a = b; b = t; }
+
+
+    int x = 1, y = 2;
+
+    troca(x, y);'
+  alternativas:
+    a: Passar os endereços, e usar *a e *b
+    b: 'Nada: trocar dentro da função basta'
+    c: 'Nada: a e b são apelidos de x e y'
+  gabarito: a
+  crencas:
+    b: pointer_is_pointless
+    c: pointer_and_target_are_one
+  gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
+  revisado_por: ''
+  por_que_este_distrator: sem endereço a função mexe em cópias e nada sai dali

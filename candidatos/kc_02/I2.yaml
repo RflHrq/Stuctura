@@ -1,0 +1,68 @@
+activities:
+- id: kc02_gi2_n1_1
+  node: kc02:I2
+  nivel: 1
+  formato: reconhecer_conceito
+  tipo: teorica
+  enunciado: Um papel diz apenas 1000. Isso basta para você saber o que vai encontrar
+    lá?
+  codigo: ''
+  alternativas:
+    a: 'Não: falta saber do que é esse 1000'
+    b: 'Sim: 1000 é 1000, e pronto'
+    c: 'Sim: o próprio 1000 diz o que tem lá'
+  gabarito: a
+  crencas:
+    b: pointer_is_integer
+    c: pointer_is_data
+  gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
+  revisado_por: ''
+  por_que_este_distrator: o número sozinho não diz de que é o lugar
+- id: kc02_gi2_n2_2
+  node: kc02:I2
+  nivel: 2
+  formato: prever_saida
+  tipo: codigo
+  enunciado: Os dois sizeof medem coisas diferentes. Quais?
+  codigo: 'int x = 42;
+
+    int *p = &x;
+
+    printf("%zu %zu
+
+    ", sizeof p, sizeof *p);'
+  alternativas:
+    a: O do ponteiro e o do int apontado
+    b: Os dois medem o int, de jeitos diferentes
+    c: Os dois medem o mesmo número guardado
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: pointer_is_integer
+  gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
+  revisado_por: ''
+  por_que_este_distrator: só mede os dois quem distingue o ponteiro do apontado
+- id: kc02_gi2_n3_3
+  node: kc02:I2
+  nivel: 3
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: O que esse programa mostra?
+  codigo: 'double d = 3.5;
+
+    int *p = (int *)&d;
+
+    printf("%d
+
+    ", *p);'
+  alternativas:
+    a: 'Lixo: o tipo do ponteiro não bate'
+    b: 3, porque o 3.5 vira int na leitura
+    c: 3.5, porque o endereço leva ao double
+  gabarito: a
+  crencas:
+    b: pointer_is_integer
+    c: pointer_is_data
+  gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
+  revisado_por: ''
+  por_que_este_distrator: o tipo do ponteiro decide como os bytes são lidos

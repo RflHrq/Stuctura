@@ -1,0 +1,82 @@
+{
+ "atividades": [
+  {
+   "degrau": 1,
+   "formato": "comparar_casos",
+   "tipo": "teorica",
+   "codigo": "",
+   "enunciado": "Duas casas da mesma rua têm sofás idênticos. O que distingue uma da outra?",
+   "por_que_este_distrator": "confundir o lugar com o conteúdo é a raiz de B1",
+   "alternativas": [
+    {
+     "chave": "a",
+     "texto": "O número de cada porta",
+     "crenca": ""
+    },
+    {
+     "chave": "b",
+     "texto": "Nada: com o mesmo conteúdo, são a mesma casa",
+     "crenca": "pointer_is_data"
+    },
+    {
+     "chave": "c",
+     "texto": "O nome de quem mora em cada uma",
+     "crenca": "memory_is_by_name"
+    }
+   ],
+   "gabarito": "a"
+  },
+  {
+   "degrau": 2,
+   "formato": "prever_saida",
+   "tipo": "codigo",
+   "codigo": "int a = 5;\nint b = 5;\nprintf(\"%d\n\", &a == &b);",
+   "enunciado": "O que sai?",
+   "por_que_este_distrator": "mesmo valor, mesmo lugar: a confusão de B1 em C",
+   "alternativas": [
+    {
+     "chave": "a",
+     "texto": "0, porque são dois lugares diferentes",
+     "crenca": ""
+    },
+    {
+     "chave": "b",
+     "texto": "1, porque guardam o mesmo valor",
+     "crenca": "pointer_is_data"
+    },
+    {
+     "chave": "c",
+     "texto": "1: o que identifica é o nome, não o lugar",
+     "crenca": "memory_is_by_name"
+    }
+   ],
+   "gabarito": "a"
+  },
+  {
+   "degrau": 3,
+   "formato": "achar_o_erro",
+   "tipo": "codigo",
+   "codigo": "int x = 10;\nint *p = &x;\nx = 20;\nprintf(\"%p\n\", (void *)p);",
+   "enunciado": "Um colega esperava que essa impressão mudasse depois de x = 20. Por que ele está errado?",
+   "por_que_este_distrator": "o endereço é do lugar, e o lugar não muda com o valor",
+   "alternativas": [
+    {
+     "chave": "a",
+     "texto": "p guarda o lugar de x, e o lugar não mudou",
+     "crenca": ""
+    },
+    {
+     "chave": "b",
+     "texto": "p guarda o valor de x, e o valor mudou",
+     "crenca": "pointer_is_data"
+    },
+    {
+     "chave": "c",
+     "texto": "p guarda o nome x, e o nome não muda",
+     "crenca": "memory_is_by_name"
+    }
+   ],
+   "gabarito": "a"
+  }
+ ]
+}

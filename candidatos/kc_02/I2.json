@@ -1,0 +1,82 @@
+{
+ "atividades": [
+  {
+   "degrau": 1,
+   "formato": "reconhecer_conceito",
+   "tipo": "teorica",
+   "codigo": "",
+   "enunciado": "Um papel diz apenas 1000. Isso basta para você saber o que vai encontrar lá?",
+   "por_que_este_distrator": "o número sozinho não diz de que é o lugar",
+   "alternativas": [
+    {
+     "chave": "a",
+     "texto": "Não: falta saber do que é esse 1000",
+     "crenca": ""
+    },
+    {
+     "chave": "b",
+     "texto": "Sim: 1000 é 1000, e pronto",
+     "crenca": "pointer_is_integer"
+    },
+    {
+     "chave": "c",
+     "texto": "Sim: o próprio 1000 diz o que tem lá",
+     "crenca": "pointer_is_data"
+    }
+   ],
+   "gabarito": "a"
+  },
+  {
+   "degrau": 2,
+   "formato": "prever_saida",
+   "tipo": "codigo",
+   "codigo": "int x = 42;\nint *p = &x;\nprintf(\"%zu %zu\n\", sizeof p, sizeof *p);",
+   "enunciado": "Os dois sizeof medem coisas diferentes. Quais?",
+   "por_que_este_distrator": "só mede os dois quem distingue o ponteiro do apontado",
+   "alternativas": [
+    {
+     "chave": "a",
+     "texto": "O do ponteiro e o do int apontado",
+     "crenca": ""
+    },
+    {
+     "chave": "b",
+     "texto": "Os dois medem o int, de jeitos diferentes",
+     "crenca": "pointer_is_data"
+    },
+    {
+     "chave": "c",
+     "texto": "Os dois medem o mesmo número guardado",
+     "crenca": "pointer_is_integer"
+    }
+   ],
+   "gabarito": "a"
+  },
+  {
+   "degrau": 3,
+   "formato": "achar_o_erro",
+   "tipo": "codigo",
+   "codigo": "double d = 3.5;\nint *p = (int *)&d;\nprintf(\"%d\n\", *p);",
+   "enunciado": "O que esse programa mostra?",
+   "por_que_este_distrator": "o tipo do ponteiro decide como os bytes são lidos",
+   "alternativas": [
+    {
+     "chave": "a",
+     "texto": "Lixo: o tipo do ponteiro não bate",
+     "crenca": ""
+    },
+    {
+     "chave": "b",
+     "texto": "3, porque o 3.5 vira int na leitura",
+     "crenca": "pointer_is_integer"
+    },
+    {
+     "chave": "c",
+     "texto": "3.5, porque o endereço leva ao double",
+     "crenca": "pointer_is_data"
+    }
+   ],
+   "gabarito": "a"
+  }
+ ]
+}
