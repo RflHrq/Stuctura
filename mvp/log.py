@@ -26,6 +26,7 @@ participante continua sendo apagar as linhas com o código dele.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import asdict, fields
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,7 +35,17 @@ from typing import Iterable
 from mvp import motor
 from mvp.motor import Evento
 
-DESTINO = Path(__file__).resolve().parent / "dados" / "eventos.jsonl"
+# Onde a sessão é escrita.
+#
+#   STRUCTURA_LOG=ensaios/e01.jsonl python -m mvp.app
+#
+# `scripts/copia.sh` e `scripts/participante.sh` já liam esta variável, e o
+# servidor não: quem apontasse os procedimentos para outro arquivo copiaria
+# e apagaria num log que a sessão não estava usando. Dado de ensaio junto
+# com dado de desenvolvimento no mesmo arquivo é o que esta variável
+# existe para evitar.
+DESTINO = Path(os.environ.get("STRUCTURA_LOG")
+               or Path(__file__).resolve().parent / "dados" / "eventos.jsonl")
 
 # O tipo da linha de entrada. Não é um evento do motor: o motor não sabe
 # que existe log.

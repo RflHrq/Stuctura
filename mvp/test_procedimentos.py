@@ -360,3 +360,65 @@ def test_nenhum_log_versionado():
     jsonl = [c.decode("utf-8") for c in bruto.split(b"\0")
              if c.endswith(b".jsonl")]
     assert jsonl == [], jsonl
+
+
+# --------------------------------------------------------------------------
+# Preparar o ensaio
+#
+# `scripts/ensaio.sh` não sobe servidor: confere o que precisa estar certo
+# ANTES e imprime os comandos. Descobrir que o código não serve, ou que um
+# servidor velho ficou no ar com outro tópico, com a pessoa sentada ao lado
+# é o pior momento possível.
+# --------------------------------------------------------------------------
+
+ENSAIO = "scripts/ensaio.sh"
+
+
+def _ensaio(*args):
+    return subprocess.run(["bash", ENSAIO, *args], cwd=RAIZ,
+                          capture_output=True, text=True,
+                          encoding="utf-8", errors="replace")
+
+
+def test_o_ensaio_imprime_os_comandos_com_o_ambiente_montado(area):
+    r = _ensaio("E01", "--pasta", rel(area))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "STRUCTURA_TOPICO=kc_02" in r.stdout
+    assert "STRUCTURA_LOG=" in r.stdout
+    assert "python -m mvp.app" in r.stdout
+    assert "python -m mvp.painel" in r.stdout
+    # o código vai na URL: sem isso a sessão sai anônima
+    assert "?codigo=E01" in r.stdout
+    # e o que fazer depois, na ordem
+    assert "copia.sh" in r.stdout
+
+
+def test_o_ensaio_recusa_codigo_fora_do_formato(area):
+    """A mesma regra do servidor. Um código com ponto ou barra passa aqui e
+    estoura lá, ou pior: vira problema na hora de apagar."""
+    for codigo in ("E 01", "../x", "7E", "E.01"):
+        r = _ensaio(codigo, "--pasta", rel(area))
+        assert r.returncode != 0, codigo
+        assert "codigo fora do formato" in r.stdout, codigo
+
+
+def test_o_ensaio_recusa_codigo_ja_usado(area, log_de_teste):
+    """Abrir o mesmo código duas vezes juntaria duas pessoas num
+    participante só."""
+    destino = area / "kc_02.jsonl"
+    destino.write_text(
+        json.dumps({"v": 1, "sessao": "P02", "tipo": "unidade_iniciada"}) + chr(10),
+        encoding="utf-8")
+    r = _ensaio("P02", "--pasta", rel(area))
+    assert r.returncode != 0
+    assert "ja tem" in r.stdout
+    livre = _ensaio("P03", "--pasta", rel(area))
+    assert livre.returncode == 0, livre.stdout
+
+
+def test_o_ensaio_recusa_topico_que_nao_carrega(area):
+    """Domínio inválido falha na carga — e tem de falhar agora, não na
+    frente de quem responde."""
+    r = _ensaio("E01", "--pasta", rel(area), "--topico", "kc_99")
+    assert r.returncode != 0
+    assert "NAO carrega" in r.stdout

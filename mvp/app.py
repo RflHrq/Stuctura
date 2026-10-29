@@ -14,6 +14,7 @@ perder 7%, e a pessoa não volta para repetir.
 
 from __future__ import annotations
 
+import re
 import uuid
 from pathlib import Path
 
@@ -115,9 +116,40 @@ def _resposta(sessao: str, t: motor.Transicao,
     }
 
 
+# O código do participante, quando quem abre a sessão informa um. É o
+# identificador do PRD — P01…P40, sem nome — e é por ele que o pedido de
+# exclusão acha as linhas. Formato estreito de propósito: ele vai para o
+# nome de nada, mas vai para a URL e para toda linha do log, e código com
+# espaço ou barra é confusão garantida na hora de apagar.
+CODIGO = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,15}$")
+
+
+class SessaoBody(BaseModel):
+    codigo: str = ""
+
+
 @app.post("/sessoes")
-def cria_sessao() -> dict:
-    sessao = uuid.uuid4().hex[:12]
+def cria_sessao(body: SessaoBody | None = None) -> dict:
+    """Sem código informado, um hex aleatório, como sempre foi."""
+    codigo = (body.codigo if body else "").strip()
+    if codigo:
+        if not CODIGO.match(codigo):
+            raise HTTPException(
+                status_code=400,
+                detail="código fora do formato: letra, depois letras, "
+                       "números, hífen ou _, até 16")
+        # Abrir duas vezes o mesmo código juntaria duas pessoas num
+        # participante só, e a análise não teria como separar depois.
+        # Tolerante de propósito: uma linha ilegível no arquivo não pode
+        # impedir o começo de uma sessão.
+        linhas, _ = log.le_tolerante()
+        if any(x.get("sessao") == codigo for x in linhas):
+            raise HTTPException(
+                status_code=409,
+                detail="já existe sessão com o código %r neste log" % codigo)
+        sessao = codigo
+    else:
+        sessao = uuid.uuid4().hex[:12]
     # A sessão é a semente da ordem das razões: o motor continua puro, e
     # recarregar a página não reembaralha as alternativas debaixo da pessoa.
     return _resposta(sessao, motor.inicia(dominio, semente=sessao))

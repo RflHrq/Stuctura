@@ -42,6 +42,15 @@
     return r.json();
   }
 
+  /* O codigo do participante vem da URL: ?codigo=P07. Fica fora da tela
+   * de proposito — quem responde nao precisa ver, e um campo a mais na
+   * abertura e uma pergunta a mais antes da pergunta que importa. Quem
+   * abre a pagina com o codigo e o pesquisador, pelo scripts/ensaio.sh. */
+  function codigoDaURL() {
+    var m = /[?&]codigo=([^&]+)/.exec(window.location.search);
+    return m ? decodeURIComponent(m[1]) : "";
+  }
+
   /* ------------------------------------------------------------- grafo */
 
   /* Desenhado a cada resposta, com o estado que o servidor manda. Os nos
@@ -639,6 +648,9 @@
   function recomeca() {
     var b = $("btn-recomecar");
     b.disabled = true;
+    /* Recomecar NAO reusa o codigo: ele ja tem sessao, e o servidor
+     * recusaria. A sessao nova sai anonima, e o log liga as duas pelo
+     * horario. */
     api("/sessoes").then(function (j) {
       b.disabled = false;
       aplica(j);
@@ -655,7 +667,14 @@
 
   $("btn-recomecar").onclick = recomeca;
 
-  api("/sessoes").then(aplica).catch(function (e) {
+  /* O titulo da aba vem do dominio carregado, nao do HTML: com dois
+   * topicos, um titulo fixo mente — a aba dizia "declaracao de variaveis"
+   * numa sessao de ponteiros. */
+  fetch("/saude").then(function (r) { return r.json(); }).then(function (s) {
+    if (s && s.titulo) document.title = "Structura — " + s.titulo;
+  }).catch(function () { /* o titulo e enfeite; falhar nele nao para nada */ });
+
+  api("/sessoes", { codigo: codigoDaURL() }).then(aplica).catch(function (e) {
     document.body.innerHTML =
       '<p style="padding:24px">Não consegui falar com o servidor: ' + e.message + "</p>";
   });

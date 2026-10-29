@@ -248,3 +248,77 @@ def test_a_tela_diz_o_limite_e_impede_de_passar():
     # caía nessa, e a sabotagem pegou.
     assert re.search(r"(^|\s)maxlength=\"%d\"" % LIMITE_DA_FRASE, campo.group())
     assert 'id="frase-contagem"' in html
+
+
+# --------------------------------------------------------------------------
+# O código do participante, e o arquivo onde a sessão é escrita
+#
+# Os dois existem para o ensaio e para o piloto: identificar a pessoa pelo
+# código do PRD (P01…P40, sem nome) e manter o dado dela longe do log de
+# desenvolvimento.
+# --------------------------------------------------------------------------
+
+def test_a_sessao_pode_receber_o_codigo_do_participante(cliente):
+    """Sem isto, o pesquisador anota um hex de 12 dígitos no papel e torce
+    para não errar na hora de ligar a sessão à pessoa."""
+    c, arquivo = cliente
+    j = c.post("/sessoes", json={"codigo": "P07"}).json()
+    assert j["sessao"] == "P07"
+    assert '"sessao": "P07"' in arquivo.read_text(encoding="utf-8")
+
+
+def test_sem_codigo_a_sessao_continua_aleatoria(cliente):
+    c, _ = cliente
+    for corpo in (None, {}, {"codigo": ""}):
+        j = c.post("/sessoes", json=corpo).json()
+        assert len(j["sessao"]) == 12 and j["sessao"].isalnum()
+
+
+@pytest.mark.parametrize("codigo", [
+    "P 07",            # espaço
+    "../eventos",      # caminho
+    "P/07",            # barra
+    "7P",              # começa com número
+    "x" * 17,          # comprido demais
+    "P.07",            # ponto, que vira expressão regular na hora de apagar
+])
+def test_codigo_fora_do_formato_e_recusado(cliente, codigo):
+    """O código vai para a URL e para toda linha do log, e é por ele que o
+    pedido de exclusão acha as linhas. Formato estreito é o que faz
+    `participante.sh apagar` não ter surpresa."""
+    c, arquivo = cliente
+    antes = arquivo.read_bytes() if arquivo.exists() else b""
+    r = c.post("/sessoes", json={"codigo": codigo})
+    assert r.status_code == 400, codigo
+    agora = arquivo.read_bytes() if arquivo.exists() else b""
+    assert agora == antes, "gravou alguma coisa mesmo recusando"
+
+
+def test_o_mesmo_codigo_duas_vezes_e_recusado(cliente):
+    """Abrir P07 de novo juntaria duas pessoas num participante só, e a
+    análise não teria como separar depois."""
+    c, arquivo = cliente
+    assert c.post("/sessoes", json={"codigo": "P07"}).status_code == 200
+    antes = arquivo.read_bytes()
+    r = c.post("/sessoes", json={"codigo": "P07"})
+    assert r.status_code == 409
+    assert "P07" in r.json()["detail"]
+    assert arquivo.read_bytes() == antes
+
+
+def test_o_arquivo_do_log_vem_do_ambiente(tmp_path, monkeypatch):
+    """`copia.sh` e `participante.sh` já liam STRUCTURA_LOG, e o servidor
+    não: quem apontasse os procedimentos para outro arquivo copiaria e
+    apagaria num log que a sessão não estava usando."""
+    import importlib
+
+    alvo = tmp_path / "ensaio.jsonl"
+    monkeypatch.setenv("STRUCTURA_LOG", str(alvo))
+    try:
+        importlib.reload(log)
+        assert log.DESTINO == alvo
+    finally:
+        monkeypatch.delenv("STRUCTURA_LOG", raising=False)
+        importlib.reload(log)
+    assert log.DESTINO.name == "eventos.jsonl"
+    assert log.DESTINO.parent.name == "dados"

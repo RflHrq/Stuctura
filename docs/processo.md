@@ -4,7 +4,12 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** **ciclo 3 fechado** ([tarefas](tasks-ciclo-3.md)). As três
+**Fase atual:** **ensaio com uma pessoa** — roteiro e ambiente prontos
+([roteiro](ensaio-roteiro.md), `scripts/ensaio.sh`). É o próximo passo
+porque o software deixou de ser o gargalo: dos quatro P1 da revisão final,
+o único que era de código está fechado, e CS-11 nunca teve evidência.
+
+Antes disso, **ciclo 3 fechado** ([tarefas](tasks-ciclo-3.md)). As três
 decisões que a medição do kc_02 deixou em aberto eram de motor, e foram
 resolvidas: a crença já tratada sai da cédula, a premissa não medida diz o
 nome, e a confiança ficou onde decide alguma coisa. Quem erra e aprende
@@ -119,6 +124,7 @@ Nenhuma bloqueia a fase 4.
 | conteúdo | `docs/revisao-crencas-kc02.md` | **pronto** — crenças conferidas na obra primária |
 | conteúdo | `mvp/dominio/*_kc02.yaml` | **pronto** — 6 nós, 6 crenças, 36 atividades |
 | 5 Issues (3º ciclo) | `docs/tasks-ciclo-3.md` | **pronto** — 3 tarefas, C1 a C3 |
+| ensaio | `docs/ensaio-roteiro.md` | **pronto** — roteiro, folha de observação, o que não dizer |
 
 ## Fase 6 — as tarefas, uma por commit
 
