@@ -4,7 +4,12 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** **revisão final total feita**, veredito
+**Fase atual:** **ciclo de conteúdo** — o kc_02 ("o que é um ponteiro")
+tem grafo, crenças conferidas na fonte e banco de 36 atividades. A
+[medição com o caminhante](#o-que-a-medição-do-kc_02-mostrou) derrubou a
+hipótese de que mais itens fechariam o buraco da CS-10.
+
+Antes disso: **revisão final total feita**, veredito
 [**NO-GO para a coleta com participantes**](revisao-final.md) — GO para
 seguir o desenvolvimento e ensaiar com você mesmo. O ciclo 1 fechou com
 treze tarefas; a [revisão](revisao-ciclo-1.md) deu **parcial**, com dois P1
@@ -73,6 +78,11 @@ pergunta.
 | 14 | Parâmetros aceitos como propostos: 2 superfícies, 2 falsos positivos até virar crença, treino 2/4/2, 2+2 itens por nó | Issues | nenhum deles muda arquitetura; são constantes no topo do motor, e o ensaio ajusta |
 | 15 | O conhecimento tem **dois níveis de grafo**: premissas dentro de uma KC (interno) e KCs ligadas por pré-requisito (externo) | Issues | é a tese do usuário, e o grafo externo já existe em `kcs.yaml` com 12 KCs |
 | 16 | O **reteste de uma crença acontece na abertura da KC seguinte**, como checagem de pré-requisito | Issues | a KC seguinte depende das premissas da anterior; a mesma pergunta serve ao reteste e ao pré-requisito, sem tela extra |
+| 17 | O domínio do TCC é **ponteiros em C**; o kc_00 (declaração de variáveis) é pré-requisito, não o objeto da medida | ciclo de conteúdo | medir mudança conceitual sobre variáveis não responde a pergunta do trabalho |
+| 18 | A coleta usa **um KC por sessão** | ciclo de conteúdo | medido: um tópico consome de 37 a 149 passos, e o orçamento do PRD é de 20 a 30 min. Como corolário, a decisão 16 não se aplica a um estudo de sessão única, e o reteste de fim de sessão da T12 é o desenho certo |
+| 19 | **Uma crença por nó, sem exceção** | ciclo de conteúdo | a atribuição vem da camada 2, então nó sem crença própria nunca recebe atribuição. O kc_02 antigo tinha três nós de base sem crença |
+| 20 | Em todo item de diagnóstico, **um distrator aponta a crença do próprio nó e outro a de um vizinho** | ciclo de conteúdo | `motor.razoes_de` monta as razões das alternativas do próprio item: item sem crença do nó manda toda razão errada para outro lugar |
+| 21 | O carregador aceita **mais de um tópico** (`carrega(topico=...)`, `STRUCTURA_TOPICO`) | ciclo de conteúdo | os nomes `*_kc00.yaml` estavam fixos no código |
 
 ## Perguntas em aberto
 
@@ -99,6 +109,9 @@ Nenhuma bloqueia a fase 4.
 | 7 Review | `docs/revisao-ciclo-1.md` | **pronto** — parcial, 2 P1 e 6 P2 |
 | 5 Issues (2º ciclo) | `docs/tasks-ciclo-2.md` | **pronto** — 6 tarefas, R1 a R6 |
 | 7 Revisão final | `docs/revisao-final.md` | **pronto** — NO-GO para a coleta, com a lista do que o levanta |
+| conteúdo | `docs/linguagem.md` | **pronto** — contrato de linguagem e três formatos propostos |
+| conteúdo | `docs/revisao-crencas-kc02.md` | **pronto** — crenças conferidas na obra primária |
+| conteúdo | `mvp/dominio/*_kc02.yaml` | **pronto** — 6 nós, 6 crenças, 36 atividades |
 
 ## Fase 6 — as tarefas, uma por commit
 
@@ -196,3 +209,84 @@ Python. Qualquer mudança futura é comparada com isto.
 Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração. Fase 4: 1
 iteração. Fase 5: 1 iteração. Fase 6: 1 iteração por tarefa, nas treze —
 nenhuma precisou de uma segunda.
+
+
+## Ciclo de conteúdo — o kc_02
+
+| Commit | O que entregou |
+| --- | --- |
+| `9242f47` | `docs/linguagem.md`: o contrato, e três formatos de atividade propostos com o custo de cada um |
+| `be1175c` | grafo e crenças do kc_02, sob o contrato |
+| `2c32717` | crenças conferidas na obra primária; relatório em `docs/revisao-crencas-kc02.md` |
+| `6d0c4f6` | as 36 atividades, e o carregador aceitando mais de um tópico |
+
+### A conferência das fontes
+
+Quatro das seis crenças têm fonte verificável; antes eram duas. Feita
+baixando as obras, não de memória: o texto integral de Sorva (2012) no
+repositório da Aalto e o FAQ do comp.lang.c. Achou uma **citação errada na
+curadoria antiga** (`pointer_is_data` apontava o item 14, que não é sobre
+ponteiro; é o 65) e três melhorias para o kc_00 — entre elas, a única
+hipótese `E` do catálogo (`type_is_a_hint`) está documentada no item 123.
+
+### O banco, medido contra o kc_00 pela mesma régua
+
+| | kc_00 | kc_02 |
+| --- | --- | --- |
+| itens binários | 13 de 20 | **0 de 36** |
+| distratores sem crença | 4 de 27 | 0 em diagnóstico (6 em treino) |
+| a certa é a mais longa, com folga | 9 de 20 | **0 de 36** |
+| camada 2 com 3 opções | 2 de 10 | **14 de 18** |
+| item de diagnóstico sem a crença do próprio nó | 1 | **0** |
+
+### O que a medição do kc_02 mostrou
+
+Trinta sessões atravessadas pelo caminhante, três personas, antes de
+qualquer pessoa ver a tela.
+
+| Persona | kc_00 (5 nós, 2+2) | kc_02 (6 nós, 3+3) |
+| --- | --- | --- |
+| acerta tudo | 37 passos · 0/10 sem estado | 42 passos · 0/10 |
+| erra e aprende | 65–71 · **3/10** | 84–123 · **4/10** |
+| erra e não muda | 76–89 · **6/10** | 110–149 · **6/10** |
+
+**A hipótese caiu.** Eu propus triplicar o banco para fechar o buraco da
+CS-10, construí, e a medição diz que não fecha. O rastro de uma sessão
+mostra por quê:
+
+```
+nó B2 — itens apresentados:   004, 005, 006   (os três que ele tem)
+razão escolhida em 004 -> crença pointer_and_target_are_one -> nó I1
+razão escolhida em 005 -> crença pointer_is_data            -> nó B3
+razão escolhida em 006 -> crença pointer_and_target_are_one -> nó I1
+estado final de B2: desconhecido
+```
+
+A crença do próprio B2 estava na cédula nas três vezes e não foi escolhida.
+**Com N itens por nó, quem erra sempre pela razão do vizinho gasta os N.**
+É estrutural: conteúdo não resolve, e mais itens só alonga a sessão.
+
+E a sessão alongou: de 89 para **149 passos** no caminho difícil. A
+composição mostra onde:
+
+| | acerta e aprende | erra e não muda |
+| --- | --- | --- |
+| atividade | 26,6 | 44,8 |
+| **confiança** | **26,6** | **44,8** |
+| refutação | 16,4 | 18,2 |
+| razão | 12,6 | 11,2 |
+
+Uma tela de confiança por item, inclusive no treino — e no treino a
+classificação não roda (`_resolve_treino` só olha certo/errado). São ~33
+telas de confiança por sessão que não alimentam nenhuma decisão.
+
+### O que precisa de decisão, e é de motor, não de conteúdo
+
+1. **O nó que fica sem estado.** `desconhecido` não distingue "não foi
+   perguntado" de "o banco acabou sem medir". O mínimo é nomear
+   (`sem_item`, como o reteste já faz). O conserto de verdade é não gastar
+   o item do nó quando a atribuição foi para o vizinho — com teto, para
+   não repetir para sempre.
+2. **A confiança no treino** é dado que você quer, ou tela a menos?
+3. **O tamanho do tópico.** Seis nós com 3+3 estoura o orçamento de
+   sessão. Cinco nós, ou 2+3, ou sessão mais longa — é escolha sua.
