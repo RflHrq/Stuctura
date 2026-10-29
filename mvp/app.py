@@ -146,7 +146,15 @@ def responde(sessao: str, body: RespostaBody) -> dict:
     r = motor.Resposta(escolha=body.escolha, confianca=body.confianca, ms=body.ms,
                        repetir=body.repetir, nao_sei=body.nao_sei,
                        texto=body.texto)
-    return _resposta(sessao, motor.avanca(dominio, estado, r), entrada=r)
+    try:
+        t = motor.avanca(dominio, estado, r)
+    except motor.EscolhaInvalida as erro:
+        # 400, e não 500: o pedido é que está errado. Antes disto um
+        # índice negativo devolvia 200 e virava um episódio de verdade —
+        # o defeito que a revisão do ciclo 1 achou. Nada é gravado: a
+        # tentativa inválida não é dado, e o estado não anda.
+        raise HTTPException(status_code=400, detail=str(erro)) from erro
+    return _resposta(sessao, t, entrada=r)
 
 
 @app.get("/saude")

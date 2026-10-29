@@ -120,6 +120,30 @@ FECHAMENTO = "FECHAMENTO"      # a frase do fim
 FIM = "FIM"
 
 
+class EscolhaInvalida(ValueError):
+    """O índice mandado não existe entre as alternativas oferecidas.
+
+    Estourar é a correção de um defeito achado na revisão do ciclo 1:
+    `opcoes[-1]` é a última alternativa em Python, então um índice
+    negativo virava uma resposta de verdade — classificada, com a crença
+    daquela opção no registro, indistinguível no log.
+
+    O motor não escolhe por quem chamou. `None` continua valendo: é como
+    "não sei" chega.
+    """
+
+
+def _indice(escolha: int | None, quantas: int, onde: str) -> int | None:
+    if escolha is None:
+        return None
+    if not isinstance(escolha, int) or isinstance(escolha, bool):
+        raise EscolhaInvalida("%s: %r não é índice de alternativa" % (onde, escolha))
+    if not 0 <= escolha < quantas:
+        raise EscolhaInvalida(
+            "%s: alternativa %d não existe (são %d)" % (onde, escolha, quantas))
+    return escolha
+
+
 @dataclass(frozen=True)
 class Resposta:
     """Entrada do aluno. `escolha` é a posição na tela.
@@ -499,7 +523,8 @@ def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     resposta-razão é independente, que é o que a classificação pressupõe.
     """
     a = next(x for x in d.atividades if x.id == e.atividade)
-    escolhida = a.opcoes[r.escolha] if r.escolha is not None else None
+    i = _indice(r.escolha, len(a.opcoes), "camada 1")
+    escolhida = a.opcoes[i] if i is not None else None
     certo = bool(escolhida and escolhida.correta)
 
     pendente = Pendente(
@@ -557,9 +582,10 @@ def _responde_razao(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     p = e.pendente
     assert p is not None, "fase RAZAO sem resposta trancada"
     a = next(x for x in d.atividades if x.id == p.atividade)
-    escolhida = (p.razoes[r.escolha]
-                 if r.escolha is not None and 0 <= r.escolha < len(p.razoes)
-                 else None)
+    # Antes, índice fora da faixa virava None — e None na razão é LACUNA.
+    # Um erro de cliente entrava na base como alguém dizendo que não sabe.
+    j = _indice(r.escolha, len(p.razoes), "camada 2")
+    escolhida = p.razoes[j] if j is not None else None
 
     if r.nao_sei:
         escolhida = None
@@ -971,8 +997,9 @@ def _responde_treino(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     sustenta em outra superfície — e com quanta convicção.
     """
     a = next(x for x in d.atividades if x.id == e.atividade)
+    k = _indice(r.escolha, len(a.opcoes), "camada 1 do treino")
     escolhida = None if r.nao_sei else (
-        a.opcoes[r.escolha] if r.escolha is not None else None)
+        a.opcoes[k] if k is not None else None)
     certo = bool(escolhida and escolhida.correta)
 
     pendente = Pendente(
