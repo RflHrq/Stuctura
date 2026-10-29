@@ -14,3 +14,7 @@ PyYAML==6.0.3
 # Só para rodar os testes.
 pytest==9.1.1
 httpx==0.28.1
+
+# Só para `scripts/gerar.py`, que escreve atividades candidatas. Nenhuma
+# sessão depende dele: o MVP continua rodando offline, sem rede (RNF05).
+anthropic==2.3.0
