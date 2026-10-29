@@ -286,3 +286,21 @@ def test_a_figura_e_do_topico_que_esta_no_ar():
     # e a tela precisa dizer qual tópico está no ar
     app = (WEB / "app.js").read_text(encoding="utf-8")
     assert "Figuras.topico(" in app
+
+
+def test_todo_no_de_todo_topico_tem_figura():
+    """Nó novo sem desenho sai só com texto, e ninguém percebe até alguém
+    atravessar a unidade. Foi assim que o kc_02 passou a mostrar os quartos
+    de hotel do kc_00: o banco era global, e o id do nó se repete.
+    """
+    js = (WEB / "figuras.js").read_text(encoding="utf-8")
+    blocos = dict(re.findall(r"POR_TOPICO\.(\w+)\s*=\s*\{(.*?)\n  \};",
+                             js, re.S))
+    assert set(blocos) >= {"kc_00", "kc_02"}, sorted(blocos)
+    faltam = []
+    for topico, bloco in blocos.items():
+        dd = carrega(topico=topico)
+        for nid in dd.ordem:
+            if not re.search(r"\n    %s:\s*function" % nid, bloco):
+                faltam.append("%s:%s" % (topico, nid))
+    assert faltam == [], faltam
