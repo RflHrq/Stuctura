@@ -86,6 +86,7 @@ def episodios(linhas: list[dict]) -> list[dict]:
                 "razao_correta": None, "crenca": None, "fala_do_no": None,
                 "ms_razao": None, "confianca": "", "ms_confianca": None,
                 "estado": "", "streak": None,
+                "voltou": None, "superficie_nova": None,
             })
         elif tipo == "razao_pulada" and atual:
             atual["razao_correta"] = None
@@ -106,6 +107,12 @@ def episodios(linhas: list[dict]) -> list[dict]:
             atual["estado"] = linha.get("estado")
         elif tipo == "treino_tentativa" and atual:
             atual["streak"] = linha.get("streak")
+        elif tipo == "belief_retested" and atual:
+            # A linha mais importante da tabela para o TCC: a terceira
+            # condição do critério, "não volta".
+            atual["voltou"] = linha.get("voltou")
+            atual["superficie_nova"] = linha.get("superficie_nova")
+            atual["crenca"] = linha.get("crenca")
         elif tipo == "unidade_encerrada":
             fecha()
     fecha()
@@ -115,7 +122,15 @@ def episodios(linhas: list[dict]) -> list[dict]:
 def _resumo(linhas: list[dict]) -> dict:
     """O que dá para dizer de uma sessão sem reexecutar nada."""
     abertura = next((x for x in linhas if x["tipo"] == "unidade_iniciada"), None)
+    fim = next((x for x in linhas if x["tipo"] == "unidade_encerrada"), {})
     return {
+        # Quantas crenças foram refutadas e quantas chegaram a voltar. A
+        # diferença é o que o banco de itens não deu, e precisa estar à
+        # vista: um reteste que não aconteceu é uma condição do critério
+        # que ficou sem medida nesta sessão.
+        "refutadas": fim.get("refutadas", 0),
+        "retestadas": fim.get("retestadas", 0),
+        "sem_item": sum(1 for x in linhas if x["tipo"] == "reteste_sem_item"),
         "codigo": linhas[0]["sessao"],
         "topico": (abertura or {}).get("topico", ""),
         "inicio": linhas[0].get("ts", ""),

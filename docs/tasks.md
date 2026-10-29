@@ -331,6 +331,28 @@ resultado entra no log como evento próprio.
 
 **Portões:** T.
 
+**Feito.** Fase `RETESTE` entre as atividades e a frase do fim; cada
+crença refutada volta uma vez, com as três camadas, num item por ver.
+`belief_retested` traz `voltou`, `razao_correta`, `confianca` e
+`superficie_nova`. O reteste **observa e não intervém**: não mexe no nó,
+não refuta de novo, não conta superfície nem força.
+
+**O que a medição mostrou, e é o achado da tarefa:** em 12 percursos, 17
+crenças refutadas renderam **7 retestes**, e só **3** em superfície nova.
+Quem erra no treino nunca é retestado. A causa é o banco de itens, não o
+motor — cada crença aparece em ~4 itens e o treino consome quase todos.
+A falta vira dado (`reteste_sem_item`, e `refutadas`/`retestadas` no
+encerramento), e o painel mostra a diferença em destaque. **Duas saídas,
+e a escolha é de conteúdo:** mais itens por crença, ou reservar um item
+na detecção — o que tiraria um candidato do treino.
+
+**Um teste existente reescrito, com aprovação:**
+`test_o_streak_nao_escreve_no_reteste_da_pesquisa` afirmava que
+`belief_retested` nunca aparecia, porque o reteste não existia. A
+intenção — o streak é mecanismo de produto e não escreve na medida de
+pesquisa — virou asserção de verdade: nada de `belief_retested` entre
+`treino_iniciado` e `training_streak_completed`.
+
 ---
 
 ## Depois (não entra neste ciclo)

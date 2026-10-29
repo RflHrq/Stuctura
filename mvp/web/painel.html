@@ -109,6 +109,7 @@ footer{padding:12px 20px; border-top:1px solid var(--linha);
     refutado: "crença", lacuna: "lacuna", em_treino: "em treino",
     em_aberto: "em aberto", desconhecido: "não tocada"
   };
+  var FASE = { diagnostico: "diag.", treino: "treino", reteste: "RETESTE" };
   var CLASSE = {
     confirmado: "ok", fragil: "aviso", falso_positivo: "aviso",
     refutado: "erro", lacuna: "aviso", em_treino: "", em_aberto: "",
@@ -191,7 +192,11 @@ footer{padding:12px 20px; border-top:1px solid var(--linha);
     eps.forEach(function (e) {
       var tr = el("tr");
       tr.appendChild(el("td", e.ordem, "num"));
-      tr.appendChild(el("td", e.fase === "treino" ? "treino" : "diag."));
+      /* A linha do RETESTE e a mais importante da tabela para o TCC: e a
+       * terceira condicao do criterio. Nao pode sair com cara de
+       * diagnostico qualquer. */
+      tr.appendChild(el("td", FASE[e.fase] || e.fase || "diag.",
+                        e.fase === "reteste" ? "aviso" : ""));
       tr.appendChild(el("td", e.no));
       tr.appendChild(el("td", e.item || ""));
 
@@ -214,10 +219,19 @@ footer{padding:12px 20px; border-top:1px solid var(--linha);
       tr.appendChild(z);
 
       tr.appendChild(el("td", e.confianca || "—"));
-      tr.appendChild(el("td",
-        e.fase === "treino"
-          ? (e.streak === null ? "" : "sequência " + e.streak)
-          : (NOME[e.estado] || e.estado || "")));
+      var estado;
+      if (e.fase === "treino") {
+        estado = el("td", e.streak === null ? "" : "sequência " + e.streak);
+      } else if (e.fase === "reteste") {
+        estado = el("td", e.voltou ? "✗ a crença voltou" : "✓ não voltou",
+                    e.voltou ? "erro" : "ok");
+        if (e.superficie_nova === false) {
+          estado.appendChild(el("span", " (mesma superfície)", "nome"));
+        }
+      } else {
+        estado = el("td", NOME[e.estado] || e.estado || "");
+      }
+      tr.appendChild(estado);
       tr.appendChild(el("td",
         [ms(e.ms_resposta), ms(e.ms_razao), ms(e.ms_confianca)].join(" / "),
         "num"));
@@ -238,6 +252,19 @@ footer{padding:12px 20px; border-top:1px solid var(--linha);
       linha.push(j.retomadas + "× retomada depois de queda");
     }
     alvo.appendChild(el("p", linha.join(" · "), "meta"));
+
+    /* A terceira condicao do criterio, e quanto dela esta sessao conseguiu
+     * medir. Um reteste que nao aconteceu tem de doer na tela. */
+    if (j.refutadas) {
+      var r = el("p", "Crenças refutadas: " + j.refutadas +
+                      " · retestadas: " + j.retestadas, "meta");
+      if (j.sem_item) {
+        r = el("p", "Crenças refutadas: " + j.refutadas + " · retestadas: " +
+                    j.retestadas + " · " + j.sem_item +
+                    " sem item por ver para retestar", "alerta");
+      }
+      alvo.appendChild(r);
+    }
 
     alvo.appendChild(el("h2", "Premissas"));
     /* A mais fraca que ainda nao esta de pe: e a que o motor vai escolher

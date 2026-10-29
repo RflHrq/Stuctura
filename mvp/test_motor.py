@@ -468,6 +468,22 @@ def test_o_mapa_distingue_os_tres_caminhos_ate_o_verde(d):
 
 
 def test_o_streak_nao_escreve_no_reteste_da_pesquisa(d):
+    """O streak é mecanismo de PRODUTO: decide o que o mapa mostra ao
+    aluno. O reteste é medida de PESQUISA. Misturar os dois faria o treino
+    virar uma segunda forma de medir correção de crença.
+
+    Até a T12 este teste dizia isso do jeito mais curto possível —
+    `belief_retested` não aparecia em lugar nenhum, porque o reteste ainda
+    não existia. Agora ele existe, e vem da fase RETESTE, depois de tudo.
+    A asserção passou a ser a afirmação de verdade: entre o início do
+    treino e o fim da sequência, nada escreve na medida.
+    """
     t, eventos = roda(d, _politica(erra_no="B4", erra_diagnostico=2))
-    assert "training_streak_completed" in _tipos(eventos)
-    assert "belief_retested" not in _tipos(eventos)
+    tipos = _tipos(eventos)
+    assert "training_streak_completed" in tipos
+    durante_o_treino = tipos[tipos.index("treino_iniciado"):
+                             tipos.index("training_streak_completed") + 1]
+    assert "belief_retested" not in durante_o_treino
+    # E o reteste acontece — depois, e uma vez só.
+    assert tipos.count("belief_retested") == 1
+    assert tipos.index("belief_retested") > tipos.index("training_streak_completed")

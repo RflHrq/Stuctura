@@ -115,6 +115,7 @@ CONFIANCA = "CONFIANCA"
 VALIDACAO = "VALIDACAO"
 REFUTACAO = "REFUTACAO"
 TREINO = "TREINO"
+RETESTE = "RETESTE"            # a crença refutada volta uma vez, no fim
 FECHAMENTO = "FECHAMENTO"      # a frase do fim
 FIM = "FIM"
 
@@ -243,6 +244,13 @@ class Estado:
     pendente: Pendente | None = None   # camada 1 trancada, esperando a razão
     frase_inicial: str = ""
     frase_final: str = ""
+    # A fila do reteste: as crenças refutadas nesta sessão que ainda não
+    # voltaram. Fica no estado, e não é recalculada do grafo, porque o nó
+    # guarda a crença mas não guarda se ela já foi reperguntada.
+    a_retestar: tuple[str, ...] = ()
+    # As que já voltaram. Contar pela fila não serve: ela esvazia tanto
+    # quando o reteste acontece quanto quando falta item para ele.
+    retestadas: tuple[str, ...] = ()
     # Embaralha as razões sem sortear: o motor continua puro, e a mesma
     # semente devolve a mesma ordem. Quem fornece é a sessão.
     semente: str = ""
@@ -312,7 +320,9 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         return _fecha_unidade(d, e, r)
     if e.fase == ENSINO:
         return _segue_ensino(d, e)
-    if e.fase == DIAGNOSTICO:
+    if e.fase in (DIAGNOSTICO, RETESTE):
+        # O reteste pergunta as TRÊS camadas, como o diagnóstico: o
+        # critério fala da razão e da confiança, não só do acerto.
         return _responde_diagnostico(d, e, r)
     if e.fase == RAZAO:
         return _responde_razao(d, e, r)
@@ -495,11 +505,13 @@ def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     pendente = Pendente(
         atividade=a.id, escolha=r.escolha, correta=certo,
         crenca_da_opcao=(escolhida.crenca if escolhida else None),
-        ms=r.ms, origem=DIAGNOSTICO,
+        ms=r.ms, origem=e.fase,
         nao_sei="camada1" if r.nao_sei else "",
     )
     evento = Evento("camada1_respondida", {
-        "atividade": a.id, "no": a.no, "item": a.tipo, "origem": "diagnostico",
+        # A origem é a fase: a mesma função atende o diagnóstico e o
+        # reteste, e a análise precisa saber de qual dos dois veio a linha.
+        "atividade": a.id, "no": a.no, "item": a.tipo, "origem": e.fase.lower(),
         "escolha": r.escolha, "correta": certo, "nao_sei": r.nao_sei,
         "crenca_da_opcao": pendente.crenca_da_opcao, "ms": r.ms,
     })
@@ -508,7 +520,7 @@ def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     # declarar. Perguntar as outras duas camadas seria teatro, e a tabela
     # já decidiu: "não sei" em qualquer camada é lacuna.
     if r.nao_sei:
-        seguinte = _resolve_diagnostico(d, e, a, pendente)
+        seguinte = _resolve(d, e, a, pendente)
         return Transicao(seguinte.estado, seguinte.tela,
                          (evento,) + seguinte.eventos)
 
@@ -565,7 +577,7 @@ def _responde_razao(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     })
     p = replace(p, razao=escolhida)
     if r.nao_sei:
-        seguinte = _resolve_diagnostico(d, e, a, p)
+        seguinte = _resolve(d, e, a, p)
     else:
         seguinte = _pede_confianca(d, e, a, p)
     return Transicao(seguinte.estado, seguinte.tela, (evento,) + seguinte.eventos)
@@ -610,11 +622,23 @@ def _responde_confianca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         "atividade": a.id, "no": a.no, "confianca": r.confianca,
         "nao_sei": r.nao_sei, "origem": p.origem.lower(), "ms": r.ms,
     })
-    if p.origem == TREINO:
-        seguinte = _resolve_treino(d, e, a, p)
-    else:
-        seguinte = _resolve_diagnostico(d, e, a, p)
+    seguinte = _resolve(d, e, a, p)
     return Transicao(seguinte.estado, seguinte.tela, (evento,) + seguinte.eventos)
+
+
+def _resolve(d: Dominio, e: Estado, a: Atividade, p: Pendente) -> Transicao:
+    """Quem fecha o episódio depende de ONDE ele aconteceu.
+
+    A origem viaja no `Pendente` desde a camada 1 — não na fase do estado,
+    que `_apresenta` não toca. Sem isso o reteste seria resolvido como
+    diagnóstico, e uma pergunta feita para medir viraria uma pergunta que
+    muda o que mede.
+    """
+    if p.origem == TREINO:
+        return _resolve_treino(d, e, a, p)
+    if p.origem == RETESTE:
+        return _resolve_reteste(d, e, a, p)
+    return _resolve_diagnostico(d, e, a, p)
 
 
 def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
@@ -856,7 +880,13 @@ def _segue_refutacao(d: Dominio, e: Estado, repetir: bool = False) -> Transicao:
     # RF33: a refutação NÃO confirma o nó. Ela o põe em treino.
     alvo = e.alvo or e.plano[-1]
     novo = e.com(alvo, estado=EM_TREINO, streak=0, tentativas=0)
-    novo = replace(novo, fase=TREINO, plano=(), passo=0, repeticoes=0)
+    crenca = novo.no(alvo).crenca
+    novo = replace(novo, fase=TREINO, plano=(), passo=0, repeticoes=0,
+                   # A crença entra na fila do reteste aqui, e não no fim:
+                   # é agora que se sabe que ela foi mesmo refutada.
+                   a_retestar=(novo.a_retestar + (crenca,)
+                               if crenca and crenca not in novo.a_retestar
+                               else novo.a_retestar))
     eventos = eventos + (
         Evento("refutacao_concluida", {"no": alvo}),
         Evento("treino_iniciado", {"no": alvo, "streak_alvo": STREAK_ALVO}),
@@ -997,7 +1027,133 @@ def _resolve_treino(d: Dominio, e: Estado, a: Atividade,
 # Fim
 # --------------------------------------------------------------------------
 
+def _item_de_reteste(d: Dominio, e: Estado, crenca: str) -> Atividade | None:
+    """Um item que ofereça esta crença e que a pessoa NÃO tenha visto.
+
+    Reperguntar o mesmo item mediria memória daquele item, não a premissa.
+    Entre os que sobraram, prefere um formato que ela não viu naquele nó:
+    "sobrevive à troca de superfície" é parte do critério, e repetir o
+    molde da pergunta deixa de testar isso.
+
+    `None` quando o banco acabou. Quem chamou registra a falta — fingir
+    que houve reteste seria pior do que não ter um.
+    """
+    def usado(a: Atividade) -> bool:
+        return a.id in e.no(a.no).usadas
+
+    def oferece(a: Atividade) -> bool:
+        return any(o.crenca == crenca for o in a.opcoes)
+
+    livres = [a for a in d.atividades if oferece(a) and not usado(a)]
+    if not livres:
+        return None
+    # A comparação que importa é com as superfícies em que ESTA crença já
+    # foi oferecida a esta pessoa. Um formato que ela viu noutro nó, com
+    # outra crença, não compromete a troca de superfície aqui.
+    vistos = {a.formato for a in d.atividades if oferece(a) and usado(a)}
+    novos = [a for a in livres if a.formato not in vistos]
+    # Nem sempre sobra formato novo: com quatro itens por crença em três
+    # formatos, o treino costuma gastar os que faltavam. O item sai assim
+    # mesmo, e quem grava o evento diz que a superfície repetiu — reteste
+    # no mesmo molde é evidência mais fraca, e a análise tem de saber.
+    return (novos or livres)[0]
+
+
+def _superficie_nova(d: Dominio, e: Estado, crenca: str, a: Atividade) -> bool:
+    return a.formato not in {x.formato for x in d.atividades
+                             if x.id in e.no(x.no).usadas and x.id != a.id
+                             and any(o.crenca == crenca for o in x.opcoes)}
+
+
+def _proximo_reteste(d: Dominio, e: Estado) -> Transicao:
+    """A próxima crença da fila, ou o fim da unidade."""
+    eventos: tuple[Evento, ...] = ()
+    fila = e.a_retestar
+    while fila:
+        crenca, resto = fila[0], fila[1:]
+        a = _item_de_reteste(d, e, crenca)
+        if a is not None:
+            novo = replace(e, fase=RETESTE, a_retestar=resto, alvo=a.no)
+            seguinte = _apresenta(d, novo, a)
+            return Transicao(seguinte.estado, seguinte.tela,
+                             eventos + seguinte.eventos)
+        eventos += (Evento("reteste_sem_item", {
+            "crenca": crenca, "no": d.crencas[crenca].nega if crenca in d.crencas else "",
+            "motivo": "nenhuma atividade por ver oferece esta crença"}),)
+        fila = resto
+    seguinte = _fecha(d, replace(e, a_retestar=()))
+    return Transicao(seguinte.estado, seguinte.tela, eventos + seguinte.eventos)
+
+
+def _resolve_reteste(d: Dominio, e: Estado, a: Atividade,
+                     p: Pendente) -> Transicao:
+    """O reteste OBSERVA. Não mexe no nó, não refuta de novo, não confirma.
+
+    Uma medida que corrige o que está medindo deixa de ser medida — e
+    refutar outra vez no fim nunca terminaria. Por isso aqui só saem
+    eventos: nenhuma escrita em `EstadoNo`.
+    """
+    e = replace(e, fase=RETESTE, pendente=None)
+    crenca = p.razao.crenca if p.razao else None
+    alvo = next((c for c in (p.crenca_da_opcao, crenca) if c), None)
+    # A crença desta pergunta é a que o item oferece e que estava em
+    # reteste; `voltou` é tê-la escolhido como RAZÃO, que é onde o critério
+    # olha — a resposta pode sair certa por outro caminho.
+    em_jogo = next((o.crenca for o in a.opcoes
+                    if o.crenca and o.crenca == crenca), None) or alvo
+    eventos = (
+        Evento("resposta_registrada", {
+            "atividade": a.id, "no": a.no, "fase": "reteste", "item": a.tipo,
+            "escolha": p.escolha, "correta": p.correta,
+            "crenca_em_jogo": em_jogo, "confianca": p.confianca, "ms": p.ms,
+        }),
+        Evento("belief_retested", {
+            "crenca": _crenca_do_reteste(d, e, a),
+            "no": a.no, "atividade": a.id, "formato": a.formato,
+            "item": a.tipo,
+            # "Sobrevive à troca de superfície" é parte do critério. Quando
+            # o banco não tinha formato novo a oferecer, isto sai falso, e
+            # o reteste vale menos — dito, e não escondido.
+            "superficie_nova": _superficie_nova(
+                d, e, _crenca_do_reteste(d, e, a), a),
+            "voltou": bool(crenca and crenca == _crenca_do_reteste(d, e, a)),
+            "correta": p.correta,
+            "razao_correta": bool(p.razao and p.razao.correta),
+            "confianca": p.confianca,
+            "nao_sei": p.nao_sei or None,
+        }),
+    )
+    e = replace(e, retestadas=e.retestadas + (_crenca_do_reteste(d, e, a),))
+    seguinte = _proximo_reteste(d, e)
+    return Transicao(seguinte.estado, seguinte.tela, eventos + seguinte.eventos)
+
+
+def _crenca_do_reteste(d: Dominio, e: Estado, a: Atividade) -> str:
+    """Qual crença esta pergunta está reperguntando.
+
+    É a crença refutada nesta sessão que o item oferece. Sai do estado dos
+    nós, e não da fila — a fila já andou quando o episódio fecha.
+    """
+    refutadas = {en.crenca for en in e.nos.values() if en.crenca}
+    for o in a.opcoes:
+        if o.crenca in refutadas:
+            return o.crenca
+    return ""
+
+
 def _encerra(d: Dominio, e: Estado) -> Transicao:
+    """As atividades acabaram. Antes da frase do fim, o reteste.
+
+    O critério de sucesso tem três condições, e a terceira é **não volta**
+    no reteste do fim da sessão. Se alguma crença foi refutada aqui, ela
+    volta uma vez antes de a unidade fechar.
+    """
+    if e.a_retestar:
+        return _proximo_reteste(d, e)
+    return _fecha(d, e)
+
+
+def _fecha(d: Dominio, e: Estado) -> Transicao:
     """Não há mais evidência a coletar. Antes do mapa, a frase do fim.
 
     O critério do documento é "a unidade termina quando a premissa mais
@@ -1016,6 +1172,10 @@ def _encerra(d: Dominio, e: Estado) -> Transicao:
         "forcas": forcas,
         "mais_fraca": mais_fraca,
         "mais_fraca_de_pe": _de_pe(novo.no(mais_fraca)),
+        # Quantas crenças foram refutadas e quantas chegaram a voltar. A
+        # diferença entre os dois números é o que o banco de itens não deu.
+        "refutadas": len({n.crenca for n in novo.nos.values() if n.crenca}),
+        "retestadas": len(set(e.retestadas)),
     })
     # A pergunta volta SEM a frase de antes à vista: escrever olhando a
     # própria frase antiga é copiá-la ou corrigi-la, não reformulá-la. As

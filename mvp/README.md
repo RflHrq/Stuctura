@@ -15,7 +15,7 @@ As atividades vêm em **dois bancos**, e a diferença importa:
 | treino | 10 — duas por nó, formatos diferentes | só depois da refutação, para fechar a sequência |
 
 ```bash
-python -m pytest mvp/ -q     # 159 testes
+python -m pytest mvp/ -q     # 176 testes
 python -m mvp.app            # http://127.0.0.1:8010  quem responde
 python -m mvp.painel         # http://127.0.0.1:8011  quem observa
 ```
@@ -258,6 +258,70 @@ encerramento **registra** onde cada uma parou:
 
 O critério vira dado conferível em vez de afirmação. Fechar a lacuna exige
 uma terceira atividade por nó — a mesma falta que o treino já tem.
+
+## O reteste do fim da sessão
+
+O critério de sucesso tem **três** condições, não uma: a razão muda da
+razão-crença para a razão-correta **sem queda de confiança**; isso
+**sobrevive à troca de superfície**; e **não volta** no reteste do fim da
+sessão. As duas primeiras acontecem no diagnóstico e no treino. Esta é a
+terceira.
+
+No fim, antes da frase de fecho, cada crença refutada volta **uma vez**,
+num item que a pessoa não viu, com as três camadas — porque o critério
+fala da razão e da confiança, não só do acerto.
+
+**O reteste observa, não intervém.** Escolher a crença de novo não dispara
+outra refutação, não mexe no estado do nó e não adia o fim da unidade.
+Uma medida que corrige o que está medindo deixa de ser medida, e refutar
+outra vez no fim nunca terminaria. Tem teste para cada metade disso.
+
+**Para quem responde, é uma atividade como outra qualquer.** Avisar que
+aquilo é a medida mudaria a medida.
+
+```
+belief_retested  {"crenca": "declaration_zeroes", "no": "B3",
+                  "voltou": false, "razao_correta": true,
+                  "confianca": "tenho certeza",
+                  "superficie_nova": false}
+```
+
+### O banco não alimenta o mecanismo
+
+Medido em 12 percursos, com erro em cada nó e com o treino acertado e
+errado:
+
+| | |
+| --- | --- |
+| crenças refutadas | 17 |
+| retestes que aconteceram | **7** |
+| desses, em superfície nova | **3** |
+
+**Quem erra no treino nunca é retestado** — e é justamente quem mais
+precisa ser. A causa é o banco, não o motor: cada crença aparece em ~4
+itens, e o item que a detectou mais as tentativas de treino consomem
+quase todos.
+
+O mecanismo não disfarça a falta. Quando não há item por ver, sai
+`reteste_sem_item` com o motivo, e o encerramento conta `refutadas` e
+`retestadas` separadas. O painel mostra a diferença em destaque: um
+reteste que não aconteceu é uma condição do critério que ficou **sem
+medida** naquela sessão.
+
+Quando há item mas não há formato novo, o reteste acontece e
+`superficie_nova` sai falso — reteste no mesmo molde é evidência mais
+fraca, e isso fica dito em vez de escondido.
+
+**Duas saídas, e a escolha é de conteúdo:** mais itens por crença, ou
+reservar um item no momento da detecção — o que tiraria do treino um
+candidato e empurraria mais nós para `em_aberto`.
+
+### O limite do ciclo 1
+
+O critério diz "com **outra unidade** no meio". Só existe uma unidade
+pronta, então o que fica no meio são as outras premissas desta. É menos
+separação do que o critério pede. O reteste de verdade acontece na
+abertura da KC seguinte, pelo grafo externo — e isso é o próximo ciclo.
 
 ## Os cinco estados, e em que nó cada um fica
 

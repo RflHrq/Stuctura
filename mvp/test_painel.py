@@ -182,7 +182,9 @@ def test_a_tabela_mostra_diagnostico_e_treino(cliente, d):
     percorre(d, arquivo, "s6", _politica(erra_no="B3", erra_diagnostico=2, d=d))
     episodios = c.get("/sessoes/s6").json()["episodios"]
     fases = {e["fase"] for e in episodios}
-    assert fases == {"diagnostico", "treino"}
+    # Três desde a T12: o reteste do fim é uma linha da tabela como as
+    # outras, e tem de chegar ao painel junto com elas.
+    assert fases == {"diagnostico", "treino", "reteste"}
     treino = [e for e in episodios if e["fase"] == "treino"]
     assert all(e["streak"] is not None for e in treino)
     assert [e["ordem"] for e in episodios] == list(range(1, len(episodios) + 1))
@@ -268,3 +270,32 @@ def test_o_painel_le_o_arquivo_que_o_servidor_escreve():
     from mvp import app as servidor
 
     assert painel.log.DESTINO == servidor.log.DESTINO
+
+
+def test_a_linha_do_reteste_aparece_marcada_na_tabela(cliente, d):
+    """A terceira condição do critério não pode sair com cara de
+    diagnóstico qualquer: é a linha que o TCC vai ler primeiro."""
+    from mvp.test_reteste import _erra_em
+
+    c, arquivo = cliente
+    percorre(d, arquivo, "r1", _erra_em(d, {"B3"}))
+    episodios = c.get("/sessoes/r1").json()["episodios"]
+    reteste = [e for e in episodios if e["fase"] == "reteste"]
+    assert len(reteste) == 1
+    assert reteste[0]["voltou"] is False
+    assert reteste[0]["superficie_nova"] in (True, False)
+    assert reteste[0] is episodios[-1] or reteste[0]["ordem"] == len(episodios)
+
+
+def test_o_painel_mostra_quantas_crencas_ficaram_sem_reteste(cliente, d):
+    """A terceira condição do critério que esta sessão NÃO conseguiu
+    medir. Um reteste que não aconteceu tem de aparecer, não sumir."""
+    from mvp.test_motor import _politica as pol
+
+    c, arquivo = cliente
+    percorre(d, arquivo, "r2", pol(erra_no="B3", erra_diagnostico=2,
+                                   erra_treino=9, d=d))
+    j = c.get("/sessoes/r2").json()
+    assert j["refutadas"] == 1
+    assert j["retestadas"] == 0
+    assert j["sem_item"] == 1

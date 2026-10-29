@@ -110,14 +110,19 @@ quebrar de propósito a regra que ele defende tem de derrubá-lo.
 | T9 | `33f16c0` | o teach-back do começo e do fim | 95 | sim |
 | T10 | `6ffd6d9` | a sessão reconstruída pelo log (CS-6) | 110 | sim — 6 de 6 |
 | T11 | `b4bb73c` | o painel do pesquisador, só leitura (CS-7) | 126 | sim — 7 de 7 |
-| T8 | — | a força da premissa escolhe o próximo item | 150 | sim — 11 de 11, **uma não mordia** e foi corrigida |
+| T8 | `3c7204c` | a força da premissa escolhe o próximo item | 150 | sim — 11 de 11, **uma não mordia** e foi corrigida |
+| T12 | — | o reteste do fim da sessão | 167 | sim — 11 de 11, **uma não mordia** e foi corrigida |
 
 A coluna conta funções `def test_` em `mvp/`, apuradas com `git grep` em
 cada commit. O pytest coleta mais do que isso porque quatro testes são
 parametrizados: hoje são 110 funções e **119 casos**, mais 252 da suíte
 antiga.
 
-**Em aberto na fase 6:** T12 (o reteste). E uma lacuna de escopo
+**A fase 6 fechou:** T0 a T12, treze tarefas, treze commits. Fica em
+aberto uma lacuna de escopo registrada e **não** transformada em tarefa
+por conta própria: o caminho "lacuna → constrói" aparece no fluxo do PRD
+e não tem tarefa de T1 a T12. E fica a decisão de conteúdo que a T12
+levantou: o banco de itens não alimenta o reteste. E uma lacuna de escopo
 registrada e **não** transformada em tarefa por conta própria: o caminho
 "lacuna → constrói" aparece no fluxo do PRD e não tem tarefa de T1 a T12.
 
@@ -145,5 +150,5 @@ Python. Qualquer mudança futura é comparada com isto.
 ## Orçamento
 
 Fase 1: 4 iterações. Fase 2: 2 iterações. Fase 3: 1 iteração. Fase 4: 1
-iteração. Fase 5: 1 iteração. Fase 6: 1 iteração por tarefa, de T0 a T11 e T8 —
+iteração. Fase 5: 1 iteração. Fase 6: 1 iteração por tarefa, nas treze —
 nenhuma precisou de uma segunda.
