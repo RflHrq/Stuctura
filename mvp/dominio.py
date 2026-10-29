@@ -41,7 +41,12 @@ TIPOS = ("teorica", "codigo")
 # Onde a atividade entra. O par teorica+codigo do diagnostico sustenta a
 # checagem de vacilo; o treino tem banco PROPRIO, para a sequencia de
 # acertos nao ser feita de perguntas que o aluno acabou de ver.
-USOS = ("diagnostico", "treino")
+#
+# `entrada` e o item que vem DEPOIS do ensino, quando a pessoa declarou que
+# nao sabe. Ele e o degrau mais baixo do no: existe para a pessoa sair da
+# lacuna, nao para discriminar crenca. E opcional — topico sem item de
+# entrada constroi assim mesmo, ensinando, e o log registra que faltou.
+USOS = ("diagnostico", "treino", "entrada")
 
 
 class DominioInvalido(Exception):
@@ -133,6 +138,11 @@ class Dominio:
     def exemplo(self, no: str) -> str:
         """O código que acompanha a premissa na tela de ensino."""
         return self.exemplos.get(no, "")
+
+    def entrada(self, no: str, usadas: tuple[str, ...] = ()) -> Atividade | None:
+        """O item de entrada do nó, se o banco tiver um ainda não usado."""
+        return next((a for a in self.atividades_do_no(no, "entrada")
+                     if a.id not in usadas), None)
 
     def crenca_que_nega(self, no: str) -> Crenca | None:
         return next((c for c in self.crencas.values() if c.nega == no), None)

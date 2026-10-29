@@ -137,6 +137,9 @@
     if (n.estado === "lacuna") return " ?";
     if (n.estado === "em_treino") return " " + n.streak + "/2";
     if (n.estado === "em_aberto") return " —";
+    /* Construida: a lacuna foi tratada e a pessoa acertou o degrau de
+     * entrada. Nao e verde — a CS-5 continua exigindo duas superficies. */
+    if (n.estado === "construido") return " ↑";
     /* Nao medida: a unidade acabou sem nenhuma resposta atribuida a esta
      * premissa. Nao e o mesmo que "em aberto", onde houve treino e ele nao
      * fechou — e nao pode ficar com a mesma cara de quem nem comecou. */
@@ -152,6 +155,7 @@
     lacuna: "disse que não sabe",
     em_treino: "em treino",
     em_aberto: "ficou em aberto",
+    construido: "construída agora, ainda não demonstrada",
     nao_medido: "esta unidade não chegou a medir"
   };
 
@@ -254,7 +258,16 @@
 
   function telaEnsino(t) {
     $("trilha").textContent = "Aprendendo";
-    $("ensino-passo").textContent = "Ideia " + t.indice + " de " + t.total;
+    /* A MESMA tela serve a dois momentos. Na abertura e a sequencia de
+     * ideias; depois de um "nao sei" ela volta para UM no, e tem de dizer
+     * por que apareceu — senao parece que o sistema se repetiu. */
+    var daLacuna = t.motivo === "lacuna";
+    $("ensino-passo").textContent = daLacuna
+      ? "Vamos construir esta ideia"
+      : "Ideia " + t.indice + " de " + t.total;
+    $("ensino-resgate").textContent = t.resgate || "";
+    $("ensino-resgate").hidden = !daLacuna || !t.resgate;
+    $("btn-ensino").textContent = daLacuna ? "Entendi, quero tentar" : "Entendi";
     $("ensino-texto").textContent = t.texto;
     // A frase, o código e o desenho: a mesma ideia em três registros.
     $("ensino-codigo").textContent = t.codigo || "";
@@ -672,6 +685,8 @@
    * numa sessao de ponteiros. */
   fetch("/saude").then(function (r) { return r.json(); }).then(function (s) {
     if (s && s.titulo) document.title = "Structura — " + s.titulo;
+    /* As figuras sao por topico: id de no se repete entre topicos. */
+    if (s && s.topico) Figuras.topico(s.topico);
   }).catch(function () { /* o titulo e enfeite; falhar nele nao para nada */ });
 
   api("/sessoes", { codigo: codigoDaURL() }).then(aplica).catch(function (e) {

@@ -771,3 +771,117 @@ activities:
     gabarito: a
     crencas:
       c: pointer_is_pointless
+
+  # ------------------------------------------------------------------
+  # ITENS DE ENTRADA — o degrau mais baixo de cada nó
+  #
+  # Aparecem só depois de a pessoa declarar que não sabe, logo após o
+  # ensino daquele nó. Por isso respondem NA ANALOGIA, não em C: quem
+  # acabou de receber a rua das casas numeradas consegue dizer o que
+  # identifica uma casa, e ainda não consegue dizer o que é &x.
+  #
+  # Não entram no diagnóstico e não contam superfície para a CS-5 —
+  # acertar o degrau mais baixo não demonstra premissa.
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc02_e1
+    node: kc02:B1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Pense na memória como uma rua de casas numeradas. Numa rua, o que
+      identifica uma casa?
+    alternativas:
+      a: "O número na porta"
+      b: "O que tem guardado dentro dela"
+      c: "O nome de quem mora nela"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: memory_is_by_name
+
+  - id: ciu_kc02_e2
+    node: kc02:B2
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você escreve "1000" num papel e guarda o papel dentro da casa 2A00.
+      O papel está em algum lugar?
+    alternativas:
+      a: "Está: na casa 2A00, que tem o número dela própria"
+      b: "Não está em lugar nenhum: o papel é só a ligação entre as casas"
+      c: "Está na casa 1000, que é o número escrito nele"
+    gabarito: a
+    crencas:
+      b: pointer_has_no_address
+      c: pointer_is_data
+
+  - id: ciu_kc02_e3
+    node: kc02:B3
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você abre o papel que estava guardado na casa 2A00. O que encontra
+      escrito nele?
+    alternativas:
+      a: "O número de outra casa"
+      b: "O que está guardado dentro da outra casa"
+      c: "O nome do morador da outra casa"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: memory_is_by_name
+
+  - id: ciu_kc02_e4
+    node: kc02:I1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você apaga o papel e escreve nele o número de outra casa. O que
+      acontece com a casa que estava escrita antes?
+    alternativas:
+      a: "Nada: ela continua lá, do mesmo jeito"
+      b: "Ela muda junto, porque o papel apontava para ela"
+      c: "Ela deixa de existir, porque ninguém aponta mais para ela"
+    gabarito: a
+    crencas:
+      b: pointer_and_target_are_one
+      c: pointer_and_target_are_one
+
+  - id: ciu_kc02_e5
+    node: kc02:I2
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Numa conta de luz, 1000 é um valor a pagar. Numa porta de rua, 1000
+      é um lugar. O que decide qual dos dois é?
+    alternativas:
+      a: "Onde o número está escrito — quem lê sabe pelo contexto"
+      b: "Nada decide: 1000 é 1000, e dá no mesmo"
+      c: "O próprio número, que carrega essa informação junto"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_is_data
+
+  - id: ciu_kc02_e6
+    node: kc02:I3
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você quer que um vizinho regue a sua planta enquanto você viaja. O
+      que você manda para ele?
+    alternativas:
+      a: "O número da sua casa, para ele ir até lá"
+      b: "A planta, dentro de uma caixa"
+      c: "Nada: de casa dele não tem como regar a sua planta"
+    gabarito: a
+    crencas:
+      b: pointer_is_pointless
+      c: pointer_is_pointless

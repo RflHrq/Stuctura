@@ -74,6 +74,11 @@ EM_ABERTO = "em_aberto"        # o banco de itens acabou antes da sequência
 # e a diferença importa: uma premissa que a unidade não mediu precisa
 # aparecer como não medida, no mapa e na análise.
 NAO_MEDIDO = "nao_medido"
+# A lacuna foi TRATADA: o nó foi ensinado e a pessoa acertou o item de
+# entrada. Não é "confirmada" — um item fácil não demonstra premissa, e a
+# CS-5 continua exigindo duas superfícies. É "saiu do zero", e o nó volta
+# à fila do diagnóstico como qualquer outro.
+CONSTRUIDO = "construido"
 
 CONFIANCAS = ("chutei", "acho que sei", "tenho certeza")
 CHUTE = "chutei"
@@ -120,6 +125,12 @@ RAZAO = "RAZAO"
 CONFIANCA = "CONFIANCA"
 VALIDACAO = "VALIDACAO"
 REFUTACAO = "REFUTACAO"
+# O caminho que o fluxo do PRD descreve e que não existia: "lacuna →
+# constrói: ensino do nó e item de entrada". Sem ele, declarar que não
+# sabe registrava a lacuna e passava para a pergunta seguinte — quatro
+# etapas para quem está errado e nenhuma para quem não sabe.
+CONSTRUCAO = "CONSTRUCAO"      # o ensino daquele nó, sob demanda
+ENTRADA = "ENTRADA"            # o item mais fácil do nó, depois do ensino
 TREINO = "TREINO"
 RETESTE = "RETESTE"            # a crença refutada volta uma vez, no fim
 FECHAMENTO = "FECHAMENTO"      # a frase do fim
@@ -250,6 +261,10 @@ class EstadoNo:
     # Quantas vezes explicou alguma coisa por ESTA crença acertando a
     # resposta. Dois falsos positivos na mesma crença viram refutação (T6).
     falsos_positivos: int = 0
+    # Quantas vezes este nó foi construído. Teto de uma: sem teto, quem
+    # responde "não sei" a tudo recebe ensino, erra o item de entrada,
+    # declara que não sabe de novo e a unidade nunca termina.
+    construcoes: int = 0
     # De qual nó veio o item em que a crença foi escolhida, quando não foi
     # deste. É o que permite a tela dizer por que ESTE nó ficou vermelho
     # sem a pessoa ter respondido nada sobre ele.
@@ -284,6 +299,8 @@ class Estado:
     # Embaralha as razões sem sortear: o motor continua puro, e a mesma
     # semente devolve a mesma ordem. Quem fornece é a sessão.
     semente: str = ""
+    # O nó em construção, enquanto a fase é CONSTRUCAO ou ENTRADA.
+    construindo: str | None = None
 
     def no(self, nid: str) -> EstadoNo:
         return self.nos.get(nid, EstadoNo())
@@ -364,6 +381,10 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         return _segue_refutacao(d, e, repetir=r.repetir)
     if e.fase == TREINO:
         return _responde_treino(d, e, r)
+    if e.fase == CONSTRUCAO:
+        return _segue_construcao(d, e)
+    if e.fase == ENTRADA:
+        return _responde_entrada(d, e, r)
     return Transicao(e, _mapa(d, e))
 
 
@@ -804,11 +825,19 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
         return _segue(d, novo, eventos)
 
     if episodio == LACUNA_EP:
-        # Não refuta o que a pessoa não pensa.
+        # Não refuta o que a pessoa não pensa — CONSTRÓI.
         eventos.append(Evento("lacuna_registrada", {
             "no": a.no, "confianca": r.confianca,
             "declarada": p.nao_sei or None}))
         novo = e.com(a.no, estado=LACUNA)
+        if novo.no(a.no).construcoes == 0:
+            inicio = _inicia_construcao(d, novo, a.no)
+            return Transicao(inicio.estado, inicio.tela,
+                             tuple(eventos) + inicio.eventos)
+        # Já construiu uma vez neste nó. Ensinar de novo a mesma coisa não
+        # ensina mais, e sem teto a unidade não termina.
+        eventos.append(Evento("construcao_dispensada", {
+            "no": a.no, "motivo": "o nó já foi construído nesta sessão"}))
         return _segue(d, novo, eventos)
 
     # --------------------------------------------------- crença ativa
@@ -822,6 +851,106 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
                     origem_crenca=a.no if alvo != a.no else "")
     inicio = _inicia_validacao(d, novo, alvo)
     return Transicao(inicio.estado, inicio.tela, tuple(eventos) + inicio.eventos)
+
+
+# --------------------------------------------------------------------------
+# Lacuna → constrói
+#
+# O fluxo do PRD sempre disse "lacuna → constrói: ensino do nó e item de
+# entrada". Até aqui a lacuna era registrada e a unidade seguia: quatro
+# etapas para quem está errado (valida, refuta, treina, confirma) e zero
+# para quem não sabe. A primeira pessoa que atravessou a unidade declarando
+# "não sei" em tudo sentiu isso em cinco minutos.
+#
+# Três passos, e só três: ensina o nó, oferece o item mais fácil dele, e
+# devolve a pessoa ao fluxo. Uma vez por nó.
+# --------------------------------------------------------------------------
+
+def _inicia_construcao(d: Dominio, e: Estado, no: str) -> Transicao:
+    """O ensino daquele nó, sob demanda, com a analogia de resgate junto."""
+    en = e.no(no)
+    novo = replace(e, fase=CONSTRUCAO, construindo=no, atividade=None,
+                   pendente=None)
+    novo = novo.com(no, construcoes=en.construcoes + 1)
+    tem_item = d.entrada(no, en.usadas) is not None
+    evento = Evento("construcao_iniciada", {
+        "no": no, "tem_item_de_entrada": tem_item})
+    return Transicao(novo, _tela_construcao(d, no), (evento,))
+
+
+def _tela_construcao(d: Dominio, no: str) -> Tela:
+    """A mesma premissa da tela de ensino, com o resgate e o exemplo.
+
+    `motivo` existe para a tela poder dizer POR QUE ela apareceu agora: não
+    é a abertura da unidade, é resposta a um "não sei".
+    """
+    return Tela("ensino", no=no, texto=d.nos[no].simples, dados={
+        "motivo": "lacuna",
+        "codigo": d.exemplo(no),
+        "resgate": d.resgate(no),
+    })
+
+
+def _segue_construcao(d: Dominio, e: Estado) -> Transicao:
+    """Depois do ensino, o item de entrada — se o banco tiver um."""
+    no = e.construindo or ""
+    item = d.entrada(no, e.no(no).usadas)
+    if item is None:
+        # Sem item de entrada o nó foi ensinado e nada foi medido. Dizer
+        # isso é o mínimo: calar faria a construção parecer completa.
+        novo = replace(e, fase=DIAGNOSTICO, construindo=None)
+        evento = Evento("entrada_sem_item", {
+            "no": no, "motivo": "o banco do nó não tem item de entrada"})
+        return _segue(d, novo, [evento], preferir=no)
+    en = e.no(no)
+    novo = replace(e, fase=ENTRADA, atividade=item.id)
+    novo = novo.com(no, usadas=en.usadas + (item.id,),
+                    ultima_atividade=item.id, ultimo_formato=item.formato)
+    tela = Tela("atividade", no=no, texto=item.texto, dados={
+        "atividade": item.id, "fase": ENTRADA, "formato": item.formato,
+        "item": item.tipo, "opcoes": [{"texto": o.texto} for o in item.opcoes],
+        "pede_confianca": False,
+    })
+    evento = Evento("atividade_apresentada", {
+        "atividade": item.id, "no": no, "fase": ENTRADA,
+        "formato": item.formato, "item": item.tipo,
+        "streak": en.streak, "tentativas": en.tentativas, "erros": en.erros,
+    })
+    return Transicao(novo, tela, (evento,))
+
+
+def _responde_entrada(d: Dominio, e: Estado, r: Resposta) -> Transicao:
+    """Camada 1 e só ela.
+
+    Perguntar "por quê" logo depois de ensinar mediria o eco do ensino, não
+    o que a pessoa pensa — e poderia levantar uma crença que ela não tem.
+    """
+    item = next(x for x in d.atividades if x.id == e.atividade)
+    no = e.construindo or item.no
+    i = _indice(r.escolha, len(item.opcoes), "item de entrada")
+    escolhida = item.opcoes[i] if i is not None else None
+    certo = bool(escolhida and escolhida.correta)
+
+    en = e.no(no)
+    novo = replace(e, fase=DIAGNOSTICO, construindo=None, atividade=None)
+    novo = novo.com(no, estado=CONSTRUIDO if certo else LACUNA,
+                    tropecos=en.tropecos + (0 if certo else 1))
+    eventos = [
+        Evento("resposta_registrada", {
+            "atividade": item.id, "no": no, "fase": "entrada",
+            "item": item.tipo, "escolha": r.escolha, "correta": certo,
+            "crenca_em_jogo": item.crenca, "confianca": "", "ms": r.ms,
+        }),
+        Evento("construcao_concluida", {
+            "no": no, "atividade": item.id, "acertou": certo,
+            # Acertar aqui NÃO confirma: a CS-5 continua exigindo duas
+            # superfícies, e o item de entrada é o degrau mais baixo.
+            "estado": CONSTRUIDO if certo else LACUNA,
+        }),
+    ]
+    # Volta ao fluxo preferindo o próprio nó: a pergunta em aberto é sobre
+    # ele, e seguir para outro deixaria a construção sem desfecho.
+    return _segue(d, novo, eventos, preferir=no)
 
 
 def sustentado(estado: str) -> bool:

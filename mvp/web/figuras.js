@@ -101,7 +101,18 @@
 
   /* ------------------------------------------------------------ as cinco */
 
-  var DESENHOS = {
+  /* POR TOPICO, e nao so pelo id do no.
+   *
+   * Os ids se repetem entre topicos — todo topico tem um B1 —, e enquanto
+   * havia um topico so isso nao aparecia. Com o kc_02 no ar, a tela que
+   * ensina "a memoria e uma rua de lugares numerados" desenhava os quartos
+   * de hotel do kc_00. Figura do topico errado confunde mais que figura
+   * nenhuma: ela ensina uma analogia que o texto nao usa.
+   *
+   * Topico sem desenho fica SEM desenho, e isso e visivel de proposito. */
+  var POR_TOPICO = {};
+
+  POR_TOPICO.kc_00 = {
 
     /* B1 — a variável é um espaço com NOME e TIPO: dois quartos de
      * categorias diferentes, cada um com sua placa. */
@@ -172,16 +183,30 @@
     }
   };
 
+  /* O kc_02 ainda nao tem desenho proprio. Fica vazio, e a tela mostra so
+   * texto e codigo ate alguem desenhar a rua das casas numeradas. */
+  POR_TOPICO.kc_02 = {};
+
+  var topicoAtual = "kc_00";
+
+  function doNo(no) {
+    var banco = POR_TOPICO[topicoAtual] || {};
+    return banco[no] || null;
+  }
+
   global.Figuras = {
+    /* Quem carrega o dominio diz qual topico esta no ar. */
+    topico: function (id) { if (id) topicoAtual = id; },
     /* Devolve o desenho daquela premissa, ou null quando não há. */
     desenha: function (no) {
-      var f = DESENHOS[no];
+      var f = doNo(no);
       return f ? f() : null;
     },
     /* Põe o desenho dentro de um elemento, trocando o que estiver lá. */
     dentro: function (elemento, no) {
       elemento.innerHTML = "";
-      var fig = DESENHOS[no] ? DESENHOS[no]() : null;
+      var f = doNo(no);
+      var fig = f ? f() : null;
       if (fig) elemento.appendChild(fig);
       elemento.hidden = !fig;
       return !!fig;

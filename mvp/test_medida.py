@@ -235,7 +235,8 @@ def test_a_confianca_continua_em_toda_atividade_de_diagnostico(d):
 
 ESTADOS_DO_NO = (motor.DESCONHECIDO, motor.LACUNA, motor.FRAGIL,
                  motor.CONFIRMADO, motor.FALSO_POSITIVO, motor.REFUTADO,
-                 motor.EM_TREINO, motor.EM_ABERTO, motor.NAO_MEDIDO)
+                 motor.EM_TREINO, motor.EM_ABERTO, motor.NAO_MEDIDO,
+                 motor.CONSTRUIDO)
 
 WEB = pathlib.Path(__file__).resolve().parent / "web"
 
@@ -267,3 +268,21 @@ def test_o_painel_desenha_todo_estado():
     html = (WEB / "painel.html").read_text(encoding="utf-8")
     faltam = [s for s in ESTADOS_DO_NO if not _citado(s, html)]
     assert faltam == [], faltam
+
+
+def test_a_figura_e_do_topico_que_esta_no_ar():
+    """Id de nó se repete entre tópicos — todo tópico tem um B1. Enquanto
+    havia um tópico só isso não aparecia; com o kc_02 no ar, a tela que
+    ensina "a memória é uma rua de lugares numerados" desenhava os quartos
+    de hotel do kc_00.
+
+    Figura do tópico errado é pior que figura nenhuma: ela ensina uma
+    analogia que o texto não usa.
+    """
+    js = (WEB / "figuras.js").read_text(encoding="utf-8")
+    assert "POR_TOPICO" in js
+    for topico in ("kc_00", "kc_02"):
+        assert re.search(r"POR_TOPICO\.%s\s*=" % topico, js), topico
+    # e a tela precisa dizer qual tópico está no ar
+    app = (WEB / "app.js").read_text(encoding="utf-8")
+    assert "Figuras.topico(" in app
