@@ -37,7 +37,7 @@ import hashlib
 from dataclasses import dataclass, field, replace
 from typing import Any, Mapping
 
-from mvp.dominio import Atividade, Dominio
+from mvp.dominio import NIVEIS, Atividade, Dominio
 
 # Parâmetros do documento. Ponto de partida, não valores validados: ajustar
 # no ensaio antes da coleta.
@@ -265,6 +265,10 @@ class EstadoNo:
     # responde "não sei" a tudo recebe ensino, erra o item de entrada,
     # declara que não sabe de novo e a unidade nunca termina.
     construcoes: int = 0
+    # O degrau em que este nó está. Sobe de um em um, e só quando a
+    # premissa ficou de pé naquele degrau — errar, chutar ou acertar pela
+    # razão errada não promove ninguém.
+    nivel: int = 1
     # De qual nó veio o item em que a crença foi escolhida, quando não foi
     # deste. É o que permite a tela dizer por que ESTE nó ficou vermelho
     # sem a pessoa ter respondido nada sobre ele.
@@ -483,11 +487,60 @@ def _proxima_diagnostica(d: Dominio, e: Estado,
     for nid in ordem:
         if e.no(nid).estado in (CONFIRMADO, EM_ABERTO):
             continue
-        for a in d.atividades_do_no(nid, "diagnostico"):
-            if a.id in e.no(nid).usadas:
-                continue
-            return _apresenta(d, replace(e, fase=DIAGNOSTICO, alvo=nid), a)
+        escolhida, pulo, motivo = _no_degrau(d, e, nid)
+        if escolhida is None:
+            continue
+        novo = replace(e, fase=DIAGNOSTICO, alvo=nid)
+        extra = ()
+        if pulo is not None:
+            # Subiu sem a pessoa ter vencido o degrau. Dois motivos, e eles
+            # são coisas MUITO diferentes:
+            #
+            #   "sem item"  o banco nunca teve item naquele degrau. É furo
+            #               de conteúdo, e a curadoria do domínio antigo já
+            #               avisava: "tópico sem algum degrau não oferece a
+            #               escada inteira";
+            #   "esgotado"  o banco tinha, e acabaram. Com UM item por
+            #               degrau, quem erra não tem onde tentar de novo —
+            #               a escada vira corredor de mão única, e segurar
+            #               alguém num degrau exige mais de um item nele.
+            #
+            # Subir calado esconderia os dois.
+            extra = (Evento("degrau_pulado", {
+                "no": nid, "de": e.no(nid).nivel, "para": pulo,
+                "motivo": motivo}),)
+            novo = novo.com(nid, nivel=pulo)
+        passo = _apresenta(d, novo, escolhida)
+        return Transicao(passo.estado, passo.tela, extra + passo.eventos)
     return _encerra(d, e)
+
+
+def _no_degrau(d: Dominio, e: Estado, nid: str):
+    """O próximo item do nó, respeitando a escada.
+
+    Nunca pula degrau por conta própria: só sobe quando o banco não tem
+    item no degrau atual — e, quando faz isso, devolve para onde subiu,
+    porque isso vira evento.
+    """
+    en = e.no(nid)
+    todas = d.atividades_do_no(nid, "diagnostico")
+    livres = [a for a in todas if a.id not in en.usadas]
+    if not livres:
+        return None, None, ""
+    aqui = [a for a in livres if a.nivel == en.nivel]
+    if aqui:
+        return aqui[0], None, ""
+    acima = sorted([a for a in livres if a.nivel > en.nivel],
+                   key=lambda a: a.nivel)
+    if acima:
+        tinha = any(a.nivel == en.nivel for a in todas)
+        return acima[0], acima[0].nivel, (
+            "o degrau %d do nó acabou: todos os itens dele já foram usados"
+            % en.nivel if tinha else
+            "o banco do nó não tem item no degrau %d" % en.nivel)
+    # Só restam degraus mais baixos: o nó já passou por eles e o que
+    # sobrou ainda mede alguma coisa. Usa sem mexer no degrau.
+    return sorted(livres, key=lambda a: -a.nivel)[0], None, ""
 
 
 def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = False) -> Transicao:
@@ -498,6 +551,9 @@ def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = Fal
                     ultimo_formato=a.formato, ultima_atividade=a.id)
     tela = Tela("atividade", no=a.no, texto=a.texto, dados={
         "atividade": a.id, "fase": e.fase, "formato": a.formato, "item": a.tipo,
+        # O degrau vai para a tela: quem responde merece saber que a
+        # pergunta ficou mais dura porque ele subiu, e não por acaso.
+        "nivel": a.nivel, "niveis": max(NIVEIS),
         "opcoes": [{"texto": o.texto} for o in a.opcoes],
         # A confiança saiu daqui: ela é da DUPLA resposta-razão, e tem tela
         # própria depois das duas (T3).
@@ -505,8 +561,8 @@ def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = Fal
     })
     eventos = [Evento("atividade_apresentada", {
         "atividade": a.id, "no": a.no, "fase": e.fase, "formato": a.formato,
-        "item": a.tipo, "streak": en.streak, "tentativas": en.tentativas,
-        "erros": en.erros,
+        "item": a.tipo, "nivel": a.nivel, "streak": en.streak,
+        "tentativas": en.tentativas, "erros": en.erros,
     })]
     if reapresentada:
         eventos.append(Evento("item_reapresentado", {"atividade": a.id, "no": a.no}))
@@ -764,7 +820,9 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
         fechou = len(set(superficies)) >= 2
         novo = e.com(a.no, superficies=superficies,
                      estado=CONFIRMADO if fechou else FRAGIL,
+                     nivel=min(max(NIVEIS), en.nivel + 1),
                      vacilou=bool(en.erros))
+        eventos.append(_degrau(a.no, en.nivel, novo.no(a.no).nivel, a))
         if fechou:
             eventos.append(Evento("no_confirmado", {
                 "no": a.no, "via": "vacilo" if en.erros else "diagnostico",
@@ -776,8 +834,11 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
         return _segue(d, novo, eventos)
 
     if episodio == FRAGIL_EP:
-        # Certa pela razão certa, mas sem convicção. Não conta superfície.
-        novo = e.com(a.no, estado=FRAGIL)
+        # Certa pela razão certa, mas sem convicção. Não conta superfície —
+        # mas sobe o degrau: a premissa ficou de pé ali, com meia certeza.
+        novo = e.com(a.no, estado=FRAGIL,
+                     nivel=min(max(NIVEIS), en.nivel + 1))
+        eventos.append(_degrau(a.no, en.nivel, novo.no(a.no).nivel, a))
         eventos.append(Evento("no_fragil", {
             "no": a.no, "motivo": "confiança abaixo de certeza",
             "confianca": r.confianca}))
@@ -951,6 +1012,21 @@ def _responde_entrada(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     # Volta ao fluxo preferindo o próprio nó: a pergunta em aberto é sobre
     # ele, e seguir para outro deixaria a construção sem desfecho.
     return _segue(d, novo, eventos, preferir=no)
+
+
+def _degrau(no: str, de: int, para: int, a: Atividade) -> Evento:
+    """Subiu, ou bateu no teto. Os dois casos viram dado: quem chega ao
+    degrau 3 e quem fica no 1 a unidade inteira não aprenderam a mesma
+    coisa, e o estado do nó sozinho não distingue."""
+    return Evento("degrau", {
+        "no": no, "de": de, "para": para,
+        # O degrau do ITEM que acabou de ser respondido. `para` é só o
+        # contador do nó, e os dois divergem: um nó confirmado na CS-5 no
+        # degrau 2 tem o contador em 3 sem nunca ter visto um item de 3.
+        # Quem analisa precisa saber qual dos dois está olhando.
+        "degrau_do_item": a.nivel, "atividade": a.id,
+        "subiu": para > de, "no_teto": para == max(NIVEIS),
+    })
 
 
 def sustentado(estado: str) -> bool:

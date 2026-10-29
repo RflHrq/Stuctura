@@ -77,6 +77,7 @@ activities:
 
   - id: ciu_kc00_001
     node: kc00:B1
+    nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     enunciado: >
@@ -93,6 +94,7 @@ activities:
 
   - id: ciu_kc00_002
     node: kc00:B1
+    nivel: 2
     formato: comparar_casos
     tipo: codigo
     codigo: |
@@ -110,6 +112,7 @@ activities:
 
   - id: ciu_kc00_003
     node: kc00:B2
+    nivel: 1
     formato: achar_o_erro
     tipo: teorica
     enunciado: >
@@ -124,6 +127,7 @@ activities:
 
   - id: ciu_kc00_004
     node: kc00:B2
+    nivel: 2
     formato: reconhecer_conceito
     tipo: codigo
     codigo: |
@@ -140,6 +144,7 @@ activities:
 
   - id: ciu_kc00_005
     node: kc00:B3
+    nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     enunciado: "Depois de int x; sem atribuir nada, o que está guardado dentro de x?"
@@ -154,6 +159,7 @@ activities:
 
   - id: ciu_kc00_006
     node: kc00:B3
+    nivel: 2
     formato: comparar_casos
     tipo: codigo
     codigo: |
@@ -169,6 +175,7 @@ activities:
 
   - id: ciu_kc00_007
     node: kc00:B4
+    nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     enunciado: "Depois de x = 5; e depois x = 8;, o que x guarda agora?"
@@ -181,6 +188,7 @@ activities:
 
   - id: ciu_kc00_008
     node: kc00:B4
+    nivel: 2
     formato: comparar_casos
     tipo: codigo
     codigo: |
@@ -198,6 +206,7 @@ activities:
 
   - id: ciu_kc00_009
     node: kc00:I1
+    nivel: 1
     formato: achar_o_erro
     tipo: teorica
     enunciado: "x = 7 e 7 = x significam a mesma coisa?"
@@ -210,6 +219,7 @@ activities:
 
   - id: ciu_kc00_010
     node: kc00:I1
+    nivel: 2
     formato: comparar_casos
     tipo: codigo
     codigo: |
@@ -231,6 +241,7 @@ activities:
 
   - id: ciu_kc00_t01
     node: kc00:B1
+    nivel: 1
     uso: treino
     formato: comparar_casos
     tipo: codigo
@@ -247,6 +258,7 @@ activities:
 
   - id: ciu_kc00_t02
     node: kc00:B1
+    nivel: 2
     uso: treino
     formato: achar_o_erro
     tipo: teorica
@@ -260,6 +272,7 @@ activities:
 
   - id: ciu_kc00_t03
     node: kc00:B2
+    nivel: 1
     uso: treino
     formato: prever_saida
     tipo: codigo
@@ -279,6 +292,7 @@ activities:
 
   - id: ciu_kc00_t04
     node: kc00:B2
+    nivel: 2
     uso: treino
     formato: comparar_casos
     tipo: codigo
@@ -297,6 +311,7 @@ activities:
 
   - id: ciu_kc00_t05
     node: kc00:B3
+    nivel: 1
     uso: treino
     formato: prever_saida
     tipo: codigo
@@ -314,6 +329,7 @@ activities:
 
   - id: ciu_kc00_t06
     node: kc00:B3
+    nivel: 2
     uso: treino
     formato: comparar_casos
     tipo: codigo
@@ -330,6 +346,7 @@ activities:
 
   - id: ciu_kc00_t07
     node: kc00:B4
+    nivel: 1
     uso: treino
     formato: prever_saida
     tipo: codigo
@@ -348,6 +365,7 @@ activities:
 
   - id: ciu_kc00_t08
     node: kc00:B4
+    nivel: 2
     uso: treino
     formato: achar_o_erro
     tipo: teorica
@@ -363,6 +381,7 @@ activities:
 
   - id: ciu_kc00_t09
     node: kc00:I1
+    nivel: 1
     uso: treino
     formato: prever_saida
     tipo: codigo
@@ -382,6 +401,7 @@ activities:
 
   - id: ciu_kc00_t10
     node: kc00:I1
+    nivel: 2
     uso: treino
     formato: reconhecer_conceito
     tipo: teorica

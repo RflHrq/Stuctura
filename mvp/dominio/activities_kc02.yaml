@@ -125,6 +125,7 @@ activities:
 
   - id: ciu_kc02_001
     node: kc02:B1
+    nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     enunciado: "O que é o endereço de uma variável?"
@@ -139,6 +140,7 @@ activities:
 
   - id: ciu_kc02_002
     node: kc02:B1
+    nivel: 2
     formato: prever_saida
     tipo: codigo
     codigo: |
@@ -157,6 +159,7 @@ activities:
 
   - id: ciu_kc02_003
     node: kc02:B1
+    nivel: 3
     formato: comparar_casos
     tipo: codigo
     codigo: |
@@ -174,6 +177,7 @@ activities:
 
   - id: ciu_kc02_t01
     node: kc02:B1
+    nivel: 1
     uso: treino
     formato: achar_o_erro
     tipo: teorica
@@ -191,6 +195,7 @@ activities:
 
   - id: ciu_kc02_t02
     node: kc02:B1
+    nivel: 2
     uso: treino
     formato: reconhecer_conceito
     tipo: codigo
@@ -207,6 +212,7 @@ activities:
 
   - id: ciu_kc02_t03
     node: kc02:B1
+    nivel: 3
     uso: treino
     formato: comparar_casos
     tipo: codigo
@@ -230,6 +236,7 @@ activities:
 
   - id: ciu_kc02_004
     node: kc02:B2
+    nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     enunciado: "Depois de int *p = &x;, quantos lugares da memória estão em jogo?"
@@ -244,6 +251,7 @@ activities:
 
   - id: ciu_kc02_005
     node: kc02:B2
+    nivel: 2
     formato: prever_saida
     tipo: codigo
     codigo: |
@@ -262,6 +270,7 @@ activities:
 
   - id: ciu_kc02_006
     node: kc02:B2
+    nivel: 3
     formato: achar_o_erro
     tipo: codigo
     codigo: |
@@ -281,6 +290,7 @@ activities:
 
   - id: ciu_kc02_t04
     node: kc02:B2
+    nivel: 1
     uso: treino
     formato: comparar_casos
     tipo: codigo
@@ -299,6 +309,7 @@ activities:
 
   - id: ciu_kc02_t05
     node: kc02:B2
+    nivel: 2
     uso: treino
     formato: reconhecer_conceito
     tipo: teorica
@@ -314,6 +325,7 @@ activities:
 
   - id: ciu_kc02_t06
     node: kc02:B2
+    nivel: 3
     uso: treino
     formato: prever_saida
     tipo: codigo
@@ -338,6 +350,7 @@ activities:
 
   - id: ciu_kc02_007
     node: kc02:B3
+    nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     enunciado: "O que está guardado dentro de um ponteiro?"
@@ -352,6 +365,7 @@ activities:
 
   - id: ciu_kc02_008
     node: kc02:B3
+    nivel: 2
     formato: prever_saida
     tipo: codigo
     codigo: |
@@ -370,6 +384,7 @@ activities:
 
   - id: ciu_kc02_009
     node: kc02:B3
+    nivel: 3
     formato: comparar_casos
     tipo: codigo
     codigo: |
@@ -389,6 +404,7 @@ activities:
 
   - id: ciu_kc02_t07
     node: kc02:B3
+    nivel: 1
     uso: treino
     formato: reconhecer_conceito
     tipo: teorica
@@ -404,6 +420,7 @@ activities:
 
   - id: ciu_kc02_t08
     node: kc02:B3
+    nivel: 2
     uso: treino
     formato: prever_saida
     tipo: codigo
@@ -424,6 +441,7 @@ activities:
 
   - id: ciu_kc02_t09
     node: kc02:B3
+    nivel: 3
     uso: treino
     formato: achar_o_erro
     tipo: codigo
@@ -446,6 +464,7 @@ activities:
 
   - id: ciu_kc02_010
     node: kc02:I1
+    nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     enunciado: "Quando você escreve p = &y, o que muda?"
@@ -460,6 +479,7 @@ activities:
 
   - id: ciu_kc02_011
     node: kc02:I1
+    nivel: 2
     formato: prever_saida
     tipo: codigo
     codigo: |
@@ -480,6 +500,7 @@ activities:
 
   - id: ciu_kc02_012
     node: kc02:I1
+    nivel: 3
     formato: achar_o_erro
     tipo: codigo
     codigo: |
@@ -501,6 +522,7 @@ activities:
 
   - id: ciu_kc02_t10
     node: kc02:I1
+    nivel: 1
     uso: treino
     formato: prever_saida
     tipo: codigo
@@ -521,6 +543,7 @@ activities:
 
   - id: ciu_kc02_t11
     node: kc02:I1
+    nivel: 2
     uso: treino
     formato: comparar_casos
     tipo: codigo
@@ -538,6 +561,7 @@ activities:
 
   - id: ciu_kc02_t12
     node: kc02:I1
+    nivel: 3
     uso: treino
     formato: reconhecer_conceito
     tipo: teorica
@@ -558,6 +582,7 @@ activities:
 
   - id: ciu_kc02_013
     node: kc02:I2
+    nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     enunciado: "Por que int *p e char *c não são a mesma coisa, se os dois guardam endereços?"
@@ -572,6 +597,7 @@ activities:
 
   - id: ciu_kc02_014
     node: kc02:I2
+    nivel: 2
     formato: achar_o_erro
     tipo: codigo
     codigo: |
@@ -589,6 +615,7 @@ activities:
 
   - id: ciu_kc02_015
     node: kc02:I2
+    nivel: 3
     formato: comparar_casos
     tipo: codigo
     codigo: |
@@ -606,6 +633,7 @@ activities:
 
   - id: ciu_kc02_t13
     node: kc02:I2
+    nivel: 1
     uso: treino
     formato: reconhecer_conceito
     tipo: teorica
@@ -621,6 +649,7 @@ activities:
 
   - id: ciu_kc02_t14
     node: kc02:I2
+    nivel: 2
     uso: treino
     formato: achar_o_erro
     tipo: codigo
@@ -638,6 +667,7 @@ activities:
 
   - id: ciu_kc02_t15
     node: kc02:I2
+    nivel: 3
     uso: treino
     formato: comparar_casos
     tipo: codigo
@@ -661,6 +691,7 @@ activities:
 
   - id: ciu_kc02_016
     node: kc02:I3
+    nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     enunciado: "Para que serve passar o endereço de uma variável para uma função?"
@@ -675,6 +706,7 @@ activities:
 
   - id: ciu_kc02_017
     node: kc02:I3
+    nivel: 2
     formato: comparar_casos
     tipo: codigo
     codigo: |
@@ -696,6 +728,7 @@ activities:
 
   - id: ciu_kc02_018
     node: kc02:I3
+    nivel: 3
     formato: prever_saida
     tipo: codigo
     codigo: |
@@ -716,6 +749,7 @@ activities:
 
   - id: ciu_kc02_t16
     node: kc02:I3
+    nivel: 1
     uso: treino
     formato: reconhecer_conceito
     tipo: teorica
@@ -732,6 +766,7 @@ activities:
 
   - id: ciu_kc02_t17
     node: kc02:I3
+    nivel: 2
     uso: treino
     formato: prever_saida
     tipo: codigo
@@ -755,6 +790,7 @@ activities:
 
   - id: ciu_kc02_t18
     node: kc02:I3
+    nivel: 3
     uso: treino
     formato: achar_o_erro
     tipo: codigo
@@ -786,6 +822,7 @@ activities:
 
   - id: ciu_kc02_e1
     node: kc02:B1
+    nivel: 1
     uso: entrada
     formato: reconhecer_conceito
     tipo: teorica
@@ -803,6 +840,7 @@ activities:
 
   - id: ciu_kc02_e2
     node: kc02:B2
+    nivel: 1
     uso: entrada
     formato: reconhecer_conceito
     tipo: teorica
@@ -820,6 +858,7 @@ activities:
 
   - id: ciu_kc02_e3
     node: kc02:B3
+    nivel: 1
     uso: entrada
     formato: reconhecer_conceito
     tipo: teorica
@@ -837,6 +876,7 @@ activities:
 
   - id: ciu_kc02_e4
     node: kc02:I1
+    nivel: 1
     uso: entrada
     formato: reconhecer_conceito
     tipo: teorica
@@ -854,6 +894,7 @@ activities:
 
   - id: ciu_kc02_e5
     node: kc02:I2
+    nivel: 1
     uso: entrada
     formato: reconhecer_conceito
     tipo: teorica
@@ -871,6 +912,7 @@ activities:
 
   - id: ciu_kc02_e6
     node: kc02:I3
+    nivel: 1
     uso: entrada
     formato: reconhecer_conceito
     tipo: teorica

@@ -48,6 +48,15 @@ TIPOS = ("teorica", "codigo")
 # entrada constroi assim mesmo, ensinando, e o log registra que faltou.
 USOS = ("diagnostico", "treino", "entrada")
 
+# O degrau de dificuldade do item, dentro do no.
+#
+# O dominio antigo de ponteiros ja tinha `nivel: 1|2|3`, e a curadoria
+# descreve a escada: "a sessao comeca no nivel 1 e sobe um degrau por vez;
+# topico sem algum degrau nao consegue oferecer a escada inteira". O MVP
+# tinha perdido o campo — e a primeira pessoa a atravessar a unidade disse,
+# nessas palavras, que parecia "entrar no chefao ja".
+NIVEIS = (1, 2, 3)
+
 
 class DominioInvalido(Exception):
     def __init__(self, problemas):
@@ -96,7 +105,8 @@ class Atividade:
     opcoes: tuple[Opcao, ...]
     codigo: str = ""
     crenca: str | None = None      # a crença que um erro aqui levanta
-    uso: str = "diagnostico"       # diagnostico | treino
+    uso: str = "diagnostico"       # diagnostico | treino | entrada
+    nivel: int = 1                 # o degrau: 1, 2 ou 3
 
     @property
     def indice_correto(self) -> int:
@@ -133,7 +143,8 @@ class Dominio:
         """As atividades do nó, teórica antes de código."""
         itens = [a for a in self.atividades
                  if a.no == no and (uso is None or a.uso == uso)]
-        return tuple(sorted(itens, key=lambda a: TIPOS.index(a.tipo)))
+        # Degrau primeiro: a escada manda mais que o par teórica/código.
+        return tuple(sorted(itens, key=lambda a: (a.nivel, TIPOS.index(a.tipo))))
 
     def exemplo(self, no: str) -> str:
         """O código que acompanha a premissa na tela de ensino."""
@@ -250,6 +261,9 @@ def carrega(raiz: Path | None = None, topico: str | None = None) -> Dominio:
             problemas.append("atividade %s: tipo inválido %r" % (aid, bruto.get("tipo")))
         if bruto.get("formato") not in FORMATOS:
             problemas.append("atividade %s: formato inválido %r" % (aid, bruto.get("formato")))
+        if bruto.get("nivel") not in NIVEIS:
+            problemas.append("atividade %s: nivel inválido %r (use 1, 2 ou 3)"
+                             % (aid, bruto.get("nivel")))
 
         # As alternativas vêm como mapa (a/b/c, ou certo/errado) e o gabarito
         # nomeia a chave certa. A ordem é a de escrita: o YAML a preserva.
@@ -303,6 +317,7 @@ def carrega(raiz: Path | None = None, topico: str | None = None) -> Dominio:
             codigo=(bruto.get("codigo") or "").strip("\n"),
             opcoes=opcoes, crenca=crenca,
             uso=bruto.get("uso", "diagnostico"),
+            nivel=bruto.get("nivel") if bruto.get("nivel") in NIVEIS else 1,
         ))
 
     for cid, c in crencas.items():
@@ -326,6 +341,13 @@ def carrega(raiz: Path | None = None, topico: str | None = None) -> Dominio:
         elif tipos != set(TIPOS):
             problemas.append("nó %s não tem o par teórica + código (tem: %s)"
                              % (nid, ", ".join(sorted(tipos))))
+
+        # A escada precisa do PRIMEIRO degrau. Sem item de nível 1 o nó
+        # começa no meio, que é exatamente o "entrar no chefão já".
+        if diag and not any(a.nivel == 1 for a in diag):
+            problemas.append(
+                "nó %s não tem item de diagnóstico de nível 1 (tem: %s)"
+                % (nid, ", ".join(str(a.nivel) for a in diag)))
 
         # O treino precisa de pelo menos dois itens próprios, de formatos
         # diferentes: é esse o tamanho da sequência que confirma o nó.

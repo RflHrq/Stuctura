@@ -202,6 +202,37 @@ nenhuma.
 Dois invariantes que o carregador já cobra: a alternativa certa nunca
 carrega crença, e toda crença do catálogo aparece em alguma alternativa.
 
+### O degrau: começa embaixo e sobe um por vez
+
+Toda atividade declara `nivel: 1 | 2 | 3`, e o motor **nunca pula degrau**
+por conta própria. É a regra que faltava no contrato, e a falta dela
+produziu um banco em que todos os itens eram igualmente duros — *"parece
+que entro no chefão já"*, nas palavras de quem atravessou primeiro.
+
+| Degrau | O que se pede | Em que linguagem |
+| --- | --- | --- |
+| **1** | reconhecer a ideia que acabou de ser apresentada | na **analogia**, antes de ser em C |
+| **2** | aplicar num caso concreto | em C, com o código à vista |
+| **3** | distinguir dois casos que parecem iguais, ou achar o erro | em C, sem apoio |
+
+**A regra de escrita:** o degrau 1 de um nó tem de ser respondível por
+quem **acabou de ler a tela de ensino daquele nó**, e por mais ninguém. Se
+precisa de qualquer coisa que a unidade ainda não deu, não é degrau 1.
+
+E o item de entrada (`uso: entrada`) é sempre degrau 1 — é ele que a
+construção oferece depois de um "não sei".
+
+**O que o motor cobra:** todo nó precisa de item de diagnóstico no degrau
+1, ou o domínio não carrega. Nó que começa no meio é o "chefão já", e isso
+falha na carga, não em sessão.
+
+**O que o motor ainda não cobra, e é decisão de conteúdo:** quantos itens
+por degrau. Com **um** item por degrau — que é o caso do kc_02 hoje — a
+escada não consegue segurar ninguém: quem erra o degrau 1 não tem onde
+tentar de novo, e o motor sobe por esgotamento, registrando
+`degrau_pulado` com o motivo "o degrau acabou". Para segurar, o degrau
+precisa de pelo menos dois itens.
+
 ### Quantas alternativas
 
 **Três ou quatro.** Hoje **13 das 20 atividades do kc_00 têm só duas** —
