@@ -1,0 +1,79 @@
+# Crenças do kc_02 — uma por nó, e cada uma de um TIPO de erro diferente.
+#
+# Por que uma por nó, sem exceção: a atribuição da crença vem da camada 2
+# (`crenca = p.razao.crenca`, `alvo = p.razao.no`). Um nó sem crença
+# própria nunca recebe atribuição — toda razão errada nos itens dele
+# aponta para outro nó, os itens se gastam, e o nó termina `desconhecido`.
+# Foi exatamente isso que a revisão final mediu: 9 sessões em 30
+# terminaram com uma premissa que o sistema não classificou.
+#
+# Os seis erros são de seis espécies, de propósito: organização da
+# memória, existência do ponteiro, conteúdo, identidade, tipo e
+# finalidade. É o que faz o diagnóstico separar coisas de verdade em vez
+# de medir a mesma confusão seis vezes.
+
+- id: memory_is_by_name
+  negates: kc_02:B1
+  provenance: T
+  label_pt: "O computador acha a variável pelo nome dela; número de lugar é detalhe do compilador."
+  source: >
+    TRANSPOSIÇÃO, com a analogia declarada: em Python, Java e JavaScript a
+    pessoa programa anos sem ver um endereço — o nome basta, e nada na
+    linguagem sugere que exista um número por baixo. Transposto para C, o
+    endereço vira detalhe de implementação em vez de valor manipulável, e
+    o ponteiro inteiro perde a razão de existir.
+    PRECISA DE FONTE antes da coleta, ou desce para E (hipótese).
+
+- id: pointer_has_no_address
+  negates: kc_02:B2
+  provenance: E
+  label_pt: "O ponteiro não ocupa lugar nenhum: ele é só a seta que liga uma caixa à outra."
+  source: >
+    ELABORADA a partir do modelo de máquina, e entra declarada como
+    HIPÓTESE A TESTAR. A suspeita é que a própria figura a produz: todo
+    material desenha o ponteiro como flecha, e flecha não tem endereço.
+    Se a crença existir, ela aparece quando &p entra em cena (kc_10) e
+    explica por que ponteiro para ponteiro trava tanta gente.
+    Se nenhum participante a sustentar, o achado é esse.
+
+- id: pointer_is_data
+  negates: kc_02:B3
+  provenance: T
+  label_pt: "O ponteiro é o próprio dado: o que está dentro dele é o valor, não o endereço."
+  source: "Sorva (2012), p. 360, item 14 (Sorva 2008; Doukakis et al. 2007)"
+
+- id: pointer_and_target_are_one
+  negates: kc_02:I1
+  provenance: T
+  label_pt: "Mexer no ponteiro é mexer na variável apontada: os dois são a mesma coisa."
+  source: >
+    TRANSPOSIÇÃO, com a analogia declarada: em Java e Python a variável de
+    referência e o objeto se comportam como uma coisa só na maior parte do
+    uso — `a = b` e depois mexer em `a` mexe no mesmo objeto. Em C a
+    diferença entre `p = q` e `*p = *q` é justamente onde isso quebra.
+    PRECISA DE FONTE antes da coleta, ou desce para E (hipótese).
+
+- id: pointer_is_integer
+  negates: kc_02:I2
+  provenance: L
+  label_pt: "Ponteiro é só um número inteiro; dá para trocar um pelo outro."
+  source: "FAQ comp.lang.c 4.14 e 4.15"
+
+- id: pointer_is_pointless
+  negates: kc_02:I3
+  provenance: E
+  label_pt: "Ponteiro é um jeito complicado de fazer o que uma variável comum já faz."
+  source: >
+    ELABORADA, declarada como HIPÓTESE A TESTAR. Não é um erro sobre o
+    mecanismo: é sobre a finalidade, e por isso ela sobrevive a quem
+    acerta todas as outras premissas. Quem a sustenta decora a sintaxe e
+    não usa ponteiro quando precisaria.
+    Se nenhum participante a sustentar, o achado é esse.
+
+# FORA DESTE TÓPICO, de propósito:
+#
+# pointer_lives_in_heap  — nega "p vive onde foi declarado", que depende de
+#                          stack e heap (kc_01). Volta com aquele nó.
+# voidptr_is_universal   — "void * aceita qualquer coisa, inclusive ponteiro
+#                          de função". É erro de quem já sabe o que é um
+#                          ponteiro; cabe num tópico de conversão, não neste.

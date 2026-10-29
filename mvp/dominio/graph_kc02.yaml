@@ -1,0 +1,95 @@
+topic: kc_02
+
+# A METÁFORA DESTE TÓPICO: a rua de casas numeradas.
+#
+# Cada lugar da memória é uma casa, com um número na porta (o endereço) e
+# alguma coisa dentro (o valor). Um ponteiro é uma casa como as outras —
+# e o que está dentro dela é o número de outra casa.
+#
+# ONDE ELA QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. Números de casa andam de um em um. Endereços andam do tamanho do
+#      objeto — p + 1 não é o byte seguinte. Isso é kc_11, e aqui a
+#      metáfora cala.
+#   2. A casa de um papel com um número escrito não deixa de ser casa.
+#      É a confusão do B2, e é por isso que a próxima regra existe.
+#
+# A REGRA DA SETA: desenhe a seta, nunca diga que o ponteiro É a seta.
+# "Ponteiro é a flecha que aponta" é a frase que fabrica a crença
+# pointer_has_no_address — um ponteiro que é seta não ocupa lugar, não tem
+# endereço, e &p deixa de fazer sentido. A seta é o que a gente desenha
+# para enxergar a relação; o ponteiro é a caixa de onde ela sai.
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Cada lugar da memória tem um número que o identifica: o endereço."
+    plain_text: >
+      A memória é uma rua de lugares numerados. O número do lugar é o
+      endereço — não o que está guardado nele.
+    negated_by:
+      - memory_is_by_name
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Um ponteiro é uma variável: ocupa um lugar e tem endereço próprio."
+    plain_text: >
+      p é uma caixa como as outras: ocupa espaço, e a caixa p também tem
+      um endereço, que é dela.
+    negated_by:
+      - pointer_has_no_address
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "O valor guardado num ponteiro é um endereço."
+    plain_text: >
+      O que está dentro de p é um endereço: o número do lugar onde outra
+      caixa fica.
+    negated_by:
+      - pointer_is_data
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B2, B3]
+    text: "O ponteiro e o objeto apontado são duas coisas, cada uma no seu lugar."
+    plain_text: >
+      Então p e a caixa apontada são duas caixas diferentes, em dois
+      lugares diferentes.
+    negated_by:
+      - pointer_and_target_are_one
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [B1, B3]
+    text: "Um ponteiro tem tipo, e por isso não é um inteiro qualquer."
+    # Esta é a frase que a revisão pegou errada no material antigo, que
+    # dizia que o endereço "carrega junto o tipo do que está no destino".
+    # Não carrega: em tempo de execução não viaja tipo nenhum junto do
+    # endereço. O tipo é do ponteiro, e quem sabe dele é o compilador.
+    plain_text: >
+      Quem sabe o tipo de p é o compilador, que leu int *p. Por isso p
+      não é só um número solto.
+    negated_by:
+      - pointer_is_integer
+
+  I3:
+    type: inferencia
+    role: conclusao
+    support: [I1, I2]
+    text: >
+      Guardar um endereço permite alcançar a mesma caixa de outro ponto do
+      programa.
+    plain_text: >
+      Com o endereço na mão, dá para chegar naquela caixa de qualquer
+      ponto do programa, sem copiar o conteúdo.
+    negated_by:
+      - pointer_is_pointless

@@ -1,0 +1,27 @@
+id: kc_02
+title: "O que é um ponteiro"
+pilot: true
+prerequisites: [kc_00]
+conclusion_node: I3
+summary: >
+  Um ponteiro é uma variável cujo valor é o endereço de outro objeto. O
+  ponteiro e o objeto apontado são duas coisas separadas, cada uma no seu
+  lugar — e guardar um endereço é o que permite alcançar a mesma caixa de
+  outro ponto do programa.
+
+# A pergunta do teach-back, feita duas vezes: antes da unidade e no fim.
+#
+# Precisa ser respondível ANTES, por quem ainda não sabe — senão a frase
+# do começo vem em branco e o par antes/depois perde o lado esquerdo.
+# "O que é um ponteiro" qualquer pessoa responde, inclusive errado, que é
+# exatamente o que se quer medir.
+teachback: "o que é um ponteiro, e o que fica guardado dentro dele"
+
+# Dependência de kc_00: declarar reserva espaço antes de qualquer valor
+# entrar (kc_00:B2) e C não zera o que declara (kc_00:B3). Sem essas duas,
+# "int *p; contém lixo" não tem onde se apoiar.
+#
+# Dependência de kc_01 (modelo de memória) ADIADA de propósito: o único nó
+# que precisava dela era "p vive onde foi declarado, não onde aponta", que
+# exige stack e heap. Ele sai deste tópico e volta quando kc_01 existir no
+# formato novo — junto com a crença pointer_lives_in_heap, que o nega.
