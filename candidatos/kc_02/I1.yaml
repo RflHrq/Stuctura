@@ -9,12 +9,12 @@ activities:
   codigo: ''
   alternativas:
     a: 'Uma: os dois levam à mesma casa'
-    b: 'Duas: cada papel aponta a sua'
-    c: 'Nenhuma: o papel é a casa'
+    b: 'Duas: cada papel é uma casa, mesmo com o mesmo número'
+    c: 'Nenhuma: o papel traz o que tem dentro, não onde fica'
   gabarito: a
   crencas:
     b: pointer_and_target_are_one
-    c: pointer_has_no_address
+    c: pointer_is_data
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
   revisado_por: ''
   por_que_este_distrator: o papel não é a casa, e dois papéis não fazem duas casas

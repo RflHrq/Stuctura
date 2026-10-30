@@ -23,7 +23,7 @@ activities:
   nivel: 2
   formato: achar_o_erro
   tipo: codigo
-  enunciado: Por que o compilador reclama dessa linha?
+  enunciado: Por que essa linha está errada, mesmo que o compilador deixe passar?
   codigo: 'int x = 42;
 
     int *p = &x;
@@ -33,8 +33,8 @@ activities:
     ", p);'
   alternativas:
     a: '%d espera um int, e p é um endereço'
-    b: 'Não deveria: p vale 42, que é int'
-    c: 'Por nada: endereço é um int qualquer'
+    b: 'Não está: p vale 42, que é int'
+    c: 'Não está: endereço é um int qualquer'
   gabarito: a
   crencas:
     b: pointer_is_data

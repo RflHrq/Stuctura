@@ -31,7 +31,7 @@
    "formato": "achar_o_erro",
    "tipo": "codigo",
    "codigo": "int x = 42;\nint *p = &x;\nprintf(\"%d\n\", p);",
-   "enunciado": "Por que o compilador reclama dessa linha?",
+   "enunciado": "Por que essa linha está errada, mesmo que o compilador deixe passar?",
    "por_que_este_distrator": "quem acha que p vale 42 não vê problema nenhum aqui",
    "alternativas": [
     {
@@ -41,12 +41,12 @@
     },
     {
      "chave": "b",
-     "texto": "Não deveria: p vale 42, que é int",
+     "texto": "Não está: p vale 42, que é int",
      "crenca": "pointer_is_data"
     },
     {
      "chave": "c",
-     "texto": "Por nada: endereço é um int qualquer",
+     "texto": "Não está: endereço é um int qualquer",
      "crenca": "pointer_is_integer"
     }
    ],

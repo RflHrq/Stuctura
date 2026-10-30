@@ -48,9 +48,9 @@ printf("%d
 
 - **[certa]** 0, porque são dois lugares diferentes
 - [pointer_is_data → nega B3] 1, porque guardam o mesmo valor
-- [memory_is_by_name → nega B1] 1: o que identifica é o nome, não o lugar
+- [memory_is_by_name → nega B1] 1: o compilador guarda um 5 só, e os dois nomes apontam para ele
 
-> mesmo valor, mesmo lugar: a confusão de B1 em C
+> quem acha que o nome é que identifica supõe que o compilador junta os iguais — e aí os dois endereços seriam o mesmo
 
 `revisado_por:` ________
 
@@ -145,7 +145,7 @@ Você quer saber o que tem na sala da casa cujo número está escrito no papel. 
 
 ### kc02_gb3_n2_2 · degrau 2 · achar_o_erro · codigo
 
-Por que o compilador reclama dessa linha?
+Por que essa linha está errada, mesmo que o compilador deixe passar?
 
 ```c
 int x = 42;
@@ -155,8 +155,8 @@ printf("%d
 ```
 
 - **[certa]** %d espera um int, e p é um endereço
-- [pointer_is_data → nega B3] Não deveria: p vale 42, que é int
-- [pointer_is_integer → nega I2] Por nada: endereço é um int qualquer
+- [pointer_is_data → nega B3] Não está: p vale 42, que é int
+- [pointer_is_integer → nega I2] Não está: endereço é um int qualquer
 
 > quem acha que p vale 42 não vê problema nenhum aqui
 
@@ -191,8 +191,8 @@ printf("%d
 Duas pessoas têm papéis com o mesmo número de casa. Quantas casas esse número indica?
 
 - **[certa]** Uma: os dois levam à mesma casa
-- [pointer_and_target_are_one → nega I1] Duas: cada papel aponta a sua
-- [pointer_has_no_address → nega B2] Nenhuma: o papel é a casa
+- [pointer_and_target_are_one → nega I1] Duas: cada papel é uma casa, mesmo com o mesmo número
+- [pointer_is_data → nega B3] Nenhuma: o papel traz o que tem dentro, não onde fica
 
 > o papel não é a casa, e dois papéis não fazem duas casas
 
@@ -273,20 +273,19 @@ printf("%zu %zu
 
 ### kc02_gi2_n3_3 · degrau 3 · achar_o_erro · codigo
 
-O que esse programa mostra?
+Por que o compilador recusa a terceira linha?
 
 ```c
-double d = 3.5;
-int *p = (int *)&d;
-printf("%d
-", *p);
+int   x = 42;
+int  *p = &x;
+char *c = p;
 ```
 
-- **[certa]** Lixo: o tipo do ponteiro não bate
-- [pointer_is_integer → nega I2] 3, porque o 3.5 vira int na leitura
-- [pointer_is_data → nega B3] 3.5, porque o endereço leva ao double
+- **[certa]** p aponta int, c aponta char: tipos diferentes
+- [pointer_is_integer → nega I2] Por nada: os dois guardam o mesmo endereço
+- [pointer_is_data → nega B3] Porque x é int e não cabe num char
 
-> o tipo do ponteiro decide como os bytes são lidos
+> os dois guardariam o MESMO endereço: só o tipo os separa, e é disso que o nó trata
 
 `revisado_por:` ________
 
@@ -300,7 +299,7 @@ Um vizinho tem o número da sua casa. O que ele consegue fazer que não consegui
 
 - **[certa]** Chegar até a sua casa sem você levar nada
 - [pointer_is_pointless → nega I3] Nada que uma cópia da planta não resolva
-- [pointer_and_target_are_one → nega I1] Entrar na casa dele achando que é a sua
+- [pointer_and_target_are_one → nega I1] Nada: ter o número já é o mesmo que ter a casa
 
 > sem o endereço só dá para trabalhar numa cópia
 

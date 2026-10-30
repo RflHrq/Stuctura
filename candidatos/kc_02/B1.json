@@ -32,7 +32,7 @@
    "tipo": "codigo",
    "codigo": "int a = 5;\nint b = 5;\nprintf(\"%d\n\", &a == &b);",
    "enunciado": "O que sai?",
-   "por_que_este_distrator": "mesmo valor, mesmo lugar: a confusão de B1 em C",
+   "por_que_este_distrator": "quem acha que o nome é que identifica supõe que o compilador junta os iguais — e aí os dois endereços seriam o mesmo",
    "alternativas": [
     {
      "chave": "a",
@@ -46,7 +46,7 @@
     },
     {
      "chave": "c",
-     "texto": "1: o que identifica é o nome, não o lugar",
+     "texto": "1: o compilador guarda um 5 só, e os dois nomes apontam para ele",
      "crenca": "memory_is_by_name"
     }
    ],

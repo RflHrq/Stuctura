@@ -15,13 +15,13 @@
     },
     {
      "chave": "b",
-     "texto": "Duas: cada papel aponta a sua",
+     "texto": "Duas: cada papel é uma casa, mesmo com o mesmo número",
      "crenca": "pointer_and_target_are_one"
     },
     {
      "chave": "c",
-     "texto": "Nenhuma: o papel é a casa",
-     "crenca": "pointer_has_no_address"
+     "texto": "Nenhuma: o papel traz o que tem dentro, não onde fica",
+     "crenca": "pointer_is_data"
     }
    ],
    "gabarito": "a"

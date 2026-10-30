@@ -10,7 +10,7 @@ activities:
   alternativas:
     a: Chegar até a sua casa sem você levar nada
     b: Nada que uma cópia da planta não resolva
-    c: Entrar na casa dele achando que é a sua
+    c: 'Nada: ter o número já é o mesmo que ter a casa'
   gabarito: a
   crencas:
     b: pointer_is_pointless

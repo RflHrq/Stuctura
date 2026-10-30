@@ -56,23 +56,23 @@
    "degrau": 3,
    "formato": "achar_o_erro",
    "tipo": "codigo",
-   "codigo": "double d = 3.5;\nint *p = (int *)&d;\nprintf(\"%d\n\", *p);",
-   "enunciado": "O que esse programa mostra?",
-   "por_que_este_distrator": "o tipo do ponteiro decide como os bytes são lidos",
+   "codigo": "int   x = 42;\nint  *p = &x;\nchar *c = p;",
+   "enunciado": "Por que o compilador recusa a terceira linha?",
+   "por_que_este_distrator": "os dois guardariam o MESMO endereço: só o tipo os separa, e é disso que o nó trata",
    "alternativas": [
     {
      "chave": "a",
-     "texto": "Lixo: o tipo do ponteiro não bate",
+     "texto": "p aponta int, c aponta char: tipos diferentes",
      "crenca": ""
     },
     {
      "chave": "b",
-     "texto": "3, porque o 3.5 vira int na leitura",
+     "texto": "Por nada: os dois guardam o mesmo endereço",
      "crenca": "pointer_is_integer"
     },
     {
      "chave": "c",
-     "texto": "3.5, porque o endereço leva ao double",
+     "texto": "Porque x é int e não cabe num char",
      "crenca": "pointer_is_data"
     }
    ],

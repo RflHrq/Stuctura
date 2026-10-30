@@ -34,14 +34,15 @@ activities:
   alternativas:
     a: 0, porque são dois lugares diferentes
     b: 1, porque guardam o mesmo valor
-    c: '1: o que identifica é o nome, não o lugar'
+    c: '1: o compilador guarda um 5 só, e os dois nomes apontam para ele'
   gabarito: a
   crencas:
     b: pointer_is_data
     c: memory_is_by_name
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
   revisado_por: ''
-  por_que_este_distrator: 'mesmo valor, mesmo lugar: a confusão de B1 em C'
+  por_que_este_distrator: quem acha que o nome é que identifica supõe que o compilador
+    junta os iguais — e aí os dois endereços seriam o mesmo
 - id: kc02_gb1_n3_3
   node: kc02:B1
   nivel: 3
