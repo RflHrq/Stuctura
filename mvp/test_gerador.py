@@ -210,6 +210,10 @@ def test_nao_aprova_o_que_ninguem_revisou(tmp_path, monkeypatch):
     shutil.copytree(mod.RAIZ, espelho)
     monkeypatch.setattr(mod, "RAIZ", espelho)
     antes = (espelho / "activities_kc02.yaml").read_bytes()
+    # Candidatos PRÓPRIOS, não os do projeto: os de lá já foram revisados
+    # e aprovados, e um teste que depende do estado do repositório deixa de
+    # morder no dia em que o repositório muda. Foi o que aconteceu aqui.
+    _candidatos_falsos(tmp_path, monkeypatch, _item(revisado_por=""))
 
     quantos, avisos = gerar.aprova("kc_02")
     assert quantos == 0

@@ -16,7 +16,7 @@ activities:
     b: pointer_has_no_address
     c: pointer_and_target_are_one
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: 'o papel não flutua: ele está numa casa, que tem número'
 - id: kc02_gb2_n2_2
   node: kc02:B2
@@ -40,7 +40,7 @@ activities:
     b: pointer_and_target_are_one
     c: pointer_has_no_address
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: medir p só faz sentido se p ocupar espaço
 - id: kc02_gb2_n3_3
   node: kc02:B2
@@ -62,5 +62,5 @@ activities:
     b: pointer_and_target_are_one
     c: pointer_has_no_address
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: '&p exige que p tenha endereço próprio'

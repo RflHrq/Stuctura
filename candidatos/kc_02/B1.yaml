@@ -16,7 +16,7 @@ activities:
     b: pointer_is_data
     c: memory_is_by_name
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: confundir o lugar com o conteúdo é a raiz de B1
 - id: kc02_gb1_n2_2
   node: kc02:B1
@@ -40,7 +40,7 @@ activities:
     b: pointer_is_data
     c: memory_is_by_name
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: quem acha que o nome é que identifica supõe que o compilador
     junta os iguais — e aí os dois endereços seriam o mesmo
 - id: kc02_gb1_n3_3
@@ -68,5 +68,5 @@ activities:
     b: pointer_is_data
     c: memory_is_by_name
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: o endereço é do lugar, e o lugar não muda com o valor

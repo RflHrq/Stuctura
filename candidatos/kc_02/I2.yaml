@@ -16,7 +16,7 @@ activities:
     b: pointer_is_integer
     c: pointer_is_data
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: o número sozinho não diz de que é o lugar
 - id: kc02_gi2_n2_2
   node: kc02:I2
@@ -40,7 +40,7 @@ activities:
     b: pointer_is_data
     c: pointer_is_integer
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: só mede os dois quem distingue o ponteiro do apontado
 - id: kc02_gi2_n3_3
   node: kc02:I2
@@ -62,6 +62,6 @@ activities:
     b: pointer_is_integer
     c: pointer_is_data
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: 'os dois guardariam o MESMO endereço: só o tipo os separa,
     e é disso que o nó trata'

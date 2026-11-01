@@ -16,7 +16,7 @@ activities:
     b: pointer_and_target_are_one
     c: pointer_is_data
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: o papel não é a casa, e dois papéis não fazem duas casas
 - id: kc02_gi1_n2_2
   node: kc02:I1
@@ -44,7 +44,7 @@ activities:
     b: pointer_and_target_are_one
     c: pointer_is_data
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: copiar o ponteiro não copia a caixa apontada
 - id: kc02_gi1_n3_3
   node: kc02:I1
@@ -64,5 +64,5 @@ activities:
     b: pointer_and_target_are_one
     c: pointer_is_data
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: nos dois casos são dois ponteiros e uma caixa

@@ -225,10 +225,14 @@ def test_quem_acerta_pela_razao_errada_nao_sobe(d2):
     t = motor.avanca(d2, t.estado, Resposta(escolha=errada))
     if t.tela.tipo == "confianca":
         t = motor.avanca(d2, t.estado, Resposta(confianca="tenho certeza"))
-    # O contador PODE ter subido — mas por falta de item no degrau, não por
-    # promoção. A regra é sobre promover, e é nela que o teste pega.
+    # O contador pode subir por falta de item no degrau; a REGRA é sobre
+    # promover, e é nela que o teste pega.
+    #
+    # A versão anterior também exigia um `degrau_pulado` por esgotamento —
+    # mas isso era propriedade do BANCO de um item por degrau, não do
+    # motor. Com dois itens por degrau sobra onde tentar de novo, e o pulo
+    # deixou de acontecer aqui. A garantia do motor continua coberta, por
+    # construção de estado, em `test_degrau_vazio_no_banco_vira_evento`.
     subiu = [e for e in t.eventos
              if e.tipo == "degrau" and e.dados["no"] == no and e.dados["subiu"]]
     assert subiu == [], "o falso positivo promoveu o nó"
-    pulou = [e for e in t.eventos if e.tipo == "degrau_pulado"]
-    assert pulou and "acabou" in pulou[0].dados["motivo"],         "com um item por degrau, o pulo é por esgotamento — e tem de dizer isso"

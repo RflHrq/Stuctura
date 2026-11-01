@@ -16,7 +16,7 @@ activities:
     b: pointer_is_data
     c: pointer_and_target_are_one
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: ler o papel dá o lugar, não o conteúdo
 - id: kc02_gb3_n2_2
   node: kc02:B3
@@ -40,7 +40,7 @@ activities:
     b: pointer_is_data
     c: pointer_is_integer
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: quem acha que p vale 42 não vê problema nenhum aqui
 - id: kc02_gb3_n3_3
   node: kc02:B3
@@ -66,5 +66,5 @@ activities:
     b: pointer_and_target_are_one
     c: pointer_is_data
   gerado_por: Claude Opus 5, nesta conversa em 2026-10-29
-  revisado_por: ''
+  revisado_por: 'Rafael H. S. Simao, revisao de 2026-11-01'
   por_que_este_distrator: '*p escreve no lugar guardado em p, não em p'
