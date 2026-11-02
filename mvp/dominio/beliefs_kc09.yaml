@@ -1,0 +1,114 @@
+# Crenças do kc_09 — uma por nó, oito no total.
+#
+# Zero `E`. CINCO vêm da curadoria, e esta é a maior contribuição dela
+# depois do kc_07 — mas com um ajuste: no catálogo curado, `heap_persists`
+# e `double_free_is_safe` negavam o MESMO nó (I3), e a decisão 19 não
+# admite isso. As duas ficaram, em nós diferentes: `heap_persists` em B4
+# (devolver marca como inválido) e `double_free_is_safe` na conclusão.
+#
+# Três nós ganharam crença de fora, e nos dois primeiros a própria
+# curadoria já registra a importação do nó. A terceira é nova, do FAQ 7.26.
+#
+# As quatro entradas da seção 7 do FAQ foram lidas no original nesta
+# sessão — 7.20, 7.21, 7.22 e 7.26 — e a 7.21 sozinha sustenta três
+# crenças deste tópico, porque é ela que explica por que o ponteiro não
+# vira NULL: "C's pass-by-value semantics mean that called functions never
+# permanently change the values of their arguments."
+
+- id: pointer_knows_block_size
+  negates: kc_09:B1
+  provenance: L
+  label_pt: "O ponteiro carrega o tamanho do bloco que ele aponta."
+  source: >
+    FAQ comp.lang.c 7.26: "How does free know how many bytes to free? The
+    malloc/free implementation remembers the size of each block as it is
+    allocated, so it is not necessary to remind it of the size when
+    freeing." A pergunta existir é a evidência: quem a faz supõe que o
+    tamanho viaja com o ponteiro. Ver também 7.27 ("can I query the malloc
+    package to find out how big an allocated block is?") e 7.28 ("Why
+    doesn't sizeof tell me the size of the block of memory pointed to by a
+    pointer?"). A 7.28 também é citada por `sizeof_array_via_pointer`, no
+    kc_07 — são crenças diferentes com uma fonte em comum.
+
+- id: function_gets_original
+  negates: kc_09:B2
+  provenance: T
+  label_pt: "A função recebe a variável original, não uma cópia."
+  source: >
+    Sorva (2012), p. 363, item 67 (Ma 2007); e FAQ comp.lang.c 4.11. A
+    mesma crença está no catálogo do kc_06, e a curadoria registra que
+    este nó é importado de lá — `kc_06:I1`. É a premissa que a resposta da
+    7.21 usa para explicar tudo o resto.
+
+- id: pointer_lives_in_heap
+  negates: kc_09:B3
+  provenance: L
+  label_pt: "O ponteiro mora no heap porque aponta para lá."
+  source: >
+    FAQ comp.lang.c 7.22: "When I call malloc to allocate memory for a
+    pointer which is local to a function, do I have to explicitly free
+    it?" A resposta é o que B3 afirma: "Remember that a pointer is
+    different from what it points to. Local variables are deallocated when
+    the function returns, but in the case of a pointer variable, this
+    means that the pointer is deallocated, not what it points to." A mesma
+    crença está no catálogo do kc_02, e a curadoria registra que este nó é
+    importado de lá — `kc_02:I2`.
+
+- id: heap_persists
+  negates: kc_09:B4
+  provenance: L
+  label_pt: "O bloco ainda é válido depois de free()."
+  source: >
+    FAQ comp.lang.c 7.20, cujo título é a crença dita como pergunta: "You
+    can't use dynamically-allocated memory after you free it, can you?" A
+    resposta começa com "No." e explica a origem histórica da crença —
+    "Some early documentation for malloc stated that the contents of freed
+    memory were 'left undisturbed,' but this ill-advised guarantee was
+    never universal and is not required by the C Standard." Ver também
+    CERT C MEM30-C. É a crença da curadoria, com a fonte dela, agora em B4.
+
+- id: free_nullifies
+  negates: kc_09:I1
+  provenance: L
+  label_pt: "p vira NULL depois de free()."
+  source: >
+    FAQ comp.lang.c 7.21: "Why isn't a pointer null after calling free?" A
+    pergunta é a crença. A resposta dá a razão exata que I1 afirma: "the
+    value of the pointer in the caller probably remains unchanged, because
+    C's pass-by-value semantics mean that called functions never
+    permanently change the values of their arguments." É a crença da
+    curadoria, com a fonte dela.
+
+- id: free_kills_pointer
+  negates: kc_09:I2
+  provenance: L
+  label_pt: "free(p) apaga a variável p."
+  source: >
+    FAQ comp.lang.c 7.21 (resposta): o que é liberado é "the memory
+    pointed to by the passed pointer", e não a variável. Ver também CERT C
+    MEM30-C e FAQ 7.22, que insiste na mesma distinção: o ponteiro é uma
+    coisa, o apontado é outra. É a crença da curadoria, com a fonte dela.
+
+- id: null_after_free_redundant
+  negates: kc_09:I3
+  provenance: L
+  label_pt: "Atribuir NULL após free() é redundante, porque free já cuida disso."
+  source: >
+    FAQ comp.lang.c 7.21 (resposta). A crença é o corolário de
+    `free_nullifies`: quem acha que free zera o ponteiro acha que a linha
+    seguinte não serve para nada. É a crença da curadoria, com a fonte
+    dela.
+
+- id: double_free_is_safe
+  negates: kc_09:I4
+  provenance: N
+  label_pt: "Chamar free() duas vezes no mesmo ponteiro é seguro."
+  source: >
+    CWE-415, "Double Free"; CERT C MEM31-C, "Free dynamically allocated
+    memory when no longer needed". A norma catalogou o ERRO, não a crença
+    — é por isso que a procedência é N. Ela nega a conclusão: quem acha
+    que o segundo free é seguro não acredita que p ficou pendente. Ver
+    também FAQ 7.21, que pergunta "How unsafe is it to use (assign,
+    compare) a pointer value after it's been freed?" — a parte da
+    conclusão que trata de usar p sem desreferenciar. É a crença da
+    curadoria, com a fonte dela.

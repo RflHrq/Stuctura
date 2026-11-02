@@ -1,0 +1,1199 @@
+# Banco de atividades — kc_09, "free() e ponteiro pendente" · PILOTO
+#
+# Oito nós, sete itens cada: 56. Um de entrada (o degrau mais baixo, na
+# analogia), três de diagnóstico (um por degrau, com o par teórica +
+# código) e três de treino.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Em todo item, um distrator aponta a crença
+# do próprio nó — senão o nó nunca recebe atribuição — e outro a de um
+# vizinho. A crença do próprio nó abre a cédula (vem na alternativa `b`).
+#
+# DUAS REGRAS A MAIS NESTE TÓPICO, as duas de piloto:
+#
+#   1. Nenhum item pergunta O QUE ACONTECE ao usar um ponteiro pendente.
+#      Não há resposta: é comportamento indefinido, e um item que
+#      premiasse "trava" ou "imprime lixo" ensinaria que existe um
+#      resultado previsível. Onde o caso aparece, o que se pergunta é se
+#      é VÁLIDO.
+#   2. `free(NULL)` é legal, e há um item de treino que ensina isso
+#      (ciu_kc09_t24). Deixar de dizer faria a pessoa sair daqui achando
+#      que todo free depois de um free é erro — e aí ela escreveria um if
+#      que não precisa.
+
+analogy: >
+  Devolver o terreno, e o papel que fica na sua mão. Continua o terreno
+  alugado do kc_01: você devolve o lote à prefeitura, e ela anota que
+  aquele lote está livre — pode entregá-lo a outra pessoa a qualquer
+  momento. Mas o papel com o número do lote continua na SUA mão, do jeito
+  que estava: a prefeitura não entra na sua casa para rasgar o seu papel.
+  O papel parece bom, e não é — ele leva a um lote que já não é seu.
+  ONDE QUEBRA: "a prefeitura anota que está livre" sugere que existe um
+  aviso que você pode consultar, e não existe — nada no programa avisa que
+  o papel ficou ruim, e é por isso que escrever NULL é você mesmo
+  anotando. E "o lote continua lá, vazio" sugere que dá para olhar e ver:
+  não dá, o lote pode já ter outro dono. Usar o papel não é arriscado, é
+  inválido. A metáfora diz que não é seu, nunca o que você vai encontrar.
+
+resgates:
+
+  B1: >
+    Ao devolver o lote, você diz o número — e só o número. O tamanho do
+    lote quem anotou foi a prefeitura, na hora de entregar. Não é o seu
+    papel que carrega essa informação, e é por isso que você não precisa
+    dizê-la de novo.
+
+  B2: >
+    Você fala o número para o funcionário, e ele anota. O seu papel não
+    sai da sua mão: o que foi para a prefeitura é uma cópia do número.
+    Isso é a regra de toda chamada em C, e não uma coisa especial do free.
+
+  B3: >
+    O seu papel está na sua casa, na sua gaveta. Ele não está dentro do
+    lote. Lote e papel são duas coisas em dois lugares, e devolver um não
+    encosta no outro.
+
+  B4: >
+    Devolvido, o lote deixa de ser seu. A prefeitura pode entregá-lo ao
+    próximo que pedir, com as coisas dele dentro, e não há aviso nenhum
+    quando isso acontece.
+
+  I1: >
+    Juntando as duas: free recebeu uma cópia do número, e a sua gaveta não
+    é dela. Não é que o free não queira limpar o seu papel — ele não tem
+    como. Quem pode riscar o seu papel é você.
+
+  I2: >
+    Então, depois do free, o papel continua na gaveta com o mesmo número
+    escrito. Nada mudou do lado de cá. O que mudou foi do lado de lá: o
+    lote.
+
+  I3: >
+    E como nada avisa, o registro é seu. Escrever NULL em p logo depois do
+    free é a anotação "este papel não vale mais" — feita por você, no
+    único lugar onde ela cabe.
+
+  I4: >
+    O papel na mão, com um número de aparência boa, levando a um lote que
+    não é mais seu: é isso que se chama ponteiro pendente. E não é só
+    entrar no lote que é proibido — até copiar o papel ou comparar o
+    número já é território sem garantia.
+
+exemplos:
+
+  B1: |
+    int *p = malloc(100);
+    free(p);        /* nao se diz o tamanho de novo */
+
+  B2: |
+    free(p);        /* entra uma copia do valor de p */
+
+  B3: |
+    void f(void) {
+        int *p = malloc(4);   /* p na pilha, bloco no monte */
+    }
+
+  B4: |
+    free(p);
+    int *q = malloc(4);   /* q pode receber o mesmo lugar */
+
+  I1: |
+    free(p);
+    p == NULL       /* falso: free nao mexeu em p */
+
+  I2: |
+    int *g = p;
+    free(p);
+    p == g          /* verdadeiro: p nao mudou */
+
+  I3: |
+    free(p);
+    p = NULL;       /* a anotacao e sua */
+
+  I4: |
+    free(p);
+    int *q = p;     /* ja e indefinido: so copiar */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — free recebe o endereço do bloco, e só isso
+  # crença do nó: pointer_knows_block_size
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc09_e1
+    node: kc09:B1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você devolve o lote à prefeitura. O que você entrega junto?
+    alternativas:
+      a: "O número do lote, e nada mais"
+      b: "O número e o tamanho do lote"
+      c: "O lote e o papel, os dois"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: free_kills_pointer
+
+  - id: ciu_kc09_001
+    node: kc09:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que free(p) recebe?"
+    alternativas:
+      a: "Um endereço"
+      b: "Um endereço e o tamanho"
+      c: "O endereço e a caixa de p"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: free_kills_pointer
+
+  - id: ciu_kc09_002
+    node: kc09:B1
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(10 * sizeof(int));
+      printf("%zu\n", sizeof p);
+    enunciado: "Por que isso não diz quantos ints foram pedidos?"
+    alternativas:
+      a: "p guarda só um endereço"
+      b: "sizeof p devolve os 10 ints"
+      c: "p mora no bloco, e o bloco sabe"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: pointer_lives_in_heap
+
+  - id: ciu_kc09_003
+    node: kc09:B1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int v[10];
+      int *p = malloc(10 * sizeof(int));
+      /* A */  sizeof v
+      /* B */  sizeof p
+    enunciado: "Qual dos dois diz o tamanho dos dez ints?"
+    alternativas:
+      a: "A: v é o conjunto; p é um endereço"
+      b: "Os dois: p também sabe o tamanho"
+      c: "B: p mora junto com os dez"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: pointer_lives_in_heap
+
+  - id: ciu_kc09_t01
+    node: kc09:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Como free sabe quantos bytes devolver?"
+    alternativas:
+      a: "O alocador anotou quando entregou"
+      b: "O ponteiro carrega o tamanho"
+      c: "O bloco carrega, e p mora nele"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: pointer_lives_in_heap
+
+  - id: ciu_kc09_t02
+    node: kc09:B1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void usa(int *p) {
+          printf("%zu\n", sizeof p / sizeof p[0]);
+      }
+      int *q = malloc(5 * sizeof(int));
+      usa(q);
+    enunciado: "Por que a conta não dá 5?"
+    alternativas:
+      a: "sizeof p mede o endereço"
+      b: "Dá 5: p guarda o tamanho"
+      c: "Dá 5: p está dentro do bloco"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: pointer_lives_in_heap
+
+  - id: ciu_kc09_t03
+    node: kc09:B1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(100);
+      free(p);
+    enunciado: "O que free precisou saber que você não disse?"
+    alternativas:
+      a: "O tamanho, que o alocador tinha"
+      b: "Nada: p levava o tamanho"
+      c: "Nada: o bloco e p são um só"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: pointer_lives_in_heap
+
+  # ------------------------------------------------------------------
+  # B2 — free(p) recebe uma cópia de p
+  # crença do nó: function_gets_original (do kc_06)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc09_e2
+    node: kc09:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você diz o número do lote ao funcionário da prefeitura. Ele fica com
+      o seu papel?
+    alternativas:
+      a: "Não: ele anotou o número"
+      b: "Fica: é o papel que ele usa"
+      c: "Fica, e rasga depois"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: free_kills_pointer
+
+  - id: ciu_kc09_004
+    node: kc09:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que entra na função quando você escreve free(p)?"
+    alternativas:
+      a: "Uma cópia do valor de p"
+      b: "A própria variável p"
+      c: "A caixa p, para ser apagada"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: free_kills_pointer
+
+  - id: ciu_kc09_005
+    node: kc09:B2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(int *x) { x = NULL; }
+      int *p = malloc(4);
+      f(p);
+      printf("%d\n", p == NULL);
+    enunciado: "O que sai, e o que isso diz sobre free(p)?"
+    alternativas:
+      a: "0: a função recebeu uma cópia"
+      b: "1: a função recebeu o próprio p"
+      c: "1: a função apagou o p"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: free_kills_pointer
+
+  - id: ciu_kc09_006
+    node: kc09:B2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      void zera(int **pp) { *pp = NULL; }
+      int *p = malloc(4);
+      /* A */  free(p);
+      /* B */  zera(&p);
+    enunciado: "Qual das duas poderia mudar p, e por quê?"
+    alternativas:
+      a: "B: ela recebeu o endereço de p"
+      b: "As duas: a função recebe o p"
+      c: "A: free apaga a variável p"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t04
+    node: kc09:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "free(p) é uma chamada como qualquer outra?"
+    alternativas:
+      a: "É: entra uma cópia do valor"
+      b: "Não: free recebe o p de verdade"
+      c: "Não: free mexe na caixa de p"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t05
+    node: kc09:B2
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void libera(int *x) { free(x); x = NULL; }
+      int *p = malloc(4);
+      libera(p);
+      printf("%d\n", p == NULL);
+    enunciado: "Por que sai 0, apesar do x = NULL?"
+    alternativas:
+      a: "x era cópia: p não foi tocado"
+      b: "Não sai 0: x é o p"
+      c: "Não sai 0: free já zera p"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: free_nullifies
+
+  - id: ciu_kc09_t06
+    node: kc09:B2
+    nivel: 3
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  void libera(int  *x) { free(x);  x  = NULL; }
+      /* B */  void libera(int **x) { free(*x); *x = NULL; }
+    enunciado: "Qual das duas deixa o ponteiro do chamador em NULL?"
+    alternativas:
+      a: "B: ela recebeu o endereço dele"
+      b: "As duas: x é o ponteiro de fora"
+      c: "Nenhuma: free já cuida disso"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: free_nullifies
+
+  # ------------------------------------------------------------------
+  # B3 — p é variável do chamador, e não mora no bloco
+  # crença do nó: pointer_lives_in_heap (do kc_02)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc09_e3
+    node: kc09:B3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Onde está o seu papel com o número do lote: na sua casa, ou no lote?
+    alternativas:
+      a: "Na minha casa"
+      b: "No lote, junto com as coisas"
+      c: "No lote, e some com ele"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: free_kills_pointer
+
+  - id: ciu_kc09_007
+    node: kc09:B3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Onde fica a variável p, quando p aponta para um bloco do monte?
+    alternativas:
+      a: "Onde ela foi declarada"
+      b: "No monte, junto com o bloco"
+      c: "No monte, e o free a apaga"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: free_kills_pointer
+
+  - id: ciu_kc09_008
+    node: kc09:B3
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(void) {
+          int *p = malloc(4);
+          free(p);
+      }
+    enunciado: "Quando a caixa de p deixa de existir?"
+    alternativas:
+      a: "No fim de f, como toda local"
+      b: "No free, com o bloco"
+      c: "No free, que apaga a variável"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: free_kills_pointer
+
+  - id: ciu_kc09_009
+    node: kc09:B3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *global;
+      void f(void) {
+          int *local = malloc(4);
+          global = local;
+          free(local);
+      }
+    enunciado: "Depois de f, o que ainda existe?"
+    alternativas:
+      a: "A de global, com endereço ruim"
+      b: "Nada: free levou as duas caixas"
+      c: "Nada: free apagou as variáveis"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t07
+    node: kc09:B3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "free devolve o bloco. E a caixa de p?"
+    alternativas:
+      a: "Continua onde estava"
+      b: "Vai junto: ela mora no bloco"
+      c: "É apagada pelo free"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t08
+    node: kc09:B3
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *f(void) {
+          int *p = malloc(4);
+          return p;
+      }
+    enunciado: "Por que isso funciona, se p era local?"
+    alternativas:
+      a: "O bloco fica; a caixa de p não"
+      b: "p fica: ela está no monte"
+      c: "Não funciona: p foi apagada"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t09
+    node: kc09:B3
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      int *q = p;
+      free(p);
+      printf("%d\n", p == q);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: as duas caixas ficaram iguais"
+      b: "0: a caixa de p saiu com o bloco"
+      c: "0: free apagou p"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: free_kills_pointer
+
+  # ------------------------------------------------------------------
+  # B4 — devolver o bloco o marca como não mais válido
+  # crença do nó: heap_persists
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc09_e4
+    node: kc09:B4
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você devolveu o lote. Ele continua à sua disposição?
+    alternativas:
+      a: "Não: pode ir para outro"
+      b: "Continua: ninguém mexeu nele"
+      c: "Continua, e dá para devolver outra vez"
+    gabarito: a
+    crencas:
+      b: heap_persists
+      c: double_free_is_safe
+
+  - id: ciu_kc09_010
+    node: kc09:B4
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Depois de free(p), o bloco é o quê?"
+    alternativas:
+      a: "Do alocador, para reentregar"
+      b: "Seu, até alguém pedir"
+      c: "Seu, e dá para liberar de novo"
+    gabarito: a
+    crencas:
+      b: heap_persists
+      c: double_free_is_safe
+
+  - id: ciu_kc09_011
+    node: kc09:B4
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(sizeof(int));
+      *p = 7;
+      free(p);
+      printf("%d\n", *p);
+    enunciado: "Por que a última linha é inválida?"
+    alternativas:
+      a: "O bloco já não é seu"
+      b: "Não é: o 7 continua lá"
+      c: "Não é: p virou NULL e protege"
+    gabarito: a
+    crencas:
+      b: heap_persists
+      c: free_nullifies
+
+  - id: ciu_kc09_012
+    node: kc09:B4
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      free(p);
+      /* A */  *p = 1;
+      /* B */  int *q = malloc(4);
+    enunciado: >
+      A segunda pode receber o mesmo lugar da primeira. O que isso diz
+      sobre A?
+    alternativas:
+      a: "Que A pode escrever no bloco de q"
+      b: "Nada: o bloco de p é só dele"
+      c: "Nada: dá para liberar p de novo"
+    gabarito: a
+    crencas:
+      b: heap_persists
+      c: double_free_is_safe
+
+  - id: ciu_kc09_t10
+    node: kc09:B4
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Devolver o bloco faz o quê com ele?"
+    alternativas:
+      a: "Marca como não mais seu"
+      b: "Nada: ele continua seu"
+      c: "Apaga o bloco e a variável"
+    gabarito: a
+    crencas:
+      b: heap_persists
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t11
+    node: kc09:B4
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(sizeof(int));
+      *p = 42;
+      free(p);
+      int *q = malloc(sizeof(int));
+      *q = 7;
+      printf("%d\n", *p);
+    enunciado: "O que dá para dizer sobre a saída?"
+    alternativas:
+      a: "Nada: o bloco pode ser o de q"
+      b: "42: o bloco de p ficou intacto"
+      c: "42, e dá para liberar p outra vez"
+    gabarito: a
+    crencas:
+      b: heap_persists
+      c: double_free_is_safe
+
+  - id: ciu_kc09_t12
+    node: kc09:B4
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      struct no { struct no *prox; };
+      struct no *n = malloc(sizeof *n);
+      free(n);
+      n->prox = NULL;
+    enunciado: "Por que a última linha é inválida?"
+    alternativas:
+      a: "n aponta para bloco devolvido"
+      b: "Não é: o bloco segue válido"
+      c: "Não é: free deixou n em NULL"
+    gabarito: a
+    crencas:
+      b: heap_persists
+      c: free_nullifies
+
+  # ------------------------------------------------------------------
+  # I1 — free não pode alterar p, nem se quisesse
+  # crença do nó: free_nullifies
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc09_e5
+    node: kc09:I1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      A prefeitura recebeu o lote de volta. Ela entrou na sua casa para
+      rasgar o papel?
+    alternativas:
+      a: "Não: o papel é meu"
+      b: "Entrou: o papel é dela"
+      c: "Entrou, e levou a gaveta"
+    gabarito: a
+    crencas:
+      b: free_nullifies
+      c: free_kills_pointer
+
+  - id: ciu_kc09_013
+    node: kc09:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Por que free não consegue pôr NULL em p?"
+    alternativas:
+      a: "Ela só recebeu uma cópia"
+      b: "Ela consegue: p vira NULL"
+      c: "Ela não precisa: p é apagada"
+    gabarito: a
+    crencas:
+      b: free_nullifies
+      c: free_kills_pointer
+
+  - id: ciu_kc09_014
+    node: kc09:I1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      free(p);
+      printf("%d\n", p == NULL);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "0: p continua com o endereço"
+      b: "1: free põe NULL em p"
+      c: "não compila: p não existe mais"
+    gabarito: a
+    crencas:
+      b: free_nullifies
+      c: free_kills_pointer
+
+  - id: ciu_kc09_015
+    node: kc09:I1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      /* A */  free(p);
+      /* B */  free(p);  p = NULL;
+    enunciado: "Qual das duas deixa p em NULL?"
+    alternativas:
+      a: "B: a linha escrita por você"
+      b: "As duas: free já faz isso"
+      c: "Nenhuma: p deixou de existir"
+    gabarito: a
+    crencas:
+      b: free_nullifies
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t13
+    node: kc09:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Quem põe NULL em p depois do free?"
+    alternativas:
+      a: "Você, na linha seguinte"
+      b: "O próprio free"
+      c: "Ninguém: p não existe mais"
+    gabarito: a
+    crencas:
+      b: free_nullifies
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t14
+    node: kc09:I1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      free(p);
+      if (p == NULL) printf("ja liberei\n");
+    enunciado: "Por que esse teste não serve de aviso?"
+    alternativas:
+      a: "p continua com o endereço antigo"
+      b: "Serve: free deixou p em NULL"
+      c: "Serve: p nem existe para comparar"
+    gabarito: a
+    crencas:
+      b: free_nullifies
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t15
+    node: kc09:I1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void libera(int **pp) { free(*pp); *pp = NULL; }
+      int *p = malloc(4);
+      libera(&p);
+      printf("%d\n", p == NULL);
+    enunciado: "O que sai, e o que fez o NULL chegar em p?"
+    alternativas:
+      a: "1: a linha *pp = NULL"
+      b: "1: o free dentro da função"
+      c: "1: free apagou e recriou p"
+    gabarito: a
+    crencas:
+      b: free_nullifies
+      c: free_kills_pointer
+
+  # ------------------------------------------------------------------
+  # I2 — p continua existindo, com o mesmo valor
+  # crença do nó: free_kills_pointer
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc09_e6
+    node: kc09:I2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Depois de devolver o lote, o seu papel ainda existe?
+    alternativas:
+      a: "Existe, com o mesmo número"
+      b: "Não: foi embora com o lote"
+      c: "Existe, mas em branco"
+    gabarito: a
+    crencas:
+      b: free_kills_pointer
+      c: free_nullifies
+
+  - id: ciu_kc09_016
+    node: kc09:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Depois de free(p), o que há dentro de p?"
+    alternativas:
+      a: "O mesmo endereço de antes"
+      b: "Nada: p deixou de existir"
+      c: "NULL, posto pelo free"
+    gabarito: a
+    crencas:
+      b: free_kills_pointer
+      c: free_nullifies
+
+  - id: ciu_kc09_017
+    node: kc09:I2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      int *guardado = p;
+      free(p);
+      printf("%d\n", p == guardado);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: o valor de p não mudou"
+      b: "não compila: p foi apagada"
+      c: "0: free trocou o valor de p"
+    gabarito: a
+    crencas:
+      b: free_kills_pointer
+      c: free_nullifies
+
+  - id: ciu_kc09_018
+    node: kc09:I2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      free(p);
+      /* A */  p = malloc(4);
+      /* B */  int *p = malloc(4);
+    enunciado: "Uma das duas não compila. Qual, e por quê?"
+    alternativas:
+      a: "B: p já foi declarada"
+      b: "A: p não existe mais"
+      c: "A: p está em NULL e não recebe"
+    gabarito: a
+    crencas:
+      b: free_kills_pointer
+      c: free_nullifies
+
+  - id: ciu_kc09_t16
+    node: kc09:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "free(p) apaga a variável p?"
+    alternativas:
+      a: "Não: ela continua lá"
+      b: "Apaga: foi para isso"
+      c: "Não, mas deixa em NULL"
+    gabarito: a
+    crencas:
+      b: free_kills_pointer
+      c: free_nullifies
+
+  - id: ciu_kc09_t17
+    node: kc09:I2
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      free(p);
+      free(p);
+    enunciado: "O que faz a terceira linha ser inválida?"
+    alternativas:
+      a: "p ainda tem o endereço já devolvido"
+      b: "Nada: p não existe para o segundo free"
+      c: "Nada: liberar duas vezes é seguro"
+    gabarito: a
+    crencas:
+      b: free_kills_pointer
+      c: double_free_is_safe
+
+  - id: ciu_kc09_t18
+    node: kc09:I2
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      printf("%d\n", p != NULL);
+      free(p);
+      printf("%d\n", p != NULL);
+    enunciado: "O que sai nas duas linhas?"
+    alternativas:
+      a: "1 e 1: o valor de p não mudou"
+      b: "1 e nada: p não existe mais"
+      c: "1 e 0: free pôs NULL em p"
+    gabarito: a
+    crencas:
+      b: free_kills_pointer
+      c: free_nullifies
+
+  # ------------------------------------------------------------------
+  # I3 — atribuir NULL a p é o que registra o estado
+  # crença do nó: null_after_free_redundant
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc09_e7
+    node: kc09:I3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Nada na prefeitura te avisa que o papel ficou ruim. O que você pode
+      fazer?
+    alternativas:
+      a: "Riscar o número você mesmo"
+      b: "Nada: a prefeitura já avisa"
+      c: "Nada: o papel já foi rasgado"
+    gabarito: a
+    crencas:
+      b: null_after_free_redundant
+      c: free_kills_pointer
+
+  - id: ciu_kc09_019
+    node: kc09:I3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Para que serve p = NULL depois do free?"
+    alternativas:
+      a: "Para registrar que p não aponta"
+      b: "Para nada: free já cuida disso"
+      c: "Para nada: p já está em NULL"
+    gabarito: a
+    crencas:
+      b: null_after_free_redundant
+      c: free_nullifies
+
+  - id: ciu_kc09_020
+    node: kc09:I3
+    nivel: 2
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  free(p);
+      /* B */  free(p);  p = NULL;
+    enunciado: >
+      Depois de qual das duas o teste p == NULL diz a verdade?
+    alternativas:
+      a: "B: nela você escreveu o NULL"
+      b: "Das duas: o free já faz isso"
+      c: "Da A: free deixa p em NULL"
+    gabarito: a
+    crencas:
+      b: null_after_free_redundant
+      c: free_nullifies
+
+  - id: ciu_kc09_021
+    node: kc09:I3
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void solta(struct no *n) {
+          free(n);
+          n = NULL;
+      }
+    enunciado: "Por que o n = NULL aqui não protege quem chamou?"
+    alternativas:
+      a: "n é cópia: o de fora fica igual"
+      b: "Protege: o NULL vale para os dois"
+      c: "Protege, e nem precisava do NULL"
+    gabarito: a
+    crencas:
+      b: null_after_free_redundant
+      c: free_nullifies
+
+  - id: ciu_kc09_t19
+    node: kc09:I3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Escrever NULL depois do free é redundante?"
+    alternativas:
+      a: "Não: é o único registro"
+      b: "É: o free já deixa em NULL"
+      c: "É: p já nem existe"
+    gabarito: a
+    crencas:
+      b: null_after_free_redundant
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t20
+    node: kc09:I3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      free(p);
+      p = NULL;
+      if (p == NULL) printf("limpo\n");
+    enunciado: "Por que o teste funciona aqui?"
+    alternativas:
+      a: "A terceira linha escreveu o NULL"
+      b: "O free já tinha deixado NULL"
+      c: "O free apagou p, e NULL é o resto"
+    gabarito: a
+    crencas:
+      b: null_after_free_redundant
+      c: free_kills_pointer
+
+  - id: ciu_kc09_t21
+    node: kc09:I3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      struct lista { int *dados; };
+      struct lista L;
+      L.dados = malloc(4);
+      free(L.dados);
+      /* e depois alguem checa L.dados */
+    enunciado: "O que falta para o teste seguinte ter sentido?"
+    alternativas:
+      a: "L.dados = NULL depois do free"
+      b: "Nada: o free deixa em NULL"
+      c: "Nada: o campo deixou de existir"
+    gabarito: a
+    crencas:
+      b: null_after_free_redundant
+      c: free_kills_pointer
+
+  # ------------------------------------------------------------------
+  # I4 — a conclusão: ponteiro pendente, e usar p já é indefinido
+  # crença do nó: double_free_is_safe
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc09_e8
+    node: kc09:I4
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      O papel na sua mão leva a um lote que já não é seu. Usar esse papel
+      é o quê?
+    alternativas:
+      a: "Inválido: o lote não é meu"
+      b: "Arriscado, mas dá para repetir"
+      c: "Seguro: o lote está vazio"
+    gabarito: a
+    crencas:
+      b: double_free_is_safe
+      c: heap_persists
+
+  - id: ciu_kc09_022
+    node: kc09:I4
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Depois do free, o que p é?"
+    alternativas:
+      a: "Um endereço que não designa nada"
+      b: "Um endereço que dá para reusar"
+      c: "Um endereço válido até alguém pedir"
+    gabarito: a
+    crencas:
+      b: double_free_is_safe
+      c: heap_persists
+
+  - id: ciu_kc09_023
+    node: kc09:I4
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      free(p);
+      free(p);
+      *p = 1;
+    enunciado: "Quantas das duas últimas linhas são inválidas?"
+    alternativas:
+      a: "As duas"
+      b: "Uma: o segundo free é seguro"
+      c: "Uma: só o free; o *p ainda vale"
+    gabarito: a
+    crencas:
+      b: double_free_is_safe
+      c: heap_persists
+
+  - id: ciu_kc09_024
+    node: kc09:I4
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      free(p);
+      /* A */  if (p) *p = 1;
+      /* B */  if (p) printf("ok\n");
+    enunciado: >
+      As duas usam p depois do free. Qual delas o padrão permite?
+    alternativas:
+      a: "Nenhuma: usar p já é indefinido"
+      b: "B: só desreferenciar é problema"
+      c: "As duas: p segue apontando o bloco"
+    gabarito: a
+    crencas:
+      b: double_free_is_safe
+      c: heap_persists
+
+  - id: ciu_kc09_t22
+    node: kc09:I4
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Chamar free duas vezes no mesmo ponteiro é o quê?"
+    alternativas:
+      a: "Inválido"
+      b: "Seguro: o segundo não faz nada"
+      c: "Seguro: o bloco ainda é seu"
+    gabarito: a
+    crencas:
+      b: double_free_is_safe
+      c: heap_persists
+
+  - id: ciu_kc09_t23
+    node: kc09:I4
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      free(p);
+      int *q = p;
+    enunciado: "A terceira linha só copia. Isso está certo?"
+    alternativas:
+      a: "Não: copiar p já é indefinido"
+      b: "Está: copiar não desreferencia"
+      c: "Está: p ainda é um endereço bom"
+    gabarito: a
+    crencas:
+      b: double_free_is_safe
+      c: heap_persists
+
+  - id: ciu_kc09_t24
+    node: kc09:I4
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      free(p);
+      p = NULL;
+      free(p);
+    enunciado: "A última linha é válida?"
+    alternativas:
+      a: "É: free(NULL) não faz nada"
+      b: "Não: é o segundo free do mesmo"
+      c: "Não: o bloco já foi devolvido"
+    gabarito: a
+    crencas:
+      b: double_free_is_safe
+      c: heap_persists

@@ -1,0 +1,13 @@
+id: kc_09
+title: "free() e ponteiro pendente"
+pilot: true
+prerequisites: [kc_08, kc_06]
+conclusion_node: I4
+summary: >
+  free(p) devolve o bloco ao alocador. p continua existindo, com o mesmo
+  endereço dentro — e esse endereço já não designa objeto válido. Usar p
+  depois, mesmo sem desreferenciar, é comportamento indefinido.
+
+# Respondível ANTES por quem ainda não sabe. É o lado esquerdo do
+# antes-e-depois, e a pergunta é exatamente a que o tópico responde.
+teachback: "o que acontece com p, e com o bloco, depois de você chamar free(p)"

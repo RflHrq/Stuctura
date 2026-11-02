@@ -112,6 +112,15 @@ Nenhuma bloqueia a fase 4.
    premissa por sessão. Ver "O quarto teto", no fim deste documento.
 7. Se o kc_04 fica com 6 nós ou volta aos 8 da curadoria. Voltar custa
    quatro crenças (que seriam `E`) e 14 atividades.
+8. **O kc_08 (alocação dinâmica) não existe, e o kc_09 o declara como
+   pré-requisito.** O motor carrega um tópico por processo, então nada
+   quebra — mas a ordem de ensino tem um buraco, e quem montar a sessão da
+   coleta precisa saber. Está declarado no cabeçalho de `graph_kc09.yaml`.
+9. **113 passos cabem na sessão de coleta?** É o caminho realista do
+   kc_09, o tópico mais longo (8 nós). A conta por nó é estável — ~14
+   passos — e a série é 6 nós → 85, 7 → 95, 8 → 113. Se não couber, o
+   caminho não é cortar nó (cada um é premissa medida): é dividir o kc_09
+   em dois, ou aceitar que a sessão dele é mais longa.
 
 ## Artefatos
 
@@ -955,3 +964,114 @@ nenhuma `E`.
 
 Buraco na escada, nó sem item de entrada, nó sem figura, e um item binário
 entrando no banco. As quatro mordem.
+
+## Ciclo de conteúdo — o kc_09 (free e ponteiro pendente) · **tópico-piloto**
+
+Nono tópico, e o **terceiro piloto** dos quatro que a coleta usa. Falta só
+o kc_11.
+
+### A curadoria tinha um defeito, e o carregador o pega
+
+A curadoria tem cinco crenças para o kc_09 — a segunda melhor cobertura
+depois do kc_07 —, mas **duas delas negavam o MESMO nó**: `heap_persists`
+e `double_free_is_safe`, as duas em I3. A decisão 19 não admite isso, e o
+carregador também não: apontar duas crenças para um nó faz **sete testes
+caírem**, porque o grafo e o catálogo passam a discordar e a invariante
+"crença X nega A no catálogo e B no grafo" dispara. Foi a quarta
+sabotagem deste ciclo, e ela mordeu forte.
+
+As duas ficaram, em nós diferentes: `heap_persists` em **B4** (devolver
+marca como inválido) e `double_free_is_safe` na **conclusão**.
+
+Dez nós curados, oito aqui — a menor distância de todas, e de propósito,
+por ser piloto:
+
+| Nó | Crença | Proc. | De onde |
+| --- | --- | --- | --- |
+| B1 | `pointer_knows_block_size` | L | **nova** — FAQ 7.26, 7.27, 7.28 |
+| B2 | `function_gets_original` | T | kc_06 (a curadoria registra a importação) |
+| B3 | `pointer_lives_in_heap` | L | kc_02 (idem) |
+| B4 | `heap_persists` | L | curada, movida de I3 |
+| I1 | `free_nullifies` | L | curada |
+| I2 | `free_kills_pointer` | L | curada |
+| I3 | `null_after_free_redundant` | L | curada |
+| I4 · conclusão | `double_free_is_safe` | N | curada, movida de I3 |
+
+O curado I5 ("usar p depois, mesmo sem desreferenciar, é indefinido")
+dobrou na conclusão: a curadoria registra **zero caminhos** nele, e a
+mesma entrada que sustenta a conclusão — a **FAQ 7.21** — pergunta
+exatamente isso: *"How unsafe is it to use (assign, compare) a pointer
+value after it's been freed?"*
+
+### A 7.21 sozinha sustenta três crenças
+
+Porque é ela que explica **por quê** o ponteiro não vira NULL, e a
+explicação é a premissa de todo o tópico:
+
+> *"the value of the pointer in the caller probably remains unchanged,
+> because C's pass-by-value semantics mean that called functions never
+> permanently change the values of their arguments."*
+
+As quatro entradas usadas foram lidas no original: **7.20** (*"You can't
+use dynamically-allocated memory after you free it, can you?"* — resposta:
+"No.", com a origem histórica da crença), **7.21**, **7.22** (*"Remember
+that a pointer is different from what it points to"*) e **7.26** (*"The
+malloc/free implementation remembers the size of each block"*).
+
+### Duas regras a mais no banco, as duas de piloto
+
+1. **Nenhum item pergunta o que acontece** ao usar um ponteiro pendente.
+   Não há resposta — é comportamento indefinido —, e um item que premiasse
+   "trava" ou "imprime lixo" ensinaria que existe resultado previsível.
+   Onde o caso aparece, o que se pergunta é se é **válido**.
+2. **`free(NULL)` é legal, e há um item de treino que ensina isso**
+   (`ciu_kc09_t24`). Calar faria a pessoa sair daqui achando que todo free
+   depois de um free é erro — e aí ela escreveria um `if` que não precisa.
+
+### A figura faz uma coisa diferente do kc_05, de propósito
+
+No kc_09 o fim da seta proibida **tem** caixa, com a classe `sujo` e um
+`?` dentro. No kc_05 não tinha, porque no endereço nulo não existe objeto
+algum. Aqui o lugar **existe** — ele só não é mais seu, e pode ter outro
+dono com as coisas dele dentro. Desenhá-lo como inexistente contaria outra
+história, e a premissa B4 é justamente essa.
+
+### A medição, e o aviso que vem com ela
+
+| Persona | kc_09 |
+| --- | --- |
+| acerta tudo | 59 passos, 0/12 sem medida |
+| erra e aprende | **113**, 0/12 |
+| erra e não muda | **120**, 0/12 |
+
+**É o tópico mais longo dos nove**, e por uma razão simples: oito nós. A
+conta por nó é estável — cada nó custa ~14 passos no caminho realista — e
+dá para ler a série inteira: 6 nós → 85, 7 nós → 95, 8 nós → 113.
+
+Isso é decisão de dono, e entra em perguntas em aberto: **113 passos cabem
+na sessão de coleta?** Se não couberem, o caminho não é cortar nó (cada um
+é uma premissa que a coleta mede) — é dividir o kc_09 em dois tópicos, ou
+aceitar que a sessão dele é mais longa que as outras.
+
+### Os nove tópicos, 388 itens
+
+| Tópico | Nós | Itens | Vizinho | Procedências |
+| --- | --- | --- | --- | --- |
+| `kc_00` | 5 | 20 | 31% | 3 L, 1 T, **1 E** |
+| `kc_01` | 5 | 35 | 37% | 3 T, 1 L, **1 E** |
+| `kc_02` · piloto | 6 | 60 | 47% | 2 T, 1 D, 1 L, **2 E** |
+| `kc_03` | 6 | 42 | 36% | 3 D, 2 L, 1 T |
+| `kc_04` | 6 | 42 | 50% | 3 L, 3 T |
+| `kc_05` | 6 | 42 | 50% | 4 L, 1 T, 1 N |
+| `kc_06` | 6 | 42 | 50% | 5 T, 1 L |
+| `kc_07` · piloto | 7 | 49 | 50% | 6 L, 1 T |
+| `kc_09` · piloto | 8 | 56 | 50% | 6 L, 1 T, 1 N |
+
+Seis tópicos construídos depois do contrato de linguagem, seis sem nenhuma
+`E`. Três dos quatro pilotos prontos.
+
+### As quatro sabotagens
+
+Buraco na escada, nó sem item de entrada, nó sem figura, e **duas crenças
+negando o mesmo nó** — a última derrubou sete testes, e é exatamente o
+defeito que o catálogo curado tinha.

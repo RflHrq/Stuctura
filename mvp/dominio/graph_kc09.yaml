@@ -1,0 +1,147 @@
+topic: kc_09
+
+# TÓPICO-PILOTO, o terceiro a ficar pronto dos quatro que a coleta usa
+# (kc_02, kc_07, kc_11, kc_09).
+#
+# UMA PENDÊNCIA DE ORDEM, declarada: os pré-requisitos curados deste
+# tópico são [kc_08, kc_06], e o kc_08 (alocação dinâmica) ainda NÃO
+# existe. O motor carrega um tópico por processo, então isto não impede
+# nada tecnicamente — mas a ordem de ensino tem um buraco, e quem montar
+# a sessão da coleta precisa saber. Está em perguntas em aberto.
+#
+# A METÁFORA DESTE TÓPICO: devolver o terreno, e o papel que fica na sua
+# mão.
+#
+# Continua o terreno alugado do kc_01. Você devolve o lote à prefeitura:
+# ela anota que aquele lote está livre, e pode entregá-lo a outra pessoa a
+# qualquer momento. Mas o papel com o número do lote continua na SUA mão,
+# do jeito que estava — a prefeitura não entra na sua casa para rasgar o
+# seu papel. O papel parece bom, e não é: ele leva a um lote que já não é
+# seu.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. "A prefeitura anota que está livre" sugere que existe um aviso que
+#      você pode consultar. Não existe: nada no programa avisa que o papel
+#      ficou ruim. É por isso que escrever NULL no papel é VOCÊ mesmo
+#      anotando, e é o nó I3.
+#   2. "O lote continua lá, vazio" sugere que dá para olhar e ver que está
+#      vazio. Não dá: o lote pode já ter outro dono, com as coisas dele
+#      dentro. E usar o papel não é arriscado — é inválido. A metáfora diz
+#      que não é seu, nunca o que você vai encontrar lá.
+#
+# OITO NÓS, E A CURADORIA TEM DEZ — a menor distância até aqui, e de
+# propósito: é piloto. A curadoria tem cinco crenças, e duas delas negam o
+# MESMO nó (I3), o que a decisão 19 não admite. Então:
+#
+#   as cinco crenças curadas ficaram, cada uma num nó diferente:
+#     free_nullifies -> I1, free_kills_pointer -> I2,
+#     null_after_free_redundant -> I3, heap_persists -> B4,
+#     double_free_is_safe -> I4 (a conclusão);
+#   três nós ganharam crença de fora, e nos dois primeiros a própria
+#     curadoria já registra a importação:
+#     B2 ("free(p) recebe uma cópia de p", importado de kc_06:I1) ->
+#       function_gets_original;
+#     B3 ("p é variável do chamador", importado de kc_02:I2) ->
+#       pointer_lives_in_heap;
+#     B1 ("free recebe o endereço do bloco") -> pointer_knows_block_size,
+#       crença NOVA, do FAQ 7.26;
+#   o curado I5 ("usar p depois, mesmo sem desreferenciar, é indefinido")
+#     dobrou na conclusão. A curadoria registra ZERO caminhos nele, e a
+#     mesma entrada do FAQ que sustenta a conclusão — a 7.21 — pergunta
+#     exatamente isso: "How unsafe is it to use (assign, compare) a
+#     pointer value after it's been freed?"
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "free recebe o endereço do bloco, e só isso."
+    plain_text: >
+      free recebe o endereço do pedaço que você quer devolver. O tamanho
+      quem guardou foi o alocador, quando entregou.
+    negated_by:
+      - pointer_knows_block_size
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "free(p) recebe uma cópia de p, como qualquer chamada."
+    plain_text: >
+      Ao chamar free(p), o que entra na função é uma cópia de p — como em
+      qualquer chamada de C.
+    negated_by:
+      - function_gets_original
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "p é variável de quem chamou, e não mora junto com o bloco."
+    plain_text: >
+      A caixa p é sua, de quem chamou. Ela não pertence à função free, e
+      não fica dentro do bloco que ela aponta.
+    negated_by:
+      - pointer_lives_in_heap
+
+  B4:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Devolver o bloco o marca como não mais válido."
+    plain_text: >
+      Devolvido, o pedaço deixa de ser seu. Pode ser entregue a outro
+      pedido a qualquer momento.
+    negated_by:
+      - heap_persists
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B2, B3]
+    text: "free não pode alterar p, nem se quisesse."
+    plain_text: >
+      Então free não tem como mudar o que está dentro de p: ela só recebeu
+      uma cópia do valor, e a caixa não é dela.
+    negated_by:
+      - free_nullifies
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [B3, I1]
+    text: "p continua existindo, com o mesmo valor."
+    plain_text: >
+      Depois do free, a caixa p continua ali, com o mesmo endereço escrito
+      dentro.
+    negated_by:
+      - free_kills_pointer
+
+  I3:
+    type: inferencia
+    role: espinha
+    support: [I2]
+    text: "Atribuir NULL a p é o que registra o estado."
+    plain_text: >
+      Nada no programa avisa que aquele endereço ficou ruim. Escrever NULL
+      em p logo depois do free deixa registrado que ela não aponta mais
+      para nada.
+    negated_by:
+      - null_after_free_redundant
+
+  I4:
+    type: inferencia
+    role: conclusao
+    support: [B1, B4, I2, I3]
+    text: >
+      p guarda um endereço que não designa objeto válido — e usar p
+      depois, mesmo sem desreferenciar, é comportamento indefinido.
+    plain_text: >
+      Juntando: p continua com um endereço bom de aparência, apontando
+      para um lugar que já não guarda nada seu. Até copiar ou comparar p
+      já é território sem garantia.
+    negated_by:
+      - double_free_is_safe

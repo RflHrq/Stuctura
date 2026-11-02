@@ -1126,6 +1126,172 @@
     }
   };
 
+  /* ------------- kc_09: devolver o terreno, e o papel que fica na mao */
+
+  /* TOPICO-PILOTO. Continua o terreno alugado do kc_01: free devolve o
+   * lote, e a prefeitura pode entregar aquele lote a outro a qualquer
+   * momento — mas o PAPEL com o numero continua na sua gaveta, do jeito
+   * que estava.
+   *
+   * UMA DIFERENCA DELIBERADA EM RELACAO AO kc_05: aqui o fim da seta
+   * proibida TEM caixa, com a classe `sujo` e um `?` dentro. No kc_05 nao
+   * tinha, porque no endereco nulo nao existe objeto algum. Aqui o lugar
+   * EXISTE — ele so nao e mais seu, e pode ter outro dono com as coisas
+   * dele dentro. Desenhar o lugar como inexistente aqui contaria outra
+   * historia, e a premissa B4 e justamente essa. */
+
+  POR_TOPICO.kc_09 = {
+
+    /* B1 — free recebe o numero, e so o numero. */
+    B1: function () {
+      var s = svg(360, 198);
+      s.appendChild(defs());
+      s.appendChild(casa(28, 62, { endereco: "0x2A00", dentro: "0x9000",
+                                   nome: "p", largura: 108 }));
+      s.appendChild(seta(144, 94, 212, 94));
+      s.appendChild(el("text", { x: 178, y: 78, "class": "fig-nota" },
+                       "free(p)"));
+      s.appendChild(el("rect", { x: 216, y: 80, width: 104, height: 30, rx: 9,
+                                 "class": "fig-placa" }));
+      s.appendChild(el("text", { x: 268, y: 95, "class": "fig-placa-txt" },
+                       "0x9000"));
+      s.appendChild(el("text", { x: 268, y: 128, "class": "fig-rodape" },
+                       "so o numero"));
+      legenda(s, 174, "o tamanho quem anotou foi o alocador");
+      legenda(s, 192, "voce nao diz de novo");
+      return s;
+    },
+
+    /* B2 — o que viaja e uma copia do valor. */
+    B2: function () {
+      var s = svg(360, 200);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "sua gaveta"));
+      s.appendChild(casa(30, 58, { endereco: "0x2A00", dentro: "0x9000",
+                                   nome: "p, intacta", largura: 112 }));
+      s.appendChild(seta(150, 90, 212, 90));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "dentro de free"));
+      s.appendChild(casa(218, 58, { endereco: "0x5A00", dentro: "0x9000",
+                                    nome: "a copia", largura: 112 }));
+      legenda(s, 176, "o que viajou foi o valor");
+      legenda(s, 194, "e a copia nao volta");
+      return s;
+    },
+
+    /* B3 — p numa quadra, o bloco na outra. */
+    B3: function () {
+      var s = svg(360, 214);
+      s.appendChild(defs());
+      quadra(s, 44, "PILHA — onde p foi declarada", "");
+      s.appendChild(casa(120, 44, { endereco: "0x2A00", dentro: "0x9000",
+                                    largura: 120 }));
+      quadra(s, 150, "MONTE — onde esta o bloco", "");
+      s.appendChild(casa(120, 150, { endereco: "0x9000", dentro: "7",
+                                     largura: 120 }));
+      legenda(s, 208, "duas coisas, em duas quadras");
+      return s;
+    },
+
+    /* B4 — devolvido, o lote pode ir para outro. */
+    B4: function () {
+      var s = svg(360, 206);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "antes do free"));
+      s.appendChild(casa(30, 58, { endereco: "0x9000", dentro: "7",
+                                   nome: "seu", largura: 112 }));
+      s.appendChild(seta(150, 90, 212, 90));
+      s.appendChild(el("text", { x: 181, y: 74, "class": "fig-nota" }, "free"));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "depois"));
+      s.appendChild(casa(218, 58, { endereco: "0x9000", dentro: "?",
+                                    nome: "do alocador", largura: 112,
+                                    sujo: true }));
+      legenda(s, 176, "pode ser entregue a outro pedido");
+      legenda(s, 194, "e nada avisa quando isso acontece");
+      return s;
+    },
+
+    /* I1 — free nao chega na gaveta. */
+    I1: function () {
+      var s = svg(360, 202);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "free(p);"));
+      s.appendChild(casa(124, 60, { endereco: "0x2A00", dentro: "0x9000",
+                                    nome: "p", largura: 112 }));
+      s.appendChild(seta(62, 92, 118, 92, "proibida"));
+      s.appendChild(el("text", { x: 70, y: 120, "class": "fig-legenda erro" },
+                       "free nao chega aqui"));
+      legenda(s, 170, "ela recebeu uma copia, e a gaveta nao e dela");
+      legenda(s, 190, "quem risca o papel e voce");
+      return s;
+    },
+
+    /* I2 — a caixa continua, com o mesmo numero. */
+    I2: function () {
+      var s = svg(360, 206);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "antes do free"));
+      s.appendChild(casa(30, 58, { endereco: "0x2A00", dentro: "0x9000",
+                                   nome: "p", largura: 112 }));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "depois do free"));
+      s.appendChild(casa(218, 58, { endereco: "0x2A00", dentro: "0x9000",
+                                    nome: "p, igual", largura: 112 }));
+      legenda(s, 176, "a caixa continua, com o mesmo numero");
+      legenda(s, 194, "o que mudou foi do lado do bloco");
+      return s;
+    },
+
+    /* I3 — a anotacao e sua, e e a unica que existe. */
+    I3: function () {
+      var s = svg(360, 208);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "depois do free"));
+      s.appendChild(casa(30, 58, { endereco: "0x2A00", dentro: "0x9000",
+                                   largura: 112 }));
+      s.appendChild(el("text", { x: 86, y: 134, "class": "fig-legenda erro" },
+                       "nada avisa"));
+      s.appendChild(seta(150, 90, 212, 90));
+      s.appendChild(el("text", { x: 181, y: 74, "class": "fig-nota" },
+                       "p = NULL;"));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "sua anotacao"));
+      s.appendChild(casa(218, 58, { endereco: "0x2A00", dentro: "NULL",
+                                    largura: 112 }));
+      s.appendChild(el("text", { x: 272, y: 134, "class": "fig-nota" },
+                       "agora da para testar"));
+      legenda(s, 182, "o registro e seu, na linha seguinte");
+      legenda(s, 200, "e e o unico que existe");
+      return s;
+    },
+
+    /* I4 — a conclusao: o ponteiro pendente. */
+    I4: function () {
+      var s = svg(360, 226);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 22, "class": "fig-rodape" },
+                       "free(p);  e depois"));
+      s.appendChild(casa(24, 58, { endereco: "0x2A00", dentro: "0x9000",
+                                   nome: "p, de aparencia boa",
+                                   largura: 116 }));
+      s.appendChild(seta(148, 90, 236, 90, "proibida"));
+      s.appendChild(casa(240, 58, { endereco: "0x9000", dentro: "?",
+                                    largura: 104, sujo: true }));
+      s.appendChild(el("text", { x: 292, y: 132, "class": "fig-legenda erro" },
+                       "nao e mais seu"));
+      legenda(s, 176, "ponteiro pendente: numero bom, lugar que nao e seu");
+      legenda(s, 194, "e nao e so *p que e proibido");
+      legenda(s, 214, "copiar ou comparar p ja e indefinido");
+      return s;
+    }
+  };
+
   var topicoAtual = "kc_00";
 
   function doNo(no) {
