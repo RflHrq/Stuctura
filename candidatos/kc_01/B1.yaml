@@ -1,0 +1,63 @@
+activities:
+- id: kc01_gb1_n1_1
+  node: kc01:B1
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: 'Duas ruas: uma que o seu programa recebe só para ele, e uma que todos
+    os programas dividem. Qual é a sua, enquanto o programa roda?'
+  codigo: ''
+  alternativas:
+    a: 'A primeira: a rua é dele'
+    b: 'A segunda: a rua é da cidade'
+    c: A segunda, e por isso somem casas
+  gabarito: a
+  crencas:
+    b: memoria_e_do_computador
+    c: memory_is_uniform
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó na analogia; c traz o vizinho I2.
+- id: kc01_gb1_n2_2
+  node: kc01:B1
+  nivel: 2
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: B copiou o endereço que A imprimiu. Por que não funciona?
+  codigo: '/* programa A */  int x = 42;  printf("%p\n", (void *)&x);
+
+    /* programa B */  int *p = (int *)0x7ffd1234;  printf("%d\n", *p);'
+  alternativas:
+    a: O endereço de A não vale na rua de B
+    b: 'Funciona: o endereço é o mesmo lugar'
+    c: 'Funciona: memória é uma só região'
+  gabarito: a
+  crencas:
+    b: memoria_e_do_computador
+    c: memory_is_uniform
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó na forma mais direta que ela tem; c
+    traz o I2.
+- id: kc01_gb1_n3_3
+  node: kc01:B1
+  nivel: 3
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: Um colega diz que isso imprime o que o programa anterior deixou. Onde
+    ele erra?
+  codigo: 'int x;
+
+    printf("%d\n", x);'
+  alternativas:
+    a: O lixo é da rua deste programa
+    b: 'Não erra: é o que o anterior deixou'
+    c: 'Erra: x guarda o que outra função deixou'
+  gabarito: a
+  crencas:
+    b: memoria_e_do_computador
+    c: local_sobrevive
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó; c traz o vizinho B2, de quem acha
+    que o que uma função deixou continua alcançável.

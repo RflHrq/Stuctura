@@ -1,0 +1,68 @@
+activities:
+- id: kc04_gi2_n1_1
+  node: kc04:I2
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: Trocar o que tem dentro da casa visitada, e reescrever o papel de p.
+    Qual das duas *p = 7 faz?
+  codigo: ''
+  alternativas:
+    a: 'A primeira: troca o conteúdo'
+    b: 'A segunda: reescreve o papel'
+    c: 'Nenhuma: quem recebe valor é p'
+  gabarito: a
+  crencas:
+    b: star_binds_to_the_pointer
+    c: star_assigns_pointer
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó na analogia; c traz o vizinho I3.
+- id: kc04_gi2_n2_2
+  node: kc04:I2
+  nivel: 2
+  formato: prever_saida
+  tipo: codigo
+  enunciado: O que sai?
+  codigo: 'int x = 4;
+
+    int *p = &x;
+
+    *p += 3;
+
+    printf("%d %d\n", x, p == &x);'
+  alternativas:
+    a: '7 1: o += somou no conteúdo'
+    b: '4 0: o += somou no endereço'
+    c: '7 0: p passou a guardar o 7'
+  gabarito: a
+  crencas:
+    b: star_binds_to_the_pointer
+    c: pointer_is_data
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó com a superfície do FAQ 4.3; c traz
+    o vizinho B3.
+- id: kc04_gi2_n3_3
+  node: kc04:I2
+  nivel: 3
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: Por que a terceira linha não compila?
+  codigo: 'int a = 1, b = 2;
+
+    int *p = &a;
+
+    *p = &b;'
+  alternativas:
+    a: '*p é um int, e &b é um endereço'
+    b: 'Compila: *p é onde o endereço vai'
+    c: 'Compila: *p = &b só move p'
+  gabarito: a
+  crencas:
+    b: star_assigns_pointer
+    c: star_binds_to_the_pointer
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: c é a crença do nó; b traz o vizinho I3, que é a conclusão
+    do tópico e a pergunta 4.2 do FAQ.

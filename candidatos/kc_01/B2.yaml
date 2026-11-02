@@ -1,0 +1,59 @@
+activities:
+- id: kc01_gb2_n1_1
+  node: kc01:B2
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: 'Duas coisas na rua: uma casa da rua lateral, desmontada quando a função
+    sai, e um terreno alugado que fica. Qual é a variável local?'
+  codigo: ''
+  alternativas:
+    a: 'A primeira: desmontada na saída'
+    b: 'A segunda: ela continua lá'
+    c: 'As duas ficam: a rua não muda'
+  gabarito: a
+  crencas:
+    b: local_sobrevive
+    c: memory_is_uniform
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó na analogia; c traz o vizinho I2.
+- id: kc01_gb2_n2_2
+  node: kc01:B2
+  nivel: 2
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: O que o chamador recebe?
+  codigo: "int *conta(void) {\n    int total = 10;\n    return &total;\n}"
+  alternativas:
+    a: Um endereço que deixou de valer
+    b: O endereço de total, que continua lá
+    c: 'Um endereço como outro: a rua é uma'
+  gabarito: a
+  crencas:
+    b: local_sobrevive
+    c: memory_is_uniform
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó; c traz o vizinho I2.
+- id: kc01_gb2_n3_3
+  node: kc01:B2
+  nivel: 3
+  formato: comparar_casos
+  tipo: codigo
+  enunciado: Qual das duas devolve algo que ainda vale?
+  codigo: '/* A */  int *f(void) { int n = 1;                    return &n; }
+
+    /* B */  int *g(void) { int *q = malloc(sizeof(int)); return q;  }'
+  alternativas:
+    a: 'B: o terreno fica até o free'
+    b: 'As duas: nada é desmontado'
+    c: 'Nenhuma: as duas somem na saída'
+  gabarito: a
+  crencas:
+    b: local_sobrevive
+    c: heap_dies_with_function
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: O par separa as duas quadras. b é a crença do nó; c traz
+    o I1, que é a crença espelhada — a do monte.

@@ -1,0 +1,68 @@
+activities:
+- id: kc04_gb3_n1_1
+  node: kc04:B3
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: 'Dois papéis: um com 42 escrito, outro com o número de uma casa. Qual
+    deles está dentro de p?'
+  codigo: ''
+  alternativas:
+    a: 'O segundo: um número de casa'
+    b: 'O primeiro: p guarda o 42'
+    c: 'Nenhum: p não guarda papel'
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: pointer_is_just_a_name
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó dita na analogia; c traz o vizinho
+    I1, de quem acha que p é só um nome.
+- id: kc04_gb3_n2_2
+  node: kc04:B3
+  nivel: 2
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: Por que o compilador avisa nesta linha?
+  codigo: 'int x = 5;
+
+    int *p = &x;
+
+    printf("%d\n", p);'
+  alternativas:
+    a: p é endereço, e %d espera um int
+    b: 'Não avisa: dentro de p está o 5'
+    c: 'Falta o &: seria &p'
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: ampersand_takes_value
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó; c traz o vizinho B1.
+- id: kc04_gb3_n3_3
+  node: kc04:B3
+  nivel: 3
+  formato: prever_saida
+  tipo: codigo
+  enunciado: O que sai?
+  codigo: 'int x = 1, y = 2;
+
+    int *p = &x;
+
+    int *q = &y;
+
+    printf("%d\n", *p + *q);'
+  alternativas:
+    a: '3: *p é 1 e *q é 2'
+    b: a soma dos dois endereços
+    c: 3, e p e q são x e y
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: pointer_is_just_a_name
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: 'b é a crença do nó com o sinal trocado: quem acha que
+    o ponteiro é o dado não separa somar conteúdo de somar endereço. c traz o I1.'

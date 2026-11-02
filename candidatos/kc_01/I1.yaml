@@ -1,0 +1,64 @@
+activities:
+- id: kc01_gi1_n1_1
+  node: kc01:I1
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: A casa da rua lateral e o terreno alugado, depois que a função termina.
+    O que sobrou?
+  codigo: ''
+  alternativas:
+    a: Só o terreno alugado
+    b: Nenhum dos dois
+    c: Os dois, como antes
+  gabarito: a
+  crencas:
+    b: heap_dies_with_function
+    c: local_sobrevive
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó na analogia; c traz o vizinho B2. As
+    duas erradas são as duas formas de achatar a diferença entre as quadras.
+- id: kc01_gi1_n2_2
+  node: kc01:I1
+  nivel: 2
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: Um colega diz que isso lê memória morta. Onde ele erra?
+  codigo: "int *faz(void) {\n    int *p = malloc(sizeof(int));\n    *p = 7;\n  \
+    \  return p;\n}\nint main(void) { printf(\"%d\\n\", *faz()); }"
+  alternativas:
+    a: O bloco do malloc sobrevive à função
+    b: 'Não erra: o bloco sai com a função'
+    c: 'Não erra: p era local, e o bloco é p'
+  gabarito: a
+  crencas:
+    b: heap_dies_with_function
+    c: local_sobrevive
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: 'c é a confusão que sustenta a crença: p morre, o bloco
+    não. b é a crença do nó dita direto.'
+- id: kc01_gi1_n3_3
+  node: kc01:I1
+  nivel: 3
+  formato: comparar_casos
+  tipo: codigo
+  enunciado: Uma das três devolve endereço inválido. Qual?
+  codigo: 'int *a(void) { static int n = 1;             return &n; }
+
+    int *b(void) { int *q = malloc(4); *q = 1;   return q;  }
+
+    int *c(void) { int n = 1;                    return &n; }'
+  alternativas:
+    a: 'A terceira: n é local e comum'
+    b: 'A segunda: o malloc sai com a função'
+    c: 'A primeira: static não muda nada'
+  gabarito: a
+  crencas:
+    b: heap_dies_with_function
+    c: local_sobrevive
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: Três casos quase iguais na escrita e diferentes na vida.
+    b é a crença do nó; c traz o vizinho B2.

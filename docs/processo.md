@@ -106,6 +106,14 @@ Nenhuma bloqueia a fase 4.
    quer procurar fonte empírica antes da coleta.
 5. Quais premissas de uma KC sustentam quais premissas da seguinte (a
    aresta fina do grafo externo). Curadoria de domínio, com o usuário.
+6. **O que encerra a unidade quando a pessoa não muda de ideia em nenhuma
+   premissa.** Com dois itens por degrau o pior caso passou a ser medido
+   (3/10 → 0/12 no kc_03), e a cauda foi a 207 passos — mais do que uma
+   pessoa real atravessa. É decisão de motor: teto de passos, teto de
+   refutações por nó, ou encerrar e marcar `em_aberto`. Medido em
+   "O segundo item por degrau", no fim deste documento.
+7. Se o kc_04 fica com 6 nós ou volta aos 8 da curadoria. Voltar custa
+   quatro crenças (que seriam `E`) e 14 atividades.
 
 ## Artefatos
 
@@ -509,3 +517,66 @@ o único com dois itens por degrau.
 Então a dívida tem agora mecanismo, número e ordem de prioridade: 18 itens
 para o kc_04, 18 para o kc_03 e 15 para o kc_01, nessa ordem, pelo
 gerador.
+
+## O segundo item por degrau — 51 candidatos, e a medição que fecha a conta
+
+A hipótese 2 do ciclo do kc_04 dizia que o conserto do pior caso é **mais
+itens por degrau**, e não menos distrator de vizinho. Agora está medido
+nos três tópicos, e não só inferido do kc_02.
+
+### O que foi gerado
+
+51 itens, pelo `scripts/gerar.py --importar`, um arquivo por nó e três
+itens por arquivo (um por degrau). O `--importar` existe porque a
+credencial desta máquina é token de sessão, não chave de API: quem
+escreveu o item foi o modelo, por conversa, e **a conferência é a mesma** —
+é ela que decide se o item serve, não quem o escreveu.
+
+| Tópico | Nós | Itens novos | Banco fica em | Forma do degrau |
+| --- | --- | --- | --- | --- |
+| `kc_04` | 6 | 18 | 60 | `[1,1,2,2,3,3]` por nó |
+| `kc_03` | 6 | 18 | 60 | `[1,1,2,2,3,3]` por nó |
+| `kc_01` | 5 | 15 | 50 | `[1,1,2,2,3,3]` por nó |
+
+Os 51 passaram pelo `confere()`: carregam no domínio pelo carregador de
+verdade — o mesmo que roda em sessão — e passam nas regras de
+`docs/linguagem.md`. Nenhum precisou de correção, o que era esperado:
+o contrato inteiro vai no prompt do sistema, e o enum fechado de crenças
+impede a invenção de concepção errônea.
+
+**Os 51 continuam em `candidatos/`.** `revisado_por` está vazio em todos,
+e `aprova()` recusa o que não tem o campo preenchido. O portão é do dono
+do trabalho, não meu, e a folha de revisão de cada tópico está em
+`candidatos/<topico>/REVISAO.md`.
+
+### A medição, antes e depois
+
+Para medir sem mexer no portão, os candidatos foram juntados ao domínio
+numa cópia de trabalho, medidos, e os arquivos restaurados do backup —
+`revisado_por` nunca foi tocado. 12 sessões por persona:
+
+| Persona | `kc_01` | `kc_03` | `kc_04` |
+| --- | --- | --- | --- |
+| acerta tudo | 38 → 38, 0 → 0 | 45 → 45, 0 → 0 | 45 → 45, 0 → 0 |
+| erra e aprende | 68 → 67, 0 → 0 | 86 → 86, 0 → 0 | 83 → 83, 0 → 0 |
+| erra e não muda | 81 → 83, **3/10 → 1/12** | 102 → 119, **3/10 → 0/12** | 103 → 121, **5/12 → 2/12** |
+
+A hipótese se confirma nos três, e com a ordem certa: quem estava pior
+melhorou mais. O kc_03 zerou.
+
+### O preço, e ele é real
+
+A sessão de quem erra e não muda de ideia **ficou mais longa**, e a cauda
+ficou pior:
+
+| Tópico | pior sessão antes | pior sessão depois |
+| --- | --- | --- |
+| `kc_01` | 94 passos | 135 |
+| `kc_03` | 123 passos | **207** |
+| `kc_04` | 121 passos | 159 |
+
+207 passos é mais do que uma pessoa real atravessa numa sessão de coleta.
+A mediana continua perto de 120, então o caso típico está bem — mas a
+cauda é a pergunta que fica, e é de **motor**, não de conteúdo: o que
+encerra a unidade quando a pessoa não muda de ideia em nenhuma premissa.
+Entra em perguntas em aberto, com o número medido.

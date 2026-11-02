@@ -1,0 +1,65 @@
+activities:
+- id: kc04_gi1_n1_1
+  node: kc04:I1
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: Ler o número no papel de p, e ir até a casa daquele número. São a mesma
+    coisa?
+  codigo: ''
+  alternativas:
+    a: 'Não: a segunda é a viagem'
+    b: 'São: p e a viagem são um só'
+    c: 'São: as duas devolvem o número'
+  gabarito: a
+  crencas:
+    b: pointer_is_just_a_name
+    c: pointer_is_data
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó na analogia; c traz o vizinho B3.
+- id: kc04_gi1_n2_2
+  node: kc04:I1
+  nivel: 2
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: O que falta para imprimir o valor apontado?
+  codigo: void mostra(int *p) { printf("%d\n", p); }
+  alternativas:
+    a: 'O *: printf com *p'
+    b: 'Nada: p já é o valor'
+    c: 'O &: printf com &p'
+  gabarito: a
+  crencas:
+    b: pointer_is_just_a_name
+    c: ampersand_takes_value
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó; c traz o vizinho B1.
+- id: kc04_gi1_n3_3
+  node: kc04:I1
+  nivel: 3
+  formato: comparar_casos
+  tipo: codigo
+  enunciado: Qual dos dois virou 9, e por quê?
+  codigo: 'int a = 1, b = 1;
+
+    int *p = &a;
+
+    *p = 9;
+
+    /* A */  a
+
+    /* B */  b'
+  alternativas:
+    a: 'A: p tinha o endereço de a'
+    b: 'Os dois: *p é o nome dos dois'
+    c: 'B: *p andou para a casa seguinte'
+  gabarito: a
+  crencas:
+    b: pointer_is_just_a_name
+    c: star_binds_to_the_pointer
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó; c traz o vizinho I2, de quem confunde
+    agir através de p com andar com p.

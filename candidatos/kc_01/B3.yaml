@@ -1,0 +1,59 @@
+activities:
+- id: kc01_gb3_n1_1
+  node: kc01:B3
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: 'Dois jeitos de o terreno alugado voltar para a prefeitura: você devolver,
+    ou ela tomar de volta sozinha. Qual acontece em C?'
+  codigo: ''
+  alternativas:
+    a: 'O primeiro: você devolve'
+    b: 'O segundo: ela toma sozinha'
+    c: 'Nenhum: o terreno fica como está'
+  gabarito: a
+  crencas:
+    b: system_frees_auto
+    c: memory_is_uniform
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó na analogia; c traz o vizinho I2.
+- id: kc01_gb3_n2_2
+  node: kc01:B3
+  nivel: 2
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: O que essa função deixa para trás a cada chamada?
+  codigo: "void guarda(void) {\n    int *p = malloc(1000000);\n}"
+  alternativas:
+    a: Um bloco alugado e sem dono
+    b: 'Nada: o sistema devolve na saída'
+    c: 'Nada: o bloco morre com a função'
+  gabarito: a
+  crencas:
+    b: system_frees_auto
+    c: heap_dies_with_function
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó (FAQ 7.24 e 7.25); c traz o vizinho
+    I1.
+- id: kc01_gb3_n3_3
+  node: kc01:B3
+  nivel: 3
+  formato: comparar_casos
+  tipo: codigo
+  enunciado: Depois de mil chamadas de cada uma, qual delas acumulou memória?
+  codigo: '/* A */  void f(void) { int v[100];               }
+
+    /* B */  void g(void) { int *v = malloc(100 * 4); }'
+  alternativas:
+    a: 'B: cada bloco ficou lá'
+    b: 'Nenhuma: o sistema limpa as duas'
+    c: As duas, no mesmo lugar da rua
+  gabarito: a
+  crencas:
+    b: system_frees_auto
+    c: memory_is_uniform
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó; c traz o vizinho I2.

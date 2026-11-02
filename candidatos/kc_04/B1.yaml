@@ -1,0 +1,67 @@
+activities:
+- id: kc04_gb1_n1_1
+  node: kc04:B1
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: 'Dois pedidos ao carteiro: entregar na casa de x, e entregar na conta
+    2+3. Qual deles ele cumpre?'
+  codigo: ''
+  alternativas:
+    a: 'O primeiro: só a casa de x é da rua'
+    b: 'Os dois: toda coisa tem um lugar'
+    c: O primeiro, e ele leva uma cópia
+  gabarito: a
+  crencas:
+    b: ampersand_takes_value
+    c: ampersand_copies
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: 'b é a crença do próprio nó dita na analogia: se toda
+    coisa tem lugar, o 5 do código teria endereço. c traz o vizinho B2.'
+- id: kc04_gb1_n2_2
+  node: kc04:B1
+  nivel: 2
+  formato: prever_saida
+  tipo: codigo
+  enunciado: O que sai?
+  codigo: 'int n = 3;
+
+    int *p = &n;
+
+    printf("%d %d\n", *p, p == &n);'
+  alternativas:
+    a: '3 1: n tem lugar e p tem o número'
+    b: '3 0: &n muda a cada uso'
+    c: 3 1, e p guarda uma cópia do 3
+  gabarito: a
+  crencas:
+    b: ampersand_takes_value
+    c: ampersand_copies
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b nega que o endereço seja propriedade estável do lugar;
+    c troca endereço por cópia, que é o vizinho B2.
+- id: kc04_gb1_n3_3
+  node: kc04:B1
+  nivel: 3
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: O que impede a chamada, e como corrigir?
+  codigo: 'int troca(int *a, int *b);
+
+    int x = 1;
+
+    troca(&x, &2);'
+  alternativas:
+    a: '&2: crie uma variável e passe o dela'
+    b: 'Nada impede: &2 é o endereço do 2'
+    c: '&x: devia ser x, que já é o valor'
+  gabarito: a
+  crencas:
+    b: ampersand_takes_value
+    c: ampersand_copies
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: 'A resposta certa é a do próprio FAQ 4.10, que é a fonte
+    da crença: declarar uma temporária e passar o endereço dela.'

@@ -1,0 +1,71 @@
+activities:
+- id: kc04_gb2_n1_1
+  node: kc04:B2
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: Você pede o número da casa de x; seu vizinho pede emprestado o que
+    está dentro dela. Qual dos dois mexe na casa?
+  codigo: ''
+  alternativas:
+    a: 'O segundo: o número não tira nada'
+    b: 'Os dois: pedir o número já copia'
+    c: 'Nenhum: a casa é só um apelido'
+  gabarito: a
+  crencas:
+    b: ampersand_copies
+    c: pointer_is_just_a_name
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: 'b é a crença do nó na analogia: perguntar o número levaria
+    uma cópia. c traz o vizinho I1.'
+- id: kc04_gb2_n2_2
+  node: kc04:B2
+  nivel: 2
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: O que está errado na chamada?
+  codigo: 'void soma_um(int *n) { *n = *n + 1; }
+
+    int x = 5;
+
+    soma_um(x);'
+  alternativas:
+    a: 'Falta &: a função quer o endereço'
+    b: 'Nada: a cópia de x já serve à função'
+    c: 'Falta *: seria soma_um(*x)'
+  gabarito: a
+  crencas:
+    b: ampersand_copies
+    c: star_assigns_pointer
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó; c traz o vizinho I3, de quem acha
+    que o * da expressão designa o ponteiro.
+- id: kc04_gb2_n3_3
+  node: kc04:B2
+  nivel: 3
+  formato: prever_saida
+  tipo: codigo
+  enunciado: O que sai?
+  codigo: 'void f(int *n) { *n = 100; }
+
+    int x = 1;
+
+    int y = x;
+
+    f(&x);
+
+    printf("%d %d\n", x, y);'
+  alternativas:
+    a: '100 1: só x foi alcançada'
+    b: '100 100: y é outro nome de x'
+    c: '1 1: f recebeu uma cópia de x'
+  gabarito: a
+  crencas:
+    b: pointer_is_just_a_name
+    c: ampersand_copies
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: 'c é a crença do nó: se &x entregasse cópia, f não alcançaria
+    x. b traz o vizinho I1.'

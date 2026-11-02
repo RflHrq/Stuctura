@@ -1,0 +1,64 @@
+activities:
+- id: kc03_gi3_n1_1
+  node: kc03:I3
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: 'Dois caminhos: seguir o rabisco do papel, ou primeiro escrever no
+    papel o número de uma casa que existe. Qual é o válido?'
+  codigo: ''
+  alternativas:
+    a: 'O segundo: o número foi escolhido'
+    b: 'Os dois: o rabisco também leva'
+    c: 'Nenhum: falta limpar o papel'
+  gabarito: a
+  crencas:
+    b: pode_usar_logo
+    c: declaration_zeroes
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó na analogia; c traz o vizinho B3.
+- id: kc03_gi3_n2_2
+  node: kc03:I3
+  nivel: 2
+  formato: prever_saida
+  tipo: codigo
+  enunciado: O que esse programa imprime?
+  codigo: 'int *p;
+
+    printf("%d\n", *p);'
+  alternativas:
+    a: 'Não dá para dizer: p não aponta nada'
+    b: O lixo de p, que é um valor como outro
+    c: 'Zero: p ainda não foi usado'
+  gabarito: a
+  crencas:
+    b: pode_usar_logo
+    c: uninitialized_is_null
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: 'b é a crença do nó: quem acha que já dá para usar espera
+    uma saída definida. c traz o vizinho I2.'
+- id: kc03_gi3_n3_3
+  node: kc03:I3
+  nivel: 3
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: Qual é a primeira linha inválida, e por quê?
+  codigo: 'int *p;
+
+    int x = 5;
+
+    if (*p == 0) p = &x;'
+  alternativas:
+    a: 'A terceira: *p sem p ter endereço'
+    b: 'Nenhuma: o if só lê, não escreve'
+    c: 'A terceira: faltou zerar p antes'
+  gabarito: a
+  crencas:
+    b: pode_usar_logo
+    c: declaration_zeroes
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: 'b é a crença do nó na forma mais comum dela: ler pareceria
+    inofensivo. c traz o vizinho B3.'

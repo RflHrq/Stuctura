@@ -1,0 +1,73 @@
+activities:
+- id: kc03_gb2_n1_1
+  node: kc03:B2
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: 'Duas descrições de int *p;: ganhei a casa de p, e dentro dela cabe
+    um papel com número; ou ganhei duas casas. Qual vale?'
+  codigo: ''
+  alternativas:
+    a: 'A primeira: uma casa, a de p'
+    b: 'A segunda: p e o papel'
+    c: 'A segunda: p e a casa apontada'
+  gabarito: a
+  crencas:
+    b: estrela_e_do_tipo
+    c: declaration_allocates
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó na analogia, de quem lê o * como uma
+    segunda coisa declarada. c traz o vizinho I1.
+- id: kc03_gb2_n2_2
+  node: kc03:B2
+  nivel: 2
+  formato: prever_saida
+  tipo: codigo
+  enunciado: O que sai?
+  codigo: 'int x = 1;
+
+    int* p, q;
+
+    p = &x;
+
+    q = 5;
+
+    printf("%d %d\n", *p, q);'
+  alternativas:
+    a: '1 5: q é int, e p é ponteiro'
+    b: 'não compila: q = 5 é inválido'
+    c: 1 5, e q também aponta para algo
+  gabarito: a
+  crencas:
+    b: estrela_e_do_tipo
+    c: declaration_allocates
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: 'b é exatamente o que quem lê int* como tipo espera: se
+    q fosse ponteiro, q = 5 não compilaria. c traz o vizinho I1.'
+- id: kc03_gb2_n3_3
+  node: kc03:B2
+  nivel: 3
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: Um colega diz que o segundo * é desnecessário. O que acontece sem ele?
+  codigo: 'int a = 1, b = 2;
+
+    int* p, * q;
+
+    p = &a;
+
+    q = &b;'
+  alternativas:
+    a: q deixa de ser ponteiro e q = &b falha
+    b: 'Nada: int* já vale para os dois'
+    c: q fica sem o apontado, e &b resolve
+  gabarito: a
+  crencas:
+    b: estrela_e_do_tipo
+    c: declaration_allocates
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: É a pergunta 4.16 do FAQ, que é a fonte da crença. c traz
+    o I1.

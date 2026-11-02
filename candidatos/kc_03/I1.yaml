@@ -1,0 +1,66 @@
+activities:
+- id: kc03_gi1_n1_1
+  node: kc03:I1
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  enunciado: Ganhar a casa de p com um papel dentro, e construir a casa que o papel
+    aponta. int *p; faz quantas dessas?
+  codigo: ''
+  alternativas:
+    a: 'Uma: só a casa de p'
+    b: As duas, de uma vez
+    c: 'Nenhuma: falta o valor'
+  gabarito: a
+  crencas:
+    b: declaration_allocates
+    c: no_value_no_memory
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: b é a crença do nó na analogia; c traz o vizinho B1.
+- id: kc03_gi1_n2_2
+  node: kc03:I1
+  nivel: 2
+  formato: prever_saida
+  tipo: codigo
+  enunciado: O que sai, e por que a mesma linha com p não funcionaria?
+  codigo: 'int *p;
+
+    int *q = malloc(sizeof(int));
+
+    *q = 4;
+
+    printf("%d\n", *q);'
+  alternativas:
+    a: '4: só q ganhou uma caixa apontada'
+    b: 4, e com p funcionaria igual
+    c: 4, e p funcionaria por começar em 0
+  gabarito: a
+  crencas:
+    b: declaration_allocates
+    c: declaration_zeroes
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: O par p/q põe lado a lado o que tem caixa apontada e o
+    que não tem. b é a crença do nó; c traz o vizinho B3.
+- id: kc03_gi1_n3_3
+  node: kc03:I1
+  nivel: 3
+  formato: achar_o_erro
+  tipo: codigo
+  enunciado: O que falta antes da segunda linha?
+  codigo: 'char *nome;
+
+    strcpy(nome, "ana");'
+  alternativas:
+    a: Dar a nome um espaço que exista
+    b: 'Nada: declarar nome já deu o espaço'
+    c: Zerar nome, para o strcpy ter onde ir
+  gabarito: a
+  crencas:
+    b: declaration_allocates
+    c: declaration_zeroes
+  gerado_por: Claude Opus 5, por importacao em 2026-11-01
+  revisado_por: ''
+  por_que_este_distrator: É a superfície do FAQ 7.10, que é a fonte da crença. c
+    traz o B3.
