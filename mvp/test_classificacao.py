@@ -432,3 +432,80 @@ def test_t6_nao_refuta_um_no_ja_confirmado(d):
                                  estado=_b2_confirmado())
     assert not any(ev.tipo == "crenca_detectada" for ev in eventos)
     assert t.estado.no("B2").estado == motor.CONFIRMADO
+
+
+# --------------------------------------------------------------------------
+# A CAUDA: o nó que já fechou `em_aberto` não volta para a fila
+#
+# O motor já tem três tetos, e cada um com o motivo escrito ao lado:
+# TETO_TENTATIVAS ("se não bastou, não é falta de repetição"),
+# LIMITE_REEXPLICACAO ("insistir uma quarta vez na mesma frase não ensina")
+# e uma construção por nó ("sem teto a unidade não termina").
+#
+# Faltava o quarto, e a medição do segundo item por degrau o encontrou: o
+# nó que já gastou validação, refutação e as quatro tentativas de treino
+# fecha `em_aberto` — e `_proxima_diagnostica` respeita isso, não traz mais
+# item dele. Mas a ATRIBUIÇÃO CRUZADA passa por cima: a crença escolhida
+# num item de OUTRO nó aponta aquele nó, e ele era arrastado de volta a
+# REFUTADO, com validação, refutação e mais quatro tentativas.
+#
+# Na sessão mais longa do kc_03 com dois itens por degrau, B1 levou 16
+# telas de treino e B3 levou 12, contra 4 de cada um dos outros quatro.
+# --------------------------------------------------------------------------
+
+def _b2_em_aberto():
+    """B2 depois de refutação e das quatro tentativas de treino."""
+    return motor.Estado().com(
+        "B2", estado=motor.EM_ABERTO, crenca="no_value_no_memory",
+        tentativas=motor.TETO_TENTATIVAS, erros=1)
+
+
+def test_a_crenca_de_um_no_em_aberto_sai_do_cardapio(d):
+    """Mesmo argumento do nó confirmado, e a mesma regra: a unidade já
+    tratou aquela ideia nesta sessão. Continuar oferecendo-a em toda cédula
+    gasta os itens do nó hospedeiro sem nunca medi-lo (C1).
+
+    `em_aberto` não é `confirmado` — a premissa NÃO está de pé, e é por
+    isso que `sustentado` continua valendo só para o confirmado. O que as
+    duas têm em comum é outra coisa: a sessão já gastou o laço nelas.
+    """
+    a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
+    sem_estado = {z.crenca for z in motor.razoes_de(d, a)}
+    com_estado = {z.crenca for z in motor.razoes_de(d, a, _b2_em_aberto())}
+    assert "no_value_no_memory" in sem_estado
+    assert "no_value_no_memory" not in com_estado
+    assert len(com_estado) >= 1, "sobrou razão errada nenhuma"
+
+
+def test_nao_refuta_de_novo_um_no_que_fechou_em_aberto(d):
+    """O portão, para quando a cédula não dá conta.
+
+    `ciu_kc00_001` tem os dois distratores na mesma crença: filtrar
+    deixaria uma razão só, então o fallback devolve a lista inteira e a
+    crença de B2 continua escolhível. É aí que a regra precisa valer, e é
+    exatamente a forma do teste que guarda o nó confirmado.
+    """
+    a = next(x for x in d.atividades if x.id == "ciu_kc00_001")
+    oferecidas = {z.crenca for z in motor.razoes_de(d, a, _b2_em_aberto())}
+    assert "no_value_no_memory" in oferecidas, "o fallback não valeu; o teste perdeu a cena"
+
+    t, eventos = episodio(d, "ciu_kc00_001", certa=False, razao_certa=False,
+                          confianca="tenho certeza",
+                          crenca="no_value_no_memory",
+                          estado=_b2_em_aberto())
+    # A EVIDÊNCIA NÃO SE PERDE: `crenca_detectada` continua no log, porque
+    # a pessoa disse a crença de novo e isso é dado. O que não acontece é
+    # o laço rodar outra vez.
+    assert any(ev.tipo == "crenca_detectada" for ev in eventos)
+    assert any(ev.tipo == "refutacao_dispensada" for ev in eventos)
+    assert t.estado.no("B2").estado == motor.EM_ABERTO
+    assert t.estado.fase != motor.VALIDACAO
+
+
+def test_o_no_em_aberto_nao_volta_para_a_fila_de_diagnostico(d):
+    """A outra metade da regra, que já existia: `_proxima_diagnostica`
+    pula confirmado e em aberto. Fica testada aqui para a dupla andar
+    junta — a fila e a atribuição cruzada."""
+    e = _b2_em_aberto()
+    t = motor._proxima_diagnostica(d, motor.replace(e, fase=motor.DIAGNOSTICO))
+    assert t.tela.no != "B2"

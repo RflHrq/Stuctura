@@ -159,23 +159,77 @@ def test_nenhuma_premissa_termina_como_desconhecida(topico, erra_no):
     assert restam == [], restam
 
 
-@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02"])
-def test_a_premissa_nao_medida_diz_por_que(topico):
-    """Não basta nomear: o log precisa dizer se o nó nem chegou a ser
-    perguntado, ou se os itens dele foram gastos sem nunca medi-lo."""
+# O PIOR CASO DEIXOU DE PRODUZIR NÓ SEM MEDIDA, e é de propósito.
+#
+# Este teste rodava a sessão inteira com `_pior_caso` e cobrava o motivo do
+# `nao_medido` que aquela política produzia. O quarto teto tirou a crença
+# do nó já fechado da cédula — a mesma regra que o C1 aplicou ao nó
+# confirmado —, e com isso a razão errada volta a cair no nó hospedeiro:
+# no pior caso roteirizado, os cinco tópicos fecham TODOS os nós como
+# `em_aberto`, que é medida, em vez de deixar algum sem medida.
+#
+# A asserção de mordida do ciclo 3 avisou isso, que é o trabalho dela.
+#
+# A propriedade que vale a pena guardar nunca foi "o pior caso esfomeia um
+# nó" — é "quando um nó fica sem medida, o fechamento o marca e diz por
+# quê". Essa é do FECHAMENTO, e é onde ela passa a ser testada, com os dois
+# motivos montados à mão. O `nao_medido` fica sendo a rede de segurança que
+# sempre foi: existe para o caso que o laço não alcançou, inclusive um
+# banco mal formado que nenhuma política de sessão produz de propósito.
+
+@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02", "kc_03", "kc_04"])
+def test_o_fechamento_marca_e_explica_a_premissa_sem_medida(topico):
+    """Os dois motivos, nos dois estados que os distinguem.
+
+    `itens_gastos` é o que separa um do outro: nó com itens usados e sem
+    atribuição é starvation; nó sem item usado nem chegou a ser
+    perguntado. Chamar errado faria o dado mentir sobre a causa.
+    """
     dd = carrega(topico=topico)
-    t, eventos = roda(dd, _pior_caso(dd))
-    assert [n for n in dd.ordem
-            if t.estado.no(n).estado == motor.NAO_MEDIDO],         "o pior caso parou de produzir nó sem medida; o teste não morde"
-    nao_medidos = [n for n in dd.ordem
-                   if t.estado.no(n).estado == motor.NAO_MEDIDO]
-    avisos = {e.dados["no"]: e.dados for e in _dos(eventos, "no_nao_medido")}
-    assert sorted(avisos) == sorted(nao_medidos)
-    for nid, dados in avisos.items():
-        assert dados["motivo"]
-        assert isinstance(dados["itens_gastos"], int)
-    fim = _dos(eventos, "unidade_encerrada")[-1]
-    assert sorted(fim.dados["nao_medidos"]) == sorted(nao_medidos)
+    primeiro, segundo = dd.ordem[0], dd.ordem[1]
+    a = dd.atividades_do_no(primeiro, "diagnostico")[0]
+
+    # os outros nós fechados, para o fechamento ter só estes dois a marcar
+    e = motor.Estado()
+    for nid in dd.ordem[2:]:
+        e = e.com(nid, estado=motor.EM_ABERTO)
+    # primeiro: gastou item e não recebeu atribuição
+    e = e.com(primeiro, usadas=(a.id,))
+    # segundo: nenhum item apresentado
+    assert e.no(primeiro).estado == motor.DESCONHECIDO
+    assert e.no(segundo).estado == motor.DESCONHECIDO
+
+    t = motor._fecha(dd, e)
+    avisos = {x.dados["no"]: x.dados for x in t.eventos
+              if x.tipo == "no_nao_medido"}
+
+    assert sorted(avisos) == sorted([primeiro, segundo]), sorted(avisos)
+    assert t.estado.no(primeiro).estado == motor.NAO_MEDIDO
+    assert t.estado.no(segundo).estado == motor.NAO_MEDIDO
+
+    assert avisos[primeiro]["itens_gastos"] == 1
+    assert "gastos" in avisos[primeiro]["motivo"]
+    assert avisos[segundo]["itens_gastos"] == 0
+    assert "chegou a ser apresentado" in avisos[segundo]["motivo"]
+
+    fim = [x for x in t.eventos if x.tipo == "unidade_encerrada"][-1]
+    assert sorted(fim.dados["nao_medidos"]) == sorted([primeiro, segundo])
+
+
+@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02", "kc_03", "kc_04"])
+def test_no_pior_caso_nenhuma_premissa_fica_sem_medida(topico):
+    """O que o quarto teto comprou, cobrado como garantia.
+
+    Era 1 ou mais nós sem medida por sessão de pior caso; passou a ser
+    zero, com todos em `em_aberto`. Se alguém desfizer o teto, este teste
+    é o que cai.
+    """
+    dd = carrega(topico=topico)
+    t, _ = roda(dd, _pior_caso(dd))
+    sem = [n for n in dd.ordem
+           if t.estado.no(n).estado == motor.NAO_MEDIDO]
+    assert sem == [], sem
+    assert all(t.estado.no(n).estado == motor.EM_ABERTO for n in dd.ordem),         {n: t.estado.no(n).estado for n in dd.ordem}
 
 
 def test_o_mapa_mostra_a_premissa_nao_medida(d2):

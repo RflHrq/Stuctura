@@ -92,6 +92,7 @@ pergunta.
 | 17 | O domínio do TCC é **ponteiros em C**; o kc_00 (declaração de variáveis) é pré-requisito, não o objeto da medida | ciclo de conteúdo | medir mudança conceitual sobre variáveis não responde a pergunta do trabalho |
 | 18 | A coleta usa **um KC por sessão** | ciclo de conteúdo | medido: um tópico consome de 37 a 149 passos, e o orçamento do PRD é de 20 a 30 min. Como corolário, a decisão 16 não se aplica a um estudo de sessão única, e o reteste de fim de sessão da T12 é o desenho certo |
 | 19 | **Uma crença por nó, sem exceção** | ciclo de conteúdo | a atribuição vem da camada 2, então nó sem crença própria nunca recebe atribuição. O kc_02 antigo tinha três nós de base sem crença |
+| 20 | **Um laço por premissa por sessão** (`tratado()`): o nó que confirmou ou fechou `em_aberto` não volta ao laço, nem pela atribuição cruzada | ciclo da cauda | o motor já tinha três tetos com esse argumento escrito; faltava o quarto. Sem ele um nó levava 16 telas de treino numa sessão, e com ele a cauda desaparece e o pior caso deixa de ter premissa sem medida |
 | 20 | Em todo item de diagnóstico, **um distrator aponta a crença do próprio nó e outro a de um vizinho** | ciclo de conteúdo | `motor.razoes_de` monta as razões das alternativas do próprio item: item sem crença do nó manda toda razão errada para outro lugar |
 | 21 | O carregador aceita **mais de um tópico** (`carrega(topico=...)`, `STRUCTURA_TOPICO`) | ciclo de conteúdo | os nomes `*_kc00.yaml` estavam fixos no código |
 
@@ -106,12 +107,9 @@ Nenhuma bloqueia a fase 4.
    quer procurar fonte empírica antes da coleta.
 5. Quais premissas de uma KC sustentam quais premissas da seguinte (a
    aresta fina do grafo externo). Curadoria de domínio, com o usuário.
-6. **O que encerra a unidade quando a pessoa não muda de ideia em nenhuma
-   premissa.** Com dois itens por degrau o pior caso passou a ser medido
-   (3/10 → 0/12 no kc_03), e a cauda foi a 207 passos — mais do que uma
-   pessoa real atravessa. É decisão de motor: teto de passos, teto de
-   refutações por nó, ou encerrar e marcar `em_aberto`. Medido em
-   "O segundo item por degrau", no fim deste documento.
+6. ~~O que encerra a unidade quando a pessoa não muda de ideia em nenhuma
+   premissa.~~ **Fechada**: virou o quarto teto, `tratado()` — um laço por
+   premissa por sessão. Ver "O quarto teto", no fim deste documento.
 7. Se o kc_04 fica com 6 nós ou volta aos 8 da curadoria. Voltar custa
    quatro crenças (que seriam `E`) e 14 atividades.
 
@@ -580,3 +578,119 @@ A mediana continua perto de 120, então o caso típico está bem — mas a
 cauda é a pergunta que fica, e é de **motor**, não de conteúdo: o que
 encerra a unidade quando a pessoa não muda de ideia em nenhuma premissa.
 Entra em perguntas em aberto, com o número medido.
+
+## O quarto teto — a cauda, e o que ela estava escondendo
+
+A cauda foi atacada antes da revisão dos 51 candidatos, por decisão do
+dono. O diagnóstico veio primeiro, e ele mudou a conta toda.
+
+### De que a cauda era feita
+
+A sessão mais longa do kc_03 com dois itens por degrau tinha 136 telas,
+assim distribuídas: 61 de atividade, 22 de refutação, 17 de razão, 17 de
+confiança, 11 de validação, 6 de ensino, 2 de frase. E o treino por nó era
+**desigual de um jeito que não se explica por acaso**:
+
+| Nó | telas de treino |
+| --- | --- |
+| B1 | **16** |
+| B3 | **12** |
+| B2, I1, I2, I3 | 4 cada |
+
+Quatro telas é um laço de treino: as quatro tentativas de `TETO_TENTATIVAS`.
+B1 levou quatro laços; B3, três.
+
+### A causa: uma regra que o código enunciava e não cumpria
+
+O motor já tinha três tetos, cada um com o motivo escrito ao lado:
+
+| Teto | Onde | O motivo, nas palavras do código |
+| --- | --- | --- |
+| `TETO_TENTATIVAS = 4` | treino | "se não bastou, não é falta de repetição" |
+| `LIMITE_REEXPLICACAO = 2` | ensino | "insistir uma quarta vez na mesma frase não ensina" |
+| uma construção por nó | lacuna | "sem teto a unidade não termina" |
+
+E `_proxima_diagnostica` já pulava o nó `confirmado` ou `em_aberto`: o nó
+que fechou não recebe mais item próprio. **Mas a atribuição cruzada passava
+por cima.** A crença escolhida num item de OUTRO nó aponta aquele nó
+(`alvo = p.razao.no`), e o caminho da refutação setava `estado=REFUTADO`
+sem olhar o estado anterior. O nó voltava do `em_aberto` para o laço, com
+validação, refutação e mais quatro tentativas de treino — uma vez por item
+de vizinho que oferecesse a crença dele. B1 e B3 são os vizinhos mais
+citados nas cédulas do kc_03, e é por isso que foram eles.
+
+### A mudança: `tratado()`, em quatro lugares
+
+`sustentado()` continua valendo só para o confirmado — `em_aberto` **não**
+é uma premissa de pé, e misturar as duas coisas seria mentir no dado. O que
+as duas têm em comum é outra coisa: a sessão já rodou o laço nelas. Isso
+virou `tratado(estado)`, usado em quatro lugares:
+
+1. a fila do diagnóstico (onde o par já estava escrito à mão);
+2. o cardápio da camada 2 — a crença do nó fechado sai do menu, exatamente
+   como a do nó confirmado saiu no C1;
+3. a promoção do falso positivo repetido;
+4. **o portão novo**: o caminho da refutação registra
+   `refutacao_dispensada` e segue. A evidência não se perde —
+   `crenca_detectada` já foi para o log, porque a pessoa disse a crença de
+   novo e isso é dado. O que não acontece é o laço rodar outra vez.
+
+Regra confirmada pelo dono: **um laço por premissa por sessão.**
+
+### O que isso comprou — e aqui está a surpresa
+
+Persona que erra e nunca muda de ideia, 12 sessões por célula:
+
+| Tópico | antes do teto | **com o teto, no banco de hoje** | com o teto e 2 itens/degrau |
+| --- | --- | --- | --- |
+| `kc_01` | 72–94, 3/10 sem medida | **72–74, 0/12** | — |
+| `kc_03` | 92–207, 3/10 → 0/12 | **92–92, 0/12** | 92–92, 0/12 |
+| `kc_04` | 86–159, 5/12 sem medida | **86–90, 0/12** | 89–90, 0/12 |
+
+As outras duas personas não mudaram **nada** (45 e 86 passos, idênticos):
+o teto só toca o caminho de quem não muda de ideia.
+
+**O teto faz, sozinho, o que os 51 itens faziam.** Com um item por degrau
+— o banco de hoje, sem aprovar candidato nenhum — os três tópicos vão a
+zero premissa sem medida, e a cauda desaparece junto: a sessão passa a ter
+tamanho praticamente fixo.
+
+Isso não joga os 51 no lixo, mas **muda o motivo de eles existirem**. O
+argumento de medição acabou; ficam os outros, que são reais e menores:
+item repetido entre o diagnóstico e o reteste de uma mesma pessoa, variedade
+para quem atravessa o tópico duas vezes, e folga no degrau. A revisão deles
+deixou de ser urgente.
+
+### O teste que caiu, e como ficou
+
+`test_a_premissa_nao_medida_diz_por_que` rodava a sessão inteira com
+`_pior_caso` e cobrava o motivo do `nao_medido` que aquela política
+produzia. Com o teto, o pior caso roteirizado fecha **todos** os nós como
+`em_aberto` nos cinco tópicos — não sobra nó sem medida para o teste
+examinar. A asserção de mordida que o ciclo 3 mandou pôr (`"o pior caso
+parou de produzir nó sem medida; o teste não morde"`) foi exatamente o que
+avisou.
+
+Decisão do dono: testar no **fechamento**, direto no estado. A propriedade
+que vale a pena guardar nunca foi "o pior caso esfomeia um nó" — é "quando
+um nó fica sem medida, o fechamento o marca e diz por quê". O teste novo
+monta os dois estados que distinguem os dois motivos (`itens_gastos` maior
+que zero, e igual a zero) e cobra os dois, nos cinco tópicos. E entrou um
+segundo teste, que cobra o que o teto comprou: no pior caso, nenhuma
+premissa fica sem medida e todas terminam `em_aberto`. Se alguém desfizer o
+teto, é esse que cai.
+
+O `nao_medido` fica sendo a rede de segurança que sempre foi, agora
+declarada como tal: existe para o caso que o laço não alcançou, inclusive
+um banco mal formado que nenhuma política de sessão produz de propósito.
+
+### As quatro sabotagens
+
+| Corte | Mordeu? |
+| --- | --- |
+| o portão da refutação sai | 1 teste cai |
+| o cardápio volta a filtrar só o confirmado | 6 caem |
+| `tratado` passa a ser só o confirmado | 8 caem |
+| a fila do diagnóstico deixa de pular o fechado | 1 cai |
+
+As quatro mordem. 601 testes verdes (349 MVP + 252 antigo).

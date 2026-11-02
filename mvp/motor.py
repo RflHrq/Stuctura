@@ -514,7 +514,7 @@ def _proxima_diagnostica(d: Dominio, e: Estado,
     if preferir in d.nos:
         ordem = [preferir] + [nid for nid in ordem if nid != preferir]
     for nid in ordem:
-        if e.no(nid).estado in (CONFIRMADO, EM_ABERTO):
+        if tratado(e.no(nid).estado):
             continue
         escolhida, pulo, motivo = _no_degrau(d, e, nid)
         if escolhida is None:
@@ -658,7 +658,7 @@ def razoes_de(d: Dominio, a: Atividade,
     if e is None:
         return tuple(saida)
     vivas = [z for z in saida
-             if z.correta or not sustentado(e.no(z.no).estado)]
+             if z.correta or not tratado(e.no(z.no).estado)]
     return tuple(vivas) if len(vivas) >= 2 else tuple(saida)
 
 
@@ -912,7 +912,7 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
 
         # Uma vez pode ser acidente de alternativa — ela marcou a certa por
         # eliminação e explicou mal. Duas vezes, na MESMA ideia, é a ideia.
-        if vezes >= FALSOS_POSITIVOS_PARA_CRENCA and not sustentado(alvo_en.estado):
+        if vezes >= FALSOS_POSITIVOS_PARA_CRENCA and not tratado(alvo_en.estado):
             eventos.append(Evento("crenca_detectada", {
                 "crenca": crenca, "no": alvo, "veio_do_item_de": a.no,
                 "via": "falso positivo repetido", "vezes": vezes,
@@ -958,6 +958,24 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
         "crenca": crenca, "no": alvo, "veio_do_item_de": a.no,
         "erros": en.erros + 1, "confianca": r.confianca}))
     novo = e.com(a.no, erros=en.erros + 1)
+
+    # O QUARTO TETO. A atribuição cruzada manda a crença para o nó da
+    # RAZÃO, que pode ser outro — e aquele nó pode já ter fechado nesta
+    # sessão. Sem este portão ele voltava a REFUTADO e levava validação,
+    # refutação e mais quatro tentativas de treino, uma vez por item de
+    # vizinho que oferecesse a crença dele. Na sessão mais longa do kc_03
+    # com dois itens por degrau isso dava 16 telas de treino num nó só.
+    #
+    # A evidência não se perde: `crenca_detectada` já está no log acima,
+    # porque a pessoa disse a crença de novo e isso é dado. O que não
+    # acontece é o laço rodar outra vez.
+    if tratado(novo.no(alvo).estado):
+        eventos.append(Evento("refutacao_dispensada", {
+            "no": alvo, "crenca": crenca, "veio_do_item_de": a.no,
+            "motivo": "o nó já fechou nesta sessão",
+            "estado": novo.no(alvo).estado}))
+        return _segue(d, novo, eventos)
+
     novo = novo.com(alvo, estado=REFUTADO, crenca=crenca,
                     origem_crenca=a.no if alvo != a.no else "")
     inicio = _inicia_validacao(d, novo, alvo)
@@ -1083,6 +1101,24 @@ def _degrau(no: str, de: int, para: int, a: Atividade) -> Evento:
 def sustentado(estado: str) -> bool:
     """A premissa está de pé? Nem frágil nem falso positivo contam."""
     return estado == CONFIRMADO
+
+
+def tratado(estado: str) -> bool:
+    """A sessão já gastou o laço nesta premissa?
+
+    `em_aberto` NÃO é `confirmado` — a premissa não está de pé, e é por
+    isso que `sustentado` continua valendo só para o confirmado. O que as
+    duas têm em comum é outra coisa: a unidade já rodou identifica →
+    refuta → treina nelas, e chegou ao fim daquele laço. Uma confirmou; a
+    outra bateu no teto de tentativas ou esgotou o banco.
+
+    Em qualquer dos dois casos, voltar a refutar é insistir no que já foi
+    insistido. É o mesmo argumento de TETO_TENTATIVAS e de uma construção
+    por nó, escrito uma vez só e usado em quatro lugares: a fila do
+    diagnóstico, o cardápio da camada 2, a promoção do falso positivo
+    repetido, e o portão da refutação.
+    """
+    return estado in (CONFIRMADO, EM_ABERTO)
 
 
 def _segue(d: Dominio, e: Estado, eventos: list[Evento],
