@@ -304,3 +304,12 @@ def test_todo_no_de_todo_topico_tem_figura():
             if not re.search(r"\n    %s:\s*function" % nid, bloco):
                 faltam.append("%s:%s" % (topico, nid))
     assert faltam == [], faltam
+
+
+def test_a_tela_sabe_os_tres_momentos_do_ensino():
+    """A mesma tela serve à abertura, à construção depois de um "não sei",
+    e à apresentação na primeira pergunta. Motivo novo esquecido na tela
+    cai na etiqueta da abertura e mostra "Ideia undefined de undefined"."""
+    js = (WEB / "app.js").read_text(encoding="utf-8")
+    for motivo in ("lacuna", "primeiro_contato"):
+        assert _citado(motivo, js), motivo

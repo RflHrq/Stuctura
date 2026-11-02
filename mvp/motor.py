@@ -131,6 +131,10 @@ REFUTACAO = "REFUTACAO"
 # etapas para quem está errado e nenhuma para quem não sabe.
 CONSTRUCAO = "CONSTRUCAO"      # o ensino daquele nó, sob demanda
 ENTRADA = "ENTRADA"            # o item mais fácil do nó, depois do ensino
+# A premissa é apresentada na primeira vez que vai ser perguntada. Não é
+# construção — ninguém declarou que não sabe —, é não perguntar sobre uma
+# ideia que a unidade nunca disse.
+PRIMEIRO_CONTATO = "PRIMEIRO_CONTATO"
 TREINO = "TREINO"
 RETESTE = "RETESTE"            # a crença refutada volta uma vez, no fim
 FECHAMENTO = "FECHAMENTO"      # a frase do fim
@@ -269,6 +273,11 @@ class EstadoNo:
     # premissa ficou de pé naquele degrau — errar, chutar ou acertar pela
     # razão errada não promove ninguém.
     nivel: int = 1
+    # Este nó já foi apresentado? A abertura ensina só os observáveis, e
+    # no kc_02 isso é metade: as três premissas de inferência eram
+    # perguntadas sem nunca terem sido ditas. Quem atravessou primeiro
+    # chamou de "entrar no chefão já", e estava certo.
+    ensinado: bool = False
     # De qual nó veio o item em que a crença foi escolhida, quando não foi
     # deste. É o que permite a tela dizer por que ESTE nó ficou vermelho
     # sem a pessoa ter respondido nada sobre ele.
@@ -353,6 +362,19 @@ def _cartoes(d: Dominio) -> tuple[str, ...]:
     return tuple(n for n in d.ordem if d.nos[n].observavel)
 
 
+def _evento_ensino(d: Dominio, e: Estado) -> Evento:
+    """O cartão da abertura, no log.
+
+    Sem isto a abertura não deixava rastro: quem lê o log não sabia o que
+    a pessoa chegou a ver antes da primeira pergunta — nem dá para
+    conferir que nenhuma premissa foi perguntada sem ser apresentada.
+    """
+    nid = _cartoes(d)[e.cartao]
+    return Evento("ensino_apresentado", {
+        "no": nid, "indice": e.cartao + 1, "total": len(_cartoes(d)),
+        "momento": "abertura"})
+
+
 def _tela_ensino(d: Dominio, e: Estado) -> Tela:
     nid = _cartoes(d)[e.cartao]
     return Tela("ensino", no=nid, texto=d.nos[nid].simples, dados={
@@ -385,6 +407,9 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         return _segue_refutacao(d, e, repetir=r.repetir)
     if e.fase == TREINO:
         return _responde_treino(d, e, r)
+    if e.fase == PRIMEIRO_CONTATO:
+        a = next(x for x in d.atividades if x.id == e.atividade)
+        return _apresenta(d, replace(e, fase=DIAGNOSTICO), a)
     if e.fase == CONSTRUCAO:
         return _segue_construcao(d, e)
     if e.fase == ENTRADA:
@@ -398,7 +423,8 @@ def _abre(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     evento = Evento("teachback_inicial", {
         "topico": d.id, "texto": frase,
         "caracteres": len(frase), "em_branco": not frase, "ms": r.ms})
-    return Transicao(novo, _tela_ensino(d, novo), (evento,))
+    return Transicao(novo, _tela_ensino(d, novo),
+                     (evento, _evento_ensino(d, novo)))
 
 
 def _fecha_unidade(d: Dominio, e: Estado, r: Resposta) -> Transicao:
@@ -411,10 +437,13 @@ def _fecha_unidade(d: Dominio, e: Estado, r: Resposta) -> Transicao:
 
 
 def _segue_ensino(d: Dominio, e: Estado) -> Transicao:
+    # O cartão que acabou de ser lido marca o nó: ele não precisa de
+    # primeiro contato depois.
+    e = e.com(_cartoes(d)[e.cartao], ensinado=True)
     proximo = e.cartao + 1
     if proximo < len(_cartoes(d)):
         novo = replace(e, cartao=proximo)
-        return Transicao(novo, _tela_ensino(d, novo))
+        return Transicao(novo, _tela_ensino(d, novo), (_evento_ensino(d, novo),))
     return _proxima_diagnostica(d, replace(e, fase=DIAGNOSTICO))
 
 
@@ -510,9 +539,30 @@ def _proxima_diagnostica(d: Dominio, e: Estado,
                 "no": nid, "de": e.no(nid).nivel, "para": pulo,
                 "motivo": motivo}),)
             novo = novo.com(nid, nivel=pulo)
+        if not novo.no(nid).ensinado:
+            passo = _primeiro_contato(d, novo, nid, escolhida)
+            return Transicao(passo.estado, passo.tela, extra + passo.eventos)
         passo = _apresenta(d, novo, escolhida)
         return Transicao(passo.estado, passo.tela, extra + passo.eventos)
     return _encerra(d, e)
+
+
+def _primeiro_contato(d: Dominio, e: Estado, nid: str,
+                      a: Atividade) -> Transicao:
+    """A premissa, antes da primeira pergunta sobre ela.
+
+    O ensino da abertura cobre só os nós observáveis — no kc_02, três de
+    seis. Os de inferência chegavam como pergunta sobre uma ideia que a
+    unidade nunca tinha dito. Perguntar o que não foi apresentado não mede
+    concepção errônea: mede quem já sabia de antes.
+
+    Uma tela, uma vez por nó, e o item escolhido vem logo atrás.
+    """
+    novo = replace(e, fase=PRIMEIRO_CONTATO, alvo=nid, atividade=a.id)
+    novo = novo.com(nid, ensinado=True)
+    return Transicao(novo, _tela_construcao(d, nid, "primeiro_contato"),
+                     (Evento("premissa_apresentada",
+                             {"no": nid, "antes_de": a.id}),))
 
 
 def _no_degrau(d: Dominio, e: Estado, nid: str):
@@ -932,21 +982,22 @@ def _inicia_construcao(d: Dominio, e: Estado, no: str) -> Transicao:
     en = e.no(no)
     novo = replace(e, fase=CONSTRUCAO, construindo=no, atividade=None,
                    pendente=None)
-    novo = novo.com(no, construcoes=en.construcoes + 1)
+    novo = novo.com(no, construcoes=en.construcoes + 1, ensinado=True)
     tem_item = d.entrada(no, en.usadas) is not None
     evento = Evento("construcao_iniciada", {
         "no": no, "tem_item_de_entrada": tem_item})
     return Transicao(novo, _tela_construcao(d, no), (evento,))
 
 
-def _tela_construcao(d: Dominio, no: str) -> Tela:
+def _tela_construcao(d: Dominio, no: str, motivo: str = "lacuna") -> Tela:
     """A mesma premissa da tela de ensino, com o resgate e o exemplo.
 
-    `motivo` existe para a tela poder dizer POR QUE ela apareceu agora: não
-    é a abertura da unidade, é resposta a um "não sei".
+    `motivo` existe para a tela poder dizer POR QUE ela apareceu agora: a
+    abertura da unidade, a resposta a um "não sei", ou a primeira vez que
+    aquela premissa vai ser perguntada.
     """
     return Tela("ensino", no=no, texto=d.nos[no].simples, dados={
-        "motivo": "lacuna",
+        "motivo": motivo,
         "codigo": d.exemplo(no),
         "resgate": d.resgate(no),
     })

@@ -262,12 +262,17 @@
      * ideias; depois de um "nao sei" ela volta para UM no, e tem de dizer
      * por que apareceu — senao parece que o sistema se repetiu. */
     var daLacuna = t.motivo === "lacuna";
-    $("ensino-passo").textContent = daLacuna
-      ? "Vamos construir esta ideia"
-      : "Ideia " + t.indice + " de " + t.total;
+    var primeiraVez = t.motivo === "primeiro_contato";
+    var etiqueta = "Ideia " + t.indice + " de " + t.total;
+    if (daLacuna) etiqueta = "Vamos construir esta ideia";
+    if (primeiraVez) etiqueta = "Antes da próxima pergunta";
+    $("ensino-passo").textContent = etiqueta;
+    /* O resgate vai junto nos dois casos em que a tela volta para UM no:
+     * e a analogia daquela premissa, e a abertura nao a tem. */
     $("ensino-resgate").textContent = t.resgate || "";
-    $("ensino-resgate").hidden = !daLacuna || !t.resgate;
-    $("btn-ensino").textContent = daLacuna ? "Entendi, quero tentar" : "Entendi";
+    $("ensino-resgate").hidden = !(daLacuna || primeiraVez) || !t.resgate;
+    $("btn-ensino").textContent = daLacuna || primeiraVez
+      ? "Entendi, quero tentar" : "Entendi";
     $("ensino-texto").textContent = t.texto;
     // A frase, o código e o desenho: a mesma ideia em três registros.
     $("ensino-codigo").textContent = t.codigo || "";

@@ -33,11 +33,15 @@ def episodio(d, item: str, *, certa: bool, razao_certa: bool,
     """Um episódio inteiro num item escolhido, com as três camadas."""
     a = next(x for x in d.atividades if x.id == item)
     base = estado or motor.Estado()
-    # O que `_apresenta` faria: marcar o item como visto. Sem isto o seletor
-    # ofereceria a MESMA pergunta de novo, e o teste mediria o atalho em vez
-    # da regra.
+    # O que uma sessão de verdade já teria feito, e que este atalho precisa
+    # imitar:
+    #   `_apresenta` marca o item como visto — sem isto o seletor
+    #   ofereceria a MESMA pergunta de novo, e o teste mediria o atalho em
+    #   vez da regra;
+    #   a abertura marca o nó como ENSINADO — sem isto o primeiro contato
+    #   dispara e a tela seguinte é a premissa, não o item.
     en = base.no(a.no)
-    base = base.com(a.no, usadas=en.usadas + (a.id,),
+    base = base.com(a.no, usadas=en.usadas + (a.id,), ensinado=True,
                     ultimo_formato=a.formato, ultima_atividade=a.id)
     t = motor.avanca(
         d, motor.replace(base, fase=motor.DIAGNOSTICO, atividade=a.id, alvo=a.no),

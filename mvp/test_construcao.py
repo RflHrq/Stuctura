@@ -26,7 +26,7 @@ import pytest
 from mvp import motor
 from mvp.dominio import carrega
 from mvp.motor import Resposta
-from mvp.test_motor import roda
+from mvp.test_motor import _politica, roda
 
 D = carrega()
 D2 = carrega(topico="kc_02")
@@ -223,3 +223,112 @@ def test_a_construcao_nao_apaga_o_que_ja_foi_medido(d2):
     t = motor._inicia_construcao(d2, e, "B1")
     assert t.estado.no("I3").estado == motor.CONFIRMADO
     assert t.estado.no("B1").construcoes == 1
+
+
+# --------------------------------------------------------------------------
+# A premissa antes da primeira pergunta sobre ela
+#
+# O ensino da abertura cobre só os nós observáveis. No kc_02 isso é metade:
+# I1, I2 e I3 eram perguntados sem nunca terem sido ditos. Perguntar o que
+# não foi apresentado não mede concepção errônea — mede quem já sabia.
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("topico", ["kc_00", "kc_02"])
+def test_nenhum_no_e_perguntado_sem_ter_sido_apresentado(topico):
+    """A garantia inteira, e ela vale para os dois tópicos."""
+    dd = carrega(topico=topico)
+    _, eventos = roda(dd, _nao_sabia_e_aprendeu(dd))
+    apresentado = set()
+    for e in eventos:
+        if e.tipo in ("premissa_apresentada", "construcao_iniciada"):
+            apresentado.add(e.dados["no"])
+        if e.tipo == "ensino_apresentado":
+            apresentado.add(e.dados["no"])
+        if e.tipo == "atividade_apresentada":
+            assert e.dados["no"] in apresentado, (
+                "%s foi perguntado antes de ser apresentado" % e.dados["no"])
+
+
+def test_a_abertura_ensina_os_observaveis_e_o_resto_vem_na_hora(d2):
+    """Os de inferência não vão para a abertura de propósito: enfileirar
+    seis telas antes da primeira pergunta é aula, não diagnóstico. Eles
+    aparecem um a um, cada um colado na pergunta que vem."""
+    t, eventos = roda(d2, _nao_sabia_e_aprendeu(d2))
+    na_hora = {e.dados["no"] for e in _dos(eventos, "premissa_apresentada")}
+    assert na_hora == {"I1", "I2", "I3"}, na_hora
+
+
+def test_a_tela_diz_que_e_a_primeira_vez(d2):
+    """A mesma tela serve a três momentos, e tem de dizer qual é."""
+    t = motor.inicia(d2, semente="s")
+    vistos = []
+    for _ in range(40):
+        if t.tela.tipo == "ensino" and t.tela.dados.get("motivo") == "primeiro_contato":
+            vistos.append(t.tela.no)
+            break
+        if t.tela.tipo == "frase":
+            t = motor.avanca(d2, t.estado, Resposta(texto="x"))
+        elif t.tela.tipo == "atividade":
+            item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
+            t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+        elif t.tela.tipo == "razao":
+            rz = t.estado.pendente.razoes
+            t = motor.avanca(d2, t.estado,
+                             Resposta(escolha=next(i for i, z in enumerate(rz) if z.correta)))
+        elif t.tela.tipo == "confianca":
+            t = motor.avanca(d2, t.estado, Resposta(confianca="tenho certeza"))
+        else:
+            t = motor.avanca(d2, t.estado, Resposta())
+    assert vistos, "nenhuma premissa foi apresentada na hora"
+    assert t.tela.dados["resgate"], "sem a analogia do nó"
+
+
+def test_apresenta_uma_vez_so(d2):
+    """Reapresentar a cada pergunta viraria repetição, não construção.
+
+    A política é a que ACERTA TUDO, de propósito. Com a que declara "não
+    sei", a construção também marca o nó como ensinado, e a sabotagem de
+    tirar a marcação do primeiro contato passava limpa — um nó pode voltar
+    várias vezes (a CS-5 pede duas superfícies) e só esta política faz ele
+    voltar sem passar pela construção.
+    """
+    _, eventos = roda(d2, _politica(d=d2))
+    nos = [e.dados["no"] for e in _dos(eventos, "premissa_apresentada")]
+    assert len(nos) == len(set(nos)), nos
+    # e cada nó voltou mesmo, senão o teste não morde
+    perguntas = [e.dados["no"] for e in _dos(eventos, "atividade_apresentada")]
+    assert any(perguntas.count(n) > 1 for n in set(perguntas)),         "nenhum nó voltou; o teste não exercita a reapresentação"
+
+
+def test_o_item_prometido_e_o_que_vem(d2):
+    """A tela promete uma pergunta; tem de ser aquela, e não outra.
+
+    SABOTAGEM FRACA, declarada: trocar o caminho por uma reescolha
+    (`_proxima_diagnostica` de novo) não derruba este teste, porque a
+    escolha é determinística e cai no mesmo item. O que ele garante de
+    verdade é que a pergunta seguinte é DO NÓ que acabou de ser
+    apresentado — e isso vale a pena ter escrito, mesmo sem morder o
+    caminho inteiro.
+    """
+    t = motor.inicia(d2, semente="s")
+    for _ in range(40):
+        if t.tela.tipo == "ensino" and t.tela.dados.get("motivo") == "primeiro_contato":
+            break
+        if t.tela.tipo == "frase":
+            t = motor.avanca(d2, t.estado, Resposta(texto="x"))
+        elif t.tela.tipo == "atividade":
+            item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
+            t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+        elif t.tela.tipo == "razao":
+            rz = t.estado.pendente.razoes
+            t = motor.avanca(d2, t.estado,
+                             Resposta(escolha=next(i for i, z in enumerate(rz) if z.correta)))
+        elif t.tela.tipo == "confianca":
+            t = motor.avanca(d2, t.estado, Resposta(confianca="tenho certeza"))
+        else:
+            t = motor.avanca(d2, t.estado, Resposta())
+    prometido, no = t.estado.atividade, t.tela.no
+    t = motor.avanca(d2, t.estado, Resposta())
+    assert t.tela.tipo == "atividade"
+    assert t.tela.dados["atividade"] == prometido
+    assert t.tela.no == no, "ensinou uma premissa e perguntou de outra"
