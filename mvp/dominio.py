@@ -104,6 +104,22 @@ def topicos(raiz: Path | None = None) -> tuple[str, ...]:
     return tuple(achados)
 
 
+# A DESCIDA: os tipos de evidência que a tela do fim aceita, e de onde a
+# saída dela pode ter vindo.
+#
+# `origem` existe porque a tela promete evidência, e evidência inventada é
+# pior que evidência nenhuma:
+#
+#   gravada   rodamos, e `saida` traz o que saiu; `onde` diz em que
+#             máquina e com que compilador
+#   citada    a saída está publicada; `onde` traz a citação
+#   pendente  ninguém rodou ainda. `saida` fica vazia e a tela mostra o
+#             programa com a GARANTIA — o que o padrão obriga —, sem
+#             desenhar um terminal que não existiu
+TIPOS_EVIDENCIA = ("erro_de_compilacao", "saida_definida", "dois_programas")
+ORIGENS_EVIDENCIA = ("gravada", "citada", "pendente")
+
+
 class DominioInvalido(Exception):
     def __init__(self, problemas):
         self.problemas = list(problemas)
@@ -165,6 +181,46 @@ class Atividade:
 
 
 @dataclass(frozen=True)
+class Passo:
+    """Um degrau da descida.
+
+    ATENÇÃO À INVERSÃO: `decorre` é o que a CRENÇA prevê, e é ele que faz a
+    cadeia andar. Não é a resposta certa — é a resposta consistente com o
+    erro. `verdade` é o que de fato acontece, e escolhê-lo encerra a
+    descida, porque a pessoa acabou de contradizer a própria crença.
+    """
+    pergunta: str
+    decorre: str
+    verdade: str
+    porque: str
+
+
+@dataclass(frozen=True)
+class Evidencia:
+    """O que se mostra a quem sustentou a crença até o último degrau."""
+    tipo: str
+    fonte: str
+    comando: str
+    afirmacao: str
+    garantia: str
+    saida: str = ""
+    origem: str = "pendente"
+    onde: str = ""
+
+    @property
+    def gravada(self) -> bool:
+        return self.origem != "pendente" and bool(self.saida)
+
+
+@dataclass(frozen=True)
+class Descida:
+    crenca: str
+    colide_com: str
+    passos: tuple[Passo, ...]
+    evidencia: Evidencia
+
+
+@dataclass(frozen=True)
 class Dominio:
     id: str
     titulo: str
@@ -204,6 +260,17 @@ class Dominio:
     def crenca_que_nega(self, no: str) -> Crenca | None:
         return next((c for c in self.crencas.values() if c.nega == no), None)
 
+    descidas: Mapping[str, Descida] = field(default_factory=dict)
+
+    def descida(self, crenca: str | None) -> Descida | None:
+        """A cadeia daquela crença, se alguém a escreveu.
+
+        Tópico sem descida nenhuma continua funcionando: o motor cai na
+        refutação de sempre. É o que torna o protótipo de UMA crença
+        possível sem tocar nas outras setenta e oito.
+        """
+        return self.descidas.get(crenca or "")
+
     @property
     def ordem(self) -> tuple[str, ...]:
         """Nós na ordem em que a unidade os percorre: base antes da conclusão."""
@@ -217,7 +284,7 @@ def _texto(valor) -> str:
 
 
 def _corta(alvo: str, quantas: int, cru_topico, grafo,
-           cru_crencas, cru_atv) -> None:
+           cru_crencas, cru_atv, cru_desc) -> None:
     """Deixa só as `quantas` primeiras premissas, no dado CRU.
 
     Mexe no dado antes de qualquer parse, de propósito: assim todas as
@@ -277,6 +344,11 @@ def _corta(alvo: str, quantas: int, cru_topico, grafo,
     if cru_topico.get("conclusion_node") not in vivos:
         cru_topico["conclusion_node"] = fica[-1]
 
+    # A descida de uma crença que saiu no corte sai junto.
+    if cru_desc and cru_desc.get("descidas"):
+        cru_desc["descidas"] = {k: v for k, v in cru_desc["descidas"].items()
+                                if k in crencas_vivas}
+
 
 def carrega(raiz: Path | None = None, topico: str | None = None,
             premissas: int | None = None) -> Dominio:
@@ -288,9 +360,11 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
     # aqui custa uma linha e evita um erro de digitação por tópico novo.
     sufixo = alvo.replace("_", "")
 
-    def le(prefixo: str):
+    def le(prefixo: str, obrigatorio: bool = True):
         caminho = base / ("%s_%s.yaml" % (prefixo, sufixo))
         if not caminho.exists():
+            if not obrigatorio:
+                return None
             raise DominioInvalido(
                 ["não achei %s: o tópico %r não está em %s"
                  % (caminho.name, alvo, base)])
@@ -300,10 +374,13 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
     grafo = le("graph")
     cru_crencas = le("beliefs")
     cru_atv = le("activities")
+    # Arquivo OPCIONAL: tópico sem descida escrita carrega igual.
+    cru_desc = le("descidas", obrigatorio=False) or {}
 
     quantas = premissas if premissas is not None else PREMISSAS_PADRAO
     if quantas is not None:
-        _corta(alvo, quantas, cru_topico, grafo, cru_crencas, cru_atv)
+        _corta(alvo, quantas, cru_topico, grafo, cru_crencas,
+               cru_atv, cru_desc)
 
     problemas: list[str] = []
 
@@ -470,6 +547,70 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
                 "nó %s tem menos de dois formatos no banco de treino "
                 "(tem %d item(ns))" % (nid, len(treino)))
 
+    descidas: dict[str, Descida] = {}
+    for cid, bruto in (cru_desc.get("descidas") or {}).items():
+        onde = "descida %s" % cid
+        if cid not in crencas:
+            problemas.append("%s: %r não é crença deste tópico" % (onde, cid))
+        colide = str(bruto.get("colide_com") or "").split(":")[-1]
+        if colide not in nos:
+            problemas.append("%s: colide_com %r não é nó deste tópico"
+                             % (onde, bruto.get("colide_com")))
+        crus = bruto.get("passos") or []
+        if len(crus) < 2:
+            problemas.append(
+                "%s: menos de dois degraus — uma descida de um passo é só "
+                "uma pergunta" % onde)
+        passos = []
+        for i, p in enumerate(crus, 1):
+            faltam = [k for k in ("pergunta", "decorre", "verdade", "porque")
+                      if not _texto(p.get(k))]
+            if faltam:
+                problemas.append("%s, degrau %d: falta %s"
+                                 % (onde, i, ", ".join(faltam)))
+            passos.append(Passo(
+                pergunta=_texto(p.get("pergunta")),
+                decorre=_texto(p.get("decorre")),
+                verdade=_texto(p.get("verdade")),
+                porque=_texto(p.get("porque"))))
+
+        ev = bruto.get("evidencia") or {}
+        if ev.get("tipo") not in TIPOS_EVIDENCIA:
+            problemas.append("%s: evidência de tipo %r (use %s)"
+                             % (onde, ev.get("tipo"), ", ".join(TIPOS_EVIDENCIA)))
+        if ev.get("origem") not in ORIGENS_EVIDENCIA:
+            problemas.append("%s: origem %r (use %s)"
+                             % (onde, ev.get("origem"), ", ".join(ORIGENS_EVIDENCIA)))
+        if not (ev.get("fonte") or "").strip():
+            problemas.append("%s: evidência sem programa" % onde)
+        # A tela promete evidência. Saída que diz de onde veio, ou nenhuma.
+        if ev.get("origem") in ("gravada", "citada"):
+            if not (ev.get("saida") or "").strip():
+                problemas.append(
+                    "%s: origem %r e saída vazia — ou grava, ou põe pendente"
+                    % (onde, ev.get("origem")))
+            if not _texto(ev.get("onde")):
+                problemas.append(
+                    "%s: origem %r sem dizer ONDE (máquina e compilador, ou "
+                    "a citação)" % (onde, ev.get("origem")))
+        else:
+            for k in ("afirmacao", "garantia"):
+                if not _texto(ev.get(k)):
+                    problemas.append(
+                        "%s: evidência pendente sem %s — sem saída gravada, "
+                        "é só isto que a tela tem de verdadeiro" % (onde, k))
+        descidas[cid] = Descida(
+            crenca=cid, colide_com=colide, passos=tuple(passos),
+            evidencia=Evidencia(
+                tipo=str(ev.get("tipo") or ""),
+                fonte=(ev.get("fonte") or "").strip("\n"),
+                comando=_texto(ev.get("comando")),
+                afirmacao=_texto(ev.get("afirmacao")),
+                garantia=_texto(ev.get("garantia")),
+                saida=(ev.get("saida") or "").strip("\n"),
+                origem=str(ev.get("origem") or ""),
+                onde=_texto(ev.get("onde"))))
+
     if problemas:
         raise DominioInvalido(problemas)
 
@@ -483,4 +624,5 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
         resgates={k: _texto(v) for k, v in ((cru_atv or {}).get("resgates") or {}).items()},
         exemplos={k: (v or "").strip("\n")
                   for k, v in ((cru_atv or {}).get("exemplos") or {}).items()},
+        descidas=descidas,
     )

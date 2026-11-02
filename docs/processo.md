@@ -1816,3 +1816,97 @@ e a **classe** antigas — então o `pytest.raises` com a classe nova deixa de
 pegar a exceção da antiga. Recarregar módulo no meio da suíte é efeito
 colateral em todo mundo que importou dele. O teste virou **subprocesso**,
 que é como o servidor recebe a variável de verdade.
+
+## A descida interrogativa — o protótipo de uma crença
+
+O pedido foi de ESTRUTURA, e não de mais conteúdo: o sistema mede a
+crença, mas não testa a **profundidade** dela. A descida é essa peça.
+Fica atrás de `STRUCTURA_DESCIDA=1`, com o fluxo de hoje intacto no
+padrão, e o desenho inteiro está em [docs/descida.md](descida.md).
+
+Em uma frase: em vez de AFIRMAR as premissas corretas e exibir a
+contradição no fim, o sistema PERGUNTA o que decorre de tomar a crença
+como verdadeira, até a consequência que a própria pessoa recusa.
+
+### A inversão, e o cuidado que ela exige
+
+Em toda atividade deste projeto a alternativa certa é a verdadeira. Num
+degrau da descida, a que faz a cadeia **andar** é a falsa — é a previsão
+da crença. Está escrito no cabeçalho do YAML e na docstring de `Passo`,
+porque quem mexer nisso depois precisa saber antes de ler o arquivo.
+
+### Três decisões que mudaram o desenho enquanto ele era escrito
+
+**O "você confirmou" é do motor, não do texto.** A primeira versão do
+último degrau dizia, no YAML, *"no começo desta unidade você afirmou
+que..."*. O YAML não sabe o que aconteceu na sessão: se a premissa da
+colisão não tiver fechado, essa frase é falsa, e atribuir a alguém o que
+ela não afirmou derruba a única coisa que faz a descida funcionar. O
+texto ficou neutro e o motor passou a decidir o rótulo — `VOCÊ
+CONFIRMOU, NESTA SESSÃO` ou `ESTA UNIDADE AFIRMA`. Rodando a sessão de
+verdade, a tela mostrou o segundo: `B1` tinha ficado frágil, numa
+superfície só.
+
+**A evidência diz de onde veio, ou não finge que veio.** Não há
+compilador C nesta máquina. Em vez de inventar a mensagem do gcc, o
+formato ganhou `origem: gravada | citada | pendente`, e a tela não
+desenha terminal nenhum quando a origem é pendente: mostra o programa e a
+garantia do padrão (ISO C 6.3.2.1p1), e diz que ninguém rodou. Uma tela
+que promete evidência e mostra evidência inventada é pior que nenhuma
+tela.
+
+**"Não sei dizer" não fecha a conta pela pessoa.** Quem nem seguiu nem
+contradisse não se convenceu de nada; o log registra
+`descida_sem_resposta` e a tela vai para o fato, e não para o "você
+mesmo acabou de dizer".
+
+### O custo, medido
+
+Mesma sessão do kc_07, mesma crença, mesma política:
+
+| caminho | telas da sessão | telas do laço |
+|---|---|---|
+| refutação de hoje | 61 | 7 |
+| descida, recua no 1º degrau | 56 | 2 |
+| descida, recua no último | 59 | 5 |
+| descida, sustenta até o fim | 59 | 5 |
+
+### Dez sabotagens, dez testes caídos
+
+Chave que não vale, descer sem cadeia escrita, dizer "você disse" sem
+conferir, mostrar saída que ninguém gravou, a verdade não encerrando a
+descida, o "não sei" perdendo para a alternativa marcada, índice fora da
+cédula virando resposta, e três invariantes do carregador. Nenhuma passou
+limpa.
+
+### Um defeito do log, achado por acidente
+
+A linha do log era montada com `{..., "tipo": e.tipo, **dados}`, e
+`**dados` vem **depois**: um evento que trouxesse um dado chamado `tipo`
+trocava o nome do próprio evento, sem erro nenhum. Aconteceu na primeira
+sessão rodada: `evidencia_apresentada` levava o tipo da evidência num
+campo `tipo` e saiu no log como uma linha `erro_de_compilacao` — nome que
+a reexecução não conhece e que a análise contaria como outro evento.
+
+Duas correções. O evento passou a chamar aquele campo de `evidencia`; e
+`log._linha` passou a proteger os quatro campos da casa (`v`, `ts`,
+`sessao`, `tipo`), escrevendo o dado colidente ao lado, com sufixo
+`_do_evento`. Perder a sessão por causa de um nome de campo seria pior
+que a colisão — quem está na frente da tela não tem culpa disso —, então
+nada se perde e o sufixo é o sinal, visível na análise, de que alguém
+precisa renomear aquele campo. Dois testes em `test_reconstrucao.py`.
+
+Esse era o único evento do sistema com colisão; a varredura dos outros
+não achou nenhum.
+
+### Um erro de conteúdo, achado rodando
+
+A figura do `B4` do kc_07 desenhava **quatro** casas e dizia *"sizeof a
+mede as quatro"*, logo abaixo de um `int a[5]` que fala em cinco. Virou
+cinco.
+
+### O que não está provado
+
+Nenhuma pessoa real passou pela descida. O que está medido é o custo em
+telas e o comportamento do motor — não o efeito em quem aprende. E a
+evidência continua pendente até alguém rodar o programa e gravar a saída.

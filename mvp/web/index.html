@@ -133,6 +133,57 @@
     </div>
   </section>
 
+  <!-- descida: a refutacao que PERGUNTA, atras de STRUCTURA_DESCIDA=1.
+       A refutacao de cima afirma as premissas corretas e mostra a
+       contradicao no fim; esta leva a crenca a serio e vai perguntando o
+       que decorre dela, ate a consequencia que a propria pessoa recusa. -->
+  <section id="tela-descida" class="cartao oculto">
+    <p class="etiqueta" id="des-passo"></p>
+    <!-- A crenca fica a vista a cadeia inteira: cada degrau e "se isto
+         for verdade, entao...". -->
+    <div class="partida">
+      <p class="rotulo">Levando a sua ideia a sério</p>
+      <p class="crenca" id="des-crenca"></p>
+    </div>
+    <!-- So no ultimo degrau: a premissa com que a cadeia colide. O rotulo
+         vem do servidor — "voce confirmou" so se ela confirmou mesmo. -->
+    <div class="contraste oculto" id="des-colisao">
+      <p class="rotulo" id="des-colisao-rotulo"></p>
+      <p class="certo" id="des-premissa"></p>
+    </div>
+    <p class="ideia" id="des-pergunta"></p>
+    <div class="opcoes" id="des-opcoes"></div>
+    <div class="acoes">
+      <button class="btn" id="btn-descida" disabled>Confirmar</button>
+    </div>
+  </section>
+
+  <!-- o fim da descida: ela mesma recusou a consequencia -->
+  <section id="tela-descida-fim" class="cartao oculto">
+    <p class="etiqueta">A conta fechou aqui</p>
+    <div class="contraste">
+      <p class="rotulo">Você partiu de</p>
+      <p class="crenca" id="fim-crenca"></p>
+      <p class="rotulo">E acabou de responder</p>
+      <p class="certo" id="fim-resposta"></p>
+    </div>
+    <p class="ideia" id="fim-texto"></p>
+    <button class="btn" id="btn-descida-fim">Continuar</button>
+  </section>
+
+  <!-- a evidencia: so para quem sustentou a crenca ate o ultimo degrau -->
+  <section id="tela-evidencia" class="cartao oculto">
+    <p class="etiqueta">Então vamos olhar o que a máquina faz</p>
+    <pre class="codigo" id="evi-programa"></pre>
+    <p class="comando" id="evi-comando"></p>
+    <!-- Terminal SO quando houve terminal. -->
+    <pre class="terminal oculto" id="evi-saida"></pre>
+    <p class="ideia" id="evi-afirmacao"></p>
+    <p class="aviso" id="evi-garantia"></p>
+    <p class="nota" id="evi-origem"></p>
+    <button class="btn" id="btn-evidencia">Continuar</button>
+  </section>
+
   <!-- mapa final -->
   <section id="tela-mapa" class="cartao oculto">
     <h2>O que você construiu</h2>

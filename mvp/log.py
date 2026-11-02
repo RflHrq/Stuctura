@@ -93,6 +93,33 @@ def agora() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
 
+# Os campos da casa: quem lê o log se orienta por eles, e a reexecução
+# depende deles. Nenhum dado de evento pode ocupá-los.
+RESERVADOS = ("v", "ts", "sessao", "tipo")
+
+
+def _linha(sessao: str, tipo: str, dados) -> dict:
+    """Uma linha do log, com os campos da casa protegidos.
+
+    A linha era montada com `{..., "tipo": e.tipo, **dados}`, e `**dados`
+    vem DEPOIS: um evento que trouxesse um dado chamado `tipo` trocava o
+    nome do próprio evento, sem erro nenhum. Não é hipótese — aconteceu:
+    `evidencia_apresentada` levava o tipo da evidência num campo `tipo` e
+    saiu no log como uma linha `erro_de_compilacao`, que a reexecução não
+    sabe ler e que a análise contaria como outro evento.
+
+    Perder a sessão por causa disto seria pior que a colisão: quem está na
+    frente da tela não tem culpa de um nome de campo. Então o campo da
+    casa fica, o dado é escrito ao lado com sufixo, e nada se perde — e o
+    sufixo é o sinal, visível na análise, de que alguém precisa renomear
+    aquele campo.
+    """
+    linha = {"v": VERSAO, "ts": agora(), "sessao": sessao, "tipo": tipo}
+    for chave, valor in dict(dados).items():
+        linha[chave + "_do_evento" if chave in RESERVADOS else chave] = valor
+    return linha
+
+
 def grava(sessao: str, eventos: Iterable[Evento], destino: Path | None = None,
           entrada: motor.Resposta | None = None) -> None:
     """Uma chamada ao motor, gravada: a entrada e o que ela provocou.
@@ -104,13 +131,11 @@ def grava(sessao: str, eventos: Iterable[Evento], destino: Path | None = None,
     caminho.parent.mkdir(parents=True, exist_ok=True)
     with caminho.open("a", encoding="utf-8") as f:
         if entrada is not None:
-            f.write(json.dumps({"v": VERSAO, "ts": agora(), "sessao": sessao,
-                                "tipo": ENTRADA, **asdict(entrada)},
+            f.write(json.dumps(_linha(sessao, ENTRADA, asdict(entrada)),
                                ensure_ascii=False) + "\n")
         for e in eventos:
-            linha = {"v": VERSAO, "ts": agora(), "sessao": sessao,
-                     "tipo": e.tipo, **dict(e.dados)}
-            f.write(json.dumps(linha, ensure_ascii=False) + "\n")
+            f.write(json.dumps(_linha(sessao, e.tipo, e.dados),
+                               ensure_ascii=False) + "\n")
 
 
 def le_tolerante(destino: Path | None = None) -> tuple[list[dict], int]:

@@ -327,3 +327,43 @@ def test_um_log_misto_distingue_as_duas_origens(d, caminho):
     for x in log.le(None, caminho):
         por_versao.setdefault(x["v"], set()).add(x["sessao"])
     assert por_versao == {log.VERSAO_ZERO: {"antiga"}, log.VERSAO: {"nova"}}
+
+
+# --------------------------------------------------------------------------
+# Os campos da casa
+# --------------------------------------------------------------------------
+
+def test_um_dado_do_evento_nao_rouba_o_campo_do_tipo(caminho):
+    """Achado rodando a descida: `tipo` nos dados trocava o NOME do evento.
+
+    A linha era `{..., "tipo": e.tipo, **dados}`, e `**dados` vem depois.
+    `evidencia_apresentada` levava o tipo da evidência num campo `tipo` e
+    saiu no log como uma linha `erro_de_compilacao` — nome que a
+    reexecução não conhece e que a análise contaria como outro evento.
+    Sem barulho nenhum: o JSON é válido, e a linha parece um evento.
+    """
+    log.grava("s1", [motor.Evento("evidencia_apresentada",
+                                  {"tipo": "erro_de_compilacao", "no": "B1"})],
+              destino=caminho)
+    linha = json.loads(caminho.read_text(encoding="utf-8").splitlines()[0])
+    assert linha["tipo"] == "evidencia_apresentada"
+    assert linha["no"] == "B1"
+    # O dado não se perde: fica ao lado, e o sufixo é o aviso de que
+    # alguém precisa renomear aquele campo.
+    assert linha["tipo_do_evento"] == "erro_de_compilacao"
+
+
+def test_os_quatro_campos_da_casa_resistem_todos(caminho):
+    """`sessao` e `ts` trocados por um evento seriam pior que `tipo`:
+    a linha iria para outra sessão, ou para outro instante."""
+    log.grava("minha", [motor.Evento("qualquer", {
+        "v": 99, "ts": "ontem", "sessao": "outra", "tipo": "disfarce"})],
+        destino=caminho)
+    linha = json.loads(caminho.read_text(encoding="utf-8").splitlines()[0])
+    assert linha["sessao"] == "minha"
+    assert linha["tipo"] == "qualquer"
+    assert linha["v"] == log.VERSAO
+    assert linha["ts"] != "ontem"
+    assert linha["sessao_do_evento"] == "outra"
+    assert linha["ts_do_evento"] == "ontem"
+    assert linha["v_do_evento"] == 99

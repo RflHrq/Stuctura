@@ -10,7 +10,8 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var TELAS = ["frase", "ensino", "atividade", "razao", "confianca",
-             "retorno", "validacao", "refutacao", "mapa"];
+             "retorno", "validacao", "refutacao", "descida", "descida-fim",
+             "evidencia", "mapa"];
 
   var S = {
     sessao: null,
@@ -208,6 +209,9 @@
     if (t.tipo === "confianca") return telaConfianca(t);
     if (t.tipo === "validacao") return telaValidacao(t);
     if (t.tipo === "refutacao") return telaRefutacao(t);
+    if (t.tipo === "descida") return telaDescida(t);
+    if (t.tipo === "descida_fim") return telaDescidaFim(t);
+    if (t.tipo === "evidencia") return telaEvidencia(t);
     if (t.tipo === "mapa") return telaMapa(t);
   }
 
@@ -568,6 +572,97 @@
                                           : "Ainda não entendi";
     naoEntendi.onclick = function () { responde({ repetir: true }); };
     mostra("refutacao");
+  }
+
+  /* ----------------------------------------------- descida interrogativa */
+
+  /* A INVERSAO que esta tela tem, e e unica no sistema: a alternativa que
+   * faz a cadeia ANDAR e a FALSA — e a previsao da crenca. O cliente nao
+   * sabe qual e qual, e e melhor assim: nao ha gabarito a destacar aqui,
+   * nao ha certo e errado na tela, so a pergunta e as duas saidas. O que o
+   * servidor mede e qual delas a pessoa escolhe, e em que degrau. */
+  function telaDescida(t) {
+    S.escolha = null;
+    $("trilha").textContent = "Descendo · passo " + t.passo + " de " + t.total;
+    $("des-passo").textContent = "Passo " + t.passo + " de " + t.total;
+    $("des-crenca").textContent = t.crenca || "";
+    $("des-pergunta").textContent = t.texto;
+
+    /* No ultimo degrau a cadeia bate numa premissa. Se a pessoa confirmou
+     * essa premissa nesta sessao, a tela diz isso — e e o ponto todo da
+     * descida: a contradicao e entre duas coisas que ela mesma disse. Se
+     * nao confirmou, a tela afirma a premissa sem atribui-la a ela. */
+    var temColisao = !!t.premissa;
+    $("des-colisao").classList.toggle("oculto", !temColisao);
+    if (temColisao) {
+      $("des-colisao-rotulo").textContent = t.voce_disse
+        ? "Você confirmou, nesta sessão"
+        : "Esta unidade afirma";
+      $("des-premissa").textContent = t.premissa;
+    }
+
+    var caixa = $("des-opcoes");
+    caixa.innerHTML = "";
+    t.opcoes.forEach(function (texto, i) {
+      var b = document.createElement("button");
+      b.className = "opcao";
+      b.type = "button";
+      b.textContent = texto;
+      b.setAttribute("aria-pressed", "false");
+      b.onclick = function () {
+        S.escolha = i;
+        Array.prototype.forEach.call(caixa.children, function (x, k) {
+          x.setAttribute("aria-pressed", String(k === i));
+        });
+        $("btn-descida").disabled = false;
+      };
+      caixa.appendChild(b);
+    });
+
+    botaoNaoSei(caixa, "Não sei dizer", function () {
+      $("btn-descida").disabled = true;
+      responde({ nao_sei: true, ms: decorrido() });
+    });
+
+    $("btn-descida").disabled = true;
+    $("btn-descida").onclick = function () {
+      $("btn-descida").disabled = true;
+      responde({ escolha: S.escolha, ms: decorrido() });
+    };
+    mostra("descida");
+  }
+
+  /* Ela recusou a consequencia: a descida acaba AQUI. Insistir depois
+   * disto e argumentar com quem ja concordou. */
+  function telaDescidaFim(t) {
+    $("trilha").textContent = "Descendo · passo " + t.passo + " de " + t.total;
+    $("fim-crenca").textContent = t.crenca || "";
+    $("fim-resposta").textContent = t.voce_disse || "";
+    $("fim-texto").textContent = t.texto;
+    $("btn-descida-fim").onclick = function () { responde({}); };
+    mostra("descida-fim");
+  }
+
+  /* Sustentou a crenca pelos degraus todos. O sistema para de perguntar e
+   * mostra o fato — e `gravada` decide se houve terminal de verdade. Sem
+   * saida gravada esta tela NAO desenha terminal: ela mostra o programa e
+   * a garantia do padrao, e diz que ninguem rodou. Evidencia inventada e
+   * pior que evidencia nenhuma. */
+  function telaEvidencia(t) {
+    $("trilha").textContent = "A evidência";
+    $("evi-programa").textContent = t.programa || "";
+    $("evi-comando").textContent = t.comando ? "$ " + t.comando : "";
+    var saida = $("evi-saida");
+    saida.textContent = t.gravada ? t.saida : "";
+    saida.classList.toggle("oculto", !t.gravada);
+    $("evi-afirmacao").textContent = t.texto;
+    $("evi-garantia").textContent = t.garantia || "";
+    $("evi-origem").textContent = t.gravada
+      ? "Saída registrada em: " + t.onde
+      : "Ninguém rodou este programa aqui, então não há terminal para" +
+        " mostrar — o que está acima é o que a norma da linguagem obriga.";
+    $("btn-evidencia").onclick = function () { responde({}); };
+    mostra("evidencia");
   }
 
   /* -------------------------------------------------------------- mapa */

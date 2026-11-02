@@ -208,3 +208,25 @@ textarea:focus{outline:2px solid var(--acento); outline-offset:1px}
 .contagem{margin:4px 0 0; font-size:13px; color:var(--tinta2);
           text-align:right}
 .contagem.perto{color:var(--aviso)}
+
+/* ------------------------------------------ descida interrogativa
+
+   A crenca de partida fica a vista a cadeia inteira: cada degrau e "se
+   isto for verdade, entao...", e sem ela na tela a pergunta parece vir
+   do nada. Cinza, e nao vermelha: aqui a crenca nao esta sendo acusada,
+   esta sendo levada a serio. */
+.partida{border-left:3px solid var(--linha2); background:var(--papel);
+         border-radius:0 8px 8px 0; padding:12px 16px; margin:0 0 18px}
+.partida .crenca{margin:0; color:var(--tinta)}
+
+/* O terminal aparece SO quando houve terminal. Sem saida gravada a tela
+   mostra o programa e a garantia da norma, e diz que ninguem rodou —
+   evidencia inventada e pior que evidencia nenhuma. */
+.terminal{font:13.5px/1.55 ui-monospace,Consolas,monospace; white-space:pre-wrap;
+          background:var(--tinta); color:var(--cartao); border-radius:8px;
+          padding:12px 14px; margin:0 0 18px; overflow-x:auto}
+.nota{font-size:12.5px; color:var(--tinta2); margin:0 0 18px; font-style:italic}
+/* O comando que gerou a evidencia. NAO usa `.rotulo`: aquele e caixa-alta,
+   e comando de shell em caixa-alta e outro comando. */
+.comando{font:13px ui-monospace,Consolas,monospace; color:var(--tinta2);
+         margin:0 0 14px}

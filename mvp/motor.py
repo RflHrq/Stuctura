@@ -34,6 +34,7 @@ reteste da pesquisa continua sendo outra medida, longe do treino.
 from __future__ import annotations
 
 import hashlib
+import os
 from dataclasses import dataclass, field, replace
 from typing import Any, Mapping
 
@@ -125,6 +126,17 @@ RAZAO = "RAZAO"
 CONFIANCA = "CONFIANCA"
 VALIDACAO = "VALIDACAO"
 REFUTACAO = "REFUTACAO"
+# A refutação INTERROGATIVA, atrás de uma chave. A de hoje AFIRMA as
+# premissas corretas, uma por tela, e põe a contradição lado a lado no
+# fim. A descida PERGUNTA: o que decorre de tomar a sua crença como
+# verdadeira? E segue perguntando até a consequência que a própria pessoa
+# sabe ser falsa.
+DESCIDA = "DESCIDA"
+# O fim da descida, nos dois jeitos de ela acabar: a pessoa contradisse a
+# própria crença (tela `descida_fim`), ou sustentou até o último degrau e
+# recebe o fato (tela `evidencia`). A fase é uma só porque o que vem
+# depois é o mesmo: o treino.
+FECHO_DESCIDA = "FECHO_DESCIDA"
 # O caminho que o fluxo do PRD descreve e que não existia: "lacuna →
 # constrói: ensino do nó e item de entrada". Sem ele, declarar que não
 # sabe registrava a lacuna e passava para a pergunta seguinte — quatro
@@ -139,6 +151,21 @@ TREINO = "TREINO"
 RETESTE = "RETESTE"            # a crença refutada volta uma vez, no fim
 FECHAMENTO = "FECHAMENTO"      # a frase do fim
 FIM = "FIM"
+
+
+# A descida fica DESLIGADA por padrão, e liga com STRUCTURA_DESCIDA=1.
+#
+# Dois motivos para a chave. Pedir que alguém raciocine A PARTIR da
+# crença dela pode reforçá-la, se a cadeia não fechar — é risco
+# pedagógico de verdade, e quem decide corrê-lo é quem conduz a coleta,
+# não o código. E uma coleta em andamento mede o fluxo de hoje: trocá-lo
+# no meio invalida a comparação entre participantes.
+#
+# É nome de módulo, e não leitura do ambiente a cada chamada, porque o
+# teste troca o valor com `monkeypatch.setattr(motor, "DESCIDA_LIGADA",
+# True)`. Recarregar o módulo para reler o ambiente quebra quem já
+# importou os nomes dele — já aconteceu neste projeto, com seis testes.
+DESCIDA_LIGADA = (os.environ.get("STRUCTURA_DESCIDA") or "") == "1"
 
 
 class EscolhaInvalida(ValueError):
@@ -405,6 +432,10 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         return _segue_validacao(d, e)
     if e.fase == REFUTACAO:
         return _segue_refutacao(d, e, repetir=r.repetir)
+    if e.fase == DESCIDA:
+        return _responde_descida(d, e, r)
+    if e.fase == FECHO_DESCIDA:
+        return _para_treino(d, e, e.alvo or "", via="descida")
     if e.fase == TREINO:
         return _responde_treino(d, e, r)
     if e.fase == PRIMEIRO_CONTATO:
@@ -1149,7 +1180,18 @@ def _inicia_validacao(d: Dominio, e: Estado, no: str) -> Transicao:
 
 
 def _segue_validacao(d: Dominio, e: Estado) -> Transicao:
-    return _inicia_refutacao(d, e, e.alvo or "")
+    """Daqui saem os dois caminhos: a refutação de hoje, ou a descida.
+
+    A descida só roda com a chave ligada E com cadeia escrita para
+    AQUELA crença. Tópico sem descida, ou crença sem cadeia, segue pela
+    refutação de sempre — é o que torna o protótipo de uma crença
+    possível sem mexer nas outras setenta e oito.
+    """
+    alvo = e.alvo or ""
+    descida = d.descida(e.no(alvo).crenca) if DESCIDA_LIGADA else None
+    if descida is not None:
+        return _inicia_descida(d, e, alvo, descida)
+    return _inicia_refutacao(d, e, alvo)
 
 
 def _plano(d: Dominio, no: str) -> tuple[str, ...]:
@@ -1223,8 +1265,19 @@ def _segue_refutacao(d: Dominio, e: Estado, repetir: bool = False) -> Transicao:
         novo = replace(e, passo=proximo, repeticoes=0)
         return Transicao(novo, _tela_refutacao(d, novo), eventos)
 
-    # RF33: a refutação NÃO confirma o nó. Ela o põe em treino.
-    alvo = e.alvo or e.plano[-1]
+    return _para_treino(d, e, e.alvo or e.plano[-1], eventos)
+
+
+def _para_treino(d: Dominio, e: Estado, alvo: str,
+                 eventos: tuple[Evento, ...] = (),
+                 via: str = "refutacao") -> Transicao:
+    """O fim do percurso, por onde quer que ele tenha passado.
+
+    RF33: a refutação NÃO confirma o nó. Ela o põe em treino. Vale igual
+    para a descida: a pessoa ter dito "não é assim" com as próprias
+    palavras é melhor evidência do que ter ouvido, e continua não sendo
+    prova de que ela resolve o próximo item.
+    """
     novo = e.com(alvo, estado=EM_TREINO, streak=0, tentativas=0)
     crenca = novo.no(alvo).crenca
     novo = replace(novo, fase=TREINO, plano=(), passo=0, repeticoes=0,
@@ -1233,12 +1286,126 @@ def _segue_refutacao(d: Dominio, e: Estado, repetir: bool = False) -> Transicao:
                    a_retestar=(novo.a_retestar + (crenca,)
                                if crenca and crenca not in novo.a_retestar
                                else novo.a_retestar))
-    eventos = eventos + (
-        Evento("refutacao_concluida", {"no": alvo}),
+    eventos = tuple(eventos) + (
+        Evento("refutacao_concluida", {"no": alvo, "via": via}),
         Evento("treino_iniciado", {"no": alvo, "streak_alvo": STREAK_ALVO}),
     )
     seguinte = _proximo_treino(d, novo, alvo)
     return Transicao(seguinte.estado, seguinte.tela, eventos + seguinte.eventos)
+
+
+# --------------------------------------------------------------------------
+# Descida interrogativa
+# --------------------------------------------------------------------------
+
+# A INVERSÃO: em toda atividade deste sistema a alternativa certa é a
+# verdadeira. Aqui não. `DECORRE` é o que a CRENÇA prevê, e é ela que faz
+# a cadeia andar — estamos pedindo consistência com o erro, de propósito.
+DECORRE = 0
+VERDADE = 1
+
+
+def _inicia_descida(d: Dominio, e: Estado, no: str, desc) -> Transicao:
+    novo = replace(e, fase=DESCIDA, alvo=no, plano=(), passo=0, repeticoes=0)
+    evento = Evento("descida_iniciada", {
+        "no": no, "crenca": desc.crenca, "degraus": len(desc.passos),
+        "colide_com": desc.colide_com})
+    return Transicao(novo, _tela_descida(d, novo, desc), (evento,))
+
+
+def _tela_descida(d: Dominio, e: Estado, desc) -> Tela:
+    p = desc.passos[e.passo]
+    ultimo = e.passo == len(desc.passos) - 1
+    crenca = d.crencas.get(desc.crenca)
+    # A premissa da colisão entra só no último degrau, e a ATRIBUIÇÃO dela
+    # depende do que esta sessão viu: "você confirmou" só se ela confirmou
+    # mesmo. Dizer a alguém que ela afirmou o que não afirmou destrói a
+    # única coisa que faz a descida funcionar, que é a pessoa reconhecer
+    # cada passo como seu.
+    disse = ultimo and sustentado(e.no(desc.colide_com).estado)
+    return Tela("descida", no=e.alvo, texto=p.pergunta, dados={
+        "passo": e.passo + 1, "total": len(desc.passos),
+        "crenca": crenca.afirma if crenca else "",
+        "opcoes": [p.decorre, p.verdade],
+        "premissa": d.nos[desc.colide_com].simples if ultimo else "",
+        "premissa_no": desc.colide_com if ultimo else "",
+        "voce_disse": disse,
+    })
+
+
+def _responde_descida(d: Dominio, e: Estado, r: Resposta) -> Transicao:
+    alvo = e.alvo or ""
+    desc = d.descida(e.no(alvo).crenca)
+    if desc is None:
+        # A chave caiu no meio da sessão, ou o domínio foi trocado. Não é
+        # para acontecer, e se acontecer a refutação de sempre assume.
+        return _inicia_refutacao(d, e, alvo)
+
+    p = desc.passos[e.passo]
+    ultimo = e.passo == len(desc.passos) - 1
+    base = {"no": alvo, "crenca": desc.crenca,
+            "profundidade": e.passo + 1, "total": len(desc.passos)}
+
+    escolha = None if r.nao_sei else _indice(r.escolha, 2, "descida")
+
+    if escolha is None:
+        # Nem seguiu nem contradisse: a cadeia não fecha pela boca dela, e
+        # inventar que fechou seria falso. Vai para o fato.
+        return _evidencia(d, e, desc, (Evento("descida_sem_resposta", dict(
+            base, nao_sei=r.nao_sei, ms=r.ms)),))
+
+    if escolha == VERDADE:
+        # A pessoa acabou de contradizer a própria crença. É o fim da
+        # descida: insistir depois disto é argumentar com quem já
+        # concordou.
+        crenca = d.crencas.get(desc.crenca)
+        novo = replace(e, fase=FECHO_DESCIDA)
+        tela = Tela("descida_fim", no=alvo, texto=p.porque, dados={
+            "passo": e.passo + 1, "total": len(desc.passos),
+            "crenca": crenca.afirma if crenca else "",
+            "voce_disse": p.verdade,
+            # Chegar ao último degrau e só ali recuar é outro dado que
+            # recuar no primeiro: a tela não muda, o log sabe.
+            "no_fim": ultimo,
+        })
+        return Transicao(novo, tela, (Evento("descida_fechou",
+                                             dict(base, no_fim=ultimo,
+                                                  ms=r.ms)),))
+
+    eventos = (Evento("descida_passo", dict(base, escolha="decorre",
+                                            ms=r.ms)),)
+    if not ultimo:
+        novo = replace(e, passo=e.passo + 1)
+        return Transicao(novo, _tela_descida(d, novo, desc), eventos)
+
+    # Sustentou a crença até o fim. A cadeia inteira não bastou, e é aqui
+    # que o sistema para de perguntar e mostra o fato.
+    return _evidencia(d, e, desc, eventos + (Evento(
+        "descida_sustentada", dict(base)),))
+
+
+def _evidencia(d: Dominio, e: Estado, desc,
+               eventos: tuple[Evento, ...]) -> Transicao:
+    ev = desc.evidencia
+    novo = replace(e, fase=FECHO_DESCIDA)
+    # `evidencia`, e NÃO `tipo`: o log escreve {"tipo": <evento>, **dados},
+    # então um dado chamado `tipo` sobrescrevia o nome do evento. Esta
+    # linha já saiu no log como "erro_de_compilacao" uma vez. O log agora
+    # protege os campos da casa (ver `log._linha`), e este nome continua
+    # sendo o certo: o que está aqui é o tipo DA EVIDÊNCIA.
+    eventos = eventos + (Evento("evidencia_apresentada", {
+        "no": e.alvo, "crenca": desc.crenca, "evidencia": ev.tipo,
+        "origem": ev.origem, "gravada": ev.gravada}),)
+    tela = Tela("evidencia", no=e.alvo, texto=ev.afirmacao, dados={
+        "programa": ev.fonte, "comando": ev.comando, "garantia": ev.garantia,
+        # Terminal só quando houve terminal. Esta tela promete evidência,
+        # e evidência inventada é pior que evidência nenhuma: sem saída
+        # gravada, ela mostra o programa e a garantia do padrão, e diz que
+        # ninguém rodou.
+        "saida": ev.saida if ev.gravada else "",
+        "gravada": ev.gravada, "origem": ev.origem, "onde": ev.onde,
+    })
+    return Transicao(novo, tela, eventos)
 
 
 # --------------------------------------------------------------------------

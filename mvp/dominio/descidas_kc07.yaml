@@ -1,0 +1,106 @@
+# Descidas do kc_07 — a cadeia de consequências de cada crença.
+#
+# É o conteúdo da REFUTAÇÃO INTERROGATIVA: em vez de o sistema afirmar as
+# premissas corretas e exibir a contradição no fim, ele pergunta, passo a
+# passo, o que decorre de tomar a crença como verdadeira — e a própria
+# pessoa chega numa consequência que ela sabe ser falsa.
+#
+# A INVERSÃO QUE ISTO TEM, e ela é única no projeto: em toda atividade do
+# sistema a alternativa certa é a VERDADEIRA. Aqui, a alternativa que faz
+# a cadeia ANDAR é a falsa — estamos pedindo à pessoa que seja consistente
+# com o erro dela, de propósito. Quem for mexer nestes arquivos depois:
+# `decorre` é o que a crença prevê, e NÃO é a resposta certa.
+#
+# PROTÓTIPO: uma crença só, de propósito. Pedir que alguém raciocine A
+# PARTIR de uma crença pode reforçá-la se a cadeia não fechar, e isso é
+# risco pedagógico real. Uma cadeia escrita e testada com gente vale mais
+# que setenta e nove escritas no escuro.
+
+descidas:
+
+  array_is_pointer:
+    # O último passo colide com uma premissa que a pessoa JÁ afirmou nesta
+    # sessão. O motor confere: se ela não tiver confirmado este nó, o passo
+    # final é apresentado como afirmação, e não como "você disse".
+    colide_com: B1
+
+    passos:
+
+      - pergunta: >
+          Vamos levar a sua ideia a sério. Se array e ponteiro são a mesma
+          coisa, então o nome `a` guarda um endereço dentro dele, como `p`
+          guarda?
+        decorre: "Guarda: a aponta para a primeira casa"
+        verdade: "Não guarda: a é o conjunto das casas"
+        porque: >
+          Então `a` não é uma caixa com endereço dentro, e `p` é. Já são
+          duas coisas diferentes, antes de qualquer outra conta.
+
+      - pergunta: >
+          Se `a` guarda um endereço como `p`, então `sizeof a` deveria
+          medir esse endereço. Mede?
+        decorre: "Mede: dá o tamanho de um ponteiro"
+        verdade: "Não: mede as cinco caixas juntas"
+        porque: >
+          `sizeof a` mede as cinco caixas e `sizeof p` mede um ponteiro.
+          Dois tamanhos diferentes, na mesma máquina, no mesmo programa.
+
+      - pergunta: >
+          Se são a mesma coisa, então `a = p` deveria compilar, do mesmo
+          jeito que `p = a` compila. Compila?
+        decorre: "Compila: um recebe o outro"
+        verdade: "Não compila: só p = a compila"
+        porque: >
+          `p = a` compila e `a = p` não. Se fossem a mesma coisa, as duas
+          compilariam — é o compilador dizendo que os tipos são distintos.
+
+      # A atribuição desta premissa — "você confirmou" ou só "esta
+      # unidade afirma" — é do MOTOR, que sabe o que esta sessão viu.
+      # Por isso o texto daqui não diz "você disse": dizer a alguém que
+      # ela afirmou o que não afirmou derruba a única coisa que faz a
+      # descida funcionar, que é cada passo ser reconhecido como seu.
+      - pergunta: >
+          `int a[5]` cria cinco caixas grudadas, e `int *p` cria uma caixa
+          só. Cinco caixas e uma caixa são a mesma coisa?
+        decorre: "São: o resto é detalhe"
+        verdade: "Não são: cinco caixas não são uma caixa"
+        porque: >
+          Cinco caixas e uma caixa não são a mesma coisa, e isso sozinho
+          fecha a conta. O que explica `a[i]` e `p[i]` se escreverem igual
+          é o atalho: numa conta, o nome do array vira o endereço da
+          primeira casa. O atalho explica a ESCRITA parecida, e não a
+          igualdade.
+
+    # Para quem sustenta a crença até o fim: a evidência.
+    #
+    # `origem` diz de onde veio a saída, e o carregador cobra:
+    #   gravada  — rodamos, e `saida` traz o que saiu (com máquina e
+    #              compilador em `onde`)
+    #   citada   — a saída está publicada numa fonte, que vai em `onde`
+    #   pendente — ninguém rodou ainda; `saida` fica vazia, e a tela
+    #              mostra o programa e a GARANTIA, sem fingir terminal
+    #
+    # Esta está `pendente` porque não há compilador C na máquina em que ela
+    # foi escrita. Inventar a mensagem do gcc seria exatamente a mentira
+    # que esta tela existe para não contar.
+    evidencia:
+      tipo: erro_de_compilacao
+      fonte: |
+        int a[5];
+        int *p;
+
+        p = a;    /* esta compila */
+        a = p;    /* esta nao     */
+      comando: "gcc -c exemplo.c"
+      afirmacao: >
+        A última linha não compila. Um array não é um lvalue modificável:
+        o nome do conjunto não recebe atribuição.
+      garantia: >
+        ISO C 6.3.2.1p1: lvalue modificável é o que NÃO tem tipo array. Uma
+        atribuição ao nome de um array viola uma restrição, e violação de
+        restrição obriga o compilador a emitir diagnóstico — qualquer
+        compilador conforme recusa esta linha. A mensagem exata é de cada
+        compilador; a recusa é do padrão.
+      saida: ""
+      origem: pendente
+      onde: ""

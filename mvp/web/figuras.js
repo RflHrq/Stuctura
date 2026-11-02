@@ -1050,10 +1050,10 @@
     B4: function () {
       var s = svg(360, 208);
       s.appendChild(defs());
-      s.appendChild(quarteirao(60, 50, { quantas: 4, largura: 50,
+      s.appendChild(quarteirao(55, 50, { quantas: 5, largura: 50,
                                          endereco: "0x1000", nome: "a" }));
       s.appendChild(el("text", { x: 180, y: 130, "class": "fig-nota" },
-                       "sizeof a   mede as quatro"));
+                       "sizeof a   mede as cinco"));
       s.appendChild(el("text", { x: 180, y: 152, "class": "fig-nota" },
                        "&a   e o endereco DO CONJUNTO"));
       legenda(s, 184, "nestes dois o atalho nao vale");
