@@ -1,0 +1,14 @@
+id: kc_12
+title: "Ponteiro pendente por escopo"
+pilot: false
+prerequisites: [kc_01, kc_04, kc_06]
+conclusion_node: I3
+summary: >
+  Uma variável local deixa de existir quando a função retorna. Um ponteiro
+  para ela sobrevive e passa a não designar objeto válido — sem que nenhum
+  free tenha sido chamado. O caminho certo é o chamador fornecer o
+  armazenamento.
+
+# Respondível ANTES por quem ainda não sabe. É o lado esquerdo do
+# antes-e-depois, e a pergunta é exatamente a que o tópico responde.
+teachback: "o que o chamador recebe quando uma função devolve o endereço de uma variável dela"

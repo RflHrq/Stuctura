@@ -1,0 +1,91 @@
+# Crenças do kc_12 — uma por nó, seis no total.
+#
+# Zero `E`, e TODAS GRADE T. É a imagem espelhada do kc_11, que fechou com
+# seis `L`, e as duas coisas fazem sentido juntas: escopo e tempo de vida
+# são estudados empiricamente em outras linguagens, enquanto aritmética de
+# ponteiro é assunto de FAQ de C.
+#
+# Duas vêm da curadoria, três de outros tópicos — os três declarados como
+# pré-requisito deste (kc_01, kc_04, kc_06) — e uma é nova, do item 38 da
+# Tabela A.1.
+#
+# Os itens 5 e 38 da tabela foram conferidos no original nesta sessão, e a
+# página 114 também. A conferência da p. 114 produziu a quinta observação
+# de citação do projeto, e ela está escrita em `static_is_scope`: a fonte
+# existe e diz a coisa certa, mas é fina.
+
+- id: memory_is_uniform
+  negates: kc_12:B1
+  provenance: T
+  label_pt: "Memória é uma região única, sem distinção de regras de vida."
+  source: >
+    Kaczmarczyk et al. (2010), p. 109, Tabela 1, tema T1. A mesma crença
+    está no catálogo do kc_01. Aqui ela nega a premissa de que o retorno
+    encerra a existência das locais: se a memória não distinguisse regras
+    de vida, não haveria nada que o retorno pudesse encerrar.
+
+- id: ampersand_copies
+  negates: kc_12:B2
+  provenance: T
+  label_pt: "&x entrega uma cópia de x, e é a cópia que viaja."
+  source: >
+    Sorva (2012), p. 362, item 66: "Assigning an object means 'sending' an
+    object (or a copy) to a variable" (Ma 2007). A mesma crença está nos
+    catálogos do kc_04, do kc_06 e do kc_10. Aqui ela nega a premissa de
+    que `&local` é um ENDEREÇO bom enquanto a função roda: quem acha que
+    `&` copia não tem o que seguir depois.
+
+- id: retorno_fica_guardado
+  negates: kc_12:B3
+  provenance: T
+  label_pt: "O valor retornado fica guardado em algum lugar; não é preciso copiá-lo."
+  source: >
+    Sorva (2012), p. 361, item 38: "A return values does not need to be
+    stored (even if one needs it later)" (Hristova et al. 2003) — a frase
+    está assim no original, com o plural trocado. Ver também o item 43,
+    "Confusion over where return values go" (Ragonis e Ben-Ari 2005a).
+    Transposição declarada: os estudos são sobre linguagens com retorno de
+    função, e a premissa que B3 afirma é a mesma em C. Crença nova: não
+    estava no catálogo curado.
+
+- id: pointer_is_data
+  negates: kc_12:I1
+  provenance: T
+  label_pt: "O ponteiro é o próprio dado: retornar &local devolve a variável."
+  source: >
+    Sorva (2012), p. 360, item 14: "A variable is (merely) a pairing of a
+    name to a changeable value (with a type). It is not stored inside the
+    computer" (Sorva 2008; Doukakis et al. 2007). A mesma crença está nos
+    catálogos do kc_02, do kc_04 e do kc_08. Aqui ela nega a premissa de
+    que o que o retorno copia é um ENDEREÇO: quem acha que o ponteiro é o
+    dado acha que a caixa veio junto, e aí não há o que ficar para trás.
+
+- id: static_is_scope
+  negates: kc_12:I2
+  provenance: T
+  label_pt: "static muda o escopo da variável, e por isso retornar o endereço passa a valer."
+  source: >
+    Sorva (2012), p. 114, na lista das distinções que o autor diz que
+    confundem quem está começando: "static type declarations vs.
+    execution-time types; scope vs. lifetime; etc." O par que importa aqui
+    é "scope vs. lifetime", e é exatamente a confusão que esta crença
+    nomeia. Ver também a Tabela A.1, p. 359, item 5, "Difficulties
+    understanding the lifetime of values" (du Boulay 1986), que sustenta a
+    metade do tempo de vida com citação própria.
+
+    RESSALVA DECLARADA, e esta é a quinta observação de citação do
+    projeto: a p. 114 é um ITEM DE LISTA no texto corrido, não uma
+    entrada da Tabela A.1 com estudo atrás. A fonte existe e diz a coisa
+    certa, mas é a mais fina das seis crenças deste tópico. É a crença da
+    curadoria, com a fonte dela e o item 5 a mais.
+
+- id: local_survives_return
+  negates: kc_12:I3
+  provenance: T
+  label_pt: "Retornar o endereço de uma variável local funciona; ela continua lá."
+  source: >
+    Kumar (2001), ITiCSE; e Sorva (2012), p. 359, item 5, "Difficulties
+    understanding the lifetime of values" (du Boulay 1986). É a crença da
+    curadoria, com a fonte dela, e ela nega a conclusão do tópico: se a
+    local continuasse lá, não haveria ponteiro pendente, e o conserto —
+    o chamador fornecer o armazenamento — não teria por que existir.

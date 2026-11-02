@@ -1,0 +1,942 @@
+# Banco de atividades — kc_12, "ponteiro pendente por escopo"
+#
+# Seis nós, sete itens cada: 42. Um de entrada (o degrau mais baixo, na
+# analogia), três de diagnóstico (um por degrau, com o par teórica +
+# código) e três de treino.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Em todo item, um distrator aponta a crença
+# do próprio nó — senão o nó nunca recebe atribuição — e outro a de um
+# vizinho. A crença do próprio nó abre a cédula (vem na alternativa `b`).
+#
+# DUAS REGRAS A MAIS NESTE TÓPICO:
+#
+#   1. Nenhum item depende de ordem de avaliação não especificada. O
+#      `printf("%d %d\n", conta(), conta())` é tentador para medir o
+#      static, e o padrão não diz qual chamada roda primeiro — quem
+#      acertasse acertaria por sorte. Onde duas chamadas precisam
+#      aparecer, elas vão em duas linhas (ver ciu_kc12_t15).
+#   2. Nenhum item pergunta O QUE SAI ao usar o ponteiro pendente. É
+#      comportamento indefinido, e premiar "lixo" ou "o valor antigo"
+#      ensinaria que há resultado previsível — que é justamente o que faz
+#      o erro "parecer funcionar". Onde o caso aparece, a resposta certa é
+#      "não dá para dizer". É a mesma regra do kc_09.
+
+analogy: >
+  A casa desmontada, e o número no seu bolso. Continua a rua lateral do
+  kc_01: a casa da rua lateral é desmontada quando a função sai — mas o
+  NÚMERO dela, que você anotou e levou no bolso, continua anotado. O papel
+  parece bom e não é: ele leva a um lote onde não há mais casa. E ninguém
+  devolveu nada — a casa não foi devolvida, ela foi DESMONTADA, e é por
+  isso que não houve free nenhum.
+  ONDE QUEBRA: "desmontada" sugere que o terreno fica vazio e visível, e
+  não fica — o lugar pode já ter a casa da próxima função em cima, com as
+  coisas dela dentro. É exatamente por isso que o erro às vezes parece
+  funcionar. E a metáfora não diz nada sobre o terreno alugado, o do
+  monte: lá o bloco fica até você devolver, e isso é o kc_08 e o kc_09.
+
+resgates:
+
+  B1: >
+    A casa da rua lateral existe enquanto a função está rodando, e é
+    desmontada quando ela sai. Ninguém manda desmontar: acontece no
+    instante do retorno, e acontece porque aquela quadra tem essa regra.
+
+  B2: >
+    Enquanto a função roda, o número da casa dela é um número como
+    qualquer outro: dá para anotar, passar adiante, seguir. O endereço de
+    uma local não é um endereço de segunda classe — ele é bom, e o
+    problema é outro.
+
+  B3: >
+    O que a função devolve é copiado para quem chamou. Se você não guardar
+    numa variável, a cópia se perde — e chamar de novo é chamar de novo,
+    não recuperar o que ficou lá.
+
+  I1: >
+    Junte as duas: o que o retorno copia é o NÚMERO, e a casa fica para
+    trás. Quando quem chamou recebe o número, a casa já foi desmontada —
+    ela foi no mesmo instante em que o número saiu.
+
+  I2: >
+    Marcar a casa como permanente faz ela durar o programa inteiro, e o
+    número dela passa a valer para sempre. Mas o NOME continua só de
+    dentro da função: duração e escopo são duas coisas. E sem isso o lugar
+    muitas vezes ainda guarda o valor antigo — é aí que o erro parece
+    funcionar.
+
+  I3: >
+    Então dá para ter um ponteiro apontando para o nada sem ter chamado
+    free uma única vez. E o conserto não é um free nem um static: é o
+    chamador criar a caixa e passar o endereço dela para a função
+    preencher.
+
+exemplos:
+
+  B1: |
+    void f(void) { int n = 7; }
+    /* a caixa de n sai no retorno */
+
+  B2: |
+    void f(void) {
+        int n = 7;
+        int *p = &n;   /* bom, enquanto f roda */
+    }
+
+  B3: |
+    int soma(int a, int b);
+    soma(2, 3);        /* o 5 se perdeu */
+    int t = soma(2, 3);  /* guardado */
+
+  I1: |
+    int *f(void) { int n = 7; return &n; }
+    /* volta o numero; a caixa fica para tras */
+
+  I2: |
+    int *f(void) { static int n = 7; return &n; }
+    /* dura o programa; o NOME n continua interno */
+
+  I3: |
+    void g(int *destino) { *destino = 7; }
+    int n;  g(&n);     /* o chamador deu a caixa */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — o retorno encerra a existência das locais
+  # crença do nó: memory_is_uniform (do kc_01)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc12_e1
+    node: kc12:B1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      A casa da rua lateral é desmontada quando a função sai. Isso vale
+      para todo lugar da rua?
+    alternativas:
+      a: "Não: cada quadra tem sua regra"
+      b: "Vale: a rua é toda igual"
+      c: "Não: o terreno é desmontado também"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: local_survives_return
+
+  - id: ciu_kc12_001
+    node: kc12:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que acontece com as locais quando a função retorna?"
+    alternativas:
+      a: "Deixam de existir, sozinhas"
+      b: "Nada: a memória é uma só"
+      c: "Continuam, com o valor"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: local_survives_return
+
+  - id: ciu_kc12_002
+    node: kc12:B1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *g;
+      void f(void)     { int n = 7;  g = &n; }
+      void outra(void) { int m = 99;         }
+      f();
+      outra();
+      printf("%d\n", *g);
+    enunciado: "O que dá para dizer sobre a saída?"
+    alternativas:
+      a: "Nada: a caixa de n já saiu"
+      b: "7: a memória não distingue nada"
+      c: "7: a caixa de n continua lá"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: local_survives_return
+
+  - id: ciu_kc12_003
+    node: kc12:B1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *a(void) { static int n = 1;        return &n; }
+      int *b(void) { int *p = malloc(4);      return  p; }
+      int *c(void) { int n = 1;               return &n; }
+    enunciado: >
+      Duas das três devolvem endereço válido. Qual não devolve?
+    alternativas:
+      a: "A terceira: n é local comum"
+      b: "Nenhuma: a memória é uma só"
+      c: "A segunda: o bloco sai com b"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: local_survives_return
+
+  - id: ciu_kc12_t01
+    node: kc12:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Todas as áreas da memória seguem a mesma regra de vida?
+    alternativas:
+      a: "Não: a pilha e o monte diferem"
+      b: "Seguem: a memória é uma só"
+      c: "Seguem, e nada é desmontado"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: local_survives_return
+
+  - id: ciu_kc12_t02
+    node: kc12:B1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char *nome(void) {
+          char s[20] = "ana";
+          return s;
+      }
+    enunciado: "Por que o retorno não serve?"
+    alternativas:
+      a: "s é local, e sai no retorno"
+      b: "Serve: a memória não apaga"
+      c: "Serve: s continua com o texto"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: local_survives_return
+
+  - id: ciu_kc12_t03
+    node: kc12:B1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *f(void) {        int n = 1; return &n; }
+      int *g(void) { static int n = 2; return &n; }
+    enunciado: >
+      Uma das duas devolve endereço que vale depois. Qual?
+    alternativas:
+      a: "g: o static dura o programa"
+      b: "As duas: a memória é uma só"
+      c: "f: o n dela continua lá"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: local_survives_return
+
+  # ------------------------------------------------------------------
+  # B2 — &local é válido enquanto a função executa
+  # crença do nó: ampersand_copies (do kc_04)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc12_e2
+    node: kc12:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você anota o número da casa da rua lateral. O que você levou no
+      bolso?
+    alternativas:
+      a: "O número, e nada mais"
+      b: "Uma cópia da casa"
+      c: "A casa, que vem com você"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: local_survives_return
+
+  - id: ciu_kc12_004
+    node: kc12:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Enquanto a função roda, &local é o quê?"
+    alternativas:
+      a: "Um endereço bom, como outro"
+      b: "Uma cópia da variável local"
+      c: "Um endereço que vale depois"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: local_survives_return
+
+  - id: ciu_kc12_005
+    node: kc12:B2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(void) {
+          int n = 7;
+          int *p = &n;
+          *p = 9;
+          printf("%d\n", n);
+      }
+    enunciado: "O que sai, e por quê?"
+    alternativas:
+      a: "9: &n deu o endereço de n"
+      b: "7: p recebeu uma cópia"
+      c: "9, e n vale 9 depois de f"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: local_survives_return
+
+  - id: ciu_kc12_006
+    node: kc12:B2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      void f(void) {
+          int n = 1;
+          /* A */  int  c = n;
+          /* B */  int *p = &n;
+      }
+    enunciado: "Qual das duas permite mudar n?"
+    alternativas:
+      a: "B: p tem o endereço de n"
+      b: "As duas: &n e n dão o mesmo"
+      c: "Nenhuma: n não muda"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_data
+
+  - id: ciu_kc12_t04
+    node: kc12:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "&local copia a variável?"
+    alternativas:
+      a: "Não: dá o endereço dela"
+      b: "Copia: é o que viaja"
+      c: "Não, e a leva com você"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: local_survives_return
+
+  - id: ciu_kc12_t05
+    node: kc12:B2
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void dobra(int *p) { *p = *p * 2; }
+      void f(void) {
+          int n = 5;
+          dobra(n);
+      }
+    enunciado: "O que falta na chamada?"
+    alternativas:
+      a: "O &: dobra quer o endereço"
+      b: "Nada: n já viaja como cópia"
+      c: "Nada: dobra alcança o n"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_data
+
+  - id: ciu_kc12_t06
+    node: kc12:B2
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(void) {
+          int n = 1;
+          int *p = &n;
+          int  c =  n;
+          n = 9;
+          printf("%d %d\n", *p, c);
+      }
+    enunciado: "O que sai?"
+    alternativas:
+      a: "9 1: p segue n; c não"
+      b: "9 9: os dois seguem n"
+      c: "1 1: p copiou junto com c"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_data
+
+  # ------------------------------------------------------------------
+  # B3 — o valor retornado é copiado para o chamador
+  # crença do nó: retorno_fica_guardado (nova, Sorva item 38)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc12_e3
+    node: kc12:B3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      A função te devolve o número. Esse número fica guardado nela, ou
+      você precisa anotar?
+    alternativas:
+      a: "Preciso anotar: ele é copiado"
+      b: "Fica guardado nela, para depois"
+      c: "Fica, e a casa vem junto"
+    gabarito: a
+    crencas:
+      b: retorno_fica_guardado
+      c: local_survives_return
+
+  - id: ciu_kc12_007
+    node: kc12:B3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      O que acontece com o valor que uma função retorna?
+    alternativas:
+      a: "É copiado para quem chamou"
+      b: "Fica guardado na função"
+      c: "Volta junto com a variável"
+    gabarito: a
+    crencas:
+      b: retorno_fica_guardado
+      c: local_survives_return
+
+  - id: ciu_kc12_008
+    node: kc12:B3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int soma(int a, int b) { return a + b; }
+      void f(void) {
+          soma(2, 3);
+          printf("%d\n", soma(2, 3));
+      }
+    enunciado: "Por que a primeira chamada não serviu de nada?"
+    alternativas:
+      a: "O retorno não foi guardado"
+      b: "Serviu: ele fica na função"
+      c: "Serviu: o valor volta depois"
+    gabarito: a
+    crencas:
+      b: retorno_fica_guardado
+      c: local_survives_return
+
+  - id: ciu_kc12_009
+    node: kc12:B3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *f(void) { int n = 7; return &n; }
+      void g(void) {
+          /* A */  int *p = f();
+          /* B */  f();
+      }
+    enunciado: "O que cada uma faz com o endereço retornado?"
+    alternativas:
+      a: "A guarda numa caixa; B descarta"
+      b: "As duas guardam: f segura ele"
+      c: "As duas guardam, e a caixa vem"
+    gabarito: a
+    crencas:
+      b: retorno_fica_guardado
+      c: local_survives_return
+
+  - id: ciu_kc12_t07
+    node: kc12:B3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Para usar depois o que uma função retornou, o que é preciso?
+    alternativas:
+      a: "Guardar numa variável"
+      b: "Nada: ela segura o valor"
+      c: "Nada: o valor vem com a caixa"
+    gabarito: a
+    crencas:
+      b: retorno_fica_guardado
+      c: local_survives_return
+
+  - id: ciu_kc12_t08
+    node: kc12:B3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int conta(void) { static int n = 0; n++; return n; }
+      void f(void) {
+          conta();
+          printf("%d\n", conta());
+      }
+    enunciado: "O que sai?"
+    alternativas:
+      a: "2: a primeira chamada contou"
+      b: "1: a primeira ficou guardada"
+      c: "1: o n volta ao começo"
+    gabarito: a
+    crencas:
+      b: retorno_fica_guardado
+      c: static_is_scope
+
+  - id: ciu_kc12_t09
+    node: kc12:B3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char *monta(void);
+      void f(void) {
+          monta();
+          printf("%s\n", monta());
+      }
+    enunciado: "Por que chamar duas vezes, se o valor é o mesmo?"
+    alternativas:
+      a: "Sem guardar, o primeiro se perde"
+      b: "Não precisa: o valor fica lá"
+      c: "Não precisa: ele vem com a caixa"
+    gabarito: a
+    crencas:
+      b: retorno_fica_guardado
+      c: local_survives_return
+
+  # ------------------------------------------------------------------
+  # I1 — retornar &local copia um endereço, não o objeto
+  # crença do nó: pointer_is_data (do kc_02)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc12_e4
+    node: kc12:I1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você volta da rua lateral com o número no bolso. A casa veio com
+      você?
+    alternativas:
+      a: "Não: só o número veio"
+      b: "Veio: o número é a casa"
+      c: "Veio, e continua montada"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: local_survives_return
+
+  - id: ciu_kc12_010
+    node: kc12:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Retornar &local devolve o quê?"
+    alternativas:
+      a: "Um endereço"
+      b: "A variável local"
+      c: "A variável, que sobrevive"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: local_survives_return
+
+  - id: ciu_kc12_011
+    node: kc12:I1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *f(void) {
+          int n = 7;
+          return &n;
+      }
+      void g(void) {
+          int *p = f();
+          printf("%zu\n", sizeof p);
+      }
+    enunciado: "O sizeof mede o quê?"
+    alternativas:
+      a: "O ponteiro p"
+      b: "O int que veio de f"
+      c: "O int, que ainda existe"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: local_survives_return
+
+  - id: ciu_kc12_012
+    node: kc12:I1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int  a(void) { int n = 7; return  n; }
+      int *b(void) { int n = 7; return &n; }
+    enunciado: "Qual das duas devolve algo utilizável?"
+    alternativas:
+      a: "a: ela copia o 7"
+      b: "As duas: o endereço é o 7"
+      c: "As duas: o n continua lá"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: local_survives_return
+
+  - id: ciu_kc12_t10
+    node: kc12:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Um endereço e o objeto do endereço são a mesma coisa?
+    alternativas:
+      a: "Não: um leva ao outro"
+      b: "São: o endereço é o dado"
+      c: "Não, mas os dois sobrevivem"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: local_survives_return
+
+  - id: ciu_kc12_t11
+    node: kc12:I1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *f(void) {
+          int n = 7;
+          return &n;
+      }
+      void g(void) { printf("%d\n", *f()); }
+    enunciado: "Onde está o problema?"
+    alternativas:
+      a: "O *f() vai a uma caixa que saiu"
+      b: "Em nada: f devolveu o 7 em si"
+      c: "Em nada: a caixa ficou"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: local_survives_return
+
+  - id: ciu_kc12_t12
+    node: kc12:I1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *f(void) { int n = 7; return &n; }
+      void g(void) {
+          int *p = f();
+          printf("%d\n", p == NULL);
+      }
+    enunciado: "O que sai, e o que isso diz sobre p?"
+    alternativas:
+      a: "0: p tem um endereço, mas ruim"
+      b: "0: p tem o 7 dentro"
+      c: "0: p aponta uma caixa viva"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: local_survives_return
+
+  # ------------------------------------------------------------------
+  # I2 — static muda a duração, não o escopo
+  # crença do nó: static_is_scope
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc12_e5
+    node: kc12:I2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Marcar a casa como permanente faz o quê: ela dura mais, ou o nome
+      dela passa a valer fora da rua lateral?
+    alternativas:
+      a: "Ela dura mais; o nome não sai"
+      b: "O nome passa a valer fora"
+      c: "As duas coisas, juntas"
+    gabarito: a
+    crencas:
+      b: static_is_scope
+      c: local_survives_return
+
+  - id: ciu_kc12_013
+    node: kc12:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que static muda numa variável local?"
+    alternativas:
+      a: "A duração, não o escopo"
+      b: "O escopo: ela sai da função"
+      c: "Nada: ela já durava"
+    gabarito: a
+    crencas:
+      b: static_is_scope
+      c: local_survives_return
+
+  - id: ciu_kc12_014
+    node: kc12:I2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *f(void) {
+          static int n = 7;
+          return &n;
+      }
+      void g(void) { printf("%d\n", *f()); }
+    enunciado: "Isso funciona. O que o static garantiu?"
+    alternativas:
+      a: "Que a caixa dura o programa"
+      b: "Que o nome n vale fora de f"
+      c: "Nada: funcionaria sem ele"
+    gabarito: a
+    crencas:
+      b: static_is_scope
+      c: local_survives_return
+
+  - id: ciu_kc12_015
+    node: kc12:I2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *a(void) { static int n = 1; return &n; }
+      int *b(void) {        int n = 1; return &n; }
+    enunciado: "A segunda às vezes parece funcionar. Por quê?"
+    alternativas:
+      a: "O lugar ainda guarda o valor"
+      b: "Porque o escopo é o mesmo"
+      c: "Porque o n dela também dura"
+    gabarito: a
+    crencas:
+      b: static_is_scope
+      c: local_survives_return
+
+  - id: ciu_kc12_t13
+    node: kc12:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Depois do static, o nome n vale fora da função?"
+    alternativas:
+      a: "Não: o nome continua interno"
+      b: "Vale: o static exporta o nome"
+      c: "Vale, porque a caixa dura"
+    gabarito: a
+    crencas:
+      b: static_is_scope
+      c: local_survives_return
+
+  - id: ciu_kc12_t14
+    node: kc12:I2
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void f(void) { static int n = 7; }
+      void g(void) { printf("%d\n", n); }
+    enunciado: "Por que g não compila?"
+    alternativas:
+      a: "n só tem nome dentro de f"
+      b: "O static devia exportar n"
+      c: "n durou, então devia valer"
+    gabarito: a
+    crencas:
+      b: static_is_scope
+      c: local_survives_return
+
+  - id: ciu_kc12_t15
+    node: kc12:I2
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int conta(void) { static int n = 0; return ++n; }
+      void f(void) {
+          printf("%d\n", conta());
+          printf("%d\n", conta());
+      }
+    enunciado: "O que sai nas duas linhas?"
+    alternativas:
+      a: "1 e 2: a caixa durou entre elas"
+      b: "1 e 1: o nome reinicia o n"
+      c: "1 e 1: o retorno ficou guardado"
+    gabarito: a
+    crencas:
+      b: static_is_scope
+      c: retorno_fica_guardado
+
+  # ------------------------------------------------------------------
+  # I3 — a conclusão: pendente sem free, e o conserto é do chamador
+  # crença do nó: local_survives_return
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc12_e6
+    node: kc12:I3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      O número no seu bolso leva a um lote onde a casa foi desmontada.
+      Alguém devolveu algo?
+    alternativas:
+      a: "Não: ela foi desmontada"
+      b: "Não, e a casa ainda está lá"
+      c: "Devolveram: o lote voltou"
+    gabarito: a
+    crencas:
+      b: local_survives_return
+      c: memory_is_uniform
+
+  - id: ciu_kc12_016
+    node: kc12:I3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Dá para ter ponteiro pendente sem chamar free?"
+    alternativas:
+      a: "Dá: com endereço de local"
+      b: "Não dá: sem free não há pendente"
+      c: "Não dá: a memória é uma só"
+    gabarito: a
+    crencas:
+      b: local_survives_return
+      c: memory_is_uniform
+
+  - id: ciu_kc12_017
+    node: kc12:I3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *f(void) {
+          int n = 7;
+          return &n;
+      }
+    enunciado: "Qual é o jeito certo de f entregar o 7?"
+    alternativas:
+      a: "Retornar o int, não o endereço"
+      b: "Assim mesmo: o n continua lá"
+      c: "Chamar free antes do return"
+    gabarito: a
+    crencas:
+      b: local_survives_return
+      c: memory_is_uniform
+
+  - id: ciu_kc12_018
+    node: kc12:I3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int *f(void)         { int n = 7; return &n; }
+      /* B */  void g(int *destino) { *destino = 7;         }
+    enunciado: >
+      Qual das duas o chamador pode usar com segurança?
+    alternativas:
+      a: "B: o chamador deu a caixa"
+      b: "As duas: o n de A sobrevive"
+      c: "A: ela é mais simples"
+    gabarito: a
+    crencas:
+      b: local_survives_return
+      c: memory_is_uniform
+
+  - id: ciu_kc12_t16
+    node: kc12:I3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Qual é o jeito certo de uma função preencher algo para o chamador?
+    alternativas:
+      a: "O chamador passa o endereço"
+      b: "A função cria e devolve a local"
+      c: "Qualquer um: a memória é uma"
+    gabarito: a
+    crencas:
+      b: local_survives_return
+      c: memory_is_uniform
+
+  - id: ciu_kc12_t17
+    node: kc12:I3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void monta(char *destino, int n) {
+          snprintf(destino, n, "ana");
+      }
+      void f(void) {
+          char s[20];
+          monta(s, 20);
+          printf("%s\n", s);
+      }
+    enunciado: >
+      Por que isso é seguro, e retornar um char[] local não é?
+    alternativas:
+      a: "A caixa é de f, e f não saiu"
+      b: "As duas são: a local fica"
+      c: "As duas são: a memória é uma"
+    gabarito: a
+    crencas:
+      b: local_survives_return
+      c: memory_is_uniform
+
+  - id: ciu_kc12_t18
+    node: kc12:I3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *maior(int a, int b) {
+          int m = a > b ? a : b;
+          return &m;
+      }
+    enunciado: "Como consertar sem usar malloc?"
+    alternativas:
+      a: "Devolver o int, e não &m"
+      b: "Não precisa: m continua lá"
+      c: "Chamar free(&m) antes"
+    gabarito: a
+    crencas:
+      b: local_survives_return
+      c: memory_is_uniform

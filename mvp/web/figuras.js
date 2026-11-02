@@ -1663,6 +1663,136 @@
     }
   };
 
+  /* ------------- kc_12: a casa desmontada, e o numero no seu bolso */
+
+  /* O DECIMO SEGUNDO E ULTIMO. Continua a rua lateral do kc_01: a casa e
+   * DESMONTADA no retorno, e o numero dela continua no seu bolso.
+   *
+   * A disciplina do desenho, e ela e a diferenca em relacao ao kc_09: a
+   * casa desmontada aparece TRACEJADA e vazia, nao com `sujo` e `?`. No
+   * kc_09 o lote devolvido existia e podia ter outro dono; aqui a casa
+   * FOI DESMONTADA, e o que o desenho tem de dizer e que ela nao esta
+   * mais la. Desenha-la com conteudo diria que o valor antigo e
+   * confiavel — e e justamente isso que faz o erro "parecer funcionar",
+   * que o no I2 trata em palavras e nao em figura. */
+
+  POR_TOPICO.kc_12 = {
+
+    /* B1 — a casa e desmontada no retorno, e ninguem manda. */
+    B1: function () {
+      var s = svg(360, 208);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "enquanto f roda"));
+      s.appendChild(casa(30, 58, { endereco: "0x7F00", dentro: "7",
+                                   nome: "n", largura: 112 }));
+      s.appendChild(seta(150, 90, 212, 90));
+      s.appendChild(el("text", { x: 181, y: 74, "class": "fig-nota" },
+                       "return"));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "depois dela"));
+      s.appendChild(casa(218, 58, { endereco: "0x7F00", vazia: true,
+                                    nome: "desmontada", largura: 112 }));
+      legenda(s, 178, "ninguem manda desmontar: e a regra da quadra");
+      legenda(s, 196, "e nao houve free nenhum");
+      return s;
+    },
+
+    /* B2 — o endereco de uma local nao e de segunda classe. */
+    B2: function () {
+      var s = svg(360, 202);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "dentro de f:  int n = 7;  int *p = &n;"));
+      s.appendChild(casa(28, 60, { endereco: "0x7F00", dentro: "7",
+                                   nome: "n", largura: 108 }));
+      s.appendChild(casa(218, 60, { endereco: "0x7F40", dentro: "0x7F00",
+                                    nome: "p", largura: 108 }));
+      s.appendChild(seta(214, 92, 142, 92));
+      legenda(s, 176, "o endereco de uma local nao e de segunda classe");
+      legenda(s, 194, "enquanto f roda, ele e bom como outro");
+      return s;
+    },
+
+    /* B3 — o retorno e copiado, e sem caixa a copia se perde. */
+    B3: function () {
+      var s = svg(360, 206);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "soma(2, 3);"));
+      s.appendChild(el("rect", { x: 34, y: 56, width: 104, height: 34, rx: 9,
+                                 "class": "fig-placa" }));
+      s.appendChild(el("text", { x: 86, y: 73, "class": "fig-placa-txt" },
+                       "5"));
+      s.appendChild(el("text", { x: 86, y: 114, "class": "fig-legenda erro" },
+                       "a copia se perdeu"));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "int t = soma(2, 3);"));
+      s.appendChild(casa(218, 56, { endereco: "0x7F80", dentro: "5",
+                                    nome: "t", largura: 108, altura: 34 }));
+      legenda(s, 174, "o retorno e copiado para quem chamou");
+      legenda(s, 192, "sem caixa para receber, a copia se perde");
+      return s;
+    },
+
+    /* I1 — voltou o numero; a caixa ficou para tras. */
+    I1: function () {
+      var s = svg(360, 218);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 22, "class": "fig-rodape" },
+                       "int *f(void) { int n = 7; return &n; }"));
+      s.appendChild(casa(28, 58, { endereco: "0x7F00", vazia: true,
+                                   nome: "n, desmontada", largura: 108 }));
+      s.appendChild(casa(218, 58, { endereco: "0x6000", dentro: "0x7F00",
+                                    nome: "p, do chamador", largura: 108 }));
+      s.appendChild(seta(214, 90, 142, 90, "proibida"));
+      legenda(s, 176, "o que voltou foi o numero");
+      legenda(s, 194, "e a caixa ficou para tras");
+      legenda(s, 212, "no mesmo instante do retorno");
+      return s;
+    },
+
+    /* I2 — static: dura mais, e o nome nao sai. */
+    I2: function () {
+      var s = svg(360, 214);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "static int n = 7;"));
+      s.appendChild(casa(124, 56, { endereco: "0x9100", dentro: "7",
+                                    nome: "n, dura o programa",
+                                    largura: 112 }));
+      s.appendChild(seta(240, 88, 312, 88, "proibida"));
+      s.appendChild(el("text", { x: 300, y: 114, "class": "fig-legenda erro" },
+                       "o nome nao sai"));
+      legenda(s, 166, "duracao e escopo sao duas coisas");
+      legenda(s, 184, "o static mexe na primeira, nao na segunda");
+      legenda(s, 202, "e sem ele o lugar as vezes guarda o valor");
+      return s;
+    },
+
+    /* I3 — a conclusao: pendente sem free, e o conserto e do chamador. */
+    I3: function () {
+      var s = svg(360, 230);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "errado: f devolveu &n"));
+      s.appendChild(casa(30, 58, { endereco: "0x7F00", vazia: true,
+                                   largura: 112 }));
+      s.appendChild(el("text", { x: 86, y: 140, "class": "fig-legenda erro" },
+                       "pendente, sem free"));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "certo: a caixa e do chamador"));
+      s.appendChild(casa(218, 58, { endereco: "0x6000", dentro: "7",
+                                    largura: 112 }));
+      s.appendChild(el("text", { x: 272, y: 140, "class": "fig-nota" },
+                       "f so preencheu"));
+      legenda(s, 186, "da para ter pendente sem nenhum free");
+      legenda(s, 204, "e o conserto nao e free nem static:");
+      legenda(s, 222, "e o chamador fornecer o armazenamento");
+      return s;
+    }
+  };
+
   var topicoAtual = "kc_00";
 
   function doNo(no) {

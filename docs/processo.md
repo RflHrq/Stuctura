@@ -1399,3 +1399,124 @@ diferentes em dois catálogos.
 Buraco na escada, nó sem item de entrada, nó sem figura, e um nó de
 diagnóstico perdendo o par teórica+código — esta última derruba a carga do
 domínio.
+
+## Ciclo de conteúdo — o kc_12 (ponteiro pendente por escopo) · **o último**
+
+Décimo terceiro tópico, e com ele **os doze da curadoria estão
+construídos**, mais o kc_00 de pré-requisito. 79 nós, 556 itens.
+
+### Nove nós curados, seis aqui
+
+A curadoria tem duas crenças (I2 e I4), e **seis dos nove nós não têm
+crença nenhuma**. Três dobras:
+
+| Curado | Virou | Por quê |
+| --- | --- | --- |
+| B1 (locais existem durante a execução) + B2 (o retorno encerra) | `B1` | o antes e o depois de uma coisa só |
+| I1 (retornar `&local` copia um endereço) + I2 (quando o chamador recebe, o objeto já saiu) | `I1` | o segundo é o instante do primeiro |
+| I3 (dangling sem free) + I5 (o chamador fornece o armazenamento) | `I3`, a conclusão | o I5 tem **zero caminhos** e é o conserto da conclusão, não premissa |
+
+### Todas as seis crenças são grade T
+
+É a **imagem espelhada do kc_11**, que fechou com seis `L`. As duas coisas
+fazem sentido juntas: escopo e tempo de vida são estudados empiricamente
+em outras linguagens (du Boulay, Kaczmarczyk, Kumar, Hristova), enquanto
+aritmética de ponteiro é assunto de FAQ de C.
+
+| Crença | Nó | De onde |
+| --- | --- | --- |
+| `memory_is_uniform` | B1 | Kaczmarczyk p. 109 Tabela 1 tema T1 — kc_01 |
+| `ampersand_copies` | B2 | Sorva p. 362 item 66 — kc_04, kc_06, kc_10 |
+| `retorno_fica_guardado` | B3 | **nova** — Sorva p. 361 item 38 (Hristova et al. 2003) |
+| `pointer_is_data` | I1 | Sorva p. 360 item 14 — kc_02, kc_04, kc_08 |
+| `static_is_scope` | I2 | Sorva p. 114 (curada) |
+| `local_survives_return` | I3 | Kumar (2001) ITiCSE + Sorva p. 359 item 5 (curada) |
+
+A nova vem do item 38, e a frase está no original com o plural trocado:
+*"A return values does not need to be stored (even if one needs it
+later)"* (Hristova et al. 2003). Fica citada assim, como está.
+
+### A quinta observação de citação: existe, mas é fina
+
+`static_is_scope` está citada como **Sorva (2012), p. 114**. Conferida: a
+página traz, numa lista das distinções que o autor diz que confundem quem
+está começando, o par **"scope vs. lifetime"** — que é exatamente a
+confusão que a crença nomeia. A fonte **existe e diz a coisa certa**.
+
+Mas é **um item de lista no texto corrido**, não uma entrada da Tabela A.1
+com estudo atrás. É a mais fina das seis crenças deste tópico, e por isso
+veio acompanhada do item 5 da tabela (*"Difficulties understanding the
+lifetime of values"*, du Boulay 1986), que sustenta a metade do tempo de
+vida com citação própria. A ressalva está escrita no YAML.
+
+Esta é a quinta observação de citação do projeto, e a mais branda: as três
+primeiras apontavam para a entrada vizinha, a quarta (no kc_08) apontava
+para entradas que **não sustentavam** a crença, e esta aponta para uma
+fonte **certa mas magra**.
+
+### Duas regras a mais no banco
+
+1. **Nenhum item depende de ordem de avaliação não especificada.** O
+   `printf("%d %d\n", conta(), conta())` é tentador para medir o `static`,
+   e o padrão não diz qual chamada roda primeiro — quem acertasse
+   acertaria por sorte. Onde duas chamadas precisam aparecer, elas vão em
+   duas linhas (`ciu_kc12_t15`).
+2. **Nenhum item pergunta o que sai** ao usar o ponteiro pendente. É a
+   mesma regra do kc_09, e aqui ela pesa mais: premiar "o valor antigo"
+   ensinaria justamente o que faz o erro **parecer funcionar**.
+
+### A figura faz o contrário do kc_09, de propósito
+
+No kc_09 o lote devolvido aparece com `sujo` e `?`: ele **existe** e pode
+ter outro dono. Aqui a casa aparece **tracejada e vazia**: ela foi
+**desmontada**, e o que o desenho tem de dizer é que não está mais lá.
+Desenhá-la com conteúdo diria que o valor antigo é confiável — e é
+exatamente isso que faz o erro parecer funcionar, o que o nó I2 trata em
+palavras, e não em figura.
+
+### A medição
+
+| Persona | kc_12 |
+| --- | --- |
+| acerta tudo | 45 passos, 0/12 sem medida |
+| erra e aprende | 82, 0/12 |
+| erra e não muda | 88, 0/12 |
+
+### Os treze tópicos, 79 nós, 556 itens
+
+| Tópico | Nós | Itens | Procedências |
+| --- | --- | --- | --- |
+| `kc_00` | 5 | 20 | 3 L, 1 T, **1 E** |
+| `kc_01` | 5 | 35 | 3 T, 1 L, **1 E** |
+| `kc_02` · piloto | 6 | 60 | 2 T, 1 D, 1 L, **2 E** |
+| `kc_03` | 6 | 42 | 3 D, 2 L, 1 T |
+| `kc_04` | 6 | 42 | 3 L, 3 T |
+| `kc_05` | 6 | 42 | 4 L, 1 T, 1 N |
+| `kc_06` | 6 | 42 | 5 T, 1 L |
+| `kc_07` · piloto | 7 | 49 | 6 L, 1 T |
+| `kc_08` | 6 | 42 | 4 L, 1 T, 1 N |
+| `kc_09` · piloto | 8 | 56 | 6 L, 1 T, 1 N |
+| `kc_10` | 6 | 42 | 4 L, 2 T |
+| `kc_11` · piloto | 6 | 42 | 6 L |
+| `kc_12` | 6 | 42 | **6 T** |
+
+**Dez tópicos construídos depois do contrato de linguagem, dez sem nenhuma
+`E`.** As quatro `E` restantes estão todas nos três mais antigos — e das
+quatro, só duas estão num piloto (o kc_02), que é a pergunta em aberto 10.
+
+Em todos os treze, nas três personas, **nenhuma premissa fica sem medida**.
+
+### O que o ciclo de conteúdo deixa para trás
+
+| O que | Onde está registrado |
+| --- | --- |
+| As duas `E` do kc_02, com a fonte candidata já lida (FAQ 7.3c) | pergunta 10 |
+| Os 51 candidatos de segundo item por degrau, sem revisão | `candidatos/`, e a revisão deixou de ser urgente |
+| A suíte do MVP em 4 minutos | pergunta 11 |
+| Os 6 ou 8 nós do kc_04 | pergunta 7 |
+| 113 passos no kc_09 | pergunta 9 |
+
+### As quatro sabotagens
+
+Buraco na escada, nó sem item de entrada, nó sem figura, e o treino
+perdendo a variedade de formato — a última derruba a carga do domínio.

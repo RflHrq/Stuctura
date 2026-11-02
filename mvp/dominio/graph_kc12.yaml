@@ -1,0 +1,118 @@
+topic: kc_12
+
+# O DÉCIMO SEGUNDO E ÚLTIMO tópico da curadoria. Com ele, os doze estão
+# construídos.
+#
+# A METÁFORA DESTE TÓPICO: a casa desmontada, e o número no seu bolso.
+#
+# Continua a rua lateral do kc_01. A casa da rua lateral é desmontada
+# quando a função sai — mas o NÚMERO dela, que você anotou e levou no
+# bolso, continua anotado. O papel parece bom e não é: ele leva a um lote
+# onde não há mais casa. E ninguém devolveu nada: a casa não foi
+# devolvida, ela foi DESMONTADA — e é por isso que não houve `free` nenhum.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. "Desmontada" sugere que o terreno fica vazio e visível. Não fica: o
+#      lugar pode já ter a casa da próxima função em cima, com as coisas
+#      dela dentro. E é exatamente por isso que o erro "às vezes funciona"
+#      — às vezes ninguém construiu ali ainda. Esse "às vezes funciona" é
+#      o nó I2.
+#   2. A metáfora não diz nada sobre o terreno alugado, o do monte. Lá o
+#      bloco fica até você devolver, e isso é o kc_08 e o kc_09. Aqui a
+#      casa some sozinha, e a diferença é o ponto do tópico.
+#
+# NOVE NÓS CURADOS, SEIS AQUI. A curadoria tem duas crenças (I2 e I4), e
+# seis dos nove nós não têm crença nenhuma. Três dobras:
+#
+#   curado B1 ("locais existem durante a execução") + B2 ("o retorno
+#     encerra a existência delas") -> B1 deste grafo. São o antes e o
+#     depois de uma coisa só;
+#   curado I1 ("retornar &local copia um endereço") + I2 ("quando o
+#     chamador recebe, o objeto já não existe") -> I1 deste grafo;
+#   curado I3 ("logo há dangling sem nenhum free") + I5 ("o caminho certo
+#     é o chamador fornecer o armazenamento") -> I3 deste grafo, a
+#     conclusão. O I5 tem ZERO caminhos na curadoria, e é o conserto da
+#     conclusão, não uma premissa separada.
+#
+# TODAS AS SEIS CRENÇAS SÃO GRADE T. É a imagem espelhada do kc_11, que
+# fechou com seis `L`, e as duas coisas fazem sentido juntas: escopo e
+# tempo de vida são estudados empiricamente em outras linguagens
+# (du Boulay, Kaczmarczyk, Kumar, Hristova), enquanto aritmética de
+# ponteiro é assunto de FAQ de C.
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "O retorno da função encerra a existência das suas locais."
+    plain_text: >
+      As caixas criadas dentro de uma função existem enquanto ela está
+      rodando. Quando ela retorna, elas deixam de existir — e ninguém
+      precisa mandar apagar.
+    negated_by:
+      - memory_is_uniform
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "&local é endereço válido enquanto a função executa."
+    plain_text: >
+      Enquanto a função roda, o endereço de uma caixa dela é um endereço
+      perfeitamente bom, como qualquer outro.
+    negated_by:
+      - ampersand_copies
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "O valor retornado é copiado para o chamador."
+    plain_text: >
+      O que a função retorna é copiado para quem chamou. Se você não
+      guardar numa variável, ele se perde.
+    negated_by:
+      - retorno_fica_guardado
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B2, B3]
+    text: >
+      Retornar &local copia um endereço, não o objeto: quando o chamador o
+      recebe, o objeto já não existe.
+    plain_text: >
+      Então retornar &local copia o endereço, e a caixa fica para trás.
+      Quando quem chamou recebe esse endereço, a caixa já sumiu — ela
+      sumiu no mesmo instante do retorno.
+    negated_by:
+      - pointer_is_data
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [B1]
+    text: "static muda a duração, não o escopo; por isso às vezes parece funcionar."
+    plain_text: >
+      Marcar a caixa como static faz ela durar o programa inteiro, mas o
+      nome continua só de dentro da função. E sem static o lugar muitas
+      vezes ainda guarda o valor antigo — e aí o erro parece funcionar.
+    negated_by:
+      - static_is_scope
+
+  I3:
+    type: inferencia
+    role: conclusao
+    support: [B1, I1, I2]
+    text: >
+      Há ponteiro pendente sem nenhum free; o caminho certo é o chamador
+      fornecer o armazenamento.
+    plain_text: >
+      Juntando: dá para acabar com um ponteiro apontando para o nada sem
+      ter chamado free uma única vez. O jeito certo é quem chama criar a
+      caixa e passar o endereço dela para a função preencher.
+    negated_by:
+      - local_survives_return
