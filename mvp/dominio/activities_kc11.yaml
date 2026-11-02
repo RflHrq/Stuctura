@@ -1,0 +1,885 @@
+# Banco de atividades — kc_11, "aritmética de ponteiros" · PILOTO
+#
+# Seis nós, sete itens cada: 42. Um de entrada (o degrau mais baixo, na
+# analogia), três de diagnóstico (um por degrau, com o par teórica +
+# código) e três de treino.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Em todo item, um distrator aponta a crença
+# do próprio nó — senão o nó nunca recebe atribuição — e outro a de um
+# vizinho. A crença do próprio nó abre a cédula (vem na alternativa `b`).
+#
+# DUAS REGRAS A MAIS NESTE TÓPICO, as duas de piloto:
+#
+#   1. Nenhum item pede um número de bytes. "p + 1 anda 4 bytes" é
+#      verdade nesta máquina e não no padrão, e quem acertasse por saber
+#      o sizeof da máquina dele acertaria POR FORA da premissa. As
+#      respostas falam em "uma caixa", "um elemento do tipo de p".
+#      É a mesma regra do kc_07, e pela mesma razão.
+#   2. Um item de diagnóstico — o ciu_kc11_017 — é o código LITERAL da
+#      pergunta 4.4 do FAQ, que é a fonte da crença da conclusão. Fica
+#      assim de propósito: é o enunciado em que a crença foi registrada
+#      pela primeira vez, escrito por quem a tinha.
+
+analogy: >
+  Andar de casa em casa, não de passo em passo. Continua o quarteirão do
+  kc_07, onde as casas são todas do mesmo tamanho. p + 1 não é "andar um
+  metro": é "andar uma casa". Quem sabe o tamanho da casa é a planta — o
+  tipo —, e a prefeitura já faz a conversão: você diz "avance uma casa" e
+  ela converte em metros sozinha. Se você converter também, anda o dobro.
+  ONDE QUEBRA: "andar" sugere caminho e distância percorrida, e não há —
+  p + 1 não passa pelas casas do meio e não custa mais por andar mais
+  longe. É cálculo, não caminhada. E a metáfora não diz nada sobre o que
+  acontece se você passar do fim do quarteirão: aqui o ponto é a ESCALA da
+  conta, não o limite dela.
+
+resgates:
+
+  B1: >
+    Todo papel de ponteiro vem com a planta anexada: ele diz o tipo do que
+    está no destino. Não existe ponteiro que seja só um número solto —
+    e é dessa planta que sai o tamanho da casa.
+
+  B2: >
+    O tamanho de cada tipo é fixo, e está escrito na declaração. O
+    compilador lê isso antes de o programa rodar: ninguém precisa descobrir
+    o tamanho em execução, e o ponteiro não carrega essa informação.
+
+  B3: >
+    As casas do quarteirão ficam grudadas, uma logo depois da outra, sem
+    buraco entre elas. É isso que faz a conta de andar funcionar: a
+    próxima casa está exatamente a um tamanho de distância.
+
+  I1: >
+    Então a[i] e *(a + i) são a mesma coisa escrita de dois jeitos: ande i
+    casas a partir do começo, e olhe o que tem lá. O índice não é uma
+    operação especial do array — é a soma, com outra sintaxe.
+
+  I2: >
+    E se o papel não traz planta nenhuma, como no void *, não há tamanho
+    de casa. Sem tamanho não há quanto andar, e a conta não existe: não é
+    que ela dê errado, é que ela não está definida.
+
+  I3: >
+    Juntando: você diz "avance uma casa" e o compilador converte sozinho,
+    porque ele conhece a planta. Multiplicar por sizeof na mão é fazer a
+    conversão duas vezes — e o ponteiro pula longe demais.
+
+exemplos:
+
+  B1: |
+    int  *p;     /* a planta diz: int  */
+    char *c;     /* a planta diz: char */
+
+  B2: |
+    sizeof(int)     /* fixo, e sabido na compilacao */
+    sizeof *p       /* funciona sem p ter valor */
+
+  B3: |
+    int v[3];
+    &v[1] - &v[0]   /* 1: sao vizinhas */
+
+  I1: |
+    v[2]            /* e */
+    *(v + 2)        /* sao a mesma coisa */
+
+  I2: |
+    void *q;
+    q + 1           /* nao: sem tipo, sem escala */
+
+  I3: |
+    int *p = v;
+    p + 1           /* anda uma caixa de int */
+    p + 1 * sizeof(int)   /* anda longe demais */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — p aponta para um objeto de um tipo definido
+  # crença do nó: pointer_is_integer (do kc_02)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc11_e1
+    node: kc11:B1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      No quarteirão, para saber quanto é "uma casa", o que você precisa
+      saber?
+    alternativas:
+      a: "O tamanho da casa, pela planta"
+      b: "Nada: é só somar um número"
+      c: "O tamanho, que vem no papel"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_knows_block_size
+
+  - id: ciu_kc11_001
+    node: kc11:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que um ponteiro sabe, além do endereço?"
+    alternativas:
+      a: "O tipo do que está lá"
+      b: "Nada: é um número e ponto"
+      c: "O tamanho do bloco todo"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_knows_block_size
+
+  - id: ciu_kc11_002
+    node: kc11:B1
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 5;
+      int *p = 1000;
+    enunciado: "Por que o compilador reclama da segunda linha?"
+    alternativas:
+      a: "1000 é int, e p quer um endereço"
+      b: "Não reclama: ponteiro é um inteiro"
+      c: "Não reclama: falta só o tamanho"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_knows_block_size
+
+  - id: ciu_kc11_003
+    node: kc11:B1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      char *c;
+      int  *i;
+      /* A */  c + 1
+      /* B */  i + 1
+    enunciado: "As duas somas andam o mesmo tanto?"
+    alternativas:
+      a: "Não: cada tipo tem seu passo"
+      b: "Andam: a soma é de inteiros"
+      c: "Andam: o papel diz o tamanho"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_knows_block_size
+
+  - id: ciu_kc11_t01
+    node: kc11:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "De onde vem o tamanho do passo de p + 1?"
+    alternativas:
+      a: "Do tipo apontado por p"
+      b: "De lugar nenhum: é só somar 1"
+      c: "Do bloco, que p carrega"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_knows_block_size
+
+  - id: ciu_kc11_t02
+    node: kc11:B1
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int v[3] = {10, 20, 30};
+      int *p = v;
+      printf("%d\n", *(p + 1));
+    enunciado: "O que sai?"
+    alternativas:
+      a: "20: andou uma caixa de int"
+      b: "20, e andaria igual com char"
+      c: "lixo: faltou dizer o tamanho"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_knows_block_size
+
+  - id: ciu_kc11_t03
+    node: kc11:B1
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void *v;
+      int  *p;
+      p = v + 1;
+    enunciado: "Qual é o problema da terceira linha?"
+    alternativas:
+      a: "v não tem tipo para escalar"
+      b: "Nenhum: v é um inteiro como p"
+      c: "Nenhum: v carrega o tamanho"
+    gabarito: a
+    crencas:
+      b: pointer_is_integer
+      c: pointer_knows_block_size
+
+  # ------------------------------------------------------------------
+  # B2 — o tamanho do tipo é fixo e sabido na compilação
+  # crença do nó: pointer_knows_block_size (do kc_09)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc11_e2
+    node: kc11:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Quem decide o tamanho da casa: a planta, ou o papel que você tem na
+      mão?
+    alternativas:
+      a: "A planta, antes de tudo"
+      b: "O papel, que traz o tamanho"
+      c: "Nenhum: toda casa é igual"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: pointer_is_integer
+
+  - id: ciu_kc11_004
+    node: kc11:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Quando o compilador descobre o tamanho do tipo de p?"
+    alternativas:
+      a: "Na declaração, antes de rodar"
+      b: "Em execução, lendo o ponteiro"
+      c: "Não descobre: soma byte a byte"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_005
+    node: kc11:B2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p;
+      printf("%zu\n", sizeof *p);
+    enunciado: "Isso funciona, mesmo com p sem valor?"
+    alternativas:
+      a: "Funciona: o tipo basta"
+      b: "Não: falta o bloco para medir"
+      c: "Não: sem valor não há conta"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_006
+    node: kc11:B2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int  *p;
+      char *c;
+      /* A */  sizeof *p
+      /* B */  sizeof *c
+    enunciado: "O compilador precisa rodar o programa para responder?"
+    alternativas:
+      a: "Não: os tipos estão escritos"
+      b: "Precisa: o tamanho vem do destino"
+      c: "Precisa: ele conta os bytes"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t04
+    node: kc11:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O tamanho de um int muda de uma variável para outra?"
+    alternativas:
+      a: "Não: é fixo por tipo"
+      b: "Muda: cada ponteiro traz o seu"
+      c: "Muda: depende do valor guardado"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t05
+    node: kc11:B2
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(10 * sizeof(int));
+      printf("%zu\n", sizeof *p);
+    enunciado: "Por que isso não diz o tamanho dos dez ints?"
+    alternativas:
+      a: "sizeof *p mede um int"
+      b: "Diz: p guarda o tamanho pedido"
+      c: "Diz: sizeof conta os bytes do bloco"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t06
+    node: kc11:B2
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      struct ponto { int x, y; };
+      struct ponto *p;
+      printf("%zu\n", sizeof *p);
+    enunciado: "O que o compilador usa para responder?"
+    alternativas:
+      a: "A declaração do struct"
+      b: "O bloco que p aponta"
+      c: "A soma dos bytes em execução"
+    gabarito: a
+    crencas:
+      b: pointer_knows_block_size
+      c: ptr_arith_is_bytes
+
+  # ------------------------------------------------------------------
+  # B3 — os elementos de um array são contíguos
+  # crença do nó: string_literal_is_array (do kc_07)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc11_e3
+    node: kc11:B3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      As casas do quarteirão ficam grudadas, ou há espaço entre elas?
+    alternativas:
+      a: "Grudadas, uma após a outra"
+      b: "Há espaço: cada uma é sua"
+      c: "Há espaço do tamanho do passo"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_007
+    node: kc11:B3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Como ficam os elementos de um array na memória?"
+    alternativas:
+      a: "Um logo depois do outro"
+      b: "Espalhados, com um índice"
+      c: "Juntos, com um byte entre eles"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_008
+    node: kc11:B3
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int v[3];
+      printf("%d\n", &v[1] - &v[0] == 1);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: as caixas são vizinhas"
+      b: "0: elas não são vizinhas"
+      c: "0: a diferença vem em bytes"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_009
+    node: kc11:B3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int v[4] = {1, 2, 3, 4};
+      int *p = v;
+      /* A */  v[2]
+      /* B */  *(p + 2)
+    enunciado: "Por que as duas dão o mesmo?"
+    alternativas:
+      a: "São grudadas e do mesmo tipo"
+      b: "Dão por coincidência do índice"
+      c: "Não dão: B anda 2 bytes"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t07
+    node: kc11:B3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Por que a aritmética funciona em array?"
+    alternativas:
+      a: "Porque os itens são contíguos"
+      b: "Porque o array tem índice"
+      c: "Porque a soma conta bytes"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t08
+    node: kc11:B3
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int a = 1, b = 2;
+      int *p = &a;
+      printf("%d\n", *(p + 1));
+    enunciado: "Por que isso não imprime 2 de forma garantida?"
+    alternativas:
+      a: "a e b não formam um array"
+      b: "Imprime: variáveis ficam em fila"
+      c: "Imprime: p + 1 anda um byte"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t09
+    node: kc11:B3
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      char s[] = "abc";
+      printf("%d\n", s[1] == *(s + 1));
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: as letras são vizinhas"
+      b: "0: s tem índice próprio"
+      c: "0: o + 1 anda um char a mais"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: ptr_arith_is_bytes
+
+  # ------------------------------------------------------------------
+  # I1 — a[i] é exatamente *(a + i)
+  # crença do nó: indice_nao_e_soma (nova, FAQ 6.11)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc11_e4
+    node: kc11:I1
+    nivel: 1
+    uso: entrada
+    formato: comparar_casos
+    tipo: teorica
+    enunciado: >
+      "A terceira casa do quarteirão" e "ande duas casas a partir da
+      primeira": são a mesma instrução?
+    alternativas:
+      a: "São: a mesma conta, dois jeitos"
+      b: "Não: a primeira usa o número da casa"
+      c: "Não: a segunda anda em metros"
+    gabarito: a
+    crencas:
+      b: indice_nao_e_soma
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_010
+    node: kc11:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "a[i] é o quê, por definição?"
+    alternativas:
+      a: "*(a + i)"
+      b: "Uma operação só de array"
+      c: "a mais i bytes"
+    gabarito: a
+    crencas:
+      b: indice_nao_e_soma
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_011
+    node: kc11:I1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int v[4] = {0, 1, 2, 3};
+      printf("%d %d\n", v[2], 2[v]);
+    enunciado: "A segunda forma compila. O que sai?"
+    alternativas:
+      a: "2 2: as duas são a mesma conta"
+      b: "não compila: 2[v] não é array"
+      c: "2 e lixo: 2[v] anda 2 bytes"
+    gabarito: a
+    crencas:
+      b: indice_nao_e_soma
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_012
+    node: kc11:I1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int v[4] = {0, 1, 2, 3};
+      int *p = v;
+      /* A */  p[2]
+      /* B */  *(p + 2)
+    enunciado: >
+      Uma usa índice e a outra soma. Qual é a diferença entre elas?
+    alternativas:
+      a: "Nenhuma: índice é a soma escrita curta"
+      b: "A só vale em array; B em ponteiro"
+      c: "A anda caixas; B anda bytes"
+    gabarito: a
+    crencas:
+      b: indice_nao_e_soma
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t10
+    node: kc11:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Por que 5[\"abcdef\"] compila em C?"
+    alternativas:
+      a: "Porque a[i] é *(a + i)"
+      b: "Não compila: índice é do array"
+      c: "Porque o 5 conta bytes"
+    gabarito: a
+    crencas:
+      b: indice_nao_e_soma
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t11
+    node: kc11:I1
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      char s[] = "casa";
+      printf("%c %c\n", s[2], *(s + 2));
+    enunciado: "O que sai?"
+    alternativas:
+      a: "s s: a mesma letra duas vezes"
+      b: "s e outra: índice e soma diferem"
+      c: "s e lixo: a soma anda 2 bytes"
+    gabarito: a
+    crencas:
+      b: indice_nao_e_soma
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t12
+    node: kc11:I1
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int v[4] = {0, 1, 2, 3};
+      int *p = v + 1;
+      printf("%d\n", p[-1]);
+    enunciado: "Isso é válido?"
+    alternativas:
+      a: "É: p[-1] é *(p - 1), e cai em v[0]"
+      b: "Não: índice negativo não existe"
+      c: "Não: -1 anda um byte para trás"
+    gabarito: a
+    crencas:
+      b: indice_nao_e_soma
+      c: ptr_arith_is_bytes
+
+  # ------------------------------------------------------------------
+  # I2 — void * não tem aritmética
+  # crença do nó: voidptr_arith_ok
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc11_e5
+    node: kc11:I2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você tem um papel que não diz o tamanho da casa. Dá para "andar uma
+      casa"?
+    alternativas:
+      a: "Não: falta saber o tamanho"
+      b: "Dá: anda uma unidade qualquer"
+      c: "Dá: anda um metro"
+    gabarito: a
+    crencas:
+      b: voidptr_arith_ok
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_013
+    node: kc11:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Por que não há aritmética em void *?"
+    alternativas:
+      a: "Sem tipo, não há quanto andar"
+      b: "Há: anda de um em um"
+      c: "Há: anda de um byte em um byte"
+    gabarito: a
+    crencas:
+      b: voidptr_arith_ok
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_014
+    node: kc11:I2
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void *v = malloc(10);
+      v = v + 1;
+    enunciado: "Por que o padrão não permite a segunda linha?"
+    alternativas:
+      a: "O compilador não sabe o passo"
+      b: "Permite: o passo é 1"
+      c: "Permite: o passo é um byte"
+    gabarito: a
+    crencas:
+      b: voidptr_arith_ok
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_015
+    node: kc11:I2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      void *v = malloc(10);
+      /* A */  v + 1
+      /* B */  (char *)v + 1
+    enunciado: "Uma das duas é válida. Qual, e por quê?"
+    alternativas:
+      a: "B: o cast deu um tipo ao passo"
+      b: "As duas: void * anda de 1 em 1"
+      c: "As duas: as somas são em bytes"
+    gabarito: a
+    crencas:
+      b: voidptr_arith_ok
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t13
+    node: kc11:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que falta a um void * para ter aritmética?"
+    alternativas:
+      a: "Um tipo no destino"
+      b: "Nada: ele já anda de 1 em 1"
+      c: "Nada: ele anda em bytes"
+    gabarito: a
+    crencas:
+      b: voidptr_arith_ok
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t14
+    node: kc11:I2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int v[3] = {1, 2, 3};
+      void *q = v;
+      printf("%d\n", *(int *)((char *)q + sizeof(int)));
+    enunciado: "O que sai, e por que o cast para char * aparece?"
+    alternativas:
+      a: "2: o char * dá passo de 1 byte"
+      b: "2: void * já andaria igual"
+      c: "3: a soma pula dois ints"
+    gabarito: a
+    crencas:
+      b: voidptr_arith_ok
+      c: ptr_arith_is_bytes
+
+  - id: ciu_kc11_t15
+    node: kc11:I2
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void soma(void *base, int n) {
+          void *fim = base + n;
+      }
+    enunciado: "O que o compilador recusa aqui?"
+    alternativas:
+      a: "base + n: void * não escala"
+      b: "Nada: void * soma normalmente"
+      c: "Nada: soma n bytes e acaba"
+    gabarito: a
+    crencas:
+      b: voidptr_arith_ok
+      c: ptr_arith_is_bytes
+
+  # ------------------------------------------------------------------
+  # I3 — a conclusão: p + n anda n elementos, e a escala é do compilador
+  # crença do nó: ptr_arith_is_bytes
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc11_e6
+    node: kc11:I3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você diz "avance uma casa". Quem converte isso em metros?
+    alternativas:
+      a: "A prefeitura, sozinha"
+      b: "Você, multiplicando na mão"
+      c: "Ninguém: já vem em metros"
+    gabarito: a
+    crencas:
+      b: ptr_arith_is_bytes
+      c: voidptr_arith_ok
+
+  - id: ciu_kc11_016
+    node: kc11:I3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "p + 1 anda o quê?"
+    alternativas:
+      a: "Um elemento do tipo de p"
+      b: "Um byte"
+      c: "Uma unidade sem tipo"
+    gabarito: a
+    crencas:
+      b: ptr_arith_is_bytes
+      c: voidptr_arith_ok
+
+  - id: ciu_kc11_017
+    node: kc11:I3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int array[5], i, *ip;
+      for (i = 0; i < 5; i++) array[i] = i;
+      ip = array;
+      printf("%d\n", *(ip + 3 * sizeof(int)));
+    enunciado: "Esperava-se 3, e saiu lixo. O que corrigir?"
+    alternativas:
+      a: "Escrever ip + 3, sem o sizeof"
+      b: "Nada: a escala tem de ser na mão"
+      c: "Trocar ip por void *, que anda 1"
+    gabarito: a
+    crencas:
+      b: ptr_arith_is_bytes
+      c: voidptr_arith_ok
+
+  - id: ciu_kc11_018
+    node: kc11:I3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int v[8];
+      int *p = v;
+      /* A */  p + 2
+      /* B */  p + 2 * sizeof(int)
+    enunciado: "As duas pretendem chegar em v[2]. Qual chega?"
+    alternativas:
+      a: "A: a escala já está feita"
+      b: "B: é ela que aplica o tamanho"
+      c: "As duas: o passo é 1 nas duas"
+    gabarito: a
+    crencas:
+      b: ptr_arith_is_bytes
+      c: voidptr_arith_ok
+
+  - id: ciu_kc11_t16
+    node: kc11:I3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Quem multiplica por sizeof na aritmética de ponteiro?
+    alternativas:
+      a: "O compilador"
+      b: "Você, na expressão"
+      c: "Ninguém: o passo é 1"
+    gabarito: a
+    crencas:
+      b: ptr_arith_is_bytes
+      c: voidptr_arith_ok
+
+  - id: ciu_kc11_t17
+    node: kc11:I3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int v[4] = {0, 10, 20, 30};
+      int *p = v;
+      printf("%d\n", *(p + 2));
+    enunciado: "O que sai?"
+    alternativas:
+      a: "20: andou duas caixas"
+      b: "lixo: faltou vezes sizeof"
+      c: "0: o passo não se aplica"
+    gabarito: a
+    crencas:
+      b: ptr_arith_is_bytes
+      c: voidptr_arith_ok
+
+  - id: ciu_kc11_t18
+    node: kc11:I3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      double d[4];
+      double *p = d;
+      p = p + 1 * sizeof(double);
+    enunciado: "Para onde p foi, e para onde devia ir?"
+    alternativas:
+      a: "Longe demais; devia ser p + 1"
+      b: "Para d[1], como se queria"
+      c: "Para d[1]: o passo vale 1"
+    gabarito: a
+    crencas:
+      b: ptr_arith_is_bytes
+      c: voidptr_arith_ok

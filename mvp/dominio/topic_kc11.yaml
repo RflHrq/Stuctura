@@ -1,0 +1,13 @@
+id: kc_11
+title: "Aritmética de ponteiros"
+pilot: true
+prerequisites: [kc_04, kc_07]
+conclusion_node: I3
+summary: >
+  p + n avança n elementos do tipo apontado, e não n bytes. A escala vem
+  do tipo, e o compilador a aplica sozinho — por isso multiplicar por
+  sizeof na mão faz a conta duas vezes.
+
+# Respondível ANTES por quem ainda não sabe. É o lado esquerdo do
+# antes-e-depois, e a pergunta é exatamente a que o tópico responde.
+teachback: "quanto p + 1 anda, e quem decide esse tanto"

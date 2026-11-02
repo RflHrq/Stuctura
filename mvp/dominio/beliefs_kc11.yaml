@@ -1,0 +1,95 @@
+# Crenças do kc_11 — uma por nó, seis no total.
+#
+# Zero `E`, e TODAS GRADE L. É o primeiro tópico com procedência uniforme,
+# e faz sentido: aritmética de ponteiro é assunto de FAQ de C, não de
+# estudo empírico em outra linguagem.
+#
+# Duas vêm da curadoria, três de outros tópicos, uma é nova. As cinco
+# entradas do FAQ foram lidas no original nesta sessão: 4.4, 4.6 (que
+# remete à 11.24), 6.3, 6.11 e 7.26.
+#
+# UMA PRECISÃO NA CITAÇÃO DA CURADORIA, registrada aqui: `voidptr_arith_ok`
+# está citada como FAQ 4.6, e a 4.6 inteira é "Why can't I perform
+# arithmetic on a void * pointer? A: See question 11.24." A resposta de
+# verdade está na 11.24, e é ela que explica o porquê. As duas ficam
+# citadas. É a terceira precisão de citação que o projeto encontra
+# conferindo a fonte primária.
+
+- id: pointer_is_integer
+  negates: kc_11:B1
+  provenance: L
+  label_pt: "Ponteiro é só um número inteiro; dá para trocar um pelo outro."
+  source: >
+    FAQ comp.lang.c 4.14, "How are integers converted to and from
+    pointers? Can I temporarily stuff an integer into a pointer, or vice
+    versa?"; e 4.15, "How do I convert an int to a char *? I tried a cast,
+    but it's not working." A mesma crença está no catálogo do kc_02. Aqui
+    ela nega a premissa de que o ponteiro sabe o tipo do destino: se fosse
+    apenas um inteiro, não haveria tipo de onde tirar a escala.
+
+- id: pointer_knows_block_size
+  negates: kc_11:B2
+  provenance: L
+  label_pt: "O tamanho vem com o ponteiro, e não da declaração."
+  source: >
+    FAQ comp.lang.c 7.26, "How does free know how many bytes to free? The
+    malloc/free implementation remembers the size of each block as it is
+    allocated"; e 7.28, "Why doesn't sizeof tell me the size of the block
+    of memory pointed to by a pointer?" A mesma crença está no catálogo
+    do kc_09. Aqui ela nega a premissa de que o tamanho é fixo por tipo e
+    sabido em tempo de compilação — quem acha que a informação viaja no
+    ponteiro acha que ela só existe em execução.
+
+- id: string_literal_is_array
+  negates: kc_11:B3
+  provenance: L
+  label_pt: "char *s = \"abc\" e char s[] = \"abc\" guardam do mesmo jeito."
+  source: >
+    FAQ comp.lang.c 1.32. A mesma crença está no catálogo do kc_07, e a
+    curadoria registra que este nó é importado de lá — `kc_07:B1`. Ela
+    nega a premissa da contiguidade: quem não distingue as duas formas não
+    tem o modelo das caixas grudadas, que é o que faz a aritmética
+    funcionar em array.
+
+- id: indice_nao_e_soma
+  negates: kc_11:I1
+  provenance: L
+  label_pt: "a[i] é uma operação própria do array, e não a soma a + i."
+  source: >
+    FAQ comp.lang.c 6.11: "I came across some 'joke' code containing the
+    'expression' 5[\"abcdef\"]. How can this be legal C?" A pergunta é a
+    crença — quem a faz não acredita que o índice seja a soma. A resposta
+    diz a premissa com todas as letras: "array subscripting is commutative
+    in C... This curious fact follows from the pointer definition of array
+    subscripting, namely that a[e] is identical to *((a)+(e))". Ver também
+    6.3, que avisa que "much of the confusion surrounding arrays and
+    pointers in C can be traced to a misunderstanding of this statement".
+    Crença nova: não estava no catálogo curado.
+
+- id: voidptr_arith_ok
+  negates: kc_11:I2
+  provenance: L
+  label_pt: "Dá para fazer aritmética em void * como em qualquer ponteiro."
+  source: >
+    FAQ comp.lang.c 4.6, "Why can't I perform arithmetic on a void *
+    pointer?", cuja resposta é inteira "See question 11.24"; e a 11.24, que
+    dá a razão: "The compiler doesn't know the size of the pointed-to
+    objects. (Remember that pointer arithmetic is always in terms of the
+    pointed-to size.) Therefore, arithmetic on void *'s is disallowed
+    (though some compilers allow it as an extension)." É a crença da
+    curadoria; a citação ganhou a 11.24, que é onde a resposta está.
+
+- id: ptr_arith_is_bytes
+  negates: kc_11:I3
+  provenance: L
+  label_pt: "A aritmética de ponteiro conta bytes; é preciso multiplicar por sizeof na mão."
+  source: >
+    FAQ comp.lang.c 4.4. O código do questionador é a crença escrita:
+    "int array[5], i, *ip; for(i = 0; i < 5; i++) array[i] = i; ip =
+    array; printf(\"%d\n\", *(ip + 3 * sizeof(int))); I expected the last
+    line to print 3, but it printed garbage." E a resposta é a conclusão
+    do tópico: "Pointer arithmetic in C is always automatically scaled by
+    the size of the objects pointed to. What you want to say is simply
+    printf(\"%d\n\", *(ip + 3));". Uma pergunta só que contém as três
+    afirmações que a curadoria separava em I1, I2 e I3. É a crença da
+    curadoria, com a fonte dela.

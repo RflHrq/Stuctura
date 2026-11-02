@@ -1,0 +1,119 @@
+topic: kc_11
+
+# TÓPICO-PILOTO, e o QUARTO — com ele, os quatro que a coleta usa
+# (kc_02, kc_07, kc_11, kc_09) estão construídos.
+#
+# A METÁFORA DESTE TÓPICO: andar de casa em casa, não de passo em passo.
+#
+# Continua o quarteirão do kc_07, onde as casas são todas do mesmo
+# tamanho. `p + 1` não é "andar um metro": é "andar uma casa". Quem sabe
+# o tamanho da casa é a planta — o tipo —, e a prefeitura já faz a
+# conversão: você diz "avance uma casa" e ela converte em metros sozinha.
+# Se você converter também, anda o dobro.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. "Andar" sugere caminho e distância percorrida. Não há: `p + 1` não
+#      passa pelas casas do meio e não custa mais por andar mais longe. É
+#      cálculo, não caminhada. Quando a metáfora empurrar para "andar
+#      muito é mais devagar", ela cala.
+#   2. A metáfora não diz nada sobre o que acontece se você andar além do
+#      quarteirão. É outro assunto, e aqui não interessa: o ponto deste
+#      tópico é a ESCALA da conta, não o limite dela.
+#
+# NOVE NÓS CURADOS, SEIS AQUI. A curadoria tem duas crenças (em I2 e I5),
+# e a decisão 19 manda uma por nó. Três dobras, todas de
+# premissa-e-aplicação, e todas com a mesma entrada do FAQ sustentando as
+# duas pontas:
+#
+#   curado B2 ("objetos de um tipo têm tamanho fixo") + B4 ("o compilador
+#     conhece o tipo em tempo de compilação") -> B2 deste grafo. São a
+#     mesma afirmação vista de dois lados: o tamanho é fixo E é sabido
+#     antes de rodar;
+#   curado I1 ("p + 1 precisa chegar ao próximo objeto") + I2 ("logo o
+#     compilador multiplica por sizeof sozinho") + I3 ("multiplicar por
+#     sizeof na mão escala duas vezes") -> I3 deste grafo, a conclusão. A
+#     FAQ 4.4 é uma pergunta só, e ela contém as três: o código do
+#     questionador tem o sizeof na mão, e a resposta é "Pointer arithmetic
+#     in C is always automatically scaled by the size of the objects
+#     pointed to";
+#   curado I4 ("a[i] é exatamente *(a + i)") ficou, e é o I1 daqui. A
+#     curadoria registra ZERO caminhos nele, mas ele é a identidade que
+#     liga índice e aritmética — e ganhou crença própria, nova, da FAQ
+#     6.11 (o `5["abcdef"]`).
+#
+# TODAS AS SEIS CRENÇAS SÃO GRADE L. É o primeiro tópico com procedência
+# uniforme, e faz sentido: aritmética de ponteiro é assunto de FAQ de C,
+# não de estudo empírico em outra linguagem.
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "p aponta para um objeto de um tipo definido."
+    plain_text: >
+      Todo ponteiro sabe o tipo do que está no destino. Não existe
+      ponteiro sem essa informação.
+    negated_by:
+      - pointer_is_integer
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "O tamanho de um tipo é fixo, e o compilador o conhece antes de rodar."
+    plain_text: >
+      Cada tipo tem um tamanho fixo, e esse tamanho está na declaração —
+      o compilador já sabe qual é antes de o programa rodar.
+    negated_by:
+      - pointer_knows_block_size
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Os elementos de um array são contíguos."
+    plain_text: >
+      Os elementos de um array ficam grudados, um logo depois do outro,
+      sem buraco entre eles.
+    negated_by:
+      - string_literal_is_array
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B3]
+    text: "a[i] é exatamente *(a + i)."
+    plain_text: >
+      a[i] é só outro jeito de escrever *(a + i): ande i caixas a partir
+      do começo e olhe o que tem lá.
+    negated_by:
+      - indice_nao_e_soma
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [B1, B2]
+    text: "void * não tem aritmética: sem tipo, não há escala."
+    plain_text: >
+      Um void * não sabe o tamanho do destino. Sem isso não há quanto
+      andar, e a conta simplesmente não existe.
+    negated_by:
+      - voidptr_arith_ok
+
+  I3:
+    type: inferencia
+    role: conclusao
+    support: [B1, B2, I1, I2]
+    text: >
+      p + n avança n elementos do tipo apontado, não n bytes: a escala vem
+      do tipo e o compilador a aplica sozinho — multiplicar por sizeof na
+      mão escala duas vezes.
+    plain_text: >
+      Como o compilador sabe o tamanho da caixa, ele mesmo faz a conta.
+      Você escreve p + 1; ele anda uma caixa inteira. Se você multiplicar
+      por sizeof também, o ponteiro pula longe demais.
+    negated_by:
+      - ptr_arith_is_bytes

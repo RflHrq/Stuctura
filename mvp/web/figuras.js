@@ -1292,6 +1292,127 @@
     }
   };
 
+  /* ------------------ kc_11: andar de casa em casa, nao de passo em passo */
+
+  /* TOPICO-PILOTO, e o quarto — com ele os quatro da coleta estao
+   * desenhados.
+   *
+   * A disciplina do desenho: o passo aparece SEMPRE como uma casa inteira,
+   * nunca como uma medida em bytes. Desenhar o passo como um pedaco de
+   * casa seria desenhar `ptr_arith_is_bytes`, que e a crenca que a
+   * conclusao refuta. E quando dois tipos aparecem juntos, as casas tem
+   * larguras diferentes e as DUAS valem "uma casa" — e isso que diz que a
+   * escala vem do tipo. */
+
+  POR_TOPICO.kc_11 = {
+
+    /* B1 — a planta do tipo e que da o tamanho da casa. */
+    B1: function () {
+      var s = svg(360, 196);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "char *c"));
+      s.appendChild(quarteirao(22, 58, { quantas: 5, largura: 26,
+                                         altura: 40 }));
+      s.appendChild(el("text", { x: 86, y: 122, "class": "fig-nota" },
+                       "passo pequeno"));
+      s.appendChild(el("text", { x: 262, y: 26, "class": "fig-rodape" },
+                       "int *i"));
+      s.appendChild(quarteirao(196, 58, { quantas: 2, largura: 65,
+                                          altura: 40 }));
+      s.appendChild(el("text", { x: 262, y: 122, "class": "fig-nota" },
+                       "passo grande"));
+      legenda(s, 164, "a planta do tipo diz o tamanho da casa");
+      legenda(s, 184, "e e dela que sai o passo");
+      return s;
+    },
+
+    /* B2 — tamanhos diferentes, os dois fixos, e os dois na declaracao. */
+    B2: function () {
+      var s = svg(360, 196);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 26, "class": "fig-rodape" },
+                       "a planta, antes de rodar"));
+      s.appendChild(el("rect", { x: 100, y: 48, width: 24, height: 34,
+                                 "class": "fig-quarto" }));
+      s.appendChild(el("text", { x: 70, y: 65, "class": "fig-nota" }, "char"));
+      s.appendChild(el("text", { x: 250, y: 65, "class": "fig-nota" },
+                       "uma casa"));
+      s.appendChild(el("rect", { x: 100, y: 94, width: 96, height: 34,
+                                 "class": "fig-quarto" }));
+      s.appendChild(el("text", { x: 70, y: 111, "class": "fig-nota" }, "int"));
+      s.appendChild(el("text", { x: 250, y: 111, "class": "fig-nota" },
+                       "uma casa"));
+      legenda(s, 160, "tamanhos diferentes, os dois fixos");
+      legenda(s, 180, "e escritos na declaracao, nao no ponteiro");
+      return s;
+    },
+
+    /* B3 — as casas sao grudadas, e e isso que faz a conta andar. */
+    B3: function () {
+      var s = svg(360, 174);
+      s.appendChild(defs());
+      s.appendChild(quarteirao(42, 56, { quantas: 5, largura: 55,
+                                         endereco: "0x1000",
+                                         dentro: ["1", "2", "3", "4", "5"],
+                                         nome: "v", cinta: true }));
+      legenda(s, 156, "sem buraco entre elas: e isso que faz a conta andar");
+      return s;
+    },
+
+    /* I1 — a[i] e *(a + i): a mesma conta, duas escritas. */
+    I1: function () {
+      var s = svg(360, 208);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 30, "class": "fig-nota" },
+                       "v[2]   e   *(v + 2)"));
+      s.appendChild(quarteirao(42, 66, { quantas: 4, largura: 55,
+                                         endereco: "0x1000",
+                                         dentro: ["0", "1", "2", "3"],
+                                         nome: "v" }));
+      legenda(s, 164, "a mesma conta, escrita de dois jeitos");
+      legenda(s, 184, "ande 2 casas, e olhe o que tem la");
+      legenda(s, 204, "e por isso 2[v] tambem compila");
+      return s;
+    },
+
+    /* I2 — sem planta nao ha quanto andar. */
+    I2: function () {
+      var s = svg(360, 198);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "void *q;   q + 1"));
+      s.appendChild(casa(28, 56, { endereco: "0x5A00", dentro: "0x1000",
+                                   largura: 108 }));
+      s.appendChild(el("text", { x: 82, y: 136, "class": "fig-legenda erro" },
+                       "sem planta"));
+      s.appendChild(seta(148, 88, 240, 88, "proibida"));
+      s.appendChild(el("text", { x: 292, y: 82, "class": "fig-nota" },
+                       "andar quanto?"));
+      legenda(s, 168, "sem tipo nao ha tamanho de casa");
+      legenda(s, 188, "e a conta nao esta definida");
+      return s;
+    },
+
+    /* I3 — a conclusao: a escala e do compilador, e so dele. */
+    I3: function () {
+      var s = svg(360, 228);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "p + 2   contra   p + 2 * sizeof(int)"));
+      s.appendChild(quarteirao(22, 58, { quantas: 8, largura: 40,
+                                         endereco: "0x1000" }));
+      s.appendChild(seta(42, 120, 122, 120));
+      s.appendChild(el("text", { x: 82, y: 140, "class": "fig-nota" },
+                       "p + 2"));
+      s.appendChild(seta(42, 164, 342, 164, "proibida"));
+      s.appendChild(el("text", { x: 192, y: 184, "class": "fig-legenda erro" },
+                       "com o sizeof na mao: longe demais"));
+      legenda(s, 214, "a escala e do compilador, e so dele");
+      return s;
+    }
+  };
+
   var topicoAtual = "kc_00";
 
   function doNo(no) {

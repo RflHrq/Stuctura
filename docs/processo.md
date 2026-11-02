@@ -121,6 +121,15 @@ Nenhuma bloqueia a fase 4.
    passos — e a série é 6 nós → 85, 7 → 95, 8 → 113. Se não couber, o
    caminho não é cortar nó (cada um é premissa medida): é dividir o kc_09
    em dois, ou aceitar que a sessão dele é mais longa.
+10. **As duas `E` do kc_02.** É o único tópico-piloto com crença
+   estimada no catálogo, e o piloto é o que vai para a monografia. Ou se
+   acha fonte para `pointer_has_no_address` e `pointer_is_pointless`, ou
+   as duas entram no texto declaradas como hipótese a testar.
+11. **A suíte do MVP leva 3 minutos** (eram 30 segundos). Os testes que
+   varrem todos os tópicos rodam sessões inteiras por tópico, e já há dez.
+   Atrapalha a disciplina de uma verificação por mudança. Conserto
+   provável: marcar os de sessão inteira como lentos e rodá-los num alvo
+   separado, deixando a varredura rápida no caminho normal.
 
 ## Artefatos
 
@@ -1075,3 +1084,102 @@ Seis tópicos construídos depois do contrato de linguagem, seis sem nenhuma
 Buraco na escada, nó sem item de entrada, nó sem figura, e **duas crenças
 negando o mesmo nó** — a última derrubou sete testes, e é exatamente o
 defeito que o catálogo curado tinha.
+
+## Ciclo de conteúdo — o kc_11 (aritmética de ponteiros) · **o quarto piloto**
+
+Décimo tópico, e com ele **os quatro pilotos estão construídos**: kc_02,
+kc_07, kc_09 e kc_11. A coleta tem todos os tópicos que ela usa.
+
+### Nove nós curados, seis aqui — três dobras, e uma fonte só explica as três
+
+A curadoria tem duas crenças (em I2 e I5). Três dobras, todas de
+premissa-e-aplicação:
+
+| Curado | Virou | Por quê |
+| --- | --- | --- |
+| B2 (tamanho fixo) + B4 (o compilador conhece o tipo) | `B2` | a mesma afirmação por dois lados: é fixo **e** sabido antes de rodar |
+| I1 (p+1 chega ao próximo objeto) + I2 (o compilador multiplica por sizeof) + I3 (na mão escala duas vezes) | `I3`, a conclusão | **a FAQ 4.4 é uma pergunta só, e contém as três** |
+| I4 (`a[i]` é `*(a + i)`) | `I1`, mantido | zero caminhos na curadoria, mas é a identidade que liga índice e aritmética — e ganhou crença própria |
+
+A 4.4 merece ser citada inteira, porque é o tópico em miniatura. O código
+do questionador **é** a crença:
+
+> *"int array[5], i, \*ip; ... printf("%d\n", \*(ip + 3 \* sizeof(int)));
+> I expected the last line to print 3, but it printed garbage."*
+
+E a resposta é a conclusão:
+
+> *"Pointer arithmetic in C is always automatically scaled by the size of
+> the objects pointed to. What you want to say is simply printf("%d\n",
+> \*(ip + 3));"*
+
+O item `ciu_kc11_017` é esse código **literal**, de propósito: é o
+enunciado em que a crença foi registrada pela primeira vez, escrito por
+quem a tinha.
+
+### Todas as seis crenças são grade L
+
+Primeiro tópico com procedência **uniforme**, e faz sentido: aritmética de
+ponteiro é assunto de FAQ de C, não de estudo empírico em outra linguagem.
+
+| Crença | Nó | Fonte |
+| --- | --- | --- |
+| `pointer_is_integer` | B1 | FAQ 4.14, 4.15 — do kc_02 |
+| `pointer_knows_block_size` | B2 | FAQ 7.26, 7.28 — do kc_09 |
+| `string_literal_is_array` | B3 | FAQ 1.32 — do kc_07 (a curadoria registra a importação) |
+| `indice_nao_e_soma` | I1 | **nova** — FAQ 6.11 (`5["abcdef"]`) + 6.3 |
+| `voidptr_arith_ok` | I2 | FAQ 4.6 → **11.24** (curada) |
+| `ptr_arith_is_bytes` | I3 | FAQ 4.4 (curada) |
+
+### Terceira precisão de citação
+
+`voidptr_arith_ok` está citada na curadoria como FAQ 4.6 — e a 4.6 inteira
+é *"Why can't I perform arithmetic on a void \* pointer? A: See question
+11.24."* A resposta está na **11.24**, e é ela que dá a razão: *"The
+compiler doesn't know the size of the pointed-to objects... Therefore,
+arithmetic on void \*'s is disallowed."* As duas ficam citadas.
+
+É a terceira precisão que o projeto encontra conferindo a fonte primária —
+depois do Sorva no kc_02 e da 6.6b/1.32 no kc_07. Nenhuma delas muda uma
+crença; todas mudam **onde a crença está escrita**, que é o que a
+procedência promete.
+
+### A medição
+
+| Persona | kc_11 |
+| --- | --- |
+| acerta tudo | 45 passos, 0/12 sem medida |
+| erra e aprende | 82, 0/12 |
+| erra e não muda | 85, 0/12 |
+
+Seis nós, e a sessão mais curta dos pilotos. A série por nó continua
+estável: 6 → 82-86, 7 → 95, 8 → 113.
+
+### Os dez tópicos, 430 itens
+
+| Tópico | Nós | Itens | Vizinho | Procedências |
+| --- | --- | --- | --- | --- |
+| `kc_00` | 5 | 20 | 31% | 3 L, 1 T, **1 E** |
+| `kc_01` | 5 | 35 | 37% | 3 T, 1 L, **1 E** |
+| `kc_02` · piloto | 6 | 60 | 47% | 2 T, 1 D, 1 L, **2 E** |
+| `kc_03` | 6 | 42 | 36% | 3 D, 2 L, 1 T |
+| `kc_04` | 6 | 42 | 50% | 3 L, 3 T |
+| `kc_05` | 6 | 42 | 50% | 4 L, 1 T, 1 N |
+| `kc_06` | 6 | 42 | 50% | 5 T, 1 L |
+| `kc_07` · piloto | 7 | 49 | 50% | 6 L, 1 T |
+| `kc_09` · piloto | 8 | 56 | 50% | 6 L, 1 T, 1 N |
+| `kc_11` · piloto | 6 | 42 | 50% | **6 L** |
+
+Sete tópicos construídos depois do contrato de linguagem, sete sem nenhuma
+`E`. As quatro `E` restantes estão todas nos três mais antigos — e dois
+deles (kc_00 e kc_01) não são piloto. **O kc_02 é o único piloto com `E`
+no catálogo: duas.** Isso vira dívida de procedência com nome e endereço.
+
+### Uma dívida nova, de ferramenta
+
+A suíte do MVP passou de **30 segundos para 3 minutos** neste ciclo. A
+causa é conhecida e não é mistério: os testes que varrem todos os tópicos
+rodam **sessões inteiras** por tópico (`_pior_caso` em
+`test_no_pior_caso_nenhuma_premissa_fica_sem_medida` e no do fechamento), e
+agora há dez tópicos com até 56 itens cada. Três minutos atrapalha a
+disciplina de "uma verificação por mudança". Entra em perguntas em aberto.
