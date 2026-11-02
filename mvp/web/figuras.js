@@ -818,6 +818,129 @@
     }
   };
 
+  /* ------------------------------------------- kc_06: o bilhete copiado */
+
+  /* Chamar f(x) e a funcao ganhar uma casa nova, so dela, e alguem COPIAR
+   * para dentro dela o que estava na casa de x.
+   *
+   * A disciplina do desenho aqui: as duas casas tem SEMPRE numero proprio
+   * na porta, e o conteudo copiado aparece com a MESMA forma nas duas —
+   * seja o 1 ou seja 0x1000. Dar forma diferente ao endereco copiado
+   * diria que passar endereco e outra operacao, que e exatamente a crenca
+   * `pointer_copy_is_alias` e exatamente o que a conclusao refuta. */
+
+  POR_TOPICO.kc_06 = {
+
+    /* B1 — a chamada cria uma casa NOVA, so da funcao. */
+    B1: function () {
+      var s = svg(360, 194);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "do chamador"));
+      s.appendChild(casa(30, 58, { endereco: "0x1000", dentro: "1",
+                                   nome: "x", largura: 112 }));
+      s.appendChild(el("text", { x: 274, y: 26, "class": "fig-rodape" },
+                       "dentro de f"));
+      s.appendChild(casa(218, 58, { endereco: "0x3A00", dentro: "1",
+                                    nome: "n", largura: 112 }));
+      legenda(s, 168, "duas casas, em lugares diferentes");
+      legenda(s, 188, "a de n nasceu na chamada");
+      return s;
+    },
+
+    /* B2 — o que viaja e o VALOR, com a conta ja resolvida. */
+    B2: function () {
+      var s = svg(360, 198);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "f(x + 1)"));
+      s.appendChild(casa(28, 62, { endereco: "0x1000", dentro: "2",
+                                   nome: "x", largura: 108 }));
+      s.appendChild(seta(144, 94, 212, 94));
+      s.appendChild(el("text", { x: 178, y: 78, "class": "fig-nota" }, "3"));
+      s.appendChild(casa(218, 62, { endereco: "0x3A00", dentro: "3",
+                                    nome: "v", largura: 108 }));
+      legenda(s, 172, "a conta foi feita antes da viagem");
+      legenda(s, 192, "o que entrou em v foi o resultado");
+      return s;
+    },
+
+    /* I1 — riscar o bilhete da casa nova nao encosta no da casa de x. */
+    I1: function () {
+      var s = svg(360, 204);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 22, "class": "fig-rodape" },
+                       "n = 99;  dentro de f"));
+      s.appendChild(el("text", { x: 274, y: 44, "class": "fig-saindo" }, "1"));
+      s.appendChild(casa(30, 70, { endereco: "0x1000", dentro: "1",
+                                   nome: "x, intacta", largura: 112 }));
+      s.appendChild(casa(218, 70, { endereco: "0x3A00", dentro: "99",
+                                    nome: "n", largura: 112 }));
+      s.appendChild(seta(214, 102, 148, 102, "proibida"));
+      legenda(s, 178, "o 99 ficou na casa de n");
+      legenda(s, 196, "nada volta para a casa de x");
+      return s;
+    },
+
+    /* I2 — a copia do NUMERO leva a mesma casa. */
+    I2: function () {
+      var s = svg(360, 206);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 22, "class": "fig-rodape" },
+                       "f(&x);   *p = 42;"));
+      s.appendChild(casa(28, 58, { endereco: "0x1000", dentro: "42",
+                                   nome: "x", largura: 108 }));
+      s.appendChild(casa(218, 58, { endereco: "0x3A00", dentro: "0x1000",
+                                    nome: "p, a copia", largura: 108 }));
+      s.appendChild(seta(214, 90, 142, 90));
+      s.appendChild(el("text", { x: 178, y: 74, "class": "fig-nota" }, "*p"));
+      legenda(s, 180, "a copia leva a MESMA casa");
+      legenda(s, 198, "e la a mudanca e de verdade");
+      return s;
+    },
+
+    /* I3 — trocar o numero copiado so troca o bilhete da casa nova. */
+    I3: function () {
+      var s = svg(360, 208);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 22, "class": "fig-rodape" },
+                       "p = NULL;  dentro de f"));
+      s.appendChild(el("text", { x: 274, y: 44, "class": "fig-saindo" },
+                       "0x1000"));
+      s.appendChild(casa(28, 72, { endereco: "0x2A00", dentro: "0x1000",
+                                   nome: "q, do chamador", largura: 108 }));
+      s.appendChild(casa(218, 72, { endereco: "0x3A00", dentro: "NULL",
+                                    nome: "p", largura: 108 }));
+      s.appendChild(seta(214, 104, 142, 104, "proibida"));
+      legenda(s, 182, "o NULL ficou no bilhete de p");
+      legenda(s, 200, "o bilhete de q nao foi tocado");
+      return s;
+    },
+
+    /* I4 — a conclusao: a MESMA copia, as duas vezes. */
+    I4: function () {
+      var s = svg(360, 238);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 22, "class": "fig-rodape" },
+                       "f(x)   copia o valor"));
+      s.appendChild(casa(30, 44, { endereco: "0x1000", dentro: "1",
+                                   largura: 104, altura: 44 }));
+      s.appendChild(seta(142, 66, 212, 66));
+      s.appendChild(casa(218, 44, { endereco: "0x3A00", dentro: "1",
+                                    largura: 104, altura: 44 }));
+      s.appendChild(el("text", { x: 180, y: 126, "class": "fig-rodape" },
+                       "f(&x)  copia o endereco"));
+      s.appendChild(casa(30, 148, { endereco: "0x1000", dentro: "9",
+                                    largura: 104, altura: 44 }));
+      s.appendChild(seta(212, 170, 142, 170));
+      s.appendChild(casa(218, 148, { endereco: "0x3A00", dentro: "0x1000",
+                                     largura: 104, altura: 44 }));
+      legenda(s, 216, "a mesma copia, as duas vezes");
+      legenda(s, 234, "o que muda e o que estava escrito");
+      return s;
+    }
+  };
+
   var topicoAtual = "kc_00";
 
   function doNo(no) {

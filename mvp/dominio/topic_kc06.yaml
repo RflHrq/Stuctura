@@ -1,0 +1,13 @@
+id: kc_06
+title: "Passagem por referência"
+pilot: false
+prerequisites: [kc_04]
+conclusion_node: I4
+summary: >
+  C passa tudo por valor: a função recebe uma cópia do argumento. Para
+  alterar o objeto de quem chamou, ela precisa receber o endereço dele —
+  e esse endereço também chega copiado.
+
+# Respondível ANTES por quem ainda não sabe. É o lado esquerdo do
+# antes-e-depois, e a pergunta é exatamente a que o tópico responde.
+teachback: "o que uma função recebe quando você escreve f(x), e o que muda quando você escreve f(&x)"

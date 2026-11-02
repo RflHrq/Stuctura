@@ -1,0 +1,105 @@
+topic: kc_06
+
+# A METÁFORA DESTE TÓPICO: o bilhete copiado.
+#
+# Chamar f(x) é a função ganhar uma casa nova, só dela, e alguém COPIAR
+# para dentro dela o que estava na casa de x. É cópia: riscar o bilhete da
+# casa nova não risca o bilhete da casa de x. Mas se o que foi copiado é um
+# NÚMERO DE CASA, a cópia do número leva à mesma casa — e daí você vai até
+# lá e mexe de verdade. Trocar o número copiado, por outro lado, só troca o
+# bilhete da casa nova.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. "Copiar o bilhete" sugere que há cópia de coisa e cópia de endereço,
+#      e que são operações diferentes. Não são: é a MESMA cópia, e o que
+#      muda é só o que estava escrito. Quando a metáfora empurrar para
+#      "endereço é passado de outro jeito", ela cala — é esse "outro jeito"
+#      que não existe em C, e é a conclusão do tópico.
+#   2. A metáfora não diz nada sobre a casa nova desaparecer quando a
+#      função termina. Isso é do kc_01, e aqui não interessa: o ponto é o
+#      que a cópia ALCANÇA enquanto a função roda.
+#
+# SEIS NÓS, E A CURADORIA TEM SETE. Terceira vez que isso acontece, e pela
+# mesma razão dos kc_04 e kc_05: a curadoria lista B1, B2 e I1..I5 com DUAS
+# crenças (em I1 e I4), e a decisão 19 manda uma por nó.
+#
+# A dobra aqui foi uma só, e os dois eram premissa e aplicação da mesma
+# ideia:
+#
+#   curado I2 ("se o argumento é &x, f recebe cópia do endereço") + I3
+#     ("*p = v dentro de f altera x") -> I2 deste grafo. O segundo é o que
+#     o primeiro permite, e a crença que nega um nega o outro.
+#
+# As quatro crenças novas saem da seção "Calls" da Tabela A.1 do Sorva
+# (2012), itens 41 a 53, que é farta: parâmetro como vínculo, expressão
+# passada em vez do valor, e a função que usa as variáveis de quem chamou.
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Ao chamar f(x), o parâmetro é uma variável nova, local a f."
+    plain_text: >
+      A função ganha uma casa nova, só dela, para o parâmetro.
+    negated_by:
+      - funcao_usa_a_variavel_do_chamador
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "O valor do argumento é copiado para dentro dessa variável."
+    plain_text: >
+      O que está na casa de x é copiado para dentro da casa nova. É cópia,
+      e o que se copia é o valor.
+    negated_by:
+      - passa_a_expressao
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B1, B2]
+    text: "Modificar o parâmetro não afeta o argumento."
+    plain_text: >
+      Então mexer na casa nova não mexe na casa de x: são duas casas, em
+      lugares diferentes.
+    negated_by:
+      - function_gets_original
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [B2]
+    text: >
+      Passar &x copia o endereço, e um endereço copiado leva ao mesmo
+      lugar: por isso *p = v dentro de f altera x.
+    plain_text: >
+      Se o que foi copiado é um número de casa, a cópia do número leva à
+      mesma casa — e lá você mexe de verdade.
+    negated_by:
+      - ampersand_copies
+
+  I3:
+    type: inferencia
+    role: espinha
+    support: [I1, I2]
+    text: "Atribuir a p dentro de f não altera o ponteiro do chamador."
+    plain_text: >
+      Mas trocar o número copiado só troca o bilhete da casa nova. O
+      ponteiro de quem chamou fica como estava.
+    negated_by:
+      - modify_pp_changes_p
+
+  I4:
+    type: inferencia
+    role: conclusao
+    support: [I1, I2, I3]
+    text: "C não tem passagem por referência: passa endereços por valor."
+    plain_text: >
+      C copia o que você passa. Passar um endereço é copiar o endereço — e
+      é a cópia que dá acesso ao original.
+    negated_by:
+      - pointer_copy_is_alias

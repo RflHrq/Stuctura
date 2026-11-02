@@ -1,0 +1,88 @@
+# Crenças do kc_06 — uma por nó, seis no total.
+#
+# Zero `E`. Duas vêm do catálogo curado com a fonte dele, duas de outros
+# tópicos (o kc_04 é pré-requisito declarado, e o kc_10 compartilha a
+# mesma entrada do FAQ), e duas são novas, da seção "Calls" da Tabela A.1
+# do Sorva (2012) — itens 41 a 53, que é a parte mais farta da tabela para
+# este tópico. Os três itens usados foram lidos no original nesta sessão:
+#
+#   item 47  "Subprograms can (routinely) use the variables of calling
+#             subprograms."                               Fleury (1991)
+#   item 51  "Expressions (not their values) are passed as parameters."
+#                                                         local
+#   item 52  "Argument expressions cause changes in existing variables."
+#                                                         George (2000a)
+#
+# A convenção de página confere com a dos outros tópicos: o rodapé 361
+# fecha o bloco dos itens 41 a 48, e o 362 o dos itens 49 a 66.
+
+- id: funcao_usa_a_variavel_do_chamador
+  negates: kc_06:B1
+  provenance: T
+  label_pt: "A função usa a variável de quem chamou: o parâmetro não é caixa nova."
+  source: >
+    Sorva (2012), p. 361, item 47: "Subprograms can (routinely) use the
+    variables of calling subprograms" (Fleury 1991); e os itens 44 e 45,
+    p. 361, em que a passagem de parâmetro "forms direct
+    procedure-to-procedure links between variables" (Madison e Gifford
+    1997) — com o mesmo nome e com nomes diferentes. Transposição
+    declarada: os estudos são sobre linguagens com parâmetro, e a premissa
+    que B1 afirma é a mesma em C.
+
+- id: passa_a_expressao
+  negates: kc_06:B2
+  provenance: T
+  label_pt: "O que se passa é a expressão escrita na chamada, não o valor dela."
+  source: >
+    Sorva (2012), p. 362, item 51: "Expressions (not their values) are
+    passed as parameters"; e o item 52, "Argument expressions cause
+    changes in existing variables" (George 2000a). O item 51 é marcado
+    `local` na tabela — é adição do próprio Sorva, sem estudo citado —, e
+    por isso vem acompanhado do 52, que tem citação. Fica declarado assim:
+    é a de base mais fraca entre as crenças deste tópico.
+
+- id: function_gets_original
+  negates: kc_06:I1
+  provenance: T
+  label_pt: "A função recebe a variável original, não uma cópia."
+  source: >
+    Sorva (2012), p. 363, item 67: "Assigning to an object causes it to
+    become equal to the assigned object" (Ma 2007); e FAQ comp.lang.c
+    4.11, "Does C even have 'pass by reference'?", cuja existência é a
+    evidência de quanta gente supõe que tem. É a crença que a curadoria já
+    tinha, com a fonte dela.
+
+- id: ampersand_copies
+  negates: kc_06:I2
+  provenance: T
+  label_pt: "&x entrega uma cópia de x, e é a cópia que a função recebe."
+  source: >
+    Sorva (2012), p. 362, item 66: "Assigning an object means 'sending' an
+    object (or a copy) to a variable" (Ma 2007). A mesma crença está no
+    catálogo do kc_04, que é pré-requisito deste tópico. Aqui ela nega a
+    premissa de que o endereço copiado leva ao mesmo lugar: se `&x`
+    entregasse uma cópia de x, `*p = v` dentro de f mexeria na cópia, e x
+    não mudaria.
+
+- id: modify_pp_changes_p
+  negates: kc_06:I3
+  provenance: L
+  label_pt: "Trocar o parâmetro ponteiro dentro da função altera o ponteiro de quem chamou."
+  source: >
+    FAQ comp.lang.c 4.8: "I have a function which accepts, and is supposed
+    to initialize, a pointer: void f(int *ip) { static int dummy = 5; ip =
+    &dummy; } But when I call it like this: int *ip; f(ip); the pointer in
+    the caller remains unchanged." A pergunta é a crença, escrita por quem
+    a tem. A mesma crença está no catálogo curado do kc_10.
+
+- id: pointer_copy_is_alias
+  negates: kc_06:I4
+  provenance: T
+  label_pt: "A cópia do ponteiro e o original são a mesma variável."
+  source: >
+    Sorva (2012), p. 363, itens 74 e 75: "Once a variable references an
+    object, it will always reference that object" e "Two different
+    variables must refer to two different objects" (Holland et al. 1997).
+    É a crença que a curadoria já tinha, com a fonte dela. Ela nega a
+    conclusão do tópico: se cópia e original fossem a mesma variável, C
+    teria passagem por referência.

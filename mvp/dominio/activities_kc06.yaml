@@ -1,0 +1,916 @@
+# Banco de atividades — kc_06, "passagem por referência"
+#
+# Sete por nó: um de entrada (o degrau mais baixo, na analogia), três de
+# diagnóstico (um por degrau, com o par teórica + código) e três de treino.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Em todo item, um distrator aponta a crença
+# do próprio nó — senão o nó nunca recebe atribuição — e outro a de um
+# vizinho. A crença do próprio nó abre a cédula (vem na alternativa `b`),
+# que é a ordem em que `razoes_de` apresenta a camada 2.
+#
+# UMA REGRA A MAIS NESTE TÓPICO: nenhum item usa troca de variáveis como
+# superfície de outra coisa. `troca(x, y)` é o exemplo clássico, aparece
+# duas vezes aqui, e nas duas o que se mede é a cópia — não a lógica da
+# troca. Item em que a pessoa erra porque se perdeu no `int t = a` mede
+# atenção, não premissa.
+
+analogy: >
+  O bilhete copiado. Chamar f(x) é a função ganhar uma casa nova, só dela,
+  e alguém copiar para dentro dela o que estava na casa de x. É cópia:
+  riscar o bilhete da casa nova não risca o bilhete da casa de x. Mas se o
+  que foi copiado é um NÚMERO DE CASA, a cópia do número leva à mesma casa
+  — e daí você vai até lá e mexe de verdade. Trocar o número copiado, por
+  outro lado, só troca o bilhete da casa nova.
+  ONDE QUEBRA: "copiar o bilhete" sugere que há cópia de coisa e cópia de
+  endereço, e que são operações diferentes. Não são: é a mesma cópia, e o
+  que muda é só o que estava escrito. E a metáfora não diz nada sobre a
+  casa nova desaparecer no fim da função — isso é do kc_01, e aqui o ponto
+  é o que a cópia alcança enquanto a função roda.
+
+resgates:
+
+  B1: >
+    Quando a função começa, ela ganha uma casa nova para o parâmetro. Nova
+    e só dela: não é a casa de x com outro nome na placa, nem uma janela
+    para dentro da casa de x. É uma casa a mais na rua.
+
+  B2: >
+    Alguém copia para dentro dessa casa nova o que estava na casa de x. O
+    que viaja é o conteúdo, já resolvido — se você escreveu f(x + 1), a
+    conta foi feita antes, e o que entrou na casa nova foi o resultado.
+
+  I1: >
+    Duas casas, dois bilhetes. Riscar o bilhete da casa nova não encosta no
+    bilhete da casa de x — e nada volta no fim da função para igualar os
+    dois. Por isso mexer no parâmetro não muda o argumento.
+
+  I2: >
+    Agora o caso que muda tudo: se o que foi copiado é um número de casa, a
+    cópia do número leva à MESMA casa. A casa nova tem a cópia do número, e
+    quem segue aquele número chega na casa de x e mexe nela de verdade.
+
+  I3: >
+    Mas o número copiado está num bilhete que é da casa nova. Apagar aquele
+    número e escrever outro troca o bilhete da casa nova, e mais nada: o
+    bilhete de quem chamou continua com o que estava lá.
+
+  I4: >
+    Então é uma regra só, e vale para tudo: C copia o que você passa.
+    Passar um endereço é copiar o endereço — e é justamente a cópia do
+    endereço que dá acesso ao original. Não existe um segundo jeito de
+    passar.
+
+exemplos:
+
+  B1: |
+    void f(int n) { /* n e caixa nova, de f */ }
+    int x = 1;
+    f(x);
+
+  B2: |
+    void f(int n);
+    int x = 2;
+    f(x + 1);     /* entra o 3, ja resolvido */
+
+  I1: |
+    void f(int n) { n = 99; }
+    int x = 1;
+    f(x);         /* x continua 1 */
+
+  I2: |
+    void f(int *p) { *p = 99; }
+    int x = 1;
+    f(&x);        /* x virou 99 */
+
+  I3: |
+    void f(int *p) { p = NULL; }
+    int x = 1;
+    int *q = &x;
+    f(q);         /* q continua &x */
+
+  I4: |
+    f(x);         /* copia o valor  */
+    f(&x);        /* copia o endereco */
+    /* a mesma copia, as duas vezes */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — o parâmetro é uma variável nova, local a f
+  # crença do nó: funcao_usa_a_variavel_do_chamador
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc06_e1
+    node: kc06:B1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      A função ganha uma casa nova para o parâmetro. De quem é essa casa?
+    alternativas:
+      a: "Dela: só existe lá dentro"
+      b: "Do chamador: é a casa de x"
+      c: "Das duas, ao mesmo tempo"
+    gabarito: a
+    crencas:
+      b: funcao_usa_a_variavel_do_chamador
+      c: function_gets_original
+
+  - id: ciu_kc06_001
+    node: kc06:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Ao chamar f(x), onde fica o parâmetro de f?"
+    alternativas:
+      a: "Numa variável nova, de f"
+      b: "Na variável x, do chamador"
+      c: "Em x e em f, que são a mesma"
+    gabarito: a
+    crencas:
+      b: funcao_usa_a_variavel_do_chamador
+      c: function_gets_original
+
+  - id: ciu_kc06_002
+    node: kc06:B1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(int n) { n = 99; printf("%d\n", n); }
+      int x = 1;
+      f(x);
+      printf("%d\n", x);
+    enunciado: "O que sai, nas duas linhas?"
+    alternativas:
+      a: "99 e 1: são duas variáveis"
+      b: "99 e 99: f mexeu em x"
+      c: "99 e 99: n é outro nome de x"
+    gabarito: a
+    crencas:
+      b: funcao_usa_a_variavel_do_chamador
+      c: function_gets_original
+
+  - id: ciu_kc06_003
+    node: kc06:B1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int g = 5;
+      void f(int g) { g = 9; }
+      f(1);
+      printf("%d\n", g);
+    enunciado: "O que sai, e por quê?"
+    alternativas:
+      a: "5: o g de f é outra variável"
+      b: "9: f mexeu no g de fora"
+      c: "9: o nome igual liga os dois"
+    gabarito: a
+    crencas:
+      b: funcao_usa_a_variavel_do_chamador
+      c: function_gets_original
+
+  - id: ciu_kc06_t01
+    node: kc06:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O parâmetro de uma função é o quê?"
+    alternativas:
+      a: "Uma variável local dela"
+      b: "Um acesso à variável do chamador"
+      c: "O próprio argumento, com outro nome"
+    gabarito: a
+    crencas:
+      b: funcao_usa_a_variavel_do_chamador
+      c: function_gets_original
+
+  - id: ciu_kc06_t02
+    node: kc06:B1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void soma(int a, int b, int total) { total = a + b; }
+      int t = 0;
+      soma(2, 3, t);
+      printf("%d\n", t);
+    enunciado: "Por que t continua 0?"
+    alternativas:
+      a: "total é caixa de soma, não t"
+      b: "Não continua: total é o t"
+      c: "Não continua: soma devolve em t"
+    gabarito: a
+    crencas:
+      b: funcao_usa_a_variavel_do_chamador
+      c: function_gets_original
+
+  - id: ciu_kc06_t03
+    node: kc06:B1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void troca(int a, int b) { int t = a; a = b; b = t; }
+      int x = 1, y = 2;
+      troca(x, y);
+      printf("%d %d\n", x, y);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1 2: a troca foi nas cópias"
+      b: "2 1: a e b são x e y"
+      c: "2 1: a troca volta na saída"
+    gabarito: a
+    crencas:
+      b: funcao_usa_a_variavel_do_chamador
+      c: function_gets_original
+
+  # ------------------------------------------------------------------
+  # B2 — o valor do argumento é copiado para dentro do parâmetro
+  # crença do nó: passa_a_expressao
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc06_e2
+    node: kc06:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Alguém copia para a casa nova o que está na casa de x. O que foi
+      copiado?
+    alternativas:
+      a: "O conteúdo da casa de x"
+      b: "A conta que você escreveu"
+      c: "A casa de x, inteira"
+    gabarito: a
+    crencas:
+      b: passa_a_expressao
+      c: function_gets_original
+
+  - id: ciu_kc06_004
+    node: kc06:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Em f(x + 1), o que entra no parâmetro?"
+    alternativas:
+      a: "O resultado da conta"
+      b: "A conta, para f resolver"
+      c: "A variável x, com a conta"
+    gabarito: a
+    crencas:
+      b: passa_a_expressao
+      c: function_gets_original
+
+  - id: ciu_kc06_005
+    node: kc06:B2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int n = 2;
+      void f(int v) { n = 100; printf("%d\n", v); }
+      f(n + 1);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "3: a conta foi feita antes"
+      b: "101: f resolve a conta lá"
+      c: "101: v acompanha o n"
+    gabarito: a
+    crencas:
+      b: passa_a_expressao
+      c: function_gets_original
+
+  - id: ciu_kc06_006
+    node: kc06:B2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int i = 0;
+      void f(int v) { printf("%d\n", v); }
+      /* A */  f(i++);
+      /* B */  f(i);  i++;
+    enunciado: "As duas imprimem o mesmo. O que mais é igual nelas?"
+    alternativas:
+      a: "O i no fim: as duas somam 1"
+      b: "Nada: em A, f recebe o i++"
+      c: "Nada: em A, f mexe no i"
+    gabarito: a
+    crencas:
+      b: passa_a_expressao
+      c: funcao_usa_a_variavel_do_chamador
+
+  - id: ciu_kc06_t04
+    node: kc06:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Chamar f(2 + 3) passa o quê?"
+    alternativas:
+      a: "O número 5"
+      b: "A soma 2+3, para f fazer"
+      c: "Os dois números, 2 e 3"
+    gabarito: a
+    crencas:
+      b: passa_a_expressao
+      c: function_gets_original
+
+  - id: ciu_kc06_t05
+    node: kc06:B2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int conta(void) { printf("rodei\n"); return 7; }
+      void f(int v) { printf("%d %d\n", v, v); }
+      f(conta());
+    enunciado: "Quantas vezes rodei aparece?"
+    alternativas:
+      a: "Uma: o valor foi copiado"
+      b: "Duas: v é a chamada, usada duas vezes"
+      c: "Duas: v acompanha a função"
+    gabarito: a
+    crencas:
+      b: passa_a_expressao
+      c: function_gets_original
+
+  - id: ciu_kc06_t06
+    node: kc06:B2
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      void f(int v) { x = 50; printf("%d\n", v); }
+      f(x);
+    enunciado: "Por que sai 1, e não 50?"
+    alternativas:
+      a: "v levou uma cópia do 1"
+      b: "v é a expressão x, lida agora"
+      c: "v e x são a mesma variável"
+    gabarito: a
+    crencas:
+      b: passa_a_expressao
+      c: function_gets_original
+
+  # ------------------------------------------------------------------
+  # I1 — modificar o parâmetro não afeta o argumento
+  # crença do nó: function_gets_original
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc06_e3
+    node: kc06:I1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você risca o bilhete da casa nova. O bilhete da casa de x mudou?
+    alternativas:
+      a: "Não: são dois bilhetes"
+      b: "Mudou: é o mesmo bilhete"
+      c: "Mudou na volta da função"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: funcao_usa_a_variavel_do_chamador
+
+  - id: ciu_kc06_007
+    node: kc06:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Mexer no parâmetro dentro de f faz o quê com o argumento?"
+    alternativas:
+      a: "Nada: ele fica como estava"
+      b: "Muda junto: é a mesma coisa"
+      c: "Muda quando f termina"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: funcao_usa_a_variavel_do_chamador
+
+  - id: ciu_kc06_008
+    node: kc06:I1
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void zera(int n) { n = 0; }
+      int x = 7;
+      zera(x);
+      printf("%d\n", x);
+    enunciado: "O que falta para zerar x de verdade?"
+    alternativas:
+      a: "Passar &x, e zerar *n"
+      b: "Nada: zera(x) já zera o x"
+      c: "Nada: o 0 volta no fim"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: funcao_usa_a_variavel_do_chamador
+
+  - id: ciu_kc06_009
+    node: kc06:I1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  void f(int  n) { n  = 9; }
+      /* B */  void g(int *n) { *n = 9; }
+      int x = 1;
+    enunciado: "Qual das duas muda x quando chamada?"
+    alternativas:
+      a: "B, chamada com &x"
+      b: "As duas: o parâmetro é x"
+      c: "A, porque n recebe o x"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: funcao_usa_a_variavel_do_chamador
+
+  - id: ciu_kc06_t07
+    node: kc06:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Duas caixas ou uma, quando f(x) é chamada?"
+    alternativas:
+      a: "Duas: x e o parâmetro"
+      b: "Uma: o parâmetro é x"
+      c: "Duas, que se igualam no fim"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: funcao_usa_a_variavel_do_chamador
+
+  - id: ciu_kc06_t08
+    node: kc06:I1
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void dobra(int n) { n = n * 2; }
+      int x = 4;
+      dobra(x);
+      dobra(x);
+      printf("%d\n", x);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "4: nenhuma chamada tocou x"
+      b: "16: dobrou duas vezes"
+      c: "8: a última chamada valeu"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: funcao_usa_a_variavel_do_chamador
+
+  - id: ciu_kc06_t09
+    node: kc06:I1
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void ler(int destino) { scanf("%d", &destino); }
+      int n;
+      ler(n);
+      printf("%d\n", n);
+    enunciado: "Por que n não recebe o que foi digitado?"
+    alternativas:
+      a: "O scanf escreveu em destino"
+      b: "&destino é o endereço de n"
+      c: "O valor volta quando ler sai"
+    gabarito: a
+    crencas:
+      b: function_gets_original
+      c: funcao_usa_a_variavel_do_chamador
+
+  # ------------------------------------------------------------------
+  # I2 — o endereço copiado leva ao mesmo lugar
+  # crença do nó: ampersand_copies (do kc_04, pré-requisito)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc06_e4
+    node: kc06:I2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      O que foi copiado para a casa nova é um número de casa. A cópia leva
+      aonde?
+    alternativas:
+      a: "À mesma casa de antes"
+      b: "A uma cópia daquela casa"
+      c: "À casa de x, e as duas casas viram uma"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_010
+    node: kc06:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "f recebe uma cópia de &x. Essa cópia leva ao quê?"
+    alternativas:
+      a: "À própria x"
+      b: "A uma cópia de x"
+      c: "À x, e p e &x viram um"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_011
+    node: kc06:I2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void poe(int *p) { *p = 42; }
+      int x = 1;
+      poe(&x);
+      printf("%d\n", x);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "42: a cópia do endereço levou lá"
+      b: "1: p recebeu uma cópia de x"
+      c: "42, e agora p e &x são um só"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_012
+    node: kc06:I2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      void a(int  n) { n  = 9; }
+      void b(int *n) { *n = 9; }
+      int x = 1;
+      /* A */  a(x);
+      /* B */  b(&x);
+    enunciado: "Uma das duas muda x. Qual, e o que foi copiado em cada uma?"
+    alternativas:
+      a: "B: nela a cópia foi do endereço"
+      b: "Nenhuma: as duas copiam x"
+      c: "As duas: cópia e original são um"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_t10
+    node: kc06:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Copiar um endereço perde o acesso ao original?"
+    alternativas:
+      a: "Não: o endereço copiado leva lá"
+      b: "Perde: a cópia aponta outra coisa"
+      c: "Não, e as duas passam a ser uma"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_t11
+    node: kc06:I2
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void zera(int *p) { *p = 0; }
+      int x = 7;
+      zera(x);
+    enunciado: "O que está errado na chamada?"
+    alternativas:
+      a: "Falta o &: zera quer o endereço"
+      b: "Nada: zera(x) manda a cópia certa"
+      c: "Nada: x e *p já são a mesma"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_t12
+    node: kc06:I2
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void soma(int *d, int v) { *d = *d + v; }
+      int t = 10;
+      soma(&t, 5);
+      soma(&t, 5);
+      printf("%d\n", t);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "20: as duas chegaram em t"
+      b: "10: as duas somaram em cópias"
+      c: "15: só a última valeu"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_copy_is_alias
+
+  # ------------------------------------------------------------------
+  # I3 — atribuir a p dentro de f não altera o ponteiro do chamador
+  # crença do nó: modify_pp_changes_p
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc06_e5
+    node: kc06:I3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você apaga o número copiado e escreve outro. O bilhete de quem
+      chamou mudou?
+    alternativas:
+      a: "Não: o copiado é outro bilhete"
+      b: "Mudou: é o mesmo número"
+      c: "Mudou, e os dois bilhetes viram um"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_013
+    node: kc06:I3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Fazer p = outro dentro de f muda o ponteiro de quem chamou?"
+    alternativas:
+      a: "Não: p também é cópia"
+      b: "Muda: p é o ponteiro de lá"
+      c: "Muda: cópia e original são um"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_014
+    node: kc06:I3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void aponta(int *p, int *alvo) { p = alvo; }
+      int x = 1, y = 2;
+      int *q = &x;
+      aponta(q, &y);
+      printf("%d\n", *q);
+    enunciado: "Por que *q continua 1?"
+    alternativas:
+      a: "p = alvo mexeu em p, não em q"
+      b: "Não continua: p é o q de fora"
+      c: "Não continua: p e q são um só"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_015
+    node: kc06:I3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      void a(int  *p) { p  = NULL; }
+      void b(int **p) { *p = NULL; }
+      int x = 1;
+      int *q = &x;
+      /* A */  a(q);
+      /* B */  b(&q);
+    enunciado: "Uma das duas deixa q em NULL. Qual, e por quê?"
+    alternativas:
+      a: "B: ela recebeu o endereço de q"
+      b: "A: p é o q do chamador"
+      c: "As duas: q e p são a mesma"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_t13
+    node: kc06:I3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Para uma função trocar o ponteiro do chamador, ela precisa de quê?
+    alternativas:
+      a: "Do endereço daquele ponteiro"
+      b: "De nada: trocar p já basta"
+      c: "De nada: p e o de fora são um"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_t14
+    node: kc06:I3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(int *p) { p = NULL; }
+      int x = 1;
+      int *q = &x;
+      f(q);
+      printf("%d\n", q == NULL);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "0: q não foi tocado"
+      b: "1: f pôs NULL em q"
+      c: "1: p e q são a mesma variável"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_copy_is_alias
+
+  - id: ciu_kc06_t15
+    node: kc06:I3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void aloca(int *p) { p = malloc(sizeof(int)); }
+      int *q = NULL;
+      aloca(q);
+      *q = 5;
+    enunciado: "Por que a última linha é inválida?"
+    alternativas:
+      a: "q continuou NULL: aloca mexeu em p"
+      b: "Não é: aloca alocou para q"
+      c: "Não é: p e q são a mesma caixa"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_copy_is_alias
+
+  # ------------------------------------------------------------------
+  # I4 — a conclusão: C passa endereços por valor
+  # crença do nó: pointer_copy_is_alias
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc06_e6
+    node: kc06:I4
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Em toda chamada a casa nova recebe uma cópia. Isso vale também
+      quando o copiado é um número de casa?
+    alternativas:
+      a: "Vale: a cópia é a mesma regra"
+      b: "Não vale: aí as duas são uma"
+      c: "Não vale: aí f recebe a casa"
+    gabarito: a
+    crencas:
+      b: pointer_copy_is_alias
+      c: function_gets_original
+
+  - id: ciu_kc06_016
+    node: kc06:I4
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Como C passa um endereço para uma função?"
+    alternativas:
+      a: "Copiando o endereço"
+      b: "Ligando o ponteiro de lá ao de cá"
+      c: "Dando à função a variável original"
+    gabarito: a
+    crencas:
+      b: pointer_copy_is_alias
+      c: function_gets_original
+
+  - id: ciu_kc06_017
+    node: kc06:I4
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(int *p) { *p = 9; p = NULL; }
+      int x = 1;
+      int *q = &x;
+      f(q);
+      printf("%d %d\n", x, q == NULL);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "9 0: o apontado mudou, q não"
+      b: "9 1: q e p são a mesma"
+      c: "1 1: f mexeu só nas cópias"
+    gabarito: a
+    crencas:
+      b: pointer_copy_is_alias
+      c: ampersand_copies
+
+  - id: ciu_kc06_018
+    node: kc06:I4
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      void a(int  v) { v  = 9; }
+      void b(int *v) { *v = 9; }
+      int x = 1;
+    enunciado: "As duas copiam o argumento. Então por que só uma muda x?"
+    alternativas:
+      a: "O que b copiou leva até x"
+      b: "b não copia: ela recebe o x"
+      c: "b recebe a própria variável"
+    gabarito: a
+    crencas:
+      b: pointer_copy_is_alias
+      c: function_gets_original
+
+  - id: ciu_kc06_t16
+    node: kc06:I4
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "C tem passagem por referência?"
+    alternativas:
+      a: "Não: passa endereços por valor"
+      b: "Tem: com ponteiro é por referência"
+      c: "Tem: a função recebe o original"
+    gabarito: a
+    crencas:
+      b: pointer_copy_is_alias
+      c: function_gets_original
+
+  - id: ciu_kc06_t17
+    node: kc06:I4
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(int *p) { int y = 7; p = &y; }
+      int x = 1;
+      int *q = &x;
+      f(q);
+      printf("%d\n", *q);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: q não mudou de endereço"
+      b: "7: p e q são o mesmo ponteiro"
+      c: "7: f devolve o que mudou"
+    gabarito: a
+    crencas:
+      b: pointer_copy_is_alias
+      c: modify_pp_changes_p
+
+  - id: ciu_kc06_t18
+    node: kc06:I4
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void troca(int *a, int *b) { int *t = a; a = b; b = t; }
+      int x = 1, y = 2;
+      int *p = &x, *q = &y;
+      troca(p, q);
+      printf("%d %d\n", *p, *q);
+    enunciado: "Por que a troca não vale fora da função?"
+    alternativas:
+      a: "a e b são cópias de p e q"
+      b: "Não é: a é p e b é q"
+      c: "Não é: a troca volta na saída"
+    gabarito: a
+    crencas:
+      b: pointer_copy_is_alias
+      c: modify_pp_changes_p

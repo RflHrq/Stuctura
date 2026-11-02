@@ -783,3 +783,73 @@ linguagem fecharam sem nenhuma.
 
 Buraco na escada do kc_05, nó sem item de entrada, nó sem figura, e
 `topicos()` voltando a ser lista escrita à mão. As quatro mordem.
+
+## Ciclo de conteúdo — o kc_06 (passagem por referência)
+
+Sexto tópico, e o primeiro que **não exigiu editar teste nenhum**: a
+`dominio.topicos()` do ciclo anterior varreu o kc_06 sozinha, e a suíte foi
+de 383 para 399 testes sem uma linha de registro manual. Era exatamente o
+que aquela mudança existia para comprar.
+
+### A discordância com a curadoria, terceira vez
+
+Sete nós curados (B1, B2, I1–I5), **duas** crenças (I1 e I4). A dobra foi
+uma só, e era premissa e aplicação da mesma ideia:
+
+| Curado | Virou |
+| --- | --- |
+| I2 (se o argumento é &x, f recebe cópia do endereço) + I3 (`*p = v` dentro de f altera x) | `I2` |
+
+O segundo é o que o primeiro permite, e a crença que nega um nega o outro.
+
+### As fontes
+
+Zero `E`. A seção **"Calls"** da Tabela A.1 do Sorva (itens 41 a 53) é a
+parte mais farta da tabela para este tópico — e nunca tinha sido usada. Os
+três itens novos foram lidos no original:
+
+| Crença | Nó | Proc. | Fonte |
+| --- | --- | --- | --- |
+| `funcao_usa_a_variavel_do_chamador` | B1 | T | Sorva p. 361 item 47 (Fleury 1991) + itens 44–45 (Madison & Gifford 1997) |
+| `passa_a_expressao` | B2 | T | Sorva p. 362 item 51 + item 52 (George 2000a) |
+| `function_gets_original` | I1 | T | Sorva p. 363 item 67 (Ma 2007) + FAQ 4.11 (curada) |
+| `ampersand_copies` | I2 | T | Sorva p. 362 item 66 (Ma 2007) — do kc_04 |
+| `modify_pp_changes_p` | I3 | L | FAQ comp.lang.c 4.8 — do kc_10 |
+| `pointer_copy_is_alias` | I4 | T | Sorva p. 363 itens 74–75 (Holland et al. 1997) (curada) |
+
+**Uma ressalva declarada:** o item 51 ("Expressions (not their values) are
+passed as parameters") é marcado `local` na tabela do Sorva — é adição do
+próprio autor, sem estudo citado. É a base mais fraca entre as seis, e por
+isso a crença vem acompanhada do item 52, que tem citação. Fica escrito no
+YAML.
+
+### A medição
+
+| Persona | kc_06 |
+| --- | --- |
+| acerta tudo | 45 passos, 0/12 sem medida |
+| erra e aprende | 85, 0/12 |
+| erra e não muda | **91, 0/12** |
+
+Em linha com kc_03 (92), kc_04 (89) e kc_05 (88). Segundo tópico a nascer
+depois do quarto teto, e também sem precisar de medição de resgate.
+
+### Os sete tópicos
+
+| Tópico | Nós | Itens | Vizinho na cédula | Procedências |
+| --- | --- | --- | --- | --- |
+| `kc_00` | 5 | 20 | 31% | 3 L, 1 T, **1 E** |
+| `kc_01` | 5 | 35 | 37% | 3 T, 1 L, **1 E** |
+| `kc_02` | 6 | 60 | 47% | 2 T, 1 D, 1 L, **2 E** |
+| `kc_03` | 6 | 42 | 36% | 3 D, 2 L, 1 T |
+| `kc_04` | 6 | 42 | 50% | 3 L, 3 T |
+| `kc_05` | 6 | 42 | 50% | 4 L, 1 T, 1 N |
+| `kc_06` | 6 | 42 | 50% | 5 T, 1 L |
+
+Quatro tópicos construídos depois do contrato de linguagem, quatro sem
+nenhuma `E`. As quatro `E` que restam continuam nos três mais antigos.
+
+### As quatro sabotagens
+
+Buraco na escada, nó sem item de entrada, nó sem figura, e a crença do
+próprio nó saindo de um item de diagnóstico. As quatro mordem.
