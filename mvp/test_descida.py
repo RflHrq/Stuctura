@@ -278,6 +278,25 @@ def test_a_premissa_da_colisao_so_aparece_no_ultimo_degrau(d, ligada):
     assert t.tela.dados["voce_disse"] is False
 
 
+def test_o_texto_da_cadeia_nao_usa_marcacao(d):
+    """A tela escreve texto puro: crase vira crase na cara da pessoa.
+
+    O cliente põe estes textos com `textContent`, e não interpreta
+    marcação nenhuma. Uma crase escrita aqui aparece como crase lá —
+    rodando a descida no navegador, a pergunta saiu com `a` e `p` entre
+    acentos graves. Código dentro da frase se escreve sem enfeite:
+    `int a[5]`, `sizeof a`, `a = p`, como no resto do domínio.
+    """
+    descida = d.descida(CRENCA)
+    textos = [(("degrau %d" % i), campo)
+              for i, p in enumerate(descida.passos, 1)
+              for campo in (p.pergunta, p.decorre, p.verdade, p.porque)]
+    ev = descida.evidencia
+    textos += [("evidência", ev.afirmacao), ("evidência", ev.garantia)]
+    for onde, texto in textos:
+        assert "`" not in texto, "%s: %r" % (onde, texto)
+
+
 def test_o_texto_da_cadeia_nao_atribui_nada_a_pessoa(d):
     """Quem decide se cabe "você disse" é o motor, que viu a sessão.
 

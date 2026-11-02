@@ -28,30 +28,31 @@ descidas:
 
       - pergunta: >
           Vamos levar a sua ideia a sério. Se array e ponteiro são a mesma
-          coisa, então o nome `a` guarda um endereço dentro dele, como `p`
+          coisa, então o nome a guarda um endereço dentro dele, como p
           guarda?
         decorre: "Guarda: a aponta para a primeira casa"
         verdade: "Não guarda: a é o conjunto das casas"
         porque: >
-          Então `a` não é uma caixa com endereço dentro, e `p` é. Já são
-          duas coisas diferentes, antes de qualquer outra conta.
+          Então o nome a não guarda endereço nenhum, e o ponteiro p
+          guarda. Já são duas coisas diferentes, antes de qualquer outra
+          conta.
 
       - pergunta: >
-          Se `a` guarda um endereço como `p`, então `sizeof a` deveria
-          medir esse endereço. Mede?
+          Se o nome a guarda um endereço como p guarda, então sizeof a
+          deveria medir esse endereço. Mede?
         decorre: "Mede: dá o tamanho de um ponteiro"
         verdade: "Não: mede as cinco caixas juntas"
         porque: >
-          `sizeof a` mede as cinco caixas e `sizeof p` mede um ponteiro.
+          sizeof a mede as cinco caixas e sizeof p mede um ponteiro.
           Dois tamanhos diferentes, na mesma máquina, no mesmo programa.
 
       - pergunta: >
-          Se são a mesma coisa, então `a = p` deveria compilar, do mesmo
-          jeito que `p = a` compila. Compila?
+          Se são a mesma coisa, então a = p deveria compilar, do mesmo
+          jeito que p = a compila. Compila?
         decorre: "Compila: um recebe o outro"
         verdade: "Não compila: só p = a compila"
         porque: >
-          `p = a` compila e `a = p` não. Se fossem a mesma coisa, as duas
+          p = a compila e a = p não. Se fossem a mesma coisa, as duas
           compilariam — é o compilador dizendo que os tipos são distintos.
 
       # A atribuição desta premissa — "você confirmou" ou só "esta
@@ -60,13 +61,13 @@ descidas:
       # ela afirmou o que não afirmou derruba a única coisa que faz a
       # descida funcionar, que é cada passo ser reconhecido como seu.
       - pergunta: >
-          `int a[5]` cria cinco caixas grudadas, e `int *p` cria uma caixa
+          int a[5] cria cinco caixas grudadas, e int *p cria uma caixa
           só. Cinco caixas e uma caixa são a mesma coisa?
         decorre: "São: o resto é detalhe"
         verdade: "Não são: cinco caixas não são uma caixa"
         porque: >
           Cinco caixas e uma caixa não são a mesma coisa, e isso sozinho
-          fecha a conta. O que explica `a[i]` e `p[i]` se escreverem igual
+          fecha a conta. O que explica a[i] e p[i] se escreverem igual
           é o atalho: numa conta, o nome do array vira o endereço da
           primeira casa. O atalho explica a ESCRITA parecida, e não a
           igualdade.
