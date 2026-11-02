@@ -120,10 +120,10 @@ Nenhuma bloqueia a fase 4.
    passos — e a série é 6 nós → 85, 7 → 95, 8 → 113. Se não couber, o
    caminho não é cortar nó (cada um é premissa medida): é dividir o kc_09
    em dois, ou aceitar que a sessão dele é mais longa.
-10. **As duas `E` do kc_02.** É o único tópico-piloto com crença
-   estimada no catálogo, e o piloto é o que vai para a monografia. Ou se
-   acha fonte para `pointer_has_no_address` e `pointer_is_pointless`, ou
-   as duas entram no texto declaradas como hipótese a testar.
+10. ~~As duas `E` do kc_02.~~ **Fechada**: as duas tinham fonte, e a
+   busca anterior errou — uma de vocabulário, a outra de catálogo. Os
+   quatro pilotos ficaram sem nenhuma `E`. Ver "A pergunta 10 resolvida",
+   no fim deste documento.
 11. ~~A suíte do MVP leva 3 minutos.~~ **Fechada, e era erro de
    medição meu.** A suíte roda em **30 segundos**, e a varredura de
    tópicos custa 6. Ver "A pergunta 11 era um erro de medição", no fim
@@ -1592,3 +1592,100 @@ escrever dezenas de arquivos. Duas vezes neste projeto eu registrei um
 número tomado sob contenção e expliquei a causa com confiança — e nas duas
 a explicação estava errada. Número medido sob contenção não é medida: é
 palpite com casa decimal.
+
+## A pergunta 10 resolvida: os quatro pilotos ficaram sem nenhuma `E`
+
+O kc_02 era o único tópico-piloto com crença estimada, e tinha duas. As
+duas tinham fonte, e a busca anterior não achou por dois motivos
+diferentes — os dois instrutivos.
+
+### `pointer_has_no_address`: a busca errou de vocabulário
+
+A nota que estava no catálogo dizia, em maiúsculas:
+
+> *"PROCUREI no catálogo do Sorva (2012) e NÃO ESTÁ LÁ: nenhum dos 162
+> itens afirma que a referência não ocupa espaço."*
+
+Está no item **14**, e estava citado **neste mesmo catálogo** desde o
+começo — para outra crença, usando a **primeira** frase dele. O item tem
+duas:
+
+> *"A variable is (merely) a pairing of a name to a changeable value (with
+> a type). **It is not stored inside the computer.**"* (Sorva 2008;
+> Doukakis et al. 2007)
+
+A primeira frase é `pointer_is_data` ("o ponteiro é o próprio dado"). A
+segunda é `pointer_has_no_address` ("não ocupa lugar nenhum") — dita com
+outras palavras, mas dita. A busca procurava por **referência** e por
+**espaço**; o item fala de **variável** e de **"not stored inside the
+computer"**. Passou batido por vocabulário, não por ausência.
+
+É o mesmo padrão de fonte com duas metades que já tinha aparecido três
+vezes: a FAQ 7.21 sustenta três crenças do kc_09, a 7.22 duas do kc_08, e
+a 4.9 duas do kc_10. Procurar pela metade que falta virou hábito — mas
+virou depois de escrever esta nota.
+
+**`E` → `T`**, com a transposição declarada: os estudos são sobre
+variáveis em linguagens onde o aluno não vê o armazenamento, e em C há o
+agravante de que o endereço da própria caixa é observável (`&p`).
+
+### `pointer_is_pointless`: a busca olhou no catálogo errado
+
+A nota dizia que o catálogo do Sorva é sobre **mecanismo** e esta crença é
+sobre **finalidade**, e concluía que por isso ela não estaria em catálogo
+nenhum. A primeira metade continua certa. A segunda não:
+
+> **FAQ comp.lang.c 4.1** — *"What are pointers really good for,
+> anyway?"*
+
+A pergunta **é** a crença, e o "anyway" carrega o tom de quem não vê para
+quê. A resposta é uma lista de finalidades. E o lugar dela importa: é a
+**primeira** pergunta da seção de ponteiros. Quem manteve a lista achou
+que, antes de qualquer mecanismo, era preciso responder por que a coisa
+existe — e isso é testemunho de especialista sobre erro comum, que é
+exatamente o que a procedência `L` afirma.
+
+**`E` → `L`**.
+
+### As duas `E` que ficam, e o que foi procurado para elas
+
+| Crença | Tópico | Candidata considerada | Por que ficou `E` |
+| --- | --- | --- | --- |
+| `type_is_a_hint` | `kc_00` | Sorva p. 360 item 19, *"There is no size or precision limit to the values we can store in a programming variable"* (Doukakis et al. 2007) | **Recusada.** "Sem limite" é outro modelo errado, não "todas do mesmo tamanho". Citá-la seria o mesmo falso amigo que o projeto pegou no kc_08 |
+| `memoria_e_do_computador` | `kc_01` | nada encontrado | A crença é sobre **isolamento entre processos**; o catálogo do Sorva trata de máquina notional sem processos, e o FAQ de C não trata do assunto |
+
+Nenhum dos dois é piloto, e o que foi procurado está escrito no
+`beliefs_kc02.yaml` para a busca não ser repetida.
+
+### A procedência do projeto, depois
+
+| Tópico | Procedências |
+| --- | --- |
+| `kc_00` | 3 L, 1 T, **1 E** |
+| `kc_01` | 3 T, 1 L, **1 E** |
+| `kc_02` · piloto | 3 T, 2 L, 1 D |
+| `kc_03` | 3 D, 2 L, 1 T |
+| `kc_04` | 3 L, 3 T |
+| `kc_05` | 4 L, 1 T, 1 N |
+| `kc_06` | 5 T, 1 L |
+| `kc_07` · piloto | 6 L, 1 T |
+| `kc_08` | 4 L, 1 T, 1 N |
+| `kc_09` · piloto | 6 L, 1 T, 1 N |
+| `kc_10` | 4 L, 2 T |
+| `kc_11` · piloto | 6 L |
+| `kc_12` | 6 T |
+
+**79 crenças: 42 L, 28 T, 4 D, 3 N, 2 E.** As duas `E` estão fora dos
+pilotos.
+
+### Dois testes novos, e o que eles guardam
+
+```
+test_piloto_nao_tem_crenca_estimada          nenhum piloto com `E`
+test_toda_crenca_de_piloto_tem_fonte_escrita nenhuma com `source` vazio
+```
+
+O segundo existe porque o primeiro, sozinho, seria fácil de burlar sem
+querer: trocar a procedência de `E` para `T` é uma letra, e uma letra sem
+fonte escrita não vale nada. As duas sabotagens mordem — devolver uma
+crença de piloto para `E`, e deixar uma com `source` de uma linha.

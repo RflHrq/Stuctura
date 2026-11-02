@@ -338,3 +338,40 @@ def test_topico_novo_no_disco_entra_na_lista_sozinho(tmp_path):
     """A garantia que faz a lista valer a pena: ninguém precisa lembrar."""
     (tmp_path / "topic_kc99.yaml").write_text("id: kc_99\n", encoding="utf-8")
     assert topicos(tmp_path) == ("kc_99",)
+
+
+# --------------------------------------------------------------------------
+# NENHUM TÓPICO-PILOTO TEM CRENÇA ESTIMADA
+#
+# Piloto é o que a coleta usa e o que vai para a monografia. Crença `E` é
+# hipótese sem fonte: declarar uma como achado seria afirmar sobre a
+# literatura o que a literatura não diz.
+#
+# As duas que o kc_02 tinha foram resolvidas quando a busca foi refeita com
+# outro vocabulário — `pointer_has_no_address` estava na segunda frase do
+# item 14 do Sorva ("It is not stored inside the computer"), e
+# `pointer_is_pointless` é a primeira pergunta da seção de ponteiros do
+# FAQ de C. As duas que restam no projeto estão no kc_00 e no kc_01, que
+# não são piloto, e o que foi procurado para elas está escrito no
+# `beliefs_kc02.yaml`.
+# --------------------------------------------------------------------------
+
+PILOTOS = ("kc_02", "kc_07", "kc_09", "kc_11")
+
+
+@pytest.mark.parametrize("topico", PILOTOS)
+def test_piloto_nao_tem_crenca_estimada(topico):
+    """Se alguém marcar uma crença de piloto como `E`, é aqui que cai."""
+    d = carrega(topico=topico)
+    estimadas = [c.id for c in d.crencas.values() if c.procedencia == "E"]
+    assert estimadas == [], estimadas
+
+
+@pytest.mark.parametrize("topico", PILOTOS)
+def test_toda_crenca_de_piloto_tem_fonte_escrita(topico):
+    """Procedência sem fonte é procedência sem valor. A `D`, a `L`, a `T` e
+    a `N` todas afirmam algo sobre onde a crença está registrada, e o campo
+    `source` é onde isso fica."""
+    d = carrega(topico=topico)
+    sem = [c.id for c in d.crencas.values() if len(c.fonte) < 40]
+    assert sem == [], sem
