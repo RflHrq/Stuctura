@@ -1,0 +1,85 @@
+topic: kc_03
+
+# A METÁFORA DESTE TÓPICO: o papel que já vem rabiscado.
+#
+# Continua a rua do kc_02. Declarar `int *p;` é ganhar a casa de p, com um
+# papel dentro — e o papel NÃO vem em branco: traz o que o último morador
+# rabiscou nele. Não é zero, não é "nada", não é um endereço escolhido.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. Um papel rabiscado sugere que havia um número ali, de alguém. O que
+#      está na memória pode não ser endereço de coisa nenhuma — pode não
+#      formar um número que leve a lugar algum. "Rabisco" é melhor que
+#      "número antigo", e quando a metáfora empurrar para "o endereço de
+#      outra pessoa", ela cala.
+#   2. A metáfora não diz NADA sobre a casa apontada, e isso é de
+#      propósito: o ponto do tópico é que essa casa não existe ainda.
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "A declaração reserva espaço para a variável declarada."
+    plain_text: >
+      Declarar uma variável cria a caixa dela. Uma caixa: a que você
+      nomeou.
+    negated_by:
+      - no_value_no_memory
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Em int *p, quem é declarado é p, e não *p."
+    plain_text: >
+      Em int *p, quem é criado é p. O asterisco faz parte do que p é, e
+      não é uma segunda caixa.
+    negated_by:
+      - estrela_e_do_tipo
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "C não zera uma variável automática ao declará-la."
+    plain_text: >
+      C não limpa a caixa nova. O que estava naquele lugar antes
+      continua lá.
+    negated_by:
+      - declaration_zeroes
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B1, B2]
+    text: "Declarar p não cria o objeto para onde p vai apontar."
+    plain_text: >
+      Então declarar p não cria a caixa apontada. Até aqui existe uma
+      caixa só.
+    negated_by:
+      - declaration_allocates
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [B3, I1]
+    text: "Logo depois da declaração, p contém lixo, e não NULL."
+    plain_text: >
+      Nesse ponto p guarda um valor qualquer, sobra do que estava ali.
+      Não é NULL.
+    negated_by:
+      - uninitialized_is_null
+
+  I3:
+    type: inferencia
+    role: conclusao
+    support: [I1, I2]
+    text: "Usar *p antes de dar um endereço a p é inválido."
+    plain_text: >
+      Por isso usar *p antes de dar um endereço a p vai a um lugar que
+      ninguém escolheu.
+    negated_by:
+      - pode_usar_logo

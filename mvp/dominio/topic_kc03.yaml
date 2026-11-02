@@ -1,0 +1,13 @@
+id: kc_03
+title: "Declaração e inicialização"
+pilot: false
+prerequisites: [kc_02]
+conclusion_node: I3
+summary: >
+  int *p; cria só o ponteiro, com valor indeterminado. Não cria nem
+  inicializa o objeto apontado — e por isso usar *p antes de dar um
+  endereço a p vai a um lugar que ninguém escolheu.
+
+# Respondível ANTES por quem ainda não sabe. É o lado esquerdo do
+# antes-e-depois, e a pergunta é exatamente a que o tópico responde.
+teachback: "o que existe na memória logo depois de você escrever int *p; e mais nada"

@@ -205,8 +205,18 @@
     var L = o.largura || 92, A = o.altura || 64;
     g.appendChild(el("rect", {
       x: x, y: y, width: L, height: A, rx: 8,
-      "class": "fig-quarto" + (o.vazia ? " vazio" : "")
+      "class": "fig-quarto" + (o.vazia ? " vazio" : "") + (o.sujo ? " sujo" : "")
     }));
+    /* o rabisco do morador anterior: o que ninguem limpou (kc_03). Fica
+     * ATRAS do valor, de proposito — o rabisco nao substitui o numero, ele
+     * explica de onde aquele numero veio. */
+    if (o.rabisco) {
+      g.appendChild(el("path", {
+        "class": "fig-sujeira",
+        d: "M" + (x + 14) + "," + (y + A - 15) +
+           " q 13,-13 26,0 q 13,13 26,0 q 13,-13 22,4"
+      }));
+    }
     /* o numero na porta: o endereco */
     g.appendChild(el("rect", {
       x: x + L / 2 - 30, y: y - 11, width: 60, height: 22, rx: 11,
@@ -423,6 +433,130 @@
       quadra(s, 150, "MONTE — quem arruma é você", "");
       s.appendChild(casa(118, 150, { endereco: "0x9000", dentro: "3", largura: 124 }));
       legenda(s, 208, "a mesma memória, duas regras de arrumação");
+      return s;
+    }
+  };
+
+  /* -------------------------------- kc_03: o papel que ja vem rabiscado */
+
+  /* Continua a rua do kc_02 — por isso usa `casa` e nao um desenho novo:
+   * trocar a forma a cada topico ensinaria que a memoria muda de natureza
+   * quando o assunto muda.
+   *
+   * O que este topico acrescenta e o RABISCO: a casa nova vem com o papel
+   * do morador anterior dentro. E o que ele NAO desenha e a casa apontada,
+   * porque ela nao existe — nem tracejada. Caixa tracejada no fim da seta
+   * diria "existe um lugar la, so esta vazio", que e a crenca
+   * `declaration_allocates` dita em desenho. */
+
+  POR_TOPICO.kc_03 = {
+
+    /* B1 — declarar reserva: a casa existe antes de qualquer valor. */
+    B1: function () {
+      var s = svg(360, 168);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "int x;  e mais nada"));
+      s.appendChild(casa(120, 56, { endereco: "0x1000", dentro: "?",
+                                    nome: "x", largura: 120 }));
+      legenda(s, 160, "a casa ja e sua; o que ha dentro e outra conversa");
+      return s;
+    },
+
+    /* B2 — em int *p, quem ganhou casa foi p. */
+    B2: function () {
+      var s = svg(360, 192);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 22, "class": "fig-rodape" }, "int *p;"));
+      s.appendChild(el("text", { x: 86, y: 46, "class": "fig-nota" }, "declarado"));
+      s.appendChild(casa(28, 70, { endereco: "0x2A00", dentro: "0x4C1F",
+                                   nome: "p", largura: 116,
+                                   rabisco: true, sujo: true }));
+      s.appendChild(el("text", { x: 274, y: 46, "class": "fig-nota" },
+                       "nao declarado"));
+      s.appendChild(casa(216, 70, { endereco: "?", vazia: true,
+                                    nome: "*p", largura: 116 }));
+      legenda(s, 184, "o * diz o que cabe em p, e nao cria um segundo nome");
+      return s;
+    },
+
+    /* B3 — ninguem limpa: o rabisco do morador anterior fica. */
+    B3: function () {
+      var s = svg(360, 188);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "quem morou antes"));
+      s.appendChild(casa(30, 58, { endereco: "0x1000", dentro: "0x4C1F",
+                                   largura: 112, rabisco: true, sujo: true }));
+      s.appendChild(seta(150, 90, 206, 90));
+      s.appendChild(el("text", { x: 178, y: 74, "class": "fig-nota" }, "int x;"));
+      s.appendChild(el("text", { x: 274, y: 26, "class": "fig-rodape" },
+                       "agora e de x"));
+      s.appendChild(casa(218, 58, { endereco: "0x1000", dentro: "0x4C1F",
+                                    nome: "x", largura: 112,
+                                    rabisco: true, sujo: true }));
+      legenda(s, 180, "a declaracao nao apagou nada: C nao manda limpar");
+      return s;
+    },
+
+    /* I1 — declarar p nao construiu a casa apontada. A seta vai para fora
+     * e morre no vazio: nao ha caixa no fim dela. */
+    I1: function () {
+      var s = svg(360, 192);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" }, "int *p;"));
+      s.appendChild(casa(24, 60, { endereco: "0x2A00", dentro: "0x4C1F",
+                                   nome: "p", largura: 120,
+                                   rabisco: true, sujo: true }));
+      s.appendChild(seta(150, 92, 240, 92, "proibida"));
+      s.appendChild(el("text", { x: 290, y: 80, "class": "fig-nota" }, "0x4C1F"));
+      s.appendChild(el("text", { x: 290, y: 102, "class": "fig-legenda erro" },
+                       "nenhuma casa"));
+      legenda(s, 162, "declarar p nao construiu a casa apontada");
+      legenda(s, 182, "ate aqui existe uma: a de p");
+      return s;
+    },
+
+    /* I2 — o que esta no papel e rabisco, nao NULL. */
+    I2: function () {
+      var s = svg(360, 198);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "o que se imagina"));
+      s.appendChild(casa(30, 58, { endereco: "0x2A00", dentro: "NULL",
+                                   largura: 112, vazia: true }));
+      s.appendChild(el("text", { x: 86, y: 142, "class": "fig-legenda erro" },
+                       "ninguem escreveu isso"));
+      s.appendChild(el("text", { x: 274, y: 26, "class": "fig-rodape" },
+                       "o que esta la"));
+      s.appendChild(casa(218, 58, { endereco: "0x2A00", dentro: "0x4C1F",
+                                    largura: 112, rabisco: true, sujo: true }));
+      s.appendChild(el("text", { x: 274, y: 142, "class": "fig-nota" },
+                       "o rabisco de antes"));
+      legenda(s, 182, "papel rabiscado nao e papel em branco");
+      return s;
+    },
+
+    /* I3 — a conclusao: seguir o rabisco e ir a um lugar que ninguem
+     * escolheu. Invalido, e nao so arriscado. */
+    I3: function () {
+      var s = svg(360, 206);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "int *p;   *p = 10;"));
+      s.appendChild(casa(24, 62, { endereco: "0x2A00", dentro: "0x4C1F",
+                                   nome: "p", largura: 120,
+                                   rabisco: true, sujo: true }));
+      s.appendChild(seta(150, 94, 244, 94, "proibida"));
+      s.appendChild(el("text", { x: 197, y: 80, "class": "fig-legenda erro" },
+                       "*p = 10"));
+      s.appendChild(el("text", { x: 292, y: 84, "class": "fig-nota" }, "0x4C1F"));
+      s.appendChild(el("text", { x: 292, y: 106, "class": "fig-legenda erro" },
+                       "lugar que ninguem"));
+      s.appendChild(el("text", { x: 292, y: 124, "class": "fig-legenda erro" },
+                       "escolheu"));
+      legenda(s, 174, "invalido: nao e sorte ruim, e regra");
+      legenda(s, 194, "primeiro p = &x; depois *p");
       return s;
     }
   };

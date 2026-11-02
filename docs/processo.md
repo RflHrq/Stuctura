@@ -64,7 +64,7 @@ pergunta.
 | Ativo | Onde | Estado |
 | --- | --- | --- |
 | Grafo de premissas de ponteiros em C | `domain/c_pointers/` | 12 tópicos, 93 nós, 34 crenças com procedência |
-| Grafo do kc_00 (declaração de variáveis) | `mvp/dominio/` | 5 nós, 4 crenças, 20 atividades |
+| Domínio da unidade, por tópico | `mvp/dominio/` | 4 tópicos: kc_00 (5 nós, 20 itens), kc_01 (5, 35), kc_02 (6, 60), kc_03 (6, 42) |
 | Motor do laço identifica → refuta → treina → confirma | `mvp/motor.py` | 28 testes |
 | Motor antigo (dois braços, nomeação tardia, log reconstruível) | `engine/`, `store/`, `api/` | 252 testes |
 | Documentação do TCC | `docs/` | plano, fundamentação, requisitos, arquitetura, curadoria |
@@ -336,3 +336,81 @@ Duas de sete não mordiam:
   procurava **substring** e o nome novo contém o antigo. É a terceira vez
   que a mesma armadilha aparece neste projeto (R3, R6 e agora). Virou
   checagem com fronteira de palavra.
+
+## Ciclo de conteúdo — os outros KCs (kc_01 e kc_03)
+
+O orientador pediu uma coisa: **automatizar a criação de questões**. O
+gerador (`scripts/gerar.py`) atende isso, e o portão humano continua onde
+estava — só entra no domínio o que tem `revisado_por` preenchido. Com o
+gerador no ar, o que faltava era o conteúdo: a unidade existia para um
+tópico de medida (kc_02) e um de pré-requisito (kc_00).
+
+| Tópico | Título | Nós | Crenças | Atividades | Procedência |
+| --- | --- | --- | --- | --- | --- |
+| `kc_00` | Declaração de variáveis (pré-requisito) | 5 | 4 | 20 | anterior ao contrato |
+| `kc_01` | Pilha e monte | 5 | 5 | 35 | 2 `E` |
+| `kc_02` | O que é um ponteiro (tópico-piloto) | 6 | 6 | 60 | 1 `E` |
+| `kc_03` | Declaração e inicialização | 6 | 6 | 42 | **nenhuma `E`** |
+
+O kc_03 é o tópico com a melhor procedência dos quatro: duas crenças vêm
+do catálogo do Sorva (2012), duas do FAQ do comp.lang.c com o texto
+conferido em c-faq.com, uma do Kaczmarczyk et al. (2010) e uma do
+cruzamento das duas últimas. Nenhuma ficou como `E` (estimada).
+
+Cada tópico tem a **sua** analogia, declarada no YAML do grafo com os
+pontos onde ela quebra, como `docs/linguagem.md` manda:
+
+| Tópico | Analogia | Onde ela cala |
+| --- | --- | --- |
+| `kc_00` | o quarto de hotel | — |
+| `kc_01` | a rua, com duas quadras | o monte não tem ordem de chegada |
+| `kc_02` | a rua de casas numeradas | a casa não "contém" o nome |
+| `kc_03` | o papel que já vem rabiscado | rabisco não é endereço de alguém; e ela não diz nada sobre a casa apontada, de propósito |
+
+### O banco do kc_03
+
+Seis nós × sete itens: um de `entrada` (o degrau mais baixo, respondido na
+analogia depois do ensino), três de `diagnostico` (um por degrau, com o
+par teórica + código) e três de `treino`. Passa o contrato inteiro: zero
+item binário, zero distrator sem crença, zero item sem a crença do próprio
+nó, zero item em que a resposta certa é a mais longa com folga.
+
+### A medição, nas três personas, com o código de hoje
+
+Uma rodada só, 10 sessões por persona, para os números serem comparáveis
+entre si (os do ciclo 3 são anteriores à escada de nível e ao item de
+entrada, e por isso não servem de base):
+
+| Persona | `kc_01` (5 nós) | `kc_02` (6 nós) | `kc_03` (6 nós) |
+| --- | --- | --- | --- |
+| acerta tudo | 38 passos, 0/10 sem medida | 45, 0/10 | 45, 0/10 |
+| erra e aprende | 68, 0/10 | 83, 0/10 | 86, 0/10 |
+| erra e não muda | 81, **3/10** | 115, **1/10** | 102, **3/10** |
+
+A leitura: o caminho que o laço foi desenhado para produzir — errar e
+aprender — mede **todas** as premissas nos três tópicos. O pior caso
+(quem erra e nunca muda de ideia) deixa premissa sem medida em 3 de 10
+sessões no kc_01 e no kc_03, e em 1 de 10 no kc_02 — e a diferença entre
+eles é o tamanho do banco: o kc_02 tem **dois** itens por degrau, os
+outros dois têm **um**. É a mesma dívida de sempre, agora com número: o
+segundo item por degrau do kc_01 (15 itens) e do kc_03 (18) é o que
+compra essa queda, e é exatamente o que o gerador serve para produzir.
+
+### Onde os tópicos novos passaram a ser cobrados
+
+As quatro checagens de contrato em `mvp/test_dominio.py` eram do kc_02 e
+agora são **parametrizadas** por `POS_CONTRATO = ("kc_01", "kc_02",
+"kc_03")`: tópico novo entra nessa lista e passa a ser cobrado por elas.
+Entraram mais duas, para os tópicos que têm a escada completa:
+
+- a escada de diagnóstico não tem buraco (nó com item de nível 3 e sem o
+  de nível 2 faz o motor pular um degrau);
+- todo nó tem item de `entrada` (sem ele a construção ensina e não mede —
+  dívida aberta do kc_00 e do kc_02).
+
+Três sabotagens, três mordidas: degrau 2 virado em 3 derrubou a primeira;
+`uso: entrada` virado em `treino` derrubou a segunda; apagar a crença de
+um distrator de diagnóstico derrubou a terceira. A quarta, apagar o nome
+de uma figura do kc_03, derrubou
+`test_todo_no_de_todo_topico_tem_figura` — que agora exige os quatro
+tópicos, não três.

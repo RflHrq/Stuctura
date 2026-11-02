@@ -1,0 +1,871 @@
+# Banco de atividades — kc_03, "declaração e inicialização"
+#
+# Sete por nó: um de entrada (o degrau mais baixo, na analogia), três de
+# diagnóstico (um por degrau) e três de treino. É a forma com que o kc_02
+# nasceu; o segundo item por degrau vem depois, pelo gerador.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Em todo item de diagnóstico, um distrator
+# aponta a crença do próprio nó — senão o nó nunca recebe atribuição — e
+# outro a de um vizinho.
+
+analogy: >
+  O papel que já vem rabiscado. Continua a rua do kc_02: declarar
+  `int *p;` é ganhar a casa de p, com um papel dentro — e o papel não vem
+  em branco. Traz o que o último morador rabiscou nele. Não é zero, não é
+  "nada", e não é um endereço que alguém escolheu.
+  ONDE QUEBRA: papel rabiscado sugere que havia um número ali, de alguém.
+  O que está na memória pode não ser endereço de coisa nenhuma. Quando a
+  metáfora empurrar para "é o endereço de outra pessoa", ela cala. E ela
+  não diz nada sobre a casa apontada — de propósito: o ponto do tópico é
+  que essa casa ainda não existe.
+
+resgates:
+
+  B1: >
+    Declarar é ganhar a casa: ela passa a existir, com número na porta,
+    antes de qualquer coisa entrar. Uma casa — a que você nomeou. Não é
+    promessa de casa, não é fila de espera: a casa está lá.
+
+  B2: >
+    Em `int *p;` quem ganha casa é p. O asterisco não é uma segunda casa
+    que apareceu junto: ele diz que tipo de papel cabe dentro da casa de
+    p — um papel com número de casa. É descrição do que p é, não um
+    segundo morador.
+
+  B3: >
+    A prefeitura não manda limpar a casa quando ela muda de dono. O papel
+    que está lá dentro é o do morador anterior, com os rabiscos dele. Em
+    C a regra é essa: ninguém limpa sozinho.
+
+  I1: >
+    Ganhar a casa de p não constrói a outra casa. O papel está lá, e o
+    que estiver escrito nele não é um endereço que você escolheu — pode
+    nem ser endereço. Até aqui existe uma casa só: a de p.
+
+  I2: >
+    Papel rabiscado não é papel em branco. Dizer que p "está vazio" ou
+    que "vale NULL" é dizer que alguém passou lá e deixou tudo arrumado —
+    e ninguém passou.
+
+  I3: >
+    Seguir o rabisco é ir até um endereço que ninguém escolheu. Às vezes
+    não existe casa lá; às vezes existe e é de outro. Por isso usar `*p`
+    antes de dar um endereço a p não é arriscado: é inválido.
+
+exemplos:
+
+  B1: |
+    int x;        /* a caixa de x ja existe */
+    int *p;       /* a caixa de p tambem    */
+
+  B2: |
+    int *p;       /* quem foi declarado: p */
+    /* NAO existe uma variavel chamada *p */
+
+  B3: |
+    int *p;
+    printf("%p\n", (void *)p);   /* o que estava ali antes */
+
+  I1: |
+    int *p;       /* uma caixa: p           */
+    *p = 10;      /* para onde? nao ha caixa */
+
+  I2: |
+    int *p;
+    if (p == NULL) { /* nao da para contar com isto */ }
+
+  I3: |
+    int *p;
+    *p = 10;      /* invalido: p nao recebeu endereco */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — declarar reserva espaço para a variável declarada
+  # crença do nó: no_value_no_memory
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc03_e1
+    node: kc03:B1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você ganha uma casa na rua, ainda sem mobília. A casa já existe?
+    alternativas:
+      a: "Já: tem número na porta"
+      b: "Só quando alguém se mudar para ela"
+      c: "Já, e vem limpa e arrumada"
+    gabarito: a
+    crencas:
+      b: no_value_no_memory
+      c: declaration_zeroes
+
+  - id: ciu_kc03_001
+    node: kc03:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Depois de escrever int x; e nada mais, o que existe?"
+    alternativas:
+      a: "O espaço de x, já reservado"
+      b: "Nada ainda: falta dar um valor"
+      c: "O espaço de x, com zero dentro"
+    gabarito: a
+    crencas:
+      b: no_value_no_memory
+      c: declaration_zeroes
+
+  - id: ciu_kc03_002
+    node: kc03:B1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x;
+      printf("%zu\n", sizeof x);
+    enunciado: "x ainda não recebeu valor. O sizeof funciona?"
+    alternativas:
+      a: "Funciona: o espaço já existe"
+      b: "Dá zero: não há espaço antes do valor"
+      c: "Dá erro: x ainda não foi criado"
+    gabarito: a
+    crencas:
+      b: no_value_no_memory
+      c: no_value_no_memory
+
+  - id: ciu_kc03_003
+    node: kc03:B1
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x;
+      int *p = &x;
+      *p = 10;
+    enunciado: >
+      Um colega diz que a segunda linha é inválida porque x não tem
+      valor. O que você responde?
+    alternativas:
+      a: "É válida: x já tem lugar, e é o lugar que &x dá"
+      b: "Ele tem razão: sem valor não há o que endereçar"
+      c: "É válida, mas só porque x vale zero"
+    gabarito: a
+    crencas:
+      b: no_value_no_memory
+      c: declaration_zeroes
+
+  - id: ciu_kc03_t01
+    node: kc03:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que a declaração de uma variável faz?"
+    alternativas:
+      a: "Reserva o espaço dela"
+      b: "Só avisa que ela vai existir"
+      c: "Reserva o espaço e o limpa"
+    gabarito: a
+    crencas:
+      b: no_value_no_memory
+      c: declaration_zeroes
+
+  - id: ciu_kc03_t02
+    node: kc03:B1
+    nivel: 2
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int a;      a = 5;
+      /* B */  int b = 5;
+    enunciado: "No fim, a e b estão em situações diferentes?"
+    alternativas:
+      a: "Não: os dois têm espaço e valem 5"
+      b: "Sim: só b teve espaço desde o começo"
+      c: "Sim: a passou um tempo valendo zero"
+    gabarito: a
+    crencas:
+      b: no_value_no_memory
+      c: declaration_zeroes
+
+  - id: ciu_kc03_t03
+    node: kc03:B1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int v[3];
+      printf("%zu\n", sizeof v);
+    enunciado: "Nenhuma posição recebeu valor. O que sai?"
+    alternativas:
+      a: "O tamanho das três posições juntas"
+      b: "Zero: nenhuma posição foi usada"
+      c: "O tamanho, e as três valem zero"
+    gabarito: a
+    crencas:
+      b: no_value_no_memory
+      c: declaration_zeroes
+
+  # ------------------------------------------------------------------
+  # B2 — em int *p, quem é declarado é p
+  # crença do nó: estrela_e_do_tipo
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc03_e2
+    node: kc03:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você ganha a casa de p, e dentro dela cabe um papel com número de
+      casa. Quantas casas você ganhou?
+    alternativas:
+      a: "Uma: a de p"
+      b: "Duas: a de p e a do papel"
+      c: "Duas: o papel já vem com uma"
+    gabarito: a
+    crencas:
+      b: estrela_e_do_tipo
+      c: declaration_allocates
+
+  - id: ciu_kc03_004
+    node: kc03:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Em int *p; qual é o nome da variável que foi declarada?"
+    alternativas:
+      a: "p"
+      b: "*p"
+      c: "int*"
+    gabarito: a
+    crencas:
+      b: estrela_e_do_tipo
+      c: estrela_e_do_tipo
+
+  - id: ciu_kc03_005
+    node: kc03:B2
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int* a, b;
+      b = &a;
+    enunciado: "Por que a segunda linha não compila?"
+    alternativas:
+      a: "b foi declarado int, não ponteiro: o * ficou só em a"
+      b: "Não deveria: int* vale para os dois nomes"
+      c: "b é ponteiro, mas falta espaço para o apontado"
+    gabarito: a
+    crencas:
+      b: estrela_e_do_tipo
+      c: declaration_allocates
+
+  - id: ciu_kc03_006
+    node: kc03:B2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int *p, *q;
+      /* B */  int* p, q;
+    enunciado: "Quantos ponteiros cada linha declara?"
+    alternativas:
+      a: "A declara dois; B declara um"
+      b: "As duas declaram dois: é o mesmo tipo"
+      c: "A declara dois; B declara dois e um int"
+    gabarito: a
+    crencas:
+      b: estrela_e_do_tipo
+      c: estrela_e_do_tipo
+
+  - id: ciu_kc03_t04
+    node: kc03:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O asterisco em int *p; pertence a quê?"
+    alternativas:
+      a: "Ao nome p, dizendo o que p é"
+      b: "Ao tipo int, formando o tipo int*"
+      c: "A uma segunda variável, chamada *p"
+    gabarito: a
+    crencas:
+      b: estrela_e_do_tipo
+      c: estrela_e_do_tipo
+
+  - id: ciu_kc03_t05
+    node: kc03:B2
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int* p, q;
+      q = &x;
+    enunciado: "O que está errado?"
+    alternativas:
+      a: "q é int, e &x é endereço"
+      b: "Nada: p e q são ponteiros"
+      c: "Falta declarar o apontado por q"
+    gabarito: a
+    crencas:
+      b: estrela_e_do_tipo
+      c: declaration_allocates
+
+  - id: ciu_kc03_t06
+    node: kc03:B2
+    nivel: 3
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int *p;   p = &x;
+      /* B */  int *p;  *p = x;
+    enunciado: "Logo depois da declaração, qual das duas faz sentido?"
+    alternativas:
+      a: "A: dá um endereço a p, que é o que falta"
+      b: "B: *p é a variável, e recebe o valor"
+      c: "As duas: *p e p são a mesma coisa"
+    gabarito: a
+    crencas:
+      b: estrela_e_do_tipo
+      c: estrela_e_do_tipo
+
+  # ------------------------------------------------------------------
+  # B3 — C não zera uma variável automática
+  # crença do nó: declaration_zeroes
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc03_e3
+    node: kc03:B3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você recebe a casa, e dentro dela há um papel do morador anterior.
+      Alguém passou para limpar?
+    alternativas:
+      a: "Não: o rabisco dele ficou"
+      b: "Passou: a casa vem limpa"
+      c: "Passou: o papel vem em branco"
+    gabarito: a
+    crencas:
+      b: declaration_zeroes
+      c: uninitialized_is_null
+
+  - id: ciu_kc03_007
+    node: kc03:B3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Depois de int x; sem atribuir nada, o que está em x?"
+    alternativas:
+      a: "O que estava naquele espaço antes"
+      b: "Zero, porque C limpa o que declara"
+      c: "Nada: x ainda não tem conteúdo"
+    gabarito: a
+    crencas:
+      b: declaration_zeroes
+      c: no_value_no_memory
+
+  - id: ciu_kc03_008
+    node: kc03:B3
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(void) {
+          int n;
+          printf("%d\n", n);
+      }
+    enunciado: "Chamando f duas vezes, o que é razoável esperar?"
+    alternativas:
+      a: "Valores imprevisíveis, que podem diferir"
+      b: "Zero nas duas: C limpa a variável nova"
+      c: "Erro: n não pode ser lida sem valor"
+    gabarito: a
+    crencas:
+      b: declaration_zeroes
+      c: no_value_no_memory
+
+  - id: ciu_kc03_009
+    node: kc03:B3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int g;              /* fora de qualquer funcao */
+      /* B */  void f(void) { int n; }
+    enunciado: "Uma das duas começa valendo zero. Qual?"
+    alternativas:
+      a: "A: a de fora, por ser estática"
+      b: "As duas: C zera toda variável nova"
+      c: "B: a de dentro, que é criada na hora"
+    gabarito: a
+    crencas:
+      b: declaration_zeroes
+      c: declaration_zeroes
+
+  - id: ciu_kc03_t07
+    node: kc03:B3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Para uma variável local começar em zero, o que é preciso?"
+    alternativas:
+      a: "Escrever o zero você mesmo"
+      b: "Nada: ela já começa assim"
+      c: "Nada: ela começa em NULL"
+    gabarito: a
+    crencas:
+      b: declaration_zeroes
+      c: uninitialized_is_null
+
+  - id: ciu_kc03_t08
+    node: kc03:B3
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int soma(int v[], int n) {
+          int t;
+          for (int i = 0; i < n; i++) t += v[i];
+          return t;
+      }
+    enunciado: "Por que essa soma pode sair errada?"
+    alternativas:
+      a: "t começa com lixo, e o += soma nele"
+      b: "Não sai errada: t começa em zero"
+      c: "t ainda não existe, e o += é que a cria"
+    gabarito: a
+    crencas:
+      b: declaration_zeroes
+      c: no_value_no_memory
+
+  - id: ciu_kc03_t09
+    node: kc03:B3
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(void) { int a = 7; }
+      void g(void) { int b;     printf("%d\n", b); }
+      f();
+      g();
+    enunciado: "O que pode aparecer, e por quê?"
+    alternativas:
+      a: "Talvez 7: b caiu onde a esteve"
+      b: "Sempre zero: b é nova e vem limpa"
+      c: "Sempre 7: b herda de a por regra"
+    gabarito: a
+    crencas:
+      b: declaration_zeroes
+      c: declaration_zeroes
+
+  # ------------------------------------------------------------------
+  # I1 — declarar p não cria o objeto apontado
+  # crença do nó: declaration_allocates
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc03_e4
+    node: kc03:I1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Ganhar a casa de p, com um papel dentro, constrói a casa que o
+      papel aponta?
+    alternativas:
+      a: "Não: só a casa de p existe"
+      b: "Constrói: vêm as duas juntas"
+      c: "Constrói, e vem vazia"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: no_value_no_memory
+
+  - id: ciu_kc03_010
+    node: kc03:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Depois de int *p; quantos espaços de memória existem por causa dessa linha?"
+    alternativas:
+      a: "Um: o de p"
+      b: "Dois: o de p e o apontado"
+      c: "Nenhum: falta dar valor"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: no_value_no_memory
+
+  - id: ciu_kc03_011
+    node: kc03:I1
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char *p;
+      *p = 'a';
+    enunciado: "Por que a segunda linha é inválida?"
+    alternativas:
+      a: "Não há caixa apontada para receber o 'a'"
+      b: "É válida: declarar p já criou a caixa"
+      c: "É válida, mas só depois de p ser zerado"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: declaration_zeroes
+
+  - id: ciu_kc03_012
+    node: kc03:I1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int *p;
+      /* B */  int x;  int *p = &x;
+    enunciado: "Em qual delas existe uma caixa para *p?"
+    alternativas:
+      a: "Só em B, e é a caixa de x"
+      b: "Nas duas: declarar p já faz isso"
+      c: "Em nenhuma: falta alocar nas duas"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: no_value_no_memory
+
+  - id: ciu_kc03_t10
+    node: kc03:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que falta a um ponteiro recém-declarado para ser usado?"
+    alternativas:
+      a: "Receber o endereço de algo que existe"
+      b: "Nada: ele já aponta para um espaço"
+      c: "Ser zerado antes do primeiro uso"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: declaration_zeroes
+
+  - id: ciu_kc03_t11
+    node: kc03:I1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p;
+      p = malloc(sizeof(int));
+      *p = 5;
+    enunciado: "Por que aqui funciona, e sem a segunda linha não funcionaria?"
+    alternativas:
+      a: "A segunda linha é que cria a caixa apontada"
+      b: "Ela não é necessária: p já tinha caixa"
+      c: "Ela só serve para zerar o que p aponta"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: declaration_zeroes
+
+  - id: ciu_kc03_t12
+    node: kc03:I1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 3;
+      int *p;
+      p = &x;
+      printf("%d\n", *p);
+    enunciado: "O que sai, e por quê?"
+    alternativas:
+      a: "3: a caixa apontada é a de x"
+      b: "3, mas por uma caixa que p já tinha"
+      c: "Lixo: p foi declarado sem valor"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: uninitialized_is_null
+
+  # ------------------------------------------------------------------
+  # I2 — logo depois da declaração p contém lixo, não NULL
+  # crença do nó: uninitialized_is_null
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc03_e5
+    node: kc03:I2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      O papel dentro da casa nova está rabiscado pelo morador anterior.
+      Dá para dizer que ele está em branco?
+    alternativas:
+      a: "Não: tem rabisco, e não se sabe qual"
+      b: "Dá: papel de casa nova vem em branco"
+      c: "Dá: o rabisco é sempre o mesmo"
+    gabarito: a
+    crencas:
+      b: uninitialized_is_null
+      c: declaration_zeroes
+
+  - id: ciu_kc03_013
+    node: kc03:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Logo depois de int *p; o que p guarda?"
+    alternativas:
+      a: "Um valor qualquer, sobra do que estava ali"
+      b: "NULL, que é o valor de ponteiro não usado"
+      c: "Nada: p ainda não guarda coisa alguma"
+    gabarito: a
+    crencas:
+      b: uninitialized_is_null
+      c: no_value_no_memory
+
+  - id: ciu_kc03_014
+    node: kc03:I2
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p;
+      if (p == NULL) {
+          p = malloc(sizeof(int));
+      }
+    enunciado: "Por que esse teste não protege nada?"
+    alternativas:
+      a: "p não começa em NULL: o teste pode falhar à toa"
+      b: "Protege: p começa em NULL antes do primeiro uso"
+      c: "Protege, mas só se p for global"
+    gabarito: a
+    crencas:
+      b: uninitialized_is_null
+      c: declaration_zeroes
+
+  - id: ciu_kc03_015
+    node: kc03:I2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int *p;
+      /* B */  int *p = NULL;
+    enunciado: "Qual diferença essas duas linhas fazem para um teste p == NULL?"
+    alternativas:
+      a: "Só em B o teste quer dizer alguma coisa"
+      b: "Nenhuma: as duas deixam p em NULL"
+      c: "Só em A, que é a forma curta de B"
+    gabarito: a
+    crencas:
+      b: uninitialized_is_null
+      c: uninitialized_is_null
+
+  - id: ciu_kc03_t13
+    node: kc03:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Para um ponteiro local valer NULL, o que é preciso?"
+    alternativas:
+      a: "Escrever NULL nele"
+      b: "Nada: ele já nasce assim"
+      c: "Nada: zero e NULL são o padrão"
+    gabarito: a
+    crencas:
+      b: uninitialized_is_null
+      c: declaration_zeroes
+
+  - id: ciu_kc03_t14
+    node: kc03:I2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      printf("%d\n", p == NULL);
+    enunciado: "O que sai, e por quê?"
+    alternativas:
+      a: "1: quem escreveu o NULL foi você"
+      b: "1, e sairia 1 mesmo sem o = NULL"
+      c: "0: declarar já pôs zero em p, não NULL"
+    gabarito: a
+    crencas:
+      b: uninitialized_is_null
+      c: declaration_zeroes
+
+  - id: ciu_kc03_t15
+    node: kc03:I2
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *acha(int v) {
+          int *r;
+          if (v > 0) r = malloc(sizeof(int));
+          return r;
+      }
+    enunciado: "O que pode dar errado quando v não é positivo?"
+    alternativas:
+      a: "r volta com lixo, e parece endereço válido"
+      b: "r volta NULL, e quem recebe trata disso"
+      c: "r volta zero, que dá no mesmo que NULL"
+    gabarito: a
+    crencas:
+      b: uninitialized_is_null
+      c: declaration_zeroes
+
+  # ------------------------------------------------------------------
+  # I3 — a conclusão: usar *p antes de dar endereço é inválido
+  # crença do nó: pode_usar_logo
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc03_e6
+    node: kc03:I3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você segue o rabisco do papel e vai até o endereço que ele indica.
+      O que te espera lá?
+    alternativas:
+      a: "Não dá para saber: ninguém escolheu o lugar"
+      b: "A sua casa, que o papel já indicava"
+      c: "Nada: o rabisco não indica lugar nenhum"
+    gabarito: a
+    crencas:
+      b: pode_usar_logo
+      c: uninitialized_is_null
+
+  - id: ciu_kc03_016
+    node: kc03:I3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que é preciso fazer com um ponteiro antes de usar *p?"
+    alternativas:
+      a: "Dar a ele o endereço de algo que existe"
+      b: "Nada: logo após declarar já dá para usar"
+      c: "Zerar p, para o acesso ser seguro"
+    gabarito: a
+    crencas:
+      b: pode_usar_logo
+      c: declaration_zeroes
+
+  - id: ciu_kc03_017
+    node: kc03:I3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char *resposta;
+      scanf("%s", resposta);
+    enunciado: "Por que isso não funciona?"
+    alternativas:
+      a: "resposta não aponta para espaço nenhum ainda"
+      b: "Funciona: declarar já dá o espaço do texto"
+      c: "Funciona, mas o texto sai com lixo no fim"
+    gabarito: a
+    crencas:
+      b: pode_usar_logo
+      c: declaration_zeroes
+
+  - id: ciu_kc03_018
+    node: kc03:I3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int *p;        *p = 1;
+      /* B */  int x;  int *p = &x;  *p = 1;
+    enunciado: "Uma das duas é inválida. Qual, e por quê?"
+    alternativas:
+      a: "A: p não recebeu endereço de nada"
+      b: "B: x não tinha valor quando &x foi usado"
+      c: "Nenhuma: as duas escrevem num lugar válido"
+    gabarito: a
+    crencas:
+      b: no_value_no_memory
+      c: pode_usar_logo
+
+  - id: ciu_kc03_t16
+    node: kc03:I3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Escrever em *p logo depois de declarar p é o quê?"
+    alternativas:
+      a: "Inválido: p não aponta nada escolhido"
+      b: "Válido: p já aponta para um espaço"
+      c: "Válido, porque p começa em NULL"
+    gabarito: a
+    crencas:
+      b: pode_usar_logo
+      c: uninitialized_is_null
+
+  - id: ciu_kc03_t17
+    node: kc03:I3
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p;
+      scanf("%d", p);
+    enunciado: "O que falta?"
+    alternativas:
+      a: "Dar a p o endereço de um int que exista"
+      b: "Nada: scanf escreve onde p aponta"
+      c: "Zerar p antes, para o scanf ter onde escrever"
+    gabarito: a
+    crencas:
+      b: pode_usar_logo
+      c: declaration_zeroes
+
+  - id: ciu_kc03_t18
+    node: kc03:I3
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 0;
+      int *p;
+      p = &x;
+      *p = 9;
+      printf("%d\n", x);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "9: p recebeu o endereço antes do uso"
+      b: "0: o *p escreveu no lugar antigo de p"
+      c: "9, e teria saído 9 mesmo sem a linha p = &x"
+    gabarito: a
+    crencas:
+      b: pode_usar_logo
+      c: pode_usar_logo

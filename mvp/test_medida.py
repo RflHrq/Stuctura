@@ -281,7 +281,7 @@ def test_a_figura_e_do_topico_que_esta_no_ar():
     """
     js = (WEB / "figuras.js").read_text(encoding="utf-8")
     assert "POR_TOPICO" in js
-    for topico in ("kc_00", "kc_02"):
+    for topico in ("kc_00", "kc_01", "kc_02", "kc_03"):
         assert re.search(r"POR_TOPICO\.%s\s*=" % topico, js), topico
     # e a tela precisa dizer qual tópico está no ar
     app = (WEB / "app.js").read_text(encoding="utf-8")
@@ -296,7 +296,7 @@ def test_todo_no_de_todo_topico_tem_figura():
     js = (WEB / "figuras.js").read_text(encoding="utf-8")
     blocos = dict(re.findall(r"POR_TOPICO\.(\w+)\s*=\s*\{(.*?)\n  \};",
                              js, re.S))
-    assert set(blocos) >= {"kc_00", "kc_01", "kc_02"}, sorted(blocos)
+    assert set(blocos) >= {"kc_00", "kc_01", "kc_02", "kc_03"}, sorted(blocos)
     faltam = []
     for topico, bloco in blocos.items():
         dd = carrega(topico=topico)

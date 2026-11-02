@@ -218,42 +218,51 @@ def test_topico_que_nao_existe_falha_na_carga():
 
 
 # --------------------------------------------------------------------------
-# A qualidade do banco do kc_02
+# A qualidade do banco dos tópicos POSTERIORES AO CONTRATO
 #
-# Estas três cobram o contrato de docs/linguagem.md. Valem para o kc_02 e
-# ainda NÃO para o kc_00, que tem dívida registrada na revisão: 1 item sem
-# a crença do próprio nó, 4 distratores sem crença e 9 itens em que a certa
-# é a mais longa com folga. O banco dele é anterior ao contrato.
+# Estas quatro cobram o contrato de docs/linguagem.md. Valem para todo
+# tópico escrito depois dele — kc_01, kc_02 e kc_03 — e ainda NÃO para o
+# kc_00, que tem dívida registrada na revisão: 1 item sem a crença do
+# próprio nó, 1 distrator sem crença, 9 itens em que a certa é a mais longa
+# com folga e 13 itens binários. O banco dele é anterior ao contrato.
+#
+# Cada tópico novo entra nesta lista, e é aqui que ele passa a ser cobrado.
 # --------------------------------------------------------------------------
 
-def test_todo_item_de_diagnostico_oferece_a_crenca_do_proprio_no():
+POS_CONTRATO = ("kc_01", "kc_02", "kc_03")
+
+
+@pytest.mark.parametrize("topico", POS_CONTRATO)
+def test_todo_item_de_diagnostico_oferece_a_crenca_do_proprio_no(topico):
     """Sem isto, o nó não recebe atribuição: as razões da camada 2 saem das
     alternativas do item (`motor.razoes_de`), então um item que só oferece a
     crença do vizinho manda toda razão errada para outro nó. Os itens do nó
     se gastam e ele termina `desconhecido` — foi o que a revisão final mediu
     em 9 de 30 sessões do kc_00."""
-    d2 = carrega(topico="kc_02")
-    sem = [a.id for a in d2.atividades if a.uso == "diagnostico"
-           and not any(o.crenca and d2.crencas[o.crenca].nega == a.no
+    d = carrega(topico=topico)
+    sem = [a.id for a in d.atividades if a.uso == "diagnostico"
+           and not any(o.crenca and d.crencas[o.crenca].nega == a.no
                        for o in a.opcoes)]
     assert sem == [], sem
 
 
-def test_nenhum_distrator_de_diagnostico_fica_sem_crenca():
+@pytest.mark.parametrize("topico", POS_CONTRATO)
+def test_nenhum_distrator_de_diagnostico_fica_sem_crenca(topico):
     """Distrator sem crença é erro sem diagnóstico — e, pior, encolhe a
     camada 2, que é montada das alternativas. No treino é aceitável: lá a
     camada 2 não roda."""
-    d2 = carrega(topico="kc_02")
-    sem = [(a.id, o.texto[:40]) for a in d2.atividades if a.uso == "diagnostico"
+    d = carrega(topico=topico)
+    sem = [(a.id, o.texto[:40]) for a in d.atividades if a.uso == "diagnostico"
            for o in a.opcoes if not o.correta and not o.crenca]
     assert sem == [], sem
 
 
-def test_a_alternativa_certa_nao_e_a_mais_longa_com_folga():
+@pytest.mark.parametrize("topico", POS_CONTRATO)
+def test_a_alternativa_certa_nao_e_a_mais_longa_com_folga(topico):
     """A pista mais comum de todas: dá para acertar contando palavras."""
-    d2 = carrega(topico="kc_02")
+    d = carrega(topico=topico)
     pistas = []
-    for a in d2.atividades:
+    for a in d.atividades:
         tams = sorted((len(o.texto), o.correta) for o in a.opcoes)
         segundo = tams[-2][0] if len(tams) > 1 else 0
         if tams[-1][1] and tams[-1][0] > segundo * 1.2:
@@ -261,8 +270,40 @@ def test_a_alternativa_certa_nao_e_a_mais_longa_com_folga():
     assert pistas == [], pistas
 
 
-def test_o_kc_02_nao_tem_item_binario():
+@pytest.mark.parametrize("topico", POS_CONTRATO)
+def test_nao_tem_item_binario(topico):
     """13 dos 20 itens do kc_00 têm duas alternativas: dois terços do banco
     em cara ou coroa na camada 1."""
-    d2 = carrega(topico="kc_02")
-    assert [a.id for a in d2.atividades if len(a.opcoes) == 2] == []
+    d = carrega(topico=topico)
+    assert [a.id for a in d.atividades if len(a.opcoes) == 2] == []
+
+
+# --------------------------------------------------------------------------
+# A ESCADA, em todo tópico que a tem
+#
+# A pessoa que atravessou a unidade primeiro disse, nessas palavras, que
+# parecia "entrar no chefão já". O carregador já cobra o degrau 1; o que
+# falta cobrar é a escada INTEIRA, degrau por degrau, sem buraco no meio.
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("topico", ("kc_01", "kc_03"))
+def test_a_escada_de_diagnostico_nao_tem_buraco(topico):
+    """Nó com item de nível 3 e sem item de nível 2 faz o motor pular um
+    degrau — e `_no_degrau` registra o pulo, mas o salto já aconteceu."""
+    d = carrega(topico=topico)
+    buracos = []
+    for nid in d.nos:
+        graus = sorted({a.nivel for a in d.atividades_do_no(nid, "diagnostico")})
+        if graus != list(range(1, len(graus) + 1)):
+            buracos.append((nid, graus))
+    assert buracos == [], buracos
+
+
+@pytest.mark.parametrize("topico", ("kc_01", "kc_03"))
+def test_todo_no_tem_item_de_entrada(topico):
+    """O item de entrada é o que a pessoa responde DEPOIS do ensino, quando
+    declarou que não sabe. Sem ele a construção ensina e não mede — e é
+    dívida aberta do kc_00 e do kc_02."""
+    d = carrega(topico=topico)
+    sem = [nid for nid in d.nos if not d.atividades_do_no(nid, "entrada")]
+    assert sem == [], sem

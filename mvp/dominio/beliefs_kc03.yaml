@@ -1,0 +1,68 @@
+# Crenças do kc_03 — uma por nó, seis no total.
+#
+# Este é o tópico com a MELHOR procedência dos três: nenhuma `E`. Duas
+# vieram da curadoria antiga; as quatro novas têm fonte conferida na obra
+# primária — duas no catálogo do Sorva (2012) e duas no FAQ do
+# comp.lang.c, cujo texto foi lido em c-faq.com.
+#
+# Duas delas já existem no kc_00, com a mesma fonte: cada tópico tem o
+# catálogo dele, e a mesma concepção pode negar premissas de tópicos
+# diferentes. O que não pode é a MESMA crença negar dois nós do MESMO
+# tópico — isso o carregador recusa.
+
+- id: no_value_no_memory
+  negates: kc_03:B1
+  provenance: D
+  label_pt: "Se eu não dei valor, a variável ainda não existe na memória."
+  source: >
+    Sorva (2012), p. 360, item 22: "Unassigned variables of primitive type
+    (in Java) have no memory allocated" (Kaczmarczyk et al. 2010). A mesma
+    crença está no catálogo do kc_00, negando lá a premissa de que
+    declarar já reserva.
+
+- id: estrela_e_do_tipo
+  negates: kc_03:B2
+  provenance: L
+  label_pt: "O asterisco pertence ao tipo, então int* a, b; declara dois ponteiros."
+  source: >
+    FAQ comp.lang.c 4.16: "What's wrong with this declaration? char* p1,
+    p2; I get errors when I try to use p2." Texto conferido em c-faq.com.
+    É o erro de quem lê `int*` como um tipo inteiro em vez de ler o `*`
+    como parte do declarador de p — que é exatamente o que B2 afirma.
+
+- id: declaration_zeroes
+  negates: kc_03:B3
+  provenance: D
+  label_pt: "Declarar já zera a variável, como em outras linguagens."
+  source: >
+    Sorva (2012), p. 359, item 10: "Variables always receive a particular
+    default value upon creation" (du Boulay 1986; Samurçay 1989).
+
+- id: declaration_allocates
+  negates: kc_03:I1
+  provenance: T
+  label_pt: "int *p já cria o dado apontado automaticamente."
+  source: >
+    Kaczmarczyk et al. (2010), p. 109, Tabela 2, MMR4; e FAQ comp.lang.c
+    7.10, "I'm trying to declare a pointer and allocate some space for it,
+    but it's not working: char *p; *p = malloc(10);".
+
+- id: uninitialized_is_null
+  negates: kc_03:I2
+  provenance: D
+  label_pt: "Ponteiro não inicializado vale NULL."
+  source: >
+    Sorva (2012), p. 359, item 10 (du Boulay 1986; Samurçay 1989) — o
+    mesmo item que sustenta `declaration_zeroes`, e aqui na forma que ele
+    toma num ponteiro: o "valor padrão" seria NULL. As duas negam
+    premissas diferentes, uma sobre o conteúdo e outra sobre o ponteiro.
+
+- id: pode_usar_logo
+  negates: kc_03:I3
+  provenance: L
+  label_pt: "Depois de int *p; já dá para escrever em *p."
+  source: >
+    FAQ comp.lang.c 7.1: "Why doesn't this fragment work? char *answer;
+    ... gets(answer);" — e 7.10, acima. Texto conferido em c-faq.com. É a
+    pergunta mais feita da seção de memória do FAQ, o que é por si só
+    evidência de quanta gente a faz.
