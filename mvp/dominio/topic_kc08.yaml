@@ -1,0 +1,14 @@
+id: kc_08
+title: "Alocação dinâmica"
+pilot: false
+prerequisites: [kc_01, kc_02, kc_05]
+conclusion_node: I3
+summary: >
+  malloc reserva um bloco de n bytes no monte e devolve o endereço dele,
+  ou NULL se falhar. O bloco não é inicializado, é coisa distinta da
+  variável que guarda o endereço, e vive até o free — ninguém o libera
+  por você.
+
+# Respondível ANTES por quem ainda não sabe. É o lado esquerdo do
+# antes-e-depois, e a pergunta é exatamente a que o tópico responde.
+teachback: "o que malloc pede, o que ele devolve, e o que vem dentro do que ele devolve"

@@ -1413,6 +1413,130 @@
     }
   };
 
+  /* ------------------------------------------ kc_08: alugar o terreno */
+
+  /* Continua o terreno alugado do kc_01, e mostra a hora em que ele e
+   * alugado. malloc(n) pede n METROS, nao n casas.
+   *
+   * A disciplina do desenho: o bloco recem-alocado aparece SEMPRE com
+   * `sujo` e rabisco, nunca vazio nem com zeros. Desenha-lo limpo seria
+   * desenhar `malloc_initializes_zero`. E o que volta de malloc aparece
+   * como PAPEL com numero, nunca como o bloco na mao — bloco na mao seria
+   * `pointer_is_data`. */
+
+  POR_TOPICO.kc_08 = {
+
+    /* B1 — malloc pede metros, e a multiplicacao e sua. */
+    B1: function () {
+      var s = svg(360, 210);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 26, "class": "fig-rodape" },
+                       "malloc(10)   pede dez BYTES"));
+      s.appendChild(quarteirao(130, 48, { quantas: 10, largura: 10,
+                                          altura: 30 }));
+      s.appendChild(el("text", { x: 180, y: 102, "class": "fig-nota" },
+                       "cabe dois ints e meio"));
+      s.appendChild(el("text", { x: 180, y: 134, "class": "fig-rodape" },
+                       "malloc(10 * sizeof(int))"));
+      s.appendChild(quarteirao(30, 152, { quantas: 10, largura: 30,
+                                          altura: 30 }));
+      legenda(s, 204, "a multiplicacao e sua: malloc nao sabe o tipo");
+      return s;
+    },
+
+    /* B2 — volta um NUMERO, ou NULL. */
+    B2: function () {
+      var s = svg(360, 200);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "int *p = malloc(4);"));
+      s.appendChild(el("text", { x: 86, y: 50, "class": "fig-nota" },
+                       "deu certo"));
+      s.appendChild(casa(30, 72, { endereco: "0x2A00", dentro: "0x9000",
+                                   largura: 112 }));
+      s.appendChild(el("text", { x: 272, y: 50, "class": "fig-nota" },
+                       "nao deu"));
+      s.appendChild(casa(218, 72, { endereco: "0x2A00", dentro: "NULL",
+                                    largura: 112 }));
+      legenda(s, 174, "o que volta e um NUMERO, nao o bloco");
+      legenda(s, 192, "e NULL tambem e uma resposta");
+      return s;
+    },
+
+    /* B3 — o bloco vem com sobra. */
+    B3: function () {
+      var s = svg(360, 194);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "o bloco recem-alocado"));
+      s.appendChild(casa(60, 58, { endereco: "0x9000", dentro: "? ? ?",
+                                   largura: 240, sujo: true,
+                                   rabisco: true }));
+      legenda(s, 162, "sobra do inquilino anterior: ninguem limpou");
+      legenda(s, 182, "para ler algo com sentido, escreva antes");
+      return s;
+    },
+
+    /* I1 — a gaveta numa quadra, o lote na outra. */
+    I1: function () {
+      var s = svg(360, 214);
+      s.appendChild(defs());
+      quadra(s, 44, "PILHA — a caixa de p", "");
+      s.appendChild(casa(120, 44, { endereco: "0x2A00", dentro: "0x9000",
+                                    largura: 120 }));
+      quadra(s, 150, "MONTE — o bloco alugado", "");
+      s.appendChild(casa(120, 150, { endereco: "0x9000", dentro: "?",
+                                     largura: 120, sujo: true }));
+      legenda(s, 208, "duas coisas, duas areas, duas vidas");
+      return s;
+    },
+
+    /* I2 — duas respostas, e a segunda e NULL. */
+    I2: function () {
+      var s = svg(360, 206);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "malloc(n)   duas respostas"));
+      s.appendChild(seta(174, 38, 96, 64));
+      s.appendChild(seta(186, 38, 264, 64));
+      s.appendChild(el("rect", { x: 34, y: 70, width: 112, height: 34, rx: 9,
+                                 "class": "fig-placa" }));
+      s.appendChild(el("text", { x: 90, y: 87, "class": "fig-placa-txt" },
+                       "0x9000"));
+      s.appendChild(el("rect", { x: 214, y: 70, width: 112, height: 34, rx: 9,
+                                 "class": "fig-placa" }));
+      s.appendChild(el("text", { x: 270, y: 87, "class": "fig-placa-txt" },
+                       "NULL"));
+      s.appendChild(el("text", { x: 90, y: 126, "class": "fig-nota" },
+                       "tem lote"));
+      s.appendChild(el("text", { x: 270, y: 126, "class": "fig-legenda erro" },
+                       "nao tem lote"));
+      legenda(s, 168, "conferir nao e precaucao exagerada");
+      legenda(s, 188, "e tratar a segunda resposta");
+      return s;
+    },
+
+    /* I3 — a conclusao, com a distincao que a citacao corrigida trouxe:
+     * o sistema recolhe no fim do PROGRAMA, nao no fim da funcao. */
+    I3: function () {
+      var s = svg(360, 214);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "fim da funcao"));
+      s.appendChild(casa(30, 58, { endereco: "0x9000", dentro: "7",
+                                   nome: "o bloco fica", largura: 112 }));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "free(p)"));
+      s.appendChild(casa(218, 58, { endereco: "0x9000", dentro: "?",
+                                    nome: "agora volta", largura: 112,
+                                    sujo: true }));
+      legenda(s, 176, "o fim da funcao nao devolve nada");
+      legenda(s, 194, "e o sistema recolhe no fim do PROGRAMA");
+      legenda(s, 212, "quem devolve antes disso e voce");
+      return s;
+    }
+  };
+
   var topicoAtual = "kc_00";
 
   function doNo(no) {

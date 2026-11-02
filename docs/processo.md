@@ -112,10 +112,9 @@ Nenhuma bloqueia a fase 4.
    premissa por sessão. Ver "O quarto teto", no fim deste documento.
 7. Se o kc_04 fica com 6 nós ou volta aos 8 da curadoria. Voltar custa
    quatro crenças (que seriam `E`) e 14 atividades.
-8. **O kc_08 (alocação dinâmica) não existe, e o kc_09 o declara como
-   pré-requisito.** O motor carrega um tópico por processo, então nada
-   quebra — mas a ordem de ensino tem um buraco, e quem montar a sessão da
-   coleta precisa saber. Está declarado no cabeçalho de `graph_kc09.yaml`.
+8. ~~O kc_08 (alocação dinâmica) não existe, e o kc_09 o declara como
+   pré-requisito.~~ **Fechada**: o kc_08 foi construído. Ver "Ciclo de
+   conteúdo — o kc_08", no fim deste documento.
 9. **113 passos cabem na sessão de coleta?** É o caminho realista do
    kc_09, o tópico mais longo (8 nós). A conta por nó é estável — ~14
    passos — e a série é 6 nós → 85, 7 → 95, 8 → 113. Se não couber, o
@@ -1183,3 +1182,110 @@ rodam **sessões inteiras** por tópico (`_pior_caso` em
 `test_no_pior_caso_nenhuma_premissa_fica_sem_medida` e no do fechamento), e
 agora há dez tópicos com até 56 itens cada. Três minutos atrapalha a
 disciplina de "uma verificação por mudança". Entra em perguntas em aberto.
+
+## Ciclo de conteúdo — o kc_08 (alocação dinâmica)
+
+Décimo primeiro tópico, e ele **fecha a pergunta em aberto 8**: o kc_08
+era pré-requisito declarado do kc_09 e não existia. Agora existe.
+
+### A quarta precisão de citação, e a mais séria
+
+As três anteriores eram do tipo "a citação aponta para a entrada vizinha".
+Esta é diferente: **as entradas citadas não sustentam a crença como ela
+está escrita.**
+
+`system_frees_auto` ("o sistema libera a memória do heap
+automaticamente") estava citada como **FAQ 7.24 e 7.25**. Lidas no
+original:
+
+- **7.24** — *"Must I free allocated memory before the program exits? A:
+  You shouldn't have to. A real operating system definitively reclaims all
+  memory and other resources when a program exits."*
+- **7.25** — é sobre o `free` **não** devolver memória ao sistema
+  operacional, e sim guardá-la para os próximos malloc do mesmo programa.
+
+Nenhuma das duas fala do bloco sobreviver ao **retorno da função**, que é
+o que a premissa afirma e o que a crença nega. Pior: a 7.24 diz que no
+**encerramento do programa** o sistema de fato recolhe — e isso é
+**verdade**, não crença. Citá-la como fonte fazia a crença parecer
+refutada por um texto que, na parte que ele trata, concorda com ela.
+
+A entrada que sustenta a premissa é a **7.22**: *"When I call malloc to
+allocate memory for a pointer which is local to a function, do I have to
+explicitly free it? A: Yes. ... **Memory allocated with malloc always
+persists until you explicitly free it.**"*
+
+A citação foi corrigida nos **dois** catálogos que usam a crença — o do
+kc_08 e o do kc_01, que a usa desde antes. A 7.24 e a 7.25 ficam citadas
+**pelo contraste**, porque a distinção é o que a premissa precisa: o
+sistema recolhe no fim do **programa**, e não no fim da **função**. A
+figura I3 do kc_08 ensina exatamente essa distinção, em três linhas de
+legenda.
+
+### A 7.22 sustenta duas crenças, e são duas mesmo
+
+A resposta dela tem duas metades, e cada uma nega uma coisa diferente:
+
+| Metade | Crença | Nega |
+| --- | --- | --- |
+| *"Remember that a pointer is different from what it points to"* | `pointer_lives_in_heap` | que p e o bloco sejam a mesma coisa |
+| *"Memory allocated with malloc always persists until you explicitly free it"* | `system_frees_auto` | que o bloco morra com a função |
+
+### Oito nós curados, seis aqui
+
+A curadoria tem duas crenças (I2 e I3), e **seis dos oito nós são marcados
+"órfão"** — é o tópico com a estrutura mais solta de todos. Duas dobras de
+premissa-e-aplicação:
+
+| Curado | Virou |
+| --- | --- |
+| B3 (o bloco não tem conteúdo definido) + I3 (escrever antes de ler) | `B3` |
+| B4 (o bloco não morre com a função) + I4 (ninguém libera por você) | `I3`, a conclusão |
+
+| Crença | Nó | Proc. | De onde |
+| --- | --- | --- | --- |
+| `malloc_conta_elementos` | B1 | L | **nova** — FAQ 7.19b (`malloc(nints)`) + 7.8 |
+| `pointer_is_data` | B2 | T | Sorva p. 360 item 14 — kc_02 |
+| `malloc_initializes_zero` | B3 | L | FAQ 7.31 + Sorva p. 359 item 10 (curada) |
+| `pointer_lives_in_heap` | I1 | L | FAQ 7.22 — kc_02, kc_09 |
+| `malloc_always_succeeds` | I2 | N | CERT MEM52-C, CWE-252 (curada) |
+| `system_frees_auto` | I3 | L | **FAQ 7.22** (corrigida) + 7.24, 7.25 por contraste |
+
+A nova vem da 7.19b, e o código do questionador **é** a crença: *"int
+\*iarray = (int \*)malloc(nints); malloc isn't returning NULL, but the
+code isn't working."* A resposta é a premissa: *"malloc is a low-level,
+typeless allocator. It doesn't know how you're going to use the memory;
+all it does is to allocate as many bytes of memory as you ask it."*
+
+### A medição
+
+| Persona | kc_08 |
+| --- | --- |
+| acerta tudo | 45 passos, 0/12 sem medida |
+| erra e aprende | 81, 0/12 |
+| erra e não muda | 88, 0/12 |
+
+### Os onze tópicos, 472 itens
+
+| Tópico | Nós | Itens | Vizinho | Procedências |
+| --- | --- | --- | --- | --- |
+| `kc_00` | 5 | 20 | 31% | 3 L, 1 T, **1 E** |
+| `kc_01` | 5 | 35 | 37% | 3 T, 1 L, **1 E** |
+| `kc_02` · piloto | 6 | 60 | 47% | 2 T, 1 D, 1 L, **2 E** |
+| `kc_03` | 6 | 42 | 36% | 3 D, 2 L, 1 T |
+| `kc_04` | 6 | 42 | 50% | 3 L, 3 T |
+| `kc_05` | 6 | 42 | 50% | 4 L, 1 T, 1 N |
+| `kc_06` | 6 | 42 | 50% | 5 T, 1 L |
+| `kc_07` · piloto | 7 | 49 | 50% | 6 L, 1 T |
+| `kc_08` | 6 | 42 | 50% | 4 L, 1 T, 1 N |
+| `kc_09` · piloto | 8 | 56 | 50% | 6 L, 1 T, 1 N |
+| `kc_11` · piloto | 6 | 42 | 50% | 6 L |
+
+Oito tópicos construídos depois do contrato de linguagem, oito sem nenhuma
+`E`. **Faltam dois: kc_10 e kc_12.** Nenhum dos dois é piloto.
+
+### As quatro sabotagens
+
+Buraco na escada, nó sem item de entrada, nó sem figura, e uma crença
+ficando órfã no catálogo — esta última derruba dois testes, inclusive a
+carga do domínio.

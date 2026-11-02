@@ -1,0 +1,886 @@
+# Banco de atividades — kc_08, "alocação dinâmica"
+#
+# Seis nós, sete itens cada: 42. Um de entrada (o degrau mais baixo, na
+# analogia), três de diagnóstico (um por degrau, com o par teórica +
+# código) e três de treino.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Em todo item, um distrator aponta a crença
+# do próprio nó — senão o nó nunca recebe atribuição — e outro a de um
+# vizinho. A crença do próprio nó abre a cédula (vem na alternativa `b`).
+#
+# UMA REGRA A MAIS NESTE TÓPICO: nenhum item depende de sizeof(int) valer
+# 4. Onde o número aparece, ele está no código do próprio item
+# (`malloc(4)` é quatro bytes, e isso é verdade em qualquer máquina) ou a
+# resposta é relativa. `sizeof(char)` valendo 1 é exceção: isso o padrão
+# garante, e um item de treino usa esse fato de propósito.
+
+analogy: >
+  Alugar o terreno. Continua o terreno alugado do kc_01, e mostra a hora
+  em que ele é alugado. malloc(n) é pedir à prefeitura um terreno de n
+  METROS — não de n casas: quantos metros cada casa tem é conta sua. A
+  prefeitura responde com o NÚMERO do lote, ou diz que não tem lote. E ela
+  não limpa o terreno antes de entregar: o que estiver lá é sobra do
+  último inquilino. O papel com o número fica na sua gaveta e o terreno
+  fica no loteamento — duas coisas, dois lugares. E o terreno é seu até
+  você devolver: ninguém devolve por você.
+  ONDE QUEBRA: "pedir à prefeitura" sugere que você negocia e sai com o
+  terreno, e não é assim — "não tem lote" é uma das respostas possíveis, e
+  conferir isso é obrigação sua. E a metáfora não diz nada sobre o que
+  acontece com o terreno depois que você devolve: isso é do kc_09.
+
+resgates:
+
+  B1: >
+    Você pede metros, não casas. malloc(10) são dez bytes, e ponto —
+    ele não sabe o que você vai guardar ali. Se o que você quer são dez
+    inteiros, a multiplicação é sua: dez vezes o tamanho de um inteiro.
+
+  B2: >
+    A prefeitura não te entrega o terreno na mão: ela te dá o NÚMERO do
+    lote. É esse número que entra na sua caixa de ponteiro. E se não
+    houver lote, a resposta é NULL — que também é uma resposta.
+
+  B3: >
+    Ninguém limpou o terreno antes de entregar. O que estiver lá é sobra
+    do inquilino anterior, e não há promessa nenhuma sobre o que é. Para
+    ler algo que faça sentido, você escreve primeiro.
+
+  I1: >
+    O papel com o número fica na sua gaveta; o terreno fica no loteamento.
+    São duas coisas, em dois lugares, e com vidas diferentes: a gaveta
+    pode ir embora no fim da função, e o terreno não.
+
+  I2: >
+    "Não tem lote" é uma das duas respostas possíveis, e ela chega como
+    NULL. Conferir não é precaução exagerada: é tratar a segunda resposta
+    que a função pode dar.
+
+  I3: >
+    O terreno é seu até você devolver. O fim da função não devolve, e o
+    alocador não recolhe sozinho enquanto o programa roda. Quem devolve é
+    o free, escrito por você.
+
+exemplos:
+
+  B1: |
+    malloc(10);                  /* dez BYTES */
+    malloc(10 * sizeof(int));    /* dez ints  */
+
+  B2: |
+    int *p = malloc(4);
+    /* em p: o endereco. Ou NULL. */
+
+  B3: |
+    int *p = malloc(sizeof(int));
+    *p;          /* sobra: ninguem limpou */
+
+  I1: |
+    int *p = malloc(4);
+    /* a caixa de p: na pilha  */
+    /* o bloco: no monte       */
+
+  I2: |
+    int *p = malloc(n);
+    if (p == NULL) return;       /* a outra resposta */
+
+  I3: |
+    int *p = malloc(40);
+    free(p);     /* quem devolve e voce */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — malloc(n) pede n bytes
+  # crença do nó: malloc_conta_elementos
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc08_e1
+    node: kc08:B1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você pede um terreno de 10 à prefeitura, e ela entende em metros. Se
+      você queria 10 casas, o que falta?
+    alternativas:
+      a: "Multiplicar pelo tamanho da casa"
+      b: "Nada: ela entendeu casas"
+      c: "Nada: o papel ajusta na hora"
+    gabarito: a
+    crencas:
+      b: malloc_conta_elementos
+      c: pointer_is_data
+
+  - id: ciu_kc08_001
+    node: kc08:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "malloc(10) reserva o quê?"
+    alternativas:
+      a: "Dez bytes"
+      b: "Dez elementos do tipo"
+      c: "Dez valores, já prontos"
+    gabarito: a
+    crencas:
+      b: malloc_conta_elementos
+      c: malloc_initializes_zero
+
+  - id: ciu_kc08_002
+    node: kc08:B1
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int nints = 5;
+      int *iarray = malloc(nints);
+      iarray[4] = 1;
+    enunciado: >
+      O malloc não devolveu NULL, e o código não funciona. Por quê?
+    alternativas:
+      a: "Foram 5 bytes, não 5 ints"
+      b: "Nada errado: malloc conta ints"
+      c: "O problema é o conteúdo sujo"
+    gabarito: a
+    crencas:
+      b: malloc_conta_elementos
+      c: malloc_initializes_zero
+
+  - id: ciu_kc08_003
+    node: kc08:B1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int *p = malloc(n);
+      /* B */  int *q = malloc(n * sizeof(int));
+    enunciado: "Qual das duas reserva lugar para n ints?"
+    alternativas:
+      a: "B: ela multiplica pelo tamanho"
+      b: "As duas: malloc sabe o tipo"
+      c: "As duas, e a A já vem zerada"
+    gabarito: a
+    crencas:
+      b: malloc_conta_elementos
+      c: malloc_initializes_zero
+
+  - id: ciu_kc08_t01
+    node: kc08:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "malloc sabe o tipo do que você vai guardar?"
+    alternativas:
+      a: "Não: ele conta bytes"
+      b: "Sabe: o tipo do ponteiro"
+      c: "Sabe, e zera conforme o tipo"
+    gabarito: a
+    crencas:
+      b: malloc_conta_elementos
+      c: malloc_initializes_zero
+
+  - id: ciu_kc08_t02
+    node: kc08:B1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char *s = malloc(strlen(t) + 1);
+      strcpy(s, t);
+    enunciado: >
+      Um colega diz que falta multiplicar por sizeof(char). Ele tem razão?
+    alternativas:
+      a: "Não: sizeof(char) vale 1"
+      b: "Tem: malloc conta elementos"
+      c: "Tem, e ainda falta zerar s"
+    gabarito: a
+    crencas:
+      b: malloc_conta_elementos
+      c: malloc_initializes_zero
+
+  - id: ciu_kc08_t03
+    node: kc08:B1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4 * sizeof(int));
+      int *q = malloc(4);
+    enunciado: "Quantos ints cabem em cada um?"
+    alternativas:
+      a: "Quatro, e um só"
+      b: "Quatro nos dois"
+      c: "Quatro nos dois, e zerados"
+    gabarito: a
+    crencas:
+      b: malloc_conta_elementos
+      c: malloc_initializes_zero
+
+  # ------------------------------------------------------------------
+  # B2 — malloc devolve o endereço, ou NULL
+  # crença do nó: pointer_is_data (do kc_02)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc08_e2
+    node: kc08:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      A prefeitura arrumou o terreno. O que ela te entrega?
+    alternativas:
+      a: "O número do lote"
+      b: "O terreno, na mão"
+      c: "O terreno, e ela tem lote certo"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: malloc_always_succeeds
+
+  - id: ciu_kc08_004
+    node: kc08:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que malloc devolve?"
+    alternativas:
+      a: "Um endereço, ou NULL"
+      b: "O bloco de memória"
+      c: "Um endereço, com lote garantido"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: malloc_always_succeeds
+
+  - id: ciu_kc08_005
+    node: kc08:B2
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p;
+      *p = malloc(sizeof(int));
+    enunciado: "Por que a segunda linha está errada?"
+    alternativas:
+      a: "O endereço vai em p, não em *p"
+      b: "Nada: malloc devolve o dado"
+      c: "Falta só checar o NULL"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: malloc_always_succeeds
+
+  - id: ciu_kc08_006
+    node: kc08:B2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *p = malloc(sizeof(int));
+      /* A */  printf("%d\n", *p);
+      /* B */  printf("%p\n", (void *)p);
+    enunciado: "Qual das duas imprime o que malloc devolveu?"
+    alternativas:
+      a: "B: o que veio foi o endereço"
+      b: "A: malloc devolveu o valor"
+      c: "As duas: p e *p vêm juntos"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_lives_in_heap
+
+  - id: ciu_kc08_t04
+    node: kc08:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que fica guardado em p depois de p = malloc(4)?"
+    alternativas:
+      a: "Um endereço"
+      b: "Os quatro bytes"
+      c: "Um endereço bom, garantido"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: malloc_always_succeeds
+
+  - id: ciu_kc08_t05
+    node: kc08:B2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(sizeof(int));
+      *p = 7;
+      printf("%d\n", *p);
+    enunciado: "Por que o 7 aparece, e não o endereço?"
+    alternativas:
+      a: "O * vai até o bloco e lê lá"
+      b: "p já era o valor, e virou 7"
+      c: "p e o bloco são a mesma caixa"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_lives_in_heap
+
+  - id: ciu_kc08_t06
+    node: kc08:B2
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(sizeof(int));
+      if (p == 0) return;
+      printf("%d\n", p);
+    enunciado: "O que está errado na última linha?"
+    alternativas:
+      a: "p é endereço; %d espera int"
+      b: "Nada: p guarda o valor"
+      c: "Nada: o if já garantiu o p"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: malloc_always_succeeds
+
+  # ------------------------------------------------------------------
+  # B3 — o bloco devolvido não tem conteúdo definido
+  # crença do nó: malloc_initializes_zero
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc08_e3
+    node: kc08:B3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      A prefeitura entrega o terreno. Ela limpou antes?
+    alternativas:
+      a: "Não: tem sobra do anterior"
+      b: "Limpou: vem vazio"
+      c: "Limpou, e o número é zero"
+    gabarito: a
+    crencas:
+      b: malloc_initializes_zero
+      c: pointer_is_data
+
+  - id: ciu_kc08_007
+    node: kc08:B3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que há dentro de um bloco recém-alocado?"
+    alternativas:
+      a: "Sobra do que estava ali"
+      b: "Zeros, postos pelo malloc"
+      c: "O valor que você vai pôr"
+    gabarito: a
+    crencas:
+      b: malloc_initializes_zero
+      c: pointer_is_data
+
+  - id: ciu_kc08_008
+    node: kc08:B3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *soma = malloc(sizeof(int));
+      for (int i = 0; i < 5; i++) *soma += i;
+    enunciado: "Por que a soma pode sair errada?"
+    alternativas:
+      a: "*soma começou com sobra"
+      b: "Não sai errada: começa em 0"
+      c: "O erro é no for, não no soma"
+    gabarito: a
+    crencas:
+      b: malloc_initializes_zero
+      c: malloc_conta_elementos
+
+  - id: ciu_kc08_009
+    node: kc08:B3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int *p = malloc(4 * sizeof(int));
+      /* B */  int *q = calloc(4, sizeof(int));
+    enunciado: "Qual das duas devolve as quatro posições em zero?"
+    alternativas:
+      a: "B: o calloc preenche com zero"
+      b: "As duas: o malloc também zera"
+      c: "As duas, e a A pediu 4 bytes"
+    gabarito: a
+    crencas:
+      b: malloc_initializes_zero
+      c: malloc_conta_elementos
+
+  - id: ciu_kc08_t07
+    node: kc08:B3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Para um bloco do malloc começar em zero, o que é preciso?
+    alternativas:
+      a: "Escrever o zero, ou usar calloc"
+      b: "Nada: ele já vem assim"
+      c: "Nada: o tipo define o início"
+    gabarito: a
+    crencas:
+      b: malloc_initializes_zero
+      c: malloc_conta_elementos
+
+  - id: ciu_kc08_t08
+    node: kc08:B3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(sizeof(int));
+      printf("%d\n", *p);
+    enunciado: "O que dá para dizer sobre a saída?"
+    alternativas:
+      a: "Nada: é sobra do que estava ali"
+      b: "Zero: o malloc limpa o bloco"
+      c: "O endereço, que é o que p tem"
+    gabarito: a
+    crencas:
+      b: malloc_initializes_zero
+      c: pointer_is_data
+
+  - id: ciu_kc08_t09
+    node: kc08:B3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char *s = malloc(10);
+      printf("%s\n", s);
+    enunciado: "Por que isso é inseguro?"
+    alternativas:
+      a: "Falta o terminador: s tem sobra"
+      b: "É seguro: malloc zera, e zero fecha"
+      c: "É seguro: s já é um texto"
+    gabarito: a
+    crencas:
+      b: malloc_initializes_zero
+      c: pointer_is_data
+
+  # ------------------------------------------------------------------
+  # I1 — o ponteiro é uma variável; o bloco é outra coisa
+  # crença do nó: pointer_lives_in_heap (do kc_02)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc08_e4
+    node: kc08:I1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Onde fica o papel com o número do lote, e onde fica o lote?
+    alternativas:
+      a: "O papel na gaveta; o lote longe"
+      b: "Os dois no loteamento, juntos"
+      c: "Os dois na gaveta, grudados"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: pointer_is_data
+
+  - id: ciu_kc08_010
+    node: kc08:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Depois de int *p = malloc(4), quantas coisas existem?
+    alternativas:
+      a: "Duas: a caixa de p e o bloco"
+      b: "Uma: p é o bloco"
+      c: "Uma: p guarda os quatro bytes"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: pointer_is_data
+
+  - id: ciu_kc08_011
+    node: kc08:I1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(void) {
+          int *p = malloc(sizeof(int));
+          *p = 7;
+      }
+    enunciado: "No fim de f, o que deixa de existir?"
+    alternativas:
+      a: "A caixa de p, e só ela"
+      b: "As duas: p e o bloco"
+      c: "Nenhuma: p é o bloco"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: pointer_is_data
+
+  - id: ciu_kc08_012
+    node: kc08:I1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *f(void) {
+          int  local = 7;
+          int *bloco = malloc(sizeof(int));
+          *bloco = 7;
+          /* A */  return &local;
+          /* B */  return bloco;
+      }
+    enunciado: "Qual dos dois retornos devolve algo que ainda vale?"
+    alternativas:
+      a: "B: o bloco não é local"
+      b: "Nenhum: os dois somem com f"
+      c: "Os dois: o 7 está nos dois"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: pointer_is_data
+
+  - id: ciu_kc08_t10
+    node: kc08:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "A caixa de p e o bloco ficam na mesma área?"
+    alternativas:
+      a: "Não: em áreas diferentes"
+      b: "Ficam: p mora no bloco"
+      c: "Ficam: p é o bloco"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: pointer_is_data
+
+  - id: ciu_kc08_t11
+    node: kc08:I1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void f(void) {
+          int *p = malloc(100);
+      }
+    enunciado: "O que sobrou depois de f, e o que se perdeu?"
+    alternativas:
+      a: "O bloco ficou; o único p se foi"
+      b: "Nada ficou: p levou o bloco"
+      c: "Nada ficou: p era o bloco"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: pointer_is_data
+
+  - id: ciu_kc08_t12
+    node: kc08:I1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(sizeof(int));
+      int *q = p;
+      printf("%d\n", p == q);
+    enunciado: "Quantos blocos existem, e o que sai?"
+    alternativas:
+      a: "Um bloco, e sai 1"
+      b: "Dois blocos, e sai 0"
+      c: "Dois, porque p e q são dados"
+    gabarito: a
+    crencas:
+      b: pointer_lives_in_heap
+      c: pointer_is_data
+
+  # ------------------------------------------------------------------
+  # I2 — verificar NULL é necessário
+  # crença do nó: malloc_always_succeeds
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc08_e5
+    node: kc08:I2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você pede o terreno. A prefeitura pode dizer que não tem?
+    alternativas:
+      a: "Pode: é uma resposta possível"
+      b: "Não pode: ela arruma um lote"
+      c: "Não pode: o papel já vem"
+    gabarito: a
+    crencas:
+      b: malloc_always_succeeds
+      c: pointer_is_data
+
+  - id: ciu_kc08_013
+    node: kc08:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Por que conferir o retorno de malloc?"
+    alternativas:
+      a: "Porque NULL é um dos resultados"
+      b: "Não precisa: malloc dá conta"
+      c: "Não precisa: NULL dá zero ao ler"
+    gabarito: a
+    crencas:
+      b: malloc_always_succeeds
+      c: malloc_initializes_zero
+
+  - id: ciu_kc08_014
+    node: kc08:I2
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(1000000000);
+      p[0] = 1;
+    enunciado: "O que falta entre as duas linhas?"
+    alternativas:
+      a: "Conferir se p veio NULL"
+      b: "Nada: malloc devolve bloco"
+      c: "Nada: p já vem zerado"
+    gabarito: a
+    crencas:
+      b: malloc_always_succeeds
+      c: malloc_initializes_zero
+
+  - id: ciu_kc08_015
+    node: kc08:I2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int *p = malloc(n);  p[0] = 1;
+      /* B */  int *q = malloc(n);  if (q) q[0] = 1;
+    enunciado: "Qual das duas sobrevive a uma falha do malloc?"
+    alternativas:
+      a: "B: ela confere antes de usar"
+      b: "As duas: a falha não acontece"
+      c: "As duas: NULL aceita escrita"
+    gabarito: a
+    crencas:
+      b: malloc_always_succeeds
+      c: malloc_initializes_zero
+
+  - id: ciu_kc08_t13
+    node: kc08:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "malloc pode falhar?"
+    alternativas:
+      a: "Pode, e devolve NULL"
+      b: "Não: ele arruma memória"
+      c: "Não: devolve bloco zerado"
+    gabarito: a
+    crencas:
+      b: malloc_always_succeeds
+      c: malloc_initializes_zero
+
+  - id: ciu_kc08_t14
+    node: kc08:I2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(4);
+      if (p == NULL) { printf("falhou\n"); return 1; }
+      *p = 7;
+    enunciado: "Para que serve o if aqui?"
+    alternativas:
+      a: "Para não escrever em NULL"
+      b: "Para nada: p vem bom"
+      c: "Para nada: NULL aceita o 7"
+    gabarito: a
+    crencas:
+      b: malloc_always_succeeds
+      c: malloc_initializes_zero
+
+  - id: ciu_kc08_t15
+    node: kc08:I2
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *copia(int *v, int n) {
+          int *novo = malloc(n * sizeof(int));
+          for (int i = 0; i < n; i++) novo[i] = v[i];
+          return novo;
+      }
+    enunciado: "O que falta nessa função?"
+    alternativas:
+      a: "Conferir novo antes do laço"
+      b: "Nada: malloc não falha aqui"
+      c: "Nada: novo já vem com zeros"
+    gabarito: a
+    crencas:
+      b: malloc_always_succeeds
+      c: malloc_initializes_zero
+
+  # ------------------------------------------------------------------
+  # I3 — a conclusão: o bloco vive até o free
+  # crença do nó: system_frees_auto (do kc_01, com a citação corrigida)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc08_e6
+    node: kc08:I3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você alugou o terreno. Quem o devolve para a prefeitura?
+    alternativas:
+      a: "Você, quando quiser"
+      b: "A prefeitura, sozinha"
+      c: "Ninguém: ele não é seu"
+    gabarito: a
+    crencas:
+      b: system_frees_auto
+      c: pointer_lives_in_heap
+
+  - id: ciu_kc08_016
+    node: kc08:I3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Até quando um bloco do malloc vive?"
+    alternativas:
+      a: "Até você chamar free"
+      b: "Até a função terminar"
+      c: "Até alguém pedir outro"
+    gabarito: a
+    crencas:
+      b: system_frees_auto
+      c: malloc_always_succeeds
+
+  - id: ciu_kc08_017
+    node: kc08:I3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void guarda(void) {
+          int *p = malloc(1000000);
+      }
+      int main(void) {
+          for (int i = 0; i < 1000; i++) guarda();
+      }
+    enunciado: "O que esse programa acumula?"
+    alternativas:
+      a: "Mil blocos, sem ninguém apontando"
+      b: "Nada: cada bloco sai com a função"
+      c: "Nada: o malloc reusa o bloco"
+    gabarito: a
+    crencas:
+      b: system_frees_auto
+      c: malloc_always_succeeds
+
+  - id: ciu_kc08_018
+    node: kc08:I3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  void f(void) { int v[100];               }
+      /* B */  void g(void) { int *v = malloc(100 * 4); }
+    enunciado: >
+      Depois de mil chamadas de cada uma, qual delas deixou memória presa?
+    alternativas:
+      a: "B: o bloco fica até o free"
+      b: "Nenhuma: o sistema recolhe"
+      c: "As duas, no mesmo lugar"
+    gabarito: a
+    crencas:
+      b: system_frees_auto
+      c: pointer_lives_in_heap
+
+  - id: ciu_kc08_t16
+    node: kc08:I3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Quem libera um bloco do malloc?"
+    alternativas:
+      a: "Você, com free"
+      b: "O fim da função"
+      c: "O próprio malloc, depois"
+    gabarito: a
+    crencas:
+      b: system_frees_auto
+      c: malloc_always_succeeds
+
+  - id: ciu_kc08_t17
+    node: kc08:I3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *f(void) {
+          int *p = malloc(sizeof(int));
+          *p = 7;
+          return p;
+      }
+      int main(void) { printf("%d\n", *f()); }
+    enunciado: "O que sai, e por que funciona?"
+    alternativas:
+      a: "7: o bloco sobreviveu a f"
+      b: "lixo: o bloco saiu com f"
+      c: "7, mas o bloco é a caixa de p"
+    gabarito: a
+    crencas:
+      b: system_frees_auto
+      c: pointer_lives_in_heap
+
+  - id: ciu_kc08_t18
+    node: kc08:I3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void usa(void) {
+          int *p = malloc(40);
+          /* ... usa p ... */
+      }
+    enunciado: "O que falta no fim de usa?"
+    alternativas:
+      a: "free(p), antes de p sumir"
+      b: "Nada: o retorno libera o bloco"
+      c: "Nada: o bloco é a caixa de p"
+    gabarito: a
+    crencas:
+      b: system_frees_auto
+      c: pointer_lives_in_heap

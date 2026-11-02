@@ -1,0 +1,105 @@
+# Crenças do kc_08 — uma por nó, seis no total.
+#
+# Zero `E`. Duas vêm da curadoria, três de outros tópicos — e os três são
+# pré-requisitos declarados deste (kc_01, kc_02) —, e uma é nova, do FAQ
+# 7.19b.
+#
+# A entrada 7.19b foi lida no original nesta sessão, e a 7.31, a 7.22, a
+# 7.24 e a 7.25 também. É nesta leitura que apareceu a quarta precisão de
+# citação do projeto, e a mais séria delas — está escrita em
+# `system_frees_auto`, abaixo, e a mesma correção foi aplicada ao
+# catálogo do kc_01, que usa a crença há mais tempo.
+
+- id: malloc_conta_elementos
+  negates: kc_08:B1
+  provenance: L
+  label_pt: "malloc(n) reserva n elementos do tipo, e não n bytes."
+  source: >
+    FAQ comp.lang.c 7.19b: "I'm dynamically allocating an array, like
+    this: int *iarray = (int *)malloc(nints); malloc isn't returning NULL,
+    but the code isn't working." O código do questionador é a crença
+    escrita, e a resposta é a premissa: "malloc is a low-level, typeless
+    allocator. It doesn't know how you're going to use the memory; all it
+    does is to allocate as many bytes of memory as you ask it. Therefore
+    (except when you're allocating arrays of char) you must multiply by
+    the size of the elements." Ver também 7.8, que é a pergunta do outro
+    lado — se não falta um `* sizeof(char)` onde ele é desnecessário.
+    Crença nova: não estava no catálogo curado.
+
+- id: pointer_is_data
+  negates: kc_08:B2
+  provenance: T
+  label_pt: "O ponteiro é o próprio dado: o que malloc devolve é o bloco, não o endereço."
+  source: >
+    Sorva (2012), p. 360, item 14: "A variable is (merely) a pairing of a
+    name to a changeable value (with a type). It is not stored inside the
+    computer" (Sorva 2008; Doukakis et al. 2007). A mesma crença está nos
+    catálogos do kc_02 e do kc_04. Aqui ela nega a premissa de que o que
+    volta é um ENDEREÇO: quem acha que o ponteiro é o dado acha que malloc
+    entregou o pedaço na mão.
+
+- id: malloc_initializes_zero
+  negates: kc_08:B3
+  provenance: L
+  label_pt: "malloc inicializa a memória com zero."
+  source: >
+    FAQ comp.lang.c 7.31: "What's the difference between calloc and
+    malloc? ... Is it safe to take advantage of calloc's zero-filling?" A
+    resposta dá o contraste que é a premissa — "calloc(m, n) is
+    essentially equivalent to p = malloc(m * n); memset(p, 0, m * n)" —, e
+    avisa: "Don't rely on calloc's zero fill too much". O zero é do
+    calloc, e é por isso que ele existe. Ver também Sorva (2012), p. 359,
+    item 10, "Variables always receive a particular default value upon
+    creation" (du Boulay 1986; Samurçay 1989), que é a forma geral da
+    mesma crença. É a crença da curadoria, com a fonte dela.
+
+- id: pointer_lives_in_heap
+  negates: kc_08:I1
+  provenance: L
+  label_pt: "O ponteiro mora no heap porque aponta para lá."
+  source: >
+    FAQ comp.lang.c 7.22, cuja resposta começa com a premissa dita em
+    cinco palavras: "Remember that a pointer is different from what it
+    points to. Local variables are deallocated when the function returns,
+    but in the case of a pointer variable, this means that the pointer is
+    deallocated, not what it points to." A mesma crença está nos catálogos
+    do kc_02 e do kc_09.
+
+- id: malloc_always_succeeds
+  negates: kc_08:I2
+  provenance: N
+  label_pt: "Verificar NULL após malloc é desnecessário, porque malloc sempre funciona."
+  source: >
+    CERT C MEM52-C, "Detect and handle memory allocation errors"; CWE-252,
+    "Unchecked Return Value". A norma catalogou o ERRO, não a crença — é
+    por isso que a procedência é N. É a crença da curadoria, com a fonte
+    dela.
+
+- id: system_frees_auto
+  negates: kc_08:I3
+  provenance: L
+  label_pt: "O sistema libera a memória do heap automaticamente."
+  source: >
+    FAQ comp.lang.c 7.22: "When I call malloc to allocate memory for a
+    pointer which is local to a function, do I have to explicitly free
+    it?" A resposta é "Yes", e termina com a frase que é a premissa:
+    "Memory allocated with malloc always persists until you explicitly
+    free it."
+
+    CITAÇÃO CORRIGIDA, e esta é a quarta precisão do projeto — a mais
+    séria das quatro. O catálogo curado cita "FAQ 7.24 e 7.25", e as duas
+    NÃO sustentam a crença como ela está escrita. A 7.24 ("Must I free
+    allocated memory before the program exits?") responde "You shouldn't
+    have to. A real operating system definitively reclaims all memory
+    when a program exits" — no ENCERRAMENTO DO PROGRAMA o sistema de fato
+    recolhe, e isso é verdade, não crença. A 7.25 é sobre o `free` não
+    devolver memória ao sistema operacional. Nenhuma das duas fala do
+    bloco sobreviver ao RETORNO DA FUNÇÃO, que é o que esta premissa
+    afirma. As duas ficam citadas pelo CONTRASTE, porque a distinção é o
+    que a premissa precisa: o sistema recolhe no fim do programa, e não no
+    fim da função.
+
+    A mesma correção foi aplicada ao catálogo do kc_01, que usa esta
+    crença desde antes.
+
+    Ver também FAQ 7.24 e 7.25, pelo contraste acima.

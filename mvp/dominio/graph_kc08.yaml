@@ -1,0 +1,108 @@
+topic: kc_08
+
+# Este tópico fecha o buraco que o kc_09 declarava: ele era pré-requisito
+# do kc_09 e não existia (pergunta em aberto 8). Agora existe.
+#
+# A METÁFORA DESTE TÓPICO: alugar o terreno.
+#
+# Continua o terreno alugado do kc_01, e mostra o momento em que ele é
+# alugado. `malloc(n)` é pedir à prefeitura um terreno de n METROS — não
+# de n casas: quantos metros cada casa tem é conta sua. A prefeitura
+# responde com o NÚMERO do lote, ou diz que não tem lote. E ela não limpa
+# o terreno antes de entregar: o que estiver lá é sobra do último
+# inquilino. O papel com o número fica na sua gaveta e o terreno fica no
+# loteamento — duas coisas, dois lugares. E o terreno é seu até você
+# devolver: ninguém devolve por você.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. "Pedir à prefeitura" sugere que você negocia e sai com o terreno.
+#      Não: "não tem lote" é uma das respostas possíveis, e conferir isso
+#      é obrigação sua. Quando a metáfora empurrar para "sempre consigo",
+#      ela cala.
+#   2. A metáfora não diz nada sobre o que acontece com o terreno depois
+#      que você devolve. Isso é do kc_09, e lá o ponto é outro: o papel
+#      que fica na sua mão.
+#
+# OITO NÓS CURADOS, SEIS AQUI. A curadoria tem duas crenças (em I2 e I3),
+# e seis dos oito nós são marcados "órfão" — este é o tópico com a
+# estrutura mais solta de todos. Duas dobras, as duas de
+# premissa-e-aplicação:
+#
+#   curado B3 ("o bloco devolvido não tem conteúdo definido") + I3 ("o
+#     conteúdo precisa ser escrito antes de lido") -> B3 deste grafo;
+#   curado B4 ("o bloco não morre com a função que o pediu") + I4
+#     ("ninguém libera o bloco por você") -> I3 deste grafo, a conclusão.
+#     A curadoria registra que B4 é importado de kc_01:B3, e as duas
+#     pontas são negadas pela mesma crença.
+#
+# Quatro nós ganharam crença de fora ou nova, e as de fora vêm dos
+# tópicos que a curadoria declara como pré-requisito (kc_01, kc_02).
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "malloc(n) pede n bytes ao alocador."
+    plain_text: >
+      malloc(n) pede emprestado um pedaço de memória com n BYTES. Quantos
+      bytes cada elemento ocupa é conta sua.
+    negated_by:
+      - malloc_conta_elementos
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "malloc devolve o endereço do bloco, ou NULL."
+    plain_text: >
+      Ele devolve o endereço do pedaço que arrumou — ou NULL, se não
+      conseguiu arrumar.
+    negated_by:
+      - pointer_is_data
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "O bloco devolvido não tem conteúdo definido."
+    plain_text: >
+      O que está dentro desse pedaço é sobra: ninguém limpou antes de
+      entregar. É preciso escrever ali antes de ler.
+    negated_by:
+      - malloc_initializes_zero
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B2]
+    text: "O ponteiro é uma variável; o bloco é outra coisa."
+    plain_text: >
+      A caixa do ponteiro e o pedaço emprestado são duas coisas
+      diferentes, em áreas diferentes.
+    negated_by:
+      - pointer_lives_in_heap
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [B2]
+    text: "Verificar NULL é necessário: falhar é resultado possível."
+    plain_text: >
+      Como NULL é uma das respostas possíveis, é preciso conferir antes de
+      usar o que veio.
+    negated_by:
+      - malloc_always_succeeds
+
+  I3:
+    type: inferencia
+    role: conclusao
+    support: [B1, B3, I1, I2]
+    text: "O bloco vive até o free: ninguém o libera por você."
+    plain_text: >
+      Esse pedaço não some quando a função que o pediu termina, e ninguém
+      o devolve por você. Enquanto não devolver, ele continua ocupado.
+    negated_by:
+      - system_frees_auto
