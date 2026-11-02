@@ -1289,3 +1289,113 @@ Oito tópicos construídos depois do contrato de linguagem, oito sem nenhuma
 Buraco na escada, nó sem item de entrada, nó sem figura, e uma crença
 ficando órfã no catálogo — esta última derruba dois testes, inclusive a
 carga do domínio.
+
+## Ciclo de conteúdo — o kc_10 (ponteiro para ponteiro)
+
+Décimo segundo tópico. **Falta um: o kc_12.**
+
+### Oito nós curados, seis aqui
+
+A curadoria tem **três** crenças (I2, I3, I4) — a terceira melhor
+cobertura do projeto, depois do kc_07 (seis) e do kc_09 (cinco). Duas
+dobras de premissa-e-aplicação:
+
+| Curado | Virou | Por quê |
+| --- | --- | --- |
+| B1 (um ponteiro tem endereço) + B2 (`&p` produz esse endereço) | `B1` | as duas metades de uma coisa só, e é por isso que `&p` existe |
+| I1 (pp e p são distintas) + I2 (`*pp` é p; `**pp` é o int) | `I3`, a conclusão | o segundo é o primeiro dito em código |
+
+| Crença | Nó | Proc. | De onde |
+| --- | --- | --- | --- |
+| `ampersand_copies` | B1 | T | Sorva p. 362 item 66 — kc_04, kc_06 |
+| `pointer_is_just_a_name` | B2 | T | Sorva p. 362 item 64 — kc_04, kc_05 |
+| `voidptr_is_universal` | B3 | L | FAQ 4.13, 4.6 + **4.9** — kc_02 |
+| `modify_pp_changes_p` | I1 | L | FAQ 4.8 (curada) |
+| `array2d_is_double_pointer` | I2 | L | FAQ 6.18 (curada) |
+| `double_deref_is_data` | I3 | L | FAQ 4.9 (curada) |
+
+A **4.9** sustenta duas crenças, e são duas mesmo: uma metade da resposta
+diz que *"There is no generic pointer-to-pointer type in C"* (→ `B3`, o
+tipo fixa os níveis) e a outra trata do número de estrelas como algo
+ajustável (→ a conclusão). É o mesmo padrão da 7.22 no kc_08 e da 7.21 no
+kc_09.
+
+A **6.18** é a melhor das três curadas, porque a resposta é a premissa com
+todas as letras: *"The rule by which arrays decay into pointers is not
+applied recursively. (Once the rule has been applied once, the result is a
+pointer to which the rule no longer applies.) An array of arrays decays
+into a pointer to an array, not a pointer to a pointer."*
+
+Dois itens trazem o código **literal** do FAQ: o `ciu_kc10_011` é a
+pergunta 4.8 (`ip = &dummy` dentro de f), e o `ciu_kc10_008` é a 4.9
+(`f((void **)&dp)`).
+
+### Uma regra a mais no banco
+
+Todo item de código declara os níveis inteiros, de `x` até `pp`, mesmo
+quando o item só pergunta sobre um deles. Dois níveis é o limite do que
+uma pessoa segue de cabeça, e omitir uma linha faria a pessoa errar por
+ter perdido a conta — o que mede **atenção**, não premissa.
+
+### A medição
+
+| Persona | kc_10 |
+| --- | --- |
+| acerta tudo | 45 passos, 0/12 sem medida |
+| erra e aprende | 82, 0/12 |
+| erra e não muda | 86, 0/12 |
+
+### Os doze tópicos, 514 itens
+
+| Tópico | Nós | Itens | Procedências |
+| --- | --- | --- | --- |
+| `kc_00` | 5 | 20 | 3 L, 1 T, **1 E** |
+| `kc_01` | 5 | 35 | 3 T, 1 L, **1 E** |
+| `kc_02` · piloto | 6 | 60 | 2 T, 1 D, 1 L, **2 E** |
+| `kc_03` | 6 | 42 | 3 D, 2 L, 1 T |
+| `kc_04` | 6 | 42 | 3 L, 3 T |
+| `kc_05` | 6 | 42 | 4 L, 1 T, 1 N |
+| `kc_06` | 6 | 42 | 5 T, 1 L |
+| `kc_07` · piloto | 7 | 49 | 6 L, 1 T |
+| `kc_08` | 6 | 42 | 4 L, 1 T, 1 N |
+| `kc_09` · piloto | 8 | 56 | 6 L, 1 T, 1 N |
+| `kc_10` | 6 | 42 | 4 L, 2 T |
+| `kc_11` · piloto | 6 | 42 | 6 L |
+
+Nove tópicos construídos depois do contrato de linguagem, nove sem nenhuma
+`E`. As quatro `E` continuam nos três mais antigos.
+
+### Uma pista para a pergunta 10, achada de passagem
+
+Procurando fonte para o nó B1 deste tópico — "um ponteiro é variável e tem
+endereço próprio", que a curadoria importa de `kc_02:B2` —, apareceu a
+**FAQ 7.3c**:
+
+> *"How much memory does a pointer variable allocate? A: That's a pretty
+> misleading question. When you declare a pointer variable, as in char
+> \*p; you (or, more properly, the compiler) have allocated only enough
+> memory to hold the pointer itself; that is, in this case you have
+> allocated sizeof(char \*) bytes of memory. But you have not yet
+> allocated any memory for the pointer to point to."*
+
+Essa é a premissa `kc_02:B2` afirmada diretamente por uma obra técnica
+revisada, e a crença que a nega é `pointer_has_no_address` — **uma das
+duas `E` do kc_02**, que é o único piloto com crença estimada (pergunta em
+aberto 10).
+
+**Não mexi no catálogo do kc_02.** A entrada documenta a *pergunta* ("quanto
+um ponteiro aloca?"), e a crença é a forma afiada dela ("não aloca nada,
+é só a seta") — chamar isso de `L` é uma decisão de dono, não minha, e o
+kc_02 é o que vai para a monografia. O que fica registrado é que **a fonte
+existe e foi lida**: se você aceitar a 7.3c, a mudança é de dois campos
+num arquivo, e o kc_02 passa de duas `E` para uma.
+
+E para o B1 deste tópico usei outra crença (`ampersand_copies`), justamente
+para não espalhar uma `E` nem criar uma crença com duas procedências
+diferentes em dois catálogos.
+
+### As quatro sabotagens
+
+Buraco na escada, nó sem item de entrada, nó sem figura, e um nó de
+diagnóstico perdendo o par teórica+código — esta última derruba a carga do
+domínio.

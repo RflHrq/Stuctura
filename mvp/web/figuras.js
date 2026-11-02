@@ -1537,6 +1537,132 @@
     }
   };
 
+  /* ---------------------- kc_10: o papel que aponta para outra gaveta */
+
+  /* p e uma gaveta com um papel dentro; pp e OUTRA gaveta, e o papel dela
+   * traz o numero da gaveta de p.
+   *
+   * A disciplina do desenho: os tres niveis — x, p, pp — aparecem SEMPRE
+   * com a mesma forma de caixa, e o que os liga e o numero escrito dentro
+   * de cada uma. Desenhar pp como uma caixa "maior" ou "dupla" diria que
+   * um nivel a mais e outra especie de coisa, e e isso que
+   * `double_deref_is_data` acha. */
+
+  POR_TOPICO.kc_10 = {
+
+    /* B1 — a caixa de p tem numero na porta, como as outras. */
+    B1: function () {
+      var s = svg(360, 202);
+      s.appendChild(defs());
+      s.appendChild(casa(24, 62, { endereco: "0x1000", dentro: "1",
+                                   nome: "x", largura: 86 }));
+      s.appendChild(casa(136, 62, { endereco: "0x2A00", dentro: "0x1000",
+                                    nome: "p", largura: 86 }));
+      s.appendChild(casa(248, 62, { endereco: "0x5B00", dentro: "0x2A00",
+                                    nome: "pp", largura: 86 }));
+      legenda(s, 178, "a caixa de p tem numero na porta, como as outras");
+      legenda(s, 196, "e e esse numero que &p devolve");
+      return s;
+    },
+
+    /* B2 — um passo por estrela. */
+    B2: function () {
+      var s = svg(360, 268);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 68, y: 50, "class": "fig-nota" }, "pp"));
+      s.appendChild(casa(124, 30, { endereco: "0x5B00", dentro: "0x2A00",
+                                    largura: 112, altura: 40 }));
+      s.appendChild(seta(180, 74, 180, 95));
+      s.appendChild(el("text", { x: 220, y: 86, "class": "fig-nota" },
+                       "um *"));
+      s.appendChild(el("text", { x: 68, y: 130, "class": "fig-nota" }, "p"));
+      s.appendChild(casa(124, 110, { endereco: "0x2A00", dentro: "0x1000",
+                                     largura: 112, altura: 40 }));
+      s.appendChild(seta(180, 154, 180, 175));
+      s.appendChild(el("text", { x: 228, y: 166, "class": "fig-nota" },
+                       "mais um *"));
+      s.appendChild(el("text", { x: 68, y: 210, "class": "fig-nota" }, "x"));
+      s.appendChild(casa(124, 190, { endereco: "0x1000", dentro: "1",
+                                     largura: 112, altura: 40 }));
+      legenda(s, 256, "um passo por estrela, nem mais nem menos");
+      return s;
+    },
+
+    /* B3 — quantos niveis existem esta no TIPO. */
+    B3: function () {
+      var s = svg(360, 196);
+      s.appendChild(defs());
+      s.appendChild(el("rect", { x: 70, y: 46, width: 220, height: 44, rx: 9,
+                                 "class": "fig-placa" }));
+      s.appendChild(el("text", { x: 180, y: 68, "class": "fig-placa-txt" },
+                       "int **pp;"));
+      s.appendChild(el("text", { x: 180, y: 110, "class": "fig-nota" },
+                       "dois niveis, escritos aqui"));
+      s.appendChild(el("text", { x: 180, y: 136, "class": "fig-legenda erro" },
+                       "nao existe duplo ponteiro generico"));
+      legenda(s, 168, "nao da para chutar nem descobrir abrindo");
+      legenda(s, 188, "e uma estrela a mais nao cria um nivel");
+      return s;
+    },
+
+    /* I1 — dar o papel nao serve; dar o endereco da gaveta serve. */
+    I1: function () {
+      var s = svg(360, 206);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "f(q)"));
+      s.appendChild(casa(30, 58, { endereco: "0x2A00", dentro: "0x1000",
+                                   nome: "q, intacta", largura: 112 }));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "f(&q)"));
+      s.appendChild(casa(218, 58, { endereco: "0x2A00", dentro: "NULL",
+                                    nome: "q, trocada", largura: 112 }));
+      legenda(s, 174, "dar o papel: a funcao mexe numa copia");
+      legenda(s, 192, "dar o endereco da gaveta: ela chega la");
+      return s;
+    },
+
+    /* I2 — a matriz e um bloco contiguo, nao gaveta de gavetas. */
+    I2: function () {
+      var s = svg(360, 234);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "int a[3][4]"));
+      s.appendChild(quarteirao(30, 44, { quantas: 4, largura: 75,
+                                         endereco: "0x1000", altura: 30 }));
+      s.appendChild(quarteirao(30, 74, { quantas: 4, largura: 75,
+                                         altura: 30 }));
+      s.appendChild(quarteirao(30, 104, { quantas: 4, largura: 75,
+                                          altura: 30 }));
+      s.appendChild(el("text", { x: 180, y: 160, "class": "fig-nota" },
+                       "doze caixas grudadas, em tres fileiras"));
+      s.appendChild(el("text", { x: 180, y: 186, "class": "fig-legenda erro" },
+                       "nao sao tres gavetas apontando fileiras"));
+      legenda(s, 216, "a regra do nome que vira endereco vale UMA vez");
+      return s;
+    },
+
+    /* I3 — a conclusao: duas caixas, dois niveis. */
+    I3: function () {
+      var s = svg(360, 234);
+      s.appendChild(defs());
+      s.appendChild(casa(24, 60, { endereco: "0x1000", dentro: "7",
+                                   nome: "x", largura: 86 }));
+      s.appendChild(casa(136, 60, { endereco: "0x2A00", dentro: "0x1000",
+                                    nome: "p", largura: 86 }));
+      s.appendChild(casa(248, 60, { endereco: "0x5B00", dentro: "0x2A00",
+                                    nome: "pp", largura: 86 }));
+      s.appendChild(seta(244, 150, 180, 150));
+      s.appendChild(el("text", { x: 214, y: 170, "class": "fig-nota" },
+                       "*pp chega em p"));
+      s.appendChild(seta(244, 192, 68, 192));
+      s.appendChild(el("text", { x: 156, y: 212, "class": "fig-nota" },
+                       "**pp chega no 7"));
+      legenda(s, 232, "duas caixas, dois niveis");
+      return s;
+    }
+  };
+
   var topicoAtual = "kc_00";
 
   function doNo(no) {

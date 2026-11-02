@@ -1,0 +1,90 @@
+# Crenças do kc_10 — uma por nó, seis no total.
+#
+# Zero `E`. TRÊS vêm da curadoria — a terceira melhor cobertura do
+# projeto, depois do kc_07 (seis) e do kc_09 (cinco) — e as três têm
+# entrada do FAQ. As outras três vêm de tópicos que a curadoria declara
+# como pré-requisito deste (kc_04, kc_06, kc_07) ou dos quais ela registra
+# a importação do nó.
+#
+# As três entradas novas foram lidas no original nesta sessão: 4.9, 6.18 e
+# 7.3c. A 4.8 já tinha sido lida no ciclo do kc_06.
+
+- id: ampersand_copies
+  negates: kc_10:B1
+  provenance: T
+  label_pt: "&x entrega uma cópia de x, e é a cópia que a função recebe."
+  source: >
+    Sorva (2012), p. 362, item 66: "Assigning an object means 'sending' an
+    object (or a copy) to a variable" (Ma 2007). A mesma crença está nos
+    catálogos do kc_04 e do kc_06. Aqui ela nega a premissa de que `&p`
+    produz o ENDEREÇO da caixa p: se entregasse uma cópia do ponteiro,
+    não haveria endereço de ponteiro para guardar, e o segundo nível não
+    existiria.
+
+- id: pointer_is_just_a_name
+  negates: kc_10:B2
+  provenance: T
+  label_pt: "p é só outro nome da variável apontada: o * não é um passo."
+  source: >
+    Sorva (2012), p. 362, item 64: "A variable associated with an object
+    is merely a name which can be used to manipulate an object or 'thing'
+    in a program" (Sorva 2008; Ma 2007). A mesma crença está nos catálogos
+    do kc_04 e do kc_05. Aqui ela nega a premissa de que cada `*` é um
+    PASSO: se p fosse apenas um nome, não haveria de onde sair nem para
+    onde ir, e contar níveis não faria sentido.
+
+- id: voidptr_is_universal
+  negates: kc_10:B3
+  provenance: L
+  label_pt: "void * aceita qualquer coisa, e void ** serve a qualquer nível."
+  source: >
+    FAQ comp.lang.c 4.13 e 4.6, que são a crença na forma geral; e a 4.9,
+    que é ela na forma deste tópico: "Suppose I want to write a function
+    that takes a generic pointer as an argument and I want to simulate
+    passing it by reference. Can I give the formal parameter type void
+    **, and do something like this? void f(void **); double *dp; f((void
+    **)&dp);" A resposta é "Not portably", e diz a premissa: "There is no
+    generic pointer-to-pointer type in C. void * acts as a generic pointer
+    only because conversions are applied automatically when other pointer
+    types are assigned to and from void *'s; these conversions cannot be
+    performed if an attempt is made" em nível dois. É a crença da
+    curadoria (lá no catálogo do kc_02), com a fonte dela e a 4.9 a mais.
+
+- id: modify_pp_changes_p
+  negates: kc_10:I1
+  provenance: L
+  label_pt: "Trocar o parâmetro ponteiro dentro da função altera o ponteiro de quem chamou."
+  source: >
+    FAQ comp.lang.c 4.8: "I have a function which accepts, and is supposed
+    to initialize, a pointer: void f(int *ip) { static int dummy = 5; ip =
+    &dummy; } But when I call it like this: int *ip; f(ip); the pointer in
+    the caller remains unchanged." A pergunta é a crença, escrita por quem
+    a tem. É a crença da curadoria, com a fonte dela, e o item
+    `ciu_kc10_011` é esse código literal.
+
+- id: array2d_is_double_pointer
+  negates: kc_10:I2
+  provenance: L
+  label_pt: "int a[N][M] pode ser passado onde se espera int **."
+  source: >
+    FAQ comp.lang.c 6.18: "My compiler complained when I passed a
+    two-dimensional array to a function expecting a pointer to a
+    pointer." A resposta dá a premissa com todas as letras: "The rule by
+    which arrays decay into pointers is not applied recursively. (Once the
+    rule has been applied once, the result is a pointer to which the rule
+    no longer applies.) An array of arrays (i.e. a two-dimensional array
+    in C) decays into a pointer to an array, not a pointer to a pointer."
+    É a crença da curadoria, com a fonte dela.
+
+- id: double_deref_is_data
+  negates: kc_10:I3
+  provenance: L
+  label_pt: "**pp acessa o dado final diretamente; um nível a mais resolve sozinho."
+  source: >
+    FAQ comp.lang.c 4.9 (a outra metade da resposta, a que trata de
+    níveis): a tentativa de usar `void **` como ponteiro genérico de nível
+    dois existe porque quem a faz trata o número de estrelas como algo
+    ajustável, e não como o que o tipo fixa. É a crença da curadoria, com
+    a fonte dela, e ela nega a conclusão do tópico: se `**pp` fosse um
+    acesso direto ao dado, `*pp` e `**pp` dariam no mesmo, e pp e p não
+    seriam caixas em níveis distintos.

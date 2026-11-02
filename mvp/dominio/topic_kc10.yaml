@@ -1,0 +1,13 @@
+id: kc_10
+title: "Ponteiro para ponteiro"
+pilot: false
+prerequisites: [kc_04, kc_06, kc_07]
+conclusion_node: I3
+summary: >
+  int **pp é uma variável cujo valor é o endereço de um int *. Cada *
+  desfaz exatamente um nível de indireção: *pp chega no ponteiro p, e
+  **pp chega no int.
+
+# Respondível ANTES por quem ainda não sabe. É o lado esquerdo do
+# antes-e-depois, e a pergunta é exatamente a que o tópico responde.
+teachback: "o que int **pp guarda, e onde *pp e **pp chegam"

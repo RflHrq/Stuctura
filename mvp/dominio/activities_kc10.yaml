@@ -1,0 +1,909 @@
+# Banco de atividades — kc_10, "ponteiro para ponteiro"
+#
+# Seis nós, sete itens cada: 42. Um de entrada (o degrau mais baixo, na
+# analogia), três de diagnóstico (um por degrau, com o par teórica +
+# código) e três de treino.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Em todo item, um distrator aponta a crença
+# do próprio nó — senão o nó nunca recebe atribuição — e outro a de um
+# vizinho. A crença do próprio nó abre a cédula (vem na alternativa `b`).
+#
+# UMA REGRA A MAIS NESTE TÓPICO: todo item de código declara os níveis
+# inteiros, de x até pp, mesmo quando o item só pergunta sobre um deles.
+# Dois níveis é o limite do que uma pessoa segue de cabeça, e omitir uma
+# linha faria a pessoa errar por ter perdido a conta — o que mede atenção,
+# não premissa. Dois itens trazem o código LITERAL do FAQ: o
+# `ciu_kc10_011` é a pergunta 4.8, e o `ciu_kc10_008` é a 4.9.
+
+analogy: >
+  O papel que aponta para outra gaveta. Continua a rua: p é uma gaveta com
+  um papel dentro, e no papel está um número de casa. pp é OUTRA gaveta, e
+  o papel dela traz o número da gaveta de p. Cada * é abrir uma gaveta:
+  abra a de pp e você acha o papel de p; abra a de p e você chega na casa.
+  ONDE QUEBRA: "abrir gaveta" sugere que dá para continuar abrindo quantas
+  vezes você quiser, e não dá — quantos níveis existem está escrito no
+  TIPO, e pôr uma estrela a mais não cria um nível. E a metáfora não diz
+  nada sobre int a[3][4]: aquilo não é gaveta dentro de gaveta, é um
+  quarteirão de doze casas grudadas.
+
+resgates:
+
+  B1: >
+    A gaveta de p é uma gaveta como qualquer outra: ela ocupa um lugar e
+    tem endereço próprio. É por isso que `&p` existe e faz sentido — e
+    guardar o que `&p` devolve exige uma gaveta de mais um nível.
+
+  B2: >
+    Cada estrela é uma gaveta que se abre. Uma estrela: você sai de pp e
+    chega no papel de p. Duas: você sai de pp, passa por p, e chega na
+    casa. Um passo por estrela, nem mais nem menos.
+
+  B3: >
+    Quantas gavetas existem entre pp e a casa está escrito no tipo, antes
+    de o programa rodar. Não há como chutar, não há como descobrir
+    abrindo, e não existe uma gaveta genérica que sirva para qualquer
+    número de níveis.
+
+  I1: >
+    Para alguém trocar o papel que está DENTRO da sua gaveta, essa pessoa
+    precisa saber onde a gaveta está. Dar o papel não serve: ela mexeria
+    numa cópia do papel. O que serve é dar o endereço da gaveta.
+
+  I2: >
+    int a[3][4] é um quarteirão: doze casas grudadas, em três fileiras. Não
+    são três gavetas, cada uma apontando para uma fileira que mora em
+    outro lugar. A regra do nome que vira endereço vale uma vez, e não
+    duas.
+
+  I3: >
+    Então são duas caixas, em dois níveis. `*pp` chega na caixa de p — e o
+    que está lá é um ponteiro. `**pp` dá mais um passo e chega no número.
+    Uma estrela a mais não desce um nível que o tipo não tem.
+
+exemplos:
+
+  B1: |
+    int  x = 1;
+    int *p = &x;
+    int **pp = &p;   /* &p: endereco da caixa p */
+
+  B2: |
+    *pp     /* um passo: chega em p   */
+    **pp    /* dois passos: chega em x */
+
+  B3: |
+    int **pp;        /* dois niveis, escritos aqui */
+    /* nao existe ponteiro-para-ponteiro generico */
+
+  I1: |
+    void f(int **pp) { *pp = NULL; }
+    f(&p);           /* &p, e nao p */
+
+  I2: |
+    int a[3][4];     /* doze caixas grudadas */
+    /* nao e int ** */
+
+  I3: |
+    *pp  == p        /* verdadeiro */
+    **pp == x        /* verdadeiro */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — um ponteiro é variável, e &p produz o endereço dela
+  # crença do nó: ampersand_copies (do kc_04 e do kc_06)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc10_e1
+    node: kc10:B1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      A gaveta de p tem endereço próprio? Dá para pedir esse endereço?
+    alternativas:
+      a: "Dá: ela é uma gaveta como outra"
+      b: "Não: o que vem é uma cópia dela"
+      c: "Não: a gaveta não tem endereço"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_001
+    node: kc10:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que &p produz, quando p é um int *?"
+    alternativas:
+      a: "O endereço da caixa p"
+      b: "Uma cópia do ponteiro p"
+      c: "O mesmo que p"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_002
+    node: kc10:B1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      int **pp = &p;
+      printf("%d\n", *pp == p);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: *pp chega na caixa p"
+      b: "0: pp guarda uma cópia de p"
+      c: "1, e pp e p são a mesma caixa"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_003
+    node: kc10:B1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      /* A */  int **pp = &p;
+      /* B */  int **pp = p;
+    enunciado: "Qual das duas compila, e por quê?"
+    alternativas:
+      a: "A: &p é o endereço de uma caixa"
+      b: "B: p já é um ponteiro duplo"
+      c: "As duas: p e &p dão no mesmo"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_t01
+    node: kc10:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Por que dá para escrever &p, se p já é um ponteiro?"
+    alternativas:
+      a: "Porque p é uma caixa, com lugar"
+      b: "Não dá: &p copia o ponteiro"
+      c: "Não dá: p já é um endereço"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_t02
+    node: kc10:B1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void f(int **pp);
+      int x = 1;
+      int *p = &x;
+      f(p);
+    enunciado: "O que está errado na chamada?"
+    alternativas:
+      a: "Falta o &: f quer &p"
+      b: "Nada: p vira cópia de nível 2"
+      c: "Nada: p já serve de int **"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_t03
+    node: kc10:B1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      int **pp = &p;
+      printf("%d %d\n", **pp, *p);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1 1: os dois chegam em x"
+      b: "1 1, mas por cópias distintas"
+      c: "1 1, e pp é p com outro nome"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  # ------------------------------------------------------------------
+  # B2 — cada * desfaz exatamente um nível
+  # crença do nó: pointer_is_just_a_name (do kc_04 e do kc_05)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc10_e2
+    node: kc10:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Abrir a gaveta de pp te dá o quê?"
+    alternativas:
+      a: "O papel que está dentro dela"
+      b: "Nada: a gaveta é só um nome"
+      c: "A casa do fim, de uma vez"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: double_deref_is_data
+
+  - id: ciu_kc10_004
+    node: kc10:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Cada * aplicado faz o quê?"
+    alternativas:
+      a: "Desfaz um nível, um passo"
+      b: "Nada: é o mesmo nome"
+      c: "Vai direto ao valor final"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: double_deref_is_data
+
+  - id: ciu_kc10_005
+    node: kc10:B2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 7;
+      int *p = &x;
+      int **pp = &p;
+      printf("%d\n", **pp);
+    enunciado: "Quantos passos o ** deu?"
+    alternativas:
+      a: "Dois: pp para p, e p para x"
+      b: "Nenhum: é tudo o mesmo nome"
+      c: "Um: o ** é um passo só"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: double_deref_is_data
+
+  - id: ciu_kc10_006
+    node: kc10:B2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int x = 7;
+      int *p = &x;
+      int **pp = &p;
+      /* A */  *pp
+      /* B */  **pp
+    enunciado: "O que cada uma devolve?"
+    alternativas:
+      a: "A devolve p; B devolve o 7"
+      b: "As duas devolvem o 7: é o mesmo nome"
+      c: "As duas devolvem o 7, direto"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: double_deref_is_data
+
+  - id: ciu_kc10_t04
+    node: kc10:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "*pp e **pp chegam no mesmo lugar?"
+    alternativas:
+      a: "Não: um nível de diferença"
+      b: "Chegam: é o mesmo nome"
+      c: "Chegam: o ** resolve tudo"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: double_deref_is_data
+
+  - id: ciu_kc10_t05
+    node: kc10:B2
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      int **pp = &p;
+      *pp = 9;
+    enunciado: "Por que a última linha não compila?"
+    alternativas:
+      a: "*pp é int *, e 9 é int"
+      b: "Compila: *pp é o x"
+      c: "Compila: o 9 vai ao fim"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: double_deref_is_data
+
+  - id: ciu_kc10_t06
+    node: kc10:B2
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 1, y = 2;
+      int *p = &x;
+      int **pp = &p;
+      *pp = &y;
+      printf("%d\n", *p);
+    enunciado: "O que sai, e o que mudou?"
+    alternativas:
+      a: "2: o *pp trocou o papel de p"
+      b: "1: *pp é o x, e x não mudou"
+      c: "2, e o ** foi direto no valor"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: double_deref_is_data
+
+  # ------------------------------------------------------------------
+  # B3 — o tipo diz quantos níveis existem
+  # crença do nó: voidptr_is_universal (do kc_02)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc10_e3
+    node: kc10:B3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Quantas gavetas há entre pp e a casa? Onde isso está escrito?
+    alternativas:
+      a: "No tipo, antes de tudo"
+      b: "Em nenhum lugar: dá para chutar"
+      c: "Dá para descobrir abrindo"
+    gabarito: a
+    crencas:
+      b: voidptr_is_universal
+      c: double_deref_is_data
+
+  - id: ciu_kc10_007
+    node: kc10:B3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que diz quantos níveis de indireção existem?"
+    alternativas:
+      a: "O tipo da variável"
+      b: "Nada: um void * serve a todos"
+      c: "O número de estrelas que você usa"
+    gabarito: a
+    crencas:
+      b: voidptr_is_universal
+      c: double_deref_is_data
+
+  - id: ciu_kc10_008
+    node: kc10:B3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void f(void **);
+      double *dp;
+      f((void **)&dp);
+    enunciado: "Por que isso não é portável?"
+    alternativas:
+      a: "Não há duplo ponteiro genérico"
+      b: "É portável: void ** serve a todos"
+      c: "É portável: o cast resolve o nível"
+    gabarito: a
+    crencas:
+      b: voidptr_is_universal
+      c: double_deref_is_data
+
+  - id: ciu_kc10_009
+    node: kc10:B3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      /* A */  void  *v  = &p;
+      /* B */  void **vv = &p;
+    enunciado: "Uma delas o padrão garante. Qual?"
+    alternativas:
+      a: "A: void * aceita qualquer objeto"
+      b: "B: void ** é o genérico de nível 2"
+      c: "As duas: o nível não importa"
+    gabarito: a
+    crencas:
+      b: voidptr_is_universal
+      c: double_deref_is_data
+
+  - id: ciu_kc10_t07
+    node: kc10:B3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Existe um ponteiro-para-ponteiro genérico em C?"
+    alternativas:
+      a: "Não existe"
+      b: "Existe: void **"
+      c: "Existe: ** com qualquer tipo"
+    gabarito: a
+    crencas:
+      b: voidptr_is_universal
+      c: double_deref_is_data
+
+  - id: ciu_kc10_t08
+    node: kc10:B3
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char  c = 'a';
+      char *cp = &c;
+      int **pp = &cp;
+    enunciado: "Por que o compilador reclama?"
+    alternativas:
+      a: "&cp é char **, não int **"
+      b: "Não reclama: níveis bastam"
+      c: "Não reclama: o ** iguala tudo"
+    gabarito: a
+    crencas:
+      b: voidptr_is_universal
+      c: double_deref_is_data
+
+  - id: ciu_kc10_t09
+    node: kc10:B3
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      void *v = p;
+      printf("%d\n", *(int *)v);
+    enunciado: "Por que o cast é necessário?"
+    alternativas:
+      a: "void * não sabe o tipo do fim"
+      b: "Não é: void * já sabe o tipo"
+      c: "Não é: o * resolve o nível"
+    gabarito: a
+    crencas:
+      b: voidptr_is_universal
+      c: double_deref_is_data
+
+  # ------------------------------------------------------------------
+  # I1 — para alterar o p do chamador, a função precisa de &p
+  # crença do nó: modify_pp_changes_p
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc10_e4
+    node: kc10:I1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Para alguém trocar o papel que está na sua gaveta, o que você
+      precisa dar?
+    alternativas:
+      a: "O endereço da gaveta"
+      b: "O papel: ele já é a gaveta"
+      c: "Nada: ela troca sozinha"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_010
+    node: kc10:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Para a função trocar o p do chamador, ela precisa receber o quê?
+    alternativas:
+      a: "&p, o endereço de p"
+      b: "p: trocar o parâmetro basta"
+      c: "p, que já é o do chamador"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_011
+    node: kc10:I1
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void f(int *ip) {
+          static int dummy = 5;
+          ip = &dummy;
+      }
+      int *ip;
+      f(ip);
+    enunciado: "Por que o ip do chamador não muda?"
+    alternativas:
+      a: "f mexeu na cópia dela"
+      b: "Muda: ip é o do chamador"
+      c: "Muda, e ip é o próprio dummy"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_012
+    node: kc10:I1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      void a(int  *p) { p  = NULL; }
+      void b(int **p) { *p = NULL; }
+      int x = 1;
+      int *q = &x;
+      /* A */  a(q);
+      /* B */  b(&q);
+    enunciado: "Qual das duas deixa q em NULL?"
+    alternativas:
+      a: "B: ela recebeu o endereço de q"
+      b: "As duas: o p é o q de quem chamou"
+      c: "Nenhuma: q é um nome só"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_t10
+    node: kc10:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Trocar o parâmetro ponteiro dentro da função muda o de fora?
+    alternativas:
+      a: "Não: o parâmetro é cópia"
+      b: "Muda: é o mesmo ponteiro"
+      c: "Muda: ponteiro não se copia"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_t11
+    node: kc10:I1
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void aloca(int **pp) { *pp = malloc(sizeof(int)); }
+      int *p = NULL;
+      aloca(&p);
+      printf("%d\n", p == NULL);
+    enunciado: "O que sai, e por que funciona?"
+    alternativas:
+      a: "0: aloca recebeu &p"
+      b: "1: o *pp não chega em p"
+      c: "0, e p era o pp desde o início"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_t12
+    node: kc10:I1
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void aloca(int *p) { p = malloc(sizeof(int)); }
+      int *q = NULL;
+      aloca(q);
+      *q = 5;
+    enunciado: "Por que a última linha é inválida?"
+    alternativas:
+      a: "q continuou NULL: a cópia mudou"
+      b: "Não é: aloca alocou para q"
+      c: "Não é: p e q são um nome só"
+    gabarito: a
+    crencas:
+      b: modify_pp_changes_p
+      c: pointer_is_just_a_name
+
+  # ------------------------------------------------------------------
+  # I2 — int a[N][M] é bloco contíguo, não vetor de ponteiros
+  # crença do nó: array2d_is_double_pointer
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc10_e5
+    node: kc10:I2
+    nivel: 1
+    uso: entrada
+    formato: comparar_casos
+    tipo: teorica
+    enunciado: >
+      Um quarteirão de doze casas em três fileiras: são três gavetas
+      apontando fileiras, ou doze casas grudadas?
+    alternativas:
+      a: "Doze casas grudadas"
+      b: "Três gavetas apontando"
+      c: "Uma gaveta que resolve tudo"
+    gabarito: a
+    crencas:
+      b: array2d_is_double_pointer
+      c: double_deref_is_data
+
+  - id: ciu_kc10_013
+    node: kc10:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "int a[3][4] é o quê na memória?"
+    alternativas:
+      a: "Doze ints grudados"
+      b: "Três ponteiros para fileiras"
+      c: "Um int ** com tudo dentro"
+    gabarito: a
+    crencas:
+      b: array2d_is_double_pointer
+      c: double_deref_is_data
+
+  - id: ciu_kc10_014
+    node: kc10:I2
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void f(int **m);
+      int a[3][4];
+      f(a);
+    enunciado: "Por que o compilador reclama?"
+    alternativas:
+      a: "a vira ponteiro para fileira"
+      b: "Não reclama: a já é int **"
+      c: "Não reclama: o ** aceita tudo"
+    gabarito: a
+    crencas:
+      b: array2d_is_double_pointer
+      c: voidptr_is_universal
+
+  - id: ciu_kc10_015
+    node: kc10:I2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int  a[3][4];
+      int *linhas[3];
+      /* A */  f(a)
+      /* B */  f(linhas)
+    enunciado: "Qual delas serve a uma função que espera int **?"
+    alternativas:
+      a: "B: é um vetor de ponteiros"
+      b: "A: matriz é int ** também"
+      c: "As duas: o nível não pesa"
+    gabarito: a
+    crencas:
+      b: array2d_is_double_pointer
+      c: voidptr_is_universal
+
+  - id: ciu_kc10_t13
+    node: kc10:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      A regra do array virar ponteiro aplica-se duas vezes?
+    alternativas:
+      a: "Não: só uma vez"
+      b: "Aplica: matriz vira int **"
+      c: "Aplica, com qualquer nível"
+    gabarito: a
+    crencas:
+      b: array2d_is_double_pointer
+      c: voidptr_is_universal
+
+  - id: ciu_kc10_t14
+    node: kc10:I2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int a[3][4];
+      printf("%zu %zu\n", sizeof a, sizeof a[0]);
+    enunciado: >
+      O primeiro mede as doze caixas. E o segundo?
+    alternativas:
+      a: "Mede as quatro de uma fileira"
+      b: "Mede um ponteiro de fileira"
+      c: "Mede o que o ** aponta"
+    gabarito: a
+    crencas:
+      b: array2d_is_double_pointer
+      c: double_deref_is_data
+
+  - id: ciu_kc10_t15
+    node: kc10:I2
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int a[3][4];
+      int **pp = a;
+    enunciado: "Como declarar pp para apontar a?"
+    alternativas:
+      a: "int (*pp)[4]: aponta a fileira"
+      b: "Assim mesmo: a é int **"
+      c: "void **pp, que aceita tudo"
+    gabarito: a
+    crencas:
+      b: array2d_is_double_pointer
+      c: voidptr_is_universal
+
+  # ------------------------------------------------------------------
+  # I3 — a conclusão: *pp é p, **pp é o int
+  # crença do nó: double_deref_is_data
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc10_e6
+    node: kc10:I3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Abra a gaveta de pp e você acha o papel de p. Abra a de p e você
+      chega onde?
+    alternativas:
+      a: "Na casa, no fim"
+      b: "Na casa: um passo basta"
+      c: "Em outra gaveta, sem fim"
+    gabarito: a
+    crencas:
+      b: double_deref_is_data
+      c: voidptr_is_universal
+
+  - id: ciu_kc10_016
+    node: kc10:I3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "*pp e **pp chegam em quê, respectivamente?"
+    alternativas:
+      a: "Em p, e no int"
+      b: "No int, nos dois casos"
+      c: "Em p, nos dois casos"
+    gabarito: a
+    crencas:
+      b: double_deref_is_data
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_017
+    node: kc10:I3
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 7;
+      int *p = &x;
+      int **pp = &p;
+      printf("%d %d\n", **pp, *pp == p);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "7 1: um passo por estrela"
+      b: "7 0: o ** foi direto ao 7"
+      c: "7 1, e pp é p com outro nome"
+    gabarito: a
+    crencas:
+      b: double_deref_is_data
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_018
+    node: kc10:I3
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 7;
+      int *p = &x;
+      int **pp = &p;
+      printf("%d\n", *pp);
+    enunciado: "Por que o compilador avisa?"
+    alternativas:
+      a: "*pp é int *, e %d espera int"
+      b: "Não avisa: *pp já é o 7"
+      c: "Não avisa: *pp é o p, que é int"
+    gabarito: a
+    crencas:
+      b: double_deref_is_data
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_t16
+    node: kc10:I3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Pôr uma estrela a mais resolve um nível que não existe?
+    alternativas:
+      a: "Não: o tipo fixa os níveis"
+      b: "Resolve: a estrela cria o nível"
+      c: "Resolve: void ** dá conta"
+    gabarito: a
+    crencas:
+      b: double_deref_is_data
+      c: voidptr_is_universal
+
+  - id: ciu_kc10_t17
+    node: kc10:I3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      int **pp = &p;
+      **pp = 9;
+      printf("%d\n", x);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "9: dois passos chegaram em x"
+      b: "1: o ** não chega em x"
+      c: "9, e o p também passou a valer 9"
+    gabarito: a
+    crencas:
+      b: double_deref_is_data
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc10_t18
+    node: kc10:I3
+    nivel: 3
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int x = 1, y = 2;
+      int *p = &x;
+      int **pp = &p;
+      /* A */  *pp  = &y;
+      /* B */  **pp = 0;
+    enunciado: "Uma muda p e a outra muda x. Qual é qual?"
+    alternativas:
+      a: "A muda p; B muda x"
+      b: "As duas mudam x, o valor final"
+      c: "As duas mudam p"
+    gabarito: a
+    crencas:
+      b: double_deref_is_data
+      c: pointer_is_just_a_name

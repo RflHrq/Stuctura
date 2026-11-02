@@ -1,0 +1,104 @@
+topic: kc_10
+
+# A METÁFORA DESTE TÓPICO: o papel que aponta para outra gaveta.
+#
+# Continua a rua. p é uma gaveta com um papel dentro, e no papel está um
+# número de casa. pp é OUTRA gaveta, e o papel dela traz o número da
+# GAVETA DE P. Cada `*` é abrir uma gaveta: abra a de pp e você acha o
+# papel de p; abra a de p e você chega na casa.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. "Abrir gaveta" sugere que dá para continuar abrindo quantas vezes
+#      você quiser. Não dá: quantos níveis existem está escrito no TIPO, e
+#      pôr uma estrela a mais não cria um nível. Quando a metáfora
+#      empurrar para "mais uma estrela resolve", ela cala — é o
+#      `double_deref_is_data`, que a conclusão refuta.
+#   2. A metáfora não diz nada sobre `int a[3][4]`: aquilo não é gaveta
+#      dentro de gaveta, é um quarteirão de doze casas grudadas. Quando ela
+#      empurrar para "matriz é gaveta de gavetas", ela cala — e esse é o
+#      nó I2.
+#
+# OITO NÓS CURADOS, SEIS AQUI. A curadoria tem TRÊS crenças (I2, I3, I4),
+# a terceira melhor cobertura do projeto. Duas dobras de
+# premissa-e-aplicação:
+#
+#   curado B1 ("um ponteiro é variável e tem endereço") + B2 ("&p produz o
+#     endereço de p") -> B1 deste grafo. São as duas metades de uma coisa
+#     só, e é por isso que `&p` existe. A curadoria registra que os dois
+#     são importados — de kc_02:B2 e de kc_04:B2;
+#   curado I1 ("pp e p são variáveis distintas, em níveis distintos") +
+#     I2 ("*pp é o ponteiro p; **pp é o int") -> I3 deste grafo, a
+#     conclusão. O segundo é o primeiro dito em código.
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Um ponteiro é variável: tem endereço próprio, e &p o produz."
+    plain_text: >
+      Um ponteiro é uma caixa, e toda caixa tem endereço próprio. &p dá o
+      endereço da caixa p — e guardar esse endereço exige uma caixa de
+      mais um nível.
+    negated_by:
+      - ampersand_copies
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Cada aplicação de * desfaz exatamente um nível."
+    plain_text: >
+      Cada * dá um passo: vai de uma caixa até a caixa cujo endereço ela
+      guarda. Um passo por estrela, nem mais nem menos.
+    negated_by:
+      - pointer_is_just_a_name
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "O tipo diz quantos níveis existem; não é opcional."
+    plain_text: >
+      O tipo é que diz quantos passos existem até o valor. Não dá para
+      chutar nem descobrir depois, e não há um ponteiro-para-ponteiro
+      genérico.
+    negated_by:
+      - voidptr_is_universal
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B1]
+    text: "Para uma função alterar o p do chamador, ela precisa receber &p."
+    plain_text: >
+      Para uma função mudar o p de quem chamou, ela precisa receber o
+      endereço de p — não o p.
+    negated_by:
+      - modify_pp_changes_p
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [B2, B3]
+    text: "int a[N][M] é bloco contíguo, e não vetor de ponteiros."
+    plain_text: >
+      int a[3][4] é um bloco de doze caixas grudadas. Não são três caixas
+      apontando para fileiras separadas.
+    negated_by:
+      - array2d_is_double_pointer
+
+  I3:
+    type: inferencia
+    role: conclusao
+    support: [B1, B2, I1, I2]
+    text: >
+      *pp é o ponteiro p e **pp é o int: pp e p são caixas distintas, em
+      níveis distintos.
+    plain_text: >
+      pp e p são duas caixas diferentes, uma guardando o endereço da
+      outra. *pp chega em p; **pp dá mais um passo e chega no número.
+    negated_by:
+      - double_deref_is_data
