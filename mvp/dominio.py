@@ -29,6 +29,32 @@ RAIZ = Path(__file__).resolve().parent / "dominio"
 # tópico só.
 TOPICO_PADRAO = os.environ.get("STRUCTURA_TOPICO", "kc_00")
 
+# Quantas PREMISSAS a sessão atravessa, do começo da ordem do grafo.
+#
+# `docs/plano-tcc.md` define a unidade da coleta em quatro estágios —
+# ensina (2 telas), pratica (4 a 6), refuta (3 a 5), fecha (1) — e diz que
+# a sessão são DUAS unidades em cerca de 30 minutos. Medido, um nó custa
+# 14 telas, das quais 10 são desses quatro estágios: a unidade do plano é
+# UMA PREMISSA, e não um tópico inteiro.
+#
+# O tópico inteiro continua sendo o padrão, porque é o que o motor sempre
+# fez e o que os testes medem. Com isto posto, a sessão para em N
+# premissas:
+#
+#   STRUCTURA_TOPICO=kc_12 STRUCTURA_PREMISSAS=2 python -m mvp.app
+#
+# O corte é por PREFIXO da ordem do grafo — observáveis antes de
+# inferências —, e não por nome. Prefixo garante que nenhuma inferência
+# fique sem o suporte dela, e isso está conferido nos treze tópicos: não
+# há N em que alguma referência de suporte caia fora. Se algum dia
+# houver, a carga recusa e diz qual nó e qual suporte — nunca em sessão.
+#
+# Escolher QUAIS premissas a coleta mede é decisão de pesquisa, e um
+# subconjunto por nome permitiria pedir um recorte incoerente (a conclusão
+# sem as premissas dela). Se isso fizer falta, entra depois, com a
+# checagem de fechamento do suporte.
+PREMISSAS_PADRAO = int(os.environ.get("STRUCTURA_PREMISSAS") or 0) or None
+
 # Formatos do banco de atividades. Não é taxonomia fechada: é o que a
 # regra de variação precisa comparar para não repetir o mesmo molde.
 FORMATOS = ("reconhecer_conceito", "comparar_casos", "achar_o_erro", "prever_saida")
@@ -190,7 +216,70 @@ def _texto(valor) -> str:
     return " ".join(str(valor or "").split())
 
 
-def carrega(raiz: Path | None = None, topico: str | None = None) -> Dominio:
+def _corta(alvo: str, quantas: int, cru_topico, grafo,
+           cru_crencas, cru_atv) -> None:
+    """Deixa só as `quantas` primeiras premissas, no dado CRU.
+
+    Mexe no dado antes de qualquer parse, de propósito: assim todas as
+    invariantes da carga — crença que não é apontada por alternativa
+    nenhuma, nó sem o par teórica+código, nó sem item de nível 1 — valem
+    para o domínio CORTADO, e não para o inteiro. Um corte que produzisse
+    um domínio inválido falha na carga, que é onde este projeto quer
+    falhar.
+    """
+    nos = grafo.get("nodes") or {}
+    if not isinstance(quantas, int) or isinstance(quantas, bool) or quantas < 1:
+        raise DominioInvalido(
+            ["premissas=%r: pedi um inteiro de 1 em diante" % (quantas,)])
+    if quantas > len(nos):
+        raise DominioInvalido(
+            ["premissas=%d: o tópico %r tem %d premissa(s)"
+             % (quantas, alvo, len(nos))])
+
+    # A MESMA ordem que `Dominio.ordem` usa: observáveis antes de
+    # inferências, e dentro de cada grupo a ordem de escrita do YAML.
+    ordem = ([k for k, v in nos.items() if v.get("type") == "observavel"]
+             + [k for k, v in nos.items() if v.get("type") != "observavel"])
+    fica = ordem[:quantas]
+    vivos = set(fica)
+
+    faltando = [(nid, s) for nid in fica
+                for s in (nos[nid].get("support") or []) if s not in vivos]
+    if faltando:
+        raise DominioInvalido(
+            ["premissas=%d corta %r, que sustenta %r" % (quantas, s, nid)
+             for nid, s in faltando])
+
+    grafo["nodes"] = {k: v for k, v in nos.items() if k in vivos}
+
+    crencas_vivas = {c["id"] for c in (cru_crencas or ())
+                     if str(c.get("negates", "")).split(":")[-1] in vivos}
+    cru_crencas[:] = [c for c in (cru_crencas or ())
+                      if c["id"] in crencas_vivas]
+
+    sobram = []
+    for a in (cru_atv or {}).get("activities") or ():
+        if str(a.get("node", "")).split(":")[-1] not in vivos:
+            continue
+        a = dict(a)
+        # Distrator cuja crença saiu fica SEM crença. O carregador aceita,
+        # e a cédula da camada 2 encurta — `razoes_de` já tem o piso de
+        # duas razões. É o preço de medir menos premissas.
+        a["crencas"] = {k: v for k, v in (a.get("crencas") or {}).items()
+                        if v in crencas_vivas}
+        sobram.append(a)
+    cru_atv["activities"] = sobram
+    for chave in ("resgates", "exemplos"):
+        if cru_atv.get(chave):
+            cru_atv[chave] = {k: v for k, v in cru_atv[chave].items()
+                              if k in vivos}
+
+    if cru_topico.get("conclusion_node") not in vivos:
+        cru_topico["conclusion_node"] = fica[-1]
+
+
+def carrega(raiz: Path | None = None, topico: str | None = None,
+            premissas: int | None = None) -> Dominio:
     base = Path(raiz) if raiz else RAIZ
     alvo = topico or TOPICO_PADRAO
 
@@ -211,6 +300,10 @@ def carrega(raiz: Path | None = None, topico: str | None = None) -> Dominio:
     grafo = le("graph")
     cru_crencas = le("beliefs")
     cru_atv = le("activities")
+
+    quantas = premissas if premissas is not None else PREMISSAS_PADRAO
+    if quantas is not None:
+        _corta(alvo, quantas, cru_topico, grafo, cru_crencas, cru_atv)
 
     problemas: list[str] = []
 

@@ -18,6 +18,11 @@ from pathlib import Path
 import pytest
 import yaml
 
+import os
+import sys
+
+import yaml
+
 from mvp.dominio import RAIZ, DominioInvalido, carrega, topicos
 
 ARQUIVOS = ("topic_kc00.yaml", "graph_kc00.yaml",
@@ -375,3 +380,140 @@ def test_toda_crenca_de_piloto_tem_fonte_escrita(topico):
     d = carrega(topico=topico)
     sem = [c.id for c in d.crencas.values() if len(c.fonte) < 40]
     assert sem == [], sem
+
+
+# --------------------------------------------------------------------------
+# O ESCOPO DE SESSÃO POR PREMISSA
+#
+# `docs/plano-tcc.md` define a unidade da coleta em quatro estágios —
+# ensina (2 telas), pratica (4 a 6), refuta (3 a 5), fecha (1) — e a sessão
+# como DUAS unidades em cerca de 30 minutos. Medido, um nó custa 14 telas,
+# das quais 10 são desses quatro estágios: a unidade do plano é UMA
+# PREMISSA, não um tópico inteiro. O motor sempre rodou o tópico inteiro, e
+# continua rodando por padrão; o escopo é o que permite parar em N.
+#
+# O corte é por PREFIXO da ordem do grafo, e o motivo é o fechamento do
+# suporte: prefixo garante que nenhuma inferência fique sem a premissa que
+# a sustenta. Nos treze tópicos não há N que quebre isso — e se um dia
+# houver, a carga recusa.
+# --------------------------------------------------------------------------
+
+def test_sem_escopo_a_sessao_e_o_topico_inteiro():
+    """O padrão não muda: quem não pede escopo recebe o tópico todo."""
+    for t in topicos():
+        d = carrega(topico=t)
+        inteiro = len(yaml.safe_load(
+            (RAIZ / ("graph_%s.yaml" % t.replace("_", "")))
+            .read_text(encoding="utf-8"))["nodes"])
+        assert len(d.nos) == inteiro, t
+
+
+@pytest.mark.parametrize("quantas", [1, 2, 3, 4, 5, 6])
+def test_o_escopo_para_em_n_premissas(quantas):
+    """E o que fica é o PREFIXO da ordem, com crenças e itens dos nós que
+    ficaram — nada do que saiu."""
+    inteiro = carrega(topico="kc_12")
+    d = carrega(topico="kc_12", premissas=quantas)
+    assert d.ordem == inteiro.ordem[:quantas]
+    assert len(d.crencas) == quantas
+    assert {c.nega for c in d.crencas.values()} == set(d.ordem)
+    assert {a.no for a in d.atividades} == set(d.ordem)
+
+
+def test_o_escopo_move_a_conclusao_para_a_ultima_premissa_que_fica():
+    """Conclusão que saiu no corte deixaria o mapa e o teach-back apontando
+    para um nó que não existe."""
+    for quantas in (1, 3, 5):
+        d = carrega(topico="kc_12", premissas=quantas)
+        assert d.conclusao == d.ordem[-1]
+    assert carrega(topico="kc_12", premissas=6).conclusao == "I3"
+
+
+@pytest.mark.parametrize("pedido", [0, -1, 99, "dois", "1", 1.0, True])
+def test_o_escopo_recusa_pedido_sem_sentido(pedido):
+    """Falha na carga, nunca em sessão. `True` entra na lista de propósito:
+    em Python ele é um inteiro, e `premissas=True` é erro de digitação, não
+    um pedido de uma premissa."""
+    with pytest.raises(DominioInvalido):
+        carrega(topico="kc_12", premissas=pedido)
+
+
+def test_o_escopo_recusa_corte_que_deixaria_suporte_de_fora(tmp_path):
+    """A garantia que faz o prefixo valer. Nos treze tópicos de hoje não há
+    corte que quebre o suporte — este domínio é montado à mão para que
+    haja, e o teste morde o caminho da recusa."""
+    dom = tmp_path / "dominio"
+    dom.mkdir()
+    (dom / "topic_kc99.yaml").write_text(
+        "id: kc_99\ntitle: t\nconclusion_node: I2\nteachback: q\n",
+        encoding="utf-8")
+    # ordem = [B1, I1, I2]; premissas=2 fica com B1 e I1, e I1 depende de I2
+    (dom / "graph_kc99.yaml").write_text(
+        "topic: kc_99\nnodes:\n"
+        "  B1:\n    type: observavel\n    support: []\n    text: b\n"
+        "  I1:\n    type: inferencia\n    support: [I2]\n    text: i1\n"
+        "  I2:\n    type: inferencia\n    support: [B1]\n    text: i2\n",
+        encoding="utf-8")
+    (dom / "beliefs_kc99.yaml").write_text("[]\n", encoding="utf-8")
+    (dom / "activities_kc99.yaml").write_text("activities: []\n",
+                                              encoding="utf-8")
+
+    with pytest.raises(DominioInvalido) as erro:
+        carrega(dom, topico="kc_99", premissas=2)
+
+    # E a MENSAGEM tem de ser a do corte, nao a da invariante geral.
+    #
+    # Sem a checagem do corte isto falharia assim mesmo: a invariante
+    # geral do carregador ("no I1: suporte 'I2' nao existe") dispara de
+    # qualquer jeito, e a mensagem estaria ERRADA — o suporte existe no
+    # topico, e foi o corte que o tirou. Quem lesse "nao existe" iria
+    # procurar erro no YAML. Por isso o teste cobra a palavra, e nao so
+    # a excecao: foi uma sabotagem que passou limpa e mostrou que a
+    # assercao era fraca.
+    problemas = erro.value.problemas
+    assert any("corta" in p and "sustenta" in p for p in problemas), problemas
+    assert any("premissas=2" in p for p in problemas), problemas
+
+
+@pytest.mark.parametrize("topico", topicos())
+def test_o_escopo_vale_para_todo_topico_e_todo_n(topico):
+    """Cortar não pode produzir domínio inválido em nenhum tópico: as
+    invariantes da carga rodam no domínio CORTADO, de propósito."""
+    inteiro = carrega(topico=topico)
+    for quantas in range(1, len(inteiro.nos) + 1):
+        d = carrega(topico=topico, premissas=quantas)
+        assert len(d.nos) == quantas, (topico, quantas)
+
+
+def test_o_escopo_vem_do_ambiente_quando_ninguem_pede():
+    """É assim que o servidor recebe o escopo:
+
+        STRUCTURA_TOPICO=kc_12 STRUCTURA_PREMISSAS=2 python -m mvp.app
+
+    EM SUBPROCESSO, e não com `importlib.reload`. A primeira versão deste
+    teste recarregava o módulo, e isso derrubou seis testes do gerador:
+    o `scripts/gerar.py` faz `from mvp.dominio import carrega,
+    DominioInvalido`, e depois do reload ele continua apontando para a
+    função e a CLASSE antigas — então o `pytest.raises` com a classe nova
+    deixa de pegar a exceção da antiga. Recarregar módulo no meio da suíte
+    é efeito colateral em todo mundo que importou dele.
+    """
+    import subprocess
+
+    def roda(env_extra, pedido):
+        codigo = (
+            "from mvp.dominio import PREMISSAS_PADRAO, carrega;"
+            "print(PREMISSAS_PADRAO, len(carrega(topico='kc_12'%s).nos))"
+            % pedido)
+        amb = dict(os.environ, **env_extra)
+        r = subprocess.run([sys.executable, "-c", codigo], cwd=str(RAIZ.parent.parent),
+                           capture_output=True, text=True, env=amb)
+        assert r.returncode == 0, r.stderr
+        return r.stdout.split()
+
+    assert roda({"STRUCTURA_PREMISSAS": "2"}, "") == ["2", "2"]
+    # o argumento explícito ganha do ambiente
+    assert roda({"STRUCTURA_PREMISSAS": "2"}, ", premissas=4") == ["2", "4"]
+    # sem a variável, o padrão é o tópico inteiro
+    amb = {k: v for k, v in os.environ.items() if k != "STRUCTURA_PREMISSAS"}
+    assert roda(amb, "")[0] == "None"

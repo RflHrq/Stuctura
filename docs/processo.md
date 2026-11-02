@@ -115,11 +115,12 @@ Nenhuma bloqueia a fase 4.
 8. ~~O kc_08 (alocação dinâmica) não existe, e o kc_09 o declara como
    pré-requisito.~~ **Fechada**: o kc_08 foi construído. Ver "Ciclo de
    conteúdo — o kc_08", no fim deste documento.
-9. **113 passos cabem na sessão de coleta?** É o caminho realista do
-   kc_09, o tópico mais longo (8 nós). A conta por nó é estável — ~14
-   passos — e a série é 6 nós → 85, 7 → 95, 8 → 113. Se não couber, o
-   caminho não é cortar nó (cada um é premissa medida): é dividir o kc_09
-   em dois, ou aceitar que a sessão dele é mais longa.
+9. ~~113 passos cabem na sessão de coleta?~~ **Fechada**: a pergunta
+   comparava objetos diferentes. A unidade do plano é UMA premissa, custa
+   14 telas (10 dos quatro estágios dele), e o que faltava era poder rodar
+   uma sessão de duas premissas em vez do tópico inteiro —
+   `STRUCTURA_PREMISSAS`. Ver "A pergunta 9 resolvida", no fim deste
+   documento.
 10. ~~As duas `E` do kc_02.~~ **Fechada**: as duas tinham fonte, e a
    busca anterior errou — uma de vocabulário, a outra de catálogo. Os
    quatro pilotos ficaram sem nenhuma `E`. Ver "A pergunta 10 resolvida",
@@ -1689,3 +1690,129 @@ O segundo existe porque o primeiro, sozinho, seria fácil de burlar sem
 querer: trocar a procedência de `E` para `T` é uma letra, e uma letra sem
 fonte escrita não vale nada. As duas sabotagens mordem — devolver uma
 crença de piloto para `E`, e deixar uma com `source` de uma linha.
+
+## A pergunta 9 resolvida: a unidade do plano é UMA premissa, e o escopo existe
+
+A pergunta 9 perguntava se 113 telas cabem na sessão de coleta. **Ela
+comparava objetos diferentes**, e a resolução é a medida que faltava.
+
+### O que o plano pede, lido com cuidado
+
+`docs/plano-tcc.md` define a unidade nova "do tamanho de uma lição de
+Duolingo", em quatro estágios:
+
+| Estágio | Telas |
+| --- | --- |
+| 1. Ensina | 2 |
+| 2. Pratica com retorno imediato | 4 a 6 |
+| 3. Refuta, só se houver hipótese de crença | 3 a 5 |
+| 4. Fecha mostrando o que ela construiu | 1 |
+
+Soma: **10 a 14**. A tabela-resumo do mesmo documento diz "8 a 10 telas
+por unidade" — o resumo é que está apertado em relação à composição, não o
+sistema. E o estudo roda **duas unidades** em cerca de 30 minutos.
+
+Duas telas de ensino, quatro a seis de prática, três a cinco de refutação:
+isso é o ciclo de **uma premissa**, não de um tópico com seis.
+
+### A medida que faltava: telas por premissa
+
+Sessão inteira rodada em processo, sem servidor, com a persona realista
+(erra no diagnóstico, acerta no treino e no reteste), sobre domínios do
+kc_12 cortados em n premissas:
+
+| Premissas | Telas | Por premissa |
+| --- | --- | --- |
+| 1 | **14** | 14,0 |
+| 2 | 26 | 13,0 |
+| 3 | 38 | 12,7 |
+| 4 | 52 | 13,0 |
+| 5 | 65 | 13,0 |
+| 6 | 81 | 13,5 |
+
+**Treze telas por premissa, e custo fixo quase nenhum.** O 81 confere com
+o 82 que o caminhante media pelo HTTP (ele conta um POST a mais).
+
+E a sequência das 14 de uma premissa, tela por tela:
+
+| # | Tela | Estágio do plano |
+| --- | --- | --- |
+| 1 | frase / abertura | — **de sessão** |
+| 2 | ensino | 1. Ensina (plano: 2) |
+| 3 | atividade / diagnóstico | 2. Pratica |
+| 4 | razão | 2. Pratica — camada 2 |
+| 5 | confiança | 2. Pratica — camada 3 |
+| 6 | validação | 3. Refuta |
+| 7 | refutação | 3. Refuta |
+| 8 | atividade / treino | 2. Pratica |
+| 9 | atividade / treino | 2. Pratica |
+| 10 | confiança | 2. Pratica |
+| 11 | atividade / reteste | — **de sessão** |
+| 12 | razão | — **de sessão** |
+| 13 | confiança | — **de sessão** |
+| 14 | frase / fecho | 4. Fecha (plano: 1) |
+
+Os quatro estágios do plano somam **10 telas**: ensino 1 (plano pede 2),
+prática 6 (plano pede 4 a 6), refutação 2 (plano pede 3 a 5), fecho 1. As
+outras quatro são **de sessão, não de unidade** — e é o próprio plano que
+diz isso do reteste: *"O reteste sai de perto da refutação… Ele passa para
+o fim da sessão, depois de outra unidade."*
+
+**A unidade está dentro do orçamento.** O que estava fora era a
+comparação.
+
+### O que faltava de verdade, e entrou
+
+O motor sempre rodou o **tópico inteiro**. Não havia como rodar uma sessão
+de duas premissas, que é o que o estudo descreve. Agora há:
+
+```bash
+STRUCTURA_TOPICO=kc_12 STRUCTURA_PREMISSAS=2 python -m mvp.app
+```
+
+Medido ponta a ponta, com o servidor no ar e o caminhante: `/saude` diz 2
+nós, 2 crenças, 14 atividades, e a sessão dá **17 passos** para quem
+acerta tudo, **27** para quem erra e aprende, **29** para quem não muda de
+ideia. As duas unidades do plano, em 27 telas.
+
+### Três decisões de desenho, e o motivo de cada uma
+
+**O corte é no CARREGADOR, não no motor.** O dado cru é cortado antes de
+qualquer parse, e por isso **todas as invariantes da carga valem para o
+domínio cortado** — crença que nenhuma alternativa aponta, nó sem o par
+teórica+código, nó sem item de nível 1. Um corte que produzisse domínio
+inválido falha na carga, que é onde este projeto falha.
+
+**O corte é por PREFIXO da ordem do grafo, não por nome.** Prefixo garante
+que nenhuma inferência fique sem a premissa que a sustenta — e isso está
+conferido nos treze tópicos: não há N em que alguma referência de suporte
+caia fora, nem total nem parcial. Um subconjunto por nome permitiria pedir
+a conclusão sem as premissas dela. Se fizer falta, entra depois, com a
+checagem de fechamento.
+
+**O padrão não muda.** Sem a variável e sem o argumento, a sessão é o
+tópico inteiro — é o que o motor sempre fez e o que a suíte mede.
+
+### Uma sabotagem passou limpa, e endureceu um teste
+
+Tirar a checagem de suporte do corte **não derrubou nada**: a invariante
+geral do carregador dispara de qualquer jeito, com a mensagem *"nó I1:
+suporte 'I2' não existe"*. A asserção antiga procurava só por "I1" e "I2"
+na mensagem, e as duas a satisfaziam.
+
+A mensagem genérica, porém, está **errada** no caso do corte: o suporte
+existe no tópico, e foi o corte que o tirou — quem lesse "não existe" iria
+procurar erro no YAML. A checagem ganha o lugar pela mensagem, então o
+teste passou a cobrar a mensagem: `"corta"`, `"sustenta"` e
+`"premissas=2"`. Aí a sabotagem morde.
+
+### E um teste meu derrubou seis do gerador
+
+A primeira versão do teste da variável de ambiente usava
+`importlib.reload(mvp.dominio)`. Seis testes do `test_gerador.py` caíram:
+o `scripts/gerar.py` faz `from mvp.dominio import carrega,
+DominioInvalido`, e depois do reload ele continua apontando para a função
+e a **classe** antigas — então o `pytest.raises` com a classe nova deixa de
+pegar a exceção da antiga. Recarregar módulo no meio da suíte é efeito
+colateral em todo mundo que importou dele. O teste virou **subprocesso**,
+que é como o servidor recebe a variável de verdade.

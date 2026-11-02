@@ -367,3 +367,89 @@ def test_a_tela_sabe_os_tres_momentos_do_ensino():
     js = (WEB / "app.js").read_text(encoding="utf-8")
     for motivo in ("lacuna", "primeiro_contato"):
         assert _citado(motivo, js), motivo
+
+
+# --------------------------------------------------------------------------
+# O TAMANHO DA UNIDADE, EM TELAS
+#
+# Este é o número que a pergunta 9 pedia, e ele é o motivo do escopo de
+# sessão por premissa existir. `docs/plano-tcc.md` define a unidade da
+# coleta em quatro estágios — ensina (2 telas), pratica (4 a 6), refuta
+# (3 a 5), fecha (1) — e a tabela resumo dele diz "8 a 10 telas por
+# unidade".
+#
+# Medido: UMA premissa custa 14 telas no caminho realista, e DEZ delas são
+# dos quatro estágios do plano. As outras quatro são de SESSÃO, não de
+# unidade: a frase de abertura, e as três do reteste — que o próprio plano
+# manda tirar de perto da refutação e levar para o fim da sessão.
+#
+# Se alguém encurtar ou esticar a unidade, é aqui que aparece.
+# --------------------------------------------------------------------------
+
+def _erra_e_aprende(d):
+    """Erra no diagnóstico, acerta no treino e no reteste — a persona
+    realista, a mesma que o `scripts/caminhante.py` roda."""
+    def politica(tela, estado):
+        if tela.tipo in ("ensino", "validacao", "refutacao", "mapa"):
+            return Resposta()
+        if tela.tipo == "frase":
+            return Resposta(texto="uma caixa que guarda o endereco de outra")
+        if tela.tipo == "confianca":
+            return Resposta(confianca="tenho certeza")
+        convencido = estado.fase in (motor.TREINO, motor.RETESTE)
+        if tela.tipo == "razao":
+            razoes = estado.pendente.razoes
+            i = (next(k for k, z in enumerate(razoes) if z.correta) if convencido
+                 else next((k for k, z in enumerate(razoes) if not z.correta), 0))
+            return Resposta(escolha=i)
+        a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
+        return Resposta(escolha=(a.indice_correto if convencido
+                                 else (a.indice_correto + 1) % len(a.opcoes)))
+    return politica
+
+
+def _telas(d):
+    t = motor.inicia(d)
+    n = 0
+    for _ in range(600):
+        if t.tela.tipo == "mapa":
+            return n
+        n += 1
+        t = motor.avanca(d, t.estado, _erra_e_aprende(d)(t.tela, t.estado))
+    raise AssertionError("a unidade não terminou")
+
+
+def test_uma_premissa_custa_catorze_telas():
+    """Dez dos quatro estágios do plano, mais quatro de sessão."""
+    assert _telas(carrega(topico="kc_12", premissas=1)) == 14
+
+
+def test_a_unidade_de_uma_premissa_tem_as_telas_que_o_plano_pede():
+    """E são as telas certas, não só a quantidade certa. O plano pede
+    ensino, prática com formatos variados, refutação curta e um fecho."""
+    d = carrega(topico="kc_12", premissas=1)
+    t = motor.inicia(d)
+    tipos = []
+    for _ in range(600):
+        if t.tela.tipo == "mapa":
+            break
+        tipos.append(t.tela.tipo)
+        t = motor.avanca(d, t.estado, _erra_e_aprende(d)(t.tela, t.estado))
+    conta = {k: tipos.count(k) for k in set(tipos)}
+    assert conta["ensino"] == 1          # plano: 2 — abaixo, e de propósito
+    assert conta["validacao"] == 1       # plano: refuta em 3 a 5
+    assert conta["refutacao"] == 1       # idem
+    assert conta["atividade"] == 4       # diagnóstico, dois de treino, reteste
+    assert conta["razao"] == 2           # camada 2, no diagnóstico e no reteste
+    assert conta["confianca"] == 3       # camada 3
+    assert conta["frase"] == 2           # abertura e fecho: de sessão
+
+
+def test_o_custo_por_premissa_e_estavel():
+    """Treze por premissa, e custo fixo quase nenhum. É o que torna o
+    escopo previsível: duas premissas são duas vezes uma."""
+    medidas = {n: _telas(carrega(topico="kc_12", premissas=n))
+               for n in range(1, 7)}
+    assert medidas == {1: 14, 2: 26, 3: 38, 4: 52, 5: 65, 6: 81}, medidas
+    por_no = [v / k for k, v in medidas.items()]
+    assert max(por_no) - min(por_no) < 2, medidas
