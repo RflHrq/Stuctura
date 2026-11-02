@@ -336,6 +336,97 @@
     }
   };
 
+  /* ------------------------------------------- kc_01: as duas quadras */
+
+  /* A rua do kc_02 ganha DUAS QUADRAS. Em cima a pilha, montada e
+   * desmontada pelo compilador; embaixo o monte, alugado ate o free.
+   *
+   * Onde o desenho CALA, como manda o contrato: nao sugere que uma quadra
+   * venha antes da outra no endereco (nao vem), e nao mostra a casa
+   * "sumindo" — o lugar continua la, o que acaba e o direito de usa-lo. */
+  function quadra(s, y, titulo, nota) {
+    s.appendChild(el("text", { x: 26, y: y - 16, "class": "fig-rodape" }, titulo));
+    s.appendChild(el("path", {
+      "class": "fig-seta saindo",
+      d: "M14," + (y - 8) + " L346," + (y - 8)
+    }));
+    if (nota) {
+      s.appendChild(el("text", { x: 180, y: y + 92, "class": "fig-nota" }, nota));
+    }
+  }
+
+  POR_TOPICO.kc_01 = {
+
+    /* B1 — cada programa tem a rua dele. */
+    B1: function () {
+      var s = svg(360, 210);
+      s.appendChild(defs());
+      quadra(s, 40, "programa A", "mesmo número, rua diferente");
+      s.appendChild(casa(40, 40, { endereco: "0x1000", dentro: "42", largura: 110 }));
+      s.appendChild(casa(196, 40, { endereco: "0x1004", dentro: "7", largura: 110 }));
+      quadra(s, 150, "programa B", "");
+      s.appendChild(casa(40, 150, { endereco: "0x1000", dentro: "99", largura: 110 }));
+      s.appendChild(casa(196, 150, { endereco: "0x1004", dentro: "0", largura: 110 }));
+      legenda(s, 206, "um não lê o do outro");
+      return s;
+    },
+
+    /* B2 — a casa da rua lateral e desmontada na saida. */
+    B2: function () {
+      var s = svg(360, 180);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 92, y: 24, "class": "fig-rodape" }, "dentro da função"));
+      s.appendChild(casa(36, 50, { endereco: "n", dentro: "7", nome: "existe", largura: 110 }));
+      s.appendChild(seta(160, 84, 204, 84));
+      s.appendChild(el("text", { x: 182, y: 72, "class": "fig-nota" }, "return"));
+      s.appendChild(el("text", { x: 272, y: 24, "class": "fig-rodape" }, "depois dela"));
+      s.appendChild(casa(216, 50, { endereco: "n", vazia: true, nome: "não existe mais",
+                                    largura: 110 }));
+      legenda(s, 168, "o lugar continua na rua; o direito de usá-lo acabou");
+      return s;
+    },
+
+    /* B3 — o terreno alugado fica ate o free. */
+    B3: function () {
+      var s = svg(360, 180);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 92, y: 24, "class": "fig-rodape" }, "dentro da função"));
+      s.appendChild(casa(36, 50, { endereco: "0x9000", dentro: "7", nome: "malloc", largura: 110 }));
+      s.appendChild(seta(160, 84, 204, 84));
+      s.appendChild(el("text", { x: 182, y: 72, "class": "fig-nota" }, "return"));
+      s.appendChild(el("text", { x: 272, y: 24, "class": "fig-rodape" }, "depois dela"));
+      s.appendChild(casa(216, 50, { endereco: "0x9000", dentro: "7", nome: "continua lá",
+                                    largura: 110 }));
+      legenda(s, 168, "quem devolve é o free, não o fim da função");
+      return s;
+    },
+
+    /* I1 — duas regras no mesmo lugar. */
+    I1: function () {
+      var s = svg(360, 196);
+      s.appendChild(defs());
+      quadra(s, 44, "a casa da rua lateral", "some sozinha ao sair");
+      s.appendChild(casa(120, 44, { endereco: "n", dentro: "1", largura: 120 }));
+      quadra(s, 146, "o terreno alugado", "");
+      s.appendChild(casa(120, 146, { endereco: "0x9000", dentro: "2", largura: 120 }));
+      legenda(s, 192, "fica até você devolver");
+      return s;
+    },
+
+    /* I2 — a conclusao: duas quadras, duas regras. */
+    I2: function () {
+      var s = svg(360, 212);
+      s.appendChild(defs());
+      quadra(s, 44, "PILHA — quem arruma é o compilador", "");
+      s.appendChild(casa(40, 44, { endereco: "a", dentro: "1", largura: 110 }));
+      s.appendChild(casa(196, 44, { endereco: "b", dentro: "2", largura: 110 }));
+      quadra(s, 150, "MONTE — quem arruma é você", "");
+      s.appendChild(casa(118, 150, { endereco: "0x9000", dentro: "3", largura: 124 }));
+      legenda(s, 208, "a mesma memória, duas regras de arrumação");
+      return s;
+    }
+  };
+
   var topicoAtual = "kc_00";
 
   function doNo(no) {

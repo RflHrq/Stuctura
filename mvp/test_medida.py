@@ -145,7 +145,7 @@ def test_sem_estado_o_cardapio_e_o_de_sempre(d2):
 # O que a unidade não mediu
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize("topico", ["kc_00", "kc_02"])
+@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02"])
 @pytest.mark.parametrize("erra_no", ["B1", "B2", "B3", "pior_caso"])
 def test_nenhuma_premissa_termina_como_desconhecida(topico, erra_no):
     """A garantia que a CS-10 queria e não tinha: no fim, toda premissa tem
@@ -159,7 +159,7 @@ def test_nenhuma_premissa_termina_como_desconhecida(topico, erra_no):
     assert restam == [], restam
 
 
-@pytest.mark.parametrize("topico", ["kc_00", "kc_02"])
+@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02"])
 def test_a_premissa_nao_medida_diz_por_que(topico):
     """Não basta nomear: o log precisa dizer se o nó nem chegou a ser
     perguntado, ou se os itens dele foram gastos sem nunca medi-lo."""
@@ -296,7 +296,7 @@ def test_todo_no_de_todo_topico_tem_figura():
     js = (WEB / "figuras.js").read_text(encoding="utf-8")
     blocos = dict(re.findall(r"POR_TOPICO\.(\w+)\s*=\s*\{(.*?)\n  \};",
                              js, re.S))
-    assert set(blocos) >= {"kc_00", "kc_02"}, sorted(blocos)
+    assert set(blocos) >= {"kc_00", "kc_01", "kc_02"}, sorted(blocos)
     faltam = []
     for topico, bloco in blocos.items():
         dd = carrega(topico=topico)

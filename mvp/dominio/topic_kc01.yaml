@@ -1,0 +1,21 @@
+id: kc_01
+title: "Modelo de memória"
+pilot: false
+prerequisites: [kc_00]
+conclusion_node: I2
+summary: >
+  A memória do processo tem regiões com regras de vida diferentes: a pilha
+  é arrumada pelo compilador, o monte fica na mão do programador. É o que
+  sustenta "p vive onde foi declarado, não onde aponta", que o kc_02
+  deixou de fora por depender deste tópico.
+
+# Respondível ANTES por quem ainda não sabe — é o lado esquerdo do
+# antes-e-depois. "O que acontece com a memória" qualquer pessoa responde,
+# inclusive errado, que é o que se quer medir.
+teachback: "o que acontece com uma variável criada dentro de uma função, quando a função termina"
+
+# O QUE ESTE TÓPICO DESTRAVA
+#
+# O kc_02 tirou do ar o nó "p vive onde foi declarado, não onde aponta" e
+# a crença `pointer_lives_in_heap` que o nega, porque os dois dependem de
+# pilha e monte. Com o kc_01 de pé, eles voltam.

@@ -1,0 +1,61 @@
+# Crenças do kc_01 — uma por nó, e cada uma de uma espécie de erro.
+#
+# Duas vêm da curadoria antiga, com a fonte que você já tinha levantado.
+# Três são novas, e a procedência delas é FRACA de propósito declarado: o
+# catálogo do Sorva (2012) foi procurado item a item e não tem concepção
+# crisp sobre "o programa ter memória própria" nem sobre "existirem duas
+# disciplinas de vida". O que ele tem é o item 5 — uma dificuldade, não
+# uma crença —, e está citado onde serve.
+#
+# Procedência fraca declarada vale mais que procedência inventada. Se o
+# ensaio não sustentar as duas `E`, isso também é achado.
+
+- id: memoria_e_do_computador
+  negates: kc_01:B1
+  provenance: E
+  label_pt: "A memória é do computador, não do programa: o que está lá é o que o último programa deixou."
+  source: >
+    ELABORADA, e entra como HIPÓTESE A TESTAR. PROCUREI no catálogo do
+    Sorva (2012) e não há item sobre o programa ter espaço próprio; o mais
+    próximo é o item 141, p. 367 — "Objects are stored in folders on the
+    hard drive and lookup means searching through them" —, que é
+    observação do próprio autor ("local"), não achado de estudo, e é sobre
+    objetos, não sobre o espaço do processo.
+    Se nenhum participante a sustentar, o achado é esse.
+
+- id: local_sobrevive
+  negates: kc_01:B2
+  provenance: T
+  label_pt: "A variável que a função criou continua lá depois que a função termina."
+  source: >
+    Sorva (2012), p. 359, item 5: "Difficulties understanding the lifetime
+    of values" (du Boulay 1986). É DIFICULDADE, não crença enunciada — o
+    próprio apêndice avisa que alguns itens são difuldades de contorno
+    incerto. A crença acima é a forma afirmativa que ela toma em C, e a
+    transposição está declarada: em linguagens com coleta automática o
+    objeto sobrevive enquanto alguém o alcança, e a regra "acabou a
+    função, acabou tudo" não vale lá.
+    PRECISA DE FONTE MELHOR antes da coleta, ou desce para E.
+
+- id: system_frees_auto
+  negates: kc_01:B3
+  provenance: L
+  label_pt: "O sistema libera a memória do heap automaticamente."
+  source: "FAQ comp.lang.c 7.24 e 7.25"
+
+- id: heap_dies_with_function
+  negates: kc_01:I1
+  provenance: T
+  label_pt: "O bloco do malloc também some quando a função termina."
+  source: >
+    TRANSPOSIÇÃO, com a analogia declarada: em Java e Python o que a
+    função alocou e não é mais alcançado desaparece sozinho, e a regra que
+    a pessoa traz é "saiu da função, foi-se". Em C a diferença entre a
+    pilha e o monte é exatamente onde ela quebra.
+    PRECISA DE FONTE antes da coleta, ou desce para E.
+
+- id: memory_is_uniform
+  negates: kc_01:I2
+  provenance: T
+  label_pt: "Memória é uma região única, sem distinção de regras de vida."
+  source: "Kaczmarczyk et al. (2010), p. 109, Tabela 1, tema T1"

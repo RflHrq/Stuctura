@@ -1,0 +1,759 @@
+# Banco de atividades — kc_01, "modelo de memória"
+#
+# Sete por nó: um de entrada (o degrau mais baixo, na analogia), três de
+# diagnóstico (um por degrau) e três de treino.
+#
+# É a forma com que o kc_02 nasceu. O segundo item por degrau vem depois,
+# pelo gerador — com um item por degrau a escada não segura quem erra, e
+# isso está escrito em docs/linguagem.md.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Por isso, em todo item de diagnóstico, um
+# distrator aponta a crença do próprio nó — senão o nó nunca recebe
+# atribuição — e outro a de um vizinho, que é a atribuição cruzada.
+
+analogy: >
+  A rua, com duas quadras. Continua a rua do kc_02 — lugares numerados —
+  e acrescenta o que faltava lá: a rua tem duas quadras, com regras de
+  arrumação diferentes. Na quadra de cima, a pilha, as casas são montadas
+  quando você entra numa rua lateral e desmontadas quando você sai:
+  ninguém pergunta, é automático. Na quadra de baixo, o monte, você aluga
+  um terreno e ele é seu até devolver — sair da rua lateral não devolve
+  nada.
+  ONDE QUEBRA: quadra sugere lugares vizinhos e ordenados, e pilha e monte
+  não são vizinhos de endereço. E "desmontar a casa" sugere que o lugar
+  some: o lugar continua lá, o que acaba é o DIREITO de usá-lo. Quando a
+  metáfora obrigaria a dizer que o lugar sumiu, ela cala.
+
+resgates:
+
+  B1: >
+    Cada programa que roda ganha uma rua só dele, com os números
+    começando do começo. Dois programas podem ter uma casa de número 1000
+    cada um, e são casas diferentes, em ruas diferentes. Quando o programa
+    termina, a rua dele vai embora inteira.
+
+  B2: >
+    Entrar numa função é entrar numa rua lateral: as casas daquela rua
+    são montadas na hora. Sair da rua lateral desmonta todas elas, sem
+    perguntar. É por isso que a variável de dentro da função não está
+    mais lá quando a função acaba.
+
+  B3: >
+    Alugar um terreno na quadra de baixo é outra coisa: o terreno é seu
+    até você devolver. Entrar e sair de quantas ruas laterais você
+    quiser não devolve terreno nenhum. Quem devolve é você, com free.
+
+  I1: >
+    São duas regras no mesmo lugar. A casa da rua lateral some sozinha
+    quando você sai; o terreno alugado fica até você devolver. Saber qual
+    das duas vale para uma caixa é saber de qual quadra ela é.
+
+  I2: >
+    Por isso a rua tem duas quadras, e não uma. Elas não se distinguem
+    por serem mais rápidas ou maiores: distinguem-se pela REGRA de quem
+    arruma. Numa, o compilador; na outra, você.
+
+exemplos:
+
+  B1: |
+    /* duas execucoes do mesmo programa */
+    int x;
+    printf("%d\n", x);   /* nao ha garantia entre uma e outra */
+
+  B2: |
+    int conta(void) {
+        int n = 0;       /* nasce aqui */
+        return n + 1;
+    }                    /* e acaba aqui */
+
+  B3: |
+    int *faz(void) {
+        int *p = malloc(sizeof(int));
+        *p = 7;
+        return p;        /* o bloco continua valido */
+    }
+
+  I1: |
+    int  na_pilha;                      /* some com a funcao   */
+    int *no_monte = malloc(sizeof(int)); /* fica ate o free     */
+
+  I2: |
+    void f(void) {
+        int a;                            /* pilha */
+        int *b = malloc(sizeof(int));     /* monte */
+        free(b);
+    }
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — enquanto executa, o programa tem um espaço só dele
+  # crença do nó: memoria_e_do_computador
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc01_e1
+    node: kc01:B1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Dois programas rodando ao mesmo tempo. A rua de cada um é a mesma rua?
+    alternativas:
+      a: "Não: cada um tem a sua"
+      b: "É: a rua é do computador"
+      c: "É: memória é tudo igual"
+    gabarito: a
+    crencas:
+      b: memoria_e_do_computador
+      c: memory_is_uniform
+
+  - id: ciu_kc01_001
+    node: kc01:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você roda o mesmo programa duas vezes seguidas. A segunda execução
+      enxerga o que a primeira guardou?
+    alternativas:
+      a: "Não: cada execução tem a memória dela"
+      b: "Enxerga: ficou guardado na memória do computador"
+      c: "Enxerga: a memória é uma só, sem separação"
+    gabarito: a
+    crencas:
+      b: memoria_e_do_computador
+      c: memory_is_uniform
+
+  - id: ciu_kc01_002
+    node: kc01:B1
+    nivel: 2
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* programa A */   int x = 42;
+      /* programa B */   int y;
+    enunciado: >
+      Os dois programas rodam ao mesmo tempo. B pode ler o 42 que A guardou?
+    alternativas:
+      a: "Não: cada programa tem a memória dele"
+      b: "Pode: a memória é do computador, não do programa"
+      c: "Pode: memória é uma só, sem separação"
+    gabarito: a
+    crencas:
+      b: memoria_e_do_computador
+      c: memory_is_uniform
+
+  - id: ciu_kc01_003
+    node: kc01:B1
+    nivel: 3
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      /* execucao 1 */  int x = 7;    /* e o programa termina */
+      /* execucao 2 */  int x;        /* no mesmo computador  */
+    enunciado: "Na execução 2, x começa valendo 7?"
+    alternativas:
+      a: "Não há garantia nenhuma sobre o valor dele"
+      b: "Começa: ficou na memória do computador"
+      c: "Começa: é a mesma memória das duas vezes"
+    gabarito: a
+    crencas:
+      b: memoria_e_do_computador
+      c: memory_is_uniform
+
+  - id: ciu_kc01_t01
+    node: kc01:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Quando um programa termina, o que acontece com a memória dele?"
+    alternativas:
+      a: "Volta para o sistema, e outro programa pode recebê-la"
+      b: "Fica como estava, esperando o programa rodar de novo"
+      c: "Nada: a memória é do computador o tempo todo"
+    gabarito: a
+    crencas:
+      b: memoria_e_do_computador
+      c: memoria_e_do_computador
+
+  - id: ciu_kc01_t02
+    node: kc01:B1
+    nivel: 2
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* programa A */  int a;   /* no endereco 0x1000 */
+      /* programa B */  int b;   /* no endereco 0x1000 */
+    enunciado: "Os dois dizem 0x1000. É o mesmo lugar?"
+    alternativas:
+      a: "Não: cada programa tem a numeração dele"
+      b: "É: o mesmo número é o mesmo lugar"
+      c: "É, e por isso um lê o que o outro escreve"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: memoria_e_do_computador
+
+  - id: ciu_kc01_t03
+    node: kc01:B1
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: teorica
+    enunciado: >
+      Um colega quer passar um valor de um programa para outro guardando
+      numa variável global. O que você responde?
+    alternativas:
+      a: "Não funciona: a memória de um não é a do outro"
+      b: "Funciona: global é global para todo mundo"
+      c: "Funciona se os dois usarem o mesmo nome"
+    gabarito: a
+    crencas:
+      b: memoria_e_do_computador
+      c: memoria_e_do_computador
+
+  # ------------------------------------------------------------------
+  # B2 — a variável local existe enquanto a função executa
+  # crença do nó: local_sobrevive
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc01_e2
+    node: kc01:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Entrar numa função é entrar numa rua lateral, e as casas de lá são
+      montadas na hora. O que acontece quando você sai dessa rua?
+    alternativas:
+      a: "As casas de lá são desmontadas"
+      b: "Ficam montadas, esperando você voltar"
+      c: "Ficam, porque alguém devolve depois"
+    gabarito: a
+    crencas:
+      b: local_sobrevive
+      c: system_frees_auto
+
+  - id: ciu_kc01_004
+    node: kc01:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Até quando existe uma variável declarada dentro de uma função?"
+    alternativas:
+      a: "Enquanto aquela chamada estiver executando"
+      b: "Até o programa terminar, como qualquer variável"
+      c: "Até alguém liberar, como um bloco de malloc"
+    gabarito: a
+    crencas:
+      b: local_sobrevive
+      c: heap_dies_with_function
+
+  - id: ciu_kc01_005
+    node: kc01:B2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int conta(void) {
+          int n = 0;
+          n = n + 1;
+          return n;
+      }
+      printf("%d %d %d\n", conta(), conta(), conta());
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1 1 1: n nasce de novo a cada chamada"
+      b: "1 2 3: n continua lá entre as chamadas"
+      c: "1 1 1, mas n continua ocupando lugar"
+    gabarito: a
+    crencas:
+      b: local_sobrevive
+      c: local_sobrevive
+
+  - id: ciu_kc01_006
+    node: kc01:B2
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *valor(void) {
+          int n = 7;
+          return &n;
+      }
+    enunciado: "Por que devolver esse endereço é um problema?"
+    alternativas:
+      a: "n acaba, e o endereço não aponta mais nada"
+      b: "Não é problema: n continua lá depois do return"
+      c: "Não é problema: quem recebe libera depois"
+    gabarito: a
+    crencas:
+      b: local_sobrevive
+      c: system_frees_auto
+
+  - id: ciu_kc01_t04
+    node: kc01:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Duas chamadas da mesma função, uma depois da outra. A variável local é a mesma?"
+    alternativas:
+      a: "Não: cada chamada cria a dela"
+      b: "É a mesma, e guarda o valor anterior"
+      c: "É a mesma, mas zerada toda vez"
+    gabarito: a
+    crencas:
+      b: local_sobrevive
+      c: local_sobrevive
+
+  - id: ciu_kc01_t05
+    node: kc01:B2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(void) {
+          int a = 1;
+          a = a + 10;
+      }
+      f();
+      f();
+    enunciado: "No fim da segunda chamada, quanto vale o a de dentro de f?"
+    alternativas:
+      a: "11: ele recomeçou em 1 nesta chamada"
+      b: "21: ele guardou o 11 da chamada anterior"
+      c: "11, e o a da primeira chamada ainda existe"
+    gabarito: a
+    crencas:
+      b: local_sobrevive
+      c: local_sobrevive
+
+  - id: ciu_kc01_t06
+    node: kc01:B2
+    nivel: 3
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int soma(int v) { int t = 0; t += v; return t; }
+      /* B */  int t = 0;  int soma(int v) { t += v; return t; }
+    enunciado: "Chamando soma(5) duas vezes, o que muda entre A e B?"
+    alternativas:
+      a: "Em A sai 5 e 5; em B sai 5 e 10"
+      b: "Nada: nos dois t guarda o que veio antes"
+      c: "Em A sai 5 e 10, porque t fica entre as chamadas"
+    gabarito: a
+    crencas:
+      b: local_sobrevive
+      c: local_sobrevive
+
+  # ------------------------------------------------------------------
+  # B3 — o bloco do malloc não acaba com a função
+  # crença do nó: system_frees_auto
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc01_e3
+    node: kc01:B3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você aluga um terreno na quadra de baixo e depois sai da rua
+      lateral onde estava. O terreno continua seu?
+    alternativas:
+      a: "Continua, até você devolver"
+      b: "Não: sair da rua devolve tudo"
+      c: "Não: a prefeitura recolhe sozinha"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: system_frees_auto
+
+  - id: ciu_kc01_007
+    node: kc01:B3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Quem decide quando o bloco pedido com malloc deixa de valer?"
+    alternativas:
+      a: "Quem programou, chamando free"
+      b: "O sistema, quando acha que não é mais usado"
+      c: "A função, quando termina"
+    gabarito: a
+    crencas:
+      b: system_frees_auto
+      c: heap_dies_with_function
+
+  - id: ciu_kc01_008
+    node: kc01:B3
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *faz(void) {
+          int *p = malloc(sizeof(int));
+          *p = 7;
+          return p;
+      }
+      int *q = faz();
+      printf("%d\n", *q);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "7: o bloco continua valendo depois do return"
+      b: "Lixo: o bloco acabou junto com a função"
+      c: "Lixo: o sistema já recolheu o que não se usa"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: system_frees_auto
+
+  - id: ciu_kc01_009
+    node: kc01:B3
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void usa(void) {
+          int *p = malloc(1000000);
+          /* ... */
+      }
+      /* usa() e chamada mil vezes */
+    enunciado: "Por que isso é um problema, mesmo que o programa não quebre?"
+    alternativas:
+      a: "Cada chamada aluga e não devolve: a memória acaba"
+      b: "Não é: sair da função devolve o bloco"
+      c: "Não é: o sistema recolhe o que ninguém usa"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: system_frees_auto
+
+  - id: ciu_kc01_t07
+    node: kc01:B3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que free faz?"
+    alternativas:
+      a: "Devolve o bloco, que deixa de valer"
+      b: "Avisa o sistema, que decide depois"
+      c: "Nada: a função já teria devolvido"
+    gabarito: a
+    crencas:
+      b: system_frees_auto
+      c: heap_dies_with_function
+
+  - id: ciu_kc01_t08
+    node: kc01:B3
+    nivel: 2
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  void f(void) { int v[100]; }
+      /* B */  void g(void) { int *v = malloc(100 * sizeof(int)); }
+    enunciado: "As duas funções terminam. O que sobra de cada uma?"
+    alternativas:
+      a: "De A não sobra nada; de B sobra o bloco alugado"
+      b: "Não sobra nada das duas: a função acabou"
+      c: "Sobra das duas, até o sistema recolher"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: system_frees_auto
+
+  - id: ciu_kc01_t09
+    node: kc01:B3
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = malloc(sizeof(int));
+      *p = 3;
+      free(p);
+      printf("%d\n", *p);
+    enunciado: "Por que essa última linha é um erro?"
+    alternativas:
+      a: "O bloco foi devolvido: usar depois não vale mais"
+      b: "Não é erro: o 3 continua lá até alguém sobrescrever"
+      c: "Não é erro: o sistema ainda não recolheu"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: system_frees_auto
+
+  # ------------------------------------------------------------------
+  # I1 — duas disciplinas de vida
+  # crença do nó: heap_dies_with_function
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc01_e4
+    node: kc01:I1
+    nivel: 1
+    uso: entrada
+    formato: comparar_casos
+    tipo: teorica
+    enunciado: >
+      A casa da rua lateral e o terreno alugado. Os dois somem na mesma
+      hora?
+    alternativas:
+      a: "Não: a casa some ao sair; o terreno fica"
+      b: "Somem: sair da rua acaba com tudo"
+      c: "Somem: a prefeitura recolhe os dois"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: system_frees_auto
+
+  - id: ciu_kc01_010
+    node: kc01:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Numa mesma função há uma variável local e um bloco pedido com
+      malloc. Quando a função termina, o que acontece com cada um?
+    alternativas:
+      a: "A local acaba; o bloco continua"
+      b: "Os dois acabam: a função terminou"
+      c: "Os dois continuam até o sistema recolher"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: system_frees_auto
+
+  - id: ciu_kc01_011
+    node: kc01:I1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int  a = 1;                            /* local            */
+      int *b = malloc(sizeof(int)); *b = 2;  /* bloco no monte   */
+      /* a funcao termina aqui */
+    enunciado: "Depois que a função termina, o que ainda é válido?"
+    alternativas:
+      a: "Só o bloco, se alguém guardou o endereço"
+      b: "Nenhum dos dois: a função acabou e levou tudo"
+      c: "Os dois, até o sistema recolher sozinho"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: system_frees_auto
+
+  - id: ciu_kc01_012
+    node: kc01:I1
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *um(void)  { int n = 7;                 return &n; }
+      int *dois(void){ int *p = malloc(4); *p = 7; return p;  }
+    enunciado: "Uma das duas devolve um endereço que não vale mais. Qual, e por quê?"
+    alternativas:
+      a: "um: n acaba com a função; o bloco de dois não"
+      b: "As duas: sair da função acaba com o que estava nela"
+      c: "dois: bloco sem free não vale quando a função sai"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: heap_dies_with_function
+
+  - id: ciu_kc01_t10
+    node: kc01:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Quem desmonta uma variável local?"
+    alternativas:
+      a: "O compilador, ao sair da função"
+      b: "Você, chamando free"
+      c: "O sistema, quando sobrar tempo"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: system_frees_auto
+
+  - id: ciu_kc01_t11
+    node: kc01:I1
+    nivel: 2
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int v[10];
+      /* B */  int *v = malloc(10 * sizeof(int));
+    enunciado: "Os dois guardam dez inteiros. O que decide quanto tempo cada um dura?"
+    alternativas:
+      a: "A, a função que o criou; B, o free"
+      b: "Nos dois, a função que os criou"
+      c: "Nos dois, o sistema, quando precisar"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: system_frees_auto
+
+  - id: ciu_kc01_t12
+    node: kc01:I1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *g(void) {
+          int  a = 1;
+          int *b = malloc(sizeof(int));
+          *b = a;
+          return b;
+      }
+      printf("%d\n", *g());
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: o valor foi copiado para o bloco"
+      b: "Lixo: a acabou, então o bloco também acabou"
+      c: "Lixo: o bloco saiu junto com a função"
+    gabarito: a
+    crencas:
+      b: heap_dies_with_function
+      c: heap_dies_with_function
+
+  # ------------------------------------------------------------------
+  # I2 — a conclusão: duas áreas, duas regras
+  # crença do nó: memory_is_uniform
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc01_e5
+    node: kc01:I2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Na rua há duas quadras. O que separa uma da outra?
+    alternativas:
+      a: "A regra de quem arruma cada uma"
+      b: "Nada: é tudo a mesma rua"
+      c: "O tamanho: uma é maior que a outra"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: memory_is_uniform
+
+  - id: ciu_kc01_013
+    node: kc01:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que distingue a pilha do monte?"
+    alternativas:
+      a: "Quem arruma cada uma delas"
+      b: "Nada de importante: memória é memória"
+      c: "A velocidade de acesso a cada uma"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: memory_is_uniform
+
+  - id: ciu_kc01_014
+    node: kc01:I2
+    nivel: 2
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      void f(void) {
+          int  a;                            /* onde mora? */
+          int *b = malloc(sizeof(int));      /* e o bloco? */
+      }
+    enunciado: "a e o bloco apontado por b ficam na mesma área?"
+    alternativas:
+      a: "Não: a na pilha, o bloco no monte"
+      b: "Ficam: memória é uma só"
+      c: "Ficam, e os dois acabam com a função"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: heap_dies_with_function
+
+  - id: ciu_kc01_015
+    node: kc01:I2
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int  a;
+      int *b = malloc(sizeof(int));
+      free(&a);
+    enunciado: "Por que a terceira linha está errada?"
+    alternativas:
+      a: "free devolve bloco do monte, e a é da pilha"
+      b: "Não está: free serve para qualquer memória"
+      c: "Não está, mas é desnecessário fazer isso"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: memory_is_uniform
+
+  - id: ciu_kc01_t13
+    node: kc01:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Onde fica uma variável declarada dentro de uma função?"
+    alternativas:
+      a: "Na pilha, arrumada pelo compilador"
+      b: "Em qualquer lugar: memória é uma só"
+      c: "No monte, junto com o que foi alocado"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: memory_is_uniform
+
+  - id: ciu_kc01_t14
+    node: kc01:I2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(void) { int a; }
+      /* chamada mil vezes seguidas */
+    enunciado: "Por que isso não acaba com a memória, e mil malloc sem free acabariam?"
+    alternativas:
+      a: "A pilha devolve a cada saída; o monte não"
+      b: "Acabaria também: memória é uma só"
+      c: "Nenhum dos dois acaba: o sistema recolhe"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: system_frees_auto
+
+  - id: ciu_kc01_t15
+    node: kc01:I2
+    nivel: 3
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int grande[1000000];          /* dentro de uma funcao */
+      /* B */  int *g = malloc(1000000 * sizeof(int));
+    enunciado: "Qual das duas tem mais chance de não caber, e por quê?"
+    alternativas:
+      a: "A: a pilha é bem menor que o monte"
+      b: "Nenhuma: as duas vêm da mesma memória"
+      c: "B: alocar é mais arriscado que declarar"
+    gabarito: a
+    crencas:
+      b: memory_is_uniform
+      c: memory_is_uniform

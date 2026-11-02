@@ -56,7 +56,7 @@ def _degraus_por_no(eventos):
 # A escada existe, e começa embaixo
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize("topico", ["kc_00", "kc_02"])
+@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02"])
 def test_todo_no_comeca_no_degrau_um(topico):
     """O primeiro item que a pessoa vê de cada premissa é o mais fácil
     que o banco tem. É isto que faltava."""
@@ -66,7 +66,7 @@ def test_todo_no_comeca_no_degrau_um(topico):
         assert degraus[0] == 1, (no, degraus)
 
 
-@pytest.mark.parametrize("topico", ["kc_00", "kc_02"])
+@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02"])
 def test_o_degrau_sobe_de_um_em_um(topico):
     """Nunca de 1 para 3. A escada inteira ou nada."""
     dd = carrega(topico=topico)

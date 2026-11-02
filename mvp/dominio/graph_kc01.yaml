@@ -1,0 +1,81 @@
+topic: kc_01
+
+# A METÁFORA DESTE TÓPICO: a rua, com duas quadras.
+#
+# Continua a rua do kc_02 — lugares numerados —, e acrescenta o que faltava
+# lá: a rua tem DUAS QUADRAS, com regras de arrumação diferentes.
+#
+#   A quadra de cima (a pilha): as casas são montadas quando você entra
+#   numa rua lateral e desmontadas quando você sai. Ninguém pergunta; é
+#   automático, e é por isso que o que estava lá dentro vai junto.
+#
+#   A quadra de baixo (o monte): você aluga um terreno e ele é seu até
+#   você devolver. Sair da rua lateral não devolve nada.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. Quadra sugere lugares vizinhos e ordenados. Pilha e monte não são
+#      vizinhos de endereço, e nada garante onde cada um fica. O desenho
+#      mostra duas áreas; não mostra qual vem antes.
+#   2. "Desmontar a casa" sugere que o lugar some. O lugar continua lá —
+#      o que acaba é o DIREITO de usá-lo. É a diferença entre o espaço e
+#      a permissão, e é ela que faz `return &local` compilar e quebrar.
+#      Quando a metáfora obrigaria a dizer que o lugar sumiu, ela cala.
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Enquanto executa, o programa tem um espaço de memória só dele."
+    plain_text: >
+      Enquanto o programa roda, ele tem uma rua só dele. Outro programa
+      não mexe nessa rua.
+    negated_by:
+      - memoria_e_do_computador
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Uma variável local existe enquanto a função dela está executando."
+    plain_text: >
+      As casas criadas dentro de uma função aparecem quando ela começa e
+      somem quando ela termina.
+    negated_by:
+      - local_sobrevive
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Um bloco pedido com malloc não acaba quando a função termina."
+    plain_text: >
+      O terreno que você aluga com malloc continua seu depois que a
+      função acaba.
+    negated_by:
+      - system_frees_auto
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B2, B3]
+    text: "Há duas disciplinas de vida: uma automática, outra na sua mão."
+    plain_text: >
+      Então há dois jeitos: a casa some sozinha, e o terreno fica até
+      você devolver.
+    negated_by:
+      - heap_dies_with_function
+
+  I2:
+    type: inferencia
+    role: conclusao
+    support: [B1, I1]
+    text: >
+      A memória do programa tem duas áreas com regras diferentes: a pilha
+      e o monte.
+    plain_text: >
+      Logo a rua tem duas quadras, com regras de arrumação diferentes.
+    negated_by:
+      - memory_is_uniform
