@@ -40,7 +40,7 @@ import pathlib
 import re
 
 from mvp import motor
-from mvp.dominio import carrega
+from mvp.dominio import carrega, topicos
 from mvp.motor import Resposta
 from mvp.test_motor import _politica, roda
 
@@ -145,7 +145,7 @@ def test_sem_estado_o_cardapio_e_o_de_sempre(d2):
 # O que a unidade não mediu
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02"])
+@pytest.mark.parametrize("topico", topicos())
 @pytest.mark.parametrize("erra_no", ["B1", "B2", "B3", "pior_caso"])
 def test_nenhuma_premissa_termina_como_desconhecida(topico, erra_no):
     """A garantia que a CS-10 queria e não tinha: no fim, toda premissa tem
@@ -177,7 +177,7 @@ def test_nenhuma_premissa_termina_como_desconhecida(topico, erra_no):
 # sempre foi: existe para o caso que o laço não alcançou, inclusive um
 # banco mal formado que nenhuma política de sessão produz de propósito.
 
-@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02", "kc_03", "kc_04"])
+@pytest.mark.parametrize("topico", topicos())
 def test_o_fechamento_marca_e_explica_a_premissa_sem_medida(topico):
     """Os dois motivos, nos dois estados que os distinguem.
 
@@ -216,7 +216,7 @@ def test_o_fechamento_marca_e_explica_a_premissa_sem_medida(topico):
     assert sorted(fim.dados["nao_medidos"]) == sorted([primeiro, segundo])
 
 
-@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02", "kc_03", "kc_04"])
+@pytest.mark.parametrize("topico", topicos())
 def test_no_pior_caso_nenhuma_premissa_fica_sem_medida(topico):
     """O que o quarto teto comprou, cobrado como garantia.
 
@@ -335,7 +335,7 @@ def test_a_figura_e_do_topico_que_esta_no_ar():
     """
     js = (WEB / "figuras.js").read_text(encoding="utf-8")
     assert "POR_TOPICO" in js
-    for topico in ("kc_00", "kc_01", "kc_02", "kc_03", "kc_04"):
+    for topico in topicos():
         assert re.search(r"POR_TOPICO\.%s\s*=" % topico, js), topico
     # e a tela precisa dizer qual tópico está no ar
     app = (WEB / "app.js").read_text(encoding="utf-8")
@@ -350,7 +350,7 @@ def test_todo_no_de_todo_topico_tem_figura():
     js = (WEB / "figuras.js").read_text(encoding="utf-8")
     blocos = dict(re.findall(r"POR_TOPICO\.(\w+)\s*=\s*\{(.*?)\n  \};",
                              js, re.S))
-    assert set(blocos) >= {"kc_00", "kc_01", "kc_02", "kc_03", "kc_04"}, sorted(blocos)
+    assert set(blocos) >= set(topicos()), sorted(blocos)
     faltam = []
     for topico, bloco in blocos.items():
         dd = carrega(topico=topico)

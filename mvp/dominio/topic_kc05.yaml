@@ -1,0 +1,13 @@
+id: kc_05
+title: "Ponteiro NULL"
+pilot: false
+prerequisites: [kc_03, kc_04]
+conclusion_node: I3
+summary: >
+  NULL é um valor de ponteiro que garantidamente não designa objeto
+  algum. Comparar p com NULL só olha o que está dentro de p;
+  desreferenciar p nulo é comportamento indefinido.
+
+# Respondível ANTES por quem ainda não sabe. É o lado esquerdo do
+# antes-e-depois, e a pergunta é exatamente a que o tópico responde.
+teachback: "o que NULL é, e o que acontece quando se faz *p com p em NULL"

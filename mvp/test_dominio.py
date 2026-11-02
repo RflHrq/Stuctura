@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from mvp.dominio import RAIZ, DominioInvalido, carrega
+from mvp.dominio import RAIZ, DominioInvalido, carrega, topicos
 
 ARQUIVOS = ("topic_kc00.yaml", "graph_kc00.yaml",
             "beliefs_kc00.yaml", "activities_kc00.yaml")
@@ -229,12 +229,13 @@ def test_topico_que_nao_existe_falha_na_carga():
 # Cada tópico novo entra nesta lista, e é aqui que ele passa a ser cobrado.
 # --------------------------------------------------------------------------
 
-POS_CONTRATO = ("kc_01", "kc_02", "kc_03", "kc_04")
+POS_CONTRATO = tuple(t for t in topicos() if t != "kc_00")
 
 # Os que tem a escada inteira (um item por degrau) E item de entrada em
 # todo no. O kc_00 e o kc_02 ficam de fora: os bancos deles vieram antes
 # do item de entrada, e a divida esta registrada.
-ESCADA_COMPLETA = ("kc_01", "kc_03", "kc_04")
+ESCADA_COMPLETA = tuple(t for t in topicos()
+                        if t not in ("kc_00", "kc_02"))
 
 
 @pytest.mark.parametrize("topico", POS_CONTRATO)
@@ -312,3 +313,28 @@ def test_todo_no_tem_item_de_entrada(topico):
     d = carrega(topico=topico)
     sem = [nid for nid in d.nos if not d.atividades_do_no(nid, "entrada")]
     assert sem == [], sem
+
+
+# --------------------------------------------------------------------------
+# A lista de tópicos sai do DISCO
+#
+# Cada tópico novo precisava entrar à mão em seis listas de teste
+# espalhadas, e duas estavam defasadas: o kc_03 e o kc_04 nunca tinham
+# sido varridos pelos testes de construção e de escada. Lista escrita à
+# mão é lista que envelhece, e o jeito de ela não envelhecer é não existir.
+# --------------------------------------------------------------------------
+
+def test_a_lista_de_topicos_sai_dos_arquivos():
+    """E carrega cada um. Se o glob achar um nome que o carregador recusa,
+    é aqui que aparece — não numa sessão."""
+    achados = topicos()
+    assert len(achados) >= 6, achados
+    assert achados == tuple(sorted(achados)), "fora de ordem"
+    for t in achados:
+        assert carrega(topico=t).id == t
+
+
+def test_topico_novo_no_disco_entra_na_lista_sozinho(tmp_path):
+    """A garantia que faz a lista valer a pena: ninguém precisa lembrar."""
+    (tmp_path / "topic_kc99.yaml").write_text("id: kc_99\n", encoding="utf-8")
+    assert topicos(tmp_path) == ("kc_99",)

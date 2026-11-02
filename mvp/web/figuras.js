@@ -682,6 +682,142 @@
     }
   };
 
+  /* -------------------------- kc_05: o numero reservado que nao e casa */
+
+  /* A prefeitura reservou um numero para significar "nenhuma casa", e
+   * garantiu que nenhuma casa o recebe. O papel de p com esse numero
+   * escrito NAO e um papel em branco — e por isso o desenho sempre mostra
+   * `NULL` escrito DENTRO da casa de p, com a mesma forma de qualquer
+   * outro valor. Casa de p vazia diria `null_is_absence`.
+   *
+   * E o fim da seta de `*p` nao tem caixa, nem tracejada: caixa ali diria
+   * "existe um lugar, so esta vazio", que e `null_is_safe_to_deref` — a
+   * crenca que a conclusao do topico refuta. */
+
+  POR_TOPICO.kc_05 = {
+
+    /* B1 — NULL e um valor escrito no papel, nao papel em branco. */
+    B1: function () {
+      var s = svg(360, 198);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "o que se imagina"));
+      s.appendChild(casa(30, 58, { endereco: "0x2A00", vazia: true,
+                                   largura: 112 }));
+      s.appendChild(el("text", { x: 86, y: 90, "class": "fig-nota" },
+                       "em branco"));
+      s.appendChild(el("text", { x: 86, y: 142, "class": "fig-legenda erro" },
+                       "p nao esta vazio"));
+      s.appendChild(el("text", { x: 274, y: 26, "class": "fig-rodape" },
+                       "o que esta la"));
+      s.appendChild(casa(218, 58, { endereco: "0x2A00", dentro: "NULL",
+                                    nome: "p", largura: 112 }));
+      legenda(s, 184, "NULL e um valor, escrito dentro de p");
+      return s;
+    },
+
+    /* B2 — a reserva vem do 0 ESCRITO no codigo. */
+    B2: function () {
+      var s = svg(360, 192);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 24, "class": "fig-rodape" },
+                       "int *p = 0;"));
+      s.appendChild(casa(30, 56, { endereco: "0x2A00", dentro: "NULL",
+                                   largura: 112 }));
+      s.appendChild(el("text", { x: 86, y: 138, "class": "fig-nota" },
+                       "garantido"));
+      s.appendChild(el("text", { x: 274, y: 24, "class": "fig-rodape" },
+                       "(int *)n, com n = 0"));
+      s.appendChild(casa(218, 56, { endereco: "0x2A00", dentro: "?",
+                                    largura: 112 }));
+      s.appendChild(el("text", { x: 274, y: 138, "class": "fig-legenda erro" },
+                       "sem garantia"));
+      legenda(s, 174, "quem escreve a reserva e o codigo, nao a conta");
+      return s;
+    },
+
+    /* B3 — o numero reservado nao e de casa nenhuma. */
+    B3: function () {
+      var s = svg(360, 188);
+      s.appendChild(defs());
+      s.appendChild(casa(16, 58, { endereco: "0x1000", dentro: "42",
+                                   largura: 96 }));
+      s.appendChild(casa(130, 58, { endereco: "0x1004", dentro: "7",
+                                    largura: 96 }));
+      s.appendChild(el("rect", { x: 248, y: 58, width: 96, height: 64, rx: 8,
+                                 "class": "fig-quarto vazio" }));
+      s.appendChild(el("rect", { x: 258, y: 47, width: 76, height: 22, rx: 11,
+                                 "class": "fig-placa" }));
+      s.appendChild(el("text", { x: 296, y: 58, "class": "fig-placa-txt" },
+                       "reservado"));
+      s.appendChild(el("text", { x: 296, y: 94, "class": "fig-legenda erro" },
+                       "casa nenhuma"));
+      legenda(s, 154, "o numero reservado nao e de casa nenhuma");
+      legenda(s, 174, "e nao e o comeco da rua");
+      return s;
+    },
+
+    /* I1 — comparar le o papel; nao e uma ida. */
+    I1: function () {
+      var s = svg(360, 196);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 34, "class": "fig-nota" },
+                       "p == NULL  le aqui"));
+      s.appendChild(casa(124, 62, { endereco: "0x2A00", dentro: "NULL",
+                                    nome: "p", largura: 112 }));
+      s.appendChild(seta(248, 94, 322, 94, "proibida"));
+      s.appendChild(el("text", { x: 300, y: 120, "class": "fig-legenda erro" },
+                       "nao sai de p"));
+      legenda(s, 166, "comparar le o papel de p");
+      legenda(s, 186, "e nao e uma ida a memoria");
+      return s;
+    },
+
+    /* I2 — a igualdade e da linguagem; os bits sao da maquina. */
+    I2: function () {
+      var s = svg(360, 202);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 86, y: 26, "class": "fig-rodape" },
+                       "no codigo"));
+      s.appendChild(el("rect", { x: 26, y: 54, width: 120, height: 44, rx: 9,
+                                 "class": "fig-placa" }));
+      s.appendChild(el("text", { x: 86, y: 76, "class": "fig-placa-txt" },
+                       "p == 0"));
+      s.appendChild(el("text", { x: 86, y: 120, "class": "fig-nota" },
+                       "verdadeiro"));
+      s.appendChild(el("text", { x: 274, y: 26, "class": "fig-rodape" },
+                       "na memoria"));
+      s.appendChild(casa(218, 54, { endereco: "0x2A00", dentro: "? ? ?",
+                                    largura: 112 }));
+      s.appendChild(el("text", { x: 274, y: 138, "class": "fig-legenda erro" },
+                       "bits nao definidos"));
+      legenda(s, 176, "a igualdade e acordo da linguagem");
+      legenda(s, 196, "o que esta nos bits e da maquina");
+      return s;
+    },
+
+    /* I3 — a conclusao: seguir a reserva e invalido, e o resto nao e
+     * definido. Sem caixa no fim da seta, de proposito. */
+    I3: function () {
+      var s = svg(360, 208);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "int *p = NULL;   *p = 1;"));
+      s.appendChild(casa(24, 60, { endereco: "0x2A00", dentro: "NULL",
+                                   nome: "p", largura: 116 }));
+      s.appendChild(seta(150, 92, 244, 92, "proibida"));
+      s.appendChild(el("text", { x: 197, y: 78, "class": "fig-legenda erro" },
+                       "*p = 1"));
+      s.appendChild(el("text", { x: 294, y: 84, "class": "fig-nota" },
+                       "reservado"));
+      s.appendChild(el("text", { x: 294, y: 106, "class": "fig-legenda erro" },
+                       "casa nenhuma"));
+      legenda(s, 170, "invalido, e o que acontece nao e definido");
+      legenda(s, 190, "pode travar, pode nao travar");
+      return s;
+    }
+  };
+
   var topicoAtual = "kc_00";
 
   function doNo(no) {

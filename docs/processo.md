@@ -694,3 +694,92 @@ um banco mal formado que nenhuma política de sessão produz de propósito.
 | a fila do diagnóstico deixa de pular o fechado | 1 cai |
 
 As quatro mordem. 601 testes verdes (349 MVP + 252 antigo).
+
+## Ciclo de conteúdo — o kc_05 (ponteiro NULL)
+
+Quinto tópico. Mesmo desenho dos anteriores, mais duas coisas: a lista de
+tópicos deixou de ser escrita à mão, e o quarto teto já estava no lugar
+quando o tópico nasceu — foi o primeiro que não precisou de medição de
+resgate.
+
+### A discordância com a curadoria, outra vez
+
+A curadoria lista **oito nós** para o kc_05 (B1–B4, I1–I4) e **duas**
+crenças, em I3 e I4. É o mesmo caso do kc_04, e a mesma razão: a decisão
+19 manda uma crença por nó, e a literatura desta área documenta seis
+ideias, não oito. Dobras, todas registradas no cabeçalho de
+`graph_kc05.yaml`:
+
+| Curado | Virou | Por quê |
+| --- | --- | --- |
+| B1 + I1 (ausência de destino; NULL é valor, não não-valor) | `B1` | premissa e aplicação da mesma ideia |
+| B4 + I4 (representação interna; NULL == 0 na fonte) | `I2` | idem |
+| I2 (p == NULL é teste) | `I1`, **mantido** | a curadoria registra **zero caminhos** nele, mas ele é o que separa testar de desreferenciar, e a conclusão depende dessa separação |
+
+O I1 ganhou crença de fora: `pointer_is_just_a_name`, do kc_04, que é
+pré-requisito declarado deste tópico. Se p fosse apenas um nome do
+apontado, `p == NULL` seria uma pergunta sobre o apontado — que é
+exatamente o que a premissa nega.
+
+### As fontes
+
+Zero `E`. A seção 5 do FAQ do comp.lang.c é inteira sobre ponteiro nulo,
+tem vinte entradas, e a 5.14 pergunta com essas palavras por que há tanta
+confusão aqui. Textos de 5.1, 5.3, 5.18 e 5.19 lidos no original em
+c-faq.com nesta sessão.
+
+| Crença | Nó | Proc. | Fonte |
+| --- | --- | --- | --- |
+| `null_is_absence` | B1 | L | FAQ 5.1 ("a special value… distinguishable from all other pointer values"), 5.14, 5.15 |
+| `any_zero_is_null` | B2 | L | FAQ 5.18 ("Only constant integral expressions with value 0 are guaranteed") |
+| `null_points_to_zero` | B3 | L | FAQ 5.1 ("points definitively nowhere"), 5.19 (o vetor de interrupção na posição 0) |
+| `pointer_is_just_a_name` | I1 | T | Sorva (2012) p. 362 item 64 — do kc_04 |
+| `null_is_zero_always` | I2 | L | FAQ 5.13, 5.16, 5.3 (curada) |
+| `null_is_safe_to_deref` | I3 | N | CERT C EXP34-C, CWE-476 (curada) |
+
+`null_is_safe_to_deref` é a **única `N` dos cinco tópicos construídos**, e
+é a procedência mais fraca do catálogo: a norma catalogou o erro, não a
+crença. Fica declarada assim.
+
+### A medição
+
+| Persona | kc_05 |
+| --- | --- |
+| acerta tudo | 45 passos, 0/12 sem medida |
+| erra e aprende | 82, 0/12 |
+| erra e não muda | **88, 0/12** |
+
+Em linha com o kc_03 (92) e o kc_04 (89) depois do quarto teto. **Nenhuma
+medição de resgate foi necessária** — foi o primeiro tópico a nascer num
+motor que já bota teto na cauda, e a fração de vizinho de 50% (a mais alta,
+empatada com o kc_04) não cobrou nada.
+
+### A lista de tópicos saiu da mão
+
+Registrar um tópico novo exigia editar **seis** listas espalhadas pelos
+testes, e duas estavam defasadas: o kc_03 e o kc_04 **nunca** tinham sido
+varridos pelos testes de construção e de escada. Entrou
+`dominio.topicos()`, que lê os `topic_*.yaml` do disco, e as seis listas
+passaram a sair dela. A suíte do MVP foi de 349 para 383 testes **sem
+nenhuma falha nova** — ou seja, a cobertura que faltava já estava passando,
+só não estava sendo rodada.
+
+### O estado dos seis tópicos
+
+| Tópico | Nós | Itens | Distratores de vizinho | Procedências |
+| --- | --- | --- | --- | --- |
+| `kc_00` | 5 | 20 | 31% | 3 L, 1 T, **1 E** |
+| `kc_01` | 5 | 35 | 37% | 3 T, 1 L, **1 E** |
+| `kc_02` | 6 | 60 | 47% | 2 T, 1 D, 1 L, **2 E** |
+| `kc_03` | 6 | 42 | 36% | 3 D, 2 L, 1 T |
+| `kc_04` | 6 | 42 | 50% | 3 L, 3 T |
+| `kc_05` | 6 | 42 | 50% | 4 L, 1 T, 1 N |
+
+As quatro `E` que restam estão nos três tópicos mais antigos, e são a
+dívida de procedência do projeto. Os três construídos depois do contrato de
+linguagem fecharam sem nenhuma.
+
+### As quatro sabotagens
+
+Buraco na escada do kc_05, nó sem item de entrada, nó sem figura, e
+`topicos()` voltando a ser lista escrita à mão. As quatro mordem.

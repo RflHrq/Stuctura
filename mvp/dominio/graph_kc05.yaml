@@ -1,0 +1,110 @@
+topic: kc_05
+
+# A METÁFORA DESTE TÓPICO: o número reservado que não é casa.
+#
+# Continua a rua. A prefeitura reservou um número para significar "nenhuma
+# casa", e garantiu que nenhuma casa recebe aquele número. Escrever esse
+# número no papel de p é dizer "não aponto para ninguém" — e NÃO é o papel
+# estar em branco: tem número escrito, e o número é esse. Olhar o papel
+# para ver se é aquele número é só ler o papel. Seguir o número é ir a um
+# lugar onde não há casa.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. "Número reservado" sugere que o número é zero, ou que é o mesmo em
+#      toda rua. O que a máquina guarda ali não precisa ser zero, e você
+#      não precisa saber qual é: no código se escreve `NULL` ou `0`, e a
+#      conversão é do compilador. Quando a metáfora empurrar para "o número
+#      reservado é o zero", ela cala.
+#   2. "Ir até lá" sugere chegar a um lugar e ver que está vazio. Não é
+#      isso: não há casa, e o que acontece não é definido — pode travar,
+#      pode não travar, pode escrever em cima de outra coisa. A metáfora
+#      diz que é inválido, nunca o que acontece.
+#
+# SEIS NÓS, E A CURADORIA TEM OITO — o mesmo caso do kc_04, e a mesma
+# razão. `docs/curadoria-grafos.md` lista B1..B4 e I1..I4 com DUAS crenças,
+# em I3 e I4, e a decisão 19 manda uma por nó. A literatura desta área é
+# farta (a seção 5 do FAQ do comp.lang.c tem vinte entradas, e a 5.14
+# pergunta por que há tanta confusão aqui), mas ela documenta seis ideias,
+# não oito. Então:
+#
+#   curado B4 ("a representação interna não precisa ser zero") dobrou em
+#     I2 deste grafo ("NULL igual a 0 vale na linguagem, não nos bits"),
+#     porque são premissa e aplicação da mesma ideia;
+#   curado I2 ("p == NULL é teste, não desreferência") virou I1 deste
+#     grafo, e a curadoria registra que ele tinha ZERO caminhos — nenhum
+#     percurso passava por ele. Como ele é o que separa testar de
+#     desreferenciar, e a conclusão depende dessa separação, ele FICOU, e
+#     ganhou crença: `pointer_is_just_a_name`, do kc_04, que é
+#     pré-requisito deste tópico;
+#   curado B1 e I1 ("um ponteiro precisa poder indicar ausência" e "NULL é
+#     um valor, não um não-valor") dobraram em B1, pela mesma razão do
+#     kc_04: premissa e aplicação.
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "NULL é um valor de ponteiro que diz: não aponto para lugar nenhum."
+    plain_text: >
+      NULL é um valor de verdade, escrito dentro do ponteiro. Não é a
+      caixa de p estar vazia.
+    negated_by:
+      - null_is_absence
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Só a constante 0 escrita no código vira o ponteiro nulo."
+    plain_text: >
+      Escrever 0 onde se espera ponteiro dá o ponteiro nulo. Um zero que
+      chega em tempo de execução não tem essa garantia.
+    negated_by:
+      - any_zero_is_null
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Nenhum objeto tem o endereço do ponteiro nulo."
+    plain_text: >
+      Nenhuma caixa mora nesse endereço. Ele é reservado justamente para
+      significar "nenhum lugar".
+    negated_by:
+      - null_points_to_zero
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B1]
+    text: "p == NULL olha o que está dentro de p, e não vai a lugar nenhum."
+    plain_text: >
+      Comparar p com NULL só lê o valor de p. Não é uma ida à memória
+      apontada.
+    negated_by:
+      - pointer_is_just_a_name
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [B2, B3]
+    text: "NULL igual a 0 vale na linguagem que você escreve, não no padrão de bits."
+    plain_text: >
+      p == 0 funciona no código. Isso não quer dizer que os bits guardados
+      em p sejam zeros.
+    negated_by:
+      - null_is_zero_always
+
+  I3:
+    type: inferencia
+    role: conclusao
+    support: [B3, I1, I2]
+    text: "*p com p nulo não acessa objeto algum: é comportamento indefinido."
+    plain_text: >
+      Então *p com p em NULL manda o programa a um endereço onde não
+      existe caixa nenhuma. O que acontece daí não é definido.
+    negated_by:
+      - null_is_safe_to_deref

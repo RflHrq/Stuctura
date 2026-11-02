@@ -1,0 +1,874 @@
+# Banco de atividades — kc_05, "ponteiro NULL"
+#
+# Sete por nó: um de entrada (o degrau mais baixo, na analogia), três de
+# diagnóstico (um por degrau, com o par teórica + código) e três de treino.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Em todo item, um distrator aponta a crença
+# do próprio nó — senão o nó nunca recebe atribuição — e outro a de um
+# vizinho. E a crença do próprio nó abre a cédula (vem na alternativa `b`),
+# que é a ordem em que `razoes_de` apresenta a camada 2.
+#
+# UMA REGRA A MAIS NESTE TÓPICO: nenhum item pede o que o padrão não
+# define. "O que este programa imprime" com p nulo não tem resposta certa,
+# e a resposta certa é dizer isso. Item que premiasse "imprime 0" ensinaria
+# `null_is_safe_to_deref` — a crença que o tópico refuta.
+
+analogy: >
+  O número reservado que não é casa. Continua a rua: a prefeitura reservou
+  um número para significar "nenhuma casa", e garantiu que nenhuma casa
+  recebe aquele número. Escrever esse número no papel de p é dizer "não
+  aponto para ninguém" — e não é o papel estar em branco: tem número
+  escrito, e o número é esse. Olhar o papel para ver se é aquele número é
+  só ler o papel. Seguir o número é ir a um lugar onde não há casa.
+  ONDE QUEBRA: "número reservado" sugere que o número é zero, e o que a
+  máquina guarda ali não precisa ser zero — no código você escreve NULL ou
+  0, e a conversão é do compilador. E "ir até lá" sugere chegar e ver que
+  está vazio: não é isso, não há casa, e o que acontece não é definido.
+
+resgates:
+
+  B1: >
+    O papel de p tem um número escrito, e o número é o da reserva. Dizer
+    "não aponto para ninguém" é uma informação, e ela ocupa o papel como
+    qualquer outra. Papel com a reserva escrita não é papel em branco.
+
+  B2: >
+    Quem escreve a reserva é você, no código, com um 0 ali na mão ou com a
+    palavra NULL. Um zero que aparece no meio de uma conta, em tempo de
+    execução, é só um número: ninguém prometeu que ele vira a reserva.
+
+  B3: >
+    A prefeitura reservou aquele número para significar "nenhuma casa", e
+    por isso nenhuma casa o recebe. Não é a casa do começo da rua, nem uma
+    casa vazia: é um número sem casa, de propósito.
+
+  I1: >
+    Ler o papel de p para ver se o número é o da reserva é ler o papel.
+    Você não saiu de casa, não andou pela rua, não bateu em porta nenhuma.
+    Comparar é olhar p; ir é outra coisa.
+
+  I2: >
+    No código você escreve NULL, ou 0, e as duas formas valem — isso é
+    acordo da linguagem. O que a máquina guarda dentro de p é assunto dela,
+    e não precisa ser um monte de zeros.
+
+  I3: >
+    Seguir o número da reserva é ir onde a prefeitura garantiu que não há
+    casa. Não existe porta para bater. E o que acontece quando você tenta
+    não está escrito em lugar nenhum: pode travar, pode não travar.
+
+exemplos:
+
+  B1: |
+    int *p = NULL;   /* p tem um valor: o nulo */
+    /* nao e "p esta vazio" */
+
+  B2: |
+    int *p = 0;      /* o 0 constante: da o nulo */
+    int n = 0;
+    int *q = (int *)n;   /* zero de execucao: sem garantia */
+
+  B3: |
+    int x;
+    &x != NULL       /* sempre verdadeiro: & nunca da nulo */
+
+  I1: |
+    int *p = NULL;
+    if (p == NULL)   /* le p, e nao vai a lugar nenhum */
+        ;
+
+  I2: |
+    int *p = NULL;
+    p == 0           /* verdadeiro: acordo da linguagem */
+    /* os bits dentro de p: assunto da maquina */
+
+  I3: |
+    int *p = NULL;
+    *p = 1;          /* indefinido: nao ha objeto la */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — NULL é um valor de ponteiro, não a ausência de valor
+  # crença do nó: null_is_absence
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc05_e1
+    node: kc05:B1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você escreve no papel de p o número reservado para "nenhuma casa".
+      O papel está em branco?
+    alternativas:
+      a: "Não: tem um número escrito"
+      b: "Está: nenhum número é nenhum papel"
+      c: "Está, e é o zero que aparece lá"
+    gabarito: a
+    crencas:
+      b: null_is_absence
+      c: null_is_zero_always
+
+  - id: ciu_kc05_001
+    node: kc05:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que NULL é?"
+    alternativas:
+      a: "Um valor de ponteiro"
+      b: "A falta de um valor em p"
+      c: "O número zero, guardado em p"
+    gabarito: a
+    crencas:
+      b: null_is_absence
+      c: null_is_zero_always
+
+  - id: ciu_kc05_002
+    node: kc05:B1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      printf("%zu %d\n", sizeof p, p == NULL);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "o tamanho do ponteiro, e 1"
+      b: "0 e 1: p não guarda nada"
+      c: "o tamanho, e 0: zero não é NULL"
+    gabarito: a
+    crencas:
+      b: null_is_absence
+      c: null_is_zero_always
+
+  - id: ciu_kc05_003
+    node: kc05:B1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int *p;
+      /* B */  int *q = NULL;
+    enunciado: "Qual dos dois guarda um valor que você escolheu?"
+    alternativas:
+      a: "B: NULL é um valor, e você o escreveu"
+      b: "Nenhum: os dois estão sem valor"
+      c: "Os dois: em p está o zero da máquina"
+    gabarito: a
+    crencas:
+      b: null_is_absence
+      c: null_is_zero_always
+
+  - id: ciu_kc05_t01
+    node: kc05:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Dizer "não aponto para lugar nenhum" é informação, ou falta de
+      informação?
+    alternativas:
+      a: "Informação: é um valor"
+      b: "Falta: o ponteiro está vazio"
+      c: "Informação, e o valor é zero"
+    gabarito: a
+    crencas:
+      b: null_is_absence
+      c: null_is_zero_always
+
+  - id: ciu_kc05_t02
+    node: kc05:B1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *acha(int v);
+      int *p = acha(3);
+      if (p) printf("%d\n", *p);
+    enunciado: "O que o if está checando?"
+    alternativas:
+      a: "Se p recebeu um endereço de verdade"
+      b: "Se p tem algum valor dentro"
+      c: "Se o que p aponta é diferente de 0"
+    gabarito: a
+    crencas:
+      b: null_is_absence
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc05_t03
+    node: kc05:B1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      int *q = NULL;
+      printf("%d\n", p == q);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: os dois têm o mesmo valor"
+      b: "0: nenhum dos dois tem valor"
+      c: "1, porque os dois guardam zero"
+    gabarito: a
+    crencas:
+      b: null_is_absence
+      c: null_is_zero_always
+
+  # ------------------------------------------------------------------
+  # B2 — só a constante 0 do código vira o ponteiro nulo
+  # crença do nó: any_zero_is_null
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc05_e2
+    node: kc05:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você escreve "nenhuma casa" no papel. E se, em vez disso, o número
+      vier de uma conta que deu zero?
+    alternativas:
+      a: "Aí é só um número, não a reserva"
+      b: "Dá na mesma: zero é a reserva"
+      c: "Dá na mesma: a reserva é o zero"
+    gabarito: a
+    crencas:
+      b: any_zero_is_null
+      c: null_is_zero_always
+
+  - id: ciu_kc05_004
+    node: kc05:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que o compilador converte em ponteiro nulo?"
+    alternativas:
+      a: "A constante 0 escrita no código"
+      b: "Qualquer zero, venha de onde vier"
+      c: "Nada: o nulo já é zero na memória"
+    gabarito: a
+    crencas:
+      b: any_zero_is_null
+      c: null_is_zero_always
+
+  - id: ciu_kc05_005
+    node: kc05:B2
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int n = 0;
+      int *p = (int *)n;
+      if (p == NULL) printf("nulo\n");
+    enunciado: "Por que não dá para contar com esse teste?"
+    alternativas:
+      a: "n é zero em execução, não constante"
+      b: "Dá: um zero convertido dá o nulo"
+      c: "Dá: o nulo é zero na memória"
+    gabarito: a
+    crencas:
+      b: any_zero_is_null
+      c: null_is_zero_always
+
+  - id: ciu_kc05_006
+    node: kc05:B2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int n = 0;
+      /* A */  int *p = 0;
+      /* B */  int *q = (int *)n;
+    enunciado: "Qual dos dois é garantidamente o ponteiro nulo?"
+    alternativas:
+      a: "A: o 0 está escrito no código"
+      b: "Os dois: zero é zero"
+      c: "Os dois, e os bits são zeros"
+    gabarito: a
+    crencas:
+      b: any_zero_is_null
+      c: null_is_zero_always
+
+  - id: ciu_kc05_t04
+    node: kc05:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Escrever int *p = 0; dá o quê?"
+    alternativas:
+      a: "O ponteiro nulo"
+      b: "O mesmo que um zero de execução"
+      c: "O endereço 0, que é um lugar"
+    gabarito: a
+    crencas:
+      b: any_zero_is_null
+      c: null_points_to_zero
+
+  - id: ciu_kc05_t05
+    node: kc05:B2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int zero = 0;
+      int *p = (int *)zero;
+      printf("%d\n", p == NULL);
+    enunciado: "Dá para prever o que sai?"
+    alternativas:
+      a: "Não: zero em execução não garante"
+      b: "Dá: sai 1, porque zero vira nulo"
+      c: "Dá: sai 1, o nulo é zero"
+    gabarito: a
+    crencas:
+      b: any_zero_is_null
+      c: null_is_zero_always
+
+  - id: ciu_kc05_t06
+    node: kc05:B2
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void *p = malloc(10);
+      if (p == 0) return;
+    enunciado: "O teste está certo?"
+    alternativas:
+      a: "Está: o 0 constante é o nulo"
+      b: "Está, e valeria com zero de execução"
+      c: "Está, porque os bits do nulo são 0"
+    gabarito: a
+    crencas:
+      b: any_zero_is_null
+      c: null_is_zero_always
+
+  # ------------------------------------------------------------------
+  # B3 — nenhum objeto tem o endereço do ponteiro nulo
+  # crença do nó: null_points_to_zero
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc05_e3
+    node: kc05:B3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      A prefeitura reservou um número para significar "nenhuma casa".
+      Alguma casa pode receber esse número?
+    alternativas:
+      a: "Não: foi reservado para isso"
+      b: "Pode: é a casa número 0"
+      c: "Pode, e lá não mora ninguém"
+    gabarito: a
+    crencas:
+      b: null_points_to_zero
+      c: null_is_absence
+
+  - id: ciu_kc05_007
+    node: kc05:B3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que existe no endereço do ponteiro nulo?"
+    alternativas:
+      a: "Objeto nenhum"
+      b: "A primeira posição da memória"
+      c: "Uma posição vazia, pronta"
+    gabarito: a
+    crencas:
+      b: null_points_to_zero
+      c: null_is_absence
+
+  - id: ciu_kc05_008
+    node: kc05:B3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      int x = 5;
+      if (&x == p) printf("igual\n");
+    enunciado: "Por que esse if não entra?"
+    alternativas:
+      a: "&x não dá o nulo em caso nenhum"
+      b: "Entra se x estiver no endereço 0"
+      c: "Não entra porque p está vazio"
+    gabarito: a
+    crencas:
+      b: null_points_to_zero
+      c: null_is_absence
+
+  - id: ciu_kc05_009
+    node: kc05:B3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *a = malloc(sizeof(int));
+      int *b = NULL;
+    enunciado: "Um dos dois pode valer o ponteiro nulo. Qual, e quando?"
+    alternativas:
+      a: "a, se o malloc falhar"
+      b: "b, e aí aponta o endereço 0"
+      c: "a, se o malloc devolver vazio"
+    gabarito: a
+    crencas:
+      b: null_points_to_zero
+      c: null_is_absence
+
+  - id: ciu_kc05_t07
+    node: kc05:B3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O ponteiro nulo aponta para onde?"
+    alternativas:
+      a: "Para lugar nenhum"
+      b: "Para o começo da memória"
+      c: "Para nenhum lugar, e está vazio"
+    gabarito: a
+    crencas:
+      b: null_points_to_zero
+      c: null_is_absence
+
+  - id: ciu_kc05_t08
+    node: kc05:B3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      printf("%d\n", p == NULL);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "0: &x não dá o nulo"
+      b: "1 se x estiver no endereço 0"
+      c: "0, e p também não está vazio"
+    gabarito: a
+    crencas:
+      b: null_points_to_zero
+      c: null_is_absence
+
+  - id: ciu_kc05_t09
+    node: kc05:B3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char *p = NULL;
+      printf("%c\n", p[0]);
+    enunciado: "Por que isso é inválido?"
+    alternativas:
+      a: "p[0] vai a um lugar sem objeto"
+      b: "p[0] lê o byte do endereço 0"
+      c: "p[0] lê um lugar vazio, e dá 0"
+    gabarito: a
+    crencas:
+      b: null_points_to_zero
+      c: null_is_safe_to_deref
+
+  # ------------------------------------------------------------------
+  # I1 — p == NULL é teste, não desreferência
+  # crença do nó: pointer_is_just_a_name (do kc_04, pré-requisito)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc05_e4
+    node: kc05:I1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você olha o papel de p para ver se o número escrito é o da reserva.
+      Você saiu de casa?
+    alternativas:
+      a: "Não: só li o papel"
+      b: "Saiu: ler o papel é ir até lá"
+      c: "Saiu, e não achou casa nenhuma"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: null_points_to_zero
+
+  - id: ciu_kc05_010
+    node: kc05:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que p == NULL faz?"
+    alternativas:
+      a: "Compara o que está em p"
+      b: "Vai até o apontado e compara"
+      c: "Vai até o endereço 0 e olha"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: null_points_to_zero
+
+  - id: ciu_kc05_011
+    node: kc05:I1
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      if (*p == 0) return;
+    enunciado: "Por que a segunda linha é inválida?"
+    alternativas:
+      a: "O teste devia ser p == NULL"
+      b: "Não é: *p é o jeito de testar p"
+      c: "Não é: *p com p nulo devolve 0"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: null_is_safe_to_deref
+
+  - id: ciu_kc05_012
+    node: kc05:I1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      /* A */  if (p  == NULL) ;
+      /* B */  if (*p == 0)    ;
+    enunciado: "Uma das duas é segura. Qual, e por quê?"
+    alternativas:
+      a: "A: olha p sem sair de p"
+      b: "As duas: p e *p dizem o mesmo"
+      c: "B: com p nulo, *p dá 0"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: null_is_safe_to_deref
+
+  - id: ciu_kc05_t10
+    node: kc05:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Comparar p com NULL acessa a memória apontada?"
+    alternativas:
+      a: "Não: olha só o valor de p"
+      b: "Acessa: é por lá que se olha"
+      c: "Acessa o endereço 0, que é seguro"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: null_points_to_zero
+
+  - id: ciu_kc05_t11
+    node: kc05:I1
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      printf("%d\n", p == NULL);
+    enunciado: "Esta linha vai à memória apontada?"
+    alternativas:
+      a: "Não: ela só lê o valor de p"
+      b: "Vai: a comparação passa por lá"
+      c: "Vai ao endereço 0, e lê os bits"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: null_points_to_zero
+
+  - id: ciu_kc05_t12
+    node: kc05:I1
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *acha(void);
+      int *p = acha();
+      if (p != NULL && *p > 0) printf("ok\n");
+    enunciado: "Por que a ordem do && importa aqui?"
+    alternativas:
+      a: "O teste de p vem antes da ida"
+      b: "Não importa: testar p já vai lá"
+      c: "Não importa: *p com nulo dá 0"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: null_is_safe_to_deref
+
+  # ------------------------------------------------------------------
+  # I2 — NULL == 0 vale na linguagem, não nos bits
+  # crença do nó: null_is_zero_always
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc05_e5
+    node: kc05:I2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      No código você escreve "nenhuma casa". O número que a prefeitura
+      guarda no papel é o zero?
+    alternativas:
+      a: "Não precisa ser: é detalhe dela"
+      b: "É: zero é o número da reserva"
+      c: "É zero, e é a casa número 0"
+    gabarito: a
+    crencas:
+      b: null_is_zero_always
+      c: null_points_to_zero
+
+  - id: ciu_kc05_013
+    node: kc05:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      p == 0 funciona. O que isso diz sobre os bits guardados em p?
+    alternativas:
+      a: "Nada: é conversão da linguagem"
+      b: "Que são todos zeros"
+      c: "Que p aponta para o endereço 0"
+    gabarito: a
+    crencas:
+      b: null_is_zero_always
+      c: null_points_to_zero
+
+  - id: ciu_kc05_014
+    node: kc05:I2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      unsigned char b[sizeof p];
+      memcpy(b, &p, sizeof p);
+    enunciado: "O que se pode afirmar sobre os bytes em b?"
+    alternativas:
+      a: "Nada garantido pelo padrão"
+      b: "Que são todos zeros"
+      c: "Que formam o endereço 0"
+    gabarito: a
+    crencas:
+      b: null_is_zero_always
+      c: null_points_to_zero
+
+  - id: ciu_kc05_015
+    node: kc05:I2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      int *zero;
+      memset(&zero, 0, sizeof zero);
+      /* A */  p == 0
+      /* B */  memcmp(&p, &zero, sizeof p) == 0
+    enunciado: "Qual das duas o padrão garante que é verdadeira?"
+    alternativas:
+      a: "A: a comparação é da linguagem"
+      b: "As duas: NULL é zero"
+      c: "B: os bits do nulo são do endereço 0"
+    gabarito: a
+    crencas:
+      b: null_is_zero_always
+      c: null_points_to_zero
+
+  - id: ciu_kc05_t13
+    node: kc05:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "NULL igual a 0 vale onde?"
+    alternativas:
+      a: "No código que você escreve"
+      b: "No código e na memória"
+      c: "Na memória, que começa em 0"
+    gabarito: a
+    crencas:
+      b: null_is_zero_always
+      c: null_points_to_zero
+
+  - id: ciu_kc05_t14
+    node: kc05:I2
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      if (memcmp(&p, "\0\0\0\0", 4) == 0) printf("nulo\n");
+    enunciado: "Por que esse teste não é portável?"
+    alternativas:
+      a: "Os bits do nulo não são definidos"
+      b: "É portável: o nulo é zero"
+      c: "Não é: o nulo guarda o endereço 0"
+    gabarito: a
+    crencas:
+      b: null_is_zero_always
+      c: null_points_to_zero
+
+  - id: ciu_kc05_t15
+    node: kc05:I2
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      printf("%d %d\n", p == 0, p == NULL);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1 1: as duas são da linguagem"
+      b: "1 1, e os bits são zeros"
+      c: "0 1: só NULL compara certo"
+    gabarito: a
+    crencas:
+      b: null_is_zero_always
+      c: any_zero_is_null
+
+  # ------------------------------------------------------------------
+  # I3 — a conclusão: *p com p nulo é comportamento indefinido
+  # crença do nó: null_is_safe_to_deref
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc05_e6
+    node: kc05:I3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você segue o número da reserva e vai até lá. O que te espera?
+    alternativas:
+      a: "Casa nenhuma, e nada garantido"
+      b: "Uma casa vazia, que devolve 0"
+      c: "A casa número 0 da rua"
+    gabarito: a
+    crencas:
+      b: null_is_safe_to_deref
+      c: null_points_to_zero
+
+  - id: ciu_kc05_016
+    node: kc05:I3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Fazer *p com p em NULL é o quê?"
+    alternativas:
+      a: "Inválido: não há objeto lá"
+      b: "Válido: devolve 0"
+      c: "Válido: lê o endereço 0"
+    gabarito: a
+    crencas:
+      b: null_is_safe_to_deref
+      c: null_points_to_zero
+
+  - id: ciu_kc05_017
+    node: kc05:I3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(sizeof(int));
+      *p = 7;
+    enunciado: "O que falta entre as duas linhas?"
+    alternativas:
+      a: "Checar se o malloc devolveu nulo"
+      b: "Nada: se falhar, *p devolve 0"
+      c: "Nada: o nulo é zero e dá certo"
+    gabarito: a
+    crencas:
+      b: null_is_safe_to_deref
+      c: null_is_zero_always
+
+  - id: ciu_kc05_018
+    node: kc05:I3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      /* A */  if (p)         *p = 1;
+      /* B */  if (p == NULL) *p = 1;
+    enunciado: "Uma das duas escreve com p nulo. Qual?"
+    alternativas:
+      a: "B: o corpo roda quando p é nulo"
+      b: "Nenhuma: *p com nulo não escreve"
+      c: "A: if(p) só vale se o nulo for 0"
+    gabarito: a
+    crencas:
+      b: null_is_safe_to_deref
+      c: null_is_zero_always
+
+  - id: ciu_kc05_t16
+    node: kc05:I3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que o padrão diz que acontece em *p com p nulo?"
+    alternativas:
+      a: "Nada: é comportamento indefinido"
+      b: "Devolve 0, como um lugar vazio"
+      c: "Lê o primeiro byte da memória"
+    gabarito: a
+    crencas:
+      b: null_is_safe_to_deref
+      c: null_points_to_zero
+
+  - id: ciu_kc05_t17
+    node: kc05:I3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int *p = NULL;
+      printf("%d\n", *p);
+    enunciado: "O que esse programa faz?"
+    alternativas:
+      a: "Não dá para dizer: é indefinido"
+      b: "Imprime 0, do lugar vazio"
+      c: "Imprime o que há no endereço 0"
+    gabarito: a
+    crencas:
+      b: null_is_safe_to_deref
+      c: null_points_to_zero
+
+  - id: ciu_kc05_t18
+    node: kc05:I3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char *nome = NULL;
+      printf("%s\n", nome);
+    enunciado: "Por que isso não é seguro?"
+    alternativas:
+      a: "printf vai ler onde não há texto"
+      b: "É seguro: imprime vazio"
+      c: "É seguro: lê a partir do endereço 0"
+    gabarito: a
+    crencas:
+      b: null_is_safe_to_deref
+      c: null_points_to_zero

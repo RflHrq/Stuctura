@@ -58,6 +58,26 @@ USOS = ("diagnostico", "treino", "entrada")
 NIVEIS = (1, 2, 3)
 
 
+def topicos(raiz: Path | None = None) -> tuple[str, ...]:
+    """Os tópicos que existem no disco, em ordem.
+
+    Existe por um motivo chato: cada tópico novo precisava entrar à mão em
+    seis listas de teste espalhadas, e duas delas já estavam defasadas —
+    o kc_03 e o kc_04 nunca tinham sido varridos pelos testes de
+    construção e de escada. Lista escrita à mão é lista que envelhece.
+
+    O nome do arquivo é a fonte: `topic_kc02.yaml` -> `kc_02`. A ordem é a
+    do nome, que para `kc_NN` é a ordem de ensino.
+    """
+    base = Path(raiz) if raiz else RAIZ
+    achados = []
+    for caminho in sorted(base.glob("topic_*.yaml")):
+        bruto = caminho.stem[len("topic_"):]          # kc02
+        achados.append("%s_%s" % (bruto[:2], bruto[2:]) if bruto[:2].isalpha()
+                       and bruto[2:].isdigit() else bruto)
+    return tuple(achados)
+
+
 class DominioInvalido(Exception):
     def __init__(self, problemas):
         self.problemas = list(problemas)

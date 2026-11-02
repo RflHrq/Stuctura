@@ -1,0 +1,89 @@
+# Crenças do kc_05 — uma por nó, seis no total.
+#
+# Zero `E`, como o kc_03 e o kc_04. Quatro saem da seção 5 do FAQ do
+# comp.lang.c, que é inteira sobre ponteiro nulo e tem vinte entradas — a
+# 5.14 pergunta, com essas palavras, por que há tanta confusão aqui. Os
+# textos de 5.1, 5.3, 5.18 e 5.19 foram lidos no original em c-faq.com
+# nesta sessão; 5.13 e 5.16 já estavam citados na curadoria.
+#
+# Duas crenças vêm de fora deste tópico, e isso é o esperado: o kc_05 tem
+# o kc_03 e o kc_04 como pré-requisitos declarados, e a mesma concepção
+# nega premissas de tópicos diferentes. O que o carregador recusa é a
+# MESMA crença negando dois nós do MESMO tópico.
+#
+# `null_is_safe_to_deref` tem procedência N, que é a mais fraca do
+# catálogo: o ERRO está normatizado (CERT C, CWE), a CRENÇA não foi medida
+# em estudo empírico. Fica declarada assim, e é a única N dos cinco
+# tópicos construídos.
+
+- id: null_is_absence
+  negates: kc_05:B1
+  provenance: L
+  label_pt: "NULL quer dizer que o ponteiro está vazio, sem valor dentro."
+  source: >
+    FAQ comp.lang.c 5.1: "for each pointer type, there is a special
+    value — the 'null pointer' — which is distinguishable from all other
+    pointer values". A resposta insiste que é um VALOR, e é essa a
+    premissa de B1. Ver também 5.14, que pergunta por que há tanta
+    confusão em torno do ponteiro nulo, e 5.15 ("I just can't understand
+    all this null pointer stuff") — a existência das duas perguntas é, por
+    si, evidência de quanta gente trata NULL como ausência.
+
+- id: any_zero_is_null
+  negates: kc_05:B2
+  provenance: L
+  label_pt: "Qualquer zero vira ponteiro nulo, inclusive um que chegue em tempo de execução."
+  source: >
+    FAQ comp.lang.c 5.18: "Is a run-time integral value of 0, cast to a
+    pointer, guaranteed to be a null pointer? No. Only constant integral
+    expressions with value 0 are guaranteed to indicate null pointers."
+    Texto conferido em c-faq.com. A pergunta é a crença.
+
+- id: null_points_to_zero
+  negates: kc_05:B3
+  provenance: L
+  label_pt: "O ponteiro nulo aponta para o endereço 0, e lá há memória como em qualquer outro lugar."
+  source: >
+    FAQ comp.lang.c 5.1: "a null pointer points definitively nowhere; it
+    is not the address of any object or function"; e 5.19, "How can I
+    access an interrupt vector located at the machine's location 0? If I
+    set a pointer to 0, the compiler might translate it to some nonzero
+    internal null pointer value" — a pergunta existe porque quem a faz
+    confunde o ponteiro nulo com um ponteiro para a posição 0. Textos
+    conferidos em c-faq.com.
+
+- id: pointer_is_just_a_name
+  negates: kc_05:I1
+  provenance: T
+  label_pt: "p é só outro nome da variável apontada: olhar p é olhar o que está lá."
+  source: >
+    Sorva (2012), p. 362, item 64: "A variable associated with an object
+    is merely a name which can be used to manipulate an object or 'thing'
+    in a program" (Sorva 2008; Ma 2007). A mesma crença está no catálogo
+    do kc_04, que é pré-requisito deste tópico. Aqui ela nega a premissa
+    de que comparar p é ler p: se p fosse apenas um nome do apontado,
+    `p == NULL` seria uma pergunta sobre o apontado, e não sobre p.
+
+- id: null_is_zero_always
+  negates: kc_05:I2
+  provenance: L
+  label_pt: "NULL é o inteiro 0 em todos os contextos, inclusive no que está guardado na memória."
+  source: >
+    FAQ comp.lang.c 5.13, cujo título é a crença dita por quem a tem:
+    "This is strange. NULL is guaranteed to be 0, but the null pointer is
+    not?"; e 5.16, "wouldn't it be easier simply to require them to be
+    represented internally by zeroes?". Ver também 5.3, que é a mesma
+    confusão do outro lado — o medo de que `if(p)` deixe de valer quando a
+    representação interna não é zero, e a resposta é "It is always valid".
+    É a crença que a curadoria já tinha, com a fonte dela.
+
+- id: null_is_safe_to_deref
+  negates: kc_05:I3
+  provenance: N
+  label_pt: "Acessar *p com p igual a NULL devolve 0, como se fosse um lugar vazio."
+  source: >
+    CERT C EXP34-C, "Do not dereference null pointers"; CWE-476, "NULL
+    Pointer Dereference". A norma catalogou o ERRO, não a crença — é por
+    isso que a procedência é N e não D. É a crença que a curadoria já
+    tinha, com a fonte dela. Ver também FAQ 5.1, que diz por que não há
+    objeto no fim daquele ponteiro.

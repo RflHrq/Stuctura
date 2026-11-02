@@ -24,7 +24,7 @@ from __future__ import annotations
 import pytest
 
 from mvp import motor
-from mvp.dominio import carrega
+from mvp.dominio import carrega, topicos
 from mvp.motor import Resposta
 from mvp.test_motor import _politica, roda
 
@@ -85,7 +85,7 @@ def _nao_sabia_e_aprendeu(d):
 # A lacuna deixa de ser beco sem saída
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02"])
+@pytest.mark.parametrize("topico", topicos())
 def test_declarar_que_nao_sabe_abre_o_ensino_daquele_no(topico):
     """O teste que a tarefa pede. Antes disto, declarar que não sabe
     produzia um evento e a pergunta seguinte."""
@@ -233,7 +233,7 @@ def test_a_construcao_nao_apaga_o_que_ja_foi_medido(d2):
 # não foi apresentado não mede concepção errônea — mede quem já sabia.
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize("topico", ["kc_00", "kc_01", "kc_02"])
+@pytest.mark.parametrize("topico", topicos())
 def test_nenhum_no_e_perguntado_sem_ter_sido_apresentado(topico):
     """A garantia inteira, e ela vale para os dois tópicos."""
     dd = carrega(topico=topico)
