@@ -853,3 +853,105 @@ nenhuma `E`. As quatro `E` que restam continuam nos três mais antigos.
 
 Buraco na escada, nó sem item de entrada, nó sem figura, e a crença do
 próprio nó saindo de um item de diagnóstico. As quatro mordem.
+
+## Ciclo de conteúdo — o kc_07 (ponteiro e array) · **tópico-piloto**
+
+Sétimo tópico, e o segundo **piloto** a ficar pronto (o kc_02 era o único
+até aqui). Dos quatro que a coleta usa de verdade — kc_02, kc_07, kc_11,
+kc_09 — metade está construída.
+
+### A curadoria, pela primeira vez, quase não discorda
+
+Este é o tópico em que a curadoria mais contribui: ela tem **seis**
+crenças, todas grade L, todas com entrada do FAQ do comp.lang.c. **As seis
+estão aqui**, cada uma no nó cuja afirmação ela nega de fato. A sétima
+(`declaration_allocates`) vem do kc_03, e a própria curadoria registra que
+aquele nó é "importado de `kc_03:I1`".
+
+Nove nós curados, sete aqui, duas dobras de premissa-e-aplicação:
+
+| Curado | Virou |
+| --- | --- |
+| B4 (`sizeof` e `&` não convertem) + I3 (`sizeof(a)` dá o array) | `B4` |
+| I5 (`arr` e `&arr`, tipos diferentes) | a crença de `B4` |
+
+**Sete nós, e não seis.** Custa ~7 passos a mais por sessão que os quatro
+tópicos anteriores. Por ser piloto, vale: é onde a medida tem de ser fina,
+e cortar um nó aqui seria cortar uma premissa que a coleta vai medir.
+
+### Uma correção à curadoria
+
+`string_literal_is_array` estava citada como **FAQ 6.6b** ("Isn't this an
+array assignment? `char a[] = ...`"). A entrada que trata exatamente da
+crença é a **1.32**: *"What is the difference between these
+initializations? `char a[] = "string literal"; char *p = "string
+literal";` My program crashes if I try to assign a new value to p[i]."* As
+duas ficam citadas no YAML, a 1.32 primeiro. É a segunda correção de
+citação que este projeto encontra conferindo a fonte primária.
+
+### As fontes
+
+| Crença | Nó | Proc. | Fonte |
+| --- | --- | --- | --- |
+| `string_literal_is_array` | B1 | L | FAQ 1.32 (+6.6b) |
+| `declaration_allocates` | B2 | T | Kaczmarczyk MMR4 + FAQ 7.10 — do kc_03 |
+| `array_passed_by_reference` | B3 | L | FAQ 6.4b |
+| `arr_equals_addr_of_arr` | B4 | L | FAQ 6.12 |
+| `array_is_assignable` | I1 | L | FAQ 6.5, 6.6, 6.7 |
+| `sizeof_array_via_pointer` | I2 | L | FAQ 6.21 (o `sizeof` que imprime 4, não 10) |
+| `array_is_pointer` | I3 | L | FAQ 6.2, 6.9, 6.10 |
+
+**Seis `L` e uma `T`** — a distribuição mais forte dos oito tópicos, e a
+única em que a maioria vem de literatura técnica de C em vez de
+transposição de outra linguagem. Faz sentido: array-versus-ponteiro é o
+assunto em que o FAQ de C é mais farto (24 entradas na seção 6, três delas
+para a mesma crença).
+
+### Uma regra a mais no banco, e ela é de piloto
+
+Nenhum item depende de tamanho de ponteiro nem de tamanho de int.
+`sizeof p` dá 8 nesta máquina e não no padrão: quem acertasse por saber o
+número da máquina dele acertaria **por fora da premissa**. Onde o tamanho
+aparece, a resposta certa é relativa — "o tamanho de um ponteiro", "mede
+as cinco caixas" — nunca um número absoluto. Está escrita no cabeçalho do
+banco.
+
+### A figura ganhou primitiva nova
+
+`quarteirao()`: casas que **se tocam**, sem canto arredondado, com o
+número na porta só da primeira e o nome por baixo valendo pelo conjunto. A
+disciplina do desenho é a própria conclusão do tópico: o quarteirão nunca
+aparece como uma caixa com número dentro, e o ponteiro nunca aparece como
+um quarteirão. Desenhar `a` como bilhete seria desenhar `array_is_pointer`.
+
+### A medição
+
+| Persona | kc_07 |
+| --- | --- |
+| acerta tudo | 52 passos, 0/12 sem medida |
+| erra e aprende | 95, 0/12 |
+| erra e não muda | **99, 0/12** |
+
+O sétimo nó custou +7 no caminho curto e +11 no pior caso, contra os
+tópicos de seis. Dentro do esperado, e o pior caso continua em zero.
+
+### Os oito tópicos, 332 itens
+
+| Tópico | Nós | Itens | Vizinho | Procedências |
+| --- | --- | --- | --- | --- |
+| `kc_00` | 5 | 20 | 31% | 3 L, 1 T, **1 E** |
+| `kc_01` | 5 | 35 | 37% | 3 T, 1 L, **1 E** |
+| `kc_02` · piloto | 6 | 60 | 47% | 2 T, 1 D, 1 L, **2 E** |
+| `kc_03` | 6 | 42 | 36% | 3 D, 2 L, 1 T |
+| `kc_04` | 6 | 42 | 50% | 3 L, 3 T |
+| `kc_05` | 6 | 42 | 50% | 4 L, 1 T, 1 N |
+| `kc_06` | 6 | 42 | 50% | 5 T, 1 L |
+| `kc_07` · piloto | 7 | 49 | 50% | **6 L**, 1 T |
+
+Cinco tópicos construídos depois do contrato de linguagem, cinco sem
+nenhuma `E`.
+
+### As quatro sabotagens
+
+Buraco na escada, nó sem item de entrada, nó sem figura, e um item binário
+entrando no banco. As quatro mordem.

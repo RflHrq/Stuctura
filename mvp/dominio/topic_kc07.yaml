@@ -1,0 +1,13 @@
+id: kc_07
+title: "Ponteiro e array"
+pilot: true
+prerequisites: [kc_04, kc_06]
+conclusion_node: I3
+summary: >
+  Array e ponteiro são tipos distintos. Em quase toda expressão o nome do
+  array converte-se no endereço do primeiro elemento — mas o array não é
+  um ponteiro, e em sizeof e em & a conversão não acontece.
+
+# Respondível ANTES por quem ainda não sabe. É o lado esquerdo do
+# antes-e-depois, e a pergunta é exatamente a que o tópico responde.
+teachback: "qual é a diferença entre um array e um ponteiro, se a[i] e p[i] se escrevem do mesmo jeito"

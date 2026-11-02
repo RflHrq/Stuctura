@@ -1,0 +1,122 @@
+topic: kc_07
+
+# TÓPICO-PILOTO. É um dos quatro que a coleta usa de verdade (kc_02,
+# kc_07, kc_11, kc_09), e por isso a fidelidade à curadoria pesa mais aqui
+# do que nos tópicos de apoio.
+#
+# A METÁFORA DESTE TÓPICO: o quarteirão de casas grudadas.
+#
+# `int a[5]` é um quarteirão com cinco casas grudadas, numeradas em
+# sequência, e o nome `a` é o nome do QUARTEIRÃO — não de uma casa. Quando
+# você usa esse nome numa conta, a rua entende "o número da primeira
+# casa": é um atalho. Mas em dois lugares o atalho não vale — quando você
+# pergunta o TAMANHO do quarteirão, e quando pede o endereço DO
+# QUARTEIRÃO.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. "Quarteirão" sugere que existe uma caixa guardando o quarteirão, do
+#      jeito que p guarda um número. Não existe: o nome `a` não tem caixa
+#      própria com um endereço dentro, e o atalho é do compilador. É
+#      exatamente por isso que não dá para "trocar o quarteirão" por
+#      outro, e quando a metáfora empurrar para "a é um bilhete", ela
+#      cala — esse é o `array_is_pointer`, que a conclusão refuta.
+#   2. A metáfora não diz nada sobre quem construiu o quarteirão nem por
+#      quanto tempo ele fica. Isso é do kc_01.
+#
+# SETE NÓS, E A CURADORIA TEM NOVE — mas aqui a conta é outra, e melhor.
+# Este é o PRIMEIRO tópico em que a curadoria tem crença para quase tudo:
+# são SEIS, todas grade L e todas com entrada do FAQ. As seis estão aqui,
+# cada uma no nó cuja afirmação ela nega de fato. O sétimo nó (B2) usa
+# `declaration_allocates`, do kc_03 — e a própria curadoria registra que
+# aquele nó é "importado de kc_03:I1".
+#
+# Duas dobras, as duas de premissa-e-aplicação:
+#
+#   curado B4 ("há contextos onde a conversão não ocorre: sizeof e &") +
+#     I3 ("sizeof(a) dá o array; sizeof(p), o ponteiro") -> B4 deste grafo;
+#   curado I4 ("como parâmetro, int a[] vira int *a; daí a perda do
+#     tamanho") ficou, e é o I2 daqui — com a crença do tamanho perdido,
+#     que é o que o FAQ 6.21 documenta.
+#
+# Sete nós custam ~7 passos a mais por sessão que seis. Por ser piloto,
+# vale: é o tópico em que a medida tem de ser fina.
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "int a[5] reserva 5 ints contíguos, e o nome vale pelo conjunto."
+    plain_text: >
+      int a[5] cria cinco caixas de inteiro grudadas uma na outra. O nome
+      a vale para o conjunto inteiro, não para uma caixa só.
+    negated_by:
+      - string_literal_is_array
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "int *p reserva só o ponteiro."
+    plain_text: >
+      int *p cria uma caixa só: a de p. Nenhuma caixa de inteiro nasce
+      junto.
+    negated_by:
+      - declaration_allocates
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Em expressão, o nome do array converte-se no endereço do primeiro elemento."
+    plain_text: >
+      Quando você usa a numa conta, C troca a pelo endereço da primeira
+      caixa. O que viaja é esse endereço, e não o conjunto.
+    negated_by:
+      - array_passed_by_reference
+
+  B4:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Em sizeof e em & a conversão não acontece."
+    plain_text: >
+      Essa troca acontece quase em todo lugar. Em dois ela não acontece:
+      sizeof(a) mede as caixas, e &a dá o endereço do conjunto.
+    negated_by:
+      - arr_equals_addr_of_arr
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B1, B4]
+    text: "Não se atribui ao nome do array: ele não é modificável."
+    plain_text: >
+      Dá para trocar o que está dentro de cada caixa. Não dá para trocar o
+      conjunto inteiro por outro.
+    negated_by:
+      - array_is_assignable
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [B3]
+    text: "Como parâmetro, int a[] é reescrito como int *a, e o tamanho se perde."
+    plain_text: >
+      Ao passar um array para uma função, só o endereço da primeira caixa
+      viaja. Lá dentro não dá mais para saber quantas caixas eram.
+    negated_by:
+      - sizeof_array_via_pointer
+
+  I3:
+    type: inferencia
+    role: conclusao
+    support: [B2, B3, I1, I2]
+    text: "Array e ponteiro são tipos distintos, ainda que a[i] e p[i] se pareçam."
+    plain_text: >
+      a e p são coisas diferentes, mesmo que a[i] e p[i] se escrevam do
+      mesmo jeito.
+    negated_by:
+      - array_is_pointer

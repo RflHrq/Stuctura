@@ -240,6 +240,52 @@
     return g;
   }
 
+  /* O QUARTEIRAO de casas grudadas (kc_07). As casas se TOCAM, de
+   * proposito, e sem canto arredondado: o que o desenho tem de dizer e que
+   * sao contiguas e que o NOME vale pelo conjunto, nao por uma delas.
+   *
+   * O numero na porta aparece so na PRIMEIRA casa, porque e esse numero
+   * que o nome do array vira numa expressao — desenhar numero em todas
+   * sugeriria que cada uma tem nome proprio. */
+  function quarteirao(x, y, o) {
+    o = o || {};
+    var g = el("g", {});
+    var n = o.quantas || 5, L = o.largura || 46, A = o.altura || 44;
+    for (var i = 0; i < n; i++) {
+      g.appendChild(el("rect", {
+        x: x + i * L, y: y, width: L, height: A,
+        "class": "fig-quarto" + (o.vazio ? " vazio" : "")
+      }));
+      if (o.dentro && o.dentro[i]) {
+        g.appendChild(el("text", {
+          x: x + i * L + L / 2, y: y + A / 2 + 2, "class": "fig-hospede-txt"
+        }, o.dentro[i]));
+      }
+    }
+    if (o.endereco) {
+      g.appendChild(el("rect", {
+        x: x + L / 2 - 30, y: y - 11, width: 60, height: 22, rx: 11,
+        "class": "fig-placa"
+      }));
+      g.appendChild(el("text", {
+        x: x + L / 2, y: y, "class": "fig-placa-txt"
+      }, o.endereco));
+    }
+    /* a cinta por baixo: o nome vale pelo CONJUNTO */
+    if (o.cinta) {
+      g.appendChild(el("path", {
+        "class": "fig-seta saindo",
+        d: "M" + x + "," + (y + A + 7) + " L" + (x + n * L) + "," + (y + A + 7)
+      }));
+    }
+    if (o.nome) {
+      g.appendChild(el("text", {
+        x: x + n * L / 2, y: y + A + (o.cinta ? 26 : 19), "class": "fig-rodape"
+      }, o.nome));
+    }
+    return g;
+  }
+
   function legenda(s, y, texto, classe) {
     s.appendChild(el("text", {
       x: 180, y: y, "class": "fig-legenda" + (classe ? " " + classe : "")
@@ -937,6 +983,145 @@
                                      largura: 104, altura: 44 }));
       legenda(s, 216, "a mesma copia, as duas vezes");
       legenda(s, 234, "o que muda e o que estava escrito");
+      return s;
+    }
+  };
+
+  /* ------------------------------------ kc_07: o quarteirao de casas */
+
+  /* TOPICO-PILOTO. int a[5] e um quarteirao de cinco casas grudadas, e o
+   * nome `a` e o nome do CONJUNTO.
+   *
+   * A disciplina do desenho, que e a propria conclusao do topico: o
+   * quarteirao NUNCA aparece como uma caixa com um numero dentro, e o
+   * ponteiro NUNCA aparece como um quarteirao. Desenhar `a` como bilhete
+   * seria desenhar `array_is_pointer`. */
+
+  POR_TOPICO.kc_07 = {
+
+    /* B1 — cinco casas grudadas, e um nome para as cinco. */
+    B1: function () {
+      var s = svg(360, 172);
+      s.appendChild(defs());
+      s.appendChild(quarteirao(42, 58, { quantas: 5, largura: 55,
+                                         endereco: "0x1000",
+                                         dentro: ["1", "2", "3", "4", "5"],
+                                         nome: "a — o conjunto",
+                                         cinta: true }));
+      legenda(s, 156, "cinco caixas grudadas, e um nome para as cinco");
+      return s;
+    },
+
+    /* B2 — int *p: uma caixa so. */
+    B2: function () {
+      var s = svg(360, 188);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "int *p;"));
+      s.appendChild(casa(124, 58, { endereco: "0x2A00", dentro: "?",
+                                    nome: "p", largura: 112 }));
+      legenda(s, 162, "uma caixa so: a de p");
+      legenda(s, 182, "nenhuma caixa de int nasceu junto");
+      return s;
+    },
+
+    /* B3 — na conta, o nome vira o numero da primeira. */
+    B3: function () {
+      var s = svg(360, 194);
+      s.appendChild(defs());
+      s.appendChild(quarteirao(16, 56, { quantas: 4, largura: 42,
+                                         endereco: "0x1000",
+                                         dentro: ["1", "2", "3", "4"],
+                                         nome: "a" }));
+      s.appendChild(seta(196, 78, 250, 78));
+      s.appendChild(el("text", { x: 223, y: 62, "class": "fig-nota" }, "a"));
+      s.appendChild(el("rect", { x: 254, y: 64, width: 88, height: 28, rx: 9,
+                                 "class": "fig-placa" }));
+      s.appendChild(el("text", { x: 298, y: 78, "class": "fig-placa-txt" },
+                       "0x1000"));
+      s.appendChild(el("text", { x: 298, y: 110, "class": "fig-rodape" },
+                       "o numero da 1a"));
+      legenda(s, 170, "na conta, o nome vira o numero da primeira");
+      legenda(s, 188, "o conjunto nao viaja");
+      return s;
+    },
+
+    /* B4 — em sizeof e em & o atalho nao vale. */
+    B4: function () {
+      var s = svg(360, 208);
+      s.appendChild(defs());
+      s.appendChild(quarteirao(60, 50, { quantas: 4, largura: 50,
+                                         endereco: "0x1000", nome: "a" }));
+      s.appendChild(el("text", { x: 180, y: 130, "class": "fig-nota" },
+                       "sizeof a   mede as quatro"));
+      s.appendChild(el("text", { x: 180, y: 152, "class": "fig-nota" },
+                       "&a   e o endereco DO CONJUNTO"));
+      legenda(s, 184, "nestes dois o atalho nao vale");
+      legenda(s, 202, "e por isso &a nao e a");
+      return s;
+    },
+
+    /* I1 — trocar o que esta dentro: pode; trocar o conjunto: nao. */
+    I1: function () {
+      var s = svg(360, 208);
+      s.appendChild(defs());
+      s.appendChild(quarteirao(30, 52, { quantas: 3, largura: 50,
+                                         endereco: "0x1000",
+                                         dentro: ["o", "i", ""],
+                                         nome: "a" }));
+      s.appendChild(seta(244, 74, 192, 74, "proibida"));
+      s.appendChild(el("text", { x: 288, y: 74, "class": "fig-legenda erro" },
+                       "a = ..."));
+      s.appendChild(el("text", { x: 288, y: 98, "class": "fig-nota" },
+                       "nao recebe"));
+      legenda(s, 162, "trocar o que esta DENTRO de cada casa: pode");
+      legenda(s, 180, "trocar o conjunto por outro: nao");
+      legenda(s, 198, "copiar texto e casa por casa");
+      return s;
+    },
+
+    /* I2 — so o numero da primeira viaja; o tamanho fica fora. */
+    I2: function () {
+      var s = svg(360, 216);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 76, y: 26, "class": "fig-rodape" },
+                       "fora"));
+      s.appendChild(quarteirao(14, 54, { quantas: 3, largura: 42,
+                                         endereco: "0x1000", nome: "a" }));
+      s.appendChild(seta(146, 76, 208, 76));
+      s.appendChild(el("text", { x: 177, y: 60, "class": "fig-nota" }, "f(a)"));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "dentro de f"));
+      s.appendChild(casa(216, 54, { endereco: "0x3A00", dentro: "0x1000",
+                                    nome: "v", largura: 108, altura: 44 }));
+      s.appendChild(el("text", { x: 272, y: 136, "class": "fig-legenda erro" },
+                       "o tamanho ficou fora"));
+      legenda(s, 174, "so o numero da primeira viajou");
+      legenda(s, 192, "sizeof v mede o ponteiro");
+      legenda(s, 210, "o tamanho vai num segundo argumento");
+      return s;
+    },
+
+    /* I3 — a conclusao: dois tipos, e o atalho explica so a escrita. */
+    I3: function () {
+      var s = svg(360, 224);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 84, y: 26, "class": "fig-rodape" },
+                       "a — o quarteirao"));
+      s.appendChild(quarteirao(16, 56, { quantas: 4, largura: 38,
+                                         endereco: "0x1000",
+                                         nome: "quatro caixas" }));
+      s.appendChild(el("text", { x: 272, y: 26, "class": "fig-rodape" },
+                       "p — o bilhete"));
+      s.appendChild(casa(216, 56, { endereco: "0x2A00", dentro: "0x1000",
+                                    nome: "uma caixa", largura: 108,
+                                    altura: 44 }));
+      s.appendChild(seta(212, 78, 172, 78));
+      s.appendChild(el("text", { x: 180, y: 148, "class": "fig-nota" },
+                       "a[1] e p[1] se escrevem igual"));
+      legenda(s, 182, "e as duas dao o mesmo numero");
+      legenda(s, 200, "mas os TIPOS sao diferentes");
+      legenda(s, 218, "o atalho explica a escrita, nao a igualdade");
       return s;
     }
   };

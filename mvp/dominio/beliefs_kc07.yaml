@@ -1,0 +1,100 @@
+# Crenças do kc_07 — uma por nó, sete no total.
+#
+# Zero `E`, e este é o tópico em que a curadoria mais contribui: SEIS das
+# sete crenças são dela, todas grade L, todas com entrada do FAQ do
+# comp.lang.c. A sétima (`declaration_allocates`) vem do kc_03, e a
+# própria curadoria registra que o nó B2 é "importado de kc_03:I1".
+#
+# A seção 6 do FAQ (arrays e ponteiros, 24 entradas) foi lida pelo índice
+# nesta sessão, e as entradas citadas foram conferidas uma a uma em
+# c-faq.com.
+#
+# UMA CORREÇÃO À CURADORIA, registrada aqui: `string_literal_is_array`
+# estava citada como FAQ 6.6b, que é "Isn't this an array assignment?
+# char a[] = ...". A entrada que trata exatamente da crença é a 1.32,
+# "What is the difference between these initializations? char a[] =
+# "string literal"; char *p = "string literal";". As duas ficam citadas, a
+# 1.32 primeiro — é a precisa, e foi lida no original.
+
+- id: string_literal_is_array
+  negates: kc_07:B1
+  provenance: L
+  label_pt: "char *s = \"abc\" e char s[] = \"abc\" guardam do mesmo jeito."
+  source: >
+    FAQ comp.lang.c 1.32: "What is the difference between these
+    initializations? char a[] = \"string literal\"; char *p = \"string
+    literal\"; My program crashes if I try to assign a new value to
+    p[i]." A resposta separa os dois usos de um literal — inicializar um
+    array de char, ou dar a um ponteiro o endereço do literal — e é essa
+    separação que B1 afirma. Ver também 6.6b, que era a citação da
+    curadoria. Textos conferidos em c-faq.com.
+
+- id: declaration_allocates
+  negates: kc_07:B2
+  provenance: T
+  label_pt: "int *p já cria o dado apontado automaticamente."
+  source: >
+    Kaczmarczyk et al. (2010), p. 109, Tabela 2, MMR4; e FAQ comp.lang.c
+    7.10, "I'm trying to declare a pointer and allocate some space for it,
+    but it's not working: char *p; *p = malloc(10);". A mesma crença está
+    no catálogo do kc_03, e a curadoria registra que este nó é importado
+    de lá — `kc_03:I1`.
+
+- id: array_passed_by_reference
+  negates: kc_07:B3
+  provenance: L
+  label_pt: "Arrays são passados por referência, diferente do resto de C."
+  source: >
+    FAQ comp.lang.c 6.4b, cujo título é a crença dita por quem a tem: "So
+    arrays are passed by reference, even though the rest of C uses pass by
+    value?" Ela nega a premissa de que o que viaja é o endereço do
+    primeiro elemento: se o array fosse passado por referência, o conjunto
+    inteiro é que estaria em jogo. É a crença da curadoria, com a fonte
+    dela.
+
+- id: arr_equals_addr_of_arr
+  negates: kc_07:B4
+  provenance: L
+  label_pt: "arr e &arr são a mesma coisa."
+  source: >
+    FAQ comp.lang.c 6.12: "Since array references decay into pointers, if
+    arr is an array, what's the difference between arr and &arr?" A
+    pergunta é a crença. Ela nega justamente a premissa de que há contexto
+    em que a conversão não acontece — se fossem a mesma coisa, o `&` não
+    seria exceção. É a crença da curadoria, com a fonte dela.
+
+- id: array_is_assignable
+  negates: kc_07:I1
+  provenance: L
+  label_pt: "Dá para atribuir ao nome de um array, como em str = f()."
+  source: >
+    FAQ comp.lang.c 6.5: "Why can't I do something like this? extern char
+    *getpass(); char str[10]; str = getpass(\"Enter password: \");"; e
+    6.6, "If you can't assign to arrays, then how can int f(char str[]) {
+    str = \"none\"; } work?"; e 6.7, "How can an array be an lvalue, if
+    you can't assign to it?". As três perguntas existem porque a crença
+    existe. É a crença da curadoria, com a fonte dela.
+
+- id: sizeof_array_via_pointer
+  negates: kc_07:I2
+  provenance: L
+  label_pt: "Dentro da função, sizeof ainda mede o array inteiro."
+  source: >
+    FAQ comp.lang.c 6.21: "Why doesn't sizeof properly report the size of
+    an array when the array is a parameter to a function? I have a test
+    routine f(char a[10]) { int i = sizeof(a); printf(\"%d\n\", i); } and
+    it prints 4, not 10." É o enunciado exato da perda do tamanho, que é o
+    que I2 afirma. Ver também 7.28. É a crença da curadoria, com a fonte
+    dela.
+
+- id: array_is_pointer
+  negates: kc_07:I3
+  provenance: L
+  label_pt: "Array e ponteiro são a mesma coisa."
+  source: >
+    FAQ comp.lang.c 6.2: "But I heard that char a[] was identical to char
+    *a."; 6.9, "Someone explained to me that arrays were really just
+    constant pointers."; e 6.10, "I'm still mystified. Is a pointer a kind
+    of array, or is an array a kind of pointer?". Três entradas para a
+    mesma ideia, o que é por si evidência de quanta gente a tem. É a
+    crença da curadoria, com a fonte dela, e nega a conclusão do tópico.

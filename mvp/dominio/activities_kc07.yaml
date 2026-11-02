@@ -1,0 +1,1032 @@
+# Banco de atividades — kc_07, "ponteiro e array" · TÓPICO-PILOTO
+#
+# Sete por nó, e sete nós: 49 itens. Um de entrada (o degrau mais baixo, na
+# analogia), três de diagnóstico (um por degrau, com o par teórica +
+# código) e três de treino.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Em todo item, um distrator aponta a crença
+# do próprio nó — senão o nó nunca recebe atribuição — e outro a de um
+# vizinho. A crença do próprio nó abre a cédula (vem na alternativa `b`).
+#
+# UMA REGRA A MAIS NESTE TÓPICO, e ela é de piloto: nenhum item depende de
+# tamanho de ponteiro nem de tamanho de int. "sizeof p dá 8" é verdade
+# nesta máquina e não no padrão; quem responder certo por saber o número
+# da máquina dele acertaria por fora da premissa. Onde o tamanho aparece, a
+# resposta certa é relativa — "o tamanho de um ponteiro", "mede as cinco
+# caixas" — nunca um número absoluto.
+
+analogy: >
+  O quarteirão de casas grudadas. int a[5] é um quarteirão com cinco casas
+  grudadas, numeradas em sequência, e o nome a é o nome do QUARTEIRÃO, não
+  de uma casa. Quando você usa esse nome numa conta, a rua entende "o
+  número da primeira casa" — é um atalho. Mas em dois lugares o atalho não
+  vale: quando você pergunta o tamanho do quarteirão, e quando pede o
+  endereço do quarteirão.
+  ONDE QUEBRA: "quarteirão" sugere que existe uma caixa guardando o
+  quarteirão, do jeito que p guarda um número. Não existe — o nome a não
+  tem caixa própria com endereço dentro, e o atalho é do compilador. É por
+  isso que não dá para trocar o quarteirão por outro. E a metáfora não diz
+  nada sobre quem construiu o quarteirão nem por quanto tempo ele fica:
+  isso é do kc_01.
+
+resgates:
+
+  B1: >
+    int a[5] constrói o quarteirão: cinco casas de inteiro, grudadas, e o
+    nome a vale pelo conjunto das cinco. Não é uma casa com cinco coisas
+    dentro, e não é um bilhete apontando para elas — são as casas mesmo.
+
+  B2: >
+    int *p constrói uma casa só: a de p, com um papel dentro. Nenhuma casa
+    de inteiro nasce junto. Se você quiser cinco, alguém tem de construí-
+    las, e aí p recebe o número da primeira.
+
+  B3: >
+    Quando o nome do quarteirão aparece numa conta, a rua troca esse nome
+    pelo número da primeira casa. É um atalho do compilador, e é por isso
+    que a[i] e p[i] se escrevem igual: nos dois casos há um número de casa
+    na mão.
+
+  B4: >
+    O atalho vale quase em todo lugar, e em dois não vale. Ao medir o
+    quarteirão, você mede as casas — todas. E ao pedir o endereço do
+    quarteirão, você recebe o endereço do conjunto, que não é a mesma
+    coisa que o endereço da primeira casa, mesmo marcando o mesmo ponto.
+
+  I1: >
+    Dá para trocar o que está dentro de cada casa do quarteirão, uma por
+    uma. Não dá para trocar o quarteirão inteiro por outro: o nome a não é
+    uma caixa que recebe, é o nome do conjunto. Copiar texto para um array
+    é copiar casa por casa.
+
+  I2: >
+    Ao passar o quarteirão para uma função, o que viaja é o número da
+    primeira casa. Lá dentro ninguém sabe quantas casas eram: o tamanho
+    ficou de fora. Por isso o tamanho vai como um segundo argumento,
+    escrito por você.
+
+  I3: >
+    Então são duas coisas diferentes. O quarteirão é o conjunto de casas;
+    o ponteiro é uma casa com um número dentro. a[i] e p[i] se escrevem do
+    mesmo jeito porque o atalho existe, e não porque a e p sejam a mesma
+    coisa.
+
+exemplos:
+
+  B1: |
+    int a[5];      /* cinco caixas, grudadas */
+    /* o nome a vale pelas cinco */
+
+  B2: |
+    int *p;        /* uma caixa: a de p */
+    /* nenhuma caixa de int nasceu */
+
+  B3: |
+    int a[3];
+    int *p = a;    /* a virou o endereco de a[0] */
+
+  B4: |
+    int a[5];
+    sizeof a       /* as cinco caixas */
+    &a             /* endereco DO CONJUNTO */
+
+  I1: |
+    char s[10];
+    s = "oi";      /* nao compila */
+    strcpy(s, "oi");   /* este sim */
+
+  I2: |
+    void f(int v[]) { sizeof v; }  /* mede o ponteiro */
+    /* o tamanho vai num segundo argumento */
+
+  I3: |
+    int a[4];  int *p = a;
+    sizeof a   /* quatro ints  */
+    sizeof p   /* um ponteiro  */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — int a[5] reserva 5 ints contíguos, e o nome vale pelo conjunto
+  # crença do nó: string_literal_is_array
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc07_e1
+    node: kc07:B1
+    nivel: 1
+    uso: entrada
+    formato: comparar_casos
+    tipo: teorica
+    enunciado: >
+      Duas formas: construir o quarteirão com as letras dentro, ou ganhar
+      um bilhete com o número de um quarteirão que já existe. São a mesma
+      coisa?
+    alternativas:
+      a: "Não: numa você tem as casas"
+      b: "São: dão o mesmo resultado"
+      c: "São, e nas duas há só um bilhete"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+
+  - id: ciu_kc07_001
+    node: kc07:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "int a[5] cria o quê?"
+    alternativas:
+      a: "Cinco caixas de int, grudadas"
+      b: "Uma caixa com as cinco dentro"
+      c: "Um ponteiro para cinco ints"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+
+  - id: ciu_kc07_002
+    node: kc07:B1
+    nivel: 2
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      char a[] = "oi";
+      char *p  = "oi";
+    enunciado: "O que existe na memória em cada uma?"
+    alternativas:
+      a: "Em a, as letras; em p, um endereço"
+      b: "Nas duas, as letras guardadas igual"
+      c: "Nas duas, só um endereço"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+
+  - id: ciu_kc07_003
+    node: kc07:B1
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char *p = "oi";
+      p[0] = 'E';
+    enunciado: "Por que isso pode travar?"
+    alternativas:
+      a: "p aponta um literal, que não se escreve"
+      b: "Não trava: p tem as letras dele"
+      c: "Não trava: p é um array como outro"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+
+  - id: ciu_kc07_t01
+    node: kc07:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      char s[] = "abc" e char *s = "abc" guardam do mesmo jeito?
+    alternativas:
+      a: "Não: só um tem as letras"
+      b: "Guardam: é a mesma escrita"
+      c: "Guardam: os dois são ponteiros"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+
+  - id: ciu_kc07_t02
+    node: kc07:B1
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      char a[] = "oi";
+      printf("%zu\n", sizeof a);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "3: as letras e o terminador"
+      b: "2: só as letras contam"
+      c: "o tamanho de um ponteiro"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+
+  - id: ciu_kc07_t03
+    node: kc07:B1
+    nivel: 3
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      char a[] = "oi";
+      char *p  = "oi";
+      /* A */  a[0] = 'E';
+      /* B */  p[0] = 'E';
+    enunciado: "Uma das duas é segura. Qual?"
+    alternativas:
+      a: "A de a: as caixas são dela"
+      b: "As duas: as letras são de cada um"
+      c: "A de p: p é um array também"
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+
+  # ------------------------------------------------------------------
+  # B2 — int *p reserva só o ponteiro
+  # crença do nó: declaration_allocates (do kc_03)
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc07_e2
+    node: kc07:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Ganhar um bilhete com o número de um quarteirão constrói o
+      quarteirão?
+    alternativas:
+      a: "Não: só o bilhete é seu"
+      b: "Constrói: vêm os dois juntos"
+      c: "Constrói, com uma casa só"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: array_is_pointer
+
+  - id: ciu_kc07_004
+    node: kc07:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "int *p cria quantas caixas de int?"
+    alternativas:
+      a: "Nenhuma: só a de p"
+      b: "Uma, para p apontar"
+      c: "Tantas quantas p usar"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: array_is_pointer
+
+  - id: ciu_kc07_005
+    node: kc07:B2
+    nivel: 2
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int a[5];
+      int *p;
+    enunciado: "Quantas caixas de int cada linha reserva?"
+    alternativas:
+      a: "Cinco, e nenhuma"
+      b: "Cinco, e uma"
+      c: "Cinco, e cinco: p é array"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: array_is_pointer
+
+  - id: ciu_kc07_006
+    node: kc07:B2
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int a[5];
+      int *p;
+      a[0] = 1;
+      p[0] = 1;
+    enunciado: "Uma das duas últimas linhas é inválida. Qual, e por quê?"
+    alternativas:
+      a: "A de p: ele não aponta nada"
+      b: "A de p, mas por falta de índice"
+      c: "Nenhuma: p é um array como a"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: array_is_pointer
+
+  - id: ciu_kc07_t04
+    node: kc07:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que falta a int *p; para ser usado como array?"
+    alternativas:
+      a: "Receber o endereço de caixas reais"
+      b: "Nada: as caixas vieram com p"
+      c: "Nada: p[i] já funciona desde a declaração"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: array_is_pointer
+
+  - id: ciu_kc07_t05
+    node: kc07:B2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int a[3] = {1, 2, 3};
+      int *p = a;
+      printf("%d %d\n", a[1], p[1]);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "2 2: p recebeu o endereço"
+      b: "2 e lixo: p tem caixas próprias"
+      c: "2 2, e p virou o array"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: array_is_pointer
+
+  - id: ciu_kc07_t06
+    node: kc07:B2
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int *p = malloc(3 * sizeof(int));
+      int *q;
+      q[0] = 1;
+    enunciado: "Por que a terceira linha é inválida, e com p não seria?"
+    alternativas:
+      a: "p recebeu caixas; q não recebeu"
+      b: "q já tem caixas ao ser declarado"
+      c: "q[0] vale: o índice já funciona"
+    gabarito: a
+    crencas:
+      b: declaration_allocates
+      c: array_is_pointer
+
+  # ------------------------------------------------------------------
+  # B3 — em expressão, o nome vira o endereço do primeiro elemento
+  # crença do nó: array_passed_by_reference
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc07_e3
+    node: kc07:B3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você usa o nome do quarteirão numa conta. O que a rua entende?
+    alternativas:
+      a: "O número da primeira casa"
+      b: "O quarteirão inteiro, junto"
+      c: "Um bilhete que você guarda"
+    gabarito: a
+    crencas:
+      b: array_passed_by_reference
+      c: array_is_pointer
+
+  - id: ciu_kc07_007
+    node: kc07:B3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Numa expressão, o nome de um array vira o quê?"
+    alternativas:
+      a: "O endereço do primeiro item"
+      b: "O conjunto todo, copiado"
+      c: "Um ponteiro de verdade, igual a p"
+    gabarito: a
+    crencas:
+      b: array_passed_by_reference
+      c: array_is_pointer
+
+  - id: ciu_kc07_008
+    node: kc07:B3
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(int v[]) { v[0] = 9; }
+      int a[3] = {1, 2, 3};
+      f(a);
+      printf("%d\n", a[0]);
+    enunciado: "O que sai, e o que viajou na chamada?"
+    alternativas:
+      a: "9: viajou o endereço do primeiro"
+      b: "9: viajou o array, por referência"
+      c: "1: v ganhou caixas próprias"
+    gabarito: a
+    crencas:
+      b: array_passed_by_reference
+      c: declaration_allocates
+
+  - id: ciu_kc07_009
+    node: kc07:B3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int a[3] = {1, 2, 3};
+      /* A */  int *p = a;
+      /* B */  int *q = &a[0];
+    enunciado: "As duas linhas fazem o mesmo?"
+    alternativas:
+      a: "Fazem: a vira o endereço do primeiro"
+      b: "Não: A copia o array para p"
+      c: "Não: a é o array, e &a[0] é endereço"
+    gabarito: a
+    crencas:
+      b: array_passed_by_reference
+      c: array_is_pointer
+
+  - id: ciu_kc07_t07
+    node: kc07:B3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Passar a para uma função manda o quê?"
+    alternativas:
+      a: "O endereço do primeiro item"
+      b: "O array inteiro, por referência"
+      c: "O ponteiro a, que já era um"
+    gabarito: a
+    crencas:
+      b: array_passed_by_reference
+      c: array_is_pointer
+
+  - id: ciu_kc07_t08
+    node: kc07:B3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int a[3] = {1, 2, 3};
+      printf("%d\n", *a);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: a virou o endereço do primeiro"
+      b: "não compila: a não é ponteiro"
+      c: "1, porque a já é um ponteiro"
+    gabarito: a
+    crencas:
+      b: array_passed_by_reference
+      c: array_is_pointer
+
+  - id: ciu_kc07_t09
+    node: kc07:B3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void f(int v[], int n);
+      int a[4] = {1, 2, 3, 4};
+      f(a);
+    enunciado: "O que falta na chamada?"
+    alternativas:
+      a: "O tamanho: ele não viaja junto"
+      b: "Nada: o array leva o tamanho"
+      c: "Trocar a por &a, que é o endereço"
+    gabarito: a
+    crencas:
+      b: array_passed_by_reference
+      c: arr_equals_addr_of_arr
+
+  # ------------------------------------------------------------------
+  # B4 — em sizeof e em & a conversão não acontece
+  # crença do nó: arr_equals_addr_of_arr
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc07_e4
+    node: kc07:B4
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      O nome do quarteirão costuma virar o número da primeira casa. Há
+      lugar onde isso não acontece?
+    alternativas:
+      a: "Há: ao medir, e ao pedir o endereço"
+      b: "Não há: o atalho vale em todo lugar"
+      c: "Não há: o nome já é o número"
+    gabarito: a
+    crencas:
+      b: arr_equals_addr_of_arr
+      c: array_is_pointer
+
+  - id: ciu_kc07_010
+    node: kc07:B4
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Em que contextos o nome do array não vira ponteiro?"
+    alternativas:
+      a: "Em sizeof e em &"
+      b: "Em nenhum: vira em todos"
+      c: "Em nenhum: o nome já é ponteiro"
+    gabarito: a
+    crencas:
+      b: arr_equals_addr_of_arr
+      c: array_is_pointer
+
+  - id: ciu_kc07_011
+    node: kc07:B4
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int a[5];
+      printf("%zu %zu\n", sizeof a, sizeof &a);
+    enunciado: "A primeira mede as cinco caixas. E a segunda?"
+    alternativas:
+      a: "Mede um ponteiro para o array"
+      b: "Mede as cinco também: &a é a"
+      c: "Mede um int: a é ponteiro"
+    gabarito: a
+    crencas:
+      b: arr_equals_addr_of_arr
+      c: array_is_pointer
+
+  - id: ciu_kc07_012
+    node: kc07:B4
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int a[5];
+      /* A */  a + 1
+      /* B */  &a + 1
+    enunciado: "Os dois andam o mesmo tanto?"
+    alternativas:
+      a: "Não: A anda um int, B o array todo"
+      b: "Andam: a e &a dão o mesmo"
+      c: "Andam: os dois são ponteiros iguais"
+    gabarito: a
+    crencas:
+      b: arr_equals_addr_of_arr
+      c: array_is_pointer
+
+  - id: ciu_kc07_t10
+    node: kc07:B4
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "a e &a marcam o mesmo ponto. São a mesma coisa?"
+    alternativas:
+      a: "Não: os tipos são diferentes"
+      b: "São: mesmo ponto, mesma coisa"
+      c: "São: os dois são ponteiros"
+    gabarito: a
+    crencas:
+      b: arr_equals_addr_of_arr
+      c: array_is_pointer
+
+  - id: ciu_kc07_t11
+    node: kc07:B4
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int a[5];
+      int **q = &a;
+    enunciado: "Por que o compilador reclama?"
+    alternativas:
+      a: "&a aponta para o array, não para int*"
+      b: "Não reclama: &a e a dão no mesmo"
+      c: "Não reclama: a já é int*"
+    gabarito: a
+    crencas:
+      b: arr_equals_addr_of_arr
+      c: array_is_pointer
+
+  - id: ciu_kc07_t12
+    node: kc07:B4
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int a[3];
+      printf("%d %d\n",
+             (void *)a == (void *)&a,
+             sizeof a == sizeof &a);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1 0: mesmo ponto, tamanhos diferem"
+      b: "1 1: a e &a são a mesma coisa"
+      c: "0 0: a é ponteiro, &a é outro"
+    gabarito: a
+    crencas:
+      b: arr_equals_addr_of_arr
+      c: array_is_pointer
+
+  # ------------------------------------------------------------------
+  # I1 — não se atribui ao nome do array
+  # crença do nó: array_is_assignable
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc07_e5
+    node: kc07:I1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Dá para trocar o conteúdo de uma casa do quarteirão. E trocar o
+      quarteirão inteiro por outro?
+    alternativas:
+      a: "Não: o nome não recebe"
+      b: "Dá: é só atribuir ao nome"
+      c: "Dá: o nome é um bilhete"
+    gabarito: a
+    crencas:
+      b: array_is_assignable
+      c: array_is_pointer
+
+  - id: ciu_kc07_013
+    node: kc07:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O nome de um array pode receber atribuição?"
+    alternativas:
+      a: "Não: ele não é modificável"
+      b: "Pode, como qualquer variável"
+      c: "Pode: é um ponteiro constante"
+    gabarito: a
+    crencas:
+      b: array_is_assignable
+      c: array_is_pointer
+
+  - id: ciu_kc07_014
+    node: kc07:I1
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char s[10];
+      s = "oi";
+    enunciado: "Por que a segunda linha não compila?"
+    alternativas:
+      a: "Não se atribui ao nome do array"
+      b: "Compila: s recebe o texto"
+      c: "Compila: s é ponteiro e recebe"
+    gabarito: a
+    crencas:
+      b: array_is_assignable
+      c: array_is_pointer
+
+  - id: ciu_kc07_015
+    node: kc07:I1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      char a[10], b[10] = "oi";
+      /* A */  a = b;
+      /* B */  strcpy(a, b);
+    enunciado: "Qual das duas copia o texto?"
+    alternativas:
+      a: "B: é ela que mexe nas caixas"
+      b: "A: a atribuição copia o array"
+      c: "As duas: a e b são ponteiros"
+    gabarito: a
+    crencas:
+      b: array_is_assignable
+      c: array_is_pointer
+
+  - id: ciu_kc07_t13
+    node: kc07:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Para copiar um array em outro, usa-se o quê?"
+    alternativas:
+      a: "Uma função que copia item a item"
+      b: "O sinal de igual entre os nomes"
+      c: "O igual: os dois são ponteiros"
+    gabarito: a
+    crencas:
+      b: array_is_assignable
+      c: array_is_pointer
+
+  - id: ciu_kc07_t14
+    node: kc07:I1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int f(char str[]) {
+          str = "none";
+          return str[0];
+      }
+    enunciado: "Por que isso compila, se não se atribui a array?"
+    alternativas:
+      a: "str é parâmetro: virou um ponteiro"
+      b: "Arrays recebem atribuição"
+      c: "str é array, e arrays são ponteiros"
+    gabarito: a
+    crencas:
+      b: array_is_assignable
+      c: array_is_pointer
+
+  - id: ciu_kc07_t15
+    node: kc07:I1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int a[3] = {1, 2, 3};
+      int b[3];
+      b = a;
+    enunciado: "O que o compilador faz com a terceira linha?"
+    alternativas:
+      a: "Recusa: b não é modificável"
+      b: "Aceita, e b fica igual a a"
+      c: "Aceita: b passa a apontar a"
+    gabarito: a
+    crencas:
+      b: array_is_assignable
+      c: array_is_pointer
+
+  # ------------------------------------------------------------------
+  # I2 — como parâmetro, int a[] vira int *a, e o tamanho se perde
+  # crença do nó: sizeof_array_via_pointer
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc07_e6
+    node: kc07:I2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      O quarteirão viaja inteiro para dentro da função?
+    alternativas:
+      a: "Não: viaja o número da primeira"
+      b: "Viaja, e dá para medi-lo lá"
+      c: "Viaja, por referência"
+    gabarito: a
+    crencas:
+      b: sizeof_array_via_pointer
+      c: array_passed_by_reference
+
+  - id: ciu_kc07_016
+    node: kc07:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Dentro de uma função, dá para saber quantos itens o array tinha?
+    alternativas:
+      a: "Não: o tamanho não viajou"
+      b: "Dá: o sizeof mede lá dentro"
+      c: "Dá: o array inteiro está lá"
+    gabarito: a
+    crencas:
+      b: sizeof_array_via_pointer
+      c: array_passed_by_reference
+
+  - id: ciu_kc07_017
+    node: kc07:I2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void f(char a[10]) { printf("%zu\n", sizeof a); }
+      char v[10];
+      f(v);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "O tamanho de um ponteiro"
+      b: "10: sizeof mede o array"
+      c: "10: o array viajou junto"
+    gabarito: a
+    crencas:
+      b: sizeof_array_via_pointer
+      c: array_passed_by_reference
+
+  - id: ciu_kc07_018
+    node: kc07:I2
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void zera(int v[]) {
+          for (int i = 0; i < sizeof v / sizeof v[0]; i++)
+              v[i] = 0;
+      }
+    enunciado: "Por que o laço não zera o array todo?"
+    alternativas:
+      a: "sizeof v mede o ponteiro"
+      b: "Zera: sizeof v mede o array"
+      c: "Zera: v é o array, que viajou"
+    gabarito: a
+    crencas:
+      b: sizeof_array_via_pointer
+      c: array_passed_by_reference
+
+  - id: ciu_kc07_t16
+    node: kc07:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que um parâmetro int v[] é, de verdade?"
+    alternativas:
+      a: "Um int *v"
+      b: "Um array, com o tamanho junto"
+      c: "Um array passado por referência"
+    gabarito: a
+    crencas:
+      b: sizeof_array_via_pointer
+      c: array_passed_by_reference
+
+  - id: ciu_kc07_t17
+    node: kc07:I2
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void f(int v[]);
+      int a[5];
+      f(a);
+    enunciado: "O que a função precisa receber além de a?"
+    alternativas:
+      a: "O número de itens"
+      b: "Nada: v sabe o tamanho"
+      c: "Nada: o array foi por referência"
+    gabarito: a
+    crencas:
+      b: sizeof_array_via_pointer
+      c: array_passed_by_reference
+
+  - id: ciu_kc07_t18
+    node: kc07:I2
+    nivel: 3
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int a[5];
+      void f(int v[5]) { printf("%zu\n", sizeof v); }
+      /* A */  sizeof a, fora
+      /* B */  sizeof v, dentro de f
+    enunciado: "Os dois dão o mesmo número?"
+    alternativas:
+      a: "Não: só A mede as cinco caixas"
+      b: "Dão: o [5] garante o tamanho"
+      c: "Dão: o array viajou inteiro"
+    gabarito: a
+    crencas:
+      b: sizeof_array_via_pointer
+      c: array_passed_by_reference
+
+  # ------------------------------------------------------------------
+  # I3 — a conclusão: array e ponteiro são tipos distintos
+  # crença do nó: array_is_pointer
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc07_e7
+    node: kc07:I3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      O quarteirão, e o bilhete com o número dele: são a mesma coisa?
+    alternativas:
+      a: "Não: um é o conjunto, outro papel"
+      b: "São: o nome já é o papel"
+      c: "São, e dá para trocar os dois"
+    gabarito: a
+    crencas:
+      b: array_is_pointer
+      c: array_is_assignable
+
+  - id: ciu_kc07_019
+    node: kc07:I3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Array e ponteiro são a mesma coisa?"
+    alternativas:
+      a: "Não: são tipos diferentes"
+      b: "São: array é ponteiro constante"
+      c: "São: dá para atribuir entre eles"
+    gabarito: a
+    crencas:
+      b: array_is_pointer
+      c: array_is_assignable
+
+  - id: ciu_kc07_020
+    node: kc07:I3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      /* em um arquivo */  char a[6];
+      /* em outro      */  extern char *a;
+    enunciado: "Por que o programa não funciona?"
+    alternativas:
+      a: "A declaração não bate com a definição"
+      b: "Bate: char a[] e char *a são iguais"
+      c: "Bate, e o tamanho vai junto"
+    gabarito: a
+    crencas:
+      b: array_is_pointer
+      c: sizeof_array_via_pointer
+
+  - id: ciu_kc07_021
+    node: kc07:I3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int a[3] = {1, 2, 3};
+      int *p = a;
+      /* A */  a[1]
+      /* B */  p[1]
+    enunciado: "As duas dão 2. Isso quer dizer que a e p são iguais?"
+    alternativas:
+      a: "Não: a escrita é igual, os tipos não"
+      b: "Quer dizer: o índice prova que são um"
+      c: "Quer dizer: dá para escrever a = p"
+    gabarito: a
+    crencas:
+      b: array_is_pointer
+      c: array_is_assignable
+
+  - id: ciu_kc07_t19
+    node: kc07:I3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "a[i] e p[i] se escrevem igual. E os tipos de a e p?"
+    alternativas:
+      a: "Diferentes"
+      b: "Iguais: a é um ponteiro"
+      c: "Iguais, e um recebe o outro"
+    gabarito: a
+    crencas:
+      b: array_is_pointer
+      c: array_is_assignable
+
+  - id: ciu_kc07_t20
+    node: kc07:I3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int a[4];
+      int *p = a;
+      printf("%zu %zu\n", sizeof a, sizeof p);
+    enunciado: "Os dois números são iguais?"
+    alternativas:
+      a: "Não: um mede quatro ints"
+      b: "Iguais: a e p são a mesma coisa"
+      c: "Iguais: sizeof segue o apontado"
+    gabarito: a
+    crencas:
+      b: array_is_pointer
+      c: sizeof_array_via_pointer
+
+  - id: ciu_kc07_t21
+    node: kc07:I3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void f(int *v);
+      int a[3];
+      int **q = &a;
+      f(*q);
+    enunciado: "Onde está o erro?"
+    alternativas:
+      a: "&a não é int**: a não é int*"
+      b: "Não há erro: a é um int*"
+      c: "Não há erro: &a e a dão no mesmo"
+    gabarito: a
+    crencas:
+      b: array_is_pointer
+      c: arr_equals_addr_of_arr
