@@ -229,7 +229,12 @@ def test_topico_que_nao_existe_falha_na_carga():
 # Cada tópico novo entra nesta lista, e é aqui que ele passa a ser cobrado.
 # --------------------------------------------------------------------------
 
-POS_CONTRATO = ("kc_01", "kc_02", "kc_03")
+POS_CONTRATO = ("kc_01", "kc_02", "kc_03", "kc_04")
+
+# Os que tem a escada inteira (um item por degrau) E item de entrada em
+# todo no. O kc_00 e o kc_02 ficam de fora: os bancos deles vieram antes
+# do item de entrada, e a divida esta registrada.
+ESCADA_COMPLETA = ("kc_01", "kc_03", "kc_04")
 
 
 @pytest.mark.parametrize("topico", POS_CONTRATO)
@@ -286,7 +291,7 @@ def test_nao_tem_item_binario(topico):
 # falta cobrar é a escada INTEIRA, degrau por degrau, sem buraco no meio.
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize("topico", ("kc_01", "kc_03"))
+@pytest.mark.parametrize("topico", ESCADA_COMPLETA)
 def test_a_escada_de_diagnostico_nao_tem_buraco(topico):
     """Nó com item de nível 3 e sem item de nível 2 faz o motor pular um
     degrau — e `_no_degrau` registra o pulo, mas o salto já aconteceu."""
@@ -299,7 +304,7 @@ def test_a_escada_de_diagnostico_nao_tem_buraco(topico):
     assert buracos == [], buracos
 
 
-@pytest.mark.parametrize("topico", ("kc_01", "kc_03"))
+@pytest.mark.parametrize("topico", ESCADA_COMPLETA)
 def test_todo_no_tem_item_de_entrada(topico):
     """O item de entrada é o que a pessoa responde DEPOIS do ensino, quando
     declarou que não sabe. Sem ele a construção ensina e não mede — e é

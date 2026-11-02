@@ -1,0 +1,893 @@
+# Banco de atividades — kc_04, "dereferência: & e *"
+#
+# Sete por nó: um de entrada (o degrau mais baixo, na analogia), três de
+# diagnóstico (um por degrau) e três de treino. É a forma com que o kc_02
+# nasceu.
+#
+# REGRA DE DISTRATOR (motor.razoes_de): as razões da camada 2 saem das
+# ALTERNATIVAS DO PRÓPRIO ITEM. Em todo item, um distrator aponta a crença
+# do próprio nó — senão o nó nunca recebe atribuição — e outro a de um
+# vizinho.
+#
+# UMA REGRA A MAIS NESTE TÓPICO: nenhum distrator dá o número certo com a
+# explicação errada. Aqui seria fácil escrever "7, e *p é só o nome de x":
+# quem marcasse isso erraria a camada 1 por um erro que é de RAZÃO, e a
+# camada 1 tem que medir a resposta. Quando a explicação é o que está
+# errado, o item vira `comparar_casos` ou `achar_o_erro`, onde a resposta
+# pedida É a explicação.
+
+analogy: >
+  A pergunta e a viagem. Continua a rua: `&x` é PERGUNTAR o número da
+  casa de x — você recebe o número, e não a casa nem o que está dentro
+  dela. `*p` é a VIAGEM: ir até o número escrito no papel de p e mexer no
+  que tem naquela casa. Uma desfaz a outra: pergunte o número de x, vá
+  até ele, e você chega em x.
+  ONDE QUEBRA: "perguntar o número" sugere que há alguém para responder.
+  Não há — o número é propriedade do lugar, e por isso não existe número
+  para o 5 escrito no código. E "a viagem" sugere tempo e distância: não
+  há, `*p` não custa mais por apontar longe. A metáfora diz ONDE a ação
+  acontece, nunca quanto ela custa.
+
+resgates:
+
+  B1: >
+    Só tem número de casa quem ocupa uma casa. O 5 que você escreve no
+    código não ocupa nenhuma: ele não mora na rua, aparece na conta e vai
+    embora. Não há número para pedir. Para ter número, primeiro alguém
+    precisa de uma casa — e é isso que uma variável é.
+
+  B2: >
+    Perguntar o número da casa de x devolve o número, e mais nada. A casa
+    continua lá com tudo dentro, intacta. Você saiu da conversa com um
+    número na mão, não com uma mudança na casa nem com uma cópia dela.
+
+  B3: >
+    O papel que está dentro da casa de p tem um número de casa escrito. É
+    isso que p guarda: um número que leva a outro lugar, e não o que
+    aquele outro lugar contém.
+
+  I1: >
+    `*p` é a viagem. Lê o número no papel de p, vai até aquela casa, e age
+    no que está guardado nela. Duas casas envolvidas: a de p, de onde o
+    número saiu, e a do número, onde a ação acontece.
+
+  I2: >
+    Quando você troca o que tem dentro da casa visitada, o papel de p
+    continua com o mesmo número. Trocar o conteúdo da casa não reescreve
+    o papel que levou você até ela.
+
+  I3: >
+    & pergunta onde está; * vai até lá. Um desfaz o outro: pergunte o
+    número da casa de x, vá até esse número, e você está em x. Por isso
+    `*(&x)` é a própria x — e por isso `p` e `*p` nunca são a mesma coisa.
+
+exemplos:
+
+  B1: |
+    int x;
+    &x            /* existe: x ocupa um lugar */
+    /* &5 nao existe: 5 nao ocupa lugar nenhum */
+
+  B2: |
+    int x = 10;
+    int *p = &x;   /* p recebeu o NUMERO do lugar de x */
+    /* x continua com 10, e nada foi copiado */
+
+  B3: |
+    int x = 42;
+    int *p = &x;
+    /* dentro de p: o endereco de x. Nao o 42. */
+
+  I1: |
+    int x = 42;
+    int *p = &x;
+    *p            /* vai ate o endereco em p: da 42 */
+
+  I2: |
+    int x = 1;
+    int *p = &x;
+    *p = 5;       /* x virou 5; p continua com &x */
+
+  I3: |
+    int x = 7;
+    *(&x)         /* e a propria x */
+    /* p = &x  muda p;  *p = 9  muda x */
+
+activities:
+
+  # ------------------------------------------------------------------
+  # B1 — só o que ocupa um lugar tem endereço
+  # crença do nó: ampersand_takes_value
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc04_e1
+    node: kc04:B1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você pode perguntar o número da casa de quem mora na rua. E o número
+      da casa do número 5?
+    alternativas:
+      a: "Não existe: o 5 não mora em casa"
+      b: "Existe: todo número tem a casa dele"
+      c: "Existe, e é uma cópia do 5"
+    gabarito: a
+    crencas:
+      b: ampersand_takes_value
+      c: ampersand_copies
+
+  - id: ciu_kc04_001
+    node: kc04:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "De que &x depende para existir?"
+    alternativas:
+      a: "De x ocupar um lugar na memória"
+      b: "De nada: & funciona em qualquer coisa"
+      c: "De x ter um valor para copiar"
+    gabarito: a
+    crencas:
+      b: ampersand_takes_value
+      c: ampersand_copies
+
+  - id: ciu_kc04_002
+    node: kc04:B1
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void f(int *p);
+      f(&5);
+    enunciado: "Por que a chamada não compila?"
+    alternativas:
+      a: "5 não ocupa lugar, então não há endereço"
+      b: "Compila: & vale para qualquer expressão"
+      c: "Falta escrever f(*5), com o operador certo"
+    gabarito: a
+    crencas:
+      b: ampersand_takes_value
+      c: star_assigns_pointer
+
+  - id: ciu_kc04_003
+    node: kc04:B1
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  int cinco = 5;  f(&cinco);
+      /* B */  f(&5);
+    enunciado: "Uma das duas passa um endereço. Qual, e por quê?"
+    alternativas:
+      a: "A: cinco ocupa um lugar, e o lugar tem número"
+      b: "As duas: & dá o endereço do valor"
+      c: "A, e o que a função recebe é uma cópia de cinco"
+    gabarito: a
+    crencas:
+      b: ampersand_takes_value
+      c: ampersand_copies
+
+  - id: ciu_kc04_t01
+    node: kc04:B1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O endereço é propriedade de quê?"
+    alternativas:
+      a: "Do lugar que a variável ocupa"
+      b: "Do valor que está guardado nela"
+      c: "Do nome que o programador deu"
+    gabarito: a
+    crencas:
+      b: ampersand_takes_value
+      c: pointer_is_data
+
+  - id: ciu_kc04_t02
+    node: kc04:B1
+    nivel: 2
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int soma(int *a, int *b);
+      printf("%d\n", soma(&2, &3));
+    enunciado: "O que precisa mudar?"
+    alternativas:
+      a: "Criar duas variáveis e passar os endereços"
+      b: "Nada: &2 e &3 já dão os endereços deles"
+      c: "Trocar por soma(*2, *3)"
+    gabarito: a
+    crencas:
+      b: ampersand_takes_value
+      c: star_assigns_pointer
+
+  - id: ciu_kc04_t03
+    node: kc04:B1
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int v[3] = {7, 8, 9};
+      int *p = &v[1];
+      printf("%d\n", *p);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "8: v[1] tem lugar, e p tem o número"
+      b: "7: &v[1] dá o endereço do vetor"
+      c: "nada sai: &v[1] não é endereço"
+    gabarito: a
+    crencas:
+      b: ampersand_takes_value
+      c: ampersand_takes_value
+
+  # ------------------------------------------------------------------
+  # B2 — &x devolve o endereço, e não copia
+  # crença do nó: ampersand_copies
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc04_e2
+    node: kc04:B2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você pergunta o número da casa de x e recebe a resposta. O que você
+      tem na mão?
+    alternativas:
+      a: "O número da casa, e nada mais"
+      b: "Uma cópia do que está dentro dela"
+      c: "A casa toda, para você usar"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_004
+    node: kc04:B2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que &x produz?"
+    alternativas:
+      a: "O endereço de x"
+      b: "Uma cópia do valor de x"
+      c: "Outro nome para a própria x"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_005
+    node: kc04:B2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 10;
+      int *p = &x;
+      x = 20;
+      printf("%d\n", *p);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "20: p tem o endereço, não uma cópia"
+      b: "10: p guardou uma cópia do 10"
+      c: "o endereço de x, que é o que p tem"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_006
+    node: kc04:B2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      /* A */  int  y = x;    y = 99;
+      /* B */  int *p = &x;  *p = 99;
+    enunciado: "Qual das duas muda x?"
+    alternativas:
+      a: "B: p tem o endereço de x"
+      b: "As duas: &x e x dão o mesmo"
+      c: "Nenhuma: *p é outro nome, não a casa"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_t04
+    node: kc04:B2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Depois de int *p = &x; quantas cópias de x existem?"
+    alternativas:
+      a: "Nenhuma: p tem só o endereço"
+      b: "Uma, guardada dentro de p"
+      c: "Uma, e é a que *p devolve"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_t05
+    node: kc04:B2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      *p = 2;
+      printf("%d\n", x);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "2: existe uma variável só"
+      b: "1: x e *p são separados"
+      c: "1: *p mexeu na cópia"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: ampersand_copies
+
+  - id: ciu_kc04_t06
+    node: kc04:B2
+    nivel: 3
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      void dobra(int *n) { *n = *n * 2; }
+      int x = 5;
+      dobra(&x);
+      printf("%d\n", x);
+    enunciado: "O que sai, e por quê?"
+    alternativas:
+      a: "10: a função mexeu no lugar de x"
+      b: "5: a função mexeu numa cópia"
+      c: "5: x e *n ficaram separados"
+    gabarito: a
+    crencas:
+      b: ampersand_copies
+      c: pointer_is_just_a_name
+
+  # ------------------------------------------------------------------
+  # B3 — o valor guardado num ponteiro é um endereço
+  # crença do nó: pointer_is_data
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc04_e3
+    node: kc04:B3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você abre o papel que está dentro da casa de p. O que está escrito
+      nele?
+    alternativas:
+      a: "Um número de casa"
+      b: "O valor que p guarda, como 42"
+      c: "Nada: o papel é só um apelido"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_007
+    node: kc04:B3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que está guardado dentro de um ponteiro?"
+    alternativas:
+      a: "Um endereço"
+      b: "O dado que ele aponta"
+      c: "Nada: ele é só um nome"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_008
+    node: kc04:B3
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      int *p = &x;
+      printf("%d\n", p == &x);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: p guarda o endereço de x"
+      b: "0: p guarda 42, não o endereço"
+      c: "0: p é outro nome para x"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_009
+    node: kc04:B3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int x = 42;
+      int *p = &x;
+      /* A */  p
+      /* B */  *p
+    enunciado: "Qual dos dois vale 42?"
+    alternativas:
+      a: "B: p guarda o endereço, *p o valor"
+      b: "A: p guarda 42"
+      c: "Os dois: p e *p são a mesma coisa"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_t07
+    node: kc04:B3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Um ponteiro guarda o quê?"
+    alternativas:
+      a: "O número de um lugar"
+      b: "O conteúdo do lugar"
+      c: "O apelido de outra variável"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_t08
+    node: kc04:B3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 7, y = 9;
+      int *p = &x;
+      p = &y;
+      printf("%d\n", *p);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "9: p passou a ter o endereço de y"
+      b: "7: p já tinha copiado o 7"
+      c: "7: p é o nome de x desde a linha 2"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_t09
+    node: kc04:B3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 5;
+      int *p;
+      p = x;
+    enunciado: "Por que o compilador reclama?"
+    alternativas:
+      a: "p quer um endereço, e x é um int"
+      b: "Não reclama: p recebe o valor de x"
+      c: "Falta o *: seria *p = x"
+    gabarito: a
+    crencas:
+      b: pointer_is_data
+      c: star_assigns_pointer
+
+  # ------------------------------------------------------------------
+  # I1 — *p vai até o endereço e age no que está lá
+  # crença do nó: pointer_is_just_a_name
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc04_e4
+    node: kc04:I1
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você lê o número no papel de p e vai até aquela casa. O que você faz
+      quando chega?
+    alternativas:
+      a: "Mexe no que está guardado nela"
+      b: "Nada: a casa de p já era essa casa"
+      c: "Pega o número de novo e volta"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: pointer_is_data
+
+  - id: ciu_kc04_010
+    node: kc04:I1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que *p faz?"
+    alternativas:
+      a: "Vai até o endereço em p e age lá"
+      b: "Nada: *p é outro jeito de escrever p"
+      c: "Devolve o endereço guardado em p"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: pointer_is_data
+
+  - id: ciu_kc04_011
+    node: kc04:I1
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 3, y = 4;
+      int *p = &x;
+      printf("%d\n", *p + y);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "7: *p vale 3"
+      b: "não compila: *p é só p escrito diferente"
+      c: "um endereço somado a 4"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: pointer_is_data
+
+  - id: ciu_kc04_012
+    node: kc04:I1
+    nivel: 3
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      p = 2;
+    enunciado: "O programador queria pôr 2 em x. O que ele devia escrever?"
+    alternativas:
+      a: "*p = 2, para mexer no que p aponta"
+      b: "p = 2 serve: p e *p dão no mesmo"
+      c: "&p = 2, para chegar no lugar"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: ampersand_takes_value
+
+  - id: ciu_kc04_t10
+    node: kc04:I1
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "p e *p são a mesma coisa?"
+    alternativas:
+      a: "Não: p é o endereço, *p o que está lá"
+      b: "São: duas formas de escrever o mesmo"
+      c: "São, e as duas devolvem o endereço"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: pointer_is_data
+
+  - id: ciu_kc04_t11
+    node: kc04:I1
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 8;
+      int *p = &x;
+      *p = *p + 1;
+      printf("%d\n", x);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "9: a conta foi feita em x"
+      b: "8: a conta foi feita em p"
+      c: "o endereço de x mais 1"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: pointer_is_data
+
+  - id: ciu_kc04_t12
+    node: kc04:I1
+    nivel: 3
+    uso: treino
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      /* A */  *p = *p + 1;
+      /* B */   p =  p + 1;
+    enunciado: "Uma soma no valor, a outra anda com o endereço. Qual é qual?"
+    alternativas:
+      a: "A soma no valor; B anda com o endereço"
+      b: "As duas somam no valor: p e *p são um"
+      c: "A anda com o endereço; B soma no valor"
+    gabarito: a
+    crencas:
+      b: pointer_is_just_a_name
+      c: star_binds_to_the_pointer
+
+  # ------------------------------------------------------------------
+  # I2 — *p = v escreve no apontado; p não muda
+  # crença do nó: star_binds_to_the_pointer
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc04_e5
+    node: kc04:I2
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você vai até a casa do número do papel e troca o que tem dentro
+      dela. O que acontece com o papel de p?
+    alternativas:
+      a: "Continua com o mesmo número"
+      b: "Passa a apontar para outra casa"
+      c: "Fica com o que você deixou na casa"
+    gabarito: a
+    crencas:
+      b: star_binds_to_the_pointer
+      c: pointer_is_data
+
+  - id: ciu_kc04_013
+    node: kc04:I2
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Depois de *p = 7, o que mudou em p?"
+    alternativas:
+      a: "Nada: p tem o mesmo endereço"
+      b: "p passou a valer 7"
+      c: "p passou a apontar para o número 7"
+    gabarito: a
+    crencas:
+      b: star_binds_to_the_pointer
+      c: pointer_is_data
+
+  - id: ciu_kc04_014
+    node: kc04:I2
+    nivel: 2
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      *p = 5;
+      printf("%d\n", p == &x);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "1: p não mudou de endereço"
+      b: "0: *p = 5 mexeu em p"
+      c: "0: p agora aponta para o 5"
+    gabarito: a
+    crencas:
+      b: star_binds_to_the_pointer
+      c: pointer_is_data
+
+  - id: ciu_kc04_015
+    node: kc04:I2
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int a = 1, b = 2;
+      int *p = &a;
+      /* A */  *p = b;
+      /* B */   p = &b;
+    enunciado: "Qual das duas deixa p apontando para outro lugar?"
+    alternativas:
+      a: "B: só ela troca o endereço em p"
+      b: "As duas: escrever em *p move p"
+      c: "A: *p = b faz p virar o b"
+    gabarito: a
+    crencas:
+      b: star_binds_to_the_pointer
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_t13
+    node: kc04:I2
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "Para p passar a apontar para outra variável, o que se escreve?"
+    alternativas:
+      a: "p = &outra"
+      b: "*p = outra"
+      c: "*p = &outra"
+    gabarito: a
+    crencas:
+      b: star_binds_to_the_pointer
+      c: star_assigns_pointer
+
+  - id: ciu_kc04_t14
+    node: kc04:I2
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 4;
+      int *p = &x;
+      (*p)++;
+      printf("%d %d\n", x, p == &x);
+    enunciado: "O que sai?"
+    alternativas:
+      a: "5 1: andou o valor, não o papel"
+      b: "4 0: andou o ponteiro"
+      c: "5 0: p passou a guardar o 5"
+    gabarito: a
+    crencas:
+      b: star_binds_to_the_pointer
+      c: pointer_is_data
+
+  - id: ciu_kc04_t15
+    node: kc04:I2
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      void zera(int *p) { p = 0; }
+      int x = 9;
+      zera(&x);
+      printf("%d\n", x);
+    enunciado: "Por que x continua 9?"
+    alternativas:
+      a: "p = 0 mexeu em p, não no apontado"
+      b: "Não continua: p = 0 zera o apontado"
+      c: "Continua porque &x passou uma cópia"
+    gabarito: a
+    crencas:
+      b: star_binds_to_the_pointer
+      c: ampersand_copies
+
+  # ------------------------------------------------------------------
+  # I3 — a conclusão: * e & são inversos, e cada um age num lugar
+  # crença do nó: star_assigns_pointer
+  # ------------------------------------------------------------------
+
+  - id: ciu_kc04_e6
+    node: kc04:I3
+    nivel: 1
+    uso: entrada
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: >
+      Você pergunta o número da casa de x e vai até aquele número. Onde
+      você chega?
+    alternativas:
+      a: "Na casa de x"
+      b: "Em outra casa, parecida"
+      c: "Numa cópia da casa de x"
+    gabarito: a
+    crencas:
+      b: star_assigns_pointer
+      c: ampersand_copies
+
+  - id: ciu_kc04_016
+    node: kc04:I3
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "O que *(&x) é?"
+    alternativas:
+      a: "A própria x"
+      b: "O endereço de x"
+      c: "Uma cópia de x"
+    gabarito: a
+    crencas:
+      b: star_assigns_pointer
+      c: ampersand_copies
+
+  - id: ciu_kc04_017
+    node: kc04:I3
+    nivel: 2
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      char *p;
+      *p = malloc(10);
+    enunciado: "Qual é o nome que deve receber o endereço?"
+    alternativas:
+      a: "p: a linha seria p = malloc(10)"
+      b: "*p, que é onde o ponteiro fica"
+      c: "&p, para chegar no lugar de p"
+    gabarito: a
+    crencas:
+      b: star_assigns_pointer
+      c: ampersand_takes_value
+
+  - id: ciu_kc04_018
+    node: kc04:I3
+    nivel: 3
+    formato: comparar_casos
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p = &x;
+      /* A */  *(&x) = 2;
+      /* B */  &(*p) = 2;
+    enunciado: "Uma das duas escreve 2 em x. Qual, e por quê?"
+    alternativas:
+      a: "A: & e * se desfazem, e sobra x"
+      b: "B: &(*p) é o jeito de chegar em x"
+      c: "As duas: x, *p e &x são um só"
+    gabarito: a
+    crencas:
+      b: star_assigns_pointer
+      c: pointer_is_just_a_name
+
+  - id: ciu_kc04_t16
+    node: kc04:I3
+    nivel: 1
+    uso: treino
+    formato: reconhecer_conceito
+    tipo: teorica
+    enunciado: "& e * fazem o quê, um com o outro?"
+    alternativas:
+      a: "Um desfaz o outro"
+      b: "Nada: são papéis diferentes"
+      c: "Os dois pedem o endereço"
+    gabarito: a
+    crencas:
+      b: star_assigns_pointer
+      c: pointer_is_data
+
+  - id: ciu_kc04_t17
+    node: kc04:I3
+    nivel: 2
+    uso: treino
+    formato: prever_saida
+    tipo: codigo
+    codigo: |
+      int x = 6;
+      printf("%d\n", *(&x));
+    enunciado: "O que sai?"
+    alternativas:
+      a: "6: o * desfaz o &"
+      b: "o endereço de x"
+      c: "6, mas de uma cópia de x"
+    gabarito: a
+    crencas:
+      b: star_assigns_pointer
+      c: ampersand_copies
+
+  - id: ciu_kc04_t18
+    node: kc04:I3
+    nivel: 3
+    uso: treino
+    formato: achar_o_erro
+    tipo: codigo
+    codigo: |
+      int x = 1;
+      int *p;
+      *p = &x;
+    enunciado: "O que a terceira linha tenta fazer, e o que devia ser?"
+    alternativas:
+      a: "Guarda o endereço em *p; devia ser p = &x"
+      b: "Está certa: *p é onde o endereço mora"
+      c: "Devia ser *p = x, para copiar o valor"
+    gabarito: a
+    crencas:
+      b: star_assigns_pointer
+      c: pointer_is_just_a_name

@@ -561,6 +561,127 @@
     }
   };
 
+  /* ------------------------------------- kc_04: a pergunta e a viagem */
+
+  /* `&x` e PERGUNTAR o numero da casa de x: a resposta e um numero, e a
+   * casa fica intacta. `*p` e a VIAGEM: ir ate o numero do papel e agir
+   * no que tem lá.
+   *
+   * Duas coisas que o desenho nao faz. Nao mostra a resposta de `&x` como
+   * uma casa — ela e so um papelzinho com o numero, porque desenhar casa
+   * ali diria que `&x` entrega uma copia (`ampersand_copies`). E nao
+   * engorda a seta de `*p` quando o alvo esta longe: a metafora da viagem
+   * ja sugere distancia, e distancia nao custa nada aqui. */
+
+  POR_TOPICO.kc_04 = {
+
+    /* B1 — so o que ocupa um lugar tem numero. O 5 nao ocupa. */
+    B1: function () {
+      var s = svg(360, 182);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 88, y: 26, "class": "fig-rodape" }, "int x;"));
+      s.appendChild(casa(32, 58, { endereco: "0x1000", dentro: "7",
+                                   nome: "x", largura: 112 }));
+      s.appendChild(el("text", { x: 274, y: 26, "class": "fig-rodape" },
+                       "o 5 do codigo"));
+      s.appendChild(el("text", { x: 274, y: 92, "class": "fig-hospede-txt" }, "5"));
+      s.appendChild(el("text", { x: 274, y: 141, "class": "fig-legenda erro" },
+                       "sem numero na porta"));
+      legenda(s, 174, "&x existe; &5 nao tem de onde sair");
+      return s;
+    },
+
+    /* B2 — a resposta de &x e um numero, e a casa fica intacta. */
+    B2: function () {
+      var s = svg(360, 190);
+      s.appendChild(defs());
+      s.appendChild(casa(30, 62, { endereco: "0x1000", dentro: "10",
+                                   nome: "x, intacta", largura: 112 }));
+      s.appendChild(seta(150, 94, 212, 94));
+      s.appendChild(el("text", { x: 181, y: 78, "class": "fig-nota" }, "&x"));
+      s.appendChild(el("rect", { x: 218, y: 80, width: 104, height: 30, rx: 9,
+                                 "class": "fig-placa" }));
+      s.appendChild(el("text", { x: 270, y: 95, "class": "fig-placa-txt" },
+                       "0x1000"));
+      s.appendChild(el("text", { x: 270, y: 128, "class": "fig-rodape" },
+                       "so o numero"));
+      legenda(s, 180, "nada foi copiado: x continua com o 10");
+      return s;
+    },
+
+    /* B3 — o que esta dentro de p e um numero de casa. */
+    B3: function () {
+      var s = svg(360, 192);
+      s.appendChild(defs());
+      s.appendChild(casa(28, 56, { endereco: "0x1000", dentro: "42",
+                                   nome: "x", largura: 112 }));
+      s.appendChild(casa(218, 56, { endereco: "0x2A00", dentro: "0x1000",
+                                    nome: "p", largura: 112 }));
+      s.appendChild(seta(214, 88, 144, 88));
+      legenda(s, 170, "dentro de p: um numero de casa");
+      legenda(s, 188, "o numero leva a x, e nao e o 42");
+      return s;
+    },
+
+    /* I1 — *p e a viagem, e a acao acontece na OUTRA casa. */
+    I1: function () {
+      var s = svg(360, 198);
+      s.appendChild(defs());
+      s.appendChild(casa(28, 60, { endereco: "0x1000", dentro: "42",
+                                   nome: "x", largura: 112 }));
+      s.appendChild(casa(218, 60, { endereco: "0x2A00", dentro: "0x1000",
+                                    nome: "p", largura: 112 }));
+      s.appendChild(seta(214, 92, 144, 92));
+      s.appendChild(el("text", { x: 179, y: 76, "class": "fig-nota" }, "*p"));
+      s.appendChild(el("text", { x: 84, y: 168, "class": "fig-legenda" },
+                       "a acao acontece aqui"));
+      legenda(s, 190, "duas casas: a de p, e a do numero");
+      return s;
+    },
+
+    /* I2 — *p = 5 troca o conteudo da casa visitada; o papel de p fica. */
+    I2: function () {
+      var s = svg(360, 214);
+      s.appendChild(defs());
+      s.appendChild(el("text", { x: 180, y: 24, "class": "fig-rodape" },
+                       "*p = 5;"));
+      s.appendChild(el("text", { x: 84, y: 46, "class": "fig-saindo" }, "1"));
+      s.appendChild(casa(28, 74, { endereco: "0x1000", dentro: "5",
+                                   nome: "x", largura: 112 }));
+      s.appendChild(el("text", { x: 274, y: 46, "class": "fig-nota" },
+                       "o papel nao mudou"));
+      s.appendChild(casa(218, 74, { endereco: "0x2A00", dentro: "0x1000",
+                                    nome: "p", largura: 112 }));
+      s.appendChild(seta(214, 106, 144, 106));
+      legenda(s, 186, "o 1 saiu da casa de x");
+      legenda(s, 204, "quem mexe no papel e p = &outra");
+      return s;
+    },
+
+    /* I3 — a conclusao: a ida e a volta fecham em x. */
+    I3: function () {
+      var s = svg(360, 212);
+      s.appendChild(defs());
+      s.appendChild(casa(24, 58, { endereco: "0x1000", dentro: "7",
+                                   nome: "x", largura: 108 }));
+      s.appendChild(el("rect", { x: 232, y: 74, width: 104, height: 32, rx: 9,
+                                 "class": "fig-placa" }));
+      s.appendChild(el("text", { x: 284, y: 90, "class": "fig-placa-txt" },
+                       "0x1000"));
+      s.appendChild(el("text", { x: 284, y: 126, "class": "fig-rodape" },
+                       "so o numero"));
+      s.appendChild(seta(140, 74, 226, 74));
+      s.appendChild(el("text", { x: 183, y: 58, "class": "fig-nota" },
+                       "&x  pergunta onde"));
+      s.appendChild(seta(226, 104, 140, 104));
+      s.appendChild(el("text", { x: 183, y: 120, "class": "fig-nota" },
+                       "*  vai ate la"));
+      legenda(s, 182, "um desfaz o outro: *(&x) e a propria x");
+      legenda(s, 200, "e por isso p e *p nunca sao a mesma coisa");
+      return s;
+    }
+  };
+
   var topicoAtual = "kc_00";
 
   function doNo(no) {

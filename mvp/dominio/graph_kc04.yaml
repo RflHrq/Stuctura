@@ -1,0 +1,105 @@
+topic: kc_04
+
+# A METÁFORA DESTE TÓPICO: a pergunta e a viagem.
+#
+# Continua a rua. `&x` é PERGUNTAR o número da casa de x: você recebe o
+# número, e não a casa nem o que está dentro dela. `*p` é a VIAGEM: ir até
+# o número que está escrito no papel dentro de p e mexer no que tem lá.
+# Uma desfaz a outra — pergunte o número de x e vá até ele, e você chega
+# em x.
+#
+# ONDE QUEBRA, declarado como manda o contrato de linguagem:
+#
+#   1. "Perguntar o número" sugere que existe alguém para responder. Não
+#      existe: o número é propriedade do LUGAR. Por isso não há número
+#      para um valor que não ocupa lugar — o 5 escrito no código. Quando a
+#      metáfora empurrar para "pergunte o número do 5", ela cala.
+#   2. "A viagem" sugere tempo e distância. Não há: `*p` não custa mais
+#      por apontar para longe. A metáfora serve para dizer ONDE a ação
+#      acontece, nunca quanto ela custa.
+#
+# SEIS NÓS, E A CURADORIA TEM OITO. A curadoria de `docs/curadoria-grafos.md`
+# lista B1..B4 e I1..I4 para este tópico, e duas crenças só — uma em B4 e
+# uma em I1. A decisão 19 do processo manda uma crença por nó, sem exceção,
+# porque a atribuição vem da camada 2: nó sem crença própria nunca recebe
+# atribuição. Para oito nós faltariam seis crenças, e a literatura desta
+# área sustenta seis no total, não oito.
+#
+# Então dois pares foram dobrados, e os dois pares eram premissa-e-aplicação
+# da MESMA ideia:
+#
+#   curado B1 ("só o que ocupa memória tem endereço") + I1 ("&5 é inválido")
+#     -> B1 deste grafo, com a crença curada `ampersand_takes_value`
+#   curado B4 ("o * muda de papel") + I3 ("* e & são inversos")
+#     -> I3 deste grafo, com a crença curada `star_assigns_pointer`
+#
+# A alternativa era inventar quatro crenças `E` (estimadas, sem fonte) para
+# encher oito nós. É decisão de dono, e está registrada: voltar para oito
+# custa escrever quatro crenças e 14 atividades.
+
+nodes:
+
+  B1:
+    type: observavel
+    role: espinha
+    support: []
+    text: "Só o que ocupa um lugar na memória tem endereço."
+    plain_text: >
+      Só tem número de casa o que ocupa uma casa. Um valor escrito no
+      código não ocupa nenhuma.
+    negated_by:
+      - ampersand_takes_value
+
+  B2:
+    type: observavel
+    role: espinha
+    support: []
+    text: "&x devolve o endereço de x, e não copia x."
+    plain_text: >
+      &x responde o número da casa de x. Nada é copiado: você recebe o
+      número, não o que está guardado.
+    negated_by:
+      - ampersand_copies
+
+  B3:
+    type: observavel
+    role: espinha
+    support: []
+    text: "O valor guardado num ponteiro é um endereço."
+    plain_text: >
+      O que está escrito no papel dentro de p é um número de casa.
+    negated_by:
+      - pointer_is_data
+
+  I1:
+    type: inferencia
+    role: espinha
+    support: [B2, B3]
+    text: "*p vai até o endereço guardado em p e age no que está lá."
+    plain_text: >
+      Então *p é a viagem: vai até o número do papel e mexe no que tem
+      naquela casa.
+    negated_by:
+      - pointer_is_just_a_name
+
+  I2:
+    type: inferencia
+    role: espinha
+    support: [I1]
+    text: "*p = v escreve no objeto apontado; p continua com o mesmo endereço."
+    plain_text: >
+      *p = 7 troca o que tem dentro da casa visitada. O papel de p não
+      muda.
+    negated_by:
+      - star_binds_to_the_pointer
+
+  I3:
+    type: inferencia
+    role: conclusao
+    support: [B1, B2, I1]
+    text: "* e & são inversos, e cada um age num lugar: *(&x) é o próprio x."
+    plain_text: >
+      & pergunta onde está, * vai até lá. Um desfaz o outro, e *(&x) é a
+      própria x.
+    negated_by:
+      - star_assigns_pointer

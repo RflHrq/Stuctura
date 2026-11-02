@@ -1,0 +1,83 @@
+# Crenças do kc_04 — uma por nó, seis no total.
+#
+# Como o kc_03, este tópico fecha com ZERO `E`. Três crenças vêm do
+# catálogo curado com a fonte dele; três são novas, e as três foram lidas
+# na obra primária nesta sessão:
+#
+#   - a Tabela A.1 do Sorva (2012) foi baixada do repositório da Aalto e
+#     lida item a item. A convenção de página do catálogo antigo confere:
+#     o rodapé 362 fecha o bloco que contém os itens 49 a 66, e o 363 o
+#     que começa em 67 — que é onde `function_gets_original` já citava.
+#   - as três entradas do FAQ do comp.lang.c foram lidas inteiras em
+#     c-faq.com (4.2 em `ptrs/mimic.html`, 4.3 em `ptrs/unopprec2.html`,
+#     4.10 em `ptrs/refconst.html`).
+#
+# `pointer_is_data` também está no catálogo do kc_02, com a mesma fonte:
+# cada tópico tem o catálogo dele, e a mesma concepção pode negar
+# premissas de tópicos diferentes. O que não pode é a MESMA crença negar
+# dois nós do MESMO tópico — isso o carregador recusa.
+
+- id: ampersand_takes_value
+  negates: kc_04:B1
+  provenance: L
+  label_pt: "O & funciona em qualquer coisa: dá para pedir o endereço de um número escrito no código."
+  source: >
+    FAQ comp.lang.c 4.10: "How can I pass a constant by reference? A call
+    like f(&5); doesn't seem to work." A resposta diz o que a premissa B1
+    afirma — antes do C99 era preciso "declare a temporary variable, and
+    then pass its address": o endereço é do LUGAR, e o 5 não ocupa lugar.
+    É a crença que a curadoria já tinha, com a fonte dela.
+
+- id: ampersand_copies
+  negates: kc_04:B2
+  provenance: T
+  label_pt: "&x entrega uma cópia de x, e é a cópia que a função recebe."
+  source: >
+    Sorva (2012), p. 362, item 66: "Assigning an object means 'sending' an
+    object (or a copy) to a variable" (Ma 2007). Transposição declarada:
+    o item é sobre referência em Java, e aqui vale para o `&` de C — quem
+    acredita que atribuir manda uma cópia acredita que `&x` manda uma
+    cópia de x, que é exatamente o que B2 nega.
+
+- id: pointer_is_data
+  negates: kc_04:B3
+  provenance: T
+  label_pt: "O ponteiro é o próprio dado: o que está dentro dele é o valor, não o endereço."
+  source: >
+    Sorva (2012), p. 360, item 14: "A variable is (merely) a pairing of a
+    name to a changeable value (with a type). It is not stored inside the
+    computer" (Sorva 2008; Doukakis et al. 2007). A mesma crença está no
+    catálogo do kc_02, negando lá a premissa equivalente.
+
+- id: pointer_is_just_a_name
+  negates: kc_04:I1
+  provenance: T
+  label_pt: "p é só outro nome da variável apontada: *p não vai a lugar nenhum, é o mesmo nome escrito diferente."
+  source: >
+    Sorva (2012), p. 362, item 64: "A variable associated with an object
+    is merely a name which can be used to manipulate an object or 'thing'
+    in a program" (Sorva 2008; Ma 2007). Transposição declarada: se p é
+    apenas um nome, então `*p` não é uma ida a lugar algum — e o percurso
+    de I1, que é justamente a ida, não existe.
+
+- id: star_binds_to_the_pointer
+  negates: kc_04:I2
+  provenance: L
+  label_pt: "Mexer em *p mexe no ponteiro: *p++ anda com o que está dentro da casa."
+  source: >
+    FAQ comp.lang.c 4.3: "Does *p++ increment p, or what it points to?"
+    A resposta é que `*p++` é `*(p++)` e "it increments p"; para andar com
+    o apontado é `(*p)++`. A pergunta existir é a evidência: quem a faz
+    não separa agir em p de agir através de p, que é o que I2 separa.
+
+- id: star_assigns_pointer
+  negates: kc_04:I3
+  provenance: L
+  label_pt: "Na expressão, *p designa o próprio ponteiro — é em *p que se guarda o endereço."
+  source: >
+    FAQ comp.lang.c 4.2: "I'm trying to declare a pointer and allocate
+    some space for it... char *p; *p = malloc(10);" A resposta diz a
+    conclusão do tópico com outras palavras: "The pointer you declared is
+    p, not *p... It's when you're manipulating the pointed-to memory that
+    you use * as an indirection operator." Ver também 7.10. É a crença
+    que a curadoria já tinha, com a fonte dela.

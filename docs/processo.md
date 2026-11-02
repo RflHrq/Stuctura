@@ -64,7 +64,7 @@ pergunta.
 | Ativo | Onde | Estado |
 | --- | --- | --- |
 | Grafo de premissas de ponteiros em C | `domain/c_pointers/` | 12 tópicos, 93 nós, 34 crenças com procedência |
-| Domínio da unidade, por tópico | `mvp/dominio/` | 4 tópicos: kc_00 (5 nós, 20 itens), kc_01 (5, 35), kc_02 (6, 60), kc_03 (6, 42) |
+| Domínio da unidade, por tópico | `mvp/dominio/` | 5 tópicos: kc_00 (5 nós, 20 itens), kc_01 (5, 35), kc_02 (6, 60), kc_03 (6, 42), kc_04 (6, 42) |
 | Motor do laço identifica → refuta → treina → confirma | `mvp/motor.py` | 28 testes |
 | Motor antigo (dois braços, nomeação tardia, log reconstruível) | `engine/`, `store/`, `api/` | 252 testes |
 | Documentação do TCC | `docs/` | plano, fundamentação, requisitos, arquitetura, curadoria |
@@ -414,3 +414,98 @@ um distrator de diagnóstico derrubou a terceira. A quarta, apagar o nome
 de uma figura do kc_03, derrubou
 `test_todo_no_de_todo_topico_tem_figura` — que agora exige os quatro
 tópicos, não três.
+
+## Ciclo de conteúdo — o kc_04 (dereferência: & e *)
+
+Quarto tópico, e o primeiro em que a curadoria e a regra do processo
+discordaram. Fica registrado porque é decisão de dono.
+
+### A discordância: oito nós curados, seis crenças possíveis
+
+`docs/curadoria-grafos.md` lista oito nós para o kc_04 (B1–B4, I1–I4) e
+**duas** crenças, uma em B4 e uma em I1. A decisão 19 manda uma crença por
+nó, sem exceção, porque a atribuição vem da camada 2: nó sem crença
+própria nunca recebe atribuição e termina `nao_medido`. Para oito nós
+faltariam seis crenças, e a literatura desta área sustenta seis **no
+total**.
+
+Dois pares foram dobrados, e os dois eram premissa-e-aplicação da mesma
+ideia:
+
+| Curado | Virou | Crença que ficou |
+| --- | --- | --- |
+| B1 (só o que ocupa memória tem endereço) + I1 (&5 é inválido) | `B1` | `ampersand_takes_value` |
+| B4 (o `*` muda de papel) + I3 (`*` e `&` são inversos) | `I3`, a conclusão | `star_assigns_pointer` |
+
+A alternativa era inventar quatro crenças `E` (estimadas, sem fonte) para
+encher oito nós — o oposto da direção dos dois tópicos anteriores. Voltar
+para oito custa escrever quatro crenças e 14 atividades; está escrito no
+cabeçalho de `graph_kc04.yaml` para quem quiser desfazer.
+
+### As fontes, conferidas na obra primária nesta sessão
+
+Zero `E`, como o kc_03. Três crenças vieram do catálogo curado com a fonte
+dele; três são novas, e as três foram lidas no original:
+
+| Crença | Nó | Proc. | Fonte |
+| --- | --- | --- | --- |
+| `ampersand_takes_value` | B1 | L | FAQ comp.lang.c 4.10 (`f(&5)`) |
+| `ampersand_copies` | B2 | T | Sorva (2012) p. 362 item 66 (Ma 2007) |
+| `pointer_is_data` | B3 | T | Sorva (2012) p. 360 item 14 — também no kc_02 |
+| `pointer_is_just_a_name` | I1 | T | Sorva (2012) p. 362 item 64 (Sorva 2008; Ma 2007) |
+| `star_binds_to_the_pointer` | I2 | L | FAQ comp.lang.c 4.3 (`*p++`) |
+| `star_assigns_pointer` | I3 | L | FAQ comp.lang.c 4.2 (`*p = malloc(10)`) |
+
+A Tabela A.1 do Sorva foi baixada do repositório da Aalto e lida item a
+item. A convenção de página do catálogo antigo confere: o rodapé 362
+fecha o bloco dos itens 49 a 66, e o 363 começa no 67 — que é onde
+`function_gets_original` já citava. As três entradas do FAQ foram lidas
+inteiras em c-faq.com, e a de 4.2 diz a conclusão do tópico com outras
+palavras: *"The pointer you declared is p, not \*p."*
+
+### A medição, e as duas hipóteses sobre o pior caso
+
+| Persona | `kc_01` | `kc_02` | `kc_03` | `kc_04` |
+| --- | --- | --- | --- | --- |
+| acerta tudo | 38, 0/10 | 45, 0/10 | 45, 0/10 | 45, 0/12 |
+| erra e aprende | 68, 0/10 | 83, 0/10 | 86, 0/10 | 83, 0/12 |
+| erra e não muda | 81, 3/10 | 115, 1/10 | 102, 3/10 | 103, **5/12** |
+
+O caminho que o laço foi desenhado para produzir mede **todas** as
+premissas nos quatro tópicos. O pior caso do kc_04 é o pior dos quatro, e
+o motor diz por quê quando fecha: em **todas** as sessões o motivo foi
+`os itens do nó foram gastos e toda razão errada escolhida neles apontou
+outro nó` — nunca `nenhum item deste nó chegou a ser apresentado`.
+
+**Hipótese 1, rejeitada: a ordem da cédula.** `motor.razoes_de` monta a
+camada 2 na ordem das alternativas, então a primeira crença da cédula é a
+da alternativa `b`. Dois itens do kc_04 abriam com a crença do vizinho.
+Reordenados, o pior caso foi de 6/12 para 5/12 — ou seja, nada. A
+reordenação ficou (primazia não custa), mas **não é o conserto**, e por
+isso não virou teste: teste de propriedade que não compra nada é teatro.
+
+**Hipótese 2, confirmada: a fração de vizinho na cédula.**
+
+| Tópico | Distratores de diagnóstico | Do vizinho | Itens por degrau | Pior caso |
+| --- | --- | --- | --- | --- |
+| `kc_01` | 30 | 37% | 1 | 3/10 |
+| `kc_02` | 72 | 47% | **2** | **1/10** |
+| `kc_03` | 36 | 36% | 1 | 3/10 |
+| `kc_04` | 36 | **50%** | 1 | 5/12 |
+
+Medido direto: com o banco do kc_04 reescrito para **0% de vizinho** (todo
+distrator apontando a crença do próprio nó), o pior caso foi para **0/12**,
+e a sessão virou um tamanho fixo de 90 passos. O experimento foi feito
+numa cópia, medido e desfeito — o banco real continua em 50%.
+
+E é por isso que **0% não é o conserto**: o distrator do vizinho é
+justamente o que deixa a camada 2 atribuir ao nó certo quando o erro da
+pessoa é de outra premissa. Tirá-lo apaga a atribuição cruzada, que é o
+desenho do instrumento (CS-2). O conserto é o outro: **mais itens por
+degrau**, para que ao menos um dos itens do nó caia na crença dele. O
+kc_02 é a evidência — tem a segunda pior fração e o melhor pior caso, e é
+o único com dois itens por degrau.
+
+Então a dívida tem agora mecanismo, número e ordem de prioridade: 18 itens
+para o kc_04, 18 para o kc_03 e 15 para o kc_01, nessa ordem, pelo
+gerador.

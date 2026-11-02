@@ -1,0 +1,13 @@
+id: kc_04
+title: "Dereferência: & e *"
+pilot: false
+prerequisites: [kc_02, kc_03]
+conclusion_node: I3
+summary: >
+  &x produz o endereço de x; *p acessa o objeto que está no endereço
+  guardado em p. São operações inversas, e cada uma age num lugar
+  diferente: & devolve um número, * vai até ele.
+
+# Respondível ANTES por quem ainda não sabe. É o lado esquerdo do
+# antes-e-depois, e a pergunta é exatamente a que o tópico responde.
+teachback: "o que &x devolve, e o que *p faz com o que está em p"
