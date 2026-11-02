@@ -124,11 +124,10 @@ Nenhuma bloqueia a fase 4.
    estimada no catálogo, e o piloto é o que vai para a monografia. Ou se
    acha fonte para `pointer_has_no_address` e `pointer_is_pointless`, ou
    as duas entram no texto declaradas como hipótese a testar.
-11. **A suíte do MVP leva 3 minutos** (eram 30 segundos). Os testes que
-   varrem todos os tópicos rodam sessões inteiras por tópico, e já há dez.
-   Atrapalha a disciplina de uma verificação por mudança. Conserto
-   provável: marcar os de sessão inteira como lentos e rodá-los num alvo
-   separado, deixando a varredura rápida no caminho normal.
+11. ~~A suíte do MVP leva 3 minutos.~~ **Fechada, e era erro de
+   medição meu.** A suíte roda em **30 segundos**, e a varredura de
+   tópicos custa 6. Ver "A pergunta 11 era um erro de medição", no fim
+   deste documento.
 
 ## Artefatos
 
@@ -1174,14 +1173,13 @@ Sete tópicos construídos depois do contrato de linguagem, sete sem nenhuma
 deles (kc_00 e kc_01) não são piloto. **O kc_02 é o único piloto com `E`
 no catálogo: duas.** Isso vira dívida de procedência com nome e endereço.
 
-### Uma dívida nova, de ferramenta
+### Uma dívida nova, de ferramenta — que depois se mostrou inexistente
 
-A suíte do MVP passou de **30 segundos para 3 minutos** neste ciclo. A
-causa é conhecida e não é mistério: os testes que varrem todos os tópicos
-rodam **sessões inteiras** por tópico (`_pior_caso` em
-`test_no_pior_caso_nenhuma_premissa_fica_sem_medida` e no do fechamento), e
-agora há dez tópicos com até 56 itens cada. Três minutos atrapalha a
-disciplina de "uma verificação por mudança". Entra em perguntas em aberto.
+A suíte do MVP mediu **3 minutos** neste ciclo, contra 30 segundos antes,
+e eu atribuí isso aos testes que varrem todos os tópicos rodando sessões
+inteiras. **A atribuição estava errada, e o número também.** Medida
+sozinha, a suíte roda em 30 segundos e a varredura custa 6. A correção
+está em "A pergunta 11 era um erro de medição", no fim deste documento.
 
 ## Ciclo de conteúdo — o kc_08 (alocação dinâmica)
 
@@ -1520,3 +1518,77 @@ Em todos os treze, nas três personas, **nenhuma premissa fica sem medida**.
 
 Buraco na escada, nó sem item de entrada, nó sem figura, e o treino
 perdendo a variedade de formato — a última derruba a carga do domínio.
+
+## A pergunta 11 era um erro de medição
+
+A pergunta 11 dizia que a suíte do MVP tinha passado de 30 segundos para 3
+ou 4 minutos, e apontava a causa: os testes que varrem todos os tópicos
+rodando sessões inteiras. **As duas coisas estavam erradas** — o número e
+a causa —, e as duas eram minhas.
+
+### O número
+
+Medida sozinha, com nada mais rodando, três vezes seguidas:
+
+| | |
+| --- | --- |
+| execução 1 | 495 testes em **30,6 s** |
+| execução 2 | 495 testes em **33,4 s** |
+| execução 3 | 495 testes em **32,9 s** |
+
+As leituras de 102 s, 118 s e 264 s que entraram neste documento foram
+tomadas **logo depois de escrever muitos arquivos e com outra coisa
+rodando na máquina** — em alguns casos a suíte antiga em paralelo, em
+outros um servidor de medição ainda no ar. A de 264 s não se reproduz, e
+eu não sei dizer o que a causou; o que sei é que ela não se repete em
+medição limpa.
+
+O mesmo erro já tinha aparecido uma vez, com a suíte antiga: 849 s medidos
+em paralelo, 56 s medidos sozinha. Eu escrevi na hora que "isso não é só
+carga de máquina", e era.
+
+### A causa
+
+A varredura de tópicos, que eu acusei, custa **6,2 segundos no total** —
+78 testes que rodam sessão inteira, o mais lento deles em 0,07 s. Não é
+ela.
+
+Onde o tempo realmente está, por arquivo, medido isoladamente:
+
+| Arquivo | Tempo | Testes | O que ele faz de caro |
+| --- | --- | --- | --- |
+| `test_procedimentos.py` | 10,3 s | 23 | roda os scripts de shell em subprocesso |
+| `test_dominio.py` | 7,2 s | 89 | recarrega os 13 tópicos do disco, muitas vezes |
+| `test_medida.py` | 6,5 s | 91 | idem, mais as sessões |
+| `test_gerador.py` | 5,0 s | 18 | copia o domínio inteiro para pastas temporárias |
+| `test_escada.py` | 3,1 s | 35 | recarrega os tópicos |
+| os outros 10 | 0,2–2,7 s | 210 | — |
+
+A soma dos arquivos medidos um a um dá 60 s, e a suíte inteira dá 31: a
+diferença é o custo de subir o interpretador quinze vezes.
+
+### E por isso não há nada a consertar
+
+Trinta segundos cabe na disciplina de uma verificação por mudança. O
+conserto que a pergunta 11 propunha — marcar os testes de sessão inteira
+como lentos e tirá-los do caminho normal — teria **reduzido a cobertura de
+toda mudança** para resolver um problema que não existe, e teria tirado do
+caminho exatamente os testes que custam 6 dos 31 segundos.
+
+Há uma folga real a tomar se algum dia fizer falta: `test_dominio`,
+`test_medida` e `test_escada` somam 17 s recarregando os mesmos 13 tópicos
+do disco a cada teste parametrizado, e um cache por tópico cortaria a
+maior parte disso. **Não foi feito**, por dois motivos: 31 s não incomoda,
+e um cache de domínio é precisamente onde mora o bug de leitura velha —
+o `test_gerador` escreve num espelho temporário e carrega em seguida, e um
+cache ingênuo devolveria o arquivo antigo. Fica registrado como folga
+disponível, não como dívida.
+
+### A regra que faltava, e agora está escrita
+
+**Medida de tempo se toma com a máquina quieta.** Nada de servidor de
+medição no ar, nada de segunda suíte em paralelo, e não logo depois de
+escrever dezenas de arquivos. Duas vezes neste projeto eu registrei um
+número tomado sob contenção e expliquei a causa com confiança — e nas duas
+a explicação estava errada. Número medido sob contenção não é medida: é
+palpite com casa decimal.
