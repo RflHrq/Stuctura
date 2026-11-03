@@ -647,4 +647,4 @@ molde e o campo `do_molde` no log.
 - Escolha adaptativa do próximo item.
 - Qualquer mudança no critério de domínio.
 - Moldes para os outros 64 nós: este plano cobre o primeiro, e o segundo em
-  diante é repetição do ciclo da Tarefa 10.
+  diante é repetição do ciclo da Tarefa 12.
