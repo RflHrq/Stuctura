@@ -1,0 +1,205 @@
+"""O molde: uma pergunta com buracos, e um programa que a confere.
+
+    moldes = le(Path("mvp/dominio/moldes_kc07.yaml"), dominio)
+
+Um item do banco é texto fixo: `int a[5]` é `int a[5]` sempre, com o
+mesmo nome, o mesmo tamanho e as mesmas três alternativas. Um molde é a
+REGRA que produz esse item — e produz as outras cento e quarenta e nove.
+
+O que isso compra não é só variedade. É um eixo que o instrumento não
+tinha: perguntar a MESMA ideia com a roupa trocada. Duas superfícies
+hoje são dois formatos — duas perguntas distintas, que alguém pode ter
+decorado uma a uma. Duas instâncias do mesmo molde são a mesma pergunta
+com outro nome, outro tamanho, outro tipo, e quem sustenta as duas
+generalizou.
+
+O PREÇO: um molde errado erra em todas as variações de uma vez. É por
+isso que a validação daqui é tão desconfiada quanto a do domínio, e por
+isso que o `oraculo` é obrigatório — o que a máquina não puder conferir
+não entra por molde, e continua sendo escrito à mão.
+
+Este módulo é PURO: lê, valida, e nada mais. Quem compila é o
+`scripts/oraculo.py`, quem orquestra é o `scripts/gerar.py`, e quem
+nunca ouve falar de molde é o motor — a expansão é offline, e o que
+chega à sessão é um item de YAML como todos os outros.
+"""
+
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Mapping
+
+import yaml
+
+from mvp.dominio import FORMATOS, NIVEIS, TIPOS, USOS, Dominio
+
+# Um buraco é um identificador entre chaves: `{tipo}`, `{n}`, `{extenso}`.
+#
+# A varredura ignora as chaves do C de propósito. O oráculo é um programa
+# em C, e C é cheio de chaves: se a substituição fosse `str.format`, cada
+# `{` do programa teria de ser dobrado, e quem escreve o molde escreveria
+# C errado para o Python ficar feliz.
+BURACO = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+# Derivados: não são parâmetros, saem de um. `extenso` é o número por
+# extenso, e só existe quando há `n`.
+EXTENSO = {1: "uma", 2: "duas", 3: "três", 4: "quatro", 5: "cinco",
+           6: "seis", 7: "sete", 8: "oito", 9: "nove", 10: "dez"}
+
+# Os campos que podem ter buraco, e que portanto são varridos.
+COM_BURACO = ("enunciado", "gabarito", "oraculo", "espera")
+
+
+class MoldeInvalido(Exception):
+    """Um ou mais defeitos no arquivo de moldes, todos de uma vez.
+
+    Devolver o primeiro faria quem escreve molde consertar um por
+    execução. É a mesma escolha de `DominioInvalido`.
+    """
+
+    def __init__(self, problemas):
+        self.problemas = list(problemas)
+        super().__init__("; ".join(self.problemas))
+
+
+@dataclass(frozen=True)
+class Molde:
+    id: str
+    no: str
+    tipo: str                               # teorica | codigo
+    formato: str
+    nivel: int
+    uso: str
+    parametros: Mapping[str, tuple]
+    enunciado: str
+    gabarito: str
+    distratores: tuple[tuple[str, str], ...]   # (texto, id da crença)
+    oraculo: str
+    espera: str
+    revisado_por: str = ""
+
+    @property
+    def revisado(self) -> bool:
+        return bool(self.revisado_por.strip())
+
+
+def preenche(texto: str, valores: Mapping[str, object]) -> str:
+    """Troca os buracos pelos valores. NÃO é `str.format` — ver `BURACO`."""
+    return BURACO.sub(
+        lambda m: str(valores[m.group(1)]) if m.group(1) in valores
+        else m.group(0), texto)
+
+
+def _buracos(molde_cru: dict) -> set[str]:
+    achados: set[str] = set()
+    for campo in COM_BURACO:
+        achados |= set(BURACO.findall(str(molde_cru.get(campo) or "")))
+    for d in molde_cru.get("distratores") or ():
+        achados |= set(BURACO.findall(str((d or {}).get("texto") or "")))
+    return achados
+
+
+def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
+    """Os moldes daquele arquivo, validados contra aquele tópico.
+
+    Arquivo que não existe devolve vazio: doze dos treze tópicos não têm
+    molde nenhum, e isso não é defeito.
+    """
+    caminho = Path(caminho)
+    if not caminho.exists():
+        return {}
+
+    cru = yaml.safe_load(caminho.read_text(encoding="utf-8")) or {}
+    problemas: list[str] = []
+    moldes: dict[str, Molde] = {}
+
+    for mid, bruto in cru.items():
+        bruto = bruto or {}
+        onde = "molde %s" % mid
+
+        no = str(bruto.get("no") or "").split(":")[-1]
+        if no not in d.nos:
+            problemas.append("%s: nó %r não é deste tópico" % (onde, no))
+        if bruto.get("tipo") not in TIPOS:
+            problemas.append("%s: tipo %r (use %s)"
+                             % (onde, bruto.get("tipo"), ", ".join(TIPOS)))
+        if bruto.get("formato") not in FORMATOS:
+            problemas.append("%s: formato %r (use %s)"
+                             % (onde, bruto.get("formato"), ", ".join(FORMATOS)))
+        if bruto.get("nivel") not in NIVEIS:
+            problemas.append("%s: nível %r (use 1, 2 ou 3)"
+                             % (onde, bruto.get("nivel")))
+        if bruto.get("uso") not in USOS:
+            problemas.append("%s: uso %r (use %s)"
+                             % (onde, bruto.get("uso"), ", ".join(USOS)))
+
+        parametros = {k: tuple(v or ())
+                      for k, v in (bruto.get("parametros") or {}).items()}
+        if not parametros:
+            problemas.append("%s: sem parâmetro nenhum — isto é um item, "
+                             "não um molde" % onde)
+        for nome, valores in parametros.items():
+            if not valores:
+                problemas.append(
+                    "%s: o parâmetro %r está sem valor, e um parâmetro vazio "
+                    "não gera variação nenhuma" % (onde, nome))
+
+        # O que a máquina não pode conferir não entra por molde.
+        if not str(bruto.get("oraculo") or "").strip():
+            problemas.append(
+                "%s: sem oráculo — molde sem programa que o confira é texto "
+                "de modelo sem conferência nenhuma" % onde)
+        if not str(bruto.get("espera") or "").strip():
+            problemas.append(
+                "%s: sem `espera` — programa que roda e não diz o que devia "
+                "sair não confere nada" % onde)
+
+        crus = bruto.get("distratores") or []
+        if len(crus) < 2:
+            problemas.append(
+                "%s: %d distrator(es) — item de duas alternativas é cara ou "
+                "coroa" % (onde, len(crus)))
+        distratores = []
+        for i, dist in enumerate(crus, 1):
+            dist = dist or {}
+            cid = dist.get("crenca")
+            if cid not in d.crencas:
+                problemas.append("%s, distrator %d: crença %r não existe "
+                                 "neste tópico" % (onde, i, cid))
+            if not str(dist.get("texto") or "").strip():
+                problemas.append("%s, distrator %d: sem texto" % (onde, i))
+            distratores.append((str(dist.get("texto") or "").strip(),
+                                str(cid or "")))
+
+        # Todo buraco tem de ter de onde sair.
+        for buraco in sorted(_buracos(bruto)):
+            if buraco in parametros:
+                continue
+            if buraco == "extenso":
+                if "n" not in parametros:
+                    problemas.append(
+                        "%s: usa {extenso}, que é derivado de `n`, e não há "
+                        "parâmetro `n`" % onde)
+                continue
+            problemas.append(
+                "%s: buraco {%s} não é parâmetro deste molde (há %s)"
+                % (onde, buraco, ", ".join(sorted(parametros)) or "nenhum"))
+
+        moldes[mid] = Molde(
+            id=mid, no=no, tipo=str(bruto.get("tipo") or ""),
+            formato=str(bruto.get("formato") or ""),
+            nivel=bruto.get("nivel") if bruto.get("nivel") in NIVEIS else 1,
+            uso=str(bruto.get("uso") or ""),
+            parametros=parametros,
+            enunciado=str(bruto.get("enunciado") or "").strip(),
+            gabarito=str(bruto.get("gabarito") or "").strip(),
+            distratores=tuple(distratores),
+            oraculo=str(bruto.get("oraculo") or ""),
+            espera=str(bruto.get("espera") or "").strip(),
+            revisado_por=str(bruto.get("revisado_por") or ""))
+
+    if problemas:
+        raise MoldeInvalido(problemas)
+    return moldes
