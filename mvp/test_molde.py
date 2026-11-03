@@ -11,6 +11,7 @@ conferir molde não precisa de rede nenhuma.
 
 from __future__ import annotations
 
+import collections
 import itertools
 import sys
 from pathlib import Path
@@ -21,8 +22,8 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mvp.dominio import RAIZ as RAIZ_DOMINIO, carrega, topicos
-from mvp.molde import (Molde, MoldeInvalido, expande, item_de, le,
-                       serve_de_alternativa)
+from mvp.molde import (Molde, MoldeInvalido, expande, expande_familia,
+                       item_de, le, serve_de_alternativa)
 
 
 @pytest.fixture(scope="module")
@@ -695,3 +696,50 @@ def test_saida_que_serve_de_alternativa(tmp_path, d7):
     assert not ok and "linha" in motivo
     ok, motivo = serve_de_alternativa("x" * 80)
     assert not ok and "longa" in motivo
+
+
+# --------------------------------------------------------------------------
+# A expansão se reparte entre os formatos
+# --------------------------------------------------------------------------
+
+def test_a_expansao_se_reparte_entre_os_formatos(mf):
+    """`quantas` é o TOTAL da família, não o de cada formato."""
+    pares = expande_familia(mf, 6)
+    assert len(pares) == 6
+    assert collections.Counter(r.formato for r, _ in pares) == {
+        "reconhecer_conceito": 2, "achar_o_erro": 2, "prever_saida": 2}
+
+
+def test_a_primeira_variacao_e_a_mesma_em_todos_os_formatos(mf):
+    """É isso que torna a troca de formato a única coisa que mudou.
+
+    Acertar `int a[3]` como reconhecer e errar como achar-o-erro é sinal
+    de superfície; se os parâmetros também mudassem, não dava para saber
+    o que a pessoa não sustentou.
+    """
+    por_formato = collections.defaultdict(list)
+    for r, p in expande_familia(mf, 6):
+        por_formato[r.formato].append(p)
+    primeiras = {tuple(sorted(v[0].items())) for v in por_formato.values()}
+    assert len(primeiras) == 1, por_formato
+
+
+def test_as_segundas_variacoes_divergem(mf):
+    """Da segunda em diante, cada formato segue o seu caminho — senão a
+    família inteira seria a mesma pergunta três vezes."""
+    por_formato = collections.defaultdict(list)
+    for r, p in expande_familia(mf, 6):
+        por_formato[r.formato].append(p)
+    segundas = {tuple(sorted(v[1].items())) for v in por_formato.values()}
+    assert len(segundas) == 3, por_formato
+
+
+def test_menos_variacoes_do_que_formatos(mf):
+    """Foco 5: três formatos, duas variações.
+
+    A ordem do YAML decide, e nenhum formato recebe duas antes de todos
+    terem uma.
+    """
+    pares = expande_familia(mf, 2)
+    assert [r.formato for r, _ in pares] == [
+        "reconhecer_conceito", "achar_o_erro"]

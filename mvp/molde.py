@@ -468,6 +468,53 @@ def expande(molde: Molde, quantas: int = 6) -> list[dict]:
     return [_com_extenso(p) for p in escolhidas]
 
 
+def expande_familia(molde: Molde, quantas: int = 6):
+    """As variações da família, já casadas com a redação de cada uma.
+
+    `quantas` é o TOTAL, e não o de cada formato: seis numa família de
+    três viram duas por formato. É isso que conserta o que a primeira
+    sessão com molde mostrou — o banco do nó ficou com sete itens de um
+    formato e um de cada outro, e a regra das duas superfícies ficou sem
+    com que morder.
+
+    A PRIMEIRA variação é a mesma em todos os formatos. Acertar
+    `int a[3]` como reconhecer e errar como achar-o-erro é sinal de
+    superfície; se os parâmetros também mudassem, não daria para saber o
+    que a pessoa não sustentou. Da segunda em diante, cada formato segue
+    o seu caminho, senão a família inteira seria a mesma pergunta três
+    vezes.
+
+    Devolve `[(Redacao, parametros)]`, e menos do que o pedido quando as
+    combinações acabam.
+    """
+    redacoes = molde.redacoes
+    if not redacoes or quantas < 1:
+        return []
+    quantos_formatos = len(redacoes)
+
+    # Uma compartilhada, mais uma por item além da primeira volta.
+    precisa = max(1, 1 + quantas - quantos_formatos)
+    variacoes = expande(molde, precisa)
+    if not variacoes:
+        return []
+
+    pares = []
+    proxima = 1
+    voltas = -(-quantas // quantos_formatos)        # teto da divisão
+    for volta in range(voltas):
+        for redacao in redacoes:
+            if len(pares) >= quantas:
+                return pares
+            if volta == 0:
+                pares.append((redacao, variacoes[0]))
+                continue
+            if proxima >= len(variacoes):
+                return pares                        # acabaram as combinações
+            pares.append((redacao, variacoes[proxima]))
+            proxima += 1
+    return pares
+
+
 def serve_de_alternativa(saida: str) -> tuple[bool, str]:
     """A saída do programa pode virar a alternativa certa?
 
