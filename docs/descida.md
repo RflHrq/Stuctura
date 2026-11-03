@@ -83,15 +83,31 @@ recebe o fato. A tela mostra o programa, o comando, e então:
 - `origem: pendente` — ninguém rodou. A tela mostra o programa e a
   **garantia** (o que a norma obriga), e diz que não houve execução
 
-A cadeia do `array_is_pointer` está **pendente**: não há compilador C na
-máquina em que ela foi escrita. Inventar a mensagem do gcc seria
-exatamente a mentira que esta tela existe para não contar — uma tela que
-promete evidência e mostra evidência inventada é pior que nenhuma tela.
+A cadeia do `array_is_pointer` esteve **pendente** por semanas: não havia
+compilador C na máquina. Inventar a mensagem do gcc seria exatamente a
+mentira que esta tela existe para não contar — uma tela que promete
+evidência e mostra evidência inventada é pior que nenhuma tela. O campo
+ficou vazio até **03/11/2026**, quando o gcc entrou e o programa foi
+compilado de verdade:
 
-O carregador cobra os dois lados: origem gravada ou citada **exige**
-`saida` e `onde`; origem pendente **exige** `afirmacao` e `garantia`. E a
-tela não desenha terminal quando a origem é pendente, mesmo que uma saída
-tenha sobrado no arquivo — tem teste.
+```
+exemplo.c: In function 'main':
+exemplo.c:6:7: error: assignment to expression with array type
+    6 |     a = p;    /* esta nao     */
+      |       ^
+```
+
+`onde:` gcc (MinGW-W64 x86_64-ucrt-posix-seh) 16.2.0, Windows 11 — código
+de saída 1, e a linha apontada é a sexta. A de cima, `p = a`, passa sem
+uma palavra. O programa que a tela mostra é o que foi compilado: o
+excerto anterior não compilava sozinho, e evidência de compilação tem de
+ser do programa inteiro.
+
+O carregador cobra os três lados: a `afirmacao` é **sempre** obrigatória,
+porque é ela que a tela escreve; origem gravada ou citada **exige** `saida`
+e `onde`; origem pendente **exige** `garantia`. E a tela não desenha
+terminal quando a origem é pendente, mesmo que uma saída tenha sobrado no
+arquivo — tem teste.
 
 ## O custo, medido
 
@@ -133,8 +149,6 @@ sentem diferença nenhuma.
 
 - **Nenhuma pessoa real passou por isto.** O que está medido é o custo em
   telas e o comportamento do motor, não o efeito em quem aprende.
-- A evidência está **pendente**: falta rodar o programa e gravar a saída,
-  com máquina e compilador anotados.
 - Só `array_is_pointer` (kc_07) tem cadeia.
 - A descida não atende ao "ainda não entendi" da refutação. Lá a premissa
   volta pela analogia; aqui a saída é a alternativa `verdade` ou o "não

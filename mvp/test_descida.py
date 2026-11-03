@@ -330,19 +330,26 @@ def test_o_evento_da_evidencia_nao_ocupa_o_campo_tipo(d, ligada):
     assert ev.dados["evidencia"] == d.descida(CRENCA).evidencia.tipo
 
 
-def test_evidencia_pendente_nao_desenha_terminal(d, ligada):
+def test_evidencia_pendente_nao_desenha_terminal(tmp_path, ligada):
     """A tela promete evidência, e evidência inventada é pior que nenhuma.
 
-    Não há compilador C na máquina em que esta cadeia foi escrita. Em vez
-    de inventar a mensagem do gcc, a evidência fica `pendente`: a tela
+    Sem ninguém ter rodado o programa, a evidência fica `pendente`: a tela
     mostra o programa e a GARANTIA do padrão, e não finge um terminal.
+
+    A ORIGEM VEM DA FIXTURE, e não do kc_07 real. Este teste lia o arquivo
+    de verdade e presumia que ele estava pendente — no dia em que a
+    evidência foi gravada, ele caiu sem nenhuma regra ter quebrado. Regra
+    de tela não se amarra a um fato de conteúdo que tem todo o direito de
+    mudar.
     """
-    ev = d.descida(CRENCA).evidencia
-    assert ev.origem == "pendente"
+    def muda(c):
+        c["evidencia"].update(origem="pendente", saida="", onde="")
+    pendente = carrega(_monta(tmp_path / "p0", muda), topico="kc_07")
+    ev = pendente.descida(CRENCA).evidencia
     assert ev.gravada is False
 
-    t = _no_ultimo(d)
-    t = _degrau(d, t.estado, motor.DECORRE)
+    t = _no_ultimo(pendente)
+    t = _degrau(pendente, t.estado, motor.DECORRE)
     assert t.tela.tipo == "evidencia"
     assert t.tela.dados["saida"] == ""
     assert t.tela.dados["gravada"] is False
@@ -350,6 +357,24 @@ def test_evidencia_pendente_nao_desenha_terminal(d, ligada):
     assert t.tela.texto == ev.afirmacao
     assert "6.3.2.1" in t.tela.dados["garantia"]
     assert t.tela.dados["programa"].strip()
+
+
+def test_a_evidencia_do_kc07_foi_rodada(d):
+    """O fato de conteúdo, cobrado onde fatos de conteúdo pertencem.
+
+    A cadeia nasceu com a evidência pendente, porque não havia compilador
+    C na máquina. Em 03/11/2026 houve, o programa foi compilado, e a
+    mensagem na tela passou a ser a que o gcc escreveu.
+    """
+    ev = d.descida(CRENCA).evidencia
+    assert ev.origem == "gravada"
+    assert ev.gravada is True
+    assert "array type" in ev.saida
+    # `onde` é o que separa evidência de alegação: máquina e compilador.
+    assert "gcc" in ev.onde and "16.2" in ev.onde
+    # E o programa da tela é o que FOI compilado — excerto que não compila
+    # sozinho não é evidência de compilação.
+    assert "int main(void)" in ev.fonte
 
 
 def test_evidencia_gravada_aparece_com_a_saida_e_o_onde(tmp_path, ligada):
@@ -375,7 +400,8 @@ def test_saida_sobrando_numa_evidencia_pendente_nao_vai_para_a_tela(
     dizendo "foi isto que saiu" sobre uma execução que ninguém fez.
     """
     def muda(c):
-        c["evidencia"]["saida"] = "saida de uma execucao que ninguem fez"
+        c["evidencia"].update(origem="pendente", onde="",
+                              saida="saida de uma execucao que ninguem fez")
     sobrou = carrega(_monta(tmp_path / "p1", muda), topico="kc_07")
     assert sobrou.descida(CRENCA).evidencia.origem == "pendente"
     t = _no_ultimo(sobrou)
@@ -502,7 +528,7 @@ def test_degrau_sem_as_quatro_partes_nao_carrega(tmp_path):
 def test_evidencia_gravada_sem_saida_nao_carrega(tmp_path):
     """Ou grava de verdade, ou assume que está pendente."""
     def muda(c):
-        c["evidencia"]["origem"] = "gravada"
+        c["evidencia"].update(origem="gravada", saida="", onde="")
     p = _recusa(tmp_path, "c4", muda)
     assert any("saída vazia" in x for x in p), p
     assert any("ONDE" in x for x in p), p
@@ -511,9 +537,26 @@ def test_evidencia_gravada_sem_saida_nao_carrega(tmp_path):
 def test_evidencia_pendente_sem_garantia_nao_carrega(tmp_path):
     """Sem saída gravada, a garantia é tudo o que a tela tem de verdadeiro."""
     def muda(c):
-        c["evidencia"]["garantia"] = ""
+        c["evidencia"].update(origem="pendente", saida="", onde="",
+                              garantia="")
     p = _recusa(tmp_path, "c5", muda)
     assert any("garantia" in x for x in p), p
+
+
+def test_evidencia_sem_afirmacao_nao_carrega_em_origem_nenhuma(tmp_path):
+    """A afirmação é o texto da tela, com terminal ou sem.
+
+    Ela era cobrada só no pendente. Quando a primeira evidência foi
+    gravada, a cobrança sumiu junto — e uma evidência gravada sem
+    afirmação chegaria à tela com a ideia em branco.
+    """
+    for i, origem in enumerate(("pendente", "gravada")):
+        def muda(c, origem=origem):
+            c["evidencia"].update(origem=origem, afirmacao="",
+                                  saida="x" if origem == "gravada" else "",
+                                  onde="x" if origem == "gravada" else "")
+        p = _recusa(tmp_path, "c7_%d" % i, muda)
+        assert any("afirmação" in x for x in p), (origem, p)
 
 
 def test_descida_de_crenca_que_nao_existe_nao_carrega(tmp_path):

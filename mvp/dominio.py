@@ -583,6 +583,16 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
                              % (onde, ev.get("origem"), ", ".join(ORIGENS_EVIDENCIA)))
         if not (ev.get("fonte") or "").strip():
             problemas.append("%s: evidência sem programa" % onde)
+        # A AFIRMAÇÃO é o texto da tela de evidência, nos três casos de
+        # origem. Ela era cobrada só no pendente, e uma evidência gravada
+        # sem afirmação passava na carga e chegava à tela com a ideia em
+        # branco — apareceu no dia em que a primeira evidência deixou de
+        # ser pendente.
+        if not _texto(ev.get("afirmacao")):
+            problemas.append(
+                "%s: evidência sem afirmação — é ela que a tela escreve, "
+                "com saída gravada ou sem" % onde)
+
         # A tela promete evidência. Saída que diz de onde veio, ou nenhuma.
         if ev.get("origem") in ("gravada", "citada"):
             if not (ev.get("saida") or "").strip():
@@ -593,12 +603,12 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
                 problemas.append(
                     "%s: origem %r sem dizer ONDE (máquina e compilador, ou "
                     "a citação)" % (onde, ev.get("origem")))
-        else:
-            for k in ("afirmacao", "garantia"):
-                if not _texto(ev.get(k)):
-                    problemas.append(
-                        "%s: evidência pendente sem %s — sem saída gravada, "
-                        "é só isto que a tela tem de verdadeiro" % (onde, k))
+        elif not _texto(ev.get("garantia")):
+            # A garantia é o que sustenta a tela quando não houve terminal:
+            # o que a norma obriga, no lugar do que a máquina mostrou.
+            problemas.append(
+                "%s: evidência pendente sem garantia — sem saída gravada, "
+                "é só isto que a tela tem de verdadeiro" % onde)
         descidas[cid] = Descida(
             crenca=cid, colide_com=colide, passos=tuple(passos),
             evidencia=Evidencia(

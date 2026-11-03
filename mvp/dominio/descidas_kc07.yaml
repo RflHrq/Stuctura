@@ -81,18 +81,23 @@ descidas:
     #   pendente — ninguém rodou ainda; `saida` fica vazia, e a tela
     #              mostra o programa e a GARANTIA, sem fingir terminal
     #
-    # Esta está `pendente` porque não há compilador C na máquina em que ela
-    # foi escrita. Inventar a mensagem do gcc seria exatamente a mentira
-    # que esta tela existe para não contar.
+    # Esta esteve `pendente` por semanas, porque não havia compilador C
+    # na máquina. Inventar a mensagem do gcc seria exatamente a mentira
+    # que esta tela existe para não contar — então o campo ficou vazio até
+    # 03/11/2026, quando o gcc entrou e o programa foi rodado de verdade.
     evidencia:
       tipo: erro_de_compilacao
       fonte: |
-        int a[5];
-        int *p;
+        int main(void) {
+            int a[5];
+            int *p;
 
-        p = a;    /* esta compila */
-        a = p;    /* esta nao     */
-      comando: "gcc -c exemplo.c"
+            p = a;    /* esta compila */
+            a = p;    /* esta nao     */
+
+            return 0;
+        }
+      comando: "gcc -std=c17 -c exemplo.c"
       afirmacao: >
         A última linha não compila. Um array não é um lvalue modificável:
         o nome do conjunto não recebe atribuição.
@@ -102,6 +107,14 @@ descidas:
         restrição obriga o compilador a emitir diagnóstico — qualquer
         compilador conforme recusa esta linha. A mensagem exata é de cada
         compilador; a recusa é do padrão.
-      saida: ""
-      origem: pendente
-      onde: ""
+      saida: |
+        exemplo.c: In function 'main':
+        exemplo.c:6:7: error: assignment to expression with array type
+            6 |     a = p;    /* esta nao     */
+              |       ^
+      origem: gravada
+      onde: >
+        gcc (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r3)
+        16.2.0, Windows 11, em 03/11/2026. O compilador recusa com código
+        de saída 1, e a linha que ele aponta é a sexta — a atribuição ao
+        nome do array. A linha de cima, p = a, passa sem uma palavra.

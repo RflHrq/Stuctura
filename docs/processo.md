@@ -1943,3 +1943,51 @@ afirmação das crenças, enunciado/código/alternativas de toda atividade,
 resgates, exemplos e os degraus e a evidência das descidas. Treze
 tópicos, um caso cada. Sabotado em dois lugares diferentes — um resgate
 do kc_04 e a primeira pergunta do kc_07 —, o teste cai nos dois.
+
+## A evidência da descida deixou de ser pendente
+
+Entrou um compilador na máquina — `winget install BrechtSanders.WinLibs.POSIX.UCRT`,
+gcc 16.2.0 — e o programa da descida foi compilado de verdade. O campo
+`saida` tinha ficado vazio semanas de propósito: a tela promete evidência,
+e evidência inventada é pior que evidência nenhuma.
+
+```
+exemplo.c: In function 'main':
+exemplo.c:6:7: error: assignment to expression with array type
+    6 |     a = p;    /* esta nao     */
+      |       ^
+```
+
+**O programa da tela mudou junto.** O que estava lá era um excerto que
+*não compilava sozinho* — `p = a;` fora de função não é sentença. Evidência
+de compilação tem de ser do programa que foi compilado, então virou um
+`main` completo.
+
+### Uma armadilha de instalação, que vale para a coleta
+
+O `ld` do MinGW **não resolve o próprio prefixo quando há espaço no
+caminho**, e o winget instalou em `C:\Users\Satya Pass\...`. Nada linkava:
+*"cannot find C:/Users/Satya"*. Reinstalado em `C:\Users\Public\gcc`,
+funciona. Se outra máquina entrar na coleta, isto é uma linha do
+procedimento.
+
+### Quatro testes caíram, e nenhuma regra tinha quebrado
+
+Os quatro partiam do kc_07 real e **presumiam que a evidência dele era
+pendente** — dois liam isso direto, dois montavam um domínio temporário
+contando que o resto continuasse pendente. Gravar a evidência tornou a
+premissa deles falsa.
+
+O defeito era dos testes: eles amarraram uma regra de tela a um fato de
+conteúdo que tinha todo o direito de mudar, e que mudou exatamente como o
+formato previa. Cada um passou a **declarar a origem de que trata** na
+própria fixture, com as asserções idênticas, e o fato novo ganhou teste
+próprio (`test_a_evidencia_do_kc07_foi_rodada`).
+
+### E a mudança revelou uma lacuna
+
+A `afirmacao` era cobrada **só** quando a origem era pendente — mas a tela
+a escreve nos três casos. Uma evidência gravada sem afirmação passava na
+carga e chegaria à tela com a ideia em branco. Agora é obrigatória sempre,
+e a `garantia` continua obrigatória só no pendente. Quatro sabotagens,
+quatro testes caídos.
