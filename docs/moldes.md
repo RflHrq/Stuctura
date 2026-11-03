@@ -277,10 +277,17 @@ caso do `sizeof`, e a máquina pegou.
    distante, no espaço de parâmetros, do que já foi apresentado. Mexe em
    `proximo_item`, e sem banco não tem o que escolher.
 
-## Decisões em aberto
+## Decisões tomadas
 
-- **Quais nós recebem molde primeiro.** A sugestão é começar pelos nós dos
-  dois tópicos da coleta (kc_07 e kc_09), e dentro deles pelos de treino,
-  que é onde o banco esgota.
-- **Se os 51 candidatos parados em `candidatos/` ainda valem.** Se os nós
-  deles forem cobertos por molde, revisá-los deixa de fazer sentido.
+**Os moldes começam pelos nós dos dois tópicos da coleta** — kc_07 e
+kc_09 —, e dentro deles pelos itens de **treino**, que é onde o banco
+esgota e onde a falta de item faz a premissa terminar em aberto. São 15
+nós; os outros 64 esperam.
+
+**Os 51 candidatos de `candidatos/` não entram no domínio.** Eles foram
+escritos para provar que o gerador funcionava, e provaram: o esquema
+fechado, a conferência pelo carregador e o portão do `revisado_por` já
+tinham rodado ponta a ponta. Como conteúdo, nunca foram avaliados por
+ninguém, e os nós deles passam a ser cobertos por molde. A fila de
+revisão que estava parada desde outubro deixa de existir — não por ter
+sido vencida, por ter perdido a finalidade.
