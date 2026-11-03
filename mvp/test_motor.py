@@ -578,3 +578,32 @@ def test_no_sem_item_de_molde_nunca_generaliza(d):
     t, eventos = roda(d, _politica())
     assert all(n["generalizou"] is False
                for n in motor.estado_dos_nos(d, t.estado))
+
+
+def test_acertar_no_treino_tambem_guarda_a_instancia(tmp_path):
+    """O caminho que a coleta vai usar de verdade, e que não contava.
+
+    A decisão da spec é que os moldes começam pelos itens de TREINO — é
+    lá que o banco esgota. Mas a instância só era somada nos dois ramos
+    de acerto do DIAGNÓSTICO, e `atividades_do_no(no, "diagnostico")`
+    garante que item de treino nunca chega lá. Resultado: para o corpus
+    que o plano constrói, `generalizou` era um falso constante.
+    """
+    from mvp.test_dominio import atividade, monta
+
+    def muda(cru):
+        for aid, params in (("ciu_kc00_t01", {"tipo": "int", "n": 3}),
+                            ("ciu_kc00_t02", {"tipo": "char", "n": 8})):
+            atividade(cru, aid).update(do_molde="mol_t", parametros=params)
+    d2 = carrega(monta(tmp_path / "tr1", muda))
+    alvo = next(x for x in d2.atividades if x.id == "ciu_kc00_t01").no
+
+    # erra o diagnóstico daquele nó para cair no treino, e acerta o treino
+    t, eventos = roda(d2, _politica(erra_no=alvo, erra_diagnostico=2, d=d2))
+
+    assinaturas = set(t.estado.no(alvo).instancias)
+    assert assinaturas >= {"mol_t|n=3,tipo=int", "mol_t|n=8,tipo=char"}, \
+        t.estado.no(alvo).instancias
+    marca = next(n for n in motor.estado_dos_nos(d2, t.estado)
+                 if n["no"] == alvo)
+    assert marca["generalizou"] is True

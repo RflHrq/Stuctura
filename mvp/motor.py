@@ -1573,7 +1573,15 @@ def _resolve_treino(d: Dominio, e: Estado, a: Atividade,
     # RF35: a sequência é do nó. Zerar aqui não toca em nenhum outro.
     streak = en.streak + 1 if certo else 0
     novo = e.com(a.no, streak=streak, tentativas=en.tentativas + 1,
-                 tropecos=en.tropecos + (0 if certo else 1))
+                 tropecos=en.tropecos + (0 if certo else 1),
+                 # A instância conta AQUI também, e é aqui que ela mais
+                 # conta: os moldes começam pelos itens de treino, e
+                 # `atividades_do_no(no, "diagnostico")` garante que item
+                 # de treino nunca chega ao diagnóstico. Sem esta linha,
+                 # `generalizou` era um falso constante justamente para o
+                 # banco que os moldes constroem.
+                 instancias=(en.instancias + _instancias_de(a) if certo
+                             else en.instancias))
 
     eventos = [
         Evento("resposta_registrada", {

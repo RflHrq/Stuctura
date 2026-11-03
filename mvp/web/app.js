@@ -707,7 +707,11 @@
        * decorado aquela pergunta, e por isso vem depois do estado, nao
        * no lugar dele. */
       if (n.generalizou) {
-        nota = (nota ? nota + ", " : "") + "e sustentou a troca de superfície";
+        /* Sem antecedente, o "e" fica solto: no fragil ou refutado a
+         * notaDe devolve vazio, e o mapa imprimia a frase comecando por
+         * conjuncao. */
+        nota = nota ? nota + ", e sustentou a troca de superfície"
+                    : "sustentou a troca de superfície";
       }
       if (nota) {
         var p = document.createElement("p");

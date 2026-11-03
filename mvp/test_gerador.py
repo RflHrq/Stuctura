@@ -383,12 +383,16 @@ def test_o_portao_do_contrato_diz_qual_variacao_quebrou(tmp_path):
 @tem_gcc
 def test_variacao_igual_a_item_que_ja_existe_e_recusada(tmp_path):
     """O molde reproduz, palavra por palavra, um item escrito à mão."""
+    # O enunciado vem do DOMÍNIO, e não copiado: corrigir uma vírgula
+    # naquele item não pode quebrar um teste que não é sobre ele.
+    alvo = next(a for a in D7.atividades if a.no == "B1"
+                and a.uso == "diagnostico")
     pasta = _molde(tmp_path, "repetida",
                    parametros={"tipo": ["int"], "nome": ["a"], "n": [5]},
-                   enunciado="int a[5] cria o quê?")
+                   enunciado=alvo.enunciado)
     itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
     assert itens == []
-    assert any("ciu_kc07_001" in p for p in problemas), problemas
+    assert any(alvo.id in p for p in problemas), problemas
 
 
 def test_molde_que_nao_existe_no_arquivo(tmp_path):
@@ -637,3 +641,53 @@ def test_a_certa_nao_pode_ser_a_unica_em_minuscula(tmp_path):
     itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
     assert itens == []
     assert any("minúscula" in p for p in problemas), problemas
+
+
+def test_extremos_pega_o_valor_textual_mais_longo(tmp_path):
+    """A folha promete "o nome mais longo" e mostrava o TIPO mais longo.
+
+    A escolha era "o parâmetro textual cujo maior valor é o maior", e no
+    molde real isso é `tipo` (double, 6) e não `nome` (dados, 5). Quem
+    revisa podia nunca ler o extremo que a folha diz que está lendo.
+    """
+    # `tipo` tem valores mais longos que `nome` em média — era o que
+    # fazia a escolha antiga pegar o tipo e nunca o nome comprido.
+    m = _le_molde(tmp_path, "textual", parametros={
+        "tipo": ["int", "unsigned"], "nome": ["a", "bb", "comprimento"],
+        "n": [3, 8]})
+    tres = gerar.extremos(m)
+    assert any(p["nome"] == "comprimento" for p in tres), tres
+
+
+def test_extremos_nao_expande_o_produto_inteiro(tmp_path):
+    """Era quártico: 1000 combinações levavam dois minutos, e é ele que
+    trava o portão humano — a folha ficava sem imprimir nada."""
+    import time
+
+    m = _le_molde(tmp_path, "grande", parametros={
+        "tipo": ["int", "char", "double", "long", "float"],
+        "nome": ["a", "v", "dados", "lista", "buf", "entrada"],
+        "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "qual": ["x", "y", "z", "w"]})          # 1200 combinações
+    t0 = time.perf_counter()
+    tres = gerar.extremos(m)
+    assert time.perf_counter() - t0 < 2.0, "extremos ainda é quártico"
+    assert len(tres) == 3
+    assert [p["n"] for p in tres[:2]] == [1, 10]
+
+
+def test_duas_variacoes_com_a_mesma_pergunta_e_respostas_diferentes(tmp_path):
+    """A metade interna do portão da variedade, que não tinha teste.
+
+    Molde cujo enunciado não usa todos os parâmetros: aqui o `tipo` varia
+    só no gabarito. Duas variações saem com a MESMA pergunta e respostas
+    certas diferentes — item ambíguo, e quem responde não tem como
+    acertar as duas.
+    """
+    pasta = _molde(tmp_path, "ambigua",
+                   parametros={"tipo": ["int", "char"], "nome": ["a"],
+                               "n": [5]},
+                   enunciado="O que {nome}[{n}] guarda?")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == []
+    assert any("do mesmo molde" in p for p in problemas), problemas

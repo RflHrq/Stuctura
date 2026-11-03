@@ -526,37 +526,57 @@ def extremos(molde, quantas: int = 3) -> list[dict]:
     """As variações que a pessoa lê, escolhidas e não sorteadas.
 
     Os extremos do espaço de parâmetros — o menor e o maior número, o
-    nome mais longo —, que é onde a concordância do português quebra:
-    "uma caixa" contra "oito caixas", "a" contra "dados". Três sorteadas
-    podem cair todas no meio e não mostrar nada.
-    """
-    from mvp.molde import expande
+    valor textual mais longo —, que é onde a concordância do português
+    quebra: "uma caixa" contra "oito caixas", "a" contra "comprido".
+    Três sorteadas podem cair todas no meio e não mostrar nada.
 
-    todas = expande(molde, quantas=10 ** 6)
-    if not todas:
+    MONTADAS, não filtradas. A primeira versão expandia o produto
+    cartesiano inteiro com a escolha gulosa só para tirar um mínimo e um
+    máximo, e era quártica: medido nesta máquina, 1000 combinações
+    levavam dois minutos — e é esta função que faz a folha de revisão
+    aparecer, então o portão humano ficava parecendo pendurado.
+    """
+    from mvp.molde import _com_extenso
+
+    nomes = list(molde.parametros)
+    if not nomes or any(not molde.parametros[k] for k in nomes):
         return []
+
+    base = {k: molde.parametros[k][0] for k in nomes}
+
+    def com(chave, valor):
+        return _com_extenso(dict(base, **{chave: valor}))
+
     escolhidas: list[dict] = []
 
     def junta(p):
-        if p is not None and p not in escolhidas:
+        if p not in escolhidas:
             escolhidas.append(p)
 
-    numericos = [k for k in molde.parametros
+    numericos = [k for k in nomes
                  if all(isinstance(v, int) for v in molde.parametros[k])]
     if numericos:
         chave = numericos[0]
-        junta(min(todas, key=lambda p: p[chave]))
-        junta(max(todas, key=lambda p: p[chave]))
-    textuais = [k for k in molde.parametros
-                if all(isinstance(v, str) for v in molde.parametros[k])]
+        junta(com(chave, min(molde.parametros[chave])))
+        junta(com(chave, max(molde.parametros[chave])))
+
+    # O valor textual mais longo, em QUALQUER parâmetro de texto — e não
+    # o parâmetro cujo maior valor é o maior. A folha promete "o nome
+    # mais longo" e mostrava o tipo mais longo, porque `double` tem seis
+    # letras e `dados` tem cinco.
+    textuais = [(len(str(v)), k, v) for k in nomes
+                for v in molde.parametros[k] if isinstance(v, str)]
     if textuais:
-        longo = max(textuais, key=lambda k: max(len(v)
-                                                for v in molde.parametros[k]))
-        junta(max(todas, key=lambda p: len(str(p[longo]))))
-    for p in todas:
-        if len(escolhidas) >= quantas:
-            break
-        junta(p)
+        _, chave, valor = max(textuais)
+        junta(com(chave, valor))
+
+    # Faltando, completa variando um parâmetro de cada vez — barato, e
+    # ainda assim diferente do que já está escolhido.
+    for chave in nomes:
+        for valor in molde.parametros[chave]:
+            if len(escolhidas) >= quantas:
+                break
+            junta(com(chave, valor))
     return escolhidas[:quantas]
 
 
