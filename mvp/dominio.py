@@ -169,6 +169,13 @@ class Atividade:
     crenca: str | None = None      # a crença que um erro aqui levanta
     uso: str = "diagnostico"       # diagnostico | treino | entrada
     nivel: int = 1                 # o degrau: 1, 2 ou 3
+    # De que MOLDE este item saiu, e com que parâmetros. Vazios nos itens
+    # escritos à mão, que são todos os de hoje. É o que torna mensurável
+    # a diferença entre generalizar e decorar: duas instâncias do mesmo
+    # molde, com parâmetros distintos, são a mesma ideia com a roupa
+    # trocada.
+    do_molde: str = ""
+    parametros: Mapping[str, object] = field(default_factory=dict)
 
     @property
     def indice_correto(self) -> int:
@@ -508,7 +515,17 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
             opcoes=opcoes, crenca=crenca,
             uso=bruto.get("uso", "diagnostico"),
             nivel=bruto.get("nivel") if bruto.get("nivel") in NIVEIS else 1,
+            do_molde=str(bruto.get("do_molde") or ""),
+            parametros=dict(bruto.get("parametros") or {}),
         ))
+
+        # Meia procedência é pior que nenhuma, porque PARECE procedência:
+        # sem os parâmetros não dá para dizer qual variação a pessoa
+        # respondeu, e sem o molde os parâmetros não significam nada.
+        if bool(bruto.get("do_molde")) != bool(bruto.get("parametros")):
+            problemas.append(
+                "atividade %s: meia procedência — `do_molde` e `parametros` "
+                "andam juntos ou não andam" % aid)
 
     for cid, c in crencas.items():
         if not _texto(((cru_atv or {}).get("resgates") or {}).get(c.nega)):

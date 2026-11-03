@@ -230,3 +230,6 @@ textarea:focus{outline:2px solid var(--acento); outline-offset:1px}
    e comando de shell em caixa-alta e outro comando. */
 .comando{font:13px ui-monospace,Consolas,monospace; color:var(--tinta2);
          margin:0 0 14px}
+/* A troca de superficie nao e um estado: e uma qualificacao do estado.
+   Por isso entra na legenda como frase, e nao como pino. */
+.nota-legenda{flex-basis:100%; font-style:italic}

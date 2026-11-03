@@ -281,3 +281,431 @@ def test_aprovado_mas_invalido_nao_escreve_nada(tmp_path, monkeypatch):
     assert quantos == 0
     assert avisos
     assert (espelho / "activities_kc02.yaml").read_bytes() == antes
+
+
+# --------------------------------------------------------------------------
+# Os quatro portões do molde
+# --------------------------------------------------------------------------
+
+import yaml as _yaml            # noqa: E402
+
+sys.path.insert(0, str(RAIZ / "scripts"))
+import oraculo  # noqa: E402
+
+D7 = carrega(topico="kc_07")
+tem_gcc = pytest.mark.skipif(not oraculo.GCC.exists(),
+                             reason="sem compilador em %s" % oraculo.GCC)
+
+
+def _molde(tmp_path, nome, **troca):
+    """Escreve um `moldes_kc07.yaml` numa pasta só deste teste."""
+    base = {
+        "node": "B1",
+        "tipo": "teorica",
+        "formato": "reconhecer_conceito",
+        "nivel": 1,
+        "uso": "treino",
+        "parametros": {"tipo": ["int", "char", "double"],
+                       "nome": ["a", "v", "dados"],
+                       "n": [3, 5, 8]},
+        "enunciado": "{tipo} {nome}[{n}] guarda quantos valores?",
+        # Começa por palavra: o portão novo recusa molde em que a certa
+        # é a única alternativa que começa em minúscula.
+        "gabarito": "São {extenso} valores, um por caixa",
+        "distratores": [
+            {"texto": "Um só, com os outros dentro dele",
+             "crenca": "string_literal_is_array"},
+            {"texto": "Nenhum: {nome} é um ponteiro",
+             "crenca": "array_is_pointer"},
+        ],
+        "oraculo": "#include <stdio.h>\n"
+                   "int main(void) {\n"
+                   "    {tipo} {nome}[{n}];\n"
+                   "    printf(\"%zu\\n\", sizeof {nome} / sizeof {nome}[0]);\n"
+                   "    return 0;\n"
+                   "}\n",
+        "espera": "{n}",
+        "revisado_por": "",
+    }
+    base.update(troca)
+    pasta = tmp_path / nome
+    pasta.mkdir(parents=True, exist_ok=True)
+    (pasta / "moldes_kc07.yaml").write_text(
+        _yaml.safe_dump({"mol_teste": base}, allow_unicode=True),
+        encoding="utf-8")
+    return pasta
+
+
+@tem_gcc
+def test_molde_certo_expande_e_passa_nos_quatro_portoes(tmp_path):
+    itens, problemas = gerar.expande_molde(
+        D7, "kc_07", "mol_teste", raiz=_molde(tmp_path, "ok"))
+    assert problemas == []
+    assert len(itens) == 6
+    assert {i["do_molde"] for i in itens} == {"mol_teste"}
+
+
+@tem_gcc
+def test_uma_variacao_reprovada_derruba_o_molde_inteiro(tmp_path):
+    """O oráculo reprova o MOLDE, não a variação.
+
+    Ficar com as que passaram é como se esconde uma generalização
+    indevida: o banco fica cheio de itens corretos sobre o caso que
+    funciona, e a afirmação falsa continua escrita no molde, esperando a
+    próxima expansão.
+    """
+    # `sizeof` mede BYTES: só vale para char. É o erro da sonda.
+    pasta = _molde(tmp_path, "ruim",
+                   oraculo="#include <stdio.h>\n"
+                           "int main(void) {\n"
+                           "    {tipo} {nome}[{n}];\n"
+                           "    printf(\"%zu\\n\", sizeof {nome});\n"
+                           "    return 0;\n"
+                           "}\n")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == [], "guardou as variações que passaram"
+    assert any("promete" in p for p in problemas), problemas
+    assert any("molde" in p.lower() for p in problemas), problemas
+
+
+@tem_gcc
+def test_o_portao_do_contrato_diz_qual_variacao_quebrou(tmp_path):
+    """Foco 5: a alternativa certa não pode ser a mais longa."""
+    pasta = _molde(tmp_path, "longa", gabarito=(
+        "São {extenso} valores, um em cada caixa, e as caixas estão grudadas "
+        "uma na outra desde a declaração"))
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == []
+    assert any("mol_teste_0" in p and "mais longa" in p
+               for p in problemas), problemas
+
+
+@tem_gcc
+def test_variacao_igual_a_item_que_ja_existe_e_recusada(tmp_path):
+    """O molde reproduz, palavra por palavra, um item escrito à mão."""
+    # O enunciado vem do DOMÍNIO, e não copiado: corrigir uma vírgula
+    # naquele item não pode quebrar um teste que não é sobre ele.
+    alvo = next(a for a in D7.atividades if a.no == "B1"
+                and a.uso == "diagnostico")
+    pasta = _molde(tmp_path, "repetida",
+                   parametros={"tipo": ["int"], "nome": ["a"], "n": [5]},
+                   enunciado=alvo.enunciado)
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == []
+    assert any(alvo.id in p for p in problemas), problemas
+
+
+def test_molde_que_nao_existe_no_arquivo(tmp_path):
+    itens, problemas = gerar.expande_molde(
+        D7, "kc_07", "mol_fantasma", raiz=_molde(tmp_path, "fantasma"))
+    assert itens == []
+    assert any("mol_fantasma" in p for p in problemas), problemas
+
+
+# --------------------------------------------------------------------------
+# A folha do molde: o que a pessoa lê para preencher o revisado_por
+# --------------------------------------------------------------------------
+
+def _le_molde(tmp_path, nome, **troca):
+    from mvp import molde as mod
+    return mod.le(_molde(tmp_path, nome, **troca) / "moldes_kc07.yaml",
+                  D7)["mol_teste"]
+
+
+def test_a_folha_do_molde_mostra_o_texto_e_os_extremos(tmp_path):
+    """A máquina confere o C; o português é da pessoa.
+
+    E ela o lê nos EXTREMOS do espaço de parâmetros, que é onde a
+    concordância quebra — não em três variações sorteadas, que podem cair
+    todas no meio.
+    """
+    m = _le_molde(tmp_path, "folha")
+    texto = gerar.folha_do_molde(D7, m)
+    assert "{tipo} {nome}[{n}]" in texto, "o molde com os buracos não aparece"
+    assert texto.count("### variação") == 3, texto
+    assert "n=3" in texto and "n=8" in texto, texto
+    assert "dados" in texto, "faltou o nome mais longo"
+    assert "revisado_por" in texto
+
+
+def test_a_folha_do_molde_diz_a_crenca_de_cada_distrator(tmp_path):
+    """O mesmo que a folha dos itens faz: a atribuição cruzada visível."""
+    m = _le_molde(tmp_path, "folha2")
+    texto = gerar.folha_do_molde(D7, m)
+    assert "array_is_pointer" in texto
+    assert "nega I3" in texto
+
+
+def test_a_folha_do_molde_mostra_o_oraculo(tmp_path):
+    """Quem revisa o molde precisa ver o que a máquina conferiu."""
+    m = _le_molde(tmp_path, "folha3")
+    texto = gerar.folha_do_molde(D7, m)
+    assert "sizeof" in texto and "espera" in texto
+
+
+def test_os_extremos_nao_sao_as_tres_primeiras_da_expansao(tmp_path):
+    """A sabotagem que passou limpa, virada teste.
+
+    Trocar os extremos pelas três primeiras da expansão NÃO derrubou
+    `test_a_folha_do_molde_mostra_o_texto_e_os_extremos`: com três
+    parâmetros de três valores, as três primeiras da escolha gulosa são
+    justamente os extremos, por coincidência do tamanho. A asserção não
+    media a regra — media aquele molde.
+
+    Aqui o espaço é largo o bastante para as duas coisas discordarem.
+    """
+    from mvp.molde import expande
+
+    m = _le_molde(tmp_path, "largo", parametros={
+        "tipo": ["int", "char"],
+        "nome": ["a", "bb", "ccc", "dddd", "comprido"],
+        "n": [2, 3, 4, 5, 6, 7, 8]})
+    tres = gerar.extremos(m)
+    assert [p["n"] for p in tres[:2]] == [2, 8], tres
+    assert any(p["nome"] == "comprido" for p in tres), tres
+    assert tres != expande(m, 3), "os extremos viraram as três primeiras"
+
+
+# --------------------------------------------------------------------------
+# O molde escrito pelo modelo
+# --------------------------------------------------------------------------
+
+def test_o_esquema_de_molde_so_aceita_crenca_que_existe():
+    """A mesma coleira do gerador de itens: enum dos ids do catálogo.
+
+    É o que impede o pior defeito possível num instrumento que mede
+    concepções errôneas — o modelo inventar uma.
+    """
+    enum = gerar.esquema_de_molde(D7)["properties"]["distratores"]["items"][
+        "properties"]["crenca"]["enum"]
+    assert set(enum) == set(D7.crencas)
+
+
+def test_o_esquema_de_molde_cobra_o_oraculo():
+    e = gerar.esquema_de_molde(D7)
+    assert "oraculo" in e["required"] and "espera" in e["required"]
+    assert "parametros" in e["required"]
+
+
+def test_o_pedido_manda_escrever_o_oraculo():
+    sistema, pedido = gerar.prompt_de_molde(D7, "B1", 1)
+    junto = sistema + pedido
+    assert "oraculo" in junto and "espera" in junto
+
+
+def test_o_pedido_diz_que_o_gabarito_e_regra():
+    """É a diferença entre escrever um item e escrever a fábrica dele."""
+    sistema, pedido = gerar.prompt_de_molde(D7, "B1", 1)
+    assert "regra" in (sistema + pedido).lower()
+
+
+def test_o_pedido_leva_as_crencas_do_no_e_dos_vizinhos():
+    sistema, pedido = gerar.prompt_de_molde(D7, "B1", 1)
+    assert "string_literal_is_array" in pedido      # a crença do próprio B1
+
+
+# --------------------------------------------------------------------------
+# O ciclo humano do molde: folha, assinatura, reexpansão
+# --------------------------------------------------------------------------
+
+def test_a_folha_dos_itens_ignora_o_yaml_de_molde(tmp_path, monkeypatch):
+    """`--revisar` quebrava com KeyError depois da primeira expansão.
+
+    A folha dos itens agrupa por nó e tira o nome do nó do NOME DO
+    ARQUIVO. O `--expandir` escreve `mol_kc07_B1_treino_1.yaml` na mesma
+    pasta, e aquele stem não é nó nenhum.
+    """
+    import yaml as y
+    pasta = tmp_path / "candidatos" / "kc_02"
+    pasta.mkdir(parents=True)
+    (pasta / "B2.yaml").write_text(
+        y.safe_dump({"activities": [_item(nivel=1)]}, allow_unicode=True),
+        encoding="utf-8")
+    (pasta / "mol_kc02_B2_treino_1.yaml").write_text(
+        y.safe_dump({"activities": [_item(id="m_1", do_molde="mol_x",
+                                          parametros={"n": 3})]},
+                    allow_unicode=True), encoding="utf-8")
+    monkeypatch.setattr(gerar, "CANDIDATOS", tmp_path / "candidatos")
+    texto = gerar.folha(D2, "kc_02")          # não pode estourar
+    assert "**[certa]**" in texto
+    assert "mol_kc02_B2_treino_1" not in texto
+
+
+def test_a_folha_do_molde_diz_o_que_escrever_para_aprovar(tmp_path):
+    """Sem a assinatura na folha, ninguém tem como preenchê-la."""
+    m = _le_molde(tmp_path, "assina")
+    texto = gerar.folha_do_molde(D7, m)
+    assert "revisado_sha: %s" % m.digest in texto, texto
+
+
+def test_reexpandir_um_molde_aprovado_nao_acusa_plagio_de_si_mesmo(tmp_path):
+    """O portão da variedade comparava com TODAS as atividades do
+    domínio, inclusive as que tinham saído daquele mesmo molde.
+
+    Depois do primeiro `--aprovar`, reexpandir dava "mol_x_01: enunciado
+    igual ao de mol_x_01" — o mesmo id nos dois lados da frase.
+    """
+    from dataclasses import replace as _replace
+
+    pasta = _molde(tmp_path, "reexp")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert problemas == []
+
+    # o domínio agora contém os itens daquele molde
+    d_com = _replace(D7, atividades=D7.atividades + tuple(
+        _atividade_de(i) for i in itens))
+    de_novo, problemas = gerar.expande_molde(d_com, "kc_07", "mol_teste",
+                                             raiz=pasta)
+    assert problemas == [], problemas
+    assert len(de_novo) == 6
+
+
+def _atividade_de(item: dict):
+    """O item cru virado `Atividade`, só com o que o portão 4 olha."""
+    from mvp.dominio import Atividade, Opcao
+    return Atividade(
+        id=item["id"], no=item["node"].split(":")[-1], tipo=item["tipo"],
+        formato=item["formato"], enunciado=item["enunciado"],
+        opcoes=tuple(Opcao(texto=t, correta=(k == item["gabarito"]))
+                     for k, t in item["alternativas"].items()),
+        uso=item["uso"], nivel=item["nivel"], do_molde=item["do_molde"],
+        parametros=item["parametros"])
+
+
+def test_aprovar_item_com_id_que_ja_existe_diz_que_esta_duplicado(
+        tmp_path, monkeypatch):
+    """A revisão do ramo apontou aqui um beco silencioso, e não é.
+
+    O relato era que reexpandir depois de aprovar descartava tudo por
+    colisão de id e o CLI dizia só "nada foi movido". Medido: o
+    `confere` roda ANTES e devolve "atividade X duplicada", que o CLI
+    imprime. A mensagem já existe; este teste é que não existia.
+    """
+    import shutil
+    from mvp import dominio as mod
+
+    espelho = tmp_path / "dominio"
+    shutil.copytree(mod.RAIZ, espelho)
+    monkeypatch.setattr(mod, "RAIZ", espelho)
+
+    _candidatos_falsos(tmp_path, monkeypatch,
+                       _item(id="ciu_kc02_001", revisado_por="Rafael"))
+    quantos, avisos = gerar.aprova("kc_02")
+    assert quantos == 0
+    assert any("ciu_kc02_001" in a and "duplicada" in a for a in avisos), avisos
+
+
+def test_item_nao_sai_com_buraco_sem_preencher(tmp_path):
+    """A rede por baixo das validações, para qualquer derivado futuro.
+
+    Hoje a carga do molde já barra `{extenso}` fora da faixa. Mas basta
+    um derivado novo para o caso voltar, e o que chega à tela da pessoa
+    é literalmente "{extenso} caixas de int".
+    """
+    from mvp import molde as mod
+
+    m = _le_molde(tmp_path, "buraco")
+    p = dict(mod.expande(m, 1)[0])
+    p.pop("extenso", None)                 # como se o derivado não existisse
+    item = mod.item_de(m, p, 1)
+    assert "{" in str(item["alternativas"]), item["alternativas"]
+    assert gerar.sem_buraco(item) is False
+
+
+def test_o_portao_barra_o_buraco_por_preencher(tmp_path, monkeypatch):
+    """E o portão tem de ver isso, não só a função.
+
+    A carga do molde já barra o único caso que existe hoje (`{extenso}`
+    fora da faixa), então o portão é rede para o derivado que ainda não
+    existe. O teste simula exatamente isso: o derivado deixa de ser
+    preenchido, e nada mais muda.
+    """
+    from mvp import molde as mod
+
+    monkeypatch.setattr(mod, "_com_extenso", lambda p: dict(p))
+    pasta = _molde(tmp_path, "rede")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == []
+    assert any("buraco por preencher" in x for x in problemas), problemas
+
+
+def test_a_certa_nao_pode_ser_a_unica_em_minuscula(tmp_path):
+    """Pista de superfície sistemática sobre a resposta certa.
+
+    Vinha do molde começar o gabarito por `{extenso}`: nas seis
+    variações, a certa era a única que começava em minúscula. Num
+    instrumento que mede concepção errônea, isso é dado contaminado.
+    """
+    pasta = _molde(tmp_path, "minuscula",
+                   gabarito="{extenso} valores, um por caixa")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == []
+    assert any("minúscula" in p for p in problemas), problemas
+
+
+def test_extremos_pega_o_valor_textual_mais_longo(tmp_path):
+    """A folha promete "o nome mais longo" e mostrava o TIPO mais longo.
+
+    A escolha era "o parâmetro textual cujo maior valor é o maior", e no
+    molde real isso é `tipo` (double, 6) e não `nome` (dados, 5). Quem
+    revisa podia nunca ler o extremo que a folha diz que está lendo.
+    """
+    # `tipo` tem valores mais longos que `nome` em média — era o que
+    # fazia a escolha antiga pegar o tipo e nunca o nome comprido.
+    m = _le_molde(tmp_path, "textual", parametros={
+        "tipo": ["int", "unsigned"], "nome": ["a", "bb", "comprimento"],
+        "n": [3, 8]})
+    tres = gerar.extremos(m)
+    assert any(p["nome"] == "comprimento" for p in tres), tres
+
+
+def test_extremos_nao_expande_o_produto_inteiro(tmp_path):
+    """Era quártico: 1000 combinações levavam dois minutos, e é ele que
+    trava o portão humano — a folha ficava sem imprimir nada."""
+    import time
+
+    m = _le_molde(tmp_path, "grande", parametros={
+        "tipo": ["int", "char", "double", "long", "float"],
+        "nome": ["a", "v", "dados", "lista", "buf", "entrada"],
+        "n": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "qual": ["x", "y", "z", "w"]})          # 1200 combinações
+    t0 = time.perf_counter()
+    tres = gerar.extremos(m)
+    assert time.perf_counter() - t0 < 2.0, "extremos ainda é quártico"
+    assert len(tres) == 3
+    assert [p["n"] for p in tres[:2]] == [1, 10]
+
+
+def test_duas_variacoes_com_a_mesma_pergunta_e_respostas_diferentes(tmp_path):
+    """A metade interna do portão da variedade, que não tinha teste.
+
+    Molde cujo enunciado não usa todos os parâmetros: aqui o `tipo` varia
+    só no gabarito. Duas variações saem com a MESMA pergunta e respostas
+    certas diferentes — item ambíguo, e quem responde não tem como
+    acertar as duas.
+    """
+    pasta = _molde(tmp_path, "ambigua",
+                   parametros={"tipo": ["int", "char"], "nome": ["a"],
+                               "n": [5]},
+                   enunciado="O que {nome}[{n}] guarda?")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == []
+    assert any("do mesmo molde" in p for p in problemas), problemas
+
+
+def test_sem_compilador_a_cli_nao_cospe_traceback(tmp_path, monkeypatch, capsys):
+    """Foco 3 do plano, de ponta a ponta.
+
+    A mensagem boa existia dentro do oráculo e saía debaixo de um
+    traceback: quem rodasse `--expandir` noutra máquina veria a pilha, e
+    a instrução no rodapé.
+    """
+    import oraculo as orac
+
+    monkeypatch.setattr(gerar, "CANDIDATOS", tmp_path / "cand")
+    monkeypatch.setattr(orac, "GCC", tmp_path / "nao" / "existe" / "gcc.exe")
+    monkeypatch.setattr(gerar, "RAIZ", gerar.RAIZ)
+
+    with pytest.raises(SystemExit) as saida:
+        gerar.expande_molde(D7, "kc_07", "mol_kc07_B1_treino_1")
+    assert "STRUCTURA_GCC" in str(saida.value)

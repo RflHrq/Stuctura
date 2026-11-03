@@ -487,3 +487,123 @@ def test_o_streak_nao_escreve_no_reteste_da_pesquisa(d):
     # E o reteste acontece — depois, e uma vez só.
     assert tipos.count("belief_retested") == 1
     assert tipos.index("belief_retested") > tipos.index("training_streak_completed")
+
+
+# --------------------------------------------------------------------------
+# A procedência no log: de que molde veio o item respondido
+# --------------------------------------------------------------------------
+
+def test_o_log_diz_de_que_molde_veio_o_item(tmp_path):
+    """Sem isto, nada do resto é mensurável.
+
+    Generalizar e decorar só se distinguem se o log disser QUAL variação
+    foi apresentada — o id do item não basta, porque duas variações do
+    mesmo molde são a mesma pergunta com a roupa trocada.
+    """
+    from mvp.test_dominio import atividade, monta
+
+    def muda(cru):
+        atividade(cru, "ciu_kc00_001").update(
+            do_molde="mol_teste", parametros={"tipo": "int", "n": 5})
+    d2 = carrega(monta(tmp_path / "log1", muda))
+    t, eventos = roda(d2, _politica(d=d2))
+
+    de_molde = [x for x in _dos(eventos, "atividade_apresentada")
+                if x.get("do_molde")]
+    assert de_molde, "o item de molde não deixou rastro no log"
+    assert de_molde[0]["do_molde"] == "mol_teste"
+    assert de_molde[0]["parametros"] == {"tipo": "int", "n": 5}
+
+
+def test_item_escrito_a_mao_nao_polui_o_log(d):
+    """O log dos 556 itens de hoje não muda: campo vazio não entra.
+
+    Um campo vazio em toda linha é ruído que a análise precisa aprender a
+    ignorar, e um log que muda de forma sem mudar de conteúdo estraga a
+    comparação com as sessões já gravadas.
+    """
+    t, eventos = roda(d, _politica())
+    for x in _dos(eventos, "atividade_apresentada"):
+        assert "do_molde" not in x and "parametros" not in x
+
+
+# --------------------------------------------------------------------------
+# Generalizar e decorar: a mesma ideia com a roupa trocada
+# --------------------------------------------------------------------------
+
+def test_acertar_um_item_de_molde_guarda_a_instancia(tmp_path):
+    """A assinatura traz os PARÂMETROS, não só o id do molde.
+
+    Sem eles, dois acertos na mesma variação ficam indistinguíveis de dois
+    acertos em variações diferentes — que é exatamente o que separa
+    generalizar de decorar.
+    """
+    from mvp.test_dominio import atividade, monta
+
+    def muda(cru):
+        atividade(cru, "ciu_kc00_001").update(
+            do_molde="mol_teste", parametros={"tipo": "int", "n": 5})
+    d2 = carrega(monta(tmp_path / "g1", muda))
+    alvo = next(x for x in d2.atividades if x.id == "ciu_kc00_001").no
+    t, eventos = roda(d2, _politica(d=d2))
+    assert "mol_teste|n=5,tipo=int" in t.estado.no(alvo).instancias
+
+
+def test_duas_instancias_do_mesmo_molde_e_generalizar(d):
+    e = motor.Estado(nos={"B1": motor.EstadoNo(
+        instancias=("mol_x|n=3", "mol_x|n=8"))})
+    b1 = next(n for n in motor.estado_dos_nos(d, e) if n["no"] == "B1")
+    assert b1["generalizou"] is True
+
+
+def test_a_mesma_instancia_duas_vezes_nao_e_generalizar(d):
+    """Repetir a mesma pergunta mede memória, não generalização."""
+    e = motor.Estado(nos={"B1": motor.EstadoNo(
+        instancias=("mol_x|n=3", "mol_x|n=3"))})
+    b1 = next(n for n in motor.estado_dos_nos(d, e) if n["no"] == "B1")
+    assert b1["generalizou"] is False
+
+
+def test_duas_instancias_de_moldes_diferentes_nao_e_generalizar(d):
+    """A troca de superfície é DENTRO do molde: moldes diferentes são
+    perguntas diferentes, e isso o critério de hoje já mede."""
+    e = motor.Estado(nos={"B1": motor.EstadoNo(
+        instancias=("mol_x|n=3", "mol_y|n=8"))})
+    b1 = next(n for n in motor.estado_dos_nos(d, e) if n["no"] == "B1")
+    assert b1["generalizou"] is False
+
+
+def test_no_sem_item_de_molde_nunca_generaliza(d):
+    """Os 556 itens de hoje não têm molde: a marca fica falsa, não some."""
+    t, eventos = roda(d, _politica())
+    assert all(n["generalizou"] is False
+               for n in motor.estado_dos_nos(d, t.estado))
+
+
+def test_acertar_no_treino_tambem_guarda_a_instancia(tmp_path):
+    """O caminho que a coleta vai usar de verdade, e que não contava.
+
+    A decisão da spec é que os moldes começam pelos itens de TREINO — é
+    lá que o banco esgota. Mas a instância só era somada nos dois ramos
+    de acerto do DIAGNÓSTICO, e `atividades_do_no(no, "diagnostico")`
+    garante que item de treino nunca chega lá. Resultado: para o corpus
+    que o plano constrói, `generalizou` era um falso constante.
+    """
+    from mvp.test_dominio import atividade, monta
+
+    def muda(cru):
+        for aid, params in (("ciu_kc00_t01", {"tipo": "int", "n": 3}),
+                            ("ciu_kc00_t02", {"tipo": "char", "n": 8})):
+            atividade(cru, aid).update(do_molde="mol_t", parametros=params)
+    d2 = carrega(monta(tmp_path / "tr1", muda))
+    alvo = next(x for x in d2.atividades if x.id == "ciu_kc00_t01").no
+
+    # erra o diagnóstico daquele nó para cair no treino, e acerta o treino
+    t, eventos = roda(d2, _politica(erra_no=alvo, erra_diagnostico=2, d=d2))
+
+    assinaturas = set(t.estado.no(alvo).instancias)
+    assert assinaturas >= {"mol_t|n=3,tipo=int", "mol_t|n=8,tipo=char"}, \
+        t.estado.no(alvo).instancias
+    marca = next(n for n in motor.estado_dos_nos(d2, t.estado)
+                 if n["no"] == alvo)
+    assert marca["generalizou"] is True

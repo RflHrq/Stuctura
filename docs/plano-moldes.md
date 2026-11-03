@@ -283,7 +283,7 @@ do molde) e conferir que `test_acertar_a_mesma_instancia...` cai.
 - Produz:
   - `class MoldeInvalido(Exception)` com `.problemas: list[str]`, no mesmo
     molde de `DominioInvalido`
-  - `@dataclass(frozen=True) class Molde` com `id, no, formato, nivel, uso,
+  - `@dataclass(frozen=True) class Molde` com `id, node, formato, nivel, uso,
     parametros: Mapping[str, tuple], enunciado, gabarito,
     distratores: tuple[tuple[str, str], ...], oraculo, espera, revisado_por`
   - `le(caminho: Path, d: Dominio) -> dict[str, Molde]`

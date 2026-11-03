@@ -702,6 +702,17 @@
       marca.textContent = rotuloEstado(n).trim() + " " + (NOME_ESTADO[n.estado] || "");
       corpo.appendChild(marca);
       var nota = notaDe(n);
+      /* A troca de superficie: a mesma ideia perguntada com outro nome,
+       * outro tamanho, outro tipo. E o que separa generalizar de ter
+       * decorado aquela pergunta, e por isso vem depois do estado, nao
+       * no lugar dele. */
+      if (n.generalizou) {
+        /* Sem antecedente, o "e" fica solto: no fragil ou refutado a
+         * notaDe devolve vazio, e o mapa imprimia a frase comecando por
+         * conjuncao. */
+        nota = nota ? nota + ", e sustentou a troca de superfície"
+                    : "sustentou a troca de superfície";
+      }
       if (nota) {
         var p = document.createElement("p");
         p.className = "nota";

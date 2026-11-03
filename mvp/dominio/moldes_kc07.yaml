@@ -1,0 +1,68 @@
+# Moldes do kc_07 — a fábrica dos itens, não os itens.
+#
+# Um molde é lido pelo GERADOR, nunca pela sessão: ele é expandido em
+# itens concretos, que vão para `activities_kc07.yaml` como quaisquer
+# outros. O motor não sabe o que é molde.
+#
+# O que isto compra, além de banco maior, é um eixo que o instrumento não
+# tinha: perguntar a MESMA ideia com a roupa trocada. Duas superfícies
+# hoje são dois formatos — duas perguntas distintas, que alguém pode ter
+# decorado uma a uma. Duas instâncias do mesmo molde são a mesma
+# pergunta com outro nome, outro tamanho, outro tipo.
+#
+# O PREÇO: um molde errado erra em todas as variações de uma vez. Por
+# isso o `oraculo` é obrigatório — um programa em C que, compilado e
+# rodado com os mesmos parâmetros, imprime o que o molde promete. Se a
+# afirmação for falsa para algum valor, a máquina reprova o MOLDE, e não
+# a variação: ficar com as que passaram esconde a generalização
+# indevida.
+#
+# O desenho inteiro está em docs/moldes.md.
+
+mol_kc07_B1_treino_1:
+  node: B1
+  tipo: teorica
+  formato: reconhecer_conceito
+  nivel: 1
+  uso: treino
+
+  parametros:
+    tipo: [int, char, double, long]
+    nome: [a, v, dados, lista]
+    n: [3, 4, 6, 8]
+
+  enunciado: "Depois de {tipo} {nome}[{n}]; e nada mais, o que existe na memória?"
+  # Começa por palavra, e não pelo buraco: com "{extenso} caixas..." a
+  # alternativa certa era a ÚNICA em minúscula, nas seis variações — uma
+  # pista de superfície que se repete em todo o molde.
+  gabarito: "São {extenso} caixas de {tipo}, grudadas"
+  distratores:
+    - texto: "Uma caixa só, com {extenso} valores guardados dentro dela"
+      crenca: string_literal_is_array
+    - texto: "Um ponteiro, que depois aponta para {extenso} valores do tipo {tipo}"
+      crenca: array_is_pointer
+
+  # O oráculo prova as duas metades do gabarito: quantas caixas
+  # (`sizeof` do conjunto dividido pelo de uma), e que elas estão
+  # grudadas (a distância entre duas vizinhas é uma posição).
+  #
+  # As chaves do C ficam como são: os buracos são identificadores entre
+  # chaves, e o resto é código.
+  oraculo: |
+    #include <stdio.h>
+    int main(void) {
+        {tipo} {nome}[{n}];
+        printf("%zu %td\n",
+               sizeof {nome} / sizeof {nome}[0],
+               &{nome}[1] - &{nome}[0]);
+        return 0;
+    }
+  espera: "{n} 1"
+
+  # Quem escreve aqui leu a folha do molde, e não os itens: é a mudança
+  # de objeto da revisão. Em branco, nada entra no domínio.
+  revisado_por: Rafael H. S. Simao
+  # A assinatura é do CONTEÚDO que foi lido na folha. Mexer no molde
+  # depois disto faz a carga recusar, em vez de estampar o nome acima em
+  # variações que ninguém leu.
+  revisado_sha: bcd92590c6df

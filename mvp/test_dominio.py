@@ -576,3 +576,41 @@ def test_nenhum_texto_de_tela_usa_crase(topico):
     com_crase = [(onde, texto) for onde, texto in textos_de_tela(d)
                  if "`" in (texto or "")]
     assert not com_crase, com_crase
+
+
+# --------------------------------------------------------------------------
+# Procedência: de que molde veio o item
+# --------------------------------------------------------------------------
+
+def test_item_sem_molde_continua_valendo(d):
+    """Os 556 itens de hoje foram escritos à mão, e continuam válidos."""
+    a = next(x for x in d.atividades if x.id == "ciu_kc00_001")
+    assert a.do_molde == ""
+    assert a.parametros == {}
+
+
+def test_item_de_molde_carrega_a_procedencia(tmp_path):
+    def muda(cru):
+        atividade(cru, "ciu_kc00_002").update(
+            do_molde="mol_teste", parametros={"tipo": "int", "n": 5})
+    d = carrega(monta(tmp_path / "m1", muda))
+    a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
+    assert a.do_molde == "mol_teste"
+    assert a.parametros == {"tipo": "int", "n": 5}
+
+
+def test_meia_procedencia_nao_carrega(tmp_path):
+    """Molde sem parâmetros, ou o contrário, PARECE procedência.
+
+    Quem ler o log vai achar que sabe de onde o item veio, e não sabe:
+    sem os parâmetros não dá para dizer qual variação a pessoa respondeu,
+    e sem o molde os parâmetros não significam nada.
+    """
+    for i, campo in enumerate(("do_molde", "parametros")):
+        def muda(cru, campo=campo):
+            atividade(cru, "ciu_kc00_002")[campo] = (
+                "mol_teste" if campo == "do_molde" else {"n": 5})
+        with pytest.raises(DominioInvalido) as erro:
+            carrega(monta(tmp_path / ("m2_%d" % i), muda))
+        assert any("procedência" in p and "ciu_kc00_002" in p
+                   for p in erro.value.problemas), erro.value.problemas

@@ -1030,3 +1030,137 @@ activities:
     crencas:
       b: array_is_pointer
       c: arr_equals_addr_of_arr
+
+  # Aprovados em revisão.
+  - id: mol_kc07_B1_treino_1_01
+    node: kc07:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    uso: treino
+    enunciado: Depois de int a[3]; e nada mais, o que existe na memória?
+    alternativas:
+      a: São três caixas de int, grudadas
+      b: Uma caixa só, com três valores guardados dentro dela
+      c: Um ponteiro, que depois aponta para três valores do tipo int
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+    do_molde: mol_kc07_B1_treino_1
+    parametros:
+      tipo: int
+      nome: a
+      n: 3
+    gerado_por: molde mol_kc07_B1_treino_1
+    revisado_por: Rafael H. S. Simao
+  - id: mol_kc07_B1_treino_1_02
+    node: kc07:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    uso: treino
+    enunciado: Depois de char v[4]; e nada mais, o que existe na memória?
+    alternativas:
+      a: São quatro caixas de char, grudadas
+      b: Uma caixa só, com quatro valores guardados dentro dela
+      c: Um ponteiro, que depois aponta para quatro valores do tipo char
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+    do_molde: mol_kc07_B1_treino_1
+    parametros:
+      tipo: char
+      nome: v
+      n: 4
+    gerado_por: molde mol_kc07_B1_treino_1
+    revisado_por: Rafael H. S. Simao
+  - id: mol_kc07_B1_treino_1_03
+    node: kc07:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    uso: treino
+    enunciado: Depois de double dados[6]; e nada mais, o que existe na memória?
+    alternativas:
+      a: São seis caixas de double, grudadas
+      b: Uma caixa só, com seis valores guardados dentro dela
+      c: Um ponteiro, que depois aponta para seis valores do tipo double
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+    do_molde: mol_kc07_B1_treino_1
+    parametros:
+      tipo: double
+      nome: dados
+      n: 6
+    gerado_por: molde mol_kc07_B1_treino_1
+    revisado_por: Rafael H. S. Simao
+  - id: mol_kc07_B1_treino_1_04
+    node: kc07:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    uso: treino
+    enunciado: Depois de long lista[8]; e nada mais, o que existe na memória?
+    alternativas:
+      a: São oito caixas de long, grudadas
+      b: Uma caixa só, com oito valores guardados dentro dela
+      c: Um ponteiro, que depois aponta para oito valores do tipo long
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+    do_molde: mol_kc07_B1_treino_1
+    parametros:
+      tipo: long
+      nome: lista
+      n: 8
+    gerado_por: molde mol_kc07_B1_treino_1
+    revisado_por: Rafael H. S. Simao
+  - id: mol_kc07_B1_treino_1_05
+    node: kc07:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    uso: treino
+    enunciado: Depois de int v[6]; e nada mais, o que existe na memória?
+    alternativas:
+      a: São seis caixas de int, grudadas
+      b: Uma caixa só, com seis valores guardados dentro dela
+      c: Um ponteiro, que depois aponta para seis valores do tipo int
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+    do_molde: mol_kc07_B1_treino_1
+    parametros:
+      tipo: int
+      nome: v
+      n: 6
+    gerado_por: molde mol_kc07_B1_treino_1
+    revisado_por: Rafael H. S. Simao
+  - id: mol_kc07_B1_treino_1_06
+    node: kc07:B1
+    nivel: 1
+    formato: reconhecer_conceito
+    tipo: teorica
+    uso: treino
+    enunciado: Depois de int dados[4]; e nada mais, o que existe na memória?
+    alternativas:
+      a: São quatro caixas de int, grudadas
+      b: Uma caixa só, com quatro valores guardados dentro dela
+      c: Um ponteiro, que depois aponta para quatro valores do tipo int
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+    do_molde: mol_kc07_B1_treino_1
+    parametros:
+      tipo: int
+      nome: dados
+      n: 4
+    gerado_por: molde mol_kc07_B1_treino_1
+    revisado_por: Rafael H. S. Simao

@@ -1,8 +1,10 @@
 # Moldes paramétricos, com oráculo de compilador
 
-> Desenho aprovado em 03/11/2026. Ainda não implementado — o que existe é
-> a sonda descartável que mediu a viabilidade, e os números dela estão
-> aqui.
+> Desenho aprovado em 03/11/2026 e **implementado** no mesmo dia, no ramo
+> `moldes` (plano em [plano-moldes.md](plano-moldes.md), doze tarefas). O
+> primeiro molde de verdade está em `mvp/dominio/moldes_kc07.yaml` e
+> espera a revisão humana: nenhum item de molde entrou no domínio ainda.
+> Os números da sonda que mediu a viabilidade continuam abaixo.
 
 ## O problema
 
@@ -46,7 +48,8 @@ chega à sessão — ver *O que fica medível*.
 
 ```yaml
 mol_kc07_B1_reconhecer:
-  no: B1
+  node: B1                      # `node`, nunca `no`: em YAML, `no` é falso
+  tipo: teorica
   formato: reconhecer_conceito
   nivel: 1
   uso: treino
@@ -75,6 +78,7 @@ mol_kc07_B1_reconhecer:
   espera: "{n} 1"
 
   revisado_por: ""
+  revisado_sha: ""              # a assinatura do conteúdo que foi lido
 ```
 
 **O gabarito é regra, não texto.** É o que permite uma revisão valer por
@@ -87,6 +91,15 @@ que o gerador de hoje tem.
 **O `revisado_por` sai do item e vai para o molde.** É a mudança de objeto
 da revisão, e é ela que torna a coisa viável. Os itens expandidos carregam
 `do_molde: mol_kc07_B1_reconhecer` para a procedência não se perder.
+
+**E o nome vem acompanhado de assinatura.** `revisado_sha` guarda a
+impressão digital do conteúdo que foi lido, e a folha de revisão imprime
+a linha pronta para colar. Sem isso, o nome sobrevive a qualquer edição
+do molde — e como esta mesma spec prescreve **editar** (estreitar o
+domínio de um parâmetro) como conserto de molde reprovado, bastava
+corrigir e reexpandir para sair variação inédita estampada com o nome de
+quem nunca a leu. Com a assinatura, a carga recusa: *"o molde mudou
+depois da revisão"*.
 
 **Em `prever_saida`, o oráculo deixa de conferir e vira gabarito**: a
 resposta certa é literalmente o que o programa imprime, e a máquina a
@@ -137,10 +150,27 @@ generalização indevida. O banco ficaria cheio de itens corretos sobre
 expansão. Conserta-se corrigindo a afirmação ou **estreitando o domínio do
 parâmetro** (`tipo: [char]`) — e aí a restrição fica visível no arquivo.
 
-**O oráculo é obrigatório.** Molde sem programa que o confira é texto de
-modelo sem conferência nenhuma. Se a afirmação do item não puder ser
-verificada por um programa, aquele item continua sendo escrito à mão. A
-camada cobre o que a máquina sabe julgar e não finge cobrir o resto.
+**O oráculo é obrigatório, e tem de depender dos parâmetros.** Molde sem
+programa que o confira é texto de modelo sem conferência nenhuma. E um
+programa CONSTANTE é pior: roda o mesmo código em toda variação, dá seis
+"passou", e fica com cara de conferido. Se a afirmação do item não puder
+ser verificada por um programa, aquele item continua sendo escrito à
+mão — a camada cobre o que a máquina sabe julgar e não finge cobrir o
+resto.
+
+**Dois portões que a revisão do ramo acrescentou**, porque deixavam item
+errado chegar ao participante: nenhum item sai com **buraco por
+preencher** (era o caso de `{extenso}` com `n` fora de 1..10, que
+imprimia o literal na tela), e a alternativa certa não pode ser a
+**única que começa em minúscula** — num molde essa pista se repete em
+todas as variações.
+
+**`prever_saida` ainda não vale como molde.** A promessa desta spec é
+que, nesse formato, o oráculo vira gabarito. Enquanto isso não existir,
+`gabarito` e `espera` são campos independentes: o oráculo prova que o
+programa imprime `espera`, e ninguém prova que a alternativa certa diz o
+mesmo. A carga recusa o formato, com o motivo. Formato meio
+implementado é pior que formato recusado.
 
 **As três variações da revisão humana são escolhidas, não sorteadas:** os
 extremos do espaço de parâmetros — o menor e o maior `n`, o nome mais
@@ -149,8 +179,11 @@ curto e o mais longo —, que é onde a concordância do português quebra.
 ## A linha de comando
 
 ```bash
-# o modelo escreve o molde, e os quatro portões rodam em seguida
+# o modelo escreve o molde
 python scripts/gerar.py --topico kc_07 --no B1 --molde --degrau 1
+
+# a folha que a pessoa lê para assinar
+python scripts/gerar.py --topico kc_07 --molde mol_kc07_B1_reconhecer --revisar
 
 # expande de novo um molde que já existe (depois de editar o YAML)
 python scripts/gerar.py --topico kc_07 --molde mol_kc07_B1_reconhecer --expandir
@@ -261,7 +294,8 @@ continua sendo julgamento humano.
 multiplicador, e é exatamente contra isso que o oráculo existe — foi o
 caso do `sizeof`, e a máquina pegou.
 
-**Nenhum participante real passou por item gerado de molde.**
+**Nenhum participante real passou por item gerado de molde**, e nenhum
+item de molde está no domínio: o primeiro espera a assinatura.
 
 ## Próximas fatias, fora desta spec
 

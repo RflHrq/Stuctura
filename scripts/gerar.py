@@ -173,6 +173,103 @@ def esquema(d) -> dict:
     }
 
 
+def esquema_de_molde(d) -> dict:
+    """O esquema do MOLDE. A mesma coleira: `crenca` é um enum dos ids
+    que existem, e o modelo não tem como inventar concepção errônea."""
+    ids = sorted(d.crencas)
+    distrator = {
+        "type": "object",
+        "properties": {
+            "texto": {"type": "string"},
+            "crenca": {"type": "string", "enum": ids},
+        },
+        "required": ["texto", "crenca"],
+        "additionalProperties": False,
+    }
+    return {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string"},
+            "formato": {"type": "string", "enum": list(FORMATOS)},
+            "tipo": {"type": "string", "enum": list(TIPOS)},
+            "parametros": {
+                "type": "object",
+                "description": "nome do parâmetro -> lista de valores",
+                "additionalProperties": {"type": "array"},
+            },
+            "enunciado": {"type": "string"},
+            "gabarito": {"type": "string"},
+            "distratores": {"type": "array", "items": distrator},
+            "oraculo": {"type": "string"},
+            "espera": {"type": "string"},
+            "por_que_este_oraculo": {"type": "string"},
+        },
+        "required": ["id", "formato", "tipo", "parametros", "enunciado",
+                     "gabarito", "distratores", "oraculo", "espera",
+                     "por_que_este_oraculo"],
+        "additionalProperties": False,
+    }
+
+
+def prompt_de_molde(d, no: str, degrau: int) -> tuple[str, str]:
+    """O pedido de um MOLDE, não de um item.
+
+    Duas instruções que o pedido de item não tem, e que são a diferença
+    entre escrever uma pergunta e escrever a fábrica dela: o gabarito é
+    REGRA — sai dos parâmetros —, e existe um programa em C que prova a
+    afirmação em toda variação.
+    """
+    sistema_item, _ = prompt(d, no, degrau, 1)
+    sistema = sistema_item + """
+
+AGORA O QUE MUDA: você não escreve um item. Escreve o MOLDE dele.
+
+8. OS BURACOS. O enunciado, o gabarito e os distratores trazem buracos
+   entre chaves — {tipo}, {nome}, {n} —, e cada buraco é um parâmetro
+   com a sua lista de valores. {extenso} é derivado de {n} e dá o número
+   por extenso ("cinco"); use-o quando a frase pedir a palavra.
+9. O GABARITO É REGRA, NÃO TEXTO. Ele tem de sair certo para TODA
+   combinação dos parâmetros. Se a sua afirmação só vale para alguns
+   valores, estreite a lista daquele parâmetro — não escreva a regra
+   errada e torça.
+10. O ORÁCULO (campo `oraculo`). Escreva um programa em C completo
+    que, compilado e
+    executado com os MESMOS parâmetros, imprime exatamente o que o
+    campo `espera` diz. Ele é o que prova a sua afirmação, variação por
+    variação: se ela for falsa para algum valor, a máquina reprova o
+    molde inteiro. Use os buracos dentro do programa; as chaves do C
+    ficam como são.
+11. A CONCORDÂNCIA tem de fechar em todas as variações: plural, gênero,
+    acento. "uma caixa" e "oito caixas"; "a" e "dados"."""
+
+    cx = contexto(d, no)
+    pedido = f"""Tópico: {d.id} — {d.titulo}
+Analogia do tópico: {d.analogia}
+
+PREMISSA A MEDIR ({no})
+  afirma: {cx['afirma']}
+  em linguagem corrente: {cx['em_linguagem_corrente']}
+  analogia deste nó: {cx['analogia_do_no']}
+  código de apoio:
+{cx['exemplo'] or '    (nenhum)'}
+
+CRENÇA DO PRÓPRIO NÓ (obrigatória num dos distratores):
+{json.dumps(cx['crenca_do_proprio_no'], ensure_ascii=False, indent=2)}
+
+CRENÇAS DOS VIZINHOS (escolha uma):
+{json.dumps(cx['crencas_dos_vizinhos'], ensure_ascii=False, indent=2)}
+
+ITENS QUE JÁ EXISTEM NESTE NÓ — o molde não pode reproduzir nenhum:
+{json.dumps(cx['itens_que_ja_existem'], ensure_ascii=False, indent=2)}
+
+ESCREVA UM MOLDE no DEGRAU {degrau}, que pede:
+{DEGRAUS[degrau]}
+
+Formatos possíveis: {', '.join(FORMATOS)}.
+O `id` começa com `mol_` e diz o tópico, o nó e o formato."""
+    return sistema, pedido
+
+
 # --------------------------------------------------------------------------
 # A chamada
 # --------------------------------------------------------------------------
@@ -286,8 +383,304 @@ def confere(topico: str, novas: list[dict]) -> list[str]:
 
 
 # --------------------------------------------------------------------------
+# Os quatro portões do molde
+# --------------------------------------------------------------------------
+
+def _diz(parametros: dict) -> str:
+    return ", ".join("%s=%s" % kv for kv in sorted(parametros.items())
+                     if kv[0] != "extenso")
+
+
+def sem_buraco(item: dict) -> bool:
+    """Nenhum texto do item pode chegar com buraco por preencher.
+
+    É a rede por baixo das validações do molde: hoje a carga já barra
+    `{extenso}` fora da faixa, mas basta um derivado novo para o caso
+    voltar — e o que chega à tela é literalmente "{extenso} caixas de
+    int".
+    """
+    from mvp.molde import BURACO
+
+    textos = [item.get("enunciado", "")] + list(
+        (item.get("alternativas") or {}).values())
+    return not any(BURACO.search(x or "") for x in textos)
+
+
+def _so_a_certa_em_minuscula(item: dict) -> bool:
+    """A certa é a única que começa em minúscula?
+
+    Pista de superfície sistemática: num molde ela se repete em TODAS as
+    variações, e quem responde pode aprender a pista em vez do conceito.
+    Veio de começar o gabarito por `{extenso}`.
+    """
+    def comeca_baixo(texto: str) -> bool:
+        texto = (texto or "").strip()
+        return bool(texto) and texto[0].islower()
+
+    alternativas = item.get("alternativas") or {}
+    certa = alternativas.get(item.get("gabarito"), "")
+    outras = [v for k, v in alternativas.items() if k != item.get("gabarito")]
+    return comeca_baixo(certa) and outras and not any(
+        comeca_baixo(x) for x in outras)
+
+
+def _moldes(d, topico: str, raiz=None) -> dict:
+    """Os moldes daquele tópico, do disco."""
+    from mvp import molde as mod
+    from mvp.dominio import RAIZ as DOMINIO
+
+    base = pathlib.Path(raiz) if raiz else DOMINIO
+    return mod.le(base / ("moldes_%s.yaml" % topico.replace("_", "")), d)
+
+
+def expande_molde(d, topico: str, molde_id: str, raiz=None,
+                  quantas: int = 6) -> tuple[list[dict], list[str]]:
+    """As variações de um molde, ou os motivos de ele não servir.
+
+    Quatro portões, do mais barato ao mais caro: expansão, oráculo,
+    contrato e variedade. Qualquer problema devolve lista de itens VAZIA.
+
+    O ORÁCULO REPROVA O MOLDE, NÃO A VARIAÇÃO. Descartar as reprovadas e
+    ficar com as que passaram é como se esconde uma generalização
+    indevida: o banco fica cheio de itens corretos sobre o caso que
+    funciona — `char`, na sonda — e a afirmação falsa continua escrita no
+    molde, esperando a próxima expansão. Conserta-se corrigindo a
+    afirmação ou estreitando o domínio do parâmetro, e aí a restrição
+    fica visível no arquivo.
+    """
+    from mvp import molde as mod
+    from mvp.dominio import RAIZ as DOMINIO
+
+    import oraculo
+
+    base = pathlib.Path(raiz) if raiz else DOMINIO
+    caminho = base / ("moldes_%s.yaml" % topico.replace("_", ""))
+    try:
+        moldes = mod.le(caminho, d)
+    except mod.MoldeInvalido as erro:
+        return [], list(erro.problemas)
+    m = moldes.get(molde_id)
+    if m is None:
+        return [], ["molde %r não está em %s (há %s)"
+                    % (molde_id, caminho.name, ", ".join(moldes) or "nenhum")]
+
+    # 1. expansão
+    variacoes = mod.expande(m, quantas)
+    itens = [mod.item_de(m, p, i) for i, p in enumerate(variacoes, 1)]
+
+    # 2. oráculo
+    reprovadas = []
+    for item, p in zip(itens, variacoes):
+        try:
+            ok, nota = oraculo.roda(mod.preenche(m.oraculo, p),
+                                    mod.preenche(m.espera, p))
+        except oraculo.SemCompilador as erro:
+            # Molde não conferido não é molde reprovado: a mensagem sai
+            # inteira, sem pilha, porque quem a lê está noutra máquina
+            # tentando descobrir o que instalar.
+            raise SystemExit(str(erro))
+        if not ok:
+            reprovadas.append("%s (%s): %s" % (item["id"], _diz(p), nota))
+    if reprovadas:
+        return [], reprovadas + [
+            "o molde %s está reprovado: %d de %d variações não conferem. "
+            "Corrija a afirmação ou estreite o domínio do parâmetro — ficar "
+            "com as que passaram esconde o erro" % (m.id, len(reprovadas),
+                                                    len(itens))]
+
+    # 3. contrato, pelo carregador de verdade, mais duas regras que só
+    # fazem sentido em item de molde: buraco por preencher, e a certa
+    # sendo a única que começa em minúscula.
+    problemas = confere(topico, itens)
+    for item in itens:
+        if not sem_buraco(item):
+            problemas.append("%s: saiu com buraco por preencher" % item["id"])
+        if _so_a_certa_em_minuscula(item):
+            problemas.append(
+                "%s: a certa é a única que começa em minúscula, e num molde "
+                "essa pista se repete em toda variação" % item["id"])
+    if problemas:
+        return [], problemas
+
+    # 4. variedade
+    # Os itens que JÁ saíram deste molde não contam como plágio: eles
+    # são a saída anterior dele. Sem isto, reexpandir depois de aprovar
+    # acusava "mol_x_01: enunciado igual ao de mol_x_01".
+    de_fora = {a.enunciado.strip(): a.id for a in d.atividades
+               if a.do_molde != m.id}
+    vistos: dict[str, str] = {}
+    for item in itens:
+        texto = item["enunciado"].strip()
+        if texto in de_fora:
+            problemas.append("%s: enunciado igual ao de %s"
+                             % (item["id"], de_fora[texto]))
+        if texto in vistos:
+            problemas.append("%s: enunciado igual ao de %s, do mesmo molde"
+                             % (item["id"], vistos[texto]))
+        vistos[texto] = item["id"]
+    if problemas:
+        return [], problemas
+
+    return itens, []
+
+
+# --------------------------------------------------------------------------
 # Ler, e aprovar
 # --------------------------------------------------------------------------
+
+def extremos(molde, quantas: int = 3) -> list[dict]:
+    """As variações que a pessoa lê, escolhidas e não sorteadas.
+
+    Os extremos do espaço de parâmetros — o menor e o maior número, o
+    valor textual mais longo —, que é onde a concordância do português
+    quebra: "uma caixa" contra "oito caixas", "a" contra "comprido".
+    Três sorteadas podem cair todas no meio e não mostrar nada.
+
+    MONTADAS, não filtradas. A primeira versão expandia o produto
+    cartesiano inteiro com a escolha gulosa só para tirar um mínimo e um
+    máximo, e era quártica: medido nesta máquina, 1000 combinações
+    levavam dois minutos — e é esta função que faz a folha de revisão
+    aparecer, então o portão humano ficava parecendo pendurado.
+    """
+    from mvp.molde import _com_extenso
+
+    nomes = list(molde.parametros)
+    if not nomes or any(not molde.parametros[k] for k in nomes):
+        return []
+
+    base = {k: molde.parametros[k][0] for k in nomes}
+
+    def com(chave, valor):
+        return _com_extenso(dict(base, **{chave: valor}))
+
+    escolhidas: list[dict] = []
+
+    def junta(p):
+        if p not in escolhidas:
+            escolhidas.append(p)
+
+    numericos = [k for k in nomes
+                 if all(isinstance(v, int) for v in molde.parametros[k])]
+    if numericos:
+        chave = numericos[0]
+        junta(com(chave, min(molde.parametros[chave])))
+        junta(com(chave, max(molde.parametros[chave])))
+
+    # O valor textual mais longo, em QUALQUER parâmetro de texto — e não
+    # o parâmetro cujo maior valor é o maior. A folha promete "o nome
+    # mais longo" e mostrava o tipo mais longo, porque `double` tem seis
+    # letras e `dados` tem cinco.
+    textuais = [(len(str(v)), k, v) for k in nomes
+                for v in molde.parametros[k] if isinstance(v, str)]
+    if textuais:
+        _, chave, valor = max(textuais)
+        junta(com(chave, valor))
+
+    # Faltando, completa variando um parâmetro de cada vez — barato, e
+    # ainda assim diferente do que já está escolhido.
+    for chave in nomes:
+        for valor in molde.parametros[chave]:
+            if len(escolhidas) >= quantas:
+                break
+            junta(com(chave, valor))
+    return escolhidas[:quantas]
+
+
+def folha_do_molde(d, molde) -> str:
+    """O molde como uma PESSOA lê, para preencher o `revisado_por`.
+
+    O que ela confere aqui não é o que a máquina já conferiu. O oráculo
+    garante que a afirmação é verdadeira em toda variação; o que fica
+    para ela é se a frase fecha em português, se o distrator é a crença
+    dita bem, e se a pergunta ensina alguma coisa.
+    """
+    from mvp.molde import item_de, preenche
+
+    linhas = [
+        "# Revisão do molde — %s" % molde.id,
+        "",
+        "Uma revisão deste arquivo vale por todas as variações dele. Para",
+        "aprovar, escreva no molde as DUAS linhas abaixo — o nome diz quem",
+        "leu, e a assinatura diz O QUE foi lido:",
+        "",
+        "```yaml",
+        "  revisado_por: <seu nome>",
+        "  revisado_sha: %s" % molde.digest,
+        "```",
+        "",
+        "A assinatura é do conteúdo que está nesta folha. Se o molde mudar",
+        "depois, ela deixa de bater e a carga recusa, em vez de estampar o",
+        "seu nome em variações que você não leu. Depois:",
+        "",
+        "```bash",
+        "python scripts/gerar.py --topico %s --molde %s --expandir"
+        % (d.id, molde.id),
+        "python scripts/gerar.py --topico %s --aprovar" % d.id,
+        "```",
+        "",
+        "**O que a máquina já conferiu:** que o programa do oráculo compila,",
+        "roda e imprime o que o molde promete, em TODA variação. O que fica",
+        "para você é o resto:",
+        "",
+        "- a frase fecha em português em todas elas (plural, gênero, acento);",
+        "- cada distrator é a crença **dita bem** — alguém escolheria aquilo;",
+        "- o enunciado não entrega a resposta;",
+        "- o degrau bate: 1 responde na analogia, 2 aplica em C, 3 distingue.",
+        "",
+        "---",
+        "",
+        "## O molde, como está escrito",
+        "",
+        "**nó %s** · degrau %d · %s · %s · uso %s"
+        % (molde.no, molde.nivel, molde.formato, molde.tipo, molde.uso),
+        "",
+        "- enunciado: %s" % molde.enunciado,
+        "- **[certa]** %s" % molde.gabarito,
+    ]
+    for texto, cid in molde.distratores:
+        linhas.append("- [%s → nega %s] %s"
+                      % (cid, d.crencas[cid].nega if cid in d.crencas else "?",
+                         texto))
+    linhas += [
+        "",
+        "parâmetros:",
+        "",
+    ]
+    for nome, valores in molde.parametros.items():
+        linhas.append("- `%s`: %s" % (nome, ", ".join(str(v) for v in valores)))
+    linhas += [
+        "",
+        "oráculo (o que a máquina rodou), que espera `%s`:" % molde.espera,
+        "",
+        "```c",
+        molde.oraculo.rstrip(),
+        "```",
+        "",
+        "---",
+        "",
+        "## Três variações, dos extremos",
+        "",
+        "Não são sorteadas: são o menor e o maior número e o nome mais",
+        "longo, que é onde a concordância quebra.",
+        "",
+    ]
+    for i, p in enumerate(extremos(molde), 1):
+        item = item_de(molde, p, i)
+        linhas += [
+            "### variação %d — %s" % (i, _diz(p)),
+            "",
+            item["enunciado"],
+            "",
+        ]
+        for letra, texto in item["alternativas"].items():
+            cid = item["crencas"].get(letra)
+            if letra == item["gabarito"]:
+                linhas.append("- **[certa]** %s" % texto)
+            else:
+                linhas.append("- [%s] %s" % (cid, texto))
+        linhas.append("")
+    return "\n".join(linhas) + "\n"
+
 
 def folha(d, topico: str) -> str:
     """Os candidatos como uma PESSOA lê, não como YAML.
@@ -322,8 +715,13 @@ def folha(d, topico: str) -> str:
     ]
     total = 0
     for arq in sorted(pasta.glob("*.yaml")):
-        cru = yaml.safe_load(arq.read_text(encoding="utf-8"))["activities"]
         no = arq.stem
+        # O nome do arquivo é o id do nó, e esta folha agrupa por ele. O
+        # `--expandir` escreve `mol_<...>.yaml` na mesma pasta: aquilo é
+        # molde expandido, tem folha própria, e aqui só dava KeyError.
+        if no not in d.nos:
+            continue
+        cru = yaml.safe_load(arq.read_text(encoding="utf-8"))["activities"]
         linhas += ["---", "", "## %s — %s" % (no, d.nos[no].simples), ""]
         for a in cru:
             total += 1
@@ -404,9 +802,12 @@ def main(argv):
 
     topico, no, degrau, quantas, so_prompt = "kc_02", None, 1, 2, False
     importar, por_quem, acao = None, "", None
+    molde_id = None
     i = 0
     while i < len(argv):
         if argv[i] == "--topico": topico = argv[i + 1]; i += 2
+        elif argv[i] == "--molde": molde_id = argv[i + 1]; i += 2
+        elif argv[i] == "--expandir": acao = "expandir"; i += 1
         elif argv[i] == "--no": no = argv[i + 1]; i += 2
         elif argv[i] == "--degrau": degrau = int(argv[i + 1]); i += 2
         elif argv[i] == "--quantas": quantas = int(argv[i + 1]); i += 2
@@ -417,6 +818,42 @@ def main(argv):
         elif argv[i] == "--aprovar": acao = "aprovar"; i += 1
         else: raise SystemExit(__doc__)
     d = carrega(topico=topico)
+
+    if acao == "expandir":
+        if not molde_id:
+            raise SystemExit("--expandir precisa de --molde <id>")
+        # `--quantas` era lido e ignorado neste caminho: quem pedisse 12
+        # recebia 6 em silêncio.
+        quantas_do_molde = quantas if "--quantas" in argv else 6
+        itens, problemas = expande_molde(d, topico, molde_id,
+                                         quantas=quantas_do_molde)
+        if problemas:
+            for x in problemas:
+                print("  -", x)
+            raise SystemExit("o molde %s não passou nos portões." % molde_id)
+        pasta = CANDIDATOS / topico
+        pasta.mkdir(parents=True, exist_ok=True)
+        alvo = pasta / ("%s.yaml" % molde_id)
+        alvo.write_text(yaml.safe_dump({"activities": itens},
+                                       allow_unicode=True, sort_keys=False,
+                                       width=78),
+                        encoding="utf-8", newline="\n")
+        print("%d variação(ões) em %s" % (len(itens), alvo.relative_to(RAIZ)))
+        return
+
+    if acao == "revisar" and molde_id:
+        moldes_do_topico = _moldes(d, topico)
+        if molde_id not in moldes_do_topico:
+            raise SystemExit("molde %s não está no tópico %s (há %s)"
+                             % (molde_id, topico,
+                                ", ".join(moldes_do_topico) or "nenhum"))
+        pasta = CANDIDATOS / topico
+        pasta.mkdir(parents=True, exist_ok=True)
+        alvo = pasta / ("REVISAO-%s.md" % molde_id)
+        alvo.write_text(folha_do_molde(d, moldes_do_topico[molde_id]),
+                        encoding="utf-8", newline="\n")
+        print("folha do molde em", alvo.relative_to(RAIZ))
+        return
 
     if acao == "revisar":
         alvo = CANDIDATOS / topico / "REVISAO.md"

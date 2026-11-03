@@ -63,6 +63,10 @@ def episodios(linhas: list[dict]) -> list[dict]:
     """
     saida: list[dict] = []
     atual: dict = {}
+    # De que molde veio cada item, por id. A procedência chega em
+    # `atividade_apresentada`, que vem ANTES da camada 1 — o episódio só
+    # abre depois, e precisa dela já guardada.
+    procedencia: dict[str, dict] = {}
 
     def fecha():
         if atual:
@@ -72,6 +76,11 @@ def episodios(linhas: list[dict]) -> list[dict]:
 
     for linha in linhas:
         tipo = linha["tipo"]
+        if tipo == "atividade_apresentada":
+            procedencia[linha.get("atividade")] = {
+                "do_molde": linha.get("do_molde") or "",
+                "parametros": linha.get("parametros") or {},
+            }
         if tipo == "camada1_respondida":
             # A camada 1 abre um episódio e fecha o anterior. Fechar no
             # `resposta_registrada` seria cedo demais: a classificação e o
@@ -87,6 +96,10 @@ def episodios(linhas: list[dict]) -> list[dict]:
                 "ms_razao": None, "confianca": "", "ms_confianca": None,
                 "estado": "", "streak": None,
                 "voltou": None, "superficie_nova": None,
+                # As duas colunas existem em TODA linha, vazias no item
+                # escrito à mão: coluna que aparece e some não vira CSV.
+                **procedencia.get(linha.get("atividade"),
+                                  {"do_molde": "", "parametros": {}}),
             })
         elif tipo == "razao_pulada" and atual:
             atual["razao_correta"] = None
