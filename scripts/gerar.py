@@ -391,6 +391,15 @@ def _diz(parametros: dict) -> str:
                      if kv[0] != "extenso")
 
 
+def _moldes(d, topico: str, raiz=None) -> dict:
+    """Os moldes daquele tópico, do disco."""
+    from mvp import molde as mod
+    from mvp.dominio import RAIZ as DOMINIO
+
+    base = pathlib.Path(raiz) if raiz else DOMINIO
+    return mod.le(base / ("moldes_%s.yaml" % topico.replace("_", "")), d)
+
+
 def expande_molde(d, topico: str, molde_id: str, raiz=None,
                   quantas: int = 6) -> tuple[list[dict], list[str]]:
     """As variações de um molde, ou os motivos de ele não servir.
@@ -446,7 +455,11 @@ def expande_molde(d, topico: str, molde_id: str, raiz=None,
         return [], problemas
 
     # 4. variedade
-    de_fora = {a.enunciado.strip(): a.id for a in d.atividades}
+    # Os itens que JÁ saíram deste molde não contam como plágio: eles
+    # são a saída anterior dele. Sem isto, reexpandir depois de aprovar
+    # acusava "mol_x_01: enunciado igual ao de mol_x_01".
+    de_fora = {a.enunciado.strip(): a.id for a in d.atividades
+               if a.do_molde != m.id}
     vistos: dict[str, str] = {}
     for item in itens:
         texto = item["enunciado"].strip()
@@ -519,11 +532,22 @@ def folha_do_molde(d, molde) -> str:
         "# Revisão do molde — %s" % molde.id,
         "",
         "Uma revisão deste arquivo vale por todas as variações dele. Para",
-        "aprovar, escreva seu nome em `revisado_por` no molde e rode:",
+        "aprovar, escreva no molde as DUAS linhas abaixo — o nome diz quem",
+        "leu, e a assinatura diz O QUE foi lido:",
+        "",
+        "```yaml",
+        "  revisado_por: <seu nome>",
+        "  revisado_sha: %s" % molde.digest,
+        "```",
+        "",
+        "A assinatura é do conteúdo que está nesta folha. Se o molde mudar",
+        "depois, ela deixa de bater e a carga recusa, em vez de estampar o",
+        "seu nome em variações que você não leu. Depois:",
         "",
         "```bash",
         "python scripts/gerar.py --topico %s --molde %s --expandir"
         % (d.id, molde.id),
+        "python scripts/gerar.py --topico %s --aprovar" % d.id,
         "```",
         "",
         "**O que a máquina já conferiu:** que o programa do oráculo compila,",
@@ -623,8 +647,13 @@ def folha(d, topico: str) -> str:
     ]
     total = 0
     for arq in sorted(pasta.glob("*.yaml")):
-        cru = yaml.safe_load(arq.read_text(encoding="utf-8"))["activities"]
         no = arq.stem
+        # O nome do arquivo é o id do nó, e esta folha agrupa por ele. O
+        # `--expandir` escreve `mol_<...>.yaml` na mesma pasta: aquilo é
+        # molde expandido, tem folha própria, e aqui só dava KeyError.
+        if no not in d.nos:
+            continue
+        cru = yaml.safe_load(arq.read_text(encoding="utf-8"))["activities"]
         linhas += ["---", "", "## %s — %s" % (no, d.nos[no].simples), ""]
         for a in cru:
             total += 1
@@ -738,6 +767,20 @@ def main(argv):
                                        width=78),
                         encoding="utf-8", newline="\n")
         print("%d variação(ões) em %s" % (len(itens), alvo.relative_to(RAIZ)))
+        return
+
+    if acao == "revisar" and molde_id:
+        moldes_do_topico = _moldes(d, topico)
+        if molde_id not in moldes_do_topico:
+            raise SystemExit("molde %s não está no tópico %s (há %s)"
+                             % (molde_id, topico,
+                                ", ".join(moldes_do_topico) or "nenhum"))
+        pasta = CANDIDATOS / topico
+        pasta.mkdir(parents=True, exist_ok=True)
+        alvo = pasta / ("REVISAO-%s.md" % molde_id)
+        alvo.write_text(folha_do_molde(d, moldes_do_topico[molde_id]),
+                        encoding="utf-8", newline="\n")
+        print("folha do molde em", alvo.relative_to(RAIZ))
         return
 
     if acao == "revisar":

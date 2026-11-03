@@ -26,6 +26,7 @@ chega à sessão é um item de YAML como todos os outros.
 
 from __future__ import annotations
 
+import hashlib
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -79,13 +80,38 @@ class Molde:
     oraculo: str
     espera: str
     revisado_por: str = ""
+    # A impressão digital do conteúdo que FOI revisado. Sem ela, o nome
+    # do revisor sobrevive a qualquer edição do molde — e as variações
+    # novas saem estampadas com o nome de quem nunca as leu.
+    revisado_sha: str = ""
+    digest: str = ""
     # O prefixo que o `node` do item usa: "kc07", do nome do arquivo.
     # Sai do mesmo lugar de onde o carregador do domínio tira o dele.
     topico: str = ""
 
     @property
     def revisado(self) -> bool:
-        return bool(self.revisado_por.strip())
+        """Revisado é nome MAIS assinatura do conteúdo lido.
+
+        Só o nome não basta: a spec documenta reexpandir depois de
+        editar, e prescreve editar — estreitar o domínio de um parâmetro
+        — como o conserto de um molde reprovado. Sem amarrar o nome ao
+        conteúdo, o conserto apaga a revisão sem avisar ninguém.
+        """
+        return bool(self.revisado_por.strip()) and self.revisado_sha == self.digest
+
+
+def assinatura(bruto: Mapping) -> str:
+    """A impressão digital do molde, sem os campos da própria revisão.
+
+    Doze hexadecimais bastam: isto não é segurança, é detecção de
+    mudança — ninguém está tentando forjar um molde, mas qualquer um
+    pode editar um e esquecer que já tinha sido lido.
+    """
+    limpo = {k: v for k, v in dict(bruto).items()
+             if k not in ("revisado_por", "revisado_sha")}
+    texto = yaml.safe_dump(limpo, allow_unicode=True, sort_keys=True)
+    return hashlib.sha256(texto.encode("utf-8")).hexdigest()[:12]
 
 
 def preenche(texto: str, valores: Mapping[str, object]) -> str:
@@ -185,6 +211,21 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
             distratores.append((str(dist.get("texto") or "").strip(),
                                 str(cid or "")))
 
+        # A trava da revisão: nome e assinatura andam juntos.
+        digest = assinatura(bruto)
+        tem_nome = bool(str(bruto.get("revisado_por") or "").strip())
+        sha = str(bruto.get("revisado_sha") or "").strip()
+        if tem_nome and not sha:
+            problemas.append(
+                "%s: tem `revisado_por` e não tem `revisado_sha` — nome sem "
+                "assinatura é revisão de conteúdo nenhum. A assinatura deste "
+                "molde é %s" % (onde, digest))
+        elif tem_nome and sha != digest:
+            problemas.append(
+                "%s: o molde mudou depois da revisão (assinado %s, hoje %s). "
+                "Leia a folha outra vez e assine de novo, ou apague o "
+                "`revisado_por`" % (onde, sha, digest))
+
         # Todo buraco tem de ter de onde sair.
         for buraco in sorted(_buracos(bruto)):
             if buraco in parametros:
@@ -211,6 +252,8 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
             oraculo=str(bruto.get("oraculo") or ""),
             espera=str(bruto.get("espera") or "").strip(),
             revisado_por=str(bruto.get("revisado_por") or ""),
+            revisado_sha=str(bruto.get("revisado_sha") or ""),
+            digest=digest,
             topico=sufixo)
 
     if problemas:
@@ -303,5 +346,5 @@ def item_de(molde: Molde, parametros: dict, i: int) -> dict:
         # log é guardar a mesma coisa duas vezes.
         "parametros": {k: v for k, v in valores.items() if k != "extenso"},
         "gerado_por": "molde %s" % molde.id,
-        "revisado_por": molde.revisado_por,
+        "revisado_por": molde.revisado_por if molde.revisado else "",
     }

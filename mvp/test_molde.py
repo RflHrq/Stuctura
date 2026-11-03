@@ -285,7 +285,10 @@ def test_o_revisado_por_vem_do_molde(tmp_path, d7):
     em_branco = _le(tmp_path, d7, "r1")["mol_teste"]
     assert item_de(em_branco, expande(em_branco, 1)[0], 1)["revisado_por"] == ""
 
-    revisado = _le(tmp_path, d7, "r2", revisado_por="Rafael")["mol_teste"]
+    # "Revisado" passou a ser nome MAIS assinatura do conteúdo lido, então
+    # o molde revisado deste teste assina. A asserção é a mesma.
+    revisado = _le(tmp_path, d7, "r2", revisado_por="Rafael",
+                   revisado_sha=em_branco.digest)["mol_teste"]
     assert item_de(revisado, expande(revisado, 1)[0], 1)["revisado_por"] == "Rafael"
 
 
@@ -337,3 +340,86 @@ def test_quem_escrever_no_em_vez_de_node_recebe_a_instrucao(tmp_path, d7):
     with pytest.raises(MoldeInvalido) as erro:
         le(pasta / "moldes_kc07.yaml", d7)
     assert any("`node:`" in x for x in erro.value.problemas), erro.value.problemas
+
+
+# --------------------------------------------------------------------------
+# A trava da revisão: o nome vale para o conteúdo que foi lido
+# --------------------------------------------------------------------------
+
+def test_molde_revisado_com_a_assinatura_certa_vale(tmp_path, d7):
+    cru = _cru()
+    pasta = tmp_path / "ok"
+    pasta.mkdir()
+    (pasta / "moldes_kc07.yaml").write_text(
+        yaml.safe_dump({"mol_teste": cru}, allow_unicode=True), encoding="utf-8")
+    sem_nome = le(pasta / "moldes_kc07.yaml", d7)["mol_teste"]
+    assert sem_nome.revisado is False
+
+    cru.update(revisado_por="Rafael", revisado_sha=sem_nome.digest)
+    (pasta / "moldes_kc07.yaml").write_text(
+        yaml.safe_dump({"mol_teste": cru}, allow_unicode=True), encoding="utf-8")
+    assert le(pasta / "moldes_kc07.yaml", d7)["mol_teste"].revisado is True
+
+
+def test_molde_editado_depois_da_revisao_nao_carrega(tmp_path, d7):
+    """O defeito que a revisão do ramo achou, e é o pior deles.
+
+    Preencher `revisado_por`, expandir, aprovar, e depois acrescentar um
+    valor em `n:` ou trocar uma palavra do gabarito: saíam variações
+    inéditas já estampadas com o nome de quem nunca as leu, e o
+    `--aprovar` as movia para o domínio. Num instrumento de pesquisa, o
+    método afirma que cada item foi validado por uma pessoa.
+
+    E não é uso torto: a spec documenta a reexpansão depois de editar, e
+    prescreve editar — estreitar o domínio do parâmetro — como o conserto
+    de um molde reprovado.
+    """
+    cru = _cru()
+    pasta = tmp_path / "editado"
+    pasta.mkdir()
+    (pasta / "moldes_kc07.yaml").write_text(
+        yaml.safe_dump({"mol_teste": cru}, allow_unicode=True), encoding="utf-8")
+    sha = le(pasta / "moldes_kc07.yaml", d7)["mol_teste"].digest
+
+    # revisado, e DEPOIS mexido
+    cru.update(revisado_por="Rafael", revisado_sha=sha)
+    cru["parametros"]["n"] = [3, 5, 8, 16]
+    (pasta / "moldes_kc07.yaml").write_text(
+        yaml.safe_dump({"mol_teste": cru}, allow_unicode=True), encoding="utf-8")
+
+    with pytest.raises(MoldeInvalido) as erro:
+        le(pasta / "moldes_kc07.yaml", d7)
+    assert any("depois da revisão" in x for x in erro.value.problemas), \
+        erro.value.problemas
+
+
+def test_nome_sem_assinatura_nao_carrega(tmp_path, d7):
+    """Nome sem assinatura é revisão de conteúdo nenhum."""
+    p = _recusa(tmp_path, d7, "sem_sha", revisado_por="Rafael")
+    assert any("revisado_sha" in x for x in p), p
+
+
+def test_o_item_so_herda_o_nome_de_molde_revisado(tmp_path, d7):
+    m = _le(tmp_path, d7, "herda")["mol_teste"]
+    assert m.revisado is False
+    assert item_de(m, expande(m, 1)[0], 1)["revisado_por"] == ""
+
+
+def test_o_item_nao_herda_nome_de_molde_com_assinatura_velha(tmp_path, d7):
+    """A segunda rede, e a única que `item_de` enxerga.
+
+    A carga já recusa molde assinado e depois editado — mas `item_de`
+    recebe um `Molde`, e nada garante que ele veio da carga. Se a
+    propriedade `revisado` olhasse só o nome, bastaria montar o objeto na
+    mão para o nome do revisor voltar a vazar para itens que ele não leu.
+    """
+    from dataclasses import replace
+
+    m = _le(tmp_path, d7, "velha")["mol_teste"]
+    assinado = replace(m, revisado_por="Rafael", revisado_sha=m.digest)
+    assert assinado.revisado is True
+    assert item_de(assinado, expande(assinado, 1)[0], 1)["revisado_por"] == "Rafael"
+
+    velho = replace(m, revisado_por="Rafael", revisado_sha="0000deadbeef")
+    assert velho.revisado is False
+    assert item_de(velho, expande(velho, 1)[0], 1)["revisado_por"] == ""

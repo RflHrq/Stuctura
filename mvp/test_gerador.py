@@ -496,3 +496,94 @@ def test_o_pedido_diz_que_o_gabarito_e_regra():
 def test_o_pedido_leva_as_crencas_do_no_e_dos_vizinhos():
     sistema, pedido = gerar.prompt_de_molde(D7, "B1", 1)
     assert "string_literal_is_array" in pedido      # a crença do próprio B1
+
+
+# --------------------------------------------------------------------------
+# O ciclo humano do molde: folha, assinatura, reexpansão
+# --------------------------------------------------------------------------
+
+def test_a_folha_dos_itens_ignora_o_yaml_de_molde(tmp_path, monkeypatch):
+    """`--revisar` quebrava com KeyError depois da primeira expansão.
+
+    A folha dos itens agrupa por nó e tira o nome do nó do NOME DO
+    ARQUIVO. O `--expandir` escreve `mol_kc07_B1_treino_1.yaml` na mesma
+    pasta, e aquele stem não é nó nenhum.
+    """
+    import yaml as y
+    pasta = tmp_path / "candidatos" / "kc_02"
+    pasta.mkdir(parents=True)
+    (pasta / "B2.yaml").write_text(
+        y.safe_dump({"activities": [_item(nivel=1)]}, allow_unicode=True),
+        encoding="utf-8")
+    (pasta / "mol_kc02_B2_treino_1.yaml").write_text(
+        y.safe_dump({"activities": [_item(id="m_1", do_molde="mol_x",
+                                          parametros={"n": 3})]},
+                    allow_unicode=True), encoding="utf-8")
+    monkeypatch.setattr(gerar, "CANDIDATOS", tmp_path / "candidatos")
+    texto = gerar.folha(D2, "kc_02")          # não pode estourar
+    assert "**[certa]**" in texto
+    assert "mol_kc02_B2_treino_1" not in texto
+
+
+def test_a_folha_do_molde_diz_o_que_escrever_para_aprovar(tmp_path):
+    """Sem a assinatura na folha, ninguém tem como preenchê-la."""
+    m = _le_molde(tmp_path, "assina")
+    texto = gerar.folha_do_molde(D7, m)
+    assert "revisado_sha: %s" % m.digest in texto, texto
+
+
+def test_reexpandir_um_molde_aprovado_nao_acusa_plagio_de_si_mesmo(tmp_path):
+    """O portão da variedade comparava com TODAS as atividades do
+    domínio, inclusive as que tinham saído daquele mesmo molde.
+
+    Depois do primeiro `--aprovar`, reexpandir dava "mol_x_01: enunciado
+    igual ao de mol_x_01" — o mesmo id nos dois lados da frase.
+    """
+    from dataclasses import replace as _replace
+
+    pasta = _molde(tmp_path, "reexp")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert problemas == []
+
+    # o domínio agora contém os itens daquele molde
+    d_com = _replace(D7, atividades=D7.atividades + tuple(
+        _atividade_de(i) for i in itens))
+    de_novo, problemas = gerar.expande_molde(d_com, "kc_07", "mol_teste",
+                                             raiz=pasta)
+    assert problemas == [], problemas
+    assert len(de_novo) == 6
+
+
+def _atividade_de(item: dict):
+    """O item cru virado `Atividade`, só com o que o portão 4 olha."""
+    from mvp.dominio import Atividade, Opcao
+    return Atividade(
+        id=item["id"], no=item["node"].split(":")[-1], tipo=item["tipo"],
+        formato=item["formato"], enunciado=item["enunciado"],
+        opcoes=tuple(Opcao(texto=t, correta=(k == item["gabarito"]))
+                     for k, t in item["alternativas"].items()),
+        uso=item["uso"], nivel=item["nivel"], do_molde=item["do_molde"],
+        parametros=item["parametros"])
+
+
+def test_aprovar_item_com_id_que_ja_existe_diz_que_esta_duplicado(
+        tmp_path, monkeypatch):
+    """A revisão do ramo apontou aqui um beco silencioso, e não é.
+
+    O relato era que reexpandir depois de aprovar descartava tudo por
+    colisão de id e o CLI dizia só "nada foi movido". Medido: o
+    `confere` roda ANTES e devolve "atividade X duplicada", que o CLI
+    imprime. A mensagem já existe; este teste é que não existia.
+    """
+    import shutil
+    from mvp import dominio as mod
+
+    espelho = tmp_path / "dominio"
+    shutil.copytree(mod.RAIZ, espelho)
+    monkeypatch.setattr(mod, "RAIZ", espelho)
+
+    _candidatos_falsos(tmp_path, monkeypatch,
+                       _item(id="ciu_kc02_001", revisado_por="Rafael"))
+    quantos, avisos = gerar.aprova("kc_02")
+    assert quantos == 0
+    assert any("ciu_kc02_001" in a and "duplicada" in a for a in avisos), avisos
