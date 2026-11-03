@@ -702,6 +702,13 @@
       marca.textContent = rotuloEstado(n).trim() + " " + (NOME_ESTADO[n.estado] || "");
       corpo.appendChild(marca);
       var nota = notaDe(n);
+      /* A troca de superficie: a mesma ideia perguntada com outro nome,
+       * outro tamanho, outro tipo. E o que separa generalizar de ter
+       * decorado aquela pergunta, e por isso vem depois do estado, nao
+       * no lugar dele. */
+      if (n.generalizou) {
+        nota = (nota ? nota + ", " : "") + "e sustentou a troca de superfície";
+      }
       if (nota) {
         var p = document.createElement("p");
         p.className = "nota";

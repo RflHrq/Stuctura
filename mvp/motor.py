@@ -314,6 +314,12 @@ class EstadoNo:
     # dela. Ficam no nó, e não no passo, porque força é histórico do nó.
     reexplicacoes: int = 0
     tropecos: int = 0
+    # As instâncias de molde que ela acertou PELA RAZÃO CERTA, uma
+    # assinatura por acerto: "<molde>|<k=v ordenado>". Duas assinaturas
+    # distintas do mesmo molde são a mesma ideia com a roupa trocada — é
+    # a diferença entre generalizar e ter decorado aquela pergunta. Vazio
+    # nos itens escritos à mão, que são todos os de hoje.
+    instancias: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -637,6 +643,20 @@ def _procedencia(a: Atividade) -> dict:
     return {"do_molde": a.do_molde, "parametros": dict(a.parametros)}
 
 
+def _instancia(a: Atividade) -> str:
+    """A assinatura da variação, ou vazio quando o item não vem de molde."""
+    if not a.do_molde:
+        return ""
+    return "%s|%s" % (a.do_molde,
+                      ",".join("%s=%s" % kv for kv in sorted(a.parametros.items())))
+
+
+def _instancias_de(a: Atividade) -> tuple[str, ...]:
+    """A instância para somar ao nó: vazia quando não há molde."""
+    assinatura = _instancia(a)
+    return (assinatura,) if assinatura else ()
+
+
 def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = False) -> Transicao:
     en = e.no(a.no)
     novo = replace(e, atividade=a.id)
@@ -916,7 +936,8 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
         novo = e.com(a.no, superficies=superficies,
                      estado=CONFIRMADO if fechou else FRAGIL,
                      nivel=min(max(NIVEIS), en.nivel + 1),
-                     vacilou=bool(en.erros))
+                     vacilou=bool(en.erros),
+                     instancias=en.instancias + _instancias_de(a))
         eventos.append(_degrau(a.no, en.nivel, novo.no(a.no).nivel, a))
         if fechou:
             eventos.append(Evento("no_confirmado", {
@@ -932,7 +953,8 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
         # Certa pela razão certa, mas sem convicção. Não conta superfície —
         # mas sobe o degrau: a premissa ficou de pé ali, com meia certeza.
         novo = e.com(a.no, estado=FRAGIL,
-                     nivel=min(max(NIVEIS), en.nivel + 1))
+                     nivel=min(max(NIVEIS), en.nivel + 1),
+                     instancias=en.instancias + _instancias_de(a))
         eventos.append(_degrau(a.no, en.nivel, novo.no(a.no).nivel, a))
         eventos.append(Evento("no_fragil", {
             "no": a.no, "motivo": "confiança abaixo de certeza",
@@ -1749,6 +1771,14 @@ def _fecha(d: Dominio, e: Estado) -> Transicao:
     return Transicao(novo, _tela_frase(d, "fim"), tuple(nao_medidos) + (evento,))
 
 
+def _generalizou(instancias: tuple[str, ...]) -> bool:
+    por_molde: dict[str, set[str]] = {}
+    for assinatura in instancias:
+        molde, _, parametros = assinatura.partition("|")
+        por_molde.setdefault(molde, set()).add(parametros)
+    return any(len(p) >= 2 for p in por_molde.values())
+
+
 def estado_dos_nos(d: Dominio, e: Estado) -> list[dict]:
     """O grafo com o estado de cada premissa, pronto para desenhar.
 
@@ -1765,6 +1795,11 @@ def estado_dos_nos(d: Dominio, e: Estado) -> list[dict]:
             "streak": en.streak, "tentativas": en.tentativas,
             # Três caminhos até o verde, e o mapa guarda qual foi: direto,
             # depois de um vacilo, ou depois de refutação e treino.
+            # Sustentou a mesma ideia com a roupa trocada: duas
+            # instâncias DO MESMO molde, com parâmetros distintos. Moldes
+            # diferentes são perguntas diferentes, e isso o critério de
+            # hoje já mede pelas duas superfícies.
+            "generalizou": _generalizou(en.instancias),
             "via_treino": en.estado == CONFIRMADO and bool(en.crenca),
             "vacilou": en.vacilou,
             "crenca": en.crenca,

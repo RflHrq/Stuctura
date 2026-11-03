@@ -525,3 +525,56 @@ def test_item_escrito_a_mao_nao_polui_o_log(d):
     t, eventos = roda(d, _politica())
     for x in _dos(eventos, "atividade_apresentada"):
         assert "do_molde" not in x and "parametros" not in x
+
+
+# --------------------------------------------------------------------------
+# Generalizar e decorar: a mesma ideia com a roupa trocada
+# --------------------------------------------------------------------------
+
+def test_acertar_um_item_de_molde_guarda_a_instancia(tmp_path):
+    """A assinatura traz os PARÂMETROS, não só o id do molde.
+
+    Sem eles, dois acertos na mesma variação ficam indistinguíveis de dois
+    acertos em variações diferentes — que é exatamente o que separa
+    generalizar de decorar.
+    """
+    from mvp.test_dominio import atividade, monta
+
+    def muda(cru):
+        atividade(cru, "ciu_kc00_001").update(
+            do_molde="mol_teste", parametros={"tipo": "int", "n": 5})
+    d2 = carrega(monta(tmp_path / "g1", muda))
+    alvo = next(x for x in d2.atividades if x.id == "ciu_kc00_001").no
+    t, eventos = roda(d2, _politica(d=d2))
+    assert "mol_teste|n=5,tipo=int" in t.estado.no(alvo).instancias
+
+
+def test_duas_instancias_do_mesmo_molde_e_generalizar(d):
+    e = motor.Estado(nos={"B1": motor.EstadoNo(
+        instancias=("mol_x|n=3", "mol_x|n=8"))})
+    b1 = next(n for n in motor.estado_dos_nos(d, e) if n["no"] == "B1")
+    assert b1["generalizou"] is True
+
+
+def test_a_mesma_instancia_duas_vezes_nao_e_generalizar(d):
+    """Repetir a mesma pergunta mede memória, não generalização."""
+    e = motor.Estado(nos={"B1": motor.EstadoNo(
+        instancias=("mol_x|n=3", "mol_x|n=3"))})
+    b1 = next(n for n in motor.estado_dos_nos(d, e) if n["no"] == "B1")
+    assert b1["generalizou"] is False
+
+
+def test_duas_instancias_de_moldes_diferentes_nao_e_generalizar(d):
+    """A troca de superfície é DENTRO do molde: moldes diferentes são
+    perguntas diferentes, e isso o critério de hoje já mede."""
+    e = motor.Estado(nos={"B1": motor.EstadoNo(
+        instancias=("mol_x|n=3", "mol_y|n=8"))})
+    b1 = next(n for n in motor.estado_dos_nos(d, e) if n["no"] == "B1")
+    assert b1["generalizou"] is False
+
+
+def test_no_sem_item_de_molde_nunca_generaliza(d):
+    """Os 556 itens de hoje não têm molde: a marca fica falsa, não some."""
+    t, eventos = roda(d, _politica())
+    assert all(n["generalizou"] is False
+               for n in motor.estado_dos_nos(d, t.estado))
