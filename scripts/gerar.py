@@ -370,6 +370,129 @@ def expande_molde(d, topico: str, molde_id: str, raiz=None,
 # Ler, e aprovar
 # --------------------------------------------------------------------------
 
+def extremos(molde, quantas: int = 3) -> list[dict]:
+    """As variações que a pessoa lê, escolhidas e não sorteadas.
+
+    Os extremos do espaço de parâmetros — o menor e o maior número, o
+    nome mais longo —, que é onde a concordância do português quebra:
+    "uma caixa" contra "oito caixas", "a" contra "dados". Três sorteadas
+    podem cair todas no meio e não mostrar nada.
+    """
+    from mvp.molde import expande
+
+    todas = expande(molde, quantas=10 ** 6)
+    if not todas:
+        return []
+    escolhidas: list[dict] = []
+
+    def junta(p):
+        if p is not None and p not in escolhidas:
+            escolhidas.append(p)
+
+    numericos = [k for k in molde.parametros
+                 if all(isinstance(v, int) for v in molde.parametros[k])]
+    if numericos:
+        chave = numericos[0]
+        junta(min(todas, key=lambda p: p[chave]))
+        junta(max(todas, key=lambda p: p[chave]))
+    textuais = [k for k in molde.parametros
+                if all(isinstance(v, str) for v in molde.parametros[k])]
+    if textuais:
+        longo = max(textuais, key=lambda k: max(len(v)
+                                                for v in molde.parametros[k]))
+        junta(max(todas, key=lambda p: len(str(p[longo]))))
+    for p in todas:
+        if len(escolhidas) >= quantas:
+            break
+        junta(p)
+    return escolhidas[:quantas]
+
+
+def folha_do_molde(d, molde) -> str:
+    """O molde como uma PESSOA lê, para preencher o `revisado_por`.
+
+    O que ela confere aqui não é o que a máquina já conferiu. O oráculo
+    garante que a afirmação é verdadeira em toda variação; o que fica
+    para ela é se a frase fecha em português, se o distrator é a crença
+    dita bem, e se a pergunta ensina alguma coisa.
+    """
+    from mvp.molde import item_de, preenche
+
+    linhas = [
+        "# Revisão do molde — %s" % molde.id,
+        "",
+        "Uma revisão deste arquivo vale por todas as variações dele. Para",
+        "aprovar, escreva seu nome em `revisado_por` no molde e rode:",
+        "",
+        "```bash",
+        "python scripts/gerar.py --topico %s --molde %s --expandir"
+        % (d.id, molde.id),
+        "```",
+        "",
+        "**O que a máquina já conferiu:** que o programa do oráculo compila,",
+        "roda e imprime o que o molde promete, em TODA variação. O que fica",
+        "para você é o resto:",
+        "",
+        "- a frase fecha em português em todas elas (plural, gênero, acento);",
+        "- cada distrator é a crença **dita bem** — alguém escolheria aquilo;",
+        "- o enunciado não entrega a resposta;",
+        "- o degrau bate: 1 responde na analogia, 2 aplica em C, 3 distingue.",
+        "",
+        "---",
+        "",
+        "## O molde, como está escrito",
+        "",
+        "**nó %s** · degrau %d · %s · %s · uso %s"
+        % (molde.no, molde.nivel, molde.formato, molde.tipo, molde.uso),
+        "",
+        "- enunciado: %s" % molde.enunciado,
+        "- **[certa]** %s" % molde.gabarito,
+    ]
+    for texto, cid in molde.distratores:
+        linhas.append("- [%s → nega %s] %s"
+                      % (cid, d.crencas[cid].nega if cid in d.crencas else "?",
+                         texto))
+    linhas += [
+        "",
+        "parâmetros:",
+        "",
+    ]
+    for nome, valores in molde.parametros.items():
+        linhas.append("- `%s`: %s" % (nome, ", ".join(str(v) for v in valores)))
+    linhas += [
+        "",
+        "oráculo (o que a máquina rodou), que espera `%s`:" % molde.espera,
+        "",
+        "```c",
+        molde.oraculo.rstrip(),
+        "```",
+        "",
+        "---",
+        "",
+        "## Três variações, dos extremos",
+        "",
+        "Não são sorteadas: são o menor e o maior número e o nome mais",
+        "longo, que é onde a concordância quebra.",
+        "",
+    ]
+    for i, p in enumerate(extremos(molde), 1):
+        item = item_de(molde, p, i)
+        linhas += [
+            "### variação %d — %s" % (i, _diz(p)),
+            "",
+            item["enunciado"],
+            "",
+        ]
+        for letra, texto in item["alternativas"].items():
+            cid = item["crencas"].get(letra)
+            if letra == item["gabarito"]:
+                linhas.append("- **[certa]** %s" % texto)
+            else:
+                linhas.append("- [%s] %s" % (cid, texto))
+        linhas.append("")
+    return "\n".join(linhas) + "\n"
+
+
 def folha(d, topico: str) -> str:
     """Os candidatos como uma PESSOA lê, não como YAML.
 

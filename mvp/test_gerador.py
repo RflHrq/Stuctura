@@ -394,3 +394,44 @@ def test_molde_que_nao_existe_no_arquivo(tmp_path):
         D7, "kc_07", "mol_fantasma", raiz=_molde(tmp_path, "fantasma"))
     assert itens == []
     assert any("mol_fantasma" in p for p in problemas), problemas
+
+
+# --------------------------------------------------------------------------
+# A folha do molde: o que a pessoa lê para preencher o revisado_por
+# --------------------------------------------------------------------------
+
+def _le_molde(tmp_path, nome, **troca):
+    from mvp import molde as mod
+    return mod.le(_molde(tmp_path, nome, **troca) / "moldes_kc07.yaml",
+                  D7)["mol_teste"]
+
+
+def test_a_folha_do_molde_mostra_o_texto_e_os_extremos(tmp_path):
+    """A máquina confere o C; o português é da pessoa.
+
+    E ela o lê nos EXTREMOS do espaço de parâmetros, que é onde a
+    concordância quebra — não em três variações sorteadas, que podem cair
+    todas no meio.
+    """
+    m = _le_molde(tmp_path, "folha")
+    texto = gerar.folha_do_molde(D7, m)
+    assert "{tipo} {nome}[{n}]" in texto, "o molde com os buracos não aparece"
+    assert texto.count("### variação") == 3, texto
+    assert "n=3" in texto and "n=8" in texto, texto
+    assert "dados" in texto, "faltou o nome mais longo"
+    assert "revisado_por" in texto
+
+
+def test_a_folha_do_molde_diz_a_crenca_de_cada_distrator(tmp_path):
+    """O mesmo que a folha dos itens faz: a atribuição cruzada visível."""
+    m = _le_molde(tmp_path, "folha2")
+    texto = gerar.folha_do_molde(D7, m)
+    assert "array_is_pointer" in texto
+    assert "nega I3" in texto
+
+
+def test_a_folha_do_molde_mostra_o_oraculo(tmp_path):
+    """Quem revisa o molde precisa ver o que a máquina conferiu."""
+    m = _le_molde(tmp_path, "folha3")
+    texto = gerar.folha_do_molde(D7, m)
+    assert "sizeof" in texto and "espera" in texto
