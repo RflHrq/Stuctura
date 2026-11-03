@@ -514,12 +514,21 @@ def _cru_familia(**troca) -> dict:
                     "Nenhuma delas: as três compilam sem reclamação",
                 ],
                 "nao_compila": True,
+                # Oráculo próprio: o da família compila, e este formato
+                # prova o contrário. O `codigo` acima é o que a pessoa
+                # vê; o oráculo é o programa inteiro.
+                "oraculo": "int main(void) {\n"
+                           "    {tipo} {nome}[{n}];\n"
+                           "    {tipo} *p = {nome};\n"
+                           "    {nome} = p;\n"
+                           "    return 0;\n"
+                           "}\n",
             },
             "prever_saida": {
                 "tipo": "codigo",
                 "codigo": "{tipo} {nome}[{n}];\n"
                           "printf(\"%zu\", sizeof {nome} / sizeof {nome}[0]);\n",
-                "enunciado": "O que sai?",
+                "enunciado": "O que este programa imprime, exatamente?",
                 "gabarito": "do_oraculo",
                 "distratores": [
                     "o tamanho de um ponteiro, em bytes",

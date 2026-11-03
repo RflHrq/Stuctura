@@ -709,3 +709,78 @@ def test_sem_compilador_a_cli_nao_cospe_traceback(tmp_path, monkeypatch, capsys)
     with pytest.raises(SystemExit) as saida:
         gerar.expande_molde(D7, "kc_07", "mol_kc07_B1_treino_1")
     assert "STRUCTURA_GCC" in str(saida.value)
+
+
+# --------------------------------------------------------------------------
+# Os portões, por redação
+# --------------------------------------------------------------------------
+
+def _familia(tmp_path, nome, **troca):
+    """Escreve a família de três formatos do kc_07 numa pasta do teste."""
+    from mvp.test_molde import _cru_familia
+
+    pasta = tmp_path / nome
+    pasta.mkdir(parents=True, exist_ok=True)
+    (pasta / "moldes_kc07.yaml").write_text(
+        _yaml.safe_dump({"mol_teste": _cru_familia(**troca)},
+                        allow_unicode=True, sort_keys=False),
+        encoding="utf-8")
+    return pasta
+
+
+@tem_gcc
+def test_a_familia_inteira_passa_nos_quatro_portoes(tmp_path):
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste",
+                                           raiz=_familia(tmp_path, "ok"))
+    assert problemas == [], problemas
+    assert len(itens) == 6
+    assert {i["formato"] for i in itens} == {
+        "reconhecer_conceito", "achar_o_erro", "prever_saida"}
+
+
+@tem_gcc
+def test_uma_redacao_reprovada_derruba_a_familia(tmp_path):
+    """A mesma regra da fatia anterior, um nível acima.
+
+    Ficar com os formatos que passaram esconde a afirmação errada
+    exatamente como ficar com as variações que passaram escondia.
+    """
+    from mvp.test_molde import _cru_familia
+
+    formatos = _cru_familia()["formatos"]
+    # o programa do achar_o_erro passa a COMPILAR: o item perde o erro
+    formatos["achar_o_erro"]["oraculo"] = "int main(void) { return 0; }"
+    itens, problemas = gerar.expande_molde(
+        D7, "kc_07", "mol_teste", raiz=_familia(tmp_path, "ruim",
+                                                formatos=formatos))
+    assert itens == []
+    assert any("achar_o_erro" in p for p in problemas), problemas
+
+
+@tem_gcc
+def test_o_gabarito_do_prever_saida_vem_do_programa(tmp_path):
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste",
+                                           raiz=_familia(tmp_path, "prev"))
+    assert problemas == [], problemas
+    prev = [i for i in itens if i["formato"] == "prever_saida"]
+    assert prev
+    for item in prev:
+        esperado = str(item["parametros"]["n"])
+        assert item["alternativas"]["a"] == esperado, item
+
+
+@tem_gcc
+def test_saida_que_nao_serve_de_alternativa_reprova(tmp_path):
+    """Foco 4: a saída existe, o oráculo passa, e mesmo assim ela não
+    pode virar a alternativa certa."""
+    from mvp.test_molde import _cru_familia
+
+    formatos = _cru_familia()["formatos"]
+    formatos["prever_saida"]["oraculo"] = (
+        "#include <stdio.h>" + chr(10) +
+        "int main(void) { printf(\"\"); return 0; }" + chr(10))
+    itens, problemas = gerar.expande_molde(
+        D7, "kc_07", "mol_teste",
+        raiz=_familia(tmp_path, "vazia", formatos=formatos, espera=""))
+    assert itens == []
+    assert any("vazia" in p or "alternativa" in p for p in problemas), problemas

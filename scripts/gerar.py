@@ -464,24 +464,41 @@ def expande_molde(d, topico: str, molde_id: str, raiz=None,
         return [], ["molde %r não está em %s (há %s)"
                     % (molde_id, caminho.name, ", ".join(moldes) or "nenhum")]
 
-    # 1. expansão
-    variacoes = mod.expande(m, quantas)
-    itens = [mod.item_de(m, m.redacoes[0], p, i)
-             for i, p in enumerate(variacoes, 1)]
+    # 1. expansão, repartida entre as redações da família
+    pares = mod.expande_familia(m, quantas)
+    itens = []
+    contador = {}
+    for redacao, p in pares:
+        contador[redacao.formato] = contador.get(redacao.formato, 0) + 1
+        itens.append(mod.item_de(m, redacao, p, len(itens) + 1))
 
-    # 2. oráculo
+    # 2. oráculo, o DA REDAÇÃO quando ela tem o seu
     reprovadas = []
-    for item, p in zip(itens, variacoes):
+    for item, (redacao, p) in zip(itens, pares):
+        programa = redacao.oraculo or m.oraculo
+        espera = redacao.espera or m.espera
         try:
-            ok, nota = oraculo.roda(mod.preenche(m.oraculo, p),
-                                    mod.preenche(m.espera, p))
+            ok, nota = oraculo.roda(mod.preenche(programa, p),
+                                    mod.preenche(espera, p),
+                                    nao_compila=redacao.nao_compila)
         except oraculo.SemCompilador as erro:
             # Molde não conferido não é molde reprovado: a mensagem sai
             # inteira, sem pilha, porque quem a lê está noutra máquina
             # tentando descobrir o que instalar.
             raise SystemExit(str(erro))
         if not ok:
-            reprovadas.append("%s (%s): %s" % (item["id"], _diz(p), nota))
+            reprovadas.append("%s [%s] (%s): %s"
+                              % (item["id"], redacao.formato, _diz(p), nota))
+            continue
+        # Em `prever_saida` o oráculo não confere: ele CALCULA. A saída
+        # vira a alternativa certa, e só vale se puder ser uma.
+        if redacao.gabarito == "do_oraculo":
+            serve, texto = mod.serve_de_alternativa(nota)
+            if not serve:
+                reprovadas.append("%s [%s] (%s): %s"
+                                  % (item["id"], redacao.formato, _diz(p), texto))
+                continue
+            item["alternativas"]["a"] = texto
     if reprovadas:
         return [], reprovadas + [
             "o molde %s está reprovado: %d de %d variações não conferem. "
@@ -507,11 +524,15 @@ def expande_molde(d, topico: str, molde_id: str, raiz=None,
     # Os itens que JÁ saíram deste molde não contam como plágio: eles
     # são a saída anterior dele. Sem isto, reexpandir depois de aprovar
     # acusava "mol_x_01: enunciado igual ao de mol_x_01".
-    de_fora = {a.enunciado.strip(): a.id for a in d.atividades
-               if a.do_molde != m.id}
+    # A pergunta é o CÓDIGO mais o enunciado, que é o que a pessoa lê —
+    # é a mesma conta que `Atividade.texto` faz. Comparar só o enunciado
+    # acusava de duplicata duas variações cujo código é diferente, que é
+    # o caso normal num formato de código.
+    de_fora = {(a.codigo.strip() + "|" + a.enunciado.strip()): a.id
+               for a in d.atividades if a.do_molde != m.id}
     vistos: dict[str, str] = {}
     for item in itens:
-        texto = item["enunciado"].strip()
+        texto = (item.get("codigo") or "").strip() + "|" + item["enunciado"].strip()
         if texto in de_fora:
             problemas.append("%s: enunciado igual ao de %s"
                              % (item["id"], de_fora[texto]))
