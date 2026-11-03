@@ -784,3 +784,30 @@ def test_saida_que_nao_serve_de_alternativa_reprova(tmp_path):
         raiz=_familia(tmp_path, "vazia", formatos=formatos, espera=""))
     assert itens == []
     assert any("vazia" in p or "alternativa" in p for p in problemas), problemas
+
+
+def test_a_folha_da_familia_mostra_os_extremos_e_um_de_cada_formato(tmp_path):
+    """A pessoa valida a AFIRMAÇÃO, que é uma só — e lê os extremos num
+    formato, mais uma amostra de cada um dos outros."""
+    from mvp.molde import le
+
+    m = le(_familia(tmp_path, "folha") / "moldes_kc07.yaml", D7)["mol_teste"]
+    texto = gerar.folha_do_molde(D7, m)
+    assert texto.count("## formato") == 3, texto
+    assert texto.count("### variação") == 5, texto     # 3 + 1 + 1
+    assert "revisado_sha: %s" % m.digest in texto
+    # as crenças são DECLARADAS uma vez, no topo, com o nó que cada uma
+    # nega — é o que a pessoa valida, e é por isso que uma assinatura
+    # cobre a família inteira. (Elas reaparecem ao lado de cada
+    # distrator, que é onde ajudam a ler.)
+    assert "`string_literal_is_array` → nega B1" in texto, texto
+    assert "`array_is_pointer` → nega I3" in texto, texto
+    assert texto.count("## A afirmação") == 1, texto
+
+
+def test_a_folha_da_familia_de_um_continua_inteira(tmp_path):
+    """O molde de formato único não perde nada com a mudança."""
+    m = _le_molde(tmp_path, "folha_um")
+    texto = gerar.folha_do_molde(D7, m)
+    assert texto.count("### variação") == 3
+    assert texto.count("## formato") == 1

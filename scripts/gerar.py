@@ -612,18 +612,23 @@ def folha_do_molde(d, molde) -> str:
     """O molde como uma PESSOA lê, para preencher o `revisado_por`.
 
     O que ela confere aqui não é o que a máquina já conferiu. O oráculo
-    garante que a afirmação é verdadeira em toda variação; o que fica
-    para ela é se a frase fecha em português, se o distrator é a crença
-    dita bem, e se a pergunta ensina alguma coisa.
+    garante que a afirmação é verdadeira em toda variação de todo
+    formato; o que fica para ela é se a frase fecha em português, se o
+    distrator é a crença dita bem, e se a pergunta ensina.
+
+    A AFIRMAÇÃO E AS CRENÇAS APARECEM UMA VEZ, no topo: é isso que ela
+    está validando, e é por isso que uma assinatura cobre a família
+    inteira. Depois vêm os formatos — os três extremos no primeiro, e
+    uma amostra de cada um dos outros.
     """
-    from mvp.molde import item_de, preenche
+    from mvp.molde import item_de
 
     linhas = [
         "# Revisão do molde — %s" % molde.id,
         "",
-        "Uma revisão deste arquivo vale por todas as variações dele. Para",
-        "aprovar, escreva no molde as DUAS linhas abaixo — o nome diz quem",
-        "leu, e a assinatura diz O QUE foi lido:",
+        "Uma revisão deste arquivo vale por todas as variações dele, em",
+        "todos os formatos. Para aprovar, escreva no molde as DUAS linhas",
+        "abaixo — o nome diz quem leu, e a assinatura diz O QUE foi lido:",
         "",
         "```yaml",
         "  revisado_por: <seu nome>",
@@ -635,14 +640,13 @@ def folha_do_molde(d, molde) -> str:
         "seu nome em variações que você não leu. Depois:",
         "",
         "```bash",
-        "python scripts/gerar.py --topico %s --molde %s --expandir"
-        % (d.id, molde.id),
+        "python scripts/gerar.py --topico %s --molde %s --expandir" % (d.id, molde.id),
         "python scripts/gerar.py --topico %s --aprovar" % d.id,
         "```",
         "",
-        "**O que a máquina já conferiu:** que o programa do oráculo compila,",
-        "roda e imprime o que o molde promete, em TODA variação. O que fica",
-        "para você é o resto:",
+        "**O que a máquina já conferiu:** que o programa do oráculo de cada",
+        "formato compila, roda e diz o que o molde promete, em TODA",
+        "variação. O que fica para você é o resto:",
         "",
         "- a frase fecha em português em todas elas (plural, gênero, acento);",
         "- cada distrator é a crença **dita bem** — alguém escolheria aquilo;",
@@ -651,56 +655,54 @@ def folha_do_molde(d, molde) -> str:
         "",
         "---",
         "",
-        "## O molde, como está escrito",
+        "## A afirmação",
         "",
-        "**nó %s** · degrau %d · %s · %s · uso %s"
-        % (molde.no, molde.nivel, molde.formato, molde.tipo, molde.uso),
+        "**nó %s** · degrau %d · uso %s" % (molde.no, molde.nivel, molde.uso),
         "",
-        "- enunciado: %s" % molde.enunciado,
-        "- **[certa]** %s" % molde.gabarito,
-    ]
-    for texto, cid in molde.distratores:
-        linhas.append("- [%s → nega %s] %s"
-                      % (cid, d.crencas[cid].nega if cid in d.crencas else "?",
-                         texto))
-    linhas += [
-        "",
-        "parâmetros:",
+        "As crenças são da afirmação, e valem para todos os formatos — em",
+        "cada um, os distratores vêm nesta ordem:",
         "",
     ]
+    for cid in molde.crencas:
+        nega = d.crencas[cid].nega if cid in d.crencas else "?"
+        linhas.append("- `%s` → nega %s" % (cid, nega))
+    linhas += ["", "parâmetros:", ""]
     for nome, valores in molde.parametros.items():
         linhas.append("- `%s`: %s" % (nome, ", ".join(str(v) for v in valores)))
-    linhas += [
-        "",
-        "oráculo (o que a máquina rodou), que espera `%s`:" % molde.espera,
-        "",
-        "```c",
-        molde.oraculo.rstrip(),
-        "```",
-        "",
-        "---",
-        "",
-        "## Três variações, dos extremos",
-        "",
-        "Não são sorteadas: são o menor e o maior número e o nome mais",
-        "longo, que é onde a concordância quebra.",
-        "",
-    ]
-    for i, p in enumerate(extremos(molde), 1):
-        item = item_de(molde, molde.redacoes[0], p, i)
+
+    if molde.oraculo.strip():
         linhas += [
-            "### variação %d — %s" % (i, _diz(p)),
             "",
-            item["enunciado"],
+            "oráculo da família, que espera `%s`:" % molde.espera,
             "",
+            "```c", molde.oraculo.rstrip(), "```",
         ]
-        for letra, texto in item["alternativas"].items():
-            cid = item["crencas"].get(letra)
-            if letra == item["gabarito"]:
-                linhas.append("- **[certa]** %s" % texto)
-            else:
-                linhas.append("- [%s] %s" % (cid, texto))
-        linhas.append("")
+
+    for ordem, redacao in enumerate(molde.redacoes):
+        linhas += ["", "---", "", "## formato: %s" % redacao.formato, ""]
+        if redacao.oraculo.strip():
+            linhas += ["oráculo próprio%s:"
+                       % (" (espera a RECUSA do compilador)"
+                          if redacao.nao_compila else ""),
+                       "", "```c", redacao.oraculo.rstrip(), "```", ""]
+        # Os extremos no primeiro formato; uma amostra nos outros, porque
+        # o que muda entre eles é a redação, e não os parâmetros.
+        quantas = 3 if ordem == 0 else 1
+        for i, p in enumerate(extremos(molde, quantas), 1):
+            item = item_de(molde, redacao, p, i)
+            linhas += ["### variação %d — %s" % (i, _diz(p)), ""]
+            if item["codigo"].strip():
+                linhas += ["```c", item["codigo"].rstrip(), "```", ""]
+            linhas += [item["enunciado"], ""]
+            for letra, texto in item["alternativas"].items():
+                if letra == item["gabarito"]:
+                    rotulo = ("**[certa]** (sai do oráculo)"
+                              if redacao.gabarito == "do_oraculo"
+                              else "**[certa]**")
+                    linhas.append("- %s %s" % (rotulo, texto))
+                else:
+                    linhas.append("- [%s] %s" % (item["crencas"].get(letra), texto))
+            linhas.append("")
     return "\n".join(linhas) + "\n"
 
 
