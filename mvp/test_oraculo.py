@@ -82,3 +82,13 @@ def test_o_caminho_do_compilador_vem_do_ambiente(monkeypatch):
     finally:
         monkeypatch.delenv("STRUCTURA_GCC", raising=False)
         importlib.reload(oraculo)
+
+
+@tem_gcc
+def test_a_compilacao_tambem_tem_timeout():
+    """A restrição global do plano diz: todo programa do oráculo roda com
+    timeout. A execução tinha; a compilação, não."""
+    import inspect
+    fonte = inspect.getsource(oraculo.roda)
+    compila = fonte[fonte.index("compilou = subprocess.run"):]
+    assert "timeout=" in compila[:compila.index(")\n")], compila[:300]

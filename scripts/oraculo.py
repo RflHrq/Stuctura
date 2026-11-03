@@ -68,9 +68,16 @@ def roda(programa: str, espera: str, gcc: pathlib.Path | None = None,
     with tempfile.TemporaryDirectory() as tmp:
         pasta = pathlib.Path(tmp)
         (pasta / "o.c").write_text(programa, encoding="utf-8")
-        compilou = subprocess.run(
-            [str(gcc), "-std=c17", "-Wall", "-o", "o.exe", "o.c"],
-            capture_output=True, text=True, cwd=str(pasta))
+        # Timeout na compilação também: a restrição é "todo programa do
+        # oráculo roda com timeout", e um gcc que não volta pendura o
+        # gerador do mesmo jeito que um programa que não termina.
+        try:
+            compilou = subprocess.run(
+                [str(gcc), "-std=c17", "-Wall", "-o", "o.exe", "o.c"],
+                capture_output=True, text=True, timeout=timeout,
+                cwd=str(pasta))
+        except subprocess.TimeoutExpired:
+            return False, "o compilador não voltou em %ds" % timeout
         if compilou.returncode != 0:
             # A primeira linha do gcc costuma ser contexto ("o.c: In
             # function 'main':"), e não o defeito. Quem conserta o molde

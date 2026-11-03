@@ -471,8 +471,14 @@ def expande_molde(d, topico: str, molde_id: str, raiz=None,
     # 2. oráculo
     reprovadas = []
     for item, p in zip(itens, variacoes):
-        ok, nota = oraculo.roda(mod.preenche(m.oraculo, p),
-                                mod.preenche(m.espera, p))
+        try:
+            ok, nota = oraculo.roda(mod.preenche(m.oraculo, p),
+                                    mod.preenche(m.espera, p))
+        except oraculo.SemCompilador as erro:
+            # Molde não conferido não é molde reprovado: a mensagem sai
+            # inteira, sem pilha, porque quem a lê está noutra máquina
+            # tentando descobrir o que instalar.
+            raise SystemExit(str(erro))
         if not ok:
             reprovadas.append("%s (%s): %s" % (item["id"], _diz(p), nota))
     if reprovadas:
@@ -801,7 +807,7 @@ def main(argv):
     while i < len(argv):
         if argv[i] == "--topico": topico = argv[i + 1]; i += 2
         elif argv[i] == "--molde": molde_id = argv[i + 1]; i += 2
-        elif argv[i] == "--expandir": acao = "expandir"; i += 2 - 1
+        elif argv[i] == "--expandir": acao = "expandir"; i += 1
         elif argv[i] == "--no": no = argv[i + 1]; i += 2
         elif argv[i] == "--degrau": degrau = int(argv[i + 1]); i += 2
         elif argv[i] == "--quantas": quantas = int(argv[i + 1]); i += 2
@@ -816,7 +822,11 @@ def main(argv):
     if acao == "expandir":
         if not molde_id:
             raise SystemExit("--expandir precisa de --molde <id>")
-        itens, problemas = expande_molde(d, topico, molde_id)
+        # `--quantas` era lido e ignorado neste caminho: quem pedisse 12
+        # recebia 6 em silêncio.
+        quantas_do_molde = quantas if "--quantas" in argv else 6
+        itens, problemas = expande_molde(d, topico, molde_id,
+                                         quantas=quantas_do_molde)
         if problemas:
             for x in problemas:
                 print("  -", x)

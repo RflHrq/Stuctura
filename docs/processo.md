@@ -1991,3 +1991,88 @@ a escreve nos três casos. Uma evidência gravada sem afirmação passava na
 carga e chegaria à tela com a ideia em branco. Agora é obrigatória sempre,
 e a `garantia` continua obrigatória só no pendente. Quatro sabotagens,
 quatro testes caídos.
+
+## Os moldes paramétricos — a fábrica do item, e o compilador como juiz
+
+O pedido não foi mais conteúdo: foi **estrutura**. O sistema media a
+crença e não testava a profundidade dela, e o que incomodava era a
+escassez — sete itens por nó, rodar duas vezes é ver as mesmas
+perguntas, e nenhum eixo para perguntar a MESMA ideia com a roupa
+trocada.
+
+Spec em [moldes.md](moldes.md), plano em [plano-moldes.md](plano-moldes.md),
+doze tarefas, ramo `moldes`.
+
+### O que ficou de pé
+
+Um molde é a regra que produz o item: parâmetros, enunciado com buracos,
+gabarito como **regra** e não como texto, cada distrator amarrado à sua
+crença por id, e um **programa-oráculo** que, compilado e rodado com os
+mesmos parâmetros, prova a afirmação em cada variação. Quatro portões de
+máquina antes do humano, e a revisão passa do item para o molde: uma
+leitura vale por todas as variações.
+
+O log ganhou `do_molde` e `parametros`, e com eles três coisas que eram
+invisíveis: generalizou, memorizou aquela pergunta, ou a crença é
+robusta. O critério de domínio **não** mudou — é medida, não portão.
+
+### O que a sonda mediu, antes de qualquer código
+
+| | passaram | tempo |
+| --- | --- | --- |
+| molde certo | 20 de 20 | 0,34 s por variação |
+| molde errado (`sizeof a == n`) | **2 de 20** | — |
+
+As duas que passaram no molde errado foram as de `char`, onde a
+afirmação é verdadeira. É o erro que passa batido numa revisão humana e
+que o compilador pega em três décimos de segundo.
+
+### A revisão do ramo achou o que eu não tinha achado
+
+Um revisor de contexto fresco leu as treze commits. O achado **Critical**
+era este: o `revisado_por` sobrevivia a qualquer edição do molde.
+Preencher o nome, aprovar, e depois acrescentar um valor em `n:` — saíam
+variações inéditas estampadas com o nome de quem nunca as leu. E não era
+uso torto: a própria spec prescreve **editar** como conserto de molde
+reprovado. Agora o nome vem com assinatura do conteúdo lido, e a carga
+recusa quando ela não bate.
+
+Mais quatro caminhos pelos quais item errado atravessava os quatro
+portões: oráculo constante (que não confere nada e fica com cara de
+conferido), `{extenso}` fora da faixa (o buraco literal na tela da
+pessoa), `prever_saida` com o gabarito desatrelado do oráculo, e a certa
+sendo a única alternativa em minúscula — pista de superfície que, num
+molde, se repete em toda variação.
+
+E a marca da generalização **nunca acendia**: a instância só era contada
+no diagnóstico, e os moldes começam pelos itens de treino, que nunca
+chegam lá.
+
+### Um achado do revisor que não se confirmou
+
+O relato dizia que aprovar item com id repetido descartava tudo em
+silêncio. Medido: o `confere` roda antes e devolve *"atividade X
+duplicada"*. A mensagem já existia; o teste é que não existia, e agora
+existe. Relatório de agente também se confere.
+
+### A armadilha do `no:`
+
+Em YAML 1.1, `no` é o booleano **falso** — o problema da Noruega. O
+campo sumia, e a mensagem natural mandava procurar no lugar errado. Os
+arquivos do domínio nunca esbarraram nisso porque sempre usaram `node`.
+O carregador agora reconhece a armadilha e diz o que escrever.
+
+### E a quarta vez do mesmo defeito de teste
+
+Um teste que mede CONTEÚDO em vez de REGRA. Já tinha acontecido com a
+evidência da descida, com a folha dos candidatos, e com a sabotagem dos
+extremos que passou limpa porque o fixture era pequeno demais. Desta vez
+foram três de uma vez, e a regra está escrita aqui agora: **teste de
+regra não se amarra a conteúdo que tem o direito de mudar.** Se o
+conteúdo é o que importa, o teste é de conteúdo, e vive junto dele.
+
+### O que não está feito
+
+O primeiro molde espera a assinatura: **nenhum item de molde entrou no
+domínio**. Os outros 64 nós não têm molde. E ninguém de carne e osso
+respondeu a um item gerado.

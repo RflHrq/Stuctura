@@ -691,3 +691,21 @@ def test_duas_variacoes_com_a_mesma_pergunta_e_respostas_diferentes(tmp_path):
     itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
     assert itens == []
     assert any("do mesmo molde" in p for p in problemas), problemas
+
+
+def test_sem_compilador_a_cli_nao_cospe_traceback(tmp_path, monkeypatch, capsys):
+    """Foco 3 do plano, de ponta a ponta.
+
+    A mensagem boa existia dentro do oráculo e saía debaixo de um
+    traceback: quem rodasse `--expandir` noutra máquina veria a pilha, e
+    a instrução no rodapé.
+    """
+    import oraculo as orac
+
+    monkeypatch.setattr(gerar, "CANDIDATOS", tmp_path / "cand")
+    monkeypatch.setattr(orac, "GCC", tmp_path / "nao" / "existe" / "gcc.exe")
+    monkeypatch.setattr(gerar, "RAIZ", gerar.RAIZ)
+
+    with pytest.raises(SystemExit) as saida:
+        gerar.expande_molde(D7, "kc_07", "mol_kc07_B1_treino_1")
+    assert "STRUCTURA_GCC" in str(saida.value)
