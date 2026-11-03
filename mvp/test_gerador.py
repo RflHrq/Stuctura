@@ -476,8 +476,9 @@ def test_o_esquema_de_molde_so_aceita_crenca_que_existe():
     É o que impede o pior defeito possível num instrumento que mede
     concepções errôneas — o modelo inventar uma.
     """
-    enum = gerar.esquema_de_molde(D7)["properties"]["distratores"]["items"][
-        "properties"]["crenca"]["enum"]
+    # A coleira mudou de lugar com a família: as crenças passaram a ser
+    # da AFIRMAÇÃO, então o enum está nelas, e não em cada distrator.
+    enum = gerar.esquema_de_molde(D7)["properties"]["crencas"]["items"]["enum"]
     assert set(enum) == set(D7.crencas)
 
 
@@ -811,3 +812,25 @@ def test_a_folha_da_familia_de_um_continua_inteira(tmp_path):
     texto = gerar.folha_do_molde(D7, m)
     assert texto.count("### variação") == 3
     assert texto.count("## formato") == 1
+
+
+# --------------------------------------------------------------------------
+# O prompt pede a família
+# --------------------------------------------------------------------------
+
+def test_o_esquema_pede_um_mapa_de_formatos():
+    e = gerar.esquema_de_molde(D7)
+    assert "formatos" in e["required"]
+    assert "crencas" in e["required"]
+
+
+def test_o_pedido_explica_a_correspondencia_posicional():
+    """Sem isso o modelo escreve distratores na ordem que quiser, e a
+    correspondência com as crenças vira sorteio."""
+    sistema, pedido = gerar.prompt_de_molde(D7, "B1", 1)
+    assert "mesma ordem" in (sistema + pedido).lower()
+
+
+def test_o_pedido_explica_o_achar_o_erro():
+    sistema, pedido = gerar.prompt_de_molde(D7, "B1", 1)
+    assert "nao_compila" in (sistema + pedido)

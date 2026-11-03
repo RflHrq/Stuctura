@@ -174,39 +174,57 @@ def esquema(d) -> dict:
 
 
 def esquema_de_molde(d) -> dict:
-    """O esquema do MOLDE. A mesma coleira: `crenca` é um enum dos ids
-    que existem, e o modelo não tem como inventar concepção errônea."""
+    """O esquema da FAMÍLIA. A coleira é a mesma: `crencas` é um enum
+    dos ids que existem, e o modelo não tem como inventar."""
     ids = sorted(d.crencas)
-    distrator = {
+    redacao = {
         "type": "object",
         "properties": {
-            "texto": {"type": "string"},
-            "crenca": {"type": "string", "enum": ids},
+            "tipo": {"type": "string", "enum": list(TIPOS)},
+            "codigo": {"type": "string"},
+            "enunciado": {"type": "string"},
+            "gabarito": {
+                "type": "string",
+                "description": "o texto da resposta certa, ou `do_oraculo` "
+                               "em prever_saida",
+            },
+            "distratores": {
+                "type": "array",
+                "description": "um por crença, NA MESMA ORDEM de `crencas`",
+                "items": {"type": "string"},
+            },
+            "oraculo": {"type": "string"},
+            "espera": {"type": "string"},
+            "nao_compila": {"type": "boolean"},
         },
-        "required": ["texto", "crenca"],
+        "required": ["tipo", "enunciado", "gabarito", "distratores"],
         "additionalProperties": False,
     }
     return {
         "type": "object",
         "properties": {
             "id": {"type": "string"},
-            "formato": {"type": "string", "enum": list(FORMATOS)},
-            "tipo": {"type": "string", "enum": list(TIPOS)},
+            "crencas": {
+                "type": "array",
+                "description": "as crenças da AFIRMAÇÃO, não da redação",
+                "items": {"type": "string", "enum": ids},
+            },
             "parametros": {
                 "type": "object",
                 "description": "nome do parâmetro -> lista de valores",
                 "additionalProperties": {"type": "array"},
             },
-            "enunciado": {"type": "string"},
-            "gabarito": {"type": "string"},
-            "distratores": {"type": "array", "items": distrator},
             "oraculo": {"type": "string"},
             "espera": {"type": "string"},
+            "formatos": {
+                "type": "object",
+                "description": "formato -> redação",
+                "additionalProperties": redacao,
+            },
             "por_que_este_oraculo": {"type": "string"},
         },
-        "required": ["id", "formato", "tipo", "parametros", "enunciado",
-                     "gabarito", "distratores", "oraculo", "espera",
-                     "por_que_este_oraculo"],
+        "required": ["id", "crencas", "parametros", "oraculo", "espera",
+                     "formatos", "por_que_este_oraculo"],
         "additionalProperties": False,
     }
 
@@ -240,7 +258,18 @@ AGORA O QUE MUDA: você não escreve um item. Escreve o MOLDE dele.
     molde inteiro. Use os buracos dentro do programa; as chaves do C
     ficam como são.
 11. A CONCORDÂNCIA tem de fechar em todas as variações: plural, gênero,
-    acento. "uma caixa" e "oito caixas"; "a" e "dados"."""
+    acento. "uma caixa" e "oito caixas"; "a" e "dados".
+12. A FAMÍLIA. Você escreve UMA afirmação perguntada em vários formatos.
+    As crenças são da afirmação e valem para todos: em cada formato, os
+    distratores vêm na MESMA ORDEM de `crencas`, um para cada. Se um
+    formato trouxesse outras, os dois deixariam de medir a mesma coisa.
+13. `achar_o_erro` precisa de um programa que NÃO compile: escreva o
+    `oraculo` próprio dele e marque `nao_compila: true`. O `codigo` é o
+    que a pessoa vê; o oráculo é o programa inteiro que o compilador
+    recusa.
+14. `prever_saida` usa `gabarito: do_oraculo` — a resposta certa é o que
+    o programa imprime, e quem a calcula é a máquina. Não escreva o
+    texto dela."""
 
     cx = contexto(d, no)
     pedido = f"""Tópico: {d.id} — {d.titulo}
