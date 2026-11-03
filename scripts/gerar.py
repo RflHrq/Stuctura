@@ -173,6 +173,103 @@ def esquema(d) -> dict:
     }
 
 
+def esquema_de_molde(d) -> dict:
+    """O esquema do MOLDE. A mesma coleira: `crenca` é um enum dos ids
+    que existem, e o modelo não tem como inventar concepção errônea."""
+    ids = sorted(d.crencas)
+    distrator = {
+        "type": "object",
+        "properties": {
+            "texto": {"type": "string"},
+            "crenca": {"type": "string", "enum": ids},
+        },
+        "required": ["texto", "crenca"],
+        "additionalProperties": False,
+    }
+    return {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string"},
+            "formato": {"type": "string", "enum": list(FORMATOS)},
+            "tipo": {"type": "string", "enum": list(TIPOS)},
+            "parametros": {
+                "type": "object",
+                "description": "nome do parâmetro -> lista de valores",
+                "additionalProperties": {"type": "array"},
+            },
+            "enunciado": {"type": "string"},
+            "gabarito": {"type": "string"},
+            "distratores": {"type": "array", "items": distrator},
+            "oraculo": {"type": "string"},
+            "espera": {"type": "string"},
+            "por_que_este_oraculo": {"type": "string"},
+        },
+        "required": ["id", "formato", "tipo", "parametros", "enunciado",
+                     "gabarito", "distratores", "oraculo", "espera",
+                     "por_que_este_oraculo"],
+        "additionalProperties": False,
+    }
+
+
+def prompt_de_molde(d, no: str, degrau: int) -> tuple[str, str]:
+    """O pedido de um MOLDE, não de um item.
+
+    Duas instruções que o pedido de item não tem, e que são a diferença
+    entre escrever uma pergunta e escrever a fábrica dela: o gabarito é
+    REGRA — sai dos parâmetros —, e existe um programa em C que prova a
+    afirmação em toda variação.
+    """
+    sistema_item, _ = prompt(d, no, degrau, 1)
+    sistema = sistema_item + """
+
+AGORA O QUE MUDA: você não escreve um item. Escreve o MOLDE dele.
+
+8. OS BURACOS. O enunciado, o gabarito e os distratores trazem buracos
+   entre chaves — {tipo}, {nome}, {n} —, e cada buraco é um parâmetro
+   com a sua lista de valores. {extenso} é derivado de {n} e dá o número
+   por extenso ("cinco"); use-o quando a frase pedir a palavra.
+9. O GABARITO É REGRA, NÃO TEXTO. Ele tem de sair certo para TODA
+   combinação dos parâmetros. Se a sua afirmação só vale para alguns
+   valores, estreite a lista daquele parâmetro — não escreva a regra
+   errada e torça.
+10. O ORÁCULO (campo `oraculo`). Escreva um programa em C completo
+    que, compilado e
+    executado com os MESMOS parâmetros, imprime exatamente o que o
+    campo `espera` diz. Ele é o que prova a sua afirmação, variação por
+    variação: se ela for falsa para algum valor, a máquina reprova o
+    molde inteiro. Use os buracos dentro do programa; as chaves do C
+    ficam como são.
+11. A CONCORDÂNCIA tem de fechar em todas as variações: plural, gênero,
+    acento. "uma caixa" e "oito caixas"; "a" e "dados"."""
+
+    cx = contexto(d, no)
+    pedido = f"""Tópico: {d.id} — {d.titulo}
+Analogia do tópico: {d.analogia}
+
+PREMISSA A MEDIR ({no})
+  afirma: {cx['afirma']}
+  em linguagem corrente: {cx['em_linguagem_corrente']}
+  analogia deste nó: {cx['analogia_do_no']}
+  código de apoio:
+{cx['exemplo'] or '    (nenhum)'}
+
+CRENÇA DO PRÓPRIO NÓ (obrigatória num dos distratores):
+{json.dumps(cx['crenca_do_proprio_no'], ensure_ascii=False, indent=2)}
+
+CRENÇAS DOS VIZINHOS (escolha uma):
+{json.dumps(cx['crencas_dos_vizinhos'], ensure_ascii=False, indent=2)}
+
+ITENS QUE JÁ EXISTEM NESTE NÓ — o molde não pode reproduzir nenhum:
+{json.dumps(cx['itens_que_ja_existem'], ensure_ascii=False, indent=2)}
+
+ESCREVA UM MOLDE no DEGRAU {degrau}, que pede:
+{DEGRAUS[degrau]}
+
+Formatos possíveis: {', '.join(FORMATOS)}.
+O `id` começa com `mol_` e diz o tópico, o nó e o formato."""
+    return sistema, pedido
+
+
 # --------------------------------------------------------------------------
 # A chamada
 # --------------------------------------------------------------------------

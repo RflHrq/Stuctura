@@ -458,3 +458,41 @@ def test_os_extremos_nao_sao_as_tres_primeiras_da_expansao(tmp_path):
     assert [p["n"] for p in tres[:2]] == [2, 8], tres
     assert any(p["nome"] == "comprido" for p in tres), tres
     assert tres != expande(m, 3), "os extremos viraram as três primeiras"
+
+
+# --------------------------------------------------------------------------
+# O molde escrito pelo modelo
+# --------------------------------------------------------------------------
+
+def test_o_esquema_de_molde_so_aceita_crenca_que_existe():
+    """A mesma coleira do gerador de itens: enum dos ids do catálogo.
+
+    É o que impede o pior defeito possível num instrumento que mede
+    concepções errôneas — o modelo inventar uma.
+    """
+    enum = gerar.esquema_de_molde(D7)["properties"]["distratores"]["items"][
+        "properties"]["crenca"]["enum"]
+    assert set(enum) == set(D7.crencas)
+
+
+def test_o_esquema_de_molde_cobra_o_oraculo():
+    e = gerar.esquema_de_molde(D7)
+    assert "oraculo" in e["required"] and "espera" in e["required"]
+    assert "parametros" in e["required"]
+
+
+def test_o_pedido_manda_escrever_o_oraculo():
+    sistema, pedido = gerar.prompt_de_molde(D7, "B1", 1)
+    junto = sistema + pedido
+    assert "oraculo" in junto and "espera" in junto
+
+
+def test_o_pedido_diz_que_o_gabarito_e_regra():
+    """É a diferença entre escrever um item e escrever a fábrica dele."""
+    sistema, pedido = gerar.prompt_de_molde(D7, "B1", 1)
+    assert "regra" in (sistema + pedido).lower()
+
+
+def test_o_pedido_leva_as_crencas_do_no_e_dos_vizinhos():
+    sistema, pedido = gerar.prompt_de_molde(D7, "B1", 1)
+    assert "string_literal_is_array" in pedido      # a crença do próprio B1
