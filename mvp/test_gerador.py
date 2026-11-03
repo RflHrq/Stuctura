@@ -435,3 +435,26 @@ def test_a_folha_do_molde_mostra_o_oraculo(tmp_path):
     m = _le_molde(tmp_path, "folha3")
     texto = gerar.folha_do_molde(D7, m)
     assert "sizeof" in texto and "espera" in texto
+
+
+def test_os_extremos_nao_sao_as_tres_primeiras_da_expansao(tmp_path):
+    """A sabotagem que passou limpa, virada teste.
+
+    Trocar os extremos pelas três primeiras da expansão NÃO derrubou
+    `test_a_folha_do_molde_mostra_o_texto_e_os_extremos`: com três
+    parâmetros de três valores, as três primeiras da escolha gulosa são
+    justamente os extremos, por coincidência do tamanho. A asserção não
+    media a regra — media aquele molde.
+
+    Aqui o espaço é largo o bastante para as duas coisas discordarem.
+    """
+    from mvp.molde import expande
+
+    m = _le_molde(tmp_path, "largo", parametros={
+        "tipo": ["int", "char"],
+        "nome": ["a", "bb", "ccc", "dddd", "comprido"],
+        "n": [2, 3, 4, 5, 6, 7, 8]})
+    tres = gerar.extremos(m)
+    assert [p["n"] for p in tres[:2]] == [2, 8], tres
+    assert any(p["nome"] == "comprido" for p in tres), tres
+    assert tres != expande(m, 3), "os extremos viraram as três primeiras"
