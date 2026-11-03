@@ -92,3 +92,24 @@ def test_a_compilacao_tambem_tem_timeout():
     fonte = inspect.getsource(oraculo.roda)
     compila = fonte[fonte.index("compilou = subprocess.run"):]
     assert "timeout=" in compila[:compila.index(")\n")], compila[:300]
+
+
+# --------------------------------------------------------------------------
+# O oráculo que espera a RECUSA
+# --------------------------------------------------------------------------
+
+@tem_gcc
+def test_nao_compila_passa_quando_o_compilador_recusa():
+    """Em `achar_o_erro`, o que se prova é o contrário: que não compila."""
+    ok, nota = oraculo.roda("int main(void){int a[5];int *p;a=p;return 0;}",
+                            "", nao_compila=True)
+    assert ok, nota
+    assert "error:" in nota, nota          # a nota traz a fala do compilador
+
+
+@tem_gcc
+def test_nao_compila_reprova_quando_o_programa_compila():
+    """Foco 3: um "ache o erro" num programa que compila é item sem erro."""
+    ok, nota = oraculo.roda("int main(void){return 0;}", "", nao_compila=True)
+    assert not ok
+    assert "compilou sem reclamação" in nota, nota

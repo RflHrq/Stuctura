@@ -52,12 +52,19 @@ class SemCompilador(Exception):
 
 
 def roda(programa: str, espera: str, gcc: pathlib.Path | None = None,
-         timeout: int = TEMPO) -> tuple[bool, str]:
+         timeout: int = TEMPO, nao_compila: bool = False) -> tuple[bool, str]:
     """Compila, executa e compara a saída com `espera`.
 
     Devolve `(passou, nota)`. A nota existe para quem vai consertar o
-    molde: ela diz o que saiu e o que o molde prometia, ou a primeira
-    linha do compilador.
+    molde: ela diz o que saiu e o que o molde prometia, ou a linha do
+    compilador.
+
+    Com `nao_compila`, o oráculo prova o CONTRÁRIO: que o compilador
+    recusa. É o que um item de `achar_o_erro` precisa — e é por isso que
+    ele reprova quando o programa compila, em vez de aprovar: um "ache o
+    erro" num programa sem erro é um item sem resposta certa. Aqui o
+    `espera` não existe, porque não há saída que esperar de um programa
+    que não vira executável.
     """
     gcc = pathlib.Path(gcc) if gcc else GCC
     if not gcc.exists():
@@ -78,13 +85,20 @@ def roda(programa: str, espera: str, gcc: pathlib.Path | None = None,
                 cwd=str(pasta))
         except subprocess.TimeoutExpired:
             return False, "o compilador não voltou em %ds" % timeout
+        # A primeira linha do gcc costuma ser contexto ("o.c: In
+        # function 'main':"), e não o defeito. Quem conserta o molde
+        # precisa da linha do `error:`.
+        linhas = [l.strip() for l in compilou.stderr.splitlines() if l.strip()]
+        dura = next((l for l in linhas if "error:" in l),
+                    linhas[0] if linhas else "sem mensagem")
+
+        if nao_compila:
+            if compilou.returncode != 0:
+                return True, dura
+            return False, ("o programa compilou sem reclamação, e um item de "
+                           "achar o erro precisa de um que não compile")
+
         if compilou.returncode != 0:
-            # A primeira linha do gcc costuma ser contexto ("o.c: In
-            # function 'main':"), e não o defeito. Quem conserta o molde
-            # precisa da linha do `error:`.
-            linhas = [l.strip() for l in compilou.stderr.splitlines() if l.strip()]
-            dura = next((l for l in linhas if "error:" in l),
-                        linhas[0] if linhas else "sem mensagem")
             return False, "não compilou: %s" % dura
 
         try:
