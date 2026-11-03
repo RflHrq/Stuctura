@@ -107,7 +107,10 @@ calcula.
 
 ## A família de formatos
 
-> Segunda fatia, aprovada em 03/11/2026. Ainda não implementada.
+> Segunda fatia, aprovada e **implementada** em 03/11/2026 (plano em
+> [plano-familia.md](plano-familia.md), dez tarefas). A primeira família
+> está assinada, e os seis itens dela — dois por formato — estão no
+> domínio do kc_07.
 
 O molde acima multiplica o eixo do **conteúdo**: `int a[3]`, `double
 lista[8]`, a mesma pergunta com a roupa trocada. Ele não toca no eixo do
@@ -222,7 +225,9 @@ já foi usado naquele formato.
 
 **A expansão se reparte entre os formatos.** `quantas` passa a ser o
 total: seis viram duas por formato em três formatos. É isso que conserta
-o sete-contra-um-contra-um do `B1`.
+o sete-contra-um-contra-um do `B1` — **medido depois**: o banco de treino
+dele ficou com 3 `reconhecer_conceito`, 3 `comparar_casos`, 2
+`achar_o_erro` e 1 `prever_saida`, em quatro formatos em vez de três.
 
 ### O que isso não muda
 

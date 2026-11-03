@@ -1032,12 +1032,15 @@ activities:
       c: arr_equals_addr_of_arr
 
   # Aprovados em revisão.
-  - id: mol_kc07_B1_treino_1_01
+
+  # Aprovados em revisão.
+  - id: mol_kc07_B1_treino_1__reconhecer_conceito_01
     node: kc07:B1
     nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     uso: treino
+    codigo: ''
     enunciado: Depois de int a[3]; e nada mais, o que existe na memória?
     alternativas:
       a: São três caixas de int, grudadas
@@ -1054,12 +1057,65 @@ activities:
       n: 3
     gerado_por: molde mol_kc07_B1_treino_1
     revisado_por: Rafael H. S. Simao
-  - id: mol_kc07_B1_treino_1_02
+  - id: mol_kc07_B1_treino_1__achar_o_erro_02
+    node: kc07:B1
+    nivel: 1
+    formato: achar_o_erro
+    tipo: codigo
+    uso: treino
+    codigo: 'int a[3];
+
+      int *p = a;
+
+      a = p;'
+    enunciado: Uma destas linhas não compila. Qual, e por quê?
+    alternativas:
+      a: 'A terceira: o nome de um array não recebe atribuição'
+      b: 'A segunda: a e p guardam do mesmo jeito, e é ali que está o erro'
+      c: 'Nenhuma delas: a já é um ponteiro, e as três linhas valem'
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+    do_molde: mol_kc07_B1_treino_1
+    parametros:
+      tipo: int
+      nome: a
+      n: 3
+    gerado_por: molde mol_kc07_B1_treino_1
+    revisado_por: Rafael H. S. Simao
+  - id: mol_kc07_B1_treino_1__comparar_casos_03
+    node: kc07:B1
+    nivel: 1
+    formato: comparar_casos
+    tipo: codigo
+    uso: treino
+    codigo: 'int a[3];
+
+      int *p;'
+    enunciado: O que existe na memória depois destas duas linhas?
+    alternativas:
+      a: São três caixas de int, e uma caixa de ponteiro
+      b: Nos dois casos, os três valores guardados do mesmo jeito
+      c: 'Duas caixas de ponteiro: a também é um ponteiro'
+    gabarito: a
+    crencas:
+      b: string_literal_is_array
+      c: array_is_pointer
+    do_molde: mol_kc07_B1_treino_1
+    parametros:
+      tipo: int
+      nome: a
+      n: 3
+    gerado_por: molde mol_kc07_B1_treino_1
+    revisado_por: Rafael H. S. Simao
+  - id: mol_kc07_B1_treino_1__reconhecer_conceito_04
     node: kc07:B1
     nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
     uso: treino
+    codigo: ''
     enunciado: Depois de char v[4]; e nada mais, o que existe na memória?
     alternativas:
       a: São quatro caixas de char, grudadas
@@ -1076,17 +1132,22 @@ activities:
       n: 4
     gerado_por: molde mol_kc07_B1_treino_1
     revisado_por: Rafael H. S. Simao
-  - id: mol_kc07_B1_treino_1_03
+  - id: mol_kc07_B1_treino_1__achar_o_erro_05
     node: kc07:B1
     nivel: 1
-    formato: reconhecer_conceito
-    tipo: teorica
+    formato: achar_o_erro
+    tipo: codigo
     uso: treino
-    enunciado: Depois de double dados[6]; e nada mais, o que existe na memória?
+    codigo: 'double dados[6];
+
+      double *p = dados;
+
+      dados = p;'
+    enunciado: Uma destas linhas não compila. Qual, e por quê?
     alternativas:
-      a: São seis caixas de double, grudadas
-      b: Uma caixa só, com seis valores guardados dentro dela
-      c: Um ponteiro, que depois aponta para seis valores do tipo double
+      a: 'A terceira: o nome de um array não recebe atribuição'
+      b: 'A segunda: dados e p guardam do mesmo jeito, e é ali que está o erro'
+      c: 'Nenhuma delas: dados já é um ponteiro, e as três linhas valem'
     gabarito: a
     crencas:
       b: string_literal_is_array
@@ -1098,17 +1159,20 @@ activities:
       n: 6
     gerado_por: molde mol_kc07_B1_treino_1
     revisado_por: Rafael H. S. Simao
-  - id: mol_kc07_B1_treino_1_04
+  - id: mol_kc07_B1_treino_1__comparar_casos_06
     node: kc07:B1
     nivel: 1
-    formato: reconhecer_conceito
-    tipo: teorica
+    formato: comparar_casos
+    tipo: codigo
     uso: treino
-    enunciado: Depois de long lista[8]; e nada mais, o que existe na memória?
+    codigo: 'long lista[8];
+
+      long *p;'
+    enunciado: O que existe na memória depois destas duas linhas?
     alternativas:
-      a: São oito caixas de long, grudadas
-      b: Uma caixa só, com oito valores guardados dentro dela
-      c: Um ponteiro, que depois aponta para oito valores do tipo long
+      a: São oito caixas de long, e uma caixa de ponteiro
+      b: Nos dois casos, os oito valores guardados do mesmo jeito
+      c: 'Duas caixas de ponteiro: lista também é um ponteiro'
     gabarito: a
     crencas:
       b: string_literal_is_array
@@ -1118,49 +1182,5 @@ activities:
       tipo: long
       nome: lista
       n: 8
-    gerado_por: molde mol_kc07_B1_treino_1
-    revisado_por: Rafael H. S. Simao
-  - id: mol_kc07_B1_treino_1_05
-    node: kc07:B1
-    nivel: 1
-    formato: reconhecer_conceito
-    tipo: teorica
-    uso: treino
-    enunciado: Depois de int v[6]; e nada mais, o que existe na memória?
-    alternativas:
-      a: São seis caixas de int, grudadas
-      b: Uma caixa só, com seis valores guardados dentro dela
-      c: Um ponteiro, que depois aponta para seis valores do tipo int
-    gabarito: a
-    crencas:
-      b: string_literal_is_array
-      c: array_is_pointer
-    do_molde: mol_kc07_B1_treino_1
-    parametros:
-      tipo: int
-      nome: v
-      n: 6
-    gerado_por: molde mol_kc07_B1_treino_1
-    revisado_por: Rafael H. S. Simao
-  - id: mol_kc07_B1_treino_1_06
-    node: kc07:B1
-    nivel: 1
-    formato: reconhecer_conceito
-    tipo: teorica
-    uso: treino
-    enunciado: Depois de int dados[4]; e nada mais, o que existe na memória?
-    alternativas:
-      a: São quatro caixas de int, grudadas
-      b: Uma caixa só, com quatro valores guardados dentro dela
-      c: Um ponteiro, que depois aponta para quatro valores do tipo int
-    gabarito: a
-    crencas:
-      b: string_literal_is_array
-      c: array_is_pointer
-    do_molde: mol_kc07_B1_treino_1
-    parametros:
-      tipo: int
-      nome: dados
-      n: 4
     gerado_por: molde mol_kc07_B1_treino_1
     revisado_por: Rafael H. S. Simao

@@ -589,13 +589,23 @@ def test_molde_sem_formatos_e_familia_de_um(tmp_path, d7):
     assert r.nao_compila is False
 
 
-def test_o_molde_de_verdade_continua_assinado():
-    """O mol_kc07_B1_treino_1 está assinado e os seis itens dele estão no
-    domínio: a assinatura não pode mudar por causa desta fatia."""
+def test_a_familia_do_kc07_esta_assinada():
+    """Um fato de CONTEÚDO, cobrado onde fatos de conteúdo pertencem.
+
+    Este teste nasceu como guarda — "a fatia não pode quebrar por
+    acidente a assinatura do molde que está no domínio" — e afirmava
+    `len(redacoes) == 1`. A família quebrou a assinatura DE PROPÓSITO,
+    que é a trava funcionando: conteúdo novo pede leitura nova. A regra
+    da família de um continua coberta por
+    `test_molde_sem_formatos_e_familia_de_um`; o que mora aqui agora é o
+    estado do arquivo de verdade.
+    """
     d = carrega(topico="kc_07")
     m = le(RAIZ_DOMINIO / "moldes_kc07.yaml", d)["mol_kc07_B1_treino_1"]
-    assert m.revisado is True
-    assert len(m.redacoes) == 1
+    assert m.revisado is True, "a família está sem assinatura válida"
+    assert [r.formato for r in m.redacoes] == [
+        "reconhecer_conceito", "achar_o_erro", "comparar_casos"]
+    assert m.crencas == ("string_literal_is_array", "array_is_pointer")
 
 
 def test_familia_sem_crencas_nao_carrega(tmp_path, d7):
@@ -752,3 +762,19 @@ def test_menos_variacoes_do_que_formatos(mf):
     pares = expande_familia(mf, 2)
     assert [r.formato for r, _ in pares] == [
         "reconhecer_conceito", "achar_o_erro"]
+
+
+def test_o_banco_de_treino_do_b1_ficou_com_quatro_formatos():
+    """O número que motivou a fatia: 7 de um formato contra 1 e 1.
+
+    O molde multiplicava o eixo do conteúdo e deixava o do formato como
+    estava, e o motor prefere formato diferente a cada tentativa de
+    treino — a regra ficava sem com que morder.
+    """
+    import collections
+
+    d = carrega(topico="kc_07")
+    por_formato = collections.Counter(
+        a.formato for a in d.atividades if a.no == "B1" and a.uso == "treino")
+    assert len(por_formato) == 4, por_formato
+    assert max(por_formato.values()) <= 3, por_formato
