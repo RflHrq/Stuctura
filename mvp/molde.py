@@ -339,6 +339,16 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
                 if cid not in d.crencas:
                     problemas.append("%s: crença %r não existe neste tópico"
                                      % (onde, cid))
+            # A regra do contrato, cobrada UMA vez por família em vez de
+            # uma por redação: sem um distrator que aponte a crença do
+            # próprio nó, o nó nunca recebe atribuição e termina a sessão
+            # sem medida.
+            if crencas_da_familia and not any(
+                    cid in d.crencas and d.crencas[cid].nega == no
+                    for cid in crencas_da_familia):
+                problemas.append(
+                    "%s: nenhuma crença da família nega o próprio nó (%s) — "
+                    "sem isso o nó não recebe atribuição" % (onde, no))
             redacoes = []
             for nome_formato, cru_r in (crus_formatos or {}).items():
                 cru_r = cru_r or {}
@@ -352,6 +362,13 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
                 if cru_r.get("tipo") not in TIPOS:
                     problemas.append("%s: tipo %r (use %s)"
                                      % (aqui, cru_r.get("tipo"), ", ".join(TIPOS)))
+                # Um distrator por crença, pela posição.
+                quantos = len(cru_r.get("distratores") or ())
+                if crencas_da_familia and quantos != len(crencas_da_familia):
+                    problemas.append(
+                        "%s: %d distrator(es) para %d crença(s) — a "
+                        "correspondência é pela posição, e precisa de uma "
+                        "para uma" % (aqui, quantos, len(crencas_da_familia)))
                 redacoes.append(Redacao(
                     formato=nome_formato,
                     tipo=str(cru_r.get("tipo") or ""),

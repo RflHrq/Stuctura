@@ -595,3 +595,33 @@ def test_redacao_sem_enunciado_nao_carrega(tmp_path, d7):
     formatos["achar_o_erro"]["enunciado"] = ""
     p = _recusa_familia(tmp_path, d7, "c0c", formatos=formatos)
     assert any("achar_o_erro" in x and "enunciado" in x for x in p), p
+
+
+def test_cada_formato_tem_um_distrator_por_crenca(tmp_path, d7):
+    """Foco 2: a correspondência é POSICIONAL, e quebraria em silêncio.
+
+    Se um formato trouxesse dois distratores e outro um, as crenças
+    deixariam de ser as mesmas nos dois — e aí eles não são duas
+    superfícies da mesma afirmação, são duas perguntas.
+    """
+    formatos = _cru_familia()["formatos"]
+    formatos["achar_o_erro"]["distratores"] = ["Só um distrator aqui"]
+    p = _recusa_familia(tmp_path, d7, "c1", formatos=formatos)
+    assert any("achar_o_erro" in x and "2 crença" in x for x in p), p
+
+
+def test_crenca_da_familia_tem_de_existir(tmp_path, d7):
+    p = _recusa_familia(tmp_path, d7, "c2", crencas=["nao_existe"])
+    assert any("nao_existe" in x for x in p), p
+
+
+def test_a_familia_precisa_da_crenca_do_proprio_no(tmp_path, d7):
+    """A regra do contrato, cobrada uma vez na família.
+
+    Sem um distrator que aponte a crença do próprio nó, o nó nunca
+    recebe atribuição e termina a sessão sem medida — foi o que a
+    revisão final mediu em 9 de 30 sessões do kc_00.
+    """
+    p = _recusa_familia(tmp_path, d7, "c3",
+                        crencas=["array_is_pointer", "declaration_allocates"])
+    assert any("próprio nó" in x for x in p), p
