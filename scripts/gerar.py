@@ -466,7 +466,8 @@ def expande_molde(d, topico: str, molde_id: str, raiz=None,
 
     # 1. expansão
     variacoes = mod.expande(m, quantas)
-    itens = [mod.item_de(m, p, i) for i, p in enumerate(variacoes, 1)]
+    itens = [mod.item_de(m, m.redacoes[0], p, i)
+             for i, p in enumerate(variacoes, 1)]
 
     # 2. oráculo
     reprovadas = []
@@ -665,7 +666,7 @@ def folha_do_molde(d, molde) -> str:
         "",
     ]
     for i, p in enumerate(extremos(molde), 1):
-        item = item_de(molde, p, i)
+        item = item_de(molde, molde.redacoes[0], p, i)
         linhas += [
             "### variação %d — %s" % (i, _diz(p)),
             "",

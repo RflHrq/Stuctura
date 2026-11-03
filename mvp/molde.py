@@ -454,13 +454,18 @@ def expande(molde: Molde, quantas: int = 6) -> list[dict]:
     return [_com_extenso(p) for p in escolhidas]
 
 
-def item_de(molde: Molde, parametros: dict, i: int) -> dict:
-    """Uma variação, no formato de `activities_*.yaml`.
+def item_de(molde: Molde, redacao: Redacao, parametros: dict,
+            i: int) -> dict:
+    """Uma variação de UMA redação, no formato de `activities_*.yaml`.
 
     O `revisado_por` do item é CÓPIA do molde: é assim que o
     `gerar.py --aprovar` de hoje continua valendo sem saber o que é
     molde — ele olha o campo de cada item, e o item herda o do molde.
-    Uma revisão passa a valer por seis.
+    Uma revisão passa a valer pela família inteira.
+
+    O `do_molde` é o da FAMÍLIA, e não o da redação: duas redações da
+    mesma afirmação são duas superfícies dela, e é assim que a medida da
+    generalização precisa enxergá-las.
 
     O gabarito fica em `a`, como em 547 dos 556 itens escritos à mão.
     Não é escolha deste módulo: é a convenção do banco, e divergir dela
@@ -469,19 +474,20 @@ def item_de(molde: Molde, parametros: dict, i: int) -> dict:
     """
     valores = dict(parametros)
     letras = ["b", "c", "d", "e"]
-    alternativas = {"a": preenche(molde.gabarito, valores)}
+    alternativas = {"a": preenche(redacao.gabarito, valores)}
     crencas = {}
-    for letra, (texto, cid) in zip(letras, molde.distratores):
+    for letra, texto, cid in zip(letras, redacao.distratores, molde.crencas):
         alternativas[letra] = preenche(texto, valores)
         crencas[letra] = cid
     return {
-        "id": "%s_%02d" % (molde.id, i),
+        "id": "%s__%s_%02d" % (molde.id, redacao.formato, i),
         "node": "%s:%s" % (molde.topico, molde.no),
         "nivel": molde.nivel,
-        "formato": molde.formato,
-        "tipo": molde.tipo,
+        "formato": redacao.formato,
+        "tipo": redacao.tipo,
         "uso": molde.uso,
-        "enunciado": preenche(molde.enunciado, valores),
+        "codigo": preenche(redacao.codigo, valores),
+        "enunciado": preenche(redacao.enunciado, valores),
         "alternativas": alternativas,
         "gabarito": "a",
         "crencas": crencas,
@@ -492,3 +498,53 @@ def item_de(molde: Molde, parametros: dict, i: int) -> dict:
         "gerado_por": "molde %s" % molde.id,
         "revisado_por": molde.revisado_por if molde.revisado else "",
     }
+
+
+def _hamming(a: Mapping[str, object], b: Mapping[str, object]) -> int:
+    """Em quantos parâmetros as duas variações diferem."""
+    return sum(1 for k in a if a[k] != b[k])
+
+
+def _com_extenso(p: dict) -> dict:
+    """O número por extenso, quando há `n`. Não é parâmetro: é derivado."""
+    if "n" in p and p["n"] in EXTENSO:
+        return dict(p, extenso=EXTENSO[p["n"]])
+    return dict(p)
+
+
+def expande(molde: Molde, quantas: int = 6) -> list[dict]:
+    """As `quantas` variações mais distantes entre si, determinísticas.
+
+    GULOSO, pela distância de Hamming: começa pela combinação de índices
+    mais baixos e, a cada passo, acrescenta aquela cuja distância mínima
+    às já escolhidas é a maior. Empate cai na ordem de escrita do YAML,
+    porque `max` devolve o primeiro máximo.
+
+    Por que distância e não as primeiras combinações: seis variações que
+    diferem num parâmetro só são a mesma pergunta seis vezes, e o eixo
+    que o molde existe para criar — perguntar a mesma ideia com a roupa
+    trocada — não aparece.
+
+    Por que determinístico e não sorteado: reexpandir um molde revisado
+    tem de dar o mesmo banco. Senão o `revisado_por` passa a valer para
+    itens que ninguém viu.
+
+    Menos combinações do que o pedido devolve o que existe.
+    """
+    import itertools
+
+    nomes = list(molde.parametros)
+    restam = [dict(zip(nomes, valores)) for valores in
+              itertools.product(*(molde.parametros[k] for k in nomes))]
+
+    escolhidas: list[dict] = []
+    while restam and len(escolhidas) < quantas:
+        if escolhidas:
+            alvo = max(restam, key=lambda c: min(_hamming(c, e)
+                                                 for e in escolhidas))
+        else:
+            alvo = restam[0]
+        escolhidas.append(alvo)
+        restam.remove(alvo)
+    return [_com_extenso(p) for p in escolhidas]
+

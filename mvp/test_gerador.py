@@ -376,7 +376,7 @@ def test_o_portao_do_contrato_diz_qual_variacao_quebrou(tmp_path):
         "uma na outra desde a declaração"))
     itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
     assert itens == []
-    assert any("mol_teste_0" in p and "mais longa" in p
+    assert any("mol_teste__" in p and "mais longa" in p
                for p in problemas), problemas
 
 
@@ -607,7 +607,7 @@ def test_item_nao_sai_com_buraco_sem_preencher(tmp_path):
     m = _le_molde(tmp_path, "buraco")
     p = dict(mod.expande(m, 1)[0])
     p.pop("extenso", None)                 # como se o derivado não existisse
-    item = mod.item_de(m, p, 1)
+    item = mod.item_de(m, m.redacoes[0], p, 1)
     assert "{" in str(item["alternativas"]), item["alternativas"]
     assert gerar.sem_buraco(item) is False
 

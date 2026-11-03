@@ -253,7 +253,7 @@ def test_a_expansao_nao_repete_variacao(m):
 
 def test_o_item_sai_no_formato_do_dominio(m):
     """O que chega à sessão é um item de YAML como todos os outros."""
-    it = item_de(m, expande(m, 6)[0], 1)
+    it = item_de(m, m.redacoes[0], expande(m, 6)[0], 1)
     assert it["node"] == "kc07:B1"          # prefixo sem underscore
     assert it["gabarito"] == "a"
     assert set(it["alternativas"]) == {"a", "b", "c"}
@@ -266,13 +266,15 @@ def test_o_item_sai_no_formato_do_dominio(m):
 def test_o_item_carrega_a_procedencia(m):
     """Os dois campos que a Tarefa 1 ensinou o carregador a ler."""
     p = expande(m, 6)[0]
-    it = item_de(m, p, 1)
+    it = item_de(m, m.redacoes[0], p, 1)
     assert it["do_molde"] == "mol_teste"
     assert it["parametros"] == {k: v for k, v in p.items() if k != "extenso"}
 
 
 def test_o_id_do_item_diz_o_molde_e_a_variacao(m):
-    assert item_de(m, expande(m, 6)[2], 3)["id"] == "mol_teste_03"
+    """O formato entra no id desde a família: duas redações da mesma
+    variação colidiriam sem ele."""
+    assert item_de(m, m.redacoes[0], expande(m, 6)[2], 3)["id"] ==         "mol_teste__reconhecer_conceito_03"
 
 
 def test_o_revisado_por_vem_do_molde(tmp_path, d7):
@@ -283,13 +285,13 @@ def test_o_revisado_por_vem_do_molde(tmp_path, d7):
     molde.
     """
     em_branco = _le(tmp_path, d7, "r1")["mol_teste"]
-    assert item_de(em_branco, expande(em_branco, 1)[0], 1)["revisado_por"] == ""
+    assert item_de(em_branco, em_branco.redacoes[0], expande(em_branco, 1)[0], 1)["revisado_por"] == ""
 
     # "Revisado" passou a ser nome MAIS assinatura do conteúdo lido, então
     # o molde revisado deste teste assina. A asserção é a mesma.
     revisado = _le(tmp_path, d7, "r2", revisado_por="Rafael",
                    revisado_sha=em_branco.digest)["mol_teste"]
-    assert item_de(revisado, expande(revisado, 1)[0], 1)["revisado_por"] == "Rafael"
+    assert item_de(revisado, revisado.redacoes[0], expande(revisado, 1)[0], 1)["revisado_por"] == "Rafael"
 
 
 # --------------------------------------------------------------------------
@@ -402,7 +404,7 @@ def test_nome_sem_assinatura_nao_carrega(tmp_path, d7):
 def test_o_item_so_herda_o_nome_de_molde_revisado(tmp_path, d7):
     m = _le(tmp_path, d7, "herda")["mol_teste"]
     assert m.revisado is False
-    assert item_de(m, expande(m, 1)[0], 1)["revisado_por"] == ""
+    assert item_de(m, m.redacoes[0], expande(m, 1)[0], 1)["revisado_por"] == ""
 
 
 def test_o_item_nao_herda_nome_de_molde_com_assinatura_velha(tmp_path, d7):
@@ -418,11 +420,11 @@ def test_o_item_nao_herda_nome_de_molde_com_assinatura_velha(tmp_path, d7):
     m = _le(tmp_path, d7, "velha")["mol_teste"]
     assinado = replace(m, revisado_por="Rafael", revisado_sha=m.digest)
     assert assinado.revisado is True
-    assert item_de(assinado, expande(assinado, 1)[0], 1)["revisado_por"] == "Rafael"
+    assert item_de(assinado, assinado.redacoes[0], expande(assinado, 1)[0], 1)["revisado_por"] == "Rafael"
 
     velho = replace(m, revisado_por="Rafael", revisado_sha="0000deadbeef")
     assert velho.revisado is False
-    assert item_de(velho, expande(velho, 1)[0], 1)["revisado_por"] == ""
+    assert item_de(velho, velho.redacoes[0], expande(velho, 1)[0], 1)["revisado_por"] == ""
 
 
 # --------------------------------------------------------------------------
@@ -625,3 +627,32 @@ def test_a_familia_precisa_da_crenca_do_proprio_no(tmp_path, d7):
     p = _recusa_familia(tmp_path, d7, "c3",
                         crencas=["array_is_pointer", "declaration_allocates"])
     assert any("próprio nó" in x for x in p), p
+
+
+@pytest.fixture
+def mf(tmp_path, d7):
+    """A família de três formatos."""
+    return _le_familia(tmp_path, d7, "mf")["mol_teste"]
+
+
+def test_o_id_do_item_diz_a_familia_e_o_formato(mf):
+    """Sem o formato no id, duas redações da mesma variação colidem."""
+    it = item_de(mf, mf.redacoes[1], expande(mf, 6)[0], 2)
+    assert it["id"] == "mol_teste__achar_o_erro_02"
+    # o `do_molde` é o da FAMÍLIA: duas redações da mesma afirmação são
+    # duas superfícies dela, e é assim que a generalização as vê.
+    assert it["do_molde"] == "mol_teste"
+    assert it["formato"] == "achar_o_erro"
+
+
+def test_as_crencas_do_item_saem_da_familia(mf):
+    it = item_de(mf, mf.redacoes[0], expande(mf, 6)[0], 1)
+    assert list(it["crencas"].values()) == list(mf.crencas)
+
+
+def test_o_codigo_da_redacao_vai_para_o_item(mf):
+    it = item_de(mf, mf.redacoes[1], expande(mf, 6)[0], 1)
+    assert it["codigo"].strip()
+    assert "{" not in it["codigo"], it["codigo"]
+    # e o da redação que NÃO tem código continua vazio
+    assert item_de(mf, mf.redacoes[0], expande(mf, 6)[0], 1)["codigo"] == ""
