@@ -281,3 +281,116 @@ def test_aprovado_mas_invalido_nao_escreve_nada(tmp_path, monkeypatch):
     assert quantos == 0
     assert avisos
     assert (espelho / "activities_kc02.yaml").read_bytes() == antes
+
+
+# --------------------------------------------------------------------------
+# Os quatro portões do molde
+# --------------------------------------------------------------------------
+
+import yaml as _yaml            # noqa: E402
+
+sys.path.insert(0, str(RAIZ / "scripts"))
+import oraculo  # noqa: E402
+
+D7 = carrega(topico="kc_07")
+tem_gcc = pytest.mark.skipif(not oraculo.GCC.exists(),
+                             reason="sem compilador em %s" % oraculo.GCC)
+
+
+def _molde(tmp_path, nome, **troca):
+    """Escreve um `moldes_kc07.yaml` numa pasta só deste teste."""
+    base = {
+        "no": "B1",
+        "tipo": "teorica",
+        "formato": "reconhecer_conceito",
+        "nivel": 1,
+        "uso": "treino",
+        "parametros": {"tipo": ["int", "char", "double"],
+                       "nome": ["a", "v", "dados"],
+                       "n": [3, 5, 8]},
+        "enunciado": "{tipo} {nome}[{n}] guarda quantos valores?",
+        "gabarito": "{extenso}, um por caixa",
+        "distratores": [
+            {"texto": "Um só, com os outros dentro dele",
+             "crenca": "string_literal_is_array"},
+            {"texto": "Nenhum: {nome} é um ponteiro",
+             "crenca": "array_is_pointer"},
+        ],
+        "oraculo": "#include <stdio.h>\n"
+                   "int main(void) {\n"
+                   "    {tipo} {nome}[{n}];\n"
+                   "    printf(\"%zu\\n\", sizeof {nome} / sizeof {nome}[0]);\n"
+                   "    return 0;\n"
+                   "}\n",
+        "espera": "{n}",
+        "revisado_por": "",
+    }
+    base.update(troca)
+    pasta = tmp_path / nome
+    pasta.mkdir(parents=True, exist_ok=True)
+    (pasta / "moldes_kc07.yaml").write_text(
+        _yaml.safe_dump({"mol_teste": base}, allow_unicode=True),
+        encoding="utf-8")
+    return pasta
+
+
+@tem_gcc
+def test_molde_certo_expande_e_passa_nos_quatro_portoes(tmp_path):
+    itens, problemas = gerar.expande_molde(
+        D7, "kc_07", "mol_teste", raiz=_molde(tmp_path, "ok"))
+    assert problemas == []
+    assert len(itens) == 6
+    assert {i["do_molde"] for i in itens} == {"mol_teste"}
+
+
+@tem_gcc
+def test_uma_variacao_reprovada_derruba_o_molde_inteiro(tmp_path):
+    """O oráculo reprova o MOLDE, não a variação.
+
+    Ficar com as que passaram é como se esconde uma generalização
+    indevida: o banco fica cheio de itens corretos sobre o caso que
+    funciona, e a afirmação falsa continua escrita no molde, esperando a
+    próxima expansão.
+    """
+    # `sizeof` mede BYTES: só vale para char. É o erro da sonda.
+    pasta = _molde(tmp_path, "ruim",
+                   oraculo="#include <stdio.h>\n"
+                           "int main(void) {\n"
+                           "    {tipo} {nome}[{n}];\n"
+                           "    printf(\"%zu\\n\", sizeof {nome});\n"
+                           "    return 0;\n"
+                           "}\n")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == [], "guardou as variações que passaram"
+    assert any("promete" in p for p in problemas), problemas
+    assert any("molde" in p.lower() for p in problemas), problemas
+
+
+@tem_gcc
+def test_o_portao_do_contrato_diz_qual_variacao_quebrou(tmp_path):
+    """Foco 5: a alternativa certa não pode ser a mais longa."""
+    pasta = _molde(tmp_path, "longa", gabarito=(
+        "{extenso} valores, um em cada caixa, e as caixas estão grudadas "
+        "uma na outra desde a declaração"))
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == []
+    assert any("mol_teste_0" in p and "mais longa" in p
+               for p in problemas), problemas
+
+
+@tem_gcc
+def test_variacao_igual_a_item_que_ja_existe_e_recusada(tmp_path):
+    """O molde reproduz, palavra por palavra, um item escrito à mão."""
+    pasta = _molde(tmp_path, "repetida",
+                   parametros={"tipo": ["int"], "nome": ["a"], "n": [5]},
+                   enunciado="int a[5] cria o quê?")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == []
+    assert any("ciu_kc07_001" in p for p in problemas), problemas
+
+
+def test_molde_que_nao_existe_no_arquivo(tmp_path):
+    itens, problemas = gerar.expande_molde(
+        D7, "kc_07", "mol_fantasma", raiz=_molde(tmp_path, "fantasma"))
+    assert itens == []
+    assert any("mol_fantasma" in p for p in problemas), problemas

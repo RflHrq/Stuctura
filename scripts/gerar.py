@@ -286,6 +286,87 @@ def confere(topico: str, novas: list[dict]) -> list[str]:
 
 
 # --------------------------------------------------------------------------
+# Os quatro portões do molde
+# --------------------------------------------------------------------------
+
+def _diz(parametros: dict) -> str:
+    return ", ".join("%s=%s" % kv for kv in sorted(parametros.items())
+                     if kv[0] != "extenso")
+
+
+def expande_molde(d, topico: str, molde_id: str, raiz=None,
+                  quantas: int = 6) -> tuple[list[dict], list[str]]:
+    """As variações de um molde, ou os motivos de ele não servir.
+
+    Quatro portões, do mais barato ao mais caro: expansão, oráculo,
+    contrato e variedade. Qualquer problema devolve lista de itens VAZIA.
+
+    O ORÁCULO REPROVA O MOLDE, NÃO A VARIAÇÃO. Descartar as reprovadas e
+    ficar com as que passaram é como se esconde uma generalização
+    indevida: o banco fica cheio de itens corretos sobre o caso que
+    funciona — `char`, na sonda — e a afirmação falsa continua escrita no
+    molde, esperando a próxima expansão. Conserta-se corrigindo a
+    afirmação ou estreitando o domínio do parâmetro, e aí a restrição
+    fica visível no arquivo.
+    """
+    from mvp import molde as mod
+    from mvp.dominio import RAIZ as DOMINIO
+
+    import oraculo
+
+    base = pathlib.Path(raiz) if raiz else DOMINIO
+    caminho = base / ("moldes_%s.yaml" % topico.replace("_", ""))
+    try:
+        moldes = mod.le(caminho, d)
+    except mod.MoldeInvalido as erro:
+        return [], list(erro.problemas)
+    m = moldes.get(molde_id)
+    if m is None:
+        return [], ["molde %r não está em %s (há %s)"
+                    % (molde_id, caminho.name, ", ".join(moldes) or "nenhum")]
+
+    # 1. expansão
+    variacoes = mod.expande(m, quantas)
+    itens = [mod.item_de(m, p, i) for i, p in enumerate(variacoes, 1)]
+
+    # 2. oráculo
+    reprovadas = []
+    for item, p in zip(itens, variacoes):
+        ok, nota = oraculo.roda(mod.preenche(m.oraculo, p),
+                                mod.preenche(m.espera, p))
+        if not ok:
+            reprovadas.append("%s (%s): %s" % (item["id"], _diz(p), nota))
+    if reprovadas:
+        return [], reprovadas + [
+            "o molde %s está reprovado: %d de %d variações não conferem. "
+            "Corrija a afirmação ou estreite o domínio do parâmetro — ficar "
+            "com as que passaram esconde o erro" % (m.id, len(reprovadas),
+                                                    len(itens))]
+
+    # 3. contrato, pelo carregador de verdade
+    problemas = confere(topico, itens)
+    if problemas:
+        return [], problemas
+
+    # 4. variedade
+    de_fora = {a.enunciado.strip(): a.id for a in d.atividades}
+    vistos: dict[str, str] = {}
+    for item in itens:
+        texto = item["enunciado"].strip()
+        if texto in de_fora:
+            problemas.append("%s: enunciado igual ao de %s"
+                             % (item["id"], de_fora[texto]))
+        if texto in vistos:
+            problemas.append("%s: enunciado igual ao de %s, do mesmo molde"
+                             % (item["id"], vistos[texto]))
+        vistos[texto] = item["id"]
+    if problemas:
+        return [], problemas
+
+    return itens, []
+
+
+# --------------------------------------------------------------------------
 # Ler, e aprovar
 # --------------------------------------------------------------------------
 
@@ -404,9 +485,12 @@ def main(argv):
 
     topico, no, degrau, quantas, so_prompt = "kc_02", None, 1, 2, False
     importar, por_quem, acao = None, "", None
+    molde_id = None
     i = 0
     while i < len(argv):
         if argv[i] == "--topico": topico = argv[i + 1]; i += 2
+        elif argv[i] == "--molde": molde_id = argv[i + 1]; i += 2
+        elif argv[i] == "--expandir": acao = "expandir"; i += 2 - 1
         elif argv[i] == "--no": no = argv[i + 1]; i += 2
         elif argv[i] == "--degrau": degrau = int(argv[i + 1]); i += 2
         elif argv[i] == "--quantas": quantas = int(argv[i + 1]); i += 2
@@ -417,6 +501,24 @@ def main(argv):
         elif argv[i] == "--aprovar": acao = "aprovar"; i += 1
         else: raise SystemExit(__doc__)
     d = carrega(topico=topico)
+
+    if acao == "expandir":
+        if not molde_id:
+            raise SystemExit("--expandir precisa de --molde <id>")
+        itens, problemas = expande_molde(d, topico, molde_id)
+        if problemas:
+            for x in problemas:
+                print("  -", x)
+            raise SystemExit("o molde %s não passou nos portões." % molde_id)
+        pasta = CANDIDATOS / topico
+        pasta.mkdir(parents=True, exist_ok=True)
+        alvo = pasta / ("%s.yaml" % molde_id)
+        alvo.write_text(yaml.safe_dump({"activities": itens},
+                                       allow_unicode=True, sort_keys=False,
+                                       width=78),
+                        encoding="utf-8", newline="\n")
+        print("%d variação(ões) em %s" % (len(itens), alvo.relative_to(RAIZ)))
+        return
 
     if acao == "revisar":
         alvo = CANDIDATOS / topico / "REVISAO.md"
