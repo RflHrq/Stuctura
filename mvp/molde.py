@@ -79,6 +79,9 @@ class Molde:
     oraculo: str
     espera: str
     revisado_por: str = ""
+    # O prefixo que o `node` do item usa: "kc07", do nome do arquivo.
+    # Sai do mesmo lugar de onde o carregador do domínio tira o dele.
+    topico: str = ""
 
     @property
     def revisado(self) -> bool:
@@ -112,6 +115,7 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
         return {}
 
     cru = yaml.safe_load(caminho.read_text(encoding="utf-8")) or {}
+    sufixo = caminho.stem.split("_", 1)[-1]        # moldes_kc07 -> kc07
     problemas: list[str] = []
     moldes: dict[str, Molde] = {}
 
@@ -198,7 +202,8 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
             distratores=tuple(distratores),
             oraculo=str(bruto.get("oraculo") or ""),
             espera=str(bruto.get("espera") or "").strip(),
-            revisado_por=str(bruto.get("revisado_por") or ""))
+            revisado_por=str(bruto.get("revisado_por") or ""),
+            topico=sufixo)
 
     if problemas:
         raise MoldeInvalido(problemas)
@@ -252,3 +257,43 @@ def expande(molde: Molde, quantas: int = 6) -> list[dict]:
         escolhidas.append(alvo)
         restam.remove(alvo)
     return [_com_extenso(p) for p in escolhidas]
+
+
+def item_de(molde: Molde, parametros: dict, i: int) -> dict:
+    """Uma variação, no formato de `activities_*.yaml`.
+
+    O `revisado_por` do item é CÓPIA do molde: é assim que o
+    `gerar.py --aprovar` de hoje continua valendo sem saber o que é
+    molde — ele olha o campo de cada item, e o item herda o do molde.
+    Uma revisão passa a valer por seis.
+
+    O gabarito fica em `a`, como em 547 dos 556 itens escritos à mão.
+    Não é escolha deste módulo: é a convenção do banco, e divergir dela
+    só nos itens de molde criaria uma diferença entre eles e os outros
+    bem no meio da coleta.
+    """
+    valores = dict(parametros)
+    letras = ["b", "c", "d", "e"]
+    alternativas = {"a": preenche(molde.gabarito, valores)}
+    crencas = {}
+    for letra, (texto, cid) in zip(letras, molde.distratores):
+        alternativas[letra] = preenche(texto, valores)
+        crencas[letra] = cid
+    return {
+        "id": "%s_%02d" % (molde.id, i),
+        "node": "%s:%s" % (molde.topico, molde.no),
+        "nivel": molde.nivel,
+        "formato": molde.formato,
+        "tipo": molde.tipo,
+        "uso": molde.uso,
+        "enunciado": preenche(molde.enunciado, valores),
+        "alternativas": alternativas,
+        "gabarito": "a",
+        "crencas": crencas,
+        "do_molde": molde.id,
+        # Sem o `extenso`: ele é derivado do `n`, e guardar derivado no
+        # log é guardar a mesma coisa duas vezes.
+        "parametros": {k: v for k, v in valores.items() if k != "extenso"},
+        "gerado_por": "molde %s" % molde.id,
+        "revisado_por": molde.revisado_por,
+    }

@@ -21,7 +21,7 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mvp.dominio import carrega
-from mvp.molde import Molde, MoldeInvalido, expande, le
+from mvp.molde import Molde, MoldeInvalido, expande, item_de, le
 
 
 @pytest.fixture(scope="module")
@@ -64,7 +64,12 @@ def _cru(**troca) -> dict:
 
 
 def _le(tmp_path, d7, nome="m1", **troca):
-    caminho = tmp_path / ("moldes_%s.yaml" % nome)
+    """O arquivo chama-se sempre `moldes_kc07.yaml`: é do NOME dele que
+    sai o prefixo do `node` dos itens, como no carregador do domínio.
+    Cada teste escreve o seu numa subpasta."""
+    pasta = tmp_path / nome
+    pasta.mkdir(parents=True, exist_ok=True)
+    caminho = pasta / "moldes_kc07.yaml"
     caminho.write_text(
         yaml.safe_dump({"mol_teste": _cru(**troca)}, allow_unicode=True),
         encoding="utf-8")
@@ -94,7 +99,7 @@ def test_le_um_molde_valido(tmp_path, d7):
 
 def test_arquivo_que_nao_existe_devolve_vazio(tmp_path, d7):
     """Tópico sem molde nenhum é o caso de doze dos treze."""
-    assert le(tmp_path / "moldes_nao_existe.yaml", d7) == {}
+    assert le(tmp_path / "moldes_kc99.yaml", d7) == {}
 
 
 # --------------------------------------------------------------------------
@@ -240,3 +245,45 @@ def test_extenso_acompanha_o_n(m):
 def test_a_expansao_nao_repete_variacao(m):
     vistas = [tuple(sorted(p.items())) for p in expande(m, 6)]
     assert len(set(vistas)) == len(vistas)
+
+
+# --------------------------------------------------------------------------
+# O item expandido
+# --------------------------------------------------------------------------
+
+def test_o_item_sai_no_formato_do_dominio(m):
+    """O que chega à sessão é um item de YAML como todos os outros."""
+    it = item_de(m, expande(m, 6)[0], 1)
+    assert it["node"] == "kc07:B1"          # prefixo sem underscore
+    assert it["gabarito"] == "a"
+    assert set(it["alternativas"]) == {"a", "b", "c"}
+    assert it["crencas"] == {"b": "string_literal_is_array",
+                             "c": "array_is_pointer"}
+    assert it["nivel"] == 1 and it["uso"] == "treino"
+    assert "{" not in it["enunciado"], "sobrou buraco no enunciado"
+
+
+def test_o_item_carrega_a_procedencia(m):
+    """Os dois campos que a Tarefa 1 ensinou o carregador a ler."""
+    p = expande(m, 6)[0]
+    it = item_de(m, p, 1)
+    assert it["do_molde"] == "mol_teste"
+    assert it["parametros"] == {k: v for k, v in p.items() if k != "extenso"}
+
+
+def test_o_id_do_item_diz_o_molde_e_a_variacao(m):
+    assert item_de(m, expande(m, 6)[2], 3)["id"] == "mol_teste_03"
+
+
+def test_o_revisado_por_vem_do_molde(tmp_path, d7):
+    """A mudança de objeto da revisão: quem é lido é o molde.
+
+    É assim que o `--aprovar` de hoje continua valendo sem saber o que é
+    molde — ele olha o `revisado_por` de cada item, e o item copia o do
+    molde.
+    """
+    em_branco = _le(tmp_path, d7, "r1")["mol_teste"]
+    assert item_de(em_branco, expande(em_branco, 1)[0], 1)["revisado_por"] == ""
+
+    revisado = _le(tmp_path, d7, "r2", revisado_por="Rafael")["mol_teste"]
+    assert item_de(revisado, expande(revisado, 1)[0], 1)["revisado_por"] == "Rafael"
