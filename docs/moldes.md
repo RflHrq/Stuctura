@@ -105,17 +105,164 @@ depois da revisão"*.
 resposta certa é literalmente o que o programa imprime, e a máquina a
 calcula.
 
+## A família de formatos
+
+> Segunda fatia, aprovada em 03/11/2026. Ainda não implementada.
+
+O molde acima multiplica o eixo do **conteúdo**: `int a[3]`, `double
+lista[8]`, a mesma pergunta com a roupa trocada. Ele não toca no eixo do
+**formato**, e o sistema precisa dos dois.
+
+O número que mostrou isso veio da primeira sessão de verdade com um
+molde aprovado. O banco de treino do `B1` tinha três itens, um por
+formato; depois do molde ficou com nove — e **sete deles do mesmo
+formato**, `reconhecer_conceito`, contra um `prever_saida` e um
+`comparar_casos`. O motor prefere um formato diferente a cada tentativa
+de treino, e confirmar exige **duas superfícies diferentes**, que hoje
+quer dizer dois formatos. Multiplicar só o conteúdo deixa essa regra sem
+com que morder.
+
+| eixo | o que troca | o que separa |
+| --- | --- | --- |
+| conteúdo | `int a[3]` → `double lista[8]` | generalizou, ou decorou aquele exemplo |
+| formato | "o que existe?" → "qual linha não compila?" | entendeu a ideia, ou reconhece o molde da pergunta |
+
+### Uma afirmação, várias redações
+
+O molde deixa de ser uma pergunta com buracos e passa a ser uma
+**afirmação** perguntada de vários jeitos. Compartilhado, porque é a
+mesma ideia: o nó, os parâmetros, **as crenças** e o oráculo. Por
+formato: a redação, às vezes o código, e às vezes o programa que confere.
+
+```yaml
+mol_kc07_B1:
+  node: B1
+  nivel: 1
+  uso: treino
+  parametros: { tipo: [int, char, double], nome: [a, v, dados], n: [3, 5, 8] }
+
+  # As crenças são da AFIRMAÇÃO, não da redação.
+  crencas: [string_literal_is_array, array_is_pointer]
+
+  oraculo: |                      # o oráculo da afirmação
+    #include <stdio.h>
+    int main(void) {
+        {tipo} {nome}[{n}];
+        printf("%zu %td\n", sizeof {nome} / sizeof {nome}[0],
+               &{nome}[1] - &{nome}[0]);
+        return 0;
+    }
+  espera: "{n} 1"
+
+  formatos:
+    reconhecer_conceito:
+      tipo: teorica
+      enunciado: "Depois de {tipo} {nome}[{n}]; e nada mais, o que existe na memória?"
+      gabarito:  "São {extenso} caixas de {tipo}, grudadas"
+      distratores:                                   # NA ORDEM das crenças
+        - "Uma caixa só, com {extenso} valores guardados dentro dela"
+        - "Um ponteiro, que depois aponta para {extenso} valores do tipo {tipo}"
+
+    achar_o_erro:
+      tipo: codigo
+      codigo: |
+        {tipo} {nome}[{n}];
+        {tipo} *p = {nome};
+        {nome} = p;
+      enunciado: "Uma destas linhas não compila. Qual, e por quê?"
+      gabarito:  "A terceira: o nome do array não recebe atribuição"
+      distratores:
+        - "A segunda: um ponteiro não recebe o nome de um array"
+        - "Nenhuma: as três compilam"
+      nao_compila: true           # o oráculo deste formato espera a RECUSA
+
+    prever_saida:
+      tipo: codigo
+      codigo: |
+        {tipo} {nome}[{n}];
+        printf("%zu", sizeof {nome} / sizeof {nome}[0]);
+      enunciado: "O que sai?"
+      gabarito: do_oraculo        # a máquina calcula a resposta certa
+      distratores:
+        - "o tamanho de um ponteiro"
+        - "1, porque {nome} é uma coisa só"
+```
+
+### As cinco regras da família
+
+**Os distratores são posicionais contra `crencas`.** Não é economia de
+digitação: é o que garante que todo formato carrega as mesmas ideias
+erradas. Se cada formato escolhesse as suas, dois formatos do mesmo
+molde mediriam coisas diferentes — e aí não são duas superfícies da
+mesma afirmação, são duas perguntas.
+
+**O oráculo é um só, sobrescrito quando o formato precisa.** Em
+`achar_o_erro`, o que se prova é que o programa **não** compila, e o
+sistema já sabe fazer isso: é o tipo `erro_de_compilacao` da tela de
+evidência da descida, agora no gerador. `nao_compila: true` passa quando
+o compilador recusa com diagnóstico, e **reprova quando compila** — um
+"ache o erro" num programa que compila é um item sem erro. Nesse
+formato o `espera` não existe: não há saída que esperar de um programa
+que não vira executável, e declará-lo junto é erro de carga.
+
+**`prever_saida` deixa de ser recusado**, e só aqui. `gabarito:
+do_oraculo` faz a máquina **calcular** a resposta certa em vez de
+conferi-la: é a promessa que esta spec sempre fez e que a primeira fatia
+teve de barrar, porque fora da família `gabarito` e `espera` eram campos
+independentes e ninguém provava que diziam a mesma coisa.
+
+**A PRIMEIRA variação de cada formato usa os mesmos parâmetros.** Uma, e
+não "as primeiras": com duas variações por formato, duas compartilhadas
+seriam todas, e nada divergiria. Se `int a[3]` aparece como
+`reconhecer_conceito` e como `achar_o_erro`, a única coisa que mudou
+entre as duas foi a forma de perguntar — e aí acertar uma e errar a
+outra é um sinal limpo de superfície, e não de conteúdo. Da segunda em
+diante, cada formato segue a escolha gulosa de sempre, a partir do que
+já foi usado naquele formato.
+
+**A expansão se reparte entre os formatos.** `quantas` passa a ser o
+total: seis viram duas por formato em três formatos. É isso que conserta
+o sete-contra-um-contra-um do `B1`.
+
+### O que isso não muda
+
+**Uma revisão continua cobrindo a família inteira**, porque o que se
+valida é a afirmação e as crenças, que são uma só. A folha cresce um
+pouco: as três variações dos extremos num formato, mais uma de cada
+outro formato. A assinatura é do arquivo todo, como já é.
+
+**Molde sem `formatos:` continua valendo.** É uma família de um, e é o
+que `mol_kc07_B1_treino_1` já é — ele está assinado e os seis itens dele
+estão no domínio. Nada do que está no banco precisa ser reescrito.
+
+**O id do item passa a dizer o formato**: `mol_kc07_B1__achar_o_erro_02`.
+Sem isso, duas redações da mesma variação colidem no id.
+
+### O que fica de fora desta fatia
+
+Os formatos **autocompletar** (lacuna no código, com alternativas) e
+**apontar a linha** cabem na tela que já existe e entram depois, como
+conteúdo dentro desta mesma estrutura — não como obra nova. **Ordenar os
+passos** e **marcar as caixas da memória** pedem tela nova e ficam para
+depois disso. **Prever a saída digitando** fica de fora por decisão, e
+não por custo: sem alternativas não há crença para apontar, e a camada 2
+some justamente onde ela é a peça central do instrumento.
+
 ## O que o item expandido carrega
 
 Dois campos novos em cada atividade gerada, e portanto em `Atividade`:
 
 ```yaml
-- id: mol_kc07_B1_reconhecer_03
+- id: mol_kc07_B1__reconhecer_conceito_03    # o formato entra no id
   node: kc07:B1
-  do_molde: mol_kc07_B1_reconhecer
+  do_molde: mol_kc07_B1
   parametros: {tipo: double, nome: buf, n: 8}
   ...
 ```
+
+O `do_molde` é o da FAMÍLIA, e não o da redação: duas redações da mesma
+afirmação são duas superfícies dela, e é assim que a medida da
+generalização as vê. O formato já está no próprio item, em `formato`.
 
 O carregador aceita os dois como **opcionais** — item escrito à mão não
 tem molde —, e cobra uma coisa quando eles aparecem: `do_molde` sem
@@ -165,12 +312,12 @@ imprimia o literal na tela), e a alternativa certa não pode ser a
 **única que começa em minúscula** — num molde essa pista se repete em
 todas as variações.
 
-**`prever_saida` ainda não vale como molde.** A promessa desta spec é
-que, nesse formato, o oráculo vira gabarito. Enquanto isso não existir,
+**`prever_saida` não vale em molde de formato único.** A promessa desta
+spec é que, nesse formato, o oráculo vira gabarito — e fora da família
 `gabarito` e `espera` são campos independentes: o oráculo prova que o
 programa imprime `espera`, e ninguém prova que a alternativa certa diz o
-mesmo. A carga recusa o formato, com o motivo. Formato meio
-implementado é pior que formato recusado.
+mesmo. A carga recusa, com o motivo. Dentro da família ele passa a
+valer, com `gabarito: do_oraculo` (ver *A família de formatos*).
 
 **As três variações da revisão humana são escolhidas, não sorteadas:** os
 extremos do espaço de parâmetros — o menor e o maior `n`, o nome mais
@@ -204,7 +351,8 @@ item montado em tempo de execução precisaria do sorteio gravado para ser
 reconstruído. Expandir em sessão continua possível depois — o formato não
 impede —, mas não antes da coleta.
 
-**Seis variações por molde**, e não as 150. A escolha é determinística e
+**Seis variações por molde**, e não as 150 — e, numa família, seis é o
+TOTAL, repartido entre os formatos: dois por formato em três formatos. A escolha é determinística e
 gulosa, pela distância de Hamming entre os valores dos parâmetros: começa
 pela combinação de índices mais baixos e, a cada passo, acrescenta a
 combinação cuja distância mínima às já escolhidas é a maior — empate
@@ -294,8 +442,10 @@ continua sendo julgamento humano.
 multiplicador, e é exatamente contra isso que o oráculo existe — foi o
 caso do `sizeof`, e a máquina pegou.
 
-**Nenhum participante real passou por item gerado de molde**, e nenhum
-item de molde está no domínio: o primeiro espera a assinatura.
+**Nenhum participante real passou por item gerado de molde.** O primeiro
+molde foi assinado em 03/11/2026 e os seis itens dele estão no domínio
+do kc_07 — conferidos numa sessão no navegador, com a procedência no
+log —, mas quem respondeu fui eu.
 
 ## Próximas fatias, fora desta spec
 
