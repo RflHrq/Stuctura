@@ -61,4 +61,8 @@ mol_kc07_B1_treino_1:
 
   # Quem escreve aqui leu a folha do molde, e não os itens: é a mudança
   # de objeto da revisão. Em branco, nada entra no domínio.
-  revisado_por: ""
+  revisado_por: Rafael H. S. Simao
+  # A assinatura é do CONTEÚDO que foi lido na folha. Mexer no molde
+  # depois disto faz a carga recusar, em vez de estampar o nome acima em
+  # variações que ninguém leu.
+  revisado_sha: bcd92590c6df
