@@ -445,3 +445,36 @@ def test_a_reconstrucao_continua_estrita(cliente, d):
     with pytest.raises(log.LinhaCorrompida):
         log.reconstroi(d, "c5", arquivo)
     assert c.get("/sessoes/c5").status_code == 409
+
+
+def test_a_tabela_diz_de_que_molde_veio_cada_episodio():
+    """A coluna que separa generalizar de decorar.
+
+    Duas variações do mesmo molde têm ids diferentes e são a mesma
+    pergunta com a roupa trocada: sem os parâmetros na tabela, a análise
+    não consegue dizer qual foi qual.
+    """
+    linhas = [
+        {"tipo": "atividade_apresentada", "atividade": "t_1", "no": "B1",
+         "do_molde": "mol_x", "parametros": {"n": 5}},
+        {"tipo": "camada1_respondida", "atividade": "t_1", "no": "B1",
+         "correta": True},
+        {"tipo": "unidade_encerrada"},
+    ]
+    linha = painel.episodios(linhas)[0]
+    assert linha["do_molde"] == "mol_x"
+    assert linha["parametros"] == {"n": 5}
+
+
+def test_item_escrito_a_mao_tem_as_colunas_vazias():
+    """As colunas existem em toda linha: tabela com coluna que aparece e
+    some não vira CSV."""
+    linhas = [
+        {"tipo": "atividade_apresentada", "atividade": "t_2", "no": "B1"},
+        {"tipo": "camada1_respondida", "atividade": "t_2", "no": "B1",
+         "correta": True},
+        {"tipo": "unidade_encerrada"},
+    ]
+    linha = painel.episodios(linhas)[0]
+    assert linha["do_molde"] == ""
+    assert linha["parametros"] == {}
