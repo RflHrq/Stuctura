@@ -465,3 +465,133 @@ def test_prever_saida_ainda_nao_vale_como_molde(tmp_path, d7):
     """
     p = _recusa(tmp_path, d7, "prev", formato="prever_saida")
     assert any("prever_saida" in x and "gabarito" in x for x in p), p
+
+# --------------------------------------------------------------------------
+# A família de formatos: uma afirmação, várias redações
+# --------------------------------------------------------------------------
+
+def _cru_familia(**troca) -> dict:
+    """Uma família de três formatos para o mesmo B1."""
+    base = {
+        "node": "B1",
+        "nivel": 1,
+        "uso": "treino",
+        "parametros": {"tipo": ["int", "char", "double"],
+                       "nome": ["a", "v", "dados"],
+                       "n": [3, 5, 8]},
+        "crencas": ["string_literal_is_array", "array_is_pointer"],
+        "oraculo": "#include <stdio.h>\n"
+                   "int main(void) {\n"
+                   "    {tipo} {nome}[{n}];\n"
+                   "    printf(\"%zu\\n\", sizeof {nome} / sizeof {nome}[0]);\n"
+                   "    return 0;\n"
+                   "}\n",
+        "espera": "{n}",
+        "revisado_por": "",
+        "formatos": {
+            "reconhecer_conceito": {
+                "tipo": "teorica",
+                "enunciado": "Depois de {tipo} {nome}[{n}]; o que existe?",
+                "gabarito": "São {extenso} caixas de {tipo}, grudadas",
+                "distratores": [
+                    "Uma caixa só, com {extenso} valores dentro dela",
+                    "Um ponteiro, que aponta para {extenso} valores",
+                ],
+            },
+            "achar_o_erro": {
+                "tipo": "codigo",
+                "codigo": "{tipo} {nome}[{n}];\n"
+                          "{tipo} *p = {nome};\n"
+                          "{nome} = p;\n",
+                "enunciado": "Uma destas linhas não compila. Qual?",
+                "gabarito": "A terceira: o nome do array não recebe nada",
+                "distratores": [
+                    "A segunda: um ponteiro não recebe o nome de um array",
+                    "Nenhuma delas: as três compilam sem reclamação",
+                ],
+                "nao_compila": True,
+            },
+            "prever_saida": {
+                "tipo": "codigo",
+                "codigo": "{tipo} {nome}[{n}];\n"
+                          "printf(\"%zu\", sizeof {nome} / sizeof {nome}[0]);\n",
+                "enunciado": "O que sai?",
+                "gabarito": "do_oraculo",
+                "distratores": [
+                    "o tamanho de um ponteiro, em bytes",
+                    "1, porque {nome} é uma coisa só",
+                ],
+            },
+        },
+    }
+    base.update(troca)
+    return base
+
+
+def _le_familia(tmp_path, d7, nome="f1", **troca):
+    pasta = tmp_path / nome
+    pasta.mkdir(parents=True, exist_ok=True)
+    caminho = pasta / "moldes_kc07.yaml"
+    # sort_keys=False: a ORDEM dos formatos é a do arquivo, e os testes
+    # cobram essa ordem.
+    caminho.write_text(
+        yaml.safe_dump({"mol_teste": _cru_familia(**troca)},
+                       allow_unicode=True, sort_keys=False),
+        encoding="utf-8")
+    return le(caminho, d7)
+
+
+def _recusa_familia(tmp_path, d7, nome, **troca) -> list[str]:
+    with pytest.raises(MoldeInvalido) as erro:
+        _le_familia(tmp_path, d7, nome, **troca)
+    return erro.value.problemas
+
+
+def test_familia_de_tres_formatos_carrega(tmp_path, d7):
+    m = _le_familia(tmp_path, d7, "f1")["mol_teste"]
+    assert [r.formato for r in m.redacoes] == [
+        "reconhecer_conceito", "achar_o_erro", "prever_saida"]
+    assert m.crencas == ("string_literal_is_array", "array_is_pointer")
+    # o que é de cada redação fica na redação
+    achar = m.redacoes[1]
+    assert achar.nao_compila is True
+    assert "{nome} = p;" in achar.codigo
+    assert len(achar.distratores) == 2
+
+
+def test_molde_sem_formatos_e_familia_de_um(tmp_path, d7):
+    """Foco 1: o que está no domínio hoje não pode precisar de reescrita.
+
+    A família de um tem de ser indistinguível do molde de ontem — as
+    crenças saem dos distratores, na ordem em que eles estão.
+    """
+    m = _le(tmp_path, d7, "velho")["mol_teste"]
+    assert len(m.redacoes) == 1
+    r = m.redacoes[0]
+    assert r.formato == m.formato
+    assert r.enunciado == m.enunciado
+    assert r.gabarito == m.gabarito
+    assert r.distratores == tuple(texto for texto, _ in m.distratores)
+    assert m.crencas == tuple(cid for _, cid in m.distratores)
+    assert r.nao_compila is False
+
+
+def test_o_molde_de_verdade_continua_assinado():
+    """O mol_kc07_B1_treino_1 está assinado e os seis itens dele estão no
+    domínio: a assinatura não pode mudar por causa desta fatia."""
+    d = carrega(topico="kc_07")
+    m = le(RAIZ_DOMINIO / "moldes_kc07.yaml", d)["mol_kc07_B1_treino_1"]
+    assert m.revisado is True
+    assert len(m.redacoes) == 1
+
+
+def test_familia_sem_crencas_nao_carrega(tmp_path, d7):
+    p = _recusa_familia(tmp_path, d7, "c0b", crencas=[])
+    assert any("sem crença" in x for x in p), p
+
+
+def test_redacao_sem_enunciado_nao_carrega(tmp_path, d7):
+    formatos = _cru_familia()["formatos"]
+    formatos["achar_o_erro"]["enunciado"] = ""
+    p = _recusa_familia(tmp_path, d7, "c0c", formatos=formatos)
+    assert any("achar_o_erro" in x and "enunciado" in x for x in p), p

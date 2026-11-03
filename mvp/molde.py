@@ -35,6 +35,10 @@ from typing import Mapping
 import yaml
 
 from mvp.dominio import FORMATOS, NIVEIS, TIPOS, USOS, Dominio
+# O mesmo normalizador do carregador do domínio: um espaço entre
+# palavras, sem quebra de linha. Texto de item e texto de molde
+# passam pela mesma régua.
+from mvp.dominio import _texto
 
 # Um buraco é um identificador entre chaves: `{tipo}`, `{n}`, `{extenso}`.
 #
@@ -66,6 +70,29 @@ class MoldeInvalido(Exception):
 
 
 @dataclass(frozen=True)
+class Redacao:
+    """Um jeito de perguntar a afirmação do molde.
+
+    Os distratores são só os TEXTOS: a crença de cada um vem de
+    `Molde.crencas`, pela posição. É isso que garante que todo formato
+    carrega as mesmas ideias erradas — se cada redação escolhesse as
+    suas, dois formatos do mesmo molde mediriam coisas diferentes, e aí
+    não são duas superfícies da mesma afirmação, são duas perguntas.
+    """
+    formato: str
+    tipo: str
+    enunciado: str
+    gabarito: str
+    distratores: tuple[str, ...]
+    codigo: str = ""
+    # Vazios quando a redação usa o oráculo da família.
+    oraculo: str = ""
+    espera: str = ""
+    # `achar_o_erro` prova o contrário: que o programa NÃO compila.
+    nao_compila: bool = False
+
+
+@dataclass(frozen=True)
 class Molde:
     id: str
     no: str
@@ -85,6 +112,11 @@ class Molde:
     # novas saem estampadas com o nome de quem nunca as leu.
     revisado_sha: str = ""
     digest: str = ""
+    # As crenças são da AFIRMAÇÃO, não da redação, e as redações são as
+    # formas de perguntá-la. Molde sem `formatos:` é família de UM: as
+    # crenças saem dos distratores dele, na ordem em que estão.
+    crencas: tuple[str, ...] = ()
+    redacoes: tuple[Redacao, ...] = ()
     # O prefixo que o `node` do item usa: "kc07", do nome do arquivo.
     # Sai do mesmo lugar de onde o carregador do domínio tira o dele.
     topico: str = ""
@@ -148,6 +180,10 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
     for mid, bruto in cru.items():
         bruto = bruto or {}
         onde = "molde %s" % mid
+        # Com `formatos:`, a redação é que tem formato, tipo, enunciado,
+        # gabarito e distratores — os campos de topo deixam de existir, e
+        # as regras que os cobram valem só para a família de um.
+        em_familia = bruto.get("formatos") is not None
 
         # `node`, e não `no`: em YAML 1.1 a chave `no` é o booleano
         # FALSO — o problema da Noruega —, e o campo simplesmente some.
@@ -160,10 +196,10 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
         no = str(bruto.get("node") or "").split(":")[-1]
         if no not in d.nos:
             problemas.append("%s: nó %r não é deste tópico" % (onde, no))
-        if bruto.get("tipo") not in TIPOS:
+        if not em_familia and bruto.get("tipo") not in TIPOS:
             problemas.append("%s: tipo %r (use %s)"
                              % (onde, bruto.get("tipo"), ", ".join(TIPOS)))
-        if bruto.get("formato") not in FORMATOS:
+        if not em_familia and bruto.get("formato") not in FORMATOS:
             problemas.append("%s: formato %r (use %s)"
                              % (onde, bruto.get("formato"), ", ".join(FORMATOS)))
         if bruto.get("nivel") not in NIVEIS:
@@ -185,17 +221,23 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
                     "não gera variação nenhuma" % (onde, nome))
 
         # O que a máquina não pode conferir não entra por molde.
-        if not str(bruto.get("oraculo") or "").strip():
+        tem_oraculo_de_topo = bool(str(bruto.get("oraculo") or "").strip())
+        todas_tem_o_seu = em_familia and all(
+            str((r or {}).get("oraculo") or "").strip()
+            for r in (bruto.get("formatos") or {}).values())
+        if not tem_oraculo_de_topo and not todas_tem_o_seu:
             problemas.append(
                 "%s: sem oráculo — molde sem programa que o confira é texto "
                 "de modelo sem conferência nenhuma" % onde)
-        if not str(bruto.get("espera") or "").strip():
+        # O `espera` acompanha o oráculo, e `nao_compila` dispensa os dois:
+        # não há saída que esperar de um programa que não vira executável.
+        if not em_familia and not str(bruto.get("espera") or "").strip():
             problemas.append(
                 "%s: sem `espera` — programa que roda e não diz o que devia "
                 "sair não confere nada" % onde)
 
         crus = bruto.get("distratores") or []
-        if len(crus) < 2:
+        if not em_familia and len(crus) < 2:
             problemas.append(
                 "%s: %d distrator(es) — item de duas alternativas é cara ou "
                 "coroa" % (onde, len(crus)))
@@ -229,7 +271,7 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
         # campos independentes — o oráculo prova que o programa imprime
         # `espera`, e ninguém prova que a alternativa certa diz o mesmo.
         # Formato aceito e meio implementado é pior que recusado.
-        if bruto.get("formato") == "prever_saida":
+        if not em_familia and bruto.get("formato") == "prever_saida":
             problemas.append(
                 "%s: prever_saida ainda não vale como molde — neste formato "
                 "o gabarito tem de SAIR do oráculo, e isso não está feito. "
@@ -275,6 +317,54 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
                 "%s: buraco {%s} não é parâmetro deste molde (há %s)"
                 % (onde, buraco, ", ".join(sorted(parametros)) or "nenhum"))
 
+        # ---------------------------------------------------- redações
+        crus_formatos = bruto.get("formatos")
+        if crus_formatos is None:
+            # Família de um: o molde de ontem, lido igual.
+            crencas_da_familia = tuple(cid for _, cid in distratores)
+            redacoes = (Redacao(
+                formato=str(bruto.get("formato") or ""),
+                tipo=str(bruto.get("tipo") or ""),
+                enunciado=_texto(bruto.get("enunciado")),
+                gabarito=_texto(bruto.get("gabarito")),
+                distratores=tuple(texto for texto, _ in distratores),
+                codigo=(bruto.get("codigo") or "").strip("\n")),)
+        else:
+            crencas_da_familia = tuple(bruto.get("crencas") or ())
+            if not crencas_da_familia:
+                problemas.append(
+                    "%s: família sem crença nenhuma — é a crença que faz o "
+                    "erro ter diagnóstico" % onde)
+            for cid in crencas_da_familia:
+                if cid not in d.crencas:
+                    problemas.append("%s: crença %r não existe neste tópico"
+                                     % (onde, cid))
+            redacoes = []
+            for nome_formato, cru_r in (crus_formatos or {}).items():
+                cru_r = cru_r or {}
+                aqui = "%s, formato %s" % (onde, nome_formato)
+                if nome_formato not in FORMATOS:
+                    problemas.append("%s: formato %r não está no catálogo"
+                                     % (aqui, nome_formato))
+                for campo in ("enunciado", "gabarito"):
+                    if not _texto(cru_r.get(campo)):
+                        problemas.append("%s: sem %s" % (aqui, campo))
+                if cru_r.get("tipo") not in TIPOS:
+                    problemas.append("%s: tipo %r (use %s)"
+                                     % (aqui, cru_r.get("tipo"), ", ".join(TIPOS)))
+                redacoes.append(Redacao(
+                    formato=nome_formato,
+                    tipo=str(cru_r.get("tipo") or ""),
+                    enunciado=_texto(cru_r.get("enunciado")),
+                    gabarito=_texto(cru_r.get("gabarito")),
+                    distratores=tuple(_texto(x)
+                                      for x in (cru_r.get("distratores") or ())),
+                    codigo=(cru_r.get("codigo") or "").strip("\n"),
+                    oraculo=str(cru_r.get("oraculo") or ""),
+                    espera=_texto(cru_r.get("espera")),
+                    nao_compila=bool(cru_r.get("nao_compila"))))
+            redacoes = tuple(redacoes)
+
         moldes[mid] = Molde(
             id=mid, no=no, tipo=str(bruto.get("tipo") or ""),
             formato=str(bruto.get("formato") or ""),
@@ -289,6 +379,8 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
             revisado_por=str(bruto.get("revisado_por") or ""),
             revisado_sha=str(bruto.get("revisado_sha") or ""),
             digest=digest,
+            crencas=crencas_da_familia,
+            redacoes=redacoes,
             topico=sufixo)
 
     if problemas:
