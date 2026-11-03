@@ -624,6 +624,19 @@ def _no_degrau(d: Dominio, e: Estado, nid: str):
     return sorted(livres, key=lambda a: -a.nivel)[0], None, ""
 
 
+def _procedencia(a: Atividade) -> dict:
+    """De que molde o item saiu, para o evento — vazio quando não há.
+
+    FORA do evento quando não há molde, e não dentro dele com valor
+    vazio: campo vazio em toda linha é ruído que a análise precisa
+    aprender a ignorar, e um log que muda de forma sem mudar de conteúdo
+    estraga a comparação com as sessões já gravadas.
+    """
+    if not a.do_molde:
+        return {}
+    return {"do_molde": a.do_molde, "parametros": dict(a.parametros)}
+
+
 def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = False) -> Transicao:
     en = e.no(a.no)
     novo = replace(e, atividade=a.id)
@@ -644,6 +657,7 @@ def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = Fal
         "atividade": a.id, "no": a.no, "fase": e.fase, "formato": a.formato,
         "item": a.tipo, "nivel": a.nivel, "streak": en.streak,
         "tentativas": en.tentativas, "erros": en.erros,
+        **_procedencia(a),
     })]
     if reapresentada:
         eventos.append(Evento("item_reapresentado", {"atividade": a.id, "no": a.no}))
@@ -1076,6 +1090,7 @@ def _segue_construcao(d: Dominio, e: Estado) -> Transicao:
         "atividade": item.id, "no": no, "fase": ENTRADA,
         "formato": item.formato, "item": item.tipo,
         "streak": en.streak, "tentativas": en.tentativas, "erros": en.erros,
+        **_procedencia(item),
     })
     return Transicao(novo, tela, (evento,))
 

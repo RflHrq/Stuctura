@@ -487,3 +487,41 @@ def test_o_streak_nao_escreve_no_reteste_da_pesquisa(d):
     # E o reteste acontece — depois, e uma vez só.
     assert tipos.count("belief_retested") == 1
     assert tipos.index("belief_retested") > tipos.index("training_streak_completed")
+
+
+# --------------------------------------------------------------------------
+# A procedência no log: de que molde veio o item respondido
+# --------------------------------------------------------------------------
+
+def test_o_log_diz_de_que_molde_veio_o_item(tmp_path):
+    """Sem isto, nada do resto é mensurável.
+
+    Generalizar e decorar só se distinguem se o log disser QUAL variação
+    foi apresentada — o id do item não basta, porque duas variações do
+    mesmo molde são a mesma pergunta com a roupa trocada.
+    """
+    from mvp.test_dominio import atividade, monta
+
+    def muda(cru):
+        atividade(cru, "ciu_kc00_001").update(
+            do_molde="mol_teste", parametros={"tipo": "int", "n": 5})
+    d2 = carrega(monta(tmp_path / "log1", muda))
+    t, eventos = roda(d2, _politica(d=d2))
+
+    de_molde = [x for x in _dos(eventos, "atividade_apresentada")
+                if x.get("do_molde")]
+    assert de_molde, "o item de molde não deixou rastro no log"
+    assert de_molde[0]["do_molde"] == "mol_teste"
+    assert de_molde[0]["parametros"] == {"tipo": "int", "n": 5}
+
+
+def test_item_escrito_a_mao_nao_polui_o_log(d):
+    """O log dos 556 itens de hoje não muda: campo vazio não entra.
+
+    Um campo vazio em toda linha é ruído que a análise precisa aprender a
+    ignorar, e um log que muda de forma sem mudar de conteúdo estraga a
+    comparação com as sessões já gravadas.
+    """
+    t, eventos = roda(d, _politica())
+    for x in _dos(eventos, "atividade_apresentada"):
+        assert "do_molde" not in x and "parametros" not in x
