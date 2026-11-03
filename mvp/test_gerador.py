@@ -300,7 +300,7 @@ tem_gcc = pytest.mark.skipif(not oraculo.GCC.exists(),
 def _molde(tmp_path, nome, **troca):
     """Escreve um `moldes_kc07.yaml` numa pasta só deste teste."""
     base = {
-        "no": "B1",
+        "node": "B1",
         "tipo": "teorica",
         "formato": "reconhecer_conceito",
         "nivel": 1,

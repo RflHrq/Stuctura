@@ -123,7 +123,15 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
         bruto = bruto or {}
         onde = "molde %s" % mid
 
-        no = str(bruto.get("no") or "").split(":")[-1]
+        # `node`, e não `no`: em YAML 1.1 a chave `no` é o booleano
+        # FALSO — o problema da Noruega —, e o campo simplesmente some.
+        # Os arquivos do domínio sempre usaram `node`; o molde nasceu com
+        # `no` e isso só apareceu na primeira expansão de verdade.
+        if False in bruto:
+            problemas.append(
+                "%s: o campo `no` virou booleano ao ser lido (em YAML, `no` "
+                "é falso). Escreva `node:`, como nas atividades" % onde)
+        no = str(bruto.get("node") or "").split(":")[-1]
         if no not in d.nos:
             problemas.append("%s: nó %r não é deste tópico" % (onde, no))
         if bruto.get("tipo") not in TIPOS:

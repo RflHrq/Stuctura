@@ -46,7 +46,7 @@ chega à sessão — ver *O que fica medível*.
 
 ```yaml
 mol_kc07_B1_reconhecer:
-  no: B1
+  node: B1
   formato: reconhecer_conceito
   nivel: 1
   uso: treino

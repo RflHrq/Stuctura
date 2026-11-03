@@ -20,7 +20,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mvp.dominio import carrega
+from mvp.dominio import RAIZ as RAIZ_DOMINIO, carrega, topicos
 from mvp.molde import Molde, MoldeInvalido, expande, item_de, le
 
 
@@ -32,7 +32,7 @@ def d7():
 def _cru(**troca) -> dict:
     """Um molde válido do B1 do kc_07, como ele é no arquivo."""
     base = {
-        "no": "B1",
+        "node": "B1",
         "tipo": "teorica",
         "formato": "reconhecer_conceito",
         "nivel": 1,
@@ -156,7 +156,7 @@ def test_formato_nivel_e_uso_tem_de_ser_dos_catalogos(tmp_path, d7):
 
 
 def test_no_tem_de_ser_do_topico(tmp_path, d7):
-    p = _recusa(tmp_path, d7, "c10", no="Z9")
+    p = _recusa(tmp_path, d7, "c10", node="Z9")
     assert any("nó" in x and "Z9" in x for x in p), p
 
 
@@ -287,3 +287,53 @@ def test_o_revisado_por_vem_do_molde(tmp_path, d7):
 
     revisado = _le(tmp_path, d7, "r2", revisado_por="Rafael")["mol_teste"]
     assert item_de(revisado, expande(revisado, 1)[0], 1)["revisado_por"] == "Rafael"
+
+
+# --------------------------------------------------------------------------
+# Os moldes que existem no disco
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("topico", topicos())
+def test_todo_molde_do_disco_carrega(topico):
+    """O mesmo que a lista de tópicos faz com os tópicos.
+
+    Se alguém escrever um molde quebrado, cai aqui — e não na hora de
+    gerar, com a expansão já rodando e o compilador já ligado.
+    """
+    d = carrega(topico=topico)
+    caminho = RAIZ_DOMINIO / ("moldes_%s.yaml" % topico.replace("_", ""))
+    moldes = le(caminho, d)
+    for mid, m in moldes.items():
+        assert m.no in d.nos, mid
+        assert m.oraculo.strip() and m.espera.strip(), mid
+
+
+def test_o_kc07_tem_o_primeiro_molde():
+    """O primeiro molde de verdade, num nó de treino do tópico-piloto."""
+    d = carrega(topico="kc_07")
+    moldes = le(RAIZ_DOMINIO / "moldes_kc07.yaml", d)
+    assert "mol_kc07_B1_treino_1" in moldes
+    m = moldes["mol_kc07_B1_treino_1"]
+    assert m.uso == "treino" and m.no == "B1"
+    assert len(expande(m, 6)) == 6
+
+
+def test_quem_escrever_no_em_vez_de_node_recebe_a_instrucao(tmp_path, d7):
+    """`no:` em YAML 1.1 é o booleano FALSO — o problema da Noruega.
+
+    O campo some, e a mensagem natural seria "nó '' não é deste tópico",
+    que manda a pessoa procurar no lugar errado. Foi o que aconteceu na
+    primeira expansão de verdade.
+    """
+    pasta = tmp_path / "noruega"
+    pasta.mkdir()
+    cru = _cru()
+    cru.pop("node")
+    texto = yaml.safe_dump({"mol_teste": cru}, allow_unicode=True)
+    # escrito à mão, como alguém escreveria: `no: B1`, sem aspas
+    texto = texto.replace("mol_teste:", "mol_teste:\n  no: B1", 1)
+    (pasta / "moldes_kc07.yaml").write_text(texto, encoding="utf-8")
+
+    with pytest.raises(MoldeInvalido) as erro:
+        le(pasta / "moldes_kc07.yaml", d7)
+    assert any("`node:`" in x for x in erro.value.problemas), erro.value.problemas
