@@ -162,6 +162,103 @@ def _buracos(molde_cru: dict) -> set[str]:
     return achados
 
 
+#: O andaime do programa em C: o que está ali para o arquivo compilar,
+#: e não para a pessoa ler. O resto é o corpo.
+ANDAIME = ("#include", "int main", "return 0;")
+#: As chaves sozinhas também são andaime — mas só sozinhas: uma linha
+#: que COMEÇA por chave é um buraco, `{tipo} {nome}[{n}];`.
+CHAVES = ("{", "}")
+
+
+def _corpo(oraculo: str) -> list[str]:
+    """As linhas do oráculo que a pessoa leria, sem o andaime."""
+    return [l.strip() for l in oraculo.splitlines()
+            if l.strip()
+            and not l.strip().startswith(ANDAIME)
+            and l.strip() not in CHAVES]
+
+
+def _confere_redacoes(onde: str, redacoes, parametros,
+                      oraculo_da_familia: str,
+                      espera_da_familia: str) -> list[str]:
+    """As regras do molde, aplicadas DENTRO de cada formato.
+
+    A família moveu `codigo`, `oraculo` e `espera` para a redação, e as
+    validações continuaram olhando os campos de topo — então um buraco
+    por preencher, um oráculo constante e um `espera` emprestado
+    passavam pelos quatro portões. A revisão do ramo produziu os três
+    itens defeituosos com tudo verde. Esta varredura é o lugar único
+    onde essas regras moram agora.
+    """
+    problemas: list[str] = []
+    for r in redacoes:
+        aqui = "%s, formato %s" % (onde, r.formato)
+        oraculo = r.oraculo or oraculo_da_familia
+        espera = r.espera or espera_da_familia
+
+        # C1: todo buraco da REDAÇÃO tem de ter de onde sair. O `codigo`
+        # entra aqui porque esta fatia passou a emiti-lo no item, e o
+        # literal ia parar na tela.
+        for campo, texto in (("enunciado", r.enunciado), ("gabarito", r.gabarito),
+                             ("codigo", r.codigo), ("oraculo", r.oraculo),
+                             ("espera", r.espera),
+                             *(("distrator", x) for x in r.distratores)):
+            for buraco in sorted(set(BURACO.findall(texto or ""))):
+                if buraco in parametros or buraco == "extenso":
+                    continue
+                problemas.append(
+                    "%s: buraco {%s} em `%s` não é parâmetro deste molde"
+                    % (aqui, buraco, campo))
+
+        # C3: a regra do oráculo que depende dos parâmetros vale para o
+        # oráculo EFETIVO, e não só para o de topo.
+        if oraculo.strip() and not BURACO.search(oraculo + espera):
+            problemas.append(
+                "%s: o oráculo não usa parâmetro nenhum, então roda o mesmo "
+                "programa em toda variação e não confere nada" % aqui)
+
+        # C2: o programa conferido tem de CONTER o programa mostrado.
+        # Sem isto, o oráculo prova uma coisa e a pessoa lê outra — um
+        # "qual linha não compila" sobre duas linhas corretas, com a
+        # certa apontando uma terceira que não existe.
+        if r.codigo.strip() and oraculo.strip():
+            do_oraculo = {l.strip() for l in oraculo.splitlines() if l.strip()}
+            fora = [l.strip() for l in r.codigo.splitlines()
+                    if l.strip() and l.strip() not in do_oraculo]
+            if fora:
+                problemas.append(
+                    "%s: o código mostrado não está no oráculo (%s) — o "
+                    "programa conferido tem de ser o programa que a pessoa lê"
+                    % (aqui, "; ".join(fora[:2])))
+
+        # C2, a metade forte: quando o veredito do oráculo é "o
+        # compilador recusa", a linha que falha É a pergunta, e o
+        # gabarito a aponta pela posição. Qualquer linha que o oráculo
+        # tenha a mais pode ser a que falha — e aí a pessoa procura um
+        # erro que não está na tela. Nesse caso o corpo do oráculo tem
+        # de ser EXATAMENTE o que ela lê.
+        if r.nao_compila and r.codigo.strip() and oraculo.strip():
+            corpo = _corpo(oraculo)
+            lido = [l.strip() for l in r.codigo.splitlines() if l.strip()]
+            if corpo != lido:
+                problemas.append(
+                    "%s: `nao_compila` com %d linha(s) no oráculo e %d na "
+                    "tela — a linha que não compila tem de estar entre as "
+                    "que a pessoa lê" % (aqui, len(corpo), len(lido)))
+
+        # I1: `espera` emprestado da família é a promessa de outro
+        # programa. Quem traz oráculo próprio traz a sua.
+        if r.nao_compila and r.espera:
+            problemas.append(
+                "%s: `nao_compila` e `espera` juntos — não há saída que "
+                "esperar de um programa que não vira executável" % aqui)
+        elif not r.nao_compila and r.oraculo.strip() and not r.espera:
+            problemas.append(
+                "%s: tem oráculo próprio e não tem `espera` — o da família é "
+                "a promessa de outro programa" % aqui)
+    return problemas
+
+
 def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
     """Os moldes daquele arquivo, validados contra aquele tópico.
 
@@ -331,6 +428,15 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
                 codigo=(bruto.get("codigo") or "").strip("\n")),)
         else:
             crencas_da_familia = tuple(bruto.get("crencas") or ())
+            # O contrato da casa pede três ou quatro alternativas: uma
+            # certa mais três distratores, no máximo. Acima disso o
+            # `zip` de `item_de` truncava em silêncio, e o molde ficava
+            # declarando uma crença que os itens não mediam.
+            if len(crencas_da_familia) > 3:
+                problemas.append(
+                    "%s: %d crenças — o contrato pede três ou quatro "
+                    "alternativas, então são três distratores no máximo"
+                    % (onde, len(crencas_da_familia)))
             if not crencas_da_familia:
                 problemas.append(
                     "%s: família sem crença nenhuma — é a crença que faz o "
@@ -395,6 +501,9 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
                     espera=_texto(cru_r.get("espera")),
                     nao_compila=bool(cru_r.get("nao_compila"))))
             redacoes = tuple(redacoes)
+            problemas += _confere_redacoes(
+                onde, redacoes, parametros,
+                str(bruto.get("oraculo") or ""), _texto(bruto.get("espera")))
 
         moldes[mid] = Molde(
             id=mid, no=no, tipo=str(bruto.get("tipo") or ""),
@@ -578,53 +687,3 @@ def item_de(molde: Molde, redacao: Redacao, parametros: dict,
         "gerado_por": "molde %s" % molde.id,
         "revisado_por": molde.revisado_por if molde.revisado else "",
     }
-
-
-def _hamming(a: Mapping[str, object], b: Mapping[str, object]) -> int:
-    """Em quantos parâmetros as duas variações diferem."""
-    return sum(1 for k in a if a[k] != b[k])
-
-
-def _com_extenso(p: dict) -> dict:
-    """O número por extenso, quando há `n`. Não é parâmetro: é derivado."""
-    if "n" in p and p["n"] in EXTENSO:
-        return dict(p, extenso=EXTENSO[p["n"]])
-    return dict(p)
-
-
-def expande(molde: Molde, quantas: int = 6) -> list[dict]:
-    """As `quantas` variações mais distantes entre si, determinísticas.
-
-    GULOSO, pela distância de Hamming: começa pela combinação de índices
-    mais baixos e, a cada passo, acrescenta aquela cuja distância mínima
-    às já escolhidas é a maior. Empate cai na ordem de escrita do YAML,
-    porque `max` devolve o primeiro máximo.
-
-    Por que distância e não as primeiras combinações: seis variações que
-    diferem num parâmetro só são a mesma pergunta seis vezes, e o eixo
-    que o molde existe para criar — perguntar a mesma ideia com a roupa
-    trocada — não aparece.
-
-    Por que determinístico e não sorteado: reexpandir um molde revisado
-    tem de dar o mesmo banco. Senão o `revisado_por` passa a valer para
-    itens que ninguém viu.
-
-    Menos combinações do que o pedido devolve o que existe.
-    """
-    import itertools
-
-    nomes = list(molde.parametros)
-    restam = [dict(zip(nomes, valores)) for valores in
-              itertools.product(*(molde.parametros[k] for k in nomes))]
-
-    escolhidas: list[dict] = []
-    while restam and len(escolhidas) < quantas:
-        if escolhidas:
-            alvo = max(restam, key=lambda c: min(_hamming(c, e)
-                                                 for e in escolhidas))
-        else:
-            alvo = restam[0]
-        escolhidas.append(alvo)
-        restam.remove(alvo)
-    return [_com_extenso(p) for p in escolhidas]
-

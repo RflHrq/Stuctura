@@ -530,6 +530,13 @@ def _cru_familia(**troca) -> dict:
                           "printf(\"%zu\", sizeof {nome} / sizeof {nome}[0]);\n",
                 "enunciado": "O que este programa imprime, exatamente?",
                 "gabarito": "do_oraculo",
+                "oraculo": "#include <stdio.h>\n"
+                           "int main(void) {\n"
+                           "    {tipo} {nome}[{n}];\n"
+                           "    printf(\"%zu\", sizeof {nome} / sizeof {nome}[0]);\n"
+                           "    return 0;\n"
+                           "}\n",
+                "espera": "{n}",
                 "distratores": [
                     "o tamanho de um ponteiro, em bytes",
                     "1, porque {nome} é uma coisa só",
@@ -778,3 +785,118 @@ def test_o_banco_de_treino_do_b1_ficou_com_quatro_formatos():
         a.formato for a in d.atividades if a.no == "B1" and a.uso == "treino")
     assert len(por_formato) == 4, por_formato
     assert max(por_formato.values()) <= 3, por_formato
+
+
+# --------------------------------------------------------------------------
+# A revisão do ramo: as validações tinham ficado olhando o TOPO
+# --------------------------------------------------------------------------
+
+def test_buraco_dentro_de_um_formato_nao_carrega(tmp_path, d7):
+    """C1: a varredura de buracos nunca descia em `formatos:`.
+
+    Esta fatia passou a emitir `codigo` em todo item, e o item saía com
+    `int a[{tamanho_errado}];` na tela da pessoa — exatamente o defeito
+    para o qual o portão foi criado, reaberto por um campo novo.
+    """
+    formatos = _cru_familia()["formatos"]
+    formatos["achar_o_erro"]["codigo"] = "{tipo} {nome}[{tamanho_errado}];"
+    p = _recusa_familia(tmp_path, d7, "b1", formatos=formatos)
+    assert any("tamanho_errado" in x and "buraco" in x for x in p), p
+
+
+def test_a_linha_que_nao_compila_tem_de_estar_na_tela(tmp_path, d7):
+    """C2: nada amarrava o programa conferido ao programa MOSTRADO.
+
+    Dava para perguntar "qual destas duas linhas não compila?" com as
+    duas corretas, e um oráculo com uma terceira linha que falha — e a
+    alternativa certa apontando uma linha que não está na tela. O
+    oráculo diria que sim, o compilador recusa, e estaria certo: a
+    pessoa é que não tem como ver por quê.
+    """
+    formatos = _cru_familia()["formatos"]
+    formatos["achar_o_erro"]["codigo"] = "{tipo} {nome}[{n}];\n{tipo} *p = {nome};"
+    p = _recusa_familia(tmp_path, d7, "b2", formatos=formatos)
+    assert any("achar_o_erro" in x and "a pessoa lê" in x for x in p), p
+
+
+def test_o_codigo_mostrado_tem_de_estar_no_oraculo(tmp_path, d7):
+    """A metade fraca da mesma regra, para os formatos que medem.
+
+    O `comparar_casos` do molde de verdade mostra duas declarações e o
+    oráculo acrescenta um `printf` que as mede — isso é legítimo, a
+    medição não é programa que a pessoa lê. O que não pode é o
+    contrário: uma linha na tela que o oráculo nunca compilou.
+    """
+    formatos = _cru_familia()["formatos"]
+    formatos["prever_saida"]["codigo"] = "{tipo} {nome}[{n}];\n{nome}[{n}] = 0;"
+    p = _recusa_familia(tmp_path, d7, "b2b", formatos=formatos)
+    assert any("prever_saida" in x and "não está no oráculo" in x
+               for x in p), p
+
+
+def test_oraculo_de_formato_tambem_depende_dos_parametros(tmp_path, d7):
+    """C3: a regra existia e era contornada por omissão.
+
+    Sem oráculo de topo e com um constante em cada formato, a família
+    carregava e passava nos quatro portões — e o `prever_saida` saía com
+    a mesma resposta certa para n=3 e para n=8.
+    """
+    formatos = _cru_familia()["formatos"]
+    for nome, r in formatos.items():
+        r["oraculo"] = '#include <stdio.h>\nint main(void){ printf("7"); return 0; }'
+        r["espera"] = "7"
+        r.pop("nao_compila", None)
+    cru = _cru_familia(formatos=formatos)
+    cru.pop("oraculo")
+    cru.pop("espera")
+    pasta = tmp_path / "b3"
+    pasta.mkdir()
+    (pasta / "moldes_kc07.yaml").write_text(
+        yaml.safe_dump({"mol_teste": cru}, allow_unicode=True, sort_keys=False),
+        encoding="utf-8")
+    with pytest.raises(MoldeInvalido) as erro:
+        le(pasta / "moldes_kc07.yaml", d7)
+    assert any("parâmetro" in x for x in erro.value.problemas), erro.value.problemas
+
+
+def test_formato_com_oraculo_proprio_precisa_de_espera(tmp_path, d7):
+    """I1: o `espera` caía para o da FAMÍLIA, que é a promessa de outro
+    programa — e o portão comparava a saída de um com a promessa do
+    outro."""
+    formatos = _cru_familia()["formatos"]
+    formatos["comparar_casos"] = {
+        "tipo": "codigo",
+        "codigo": "{tipo} {nome}[{n}];",
+        "enunciado": "Quantas caixas, nos dois casos?",
+        "gabarito": "São {extenso} caixas",
+        "distratores": ["Uma só, com {extenso} dentro", "Nenhuma: {nome} é ponteiro"],
+        "oraculo": '#include <stdio.h>\nint main(void){ {tipo} {nome}[{n}];'
+                   ' printf("%zu", sizeof {nome} / sizeof {nome}[0]); return 0; }',
+    }
+    p = _recusa_familia(tmp_path, d7, "b4", formatos=formatos)
+    assert any("comparar_casos" in x and "espera" in x for x in p), p
+
+
+def test_nao_compila_com_espera_nao_carrega(tmp_path, d7):
+    """A spec diz que declarar os dois juntos é erro de carga: não há
+    saída que esperar de um programa que não vira executável."""
+    formatos = _cru_familia()["formatos"]
+    formatos["achar_o_erro"]["espera"] = "qualquer coisa"
+    p = _recusa_familia(tmp_path, d7, "b5", formatos=formatos)
+    assert any("nao_compila" in x and "espera" in x for x in p), p
+
+
+def test_mais_de_tres_crencas_nao_carrega(tmp_path, d7):
+    """I7: a quarta crença e o distrator dela sumiam no `zip`.
+
+    O molde declarava uma crença que os itens não mediam, e ela nunca
+    receberia atribuição. E o item sairia com cinco alternativas, contra
+    as três ou quatro do contrato.
+    """
+    formatos = _cru_familia()["formatos"]
+    for r in formatos.values():
+        r["distratores"] = r["distratores"] + ["Mais um", "E mais um"]
+    p = _recusa_familia(tmp_path, d7, "b6", formatos=formatos,
+                        crencas=["string_literal_is_array", "array_is_pointer",
+                                 "declaration_allocates", "array_is_assignable"])
+    assert any("crença" in x and "contrato" in x for x in p), p

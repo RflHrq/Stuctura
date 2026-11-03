@@ -430,8 +430,8 @@ def sem_buraco(item: dict) -> bool:
     """
     from mvp.molde import BURACO
 
-    textos = [item.get("enunciado", "")] + list(
-        (item.get("alternativas") or {}).values())
+    textos = ([item.get("enunciado", ""), item.get("codigo", "")]
+              + list((item.get("alternativas") or {}).values()))
     return not any(BURACO.search(x or "") for x in textos)
 
 

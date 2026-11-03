@@ -776,15 +776,29 @@ def test_saida_que_nao_serve_de_alternativa_reprova(tmp_path):
     pode virar a alternativa certa."""
     from mvp.test_molde import _cru_familia
 
+    # A saída longa, e não a vazia: desde que a carga cobra que o
+    # oráculo confira o programa MOSTRADO, uma saída vazia só sai de um
+    # oráculo que não mostra nada — e esse nem carrega. A frase inteira
+    # cabe no programa, passa no oráculo, e não cabe num botão.
+    linha = ('printf("sao %zu caixas de {tipo} chamadas {nome}, grudadas uma '
+             'na outra, e o compilador nao reclama",'
+             ' sizeof {nome} / sizeof {nome}[0]);')
     formatos = _cru_familia()["formatos"]
+    formatos["prever_saida"]["codigo"] = "{tipo} {nome}[{n}];" + chr(10) + linha
     formatos["prever_saida"]["oraculo"] = (
         "#include <stdio.h>" + chr(10) +
-        "int main(void) { printf(\"\"); return 0; }" + chr(10))
+        "int main(void) {" + chr(10) +
+        "    {tipo} {nome}[{n}];" + chr(10) +
+        "    " + linha + chr(10) +
+        "    return 0;" + chr(10) + "}" + chr(10))
+    formatos["prever_saida"]["espera"] = (
+        "sao {n} caixas de {tipo} chamadas {nome}, grudadas uma na outra, "
+        "e o compilador nao reclama")
     itens, problemas = gerar.expande_molde(
         D7, "kc_07", "mol_teste",
-        raiz=_familia(tmp_path, "vazia", formatos=formatos, espera=""))
+        raiz=_familia(tmp_path, "longa", formatos=formatos))
     assert itens == []
-    assert any("vazia" in p or "alternativa" in p for p in problemas), problemas
+    assert any("alternativa" in p for p in problemas), problemas
 
 
 def test_a_folha_da_familia_mostra_os_extremos_e_um_de_cada_formato(tmp_path):
