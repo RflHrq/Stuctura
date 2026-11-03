@@ -21,7 +21,8 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mvp.dominio import RAIZ as RAIZ_DOMINIO, carrega, topicos
-from mvp.molde import Molde, MoldeInvalido, expande, item_de, le
+from mvp.molde import (Molde, MoldeInvalido, expande, item_de, le,
+                       serve_de_alternativa)
 
 
 @pytest.fixture(scope="module")
@@ -656,3 +657,41 @@ def test_o_codigo_da_redacao_vai_para_o_item(mf):
     assert "{" not in it["codigo"], it["codigo"]
     # e o da redação que NÃO tem código continua vazio
     assert item_de(mf, mf.redacoes[0], expande(mf, 6)[0], 1)["codigo"] == ""
+
+
+# --------------------------------------------------------------------------
+# O gabarito que sai do oráculo
+# --------------------------------------------------------------------------
+
+def test_do_oraculo_so_vale_em_prever_saida(tmp_path, d7):
+    """Foco 4: noutro formato, a saída do programa não é a resposta."""
+    formatos = _cru_familia()["formatos"]
+    formatos["reconhecer_conceito"]["gabarito"] = "do_oraculo"
+    p = _recusa_familia(tmp_path, d7, "g1", formatos=formatos)
+    assert any("do_oraculo" in x and "prever_saida" in x for x in p), p
+
+
+def test_prever_saida_na_familia_exige_do_oraculo(tmp_path, d7):
+    """O contrário também: neste formato o gabarito TEM de sair do
+    programa, senão `gabarito` e `espera` voltam a ser independentes e
+    ninguém prova que dizem a mesma coisa."""
+    formatos = _cru_familia()["formatos"]
+    formatos["prever_saida"]["gabarito"] = "5"
+    p = _recusa_familia(tmp_path, d7, "g2", formatos=formatos)
+    assert any("prever_saida" in x and "do_oraculo" in x for x in p), p
+
+
+def test_prever_saida_sozinho_continua_recusado(tmp_path, d7):
+    """Fora da família, gabarito e espera são campos independentes."""
+    p = _recusa(tmp_path, d7, "g3", formato="prever_saida")
+    assert any("prever_saida" in x for x in p), p
+
+
+def test_saida_que_serve_de_alternativa(tmp_path, d7):
+    assert serve_de_alternativa("3") == (True, "3")
+    ok, motivo = serve_de_alternativa("")
+    assert not ok and "vazia" in motivo
+    ok, motivo = serve_de_alternativa("3\n1")
+    assert not ok and "linha" in motivo
+    ok, motivo = serve_de_alternativa("x" * 80)
+    assert not ok and "longa" in motivo

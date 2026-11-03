@@ -369,6 +369,20 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
                         "%s: %d distrator(es) para %d crença(s) — a "
                         "correspondência é pela posição, e precisa de uma "
                         "para uma" % (aqui, quantos, len(crencas_da_familia)))
+                # `do_oraculo` é marcador, e só faz sentido onde a
+                # saída do programa É a resposta certa.
+                pede_oraculo = _texto(cru_r.get("gabarito")) == "do_oraculo"
+                if pede_oraculo and nome_formato != "prever_saida":
+                    problemas.append(
+                        "%s: `gabarito: do_oraculo` só vale em prever_saida — "
+                        "noutro formato a saída do programa não é a resposta"
+                        % aqui)
+                if nome_formato == "prever_saida" and not pede_oraculo:
+                    problemas.append(
+                        "%s: prever_saida exige `gabarito: do_oraculo` — sem "
+                        "isso o gabarito e o `espera` voltam a ser campos "
+                        "independentes, e ninguém prova que dizem o mesmo"
+                        % aqui)
                 redacoes.append(Redacao(
                     formato=nome_formato,
                     tipo=str(cru_r.get("tipo") or ""),
@@ -452,6 +466,25 @@ def expande(molde: Molde, quantas: int = 6) -> list[dict]:
         escolhidas.append(alvo)
         restam.remove(alvo)
     return [_com_extenso(p) for p in escolhidas]
+
+
+def serve_de_alternativa(saida: str) -> tuple[bool, str]:
+    """A saída do programa pode virar a alternativa certa?
+
+    Em `prever_saida` o oráculo deixa de conferir e vira gabarito. Mas
+    nem toda saída é uma alternativa: vazia não diz nada, com quebra de
+    linha não cabe num botão, e muito longa vira a pista de superfície
+    que o contrato já proíbe.
+    """
+    texto = (saida or "").strip()
+    if not texto:
+        return False, "a saída é vazia, e não serve como alternativa"
+    if "\n" in texto:
+        return False, ("a saída tem mais de uma linha, e não serve como "
+                       "alternativa")
+    if len(texto) > 60:
+        return False, "a saída é longa demais para uma alternativa"
+    return True, texto
 
 
 def item_de(molde: Molde, redacao: Redacao, parametros: dict,
