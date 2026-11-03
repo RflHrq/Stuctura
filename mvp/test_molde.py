@@ -11,6 +11,7 @@ conferir molde não precisa de rede nenhuma.
 
 from __future__ import annotations
 
+import itertools
 import sys
 from pathlib import Path
 
@@ -20,7 +21,7 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mvp.dominio import carrega
-from mvp.molde import Molde, MoldeInvalido, le
+from mvp.molde import Molde, MoldeInvalido, expande, le
 
 
 @pytest.fixture(scope="module")
@@ -183,3 +184,59 @@ def test_as_chaves_do_c_nao_sao_buracos(tmp_path, d7):
     """
     m = _le(tmp_path, d7, "ok")["mol_teste"]
     assert "int main(void) {" in m.oraculo
+
+
+# --------------------------------------------------------------------------
+# A expansão
+# --------------------------------------------------------------------------
+
+def _hamming(a: dict, b: dict) -> int:
+    """Em quantos parâmetros as duas variações diferem.
+
+    `extenso` fica de fora: ele acompanha o `n`, e contá-lo seria contar
+    o mesmo parâmetro duas vezes.
+    """
+    return sum(1 for k in a if k != "extenso" and a[k] != b[k])
+
+
+@pytest.fixture
+def m(tmp_path, d7):
+    return _le(tmp_path, d7, "exp")["mol_teste"]
+
+
+def test_a_expansao_e_estavel(m):
+    """Mesma entrada, mesma saída: o candidato tem de ser reprodutível.
+
+    Sem isso, reexpandir um molde revisado produz outro banco, e o
+    `revisado_por` passa a valer para itens que ninguém viu.
+    """
+    assert expande(m, 6) == expande(m, 6)
+
+
+def test_as_variacoes_sao_distantes(m):
+    """Trocar de item tem de trocar de superfície.
+
+    Seis variações que diferem num parâmetro só são a mesma pergunta seis
+    vezes, e o eixo que o molde existe para criar não aparece.
+    """
+    saiu = expande(m, 6)
+    assert len(saiu) == 6
+    assert all(_hamming(a, b) >= 2
+               for a, b in itertools.combinations(saiu, 2)), saiu
+
+
+def test_menos_combinacoes_do_que_o_pedido(tmp_path, d7):
+    """Foco 2: dois parâmetros de um valor só dão duas variações."""
+    pequeno = _le(tmp_path, d7, "peq", parametros={
+        "tipo": ["int"], "nome": ["a"], "n": [3, 5]})["mol_teste"]
+    assert len(expande(pequeno, 6)) == 2
+
+
+def test_extenso_acompanha_o_n(m):
+    for p in expande(m, 6):
+        assert p["extenso"] == {3: "três", 5: "cinco", 8: "oito"}[p["n"]]
+
+
+def test_a_expansao_nao_repete_variacao(m):
+    vistas = [tuple(sorted(p.items())) for p in expande(m, 6)]
+    assert len(set(vistas)) == len(vistas)

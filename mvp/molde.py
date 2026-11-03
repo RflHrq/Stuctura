@@ -203,3 +203,52 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
     if problemas:
         raise MoldeInvalido(problemas)
     return moldes
+
+
+def _hamming(a: Mapping[str, object], b: Mapping[str, object]) -> int:
+    """Em quantos parâmetros as duas variações diferem."""
+    return sum(1 for k in a if a[k] != b[k])
+
+
+def _com_extenso(p: dict) -> dict:
+    """O número por extenso, quando há `n`. Não é parâmetro: é derivado."""
+    if "n" in p and p["n"] in EXTENSO:
+        return dict(p, extenso=EXTENSO[p["n"]])
+    return dict(p)
+
+
+def expande(molde: Molde, quantas: int = 6) -> list[dict]:
+    """As `quantas` variações mais distantes entre si, determinísticas.
+
+    GULOSO, pela distância de Hamming: começa pela combinação de índices
+    mais baixos e, a cada passo, acrescenta aquela cuja distância mínima
+    às já escolhidas é a maior. Empate cai na ordem de escrita do YAML,
+    porque `max` devolve o primeiro máximo.
+
+    Por que distância e não as primeiras combinações: seis variações que
+    diferem num parâmetro só são a mesma pergunta seis vezes, e o eixo
+    que o molde existe para criar — perguntar a mesma ideia com a roupa
+    trocada — não aparece.
+
+    Por que determinístico e não sorteado: reexpandir um molde revisado
+    tem de dar o mesmo banco. Senão o `revisado_por` passa a valer para
+    itens que ninguém viu.
+
+    Menos combinações do que o pedido devolve o que existe.
+    """
+    import itertools
+
+    nomes = list(molde.parametros)
+    restam = [dict(zip(nomes, valores)) for valores in
+              itertools.product(*(molde.parametros[k] for k in nomes))]
+
+    escolhidas: list[dict] = []
+    while restam and len(escolhidas) < quantas:
+        if escolhidas:
+            alvo = max(restam, key=lambda c: min(_hamming(c, e)
+                                                 for e in escolhidas))
+        else:
+            alvo = restam[0]
+        escolhidas.append(alvo)
+        restam.remove(alvo)
+    return [_com_extenso(p) for p in escolhidas]
