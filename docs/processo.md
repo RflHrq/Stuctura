@@ -1910,3 +1910,36 @@ cinco.
 Nenhuma pessoa real passou pela descida. O que está medido é o custo em
 telas e o comportamento do motor — não o efeito em quem aprende. E a
 evidência continua pendente até alguém rodar o programa e gravar a saída.
+
+## A crase saiu dos textos de tela, nos treze tópicos
+
+Achado na tela, rodando a descida: o cliente escreve com `textContent` e
+não interpreta marcação nenhuma, então a crase do YAML aparece como
+crase na cara da pessoa. A pergunta do primeiro degrau saiu com os
+acentos graves no meio da frase.
+
+A varredura do domínio inteiro — os YAMLs carregados pelo PyYAML, que já
+descarta comentário — achou **108 crases em valores**, em dois lugares:
+
+| onde | quantas | vai para tela? |
+|---|---|---|
+| `analogy` e `resgates` do kc_03, kc_04 e kc_10 | 28 | **sim** |
+| `source` das crenças, nos doze tópicos | 80 | não |
+
+As 28 saíram. As 80 ficaram: `source` é a citação da procedência, lida no
+YAML e nos docs por quem pesquisa, e nenhuma tela a mostra — nem o
+painel. Marcação em texto que se lê como texto é marcação útil, e é por
+isso que a regra escrita é *"o que vai para a TELA"*, e não *"o domínio
+inteiro"*.
+
+Nenhum texto precisou de reescrita: eles já nomeavam os símbolos por
+inteiro (`int *p;`, `&x`, `*pp`), e tirar o acento não deixou letra solta
+— ao contrário da descida, onde duas frases ganharam "o nome a" e "o
+ponteiro p" porque "a" sozinho vira artigo.
+
+A regra virou teste: `test_nenhum_texto_de_tela_usa_crase` varre, por
+tópico, título, teach-back, analogia, texto e enunciado simples dos nós,
+afirmação das crenças, enunciado/código/alternativas de toda atividade,
+resgates, exemplos e os degraus e a evidência das descidas. Treze
+tópicos, um caso cada. Sabotado em dois lugares diferentes — um resgate
+do kc_04 e a primeira pergunta do kc_07 —, o teste cai nos dois.

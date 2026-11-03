@@ -17,15 +17,15 @@
 # pedida É a explicação.
 
 analogy: >
-  A pergunta e a viagem. Continua a rua: `&x` é PERGUNTAR o número da
+  A pergunta e a viagem. Continua a rua: &x é PERGUNTAR o número da
   casa de x — você recebe o número, e não a casa nem o que está dentro
-  dela. `*p` é a VIAGEM: ir até o número escrito no papel de p e mexer no
+  dela. *p é a VIAGEM: ir até o número escrito no papel de p e mexer no
   que tem naquela casa. Uma desfaz a outra: pergunte o número de x, vá
   até ele, e você chega em x.
   ONDE QUEBRA: "perguntar o número" sugere que há alguém para responder.
   Não há — o número é propriedade do lugar, e por isso não existe número
   para o 5 escrito no código. E "a viagem" sugere tempo e distância: não
-  há, `*p` não custa mais por apontar longe. A metáfora diz ONDE a ação
+  há, *p não custa mais por apontar longe. A metáfora diz ONDE a ação
   acontece, nunca quanto ela custa.
 
 resgates:
@@ -47,7 +47,7 @@ resgates:
     aquele outro lugar contém.
 
   I1: >
-    `*p` é a viagem. Lê o número no papel de p, vai até aquela casa, e age
+    *p é a viagem. Lê o número no papel de p, vai até aquela casa, e age
     no que está guardado nela. Duas casas envolvidas: a de p, de onde o
     número saiu, e a do número, onde a ação acontece.
 
@@ -59,7 +59,7 @@ resgates:
   I3: >
     & pergunta onde está; * vai até lá. Um desfaz o outro: pergunte o
     número da casa de x, vá até esse número, e você está em x. Por isso
-    `*(&x)` é a própria x — e por isso `p` e `*p` nunca são a mesma coisa.
+    *(&x) é a própria x — e por isso p e *p nunca são a mesma coisa.
 
 exemplos:
 

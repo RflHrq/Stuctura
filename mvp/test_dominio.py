@@ -517,3 +517,62 @@ def test_o_escopo_vem_do_ambiente_quando_ninguem_pede():
     # sem a variável, o padrão é o tópico inteiro
     amb = {k: v for k, v in os.environ.items() if k != "STRUCTURA_PREMISSAS"}
     assert roda(amb, "")[0] == "None"
+
+
+# --------------------------------------------------------------------------
+# Marcação: o que vai para a tela se escreve sem enfeite
+# --------------------------------------------------------------------------
+
+def textos_de_tela(d):
+    """Todo texto deste tópico que alguma tela escreve, com o caminho.
+
+    FORA DAQUI, de propósito: `Crenca.fonte`. Ela é a citação da
+    procedência — lida no YAML e nos docs por quem pesquisa, e nenhuma
+    tela a mostra, nem o painel. Marcação em texto que se lê como texto
+    é marcação útil, e é por isso que a regra é "o que vai para a TELA",
+    e não "o domínio inteiro".
+    """
+    yield "titulo", d.titulo
+    yield "teachback", d.teachback
+    yield "analogia", d.analogia
+    for nid, no in d.nos.items():
+        yield "nos/%s/texto" % nid, no.texto
+        yield "nos/%s/simples" % nid, no.simples
+    for cid, c in d.crencas.items():
+        yield "crencas/%s/afirma" % cid, c.afirma
+    for a in d.atividades:
+        yield "%s/enunciado" % a.id, a.enunciado
+        yield "%s/codigo" % a.id, a.codigo
+        for i, o in enumerate(a.opcoes):
+            yield "%s/opcao[%d]" % (a.id, i), o.texto
+    for nid, texto in d.resgates.items():
+        yield "resgates/%s" % nid, texto
+    for nid, texto in d.exemplos.items():
+        yield "exemplos/%s" % nid, texto
+    for cid, desc in d.descidas.items():
+        for i, p in enumerate(desc.passos, 1):
+            for campo in ("pergunta", "decorre", "verdade", "porque"):
+                yield "descida/%s/%d/%s" % (cid, i, campo), getattr(p, campo)
+        ev = desc.evidencia
+        for campo in ("fonte", "comando", "afirmacao", "garantia",
+                      "saida", "onde"):
+            yield "descida/%s/evidencia/%s" % (cid, campo), getattr(ev, campo)
+
+
+@pytest.mark.parametrize("topico", topicos())
+def test_nenhum_texto_de_tela_usa_crase(topico):
+    """O cliente escreve com `textContent`: crase no YAML vira crase na
+    cara da pessoa.
+
+    Não é hipótese — foi visto na tela, rodando a descida do kc_07: a
+    pergunta saiu com os acentos graves no meio da frase. A varredura
+    achou mais 28 em `analogy` e `resgates` de três tópicos, que estavam
+    lá desde que aqueles textos foram escritos.
+
+    Código dentro de frase se escreve sem enfeite: int a[5], sizeof a,
+    *p, &x — que é o que a maioria dos textos do domínio já fazia.
+    """
+    d = carrega(topico=topico)
+    com_crase = [(onde, texto) for onde, texto in textos_de_tela(d)
+                 if "`" in (texto or "")]
+    assert not com_crase, com_crase

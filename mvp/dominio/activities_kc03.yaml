@@ -11,7 +11,7 @@
 
 analogy: >
   O papel que já vem rabiscado. Continua a rua do kc_02: declarar
-  `int *p;` é ganhar a casa de p, com um papel dentro — e o papel não vem
+  int *p; é ganhar a casa de p, com um papel dentro — e o papel não vem
   em branco. Traz o que o último morador rabiscou nele. Não é zero, não é
   "nada", e não é um endereço que alguém escolheu.
   ONDE QUEBRA: papel rabiscado sugere que havia um número ali, de alguém.
@@ -28,7 +28,7 @@ resgates:
     promessa de casa, não é fila de espera: a casa está lá.
 
   B2: >
-    Em `int *p;` quem ganha casa é p. O asterisco não é uma segunda casa
+    Em int *p; quem ganha casa é p. O asterisco não é uma segunda casa
     que apareceu junto: ele diz que tipo de papel cabe dentro da casa de
     p — um papel com número de casa. É descrição do que p é, não um
     segundo morador.
@@ -50,7 +50,7 @@ resgates:
 
   I3: >
     Seguir o rabisco é ir até um endereço que ninguém escolheu. Às vezes
-    não existe casa lá; às vezes existe e é de outro. Por isso usar `*p`
+    não existe casa lá; às vezes existe e é de outro. Por isso usar *p
     antes de dar um endereço a p não é arriscado: é inválido.
 
 exemplos:
