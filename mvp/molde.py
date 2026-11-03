@@ -211,6 +211,30 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
             distratores.append((str(dist.get("texto") or "").strip(),
                                 str(cid or "")))
 
+        # O ORÁCULO TEM DE DEPENDER DOS PARÂMETROS. Sem isto, um
+        # programa constante satisfaz a obrigatoriedade e não confere
+        # nada: seis compilações do mesmo programa, seis "passou",
+        # relatório verde — e com cara de conferido, que é o pior
+        # resultado possível numa camada feita para separar conferido de
+        # não conferido.
+        juntos = str(bruto.get("oraculo") or "") + str(bruto.get("espera") or "")
+        if juntos.strip() and not BURACO.search(juntos):
+            problemas.append(
+                "%s: o oráculo não usa parâmetro nenhum, então roda o mesmo "
+                "programa em toda variação e não confere nada" % onde)
+
+        # `prever_saida` promete, na spec, que o oráculo vira GABARITO: a
+        # resposta certa é o que o programa imprime, e a máquina a
+        # calcula. Enquanto isso não existir, `gabarito` e `espera` são
+        # campos independentes — o oráculo prova que o programa imprime
+        # `espera`, e ninguém prova que a alternativa certa diz o mesmo.
+        # Formato aceito e meio implementado é pior que recusado.
+        if bruto.get("formato") == "prever_saida":
+            problemas.append(
+                "%s: prever_saida ainda não vale como molde — neste formato "
+                "o gabarito tem de SAIR do oráculo, e isso não está feito. "
+                "Escreva o item à mão" % onde)
+
         # A trava da revisão: nome e assinatura andam juntos.
         digest = assinatura(bruto)
         tem_nome = bool(str(bruto.get("revisado_por") or "").strip())
@@ -235,6 +259,17 @@ def le(caminho: Path, d: Dominio) -> dict[str, Molde]:
                     problemas.append(
                         "%s: usa {extenso}, que é derivado de `n`, e não há "
                         "parâmetro `n`" % onde)
+                    continue
+                # Fora da faixa que tem nome, o buraco fica LITERAL no
+                # item, e quem o recebe lê "{extenso} caixas de int".
+                # Nenhum dos quatro portões pega isso: o oráculo não usa
+                # {extenso}, o contrato não repara, a variedade não
+                # repara.
+                sem_nome = [v for v in parametros["n"] if v not in EXTENSO]
+                if sem_nome:
+                    problemas.append(
+                        "%s: usa {extenso}, e %s não tem nome por extenso "
+                        "(há até %d)" % (onde, sem_nome, max(EXTENSO)))
                 continue
             problemas.append(
                 "%s: buraco {%s} não é parâmetro deste molde (há %s)"

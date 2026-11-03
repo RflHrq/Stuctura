@@ -423,3 +423,45 @@ def test_o_item_nao_herda_nome_de_molde_com_assinatura_velha(tmp_path, d7):
     velho = replace(m, revisado_por="Rafael", revisado_sha="0000deadbeef")
     assert velho.revisado is False
     assert item_de(velho, expande(velho, 1)[0], 1)["revisado_por"] == ""
+
+
+# --------------------------------------------------------------------------
+# Os portões que deixavam dado errado passar
+# --------------------------------------------------------------------------
+
+def test_oraculo_que_nao_usa_parametro_nao_carrega(tmp_path, d7):
+    """Oráculo constante satisfaz a obrigatoriedade sem conferir nada.
+
+    Seis compilações do mesmo programa, seis "passou", relatório verde —
+    e com CARA de conferido, que é o pior resultado possível numa camada
+    que existe para separar conferido de não conferido.
+    """
+    p = _recusa(tmp_path, d7, "const",
+                oraculo='#include <stdio.h>\nint main(void) { printf("ok"); return 0; }\n',
+                espera="ok")
+    assert any("não usa parâmetro" in x for x in p), p
+
+
+def test_extenso_exige_que_todo_n_tenha_nome(tmp_path, d7):
+    """`{extenso}` fora de 1..10 deixava o buraco LITERAL no item.
+
+    O participante receberia "{extenso} caixas de int, grudadas". Passa
+    na validação (o `n` existe), e nenhum dos quatro portões olha: o
+    oráculo não usa `{extenso}`, o contrato não repara, a variedade não
+    repara.
+    """
+    p = _recusa(tmp_path, d7, "grande", parametros={
+        "tipo": ["int"], "nome": ["a"], "n": [8, 16]})
+    assert any("extenso" in x and "16" in x for x in p), p
+
+
+def test_prever_saida_ainda_nao_vale_como_molde(tmp_path, d7):
+    """A spec promete que, neste formato, o oráculo vira GABARITO.
+
+    Enquanto isso não existir, `gabarito` e `espera` são campos
+    independentes: o oráculo prova que o programa imprime `espera`, e
+    ninguém prova que a alternativa certa diz a mesma coisa. Formato
+    aceito e meio implementado é pior que formato recusado.
+    """
+    p = _recusa(tmp_path, d7, "prev", formato="prever_saida")
+    assert any("prever_saida" in x and "gabarito" in x for x in p), p

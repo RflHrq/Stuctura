@@ -309,7 +309,9 @@ def _molde(tmp_path, nome, **troca):
                        "nome": ["a", "v", "dados"],
                        "n": [3, 5, 8]},
         "enunciado": "{tipo} {nome}[{n}] guarda quantos valores?",
-        "gabarito": "{extenso}, um por caixa",
+        # Começa por palavra: o portão novo recusa molde em que a certa
+        # é a única alternativa que começa em minúscula.
+        "gabarito": "São {extenso} valores, um por caixa",
         "distratores": [
             {"texto": "Um só, com os outros dentro dele",
              "crenca": "string_literal_is_array"},
@@ -370,7 +372,7 @@ def test_uma_variacao_reprovada_derruba_o_molde_inteiro(tmp_path):
 def test_o_portao_do_contrato_diz_qual_variacao_quebrou(tmp_path):
     """Foco 5: a alternativa certa não pode ser a mais longa."""
     pasta = _molde(tmp_path, "longa", gabarito=(
-        "{extenso} valores, um em cada caixa, e as caixas estão grudadas "
+        "São {extenso} valores, um em cada caixa, e as caixas estão grudadas "
         "uma na outra desde a declaração"))
     itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
     assert itens == []
@@ -587,3 +589,51 @@ def test_aprovar_item_com_id_que_ja_existe_diz_que_esta_duplicado(
     quantos, avisos = gerar.aprova("kc_02")
     assert quantos == 0
     assert any("ciu_kc02_001" in a and "duplicada" in a for a in avisos), avisos
+
+
+def test_item_nao_sai_com_buraco_sem_preencher(tmp_path):
+    """A rede por baixo das validações, para qualquer derivado futuro.
+
+    Hoje a carga do molde já barra `{extenso}` fora da faixa. Mas basta
+    um derivado novo para o caso voltar, e o que chega à tela da pessoa
+    é literalmente "{extenso} caixas de int".
+    """
+    from mvp import molde as mod
+
+    m = _le_molde(tmp_path, "buraco")
+    p = dict(mod.expande(m, 1)[0])
+    p.pop("extenso", None)                 # como se o derivado não existisse
+    item = mod.item_de(m, p, 1)
+    assert "{" in str(item["alternativas"]), item["alternativas"]
+    assert gerar.sem_buraco(item) is False
+
+
+def test_o_portao_barra_o_buraco_por_preencher(tmp_path, monkeypatch):
+    """E o portão tem de ver isso, não só a função.
+
+    A carga do molde já barra o único caso que existe hoje (`{extenso}`
+    fora da faixa), então o portão é rede para o derivado que ainda não
+    existe. O teste simula exatamente isso: o derivado deixa de ser
+    preenchido, e nada mais muda.
+    """
+    from mvp import molde as mod
+
+    monkeypatch.setattr(mod, "_com_extenso", lambda p: dict(p))
+    pasta = _molde(tmp_path, "rede")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == []
+    assert any("buraco por preencher" in x for x in problemas), problemas
+
+
+def test_a_certa_nao_pode_ser_a_unica_em_minuscula(tmp_path):
+    """Pista de superfície sistemática sobre a resposta certa.
+
+    Vinha do molde começar o gabarito por `{extenso}`: nas seis
+    variações, a certa era a única que começava em minúscula. Num
+    instrumento que mede concepção errônea, isso é dado contaminado.
+    """
+    pasta = _molde(tmp_path, "minuscula",
+                   gabarito="{extenso} valores, um por caixa")
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste", raiz=pasta)
+    assert itens == []
+    assert any("minúscula" in p for p in problemas), problemas

@@ -32,7 +32,10 @@ mol_kc07_B1_treino_1:
     n: [3, 4, 6, 8]
 
   enunciado: "Depois de {tipo} {nome}[{n}]; e nada mais, o que existe na memória?"
-  gabarito: "{extenso} caixas de {tipo}, grudadas"
+  # Começa por palavra, e não pelo buraco: com "{extenso} caixas..." a
+  # alternativa certa era a ÚNICA em minúscula, nas seis variações — uma
+  # pista de superfície que se repete em todo o molde.
+  gabarito: "São {extenso} caixas de {tipo}, grudadas"
   distratores:
     - texto: "Uma caixa só, com {extenso} valores guardados dentro dela"
       crenca: string_literal_is_array

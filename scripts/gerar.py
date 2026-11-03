@@ -391,6 +391,39 @@ def _diz(parametros: dict) -> str:
                      if kv[0] != "extenso")
 
 
+def sem_buraco(item: dict) -> bool:
+    """Nenhum texto do item pode chegar com buraco por preencher.
+
+    É a rede por baixo das validações do molde: hoje a carga já barra
+    `{extenso}` fora da faixa, mas basta um derivado novo para o caso
+    voltar — e o que chega à tela é literalmente "{extenso} caixas de
+    int".
+    """
+    from mvp.molde import BURACO
+
+    textos = [item.get("enunciado", "")] + list(
+        (item.get("alternativas") or {}).values())
+    return not any(BURACO.search(x or "") for x in textos)
+
+
+def _so_a_certa_em_minuscula(item: dict) -> bool:
+    """A certa é a única que começa em minúscula?
+
+    Pista de superfície sistemática: num molde ela se repete em TODAS as
+    variações, e quem responde pode aprender a pista em vez do conceito.
+    Veio de começar o gabarito por `{extenso}`.
+    """
+    def comeca_baixo(texto: str) -> bool:
+        texto = (texto or "").strip()
+        return bool(texto) and texto[0].islower()
+
+    alternativas = item.get("alternativas") or {}
+    certa = alternativas.get(item.get("gabarito"), "")
+    outras = [v for k, v in alternativas.items() if k != item.get("gabarito")]
+    return comeca_baixo(certa) and outras and not any(
+        comeca_baixo(x) for x in outras)
+
+
 def _moldes(d, topico: str, raiz=None) -> dict:
     """Os moldes daquele tópico, do disco."""
     from mvp import molde as mod
@@ -449,8 +482,17 @@ def expande_molde(d, topico: str, molde_id: str, raiz=None,
             "com as que passaram esconde o erro" % (m.id, len(reprovadas),
                                                     len(itens))]
 
-    # 3. contrato, pelo carregador de verdade
+    # 3. contrato, pelo carregador de verdade, mais duas regras que só
+    # fazem sentido em item de molde: buraco por preencher, e a certa
+    # sendo a única que começa em minúscula.
     problemas = confere(topico, itens)
+    for item in itens:
+        if not sem_buraco(item):
+            problemas.append("%s: saiu com buraco por preencher" % item["id"])
+        if _so_a_certa_em_minuscula(item):
+            problemas.append(
+                "%s: a certa é a única que começa em minúscula, e num molde "
+                "essa pista se repete em toda variação" % item["id"])
     if problemas:
         return [], problemas
 
