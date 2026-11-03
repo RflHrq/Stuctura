@@ -183,10 +183,20 @@ def test_o_candidato_nao_toca_o_dominio_de_verdade():
 # que o programa recusa o que ninguém leu.
 # --------------------------------------------------------------------------
 
-def test_a_folha_mostra_o_item_como_uma_pessoa_le(d2):
+def test_a_folha_mostra_o_item_como_uma_pessoa_le(d2, tmp_path, monkeypatch):
     """Revisar é leitura, não diff: a folha tem de dizer qual é a certa e
     que crença cada distrator levanta — inclusive em qual nó ela bate,
-    que é a atribuição cruzada ficando visível."""
+    que é a atribuição cruzada ficando visível.
+
+    OS CANDIDATOS SÃO DESTE TESTE, como nos três vizinhos. Ele lia a pasta
+    `candidatos/` de verdade e caiu no dia em que ela foi apagada — sem
+    nenhuma regra ter quebrado: o que sumiu foi a fixture. Teste de
+    formato não se amarra a conteúdo que existe por outro motivo.
+    """
+    _candidatos_falsos(tmp_path, monkeypatch,
+                       _item(id="t_1", nivel=1),
+                       _item(id="t_3", nivel=3,
+                             enunciado="Qual das duas linhas não compila?"))
     texto = gerar.folha(d2, "kc_02")
     assert "**[certa]**" in texto
     assert "nega B3" in texto or "nega B2" in texto
@@ -221,12 +231,17 @@ def test_nao_aprova_o_que_ninguem_revisou(tmp_path, monkeypatch):
     assert (espelho / "activities_kc02.yaml").read_bytes() == antes
 
 
-def _candidatos_falsos(tmp_path, monkeypatch, item):
+def _candidatos_falsos(tmp_path, monkeypatch, *itens):
+    """Candidatos de mentira, numa pasta de mentira.
+
+    O nome do arquivo é o id do nó: a folha agrupa por ele e procura o
+    enunciado simples daquele nó no domínio.
+    """
     import yaml
     pasta = tmp_path / "candidatos" / "kc_02"
     pasta.mkdir(parents=True)
     (pasta / "B2.yaml").write_text(
-        yaml.safe_dump({"activities": [item]}, allow_unicode=True),
+        yaml.safe_dump({"activities": list(itens)}, allow_unicode=True),
         encoding="utf-8")
     monkeypatch.setattr(gerar, "CANDIDATOS", tmp_path / "candidatos")
 
