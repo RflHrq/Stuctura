@@ -6,7 +6,7 @@ abaixo — o nome diz quem leu, e a assinatura diz O QUE foi lido:
 
 ```yaml
   revisado_por: <seu nome>
-  revisado_sha: 4cdf2ea38c3e
+  revisado_sha: d0bc0a696cc4
 ```
 
 A assinatura é do conteúdo que está nesta folha. Se o molde mudar
@@ -19,8 +19,9 @@ python scripts/gerar.py --topico kc_07 --aprovar
 ```
 
 **O que a máquina já conferiu:** que o programa do oráculo de cada
-formato compila, roda e diz o que o molde promete, em TODA
-variação. O que fica para você é o resto:
+formato compila, roda e diz o que o molde promete — em 64
+combinações de parâmetro por formato, que é o domínio inteiro.
+O que fica para você é o resto:
 
 - a frase fecha em português em todas elas (plural, gênero, acento);
 - cada distrator é a crença **dita bem** — alguém escolheria aquilo;
@@ -67,31 +68,31 @@ int main(void) {
 Depois de int a[3]; e nada mais, o que existe na memória?
 
 - **[certa]** São três caixas de int, grudadas
-- [string_literal_is_array] Uma caixa só, com três valores guardados dentro dela
-- [array_is_pointer] Um ponteiro, que depois aponta para três valores do tipo int
+- [string_literal_is_array] É uma caixa só, com três valores de int guardados dentro
+- [array_is_pointer] É um ponteiro, que depois aponta para três valores de int
 
 ### variação 2 — n=8, nome=a, tipo=int
 
 Depois de int a[8]; e nada mais, o que existe na memória?
 
 - **[certa]** São oito caixas de int, grudadas
-- [string_literal_is_array] Uma caixa só, com oito valores guardados dentro dela
-- [array_is_pointer] Um ponteiro, que depois aponta para oito valores do tipo int
+- [string_literal_is_array] É uma caixa só, com oito valores de int guardados dentro
+- [array_is_pointer] É um ponteiro, que depois aponta para oito valores de int
 
 ### variação 3 — n=3, nome=a, tipo=double
 
 Depois de double a[3]; e nada mais, o que existe na memória?
 
 - **[certa]** São três caixas de double, grudadas
-- [string_literal_is_array] Uma caixa só, com três valores guardados dentro dela
-- [array_is_pointer] Um ponteiro, que depois aponta para três valores do tipo double
+- [string_literal_is_array] É uma caixa só, com três valores de double guardados dentro
+- [array_is_pointer] É um ponteiro, que depois aponta para três valores de double
 
 
 ---
 
 ## formato: achar_o_erro
 
-oráculo próprio (espera a RECUSA do compilador):
+oráculo próprio, que espera a RECUSA do compilador:
 
 ```c
 int main(void) {
@@ -121,7 +122,7 @@ Uma destas linhas não compila. Qual, e por quê?
 
 ## formato: comparar_casos
 
-oráculo próprio:
+oráculo próprio, que espera `{n} 1`:
 
 ```c
 #include <stdio.h>
@@ -130,7 +131,7 @@ int main(void) {
     {tipo} *p;
     printf("%zu %d\n",
            sizeof {nome} / sizeof {nome}[0],
-           (int)(sizeof {nome} != sizeof p));
+           (int)(sizeof p == sizeof(void *)));
     return 0;
 }
 ```
@@ -145,6 +146,6 @@ int *p;
 O que existe na memória depois destas duas linhas?
 
 - **[certa]** São três caixas de int, e uma caixa de ponteiro
-- [string_literal_is_array] Nos dois casos, os três valores guardados do mesmo jeito
-- [array_is_pointer] Duas caixas de ponteiro: a também é um ponteiro
+- [string_literal_is_array] São três valores nos dois casos, guardados do mesmo jeito
+- [array_is_pointer] São duas caixas de ponteiro: a também é um ponteiro
 

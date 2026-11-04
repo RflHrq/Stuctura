@@ -22,3 +22,6 @@ backup/
 data/simulado.db*
 mvp/dados/
 ensaios/
+
+# A saida do gerador: candidatos vao e vem a cada expansao.
+candidatos/*/mol_*.yaml
