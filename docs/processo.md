@@ -2674,3 +2674,105 @@ a suíte dar **vermelho sem defeito**. É a mesma classe do servidor-de-ontem
 que já está escrita aqui, na direção contrária: antes um servidor velho
 fez o portão mentir verde; aqui um servidor legítimo faz a suíte mentir
 vermelho.
+
+## A sexta persona fecha `fragil` — e eu errei o motivo de ela ser visível
+
+`duvida` acerta as duas camadas e marca `acho que sei`, o meio da escala.
+Pela decisão 11 o meio puxa para o lado conservador de cada linha, e
+`classifica` devolve `FRAGIL_EP` em vez de `CONFIRMADA`. É a **única
+persona cuja diferença não está em escolha nenhuma** — ela escolhe igual
+ao `sabido`, e o que a separa é a camada 3.
+
+O teste tem o contraste embutido, e é ele que prova que a persona é o que
+diz ser: as **mesmas** duas escolhas, com `tenho certeza`, dão
+`CONFIRMADA`. Escolha disfarçada dentro dela faria esse par cair.
+
+### A correção: `no_fragil` não identifica esta persona
+
+Eu afirmei, ao commitar (`48b7cff`), que sem `no_fragil` nos transitórios
+a sexta persona seria invisível ao portão. **Está errado**, e a varredura
+dos treze mostrou isso no mesmo dia. O evento tem **duas** causas no
+motor:
+
+```
+"uma superfície só"            <- a causa da CS-5
+"confiança abaixo de certeza"  <- a causa da decisão 11
+```
+
+O `sabido` emite **790** `no_fragil` — pela primeira causa, no primeiro
+acerto de cada nó, antes de a segunda superfície confirmar. É o
+comportamento normal da CS-5, não fragilidade de ninguém.
+
+O que identifica a `duvida` é o **estado final**: `fragil` em 130 de 130,
+e ela é a única persona que termina ali. O transitório continua útil para
+ver passagens de fragilidade, mas não distingue as duas causas — e **não
+pode**, porque a resposta HTTP manda só o *tipo* do evento, não o
+`motivo`. Separá-las exigiria mudar o que o servidor devolve, e isso é
+decisão de interface que não tomei.
+
+### Os números das seis, 130 sessões cada, 780 no total
+
+| persona | episódios | estado final | no meio |
+| --- | --- | --- | --- |
+| `sabido` | `certa=1580` | `confirmado` 130 | `no_fragil=790` |
+| `aprende` | `certa=2360` `crenca=790` | `confirmado` 130 | `crenca_detectada=790` |
+| `crente` | `errada=3882` `crenca=790` | `em_aberto` 130 | `crenca_detectada=790` |
+| `nao_sabe` | `lacuna=2500` `errada=740` | `lacuna` 130 | — |
+| `explica_mal` | `certa=2040` `falso_positivo=781` `crenca=690` | `confirmado` 130, `falso_positivo` 82 | `crenca_detectada=690` `falso_positivo=1471` |
+| `duvida` | `certa=2500` | **`fragil` 130** | `no_fragil=2500` |
+
+**Episódio e evento não são a mesma medida, e a tabela não os mistura por
+descuido.** O `explica_mal` tem 781 episódios `falso_positivo` e 1.471
+eventos: o episódio é um por passo, pelo `veredito`, e o evento é cada
+emissão — um passo pode emitir mais de um, e o `veredito` reporta o
+primeiro. Quem for comparar os dois números precisa saber disso.
+
+E o `duvida` tem `certa=2500` em episódio: o veredito de um acerto frágil
+é **`certa`**, porque `fragil` não é veredito. A assimetria com
+`falso_positivo`, que **é** veredito, fica registrada abaixo.
+
+### O custo em passos, com as seis
+
+| kc | nós | sabido | aprende | crente | não sabe | explica mal | duvida |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| kc_00 | 5 | 38 | 64 | 57 | 27 | 62 | 38 |
+| kc_01 | 5 | 38 | 68 | 72 | 37 | 72 | 53 |
+| kc_02 | 6 | 45 | 84 | 89 | 78 | 102 | **117** |
+| kc_03 | 6 | 45 | 86 | 92 | 45 | 104 | 63 |
+| kc_04 | 6 | 45 | 83 | 87 | 50 | 90 | 63 |
+| kc_05 | 6 | 45 | 82 | 88 | 49 | 100 | 63 |
+| kc_06 | 6 | 45 | 85 | 91 | 52 | 80 | 63 |
+| kc_07 | 7 | 52 | 95 | 102 | 55 | 105 | 73 |
+| kc_08 | 6 | 45 | 82 | 88 | 46 | 89 | 63 |
+| kc_09 | 8 | 59 | 113 | 120 | 62 | 120 | 83 |
+| kc_10 | 6 | 45 | 82 | 88 | 49 | 90 | 63 |
+| kc_11 | 6 | 45 | 82 | 86 | 48 | 89 | 63 |
+| kc_12 | 6 | 45 | 82 | 88 | 47 | 89 | 63 |
+
+O `duvida` custa 63 passos em dez tópicos e **117 no kc_02** — o maior
+número do instrumento inteiro. A causa é o banco: o kc_02 tem 10 itens
+por nó contra 7 dos outros, e uma persona que nunca confirma gasta
+superfícies até o teto. O kc_02 é o tópico do piloto, e isso quer dizer
+que **o caminho mais caro da coleta é o de quem sabe e duvida**, não o de
+quem não sabe.
+
+### O placar do espaço de estados
+
+Cinco dos oito estados do motor são alcançados pela tela:
+`confirmado`, `em_aberto`, `lacuna`, `falso_positivo` e `fragil`.
+
+Os três que faltam são de outra natureza, e nenhum é persona:
+`desconhecido` e `nao_medido` existem para o caso que o laço não alcançou
+— produzi-los de propósito seria fabricar defeito —, e `refutado` e
+`em_treino` são estados de meio de caminho que só apareceriam numa sessão
+interrompida. Uma persona que abandona a sessão no meio é o que falta
+para esses dois, e ela mede **queda**, não aprendizagem.
+
+### Uma pergunta que é do dono
+
+**`fragil` deveria ser um veredito?** A pessoa que acerta duvidando vê a
+tela dizer "certa", e o sistema por dentro **não confirmou** a premissa
+dela. Pela decisão 13 — *o falso positivo é contado à pessoa, porque
+calar desperdiça o único momento em que ela percebe a própria rota
+torta* — o argumento simétrico diria que a fragilidade também deveria
+ser contada. Não mexi: é regra de interface e de instrumento.
