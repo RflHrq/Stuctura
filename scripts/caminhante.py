@@ -20,6 +20,7 @@ isso é garantia do sistema, não limitação daqui.
 """
 from __future__ import annotations
 
+import collections
 import hashlib
 import json
 import statistics
@@ -29,7 +30,7 @@ import urllib.error
 import urllib.request
 
 BASE = "http://127.0.0.1:8010"
-PERSONAS = ("sabido", "aprende", "crente", "nao_sabe")
+PERSONAS = ("sabido", "aprende", "crente", "nao_sabe", "explica_mal")
 
 # O sinal de "não sei", devolvido por `escolhe` no lugar de um índice.
 #
@@ -55,6 +56,65 @@ SEM_MEDIDA = ("desconhecido", "nao_medido", "refutado", "em_treino")
 def sem_medida(nos):
     """As premissas que terminaram a sessão sem estado nenhum dos cinco."""
     return [n["no"] for n in nos if n["estado"] in SEM_MEDIDA]
+
+
+# OS EPISÓDIOS, e por que o portão passou a relatá-los.
+#
+# A quinta persona expôs um limite deste arquivo: a sessão do
+# `explica_mal` termina com todos os nós `confirmado`, e está CORRETO —
+# dois falsos positivos na mesma crença disparam `crenca_detectada`, vem
+# refutação, vem treino, e o treino confirma. `falso_positivo` é
+# transitório por desenho.
+#
+# Olhando só o estado final, o portão nunca poderia ter visto
+# `falso_positivo` — nem quando ele acontece 36 vezes em três sessões. A
+# conclusão "nenhuma persona produz falso_positivo" estava certa pelo
+# motivo errado, e o instrumento trabalha justamente no meio.
+#
+# A fonte é o `veredito` que o servidor manda em TODA resposta: quem
+# classifica é o motor, não o cliente, e é a mesma decisão que a tela
+# mostra à pessoa.
+VEREDITOS = ("certa", "errada", "falso_positivo", "crenca", "lacuna")
+
+# Os dois eventos que o estado final apaga, e que dizem por qual PORTA a
+# refutação entrou: pelo erro comum, ou por falso positivo repetido.
+TRANSITORIOS = ("falso_positivo", "crenca_detectada")
+
+
+def episodios(vereditos):
+    """Quantos episódios de cada tipo a sessão produziu.
+
+    Passo sem veredito (ensino, refutação) não é episódio e sai fora.
+
+    Os conhecidos vêm primeiro, na ordem de leitura; os DESCONHECIDOS
+    vêm depois, e nunca calados. Filtrar pela lista que este arquivo
+    conhece faria um veredito novo do motor sumir do relatório sem
+    ninguém notar — que é o mesmo defeito que esta função existe para
+    consertar, um nível acima.
+    """
+    c = collections.Counter(v for v in vereditos if v)
+    resumo = {k: c.pop(k) for k in VEREDITOS if k in c}
+    resumo.update(sorted(c.items()))
+    return resumo
+
+
+def _conta(resumo):
+    """`{"certa": 30}` -> `"certa=30"`, na ordem recebida.
+
+    A ordem vem de `episodios`, que põe os conhecidos antes dos
+    desconhecidos de propósito — reordenar aqui desfaria isso.
+    """
+    return " ".join("%s=%d" % kv for kv in resumo.items())
+
+
+def transitorios(eventos_por_passo):
+    """Os eventos que o estado final apaga, contados pela sessão.
+
+    Sem zeros de enchimento: sessão que não produziu nenhum não ganha
+    linha no relatório.
+    """
+    c = collections.Counter(t for passo in eventos_por_passo for t in passo)
+    return {k: c[k] for k in TRANSITORIOS if c[k]}
 
 
 def _cala(atividade):
@@ -90,8 +150,14 @@ def escolhe(tela, persona, chaves, sessao):
     if not opcoes:
         return None
     gabarito, crencas, nos = chaves
-    convencido = persona == "sabido" or (
-        persona == "aprende" and tela.get("fase") in ("TREINO", "RETESTE"))
+    convencido = (
+        persona == "sabido"
+        or (persona == "aprende" and tela.get("fase") in ("TREINO", "RETESTE"))
+        # A INCOERÊNCIA, de propósito: certa na camada 1, crença na
+        # camada 2. É o único jeito de produzir `falso_positivo`, que é o
+        # estado da CS-1 — e as quatro personas anteriores eram todas
+        # internamente coerentes, de modo que nenhuma o produzia.
+        or (persona == "explica_mal" and tela["tipo"] == "atividade"))
     if persona == "nao_sabe":
         # A camada 2 sempre, a camada 1 em metade dos itens. Quando ela
         # RESPONDE a camada 1, cai no caminho de quem não está convencido
@@ -134,6 +200,10 @@ def caminha(persona, chaves, codigo="", limite=400):
     r, ms = post("/sessoes", {"codigo": codigo} if codigo else None)
     sessao = r["sessao"]
     tempos = [ms]
+    # O que o estado final apaga: o veredito de cada passo e os eventos
+    # que ele provocou. Colhidos a cada resposta, porque `r` é sobrescrito
+    # no laço e o fim da sessão não lembra do meio.
+    vereditos, eventos = [], []
     for _ in range(limite):
         tela = r["tela"]
         tipo = tela["tipo"]
@@ -152,6 +222,8 @@ def caminha(persona, chaves, codigo="", limite=400):
                      else {"escolha": i, "ms": 3000})
         r, ms = post("/sessoes/%s/responder" % sessao, corpo)
         tempos.append(ms)
+        vereditos.append(r.get("veredito"))
+        eventos.append(r.get("eventos") or [])
     else:
         raise SystemExit("a unidade não terminou em %d passos" % limite)
     nos = r.get("grafo", {}).get("nos", [])
@@ -161,6 +233,8 @@ def caminha(persona, chaves, codigo="", limite=400):
         "tempos": tempos,
         "estados": [n["estado"] for n in nos],
         "sem_medida": sem_medida(nos),
+        "episodios": episodios(vereditos),
+        "transitorios": transitorios(eventos),
     }
 
 
@@ -186,12 +260,25 @@ FRASES = {
         "inicio": "não sei, nunca entendi essa parte",
         "fim": "ainda não sei explicar, mas já sei onde eu travo",
     },
+    # Quem acerta mal explicado soa seguro nas duas pontas, e é por isso
+    # que o par antes-e-depois dela não mostra mudança: a resposta já
+    # estava certa, e o que estava torto era a rota.
+    "explica_mal": {
+        "inicio": "é a variável que aponta pra outra, eu sei fazer isso",
+        "fim": "é a variável que aponta pra outra, continuo sabendo fazer",
+    },
 }
 
 # A camada 3. Quem declara não saber não tem certeza de nada — e `chutei`
 # é o único valor que não contamina a medida de confiança dela.
+#
+# `explica_mal` vai com certeza total de propósito: `classifica` devolve
+# `falso_positivo` para acerto com razão errada em QUALQUER confiança, e a
+# certeza é o caso que mais exige do instrumento — alguém convicto de uma
+# explicação torta.
 CONFIANCA = {"sabido": "tenho certeza", "aprende": "tenho certeza",
-             "crente": "acho que sei", "nao_sabe": "chutei"}
+             "crente": "acho que sei", "nao_sabe": "chutei",
+             "explica_mal": "tenho certeza"}
 
 
 def main(argv):
@@ -224,19 +311,31 @@ def main(argv):
 
     print("%s — %s" % (d.id, d.titulo))
     passos, sem = [], 0
+    eps, trans = collections.Counter(), collections.Counter()
     for n in range(quantas):
         cod = codigo if quantas == 1 else ("%s%d" % (codigo, n + 1) if codigo else "")
         r = caminha(persona, chaves, cod)
         passos.append(r["passos"])
         sem += 1 if r["sem_medida"] else 0
+        eps.update(r["episodios"])
+        trans.update(r["transitorios"])
         marca = ("  SEM MEDIDA: " + ", ".join(r["sem_medida"])) if r["sem_medida"] else ""
-        print("  %-8s %-14s %3d passos   %s%s"
+        print("  %-11s %-14s %3d passos   %-28s  %s%s"
               % (persona, r["sessao"], r["passos"],
-                 " ".join(sorted(set(r["estados"]))), marca))
+                 " ".join(sorted(set(r["estados"]))),
+                 _conta(r["episodios"]), marca))
     if quantas > 1:
         print("  %d sessões: %d a %d passos (mediana %d) · %d com premissa sem medida"
               % (quantas, min(passos), max(passos),
                  statistics.median(passos), sem))
+        # OS EPISÓDIOS, somados, e os transitórios por fora.
+        #
+        # O estado final apaga os dois transitórios, então eles vão numa
+        # linha própria: é por ali que se vê por qual PORTA a refutação
+        # entrou, e foi a cegueira que a quinta persona expôs.
+        print("  episódios: %s" % (_conta(eps) or "nenhum"))
+        if trans:
+            print("  no meio:   %s" % _conta(trans))
 
 
 if __name__ == "__main__":
