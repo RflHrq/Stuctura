@@ -60,7 +60,7 @@ def _so_nao_sei(d):
 def _nao_sabia_e_aprendeu(d):
     """Diz "não sei" na PRIMEIRA vez que vê cada nó e, depois do ensino,
     acerta. É o caminho que a construção existe para abrir."""
-    gabarito = {a.id: a.indice_correto for a in d.atividades}
+    gabarito = {a.id: a.indice_correto_no_arquivo for a in d.atividades}
     visto = set()
 
     def politica(tela, estado):
@@ -163,7 +163,7 @@ def test_acertar_a_entrada_nao_confirma_a_premissa(d2):
     t = motor.avanca(d2, t.estado, Resposta(nao_sei=True))
     t = motor.avanca(d2, t.estado, Resposta())
     item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-    t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+    t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto_no_arquivo))
     assert t.estado.no(no).estado == motor.CONSTRUIDO
     assert t.estado.no(no).estado != motor.CONFIRMADO
 
@@ -270,7 +270,7 @@ def test_a_tela_diz_que_e_a_primeira_vez(d2):
             t = motor.avanca(d2, t.estado, Resposta(texto="x"))
         elif t.tela.tipo == "atividade":
             item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-            t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+            t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto_no_arquivo))
         elif t.tela.tipo == "razao":
             rz = t.estado.pendente.razoes
             t = motor.avanca(d2, t.estado,
@@ -318,7 +318,7 @@ def test_o_item_prometido_e_o_que_vem(d2):
             t = motor.avanca(d2, t.estado, Resposta(texto="x"))
         elif t.tela.tipo == "atividade":
             item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-            t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+            t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto_no_arquivo))
         elif t.tela.tipo == "razao":
             rz = t.estado.pendente.razoes
             t = motor.avanca(d2, t.estado,

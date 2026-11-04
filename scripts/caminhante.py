@@ -137,7 +137,7 @@ def main(argv):
     except (urllib.error.URLError, OSError):
         raise SystemExit("o servidor não está no ar: python -m mvp.app")
     d = carrega(topico=saude["topico"])
-    chaves = ({a.id: a.indice_correto for a in d.atividades},
+    chaves = ({a.id: a.indice_correto_no_arquivo for a in d.atividades},
               {c.afirma for c in d.crencas.values()},
               {n.texto for n in d.nos.values()} | {n.simples for n in d.nos.values()})
 

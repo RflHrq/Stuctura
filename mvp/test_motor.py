@@ -104,7 +104,7 @@ def _politica(*, erra_no=None, erra_diagnostico=99, erra_treino=0,
             ultimo.update(errou=True, crenca=a.opcoes[i].crenca)
             return Resposta(escolha=i, confianca=confianca)
         ultimo.update(errou=False, crenca=None)
-        return Resposta(escolha=a.indice_correto, confianca=confianca)
+        return Resposta(escolha=a.indice_correto_no_arquivo, confianca=confianca)
 
     return politica
 

@@ -106,7 +106,7 @@ def test_quem_acerta_pela_razao_certa_sobe(d2):
         t = motor.avanca(d2, t.estado, Resposta(texto="x"))
     no = t.tela.no
     item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-    t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+    t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto_no_arquivo))
     razoes = t.estado.pendente.razoes
     t = motor.avanca(d2, t.estado,
                      Resposta(escolha=next(i for i, z in enumerate(razoes) if z.correta)))
@@ -218,7 +218,7 @@ def test_quem_acerta_pela_razao_errada_nao_sobe(d2):
     t = _ate_a_atividade(d2)
     no = t.tela.no
     item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-    t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+    t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto_no_arquivo))
     razoes = t.estado.pendente.razoes
     errada = next((i for i, z in enumerate(razoes) if z.crenca), None)
     assert errada is not None, "o item não oferece razão errada; o teste não morde"

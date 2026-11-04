@@ -99,7 +99,7 @@ def _politica(d, erra_no="I1"):
                 and not estado.no(ALVO).crenca):
             pendente["erro"] = True
             return Resposta(escolha=i, confianca="tenho certeza")
-        return Resposta(escolha=a.indice_correto, confianca="tenho certeza")
+        return Resposta(escolha=a.indice_correto_no_arquivo, confianca="tenho certeza")
 
     return politica
 

@@ -403,8 +403,8 @@ def _erra_e_aprende(d):
                  else next((k for k, z in enumerate(razoes) if not z.correta), 0))
             return Resposta(escolha=i)
         a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
-        return Resposta(escolha=(a.indice_correto if convencido
-                                 else (a.indice_correto + 1) % len(a.opcoes)))
+        return Resposta(escolha=(a.indice_correto_no_arquivo if convencido
+                                 else (a.indice_correto_no_arquivo + 1) % len(a.opcoes)))
     return politica
 
 

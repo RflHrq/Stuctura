@@ -91,3 +91,28 @@ def test_a_escala_de_confianca_nao_e_embaralhada():
     É a escala, e embaralhar destruiria a leitura. Além disso o viés nem
     existe ali, porque nenhuma das três é a certa."""
     assert motor.CONFIANCAS == ("chutei", "acho que sei", "tenho certeza")
+
+
+# --------------------------------------------------------------------------
+# A trava contra o erro silencioso
+# --------------------------------------------------------------------------
+
+def test_nao_existe_mais_indice_correto_sem_qualificacao(d):
+    """A trava desta fatia.
+
+    O nome antigo dizia "a posição da certa", e essa pergunta passou a
+    ter duas respostas: no arquivo e na tela. Enquanto ele existir, as
+    22 chamadas continuam executando e querendo dizer a errada — e o
+    motor ACEITA o índice: não é erro de programa, é uma resposta
+    errada. A escada desce em vez de subir, a crença errada é
+    registrada, e a suíte fica verde contando outra história.
+
+    Renomear troca 22 erros silenciosos por 22 `AttributeError`.
+    """
+    a = d.atividades[0]
+    # O nome velho, escrito por partes: uma renomeação em massa pelo
+    # arquivo inteiro já o comeu aqui uma vez, e o teste passou a dizer
+    # o contrário do que foi escrito para dizer.
+    velho = "indice_" + "correto"
+    assert not hasattr(a, velho)
+    assert isinstance(a.indice_correto_no_arquivo, int)

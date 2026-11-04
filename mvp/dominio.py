@@ -178,7 +178,7 @@ class Atividade:
     parametros: Mapping[str, object] = field(default_factory=dict)
 
     @property
-    def indice_correto(self) -> int:
+    def indice_correto_no_arquivo(self) -> int:
         return next(i for i, o in enumerate(self.opcoes) if o.correta)
 
     @property

@@ -39,7 +39,7 @@ def ate_a_primeira_razao(d, semente=""):
         if t.tela.tipo == "atividade":
             a = next(x for x in d.atividades if x.id == t.tela.dados["atividade"])
             t = motor.avanca(d, t.estado,
-                             Resposta(escolha=a.indice_correto, confianca="tenho certeza"))
+                             Resposta(escolha=a.indice_correto_no_arquivo, confianca="tenho certeza"))
         else:
             t = motor.avanca(d, t.estado, Resposta())
     raise AssertionError("nenhuma tela de razão apareceu")
@@ -102,7 +102,7 @@ def test_a_diagnostica_passa_pela_tela_da_razao(d):
 def test_a_tela_da_razao_mostra_a_resposta_trancada(d):
     t = ate_a_primeira_razao(d)
     a = next(x for x in d.atividades if x.id == t.estado.pendente.atividade)
-    assert t.tela.dados["trancada"] == a.opcoes[a.indice_correto].texto
+    assert t.tela.dados["trancada"] == a.opcoes[a.indice_correto_no_arquivo].texto
 
 
 def test_responder_a_razao_nao_muda_a_camada_1(d):
@@ -139,7 +139,7 @@ def test_um_item_sem_crenca_nas_alternativas_pula_a_razao(d):
     sem = next(a for a in d.atividades
                if not any(o.crenca for o in a.opcoes))
     estado = motor.Estado(fase=motor.DIAGNOSTICO, atividade=sem.id, alvo=sem.no)
-    t = motor.avanca(d, estado, Resposta(escolha=sem.indice_correto,
+    t = motor.avanca(d, estado, Resposta(escolha=sem.indice_correto_no_arquivo,
                                          confianca="tenho certeza"))
     tipos = [e.tipo for e in t.eventos]
     assert "razao_pulada" in tipos
@@ -188,7 +188,7 @@ def _episodio(d, erra=False, semente=""):
         if tela.tipo == "atividade":
             a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
             i = (next(k for k, o in enumerate(a.opcoes) if not o.correta)
-                 if erra else a.indice_correto)
+                 if erra else a.indice_correto_no_arquivo)
             t = motor.avanca(d, t.estado, Resposta(escolha=i, ms=11))
         elif tela.tipo == "razao":
             i = (0 if erra else

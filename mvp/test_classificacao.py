@@ -45,7 +45,7 @@ def episodio(d, item: str, *, certa: bool, razao_certa: bool,
                     ultimo_formato=a.formato, ultima_atividade=a.id)
     t = motor.avanca(
         d, motor.replace(base, fase=motor.DIAGNOSTICO, atividade=a.id, alvo=a.no),
-        Resposta(escolha=(a.indice_correto if certa else _errada(a, crenca)),
+        Resposta(escolha=(a.indice_correto_no_arquivo if certa else _errada(a, crenca)),
                  ms=1))
     eventos = list(t.eventos)
     if t.tela.tipo == "razao":
@@ -286,7 +286,7 @@ def test_cs4_nao_sei_na_camada_1_nao_pergunta_as_outras_duas(d):
 def test_cs4_nao_sei_na_camada_2_e_lacuna(d):
     estado, _ = _no_item(d, "ciu_kc00_002")
     a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
-    t = motor.avanca(d, estado, Resposta(escolha=a.indice_correto, ms=1))
+    t = motor.avanca(d, estado, Resposta(escolha=a.indice_correto_no_arquivo, ms=1))
     t = motor.avanca(d, t.estado, Resposta(nao_sei=True, ms=1))
     ep = next(e for e in t.eventos if e.tipo == "episodio_classificado").dados
     assert ep["estado"] == motor.LACUNA_EP
@@ -296,7 +296,7 @@ def test_cs4_nao_sei_na_camada_2_e_lacuna(d):
 def test_cs4_nao_sei_na_camada_3_e_lacuna(d):
     estado, _ = _no_item(d, "ciu_kc00_002")
     a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
-    t = motor.avanca(d, estado, Resposta(escolha=a.indice_correto, ms=1))
+    t = motor.avanca(d, estado, Resposta(escolha=a.indice_correto_no_arquivo, ms=1))
     certa = next(i for i, z in enumerate(t.estado.pendente.razoes) if z.correta)
     t = motor.avanca(d, t.estado, Resposta(escolha=certa, ms=1))
     t = motor.avanca(d, t.estado, Resposta(nao_sei=True, ms=1))

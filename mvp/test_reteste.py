@@ -269,7 +269,7 @@ def _erra_em(d, nos, no_reteste=False):
             ultimo["crenca"] = a.opcoes[i].crenca
             return Resposta(escolha=i)
         ultimo["crenca"] = None
-        return Resposta(escolha=a.indice_correto)
+        return Resposta(escolha=a.indice_correto_no_arquivo)
 
     return politica
 
