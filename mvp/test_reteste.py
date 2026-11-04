@@ -265,11 +265,18 @@ def _erra_em(d, nos, no_reteste=False):
         erra = (a.no in nos and fase == motor.DIAGNOSTICO) or \
                (no_reteste and fase == motor.RETESTE)
         if erra:
-            i = next(k for k, o in enumerate(a.opcoes) if not o.correta and o.crenca)
-            ultimo["crenca"] = a.opcoes[i].crenca
+            na_tela = motor.opcoes_na_tela(estado.semente, a)
+            # "Erra, com a razao coerente, nos nos pedidos" — entao a
+            # crenca DO ITEM, e nao a primeira que aparecer.
+            i = next((k for k, o in enumerate(na_tela)
+                      if o.crenca == a.crenca),
+                     next(k for k, o in enumerate(na_tela)
+                          if not o.correta and o.crenca))
+            ultimo["crenca"] = na_tela[i].crenca
             return Resposta(escolha=i)
         ultimo["crenca"] = None
-        return Resposta(escolha=a.indice_correto_no_arquivo)
+        return Resposta(
+            escolha=motor.indice_correto_na_tela(estado.semente, a))
 
     return politica
 

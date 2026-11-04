@@ -116,3 +116,112 @@ def test_nao_existe_mais_indice_correto_sem_qualificacao(d):
     velho = "indice_" + "correto"
     assert not hasattr(a, velho)
     assert isinstance(a.indice_correto_no_arquivo, int)
+
+
+# --------------------------------------------------------------------------
+# A permutação ligada: pelas ROTAS, porque é o único jeito de pegar o
+# desencontro entre o que foi mostrado e o que foi lido
+# --------------------------------------------------------------------------
+
+@pytest.fixture
+def cliente(tmp_path, monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from mvp import app as aplicacao
+    from mvp import log
+
+    monkeypatch.setattr(log, "DESTINO", tmp_path / "eventos.jsonl")
+    aplicacao.sessoes.clear()
+    with TestClient(aplicacao.app) as c:
+        yield c
+
+
+@pytest.fixture
+def dapp():
+    """O domínio QUE O SERVIDOR carregou, e não o do módulo: estes testes
+    falam com as rotas, e o banco delas é o do tópico configurado."""
+    from mvp import app as aplicacao
+
+    return aplicacao.dominio
+
+
+def _ate_a_atividade(c, codigo=""):
+    """Abre a sessão e avança até a primeira tela de atividade."""
+    j = c.post("/sessoes", json={"codigo": codigo} if codigo else None).json()
+    sessao = j["sessao"]
+    for _ in range(12):
+        if j["tela"]["tipo"] == "atividade":
+            return sessao, j["tela"]
+        j = c.post("/sessoes/%s/responder" % sessao,
+                   json={"texto": "x", "ms": 100}).json()
+    raise AssertionError("não cheguei à atividade em 12 passos")
+
+
+def _posicao_da_certa_na_tela(tela, a):
+    """A posição lida DA TELA, pelo texto — nunca pela permutação.
+
+    Um teste que chama a permutação dos dois lados concorda consigo
+    mesmo mesmo quando está errado. A tela entrega textos; é por eles
+    que se descobre onde a certa ficou.
+    """
+    certa = a.opcoes[a.indice_correto_no_arquivo].texto
+    return [o["texto"] for o in tela["opcoes"]].index(certa)
+
+
+def test_o_indice_clicado_julga_o_texto_que_estava_ali(cliente, dapp):
+    """O único teste que pega o desencontro entre o que foi mostrado e o
+    que foi lido. A tela entrega TEXTOS; a pessoa clica numa POSIÇÃO."""
+    sessao, tela = _ate_a_atividade(cliente, "P01")
+    textos = [o["texto"] for o in tela["opcoes"]]
+    a = next(x for x in dapp.atividades if x.id == tela["atividade"])
+    i = _posicao_da_certa_na_tela(tela, a)
+
+    depois = cliente.post("/sessoes/%s/responder" % sessao,
+                          json={"escolha": i, "ms": 100}).json()["tela"]
+    # `trancada` repete o texto da alternativa escolhida, e sai de
+    # `_pede_confianca`: é ali que o desencontro aparece.
+    assert depois["tipo"] in ("razao", "confianca"), depois["tipo"]
+    assert depois["trancada"] == textos[i]
+
+
+def test_a_certa_nao_fica_sempre_na_primeira(cliente, dapp):
+    """A prova, PELA TELA, de que a fatia resolveu o que a motivou.
+
+    A posição sai dos textos que a rota devolveu. Lê-la da permutação
+    faria o teste passar sem nada ligado — ele concordaria consigo
+    mesmo enquanto a tela continuasse entregando a ordem do arquivo.
+    """
+    posicoes = set()
+    for codigo in ("P01", "P02", "P03", "P04", "P05", "P06"):
+        _, tela = _ate_a_atividade(cliente, codigo)
+        a = next(x for x in dapp.atividades if x.id == tela["atividade"])
+        posicoes.add(_posicao_da_certa_na_tela(tela, a))
+    assert len(posicoes) > 1, posicoes
+
+
+def test_escolha_fora_de_faixa_continua_recusada(cliente):
+    """`opcoes[-1]` é válido em Python, e já foi defeito aqui
+    (test_entrada.py:4). Agora há um segundo índice no caminho: a
+    validação vem ANTES da permutação, ou o erro vira `IndexError`."""
+    sessao, tela = _ate_a_atividade(cliente, "P01")
+    for ruim in (-1, len(tela["opcoes"]), 99):
+        r = cliente.post("/sessoes/%s/responder" % sessao,
+                         json={"escolha": ruim, "ms": 100})
+        assert r.status_code == 400, (ruim, r.status_code)
+
+
+def test_o_item_reapresentado_volta_na_mesma_ordem(d):
+    """É a mesma pergunta: a pessoa pode raciocinar "a primeira eu já
+    descartei".
+
+    No MOTOR, e não pelas rotas: a reapresentação só acontece no treino,
+    quando o banco do nó esgota, e chegar lá pelo HTTP custa dezenas de
+    passos sem provar nada a mais. A afirmação é sobre as ENTRADAS da
+    permutação — ela não depende de quantas vezes o item já apareceu —,
+    e é aí que ela se prova.
+    """
+    a = next(x for x in d.atividades if len(x.opcoes) == 3)
+    t1 = motor._apresenta(d, motor.inicia(d, semente="P01").estado, a)
+    t2 = motor._apresenta(d, t1.estado, a, reapresentada=True)
+    assert t2.tela.dados["opcoes"] == t1.tela.dados["opcoes"]
+    assert any(e.tipo == "item_reapresentado" for e in t2.eventos)

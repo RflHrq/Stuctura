@@ -54,7 +54,8 @@ def ate(d, tipo, semente="s"):
             continue
         if t.tela.tipo == "atividade":
             a = next(x for x in d.atividades if x.id == t.tela.dados["atividade"])
-            t = motor.avanca(d, t.estado, Resposta(escolha=a.indice_correto_no_arquivo))
+            t = motor.avanca(d, t.estado, Resposta(
+                escolha=motor.indice_correto_na_tela(t.estado.semente, a)))
             continue
         if t.tela.tipo in ("razao", "confianca"):
             t = motor.avanca(d, t.estado, Resposta(

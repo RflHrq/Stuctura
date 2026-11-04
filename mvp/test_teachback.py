@@ -42,7 +42,8 @@ def ate_o_fim(d, inicial="antes eu achava que nao existia", final="agora sei que
             t = motor.avanca(d, t.estado, Resposta(texto=texto, ms=5))
         elif tela.tipo == "atividade":
             a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
-            t = motor.avanca(d, t.estado, Resposta(escolha=a.indice_correto_no_arquivo))
+            t = motor.avanca(d, t.estado, Resposta(
+                escolha=motor.indice_correto_na_tela(t.estado.semente, a)))
         elif tela.tipo == "razao":
             i = next(k for k, z in enumerate(t.estado.pendente.razoes) if z.correta)
             t = motor.avanca(d, t.estado, Resposta(escolha=i))
@@ -93,7 +94,8 @@ def _responde_qualquer(d, t):
         return motor.avanca(d, t.estado, Resposta(texto="x"))
     if tela.tipo == "atividade":
         a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
-        return motor.avanca(d, t.estado, Resposta(escolha=a.indice_correto_no_arquivo))
+        return motor.avanca(d, t.estado, Resposta(
+            escolha=motor.indice_correto_na_tela(t.estado.semente, a)))
     if tela.tipo == "razao":
         i = next(k for k, z in enumerate(t.estado.pendente.razoes) if z.correta)
         return motor.avanca(d, t.estado, Resposta(escolha=i))

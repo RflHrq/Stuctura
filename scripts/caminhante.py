@@ -40,8 +40,14 @@ def post(caminho, dados=None):
     return r, (time.perf_counter() - t0) * 1000
 
 
-def escolhe(tela, persona, chaves):
-    """O índice da alternativa, pela persona."""
+def escolhe(tela, persona, chaves, sessao):
+    """O índice da alternativa, pela persona.
+
+    `sessao` é a SEMENTE: desde que a camada 1 é permutada, o índice
+    da certa é posição de TELA, e sem a semente o andarilho não sabe
+    mais qual é. Antes `gabarito` era `{id: posição no arquivo}`;
+    agora é `{id: atividade}`, e a posição se calcula.
+    """
     opcoes = [o["texto"] for o in tela.get("opcoes", [])]
     if not opcoes:
         return None
@@ -49,10 +55,12 @@ def escolhe(tela, persona, chaves):
     convencido = persona == "sabido" or (
         persona == "aprende" and tela.get("fase") in ("TREINO", "RETESTE"))
     if tela["tipo"] == "atividade":
-        certa = gabarito.get(tela.get("atividade"))
-        if convencido:
-            return certa if certa is not None else 0
-        return (certa + 1) % len(opcoes) if certa is not None else 0
+        a = gabarito.get(tela.get("atividade"))
+        if a is None:
+            return 0
+        from mvp.motor import indice_correto_na_tela
+        certa = indice_correto_na_tela(sessao, a)
+        return certa if convencido else (certa + 1) % len(opcoes)
     # camada 2: a razão certa é a fala do nó; as erradas são crenças
     crenta = [i for i, x in enumerate(opcoes) if x in crencas]
     certa = [i for i, x in enumerate(opcoes) if x in nos]
@@ -79,7 +87,8 @@ def caminha(persona, chaves, codigo="", limite=400):
             corpo = {"confianca": "tenho certeza" if persona != "crente"
                      else "acho que sei", "ms": 1500}
         else:
-            corpo = {"escolha": escolhe(tela, persona, chaves), "ms": 3000}
+            corpo = {"escolha": escolhe(tela, persona, chaves, sessao),
+                     "ms": 3000}
         r, ms = post("/sessoes/%s/responder" % sessao, corpo)
         tempos.append(ms)
     else:
@@ -137,7 +146,7 @@ def main(argv):
     except (urllib.error.URLError, OSError):
         raise SystemExit("o servidor não está no ar: python -m mvp.app")
     d = carrega(topico=saude["topico"])
-    chaves = ({a.id: a.indice_correto_no_arquivo for a in d.atividades},
+    chaves = ({a.id: a for a in d.atividades},
               {c.afirma for c in d.crencas.values()},
               {n.texto for n in d.nos.values()} | {n.simples for n in d.nos.values()})
 

@@ -45,7 +45,8 @@ def episodio(d, item: str, *, certa: bool, razao_certa: bool,
                     ultimo_formato=a.formato, ultima_atividade=a.id)
     t = motor.avanca(
         d, motor.replace(base, fase=motor.DIAGNOSTICO, atividade=a.id, alvo=a.no),
-        Resposta(escolha=(a.indice_correto_no_arquivo if certa else _errada(a, crenca)),
+        Resposta(escolha=(motor.indice_correto_na_tela(base.semente, a)
+                          if certa else _errada(a, crenca, base.semente)),
                  ms=1))
     eventos = list(t.eventos)
     if t.tela.tipo == "razao":
@@ -60,10 +61,14 @@ def episodio(d, item: str, *, certa: bool, razao_certa: bool,
     return t, eventos
 
 
-def _errada(a, crenca=None):
+def _errada(a, crenca=None, semente=""):
+    # PELA TELA: a posicao no arquivo, com a camada 1 permutada,
+    # as vezes e a CERTA — e o teste que pensa estar errando
+    # acerta.
+    na_tela = motor.opcoes_na_tela(semente, a)
     if crenca:
-        return next(i for i, o in enumerate(a.opcoes) if o.crenca == crenca)
-    return next(i for i, o in enumerate(a.opcoes) if not o.correta)
+        return next(i for i, o in enumerate(na_tela) if o.crenca == crenca)
+    return next(i for i, o in enumerate(na_tela) if not o.correta)
 
 
 def classificado(eventos):
@@ -286,7 +291,8 @@ def test_cs4_nao_sei_na_camada_1_nao_pergunta_as_outras_duas(d):
 def test_cs4_nao_sei_na_camada_2_e_lacuna(d):
     estado, _ = _no_item(d, "ciu_kc00_002")
     a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
-    t = motor.avanca(d, estado, Resposta(escolha=a.indice_correto_no_arquivo, ms=1))
+    t = motor.avanca(d, estado, Resposta(
+        escolha=motor.indice_correto_na_tela(estado.semente, a), ms=1))
     t = motor.avanca(d, t.estado, Resposta(nao_sei=True, ms=1))
     ep = next(e for e in t.eventos if e.tipo == "episodio_classificado").dados
     assert ep["estado"] == motor.LACUNA_EP
@@ -296,7 +302,8 @@ def test_cs4_nao_sei_na_camada_2_e_lacuna(d):
 def test_cs4_nao_sei_na_camada_3_e_lacuna(d):
     estado, _ = _no_item(d, "ciu_kc00_002")
     a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
-    t = motor.avanca(d, estado, Resposta(escolha=a.indice_correto_no_arquivo, ms=1))
+    t = motor.avanca(d, estado, Resposta(
+        escolha=motor.indice_correto_na_tela(estado.semente, a), ms=1))
     certa = next(i for i, z in enumerate(t.estado.pendente.razoes) if z.correta)
     t = motor.avanca(d, t.estado, Resposta(escolha=certa, ms=1))
     t = motor.avanca(d, t.estado, Resposta(nao_sei=True, ms=1))
@@ -310,7 +317,8 @@ def test_cs4_nao_sei_nunca_vira_crenca(d):
     pensa. Errar e dizer que não sabe o porquê não é sustentar uma ideia."""
     estado, _ = _no_item(d, "ciu_kc00_002")
     a = next(x for x in d.atividades if x.id == "ciu_kc00_002")
-    errada = next(i for i, o in enumerate(a.opcoes) if not o.correta)
+    errada = next(i for i, o in enumerate(
+        motor.opcoes_na_tela(estado.semente, a)) if not o.correta)
     for camada in range(3):
         t = motor.avanca(d, estado, Resposta(nao_sei=(camada == 0),
                                              escolha=None if camada == 0 else errada,

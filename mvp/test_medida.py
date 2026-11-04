@@ -85,7 +85,11 @@ def _pior_caso(d):
             qualquer = [i for i, z in enumerate(razoes) if z.crenca]
             return Resposta(escolha=qualquer[0] if qualquer else 0)
         a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
-        return Resposta(escolha=next(i for i, o in enumerate(a.opcoes)
+        # PELA TELA: era `a.opcoes`, posição de arquivo, e com a
+        # camada 1 permutada aquela posição às vezes é a CERTA —
+        # o pior caso virava acerto e os nós saíam confirmados.
+        na_tela = motor.opcoes_na_tela(estado.semente, a)
+        return Resposta(escolha=next(i for i, o in enumerate(na_tela)
                                      if not o.correta))
     return politica
 
@@ -403,8 +407,9 @@ def _erra_e_aprende(d):
                  else next((k for k, z in enumerate(razoes) if not z.correta), 0))
             return Resposta(escolha=i)
         a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
-        return Resposta(escolha=(a.indice_correto_no_arquivo if convencido
-                                 else (a.indice_correto_no_arquivo + 1) % len(a.opcoes)))
+        certo = motor.indice_correto_na_tela(estado.semente, a)
+        return Resposta(escolha=(certo if convencido
+                                 else (certo + 1) % len(a.opcoes)))
     return politica
 
 
