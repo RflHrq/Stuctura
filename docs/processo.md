@@ -2546,3 +2546,131 @@ que o produza de propósito.
 **A quinta persona, então, não é opcional:** é a que acerta pela razão
 errada, e ela é a única que exercita pela tela o critério número um. A
 CS-4 estava descoberta; a CS-1 está descoberta, e vale mais.
+
+## A quinta persona e o portão que passou a ver o meio
+
+A varredura com quatro personas concluiu que `falso_positivo` não era
+produzido por nenhuma — e a conclusão estava **certa pelo motivo errado**.
+As duas coisas foram consertadas juntas.
+
+### A quinta persona: a única incoerente das cinco
+
+`explica_mal` acerta a camada 1 e escolhe crença na camada 2. É a única
+persona internamente **incoerente**, e a incoerência é exatamente o
+fenômeno que o instrumento existe para medir: as quatro anteriores
+acertavam as duas camadas ou erravam as duas, e por isso nenhuma produzia
+o estado da CS-1.
+
+Vai com `tenho certeza` de propósito. `classifica` devolve
+`falso_positivo` em qualquer confiança, e alguém **convicto** de uma
+explicação torta é o caso que mais exige do instrumento.
+
+O teste dela amarra a persona ao **critério**, não à intenção: passa a
+razão escolhida pela própria `motor.classifica` e cobra
+`FALSO_POSITIVO_EP` — a função que a banca lê linha a linha —, com a tela
+de razão montada como o motor monta (`razoes_de` do grafo, permutada por
+`ordem_das_razoes`), parametrizado nos treze tópicos.
+
+### O limite do portão, que ela expôs
+
+No kc_02 a sessão do `explica_mal` termina com todos os nós
+`confirmado`, e está **correto**: dois falsos positivos na mesma crença
+disparam `crenca_detectada`, vem refutação, vem treino, e o treino
+confirma. `falso_positivo` é transitório por desenho.
+
+Olhando só o estado final, o portão nunca poderia tê-lo visto — nem
+quando ele acontece 36 vezes em três sessões. O instrumento trabalha no
+meio, e o portão fotografava só o fim.
+
+A fonte do conserto é o `veredito` que o servidor manda em **toda**
+resposta: quem classifica é o motor, não o cliente, e é a mesma decisão
+que a tela mostra à pessoa. De propósito **não** fui ler o log, mesmo
+tendo usado o log como prova: o veredito da resposta é o que o
+participante vê, e ler o log faria o portão medir uma segunda fonte
+deixando a primeira sem verificação.
+
+`VEREDITO DESCONHECIDO NÃO É CALADO`: vem depois dos conhecidos em vez de
+ser filtrado fora. Filtrar pela lista que o portão conhece faria um
+veredito novo do motor sumir do relatório sem ninguém notar — o mesmo
+defeito que esta mudança conserta, um nível acima.
+
+### Os episódios dos treze tópicos, 130 sessões por persona
+
+| persona | episódios |
+| --- | --- |
+| `sabido` | `certa=1580` |
+| `aprende` | `certa=2360` `crenca=790` |
+| `crente` | `errada=3882` `crenca=790` |
+| `nao_sabe` | `lacuna=2500` `errada=740` |
+| `explica_mal` | `certa=2040` **`falso_positivo=781`** `crenca=690` |
+
+E os estados finais, que é onde a leitura anterior se enganou:
+
+| persona | estado final dos nós |
+| --- | --- |
+| `sabido` | `confirmado` — 130/130 |
+| `aprende` | `confirmado` — 130/130 |
+| `crente` | `em_aberto` — 130/130 |
+| `nao_sabe` | `lacuna` — 130/130 |
+| `explica_mal` | `confirmado` 130/130 e **`falso_positivo` em 82/130** |
+
+**Duas correções de leitura minha ficam registradas.** A primeira: "quatro
+extremos puros" era verdade dos estados FINAIS, não dos episódios — o
+`nao_sabe` produz 740 episódios `errada` e o `aprende` mistura 790
+`crenca`. A segunda: o `explica_mal` **termina** em `falso_positivo` em 82
+das 130 sessões; o "todos `confirmado`" que eu observei era específico do
+kc_02, e eu generalizei de um tópico.
+
+E a porta de refutação que só ela atravessa, medida no log do kc_02:
+
+```
+explica_mal   36 eventos falso_positivo   18 crenca_detectada, TODAS por
+                                          "falso positivo repetido"
+aprende        0 eventos falso_positivo   18 crenca_detectada, pelo
+                                          caminho comum
+```
+
+### O custo em passos, com as cinco
+
+| kc | nós | sabido | aprende | crente | não sabe | explica mal |
+| --- | --- | --- | --- | --- | --- | --- |
+| kc_00 | 5 | 38 | 64 | 57 | 27 | 62 |
+| kc_01 | 5 | 38 | 68 | 72 | 37 | 72 |
+| kc_02 | 6 | 45 | 84 | 89 | 78 | 102 |
+| kc_03 | 6 | 45 | 86 | 92 | 45 | 104 |
+| kc_04 | 6 | 45 | 83 | 87 | 50 | 90 |
+| kc_05 | 6 | 45 | 82 | 88 | 49 | 100 |
+| kc_06 | 6 | 45 | 85 | 91 | 52 | 80 |
+| kc_07 | 7 | 52 | 95 | 102 | 55 | 105 |
+| kc_08 | 6 | 45 | 82 | 88 | 46 | 89 |
+| kc_09 | 8 | 59 | 113 | 120 | 62 | 120 |
+| kc_10 | 6 | 45 | 82 | 88 | 49 | 90 |
+| kc_11 | 6 | 45 | 82 | 86 | 48 | 89 |
+| kc_12 | 6 | 45 | 82 | 88 | 47 | 89 |
+
+650 sessões, nenhuma sem medida. O `explica_mal` é o caminho **mais
+caro** do instrumento — 104 passos no kc_03 contra 92 do `crente` —, e
+faz sentido: ele passa pela refutação como quem erra, mas chega lá depois
+de gastar itens acertando.
+
+### O que ainda falta, e o que a suíte não protege
+
+O espaço alcançado pela tela subiu de três para **quatro** dos oito
+estados: `confirmado`, `em_aberto`, `lacuna` e `falso_positivo`.
+
+`fragil` continua fora, e agora o motivo é nomeável: ele é acerto com
+razão certa e confiança **abaixo** de certeza (`classifica`). Nenhuma das
+cinco personas duvida enquanto acerta. Uma sexta — *acerta mas duvida* —
+é o que falta, e ela não é cosmética: `fragil` é o estado que sustenta a
+CS-5, porque uma premissa frágil é a que foi confirmada numa superfície
+só.
+
+E um achado de ferramenta: **a suíte e o portão de ponta a ponta não são
+seguros em paralelo**, e nada avisa. O teste
+`test_o_ensaio_imprime_os_comandos_com_o_ambiente_montado` roda
+`scripts/ensaio.sh` como subprocesso, e o portão de porta do `ensaio.sh`
+recusa quando alguém atende na 8010 — então uma varredura em andamento faz
+a suíte dar **vermelho sem defeito**. É a mesma classe do servidor-de-ontem
+que já está escrita aqui, na direção contrária: antes um servidor velho
+fez o portão mentir verde; aqui um servidor legítimo faz a suíte mentir
+vermelho.
