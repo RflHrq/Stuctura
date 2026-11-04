@@ -1032,8 +1032,6 @@ activities:
       c: arr_equals_addr_of_arr
 
   # Aprovados em revisão.
-
-  # Aprovados em revisão.
   - id: mol_kc07_B1_treino_1__reconhecer_conceito_01
     node: kc07:B1
     nivel: 1
@@ -1044,8 +1042,8 @@ activities:
     enunciado: Depois de int a[3]; e nada mais, o que existe na memória?
     alternativas:
       a: São três caixas de int, grudadas
-      b: Uma caixa só, com três valores guardados dentro dela
-      c: Um ponteiro, que depois aponta para três valores do tipo int
+      b: É uma caixa só, com três valores de int guardados dentro
+      c: É um ponteiro, que depois aponta para três valores de int
     gabarito: a
     crencas:
       b: string_literal_is_array
@@ -1096,8 +1094,8 @@ activities:
     enunciado: O que existe na memória depois destas duas linhas?
     alternativas:
       a: São três caixas de int, e uma caixa de ponteiro
-      b: Nos dois casos, os três valores guardados do mesmo jeito
-      c: 'Duas caixas de ponteiro: a também é um ponteiro'
+      b: São três valores nos dois casos, guardados do mesmo jeito
+      c: 'São duas caixas de ponteiro: a também é um ponteiro'
     gabarito: a
     crencas:
       b: string_literal_is_array
@@ -1119,8 +1117,8 @@ activities:
     enunciado: Depois de char v[4]; e nada mais, o que existe na memória?
     alternativas:
       a: São quatro caixas de char, grudadas
-      b: Uma caixa só, com quatro valores guardados dentro dela
-      c: Um ponteiro, que depois aponta para quatro valores do tipo char
+      b: É uma caixa só, com quatro valores de char guardados dentro
+      c: É um ponteiro, que depois aponta para quatro valores de char
     gabarito: a
     crencas:
       b: string_literal_is_array
@@ -1171,8 +1169,8 @@ activities:
     enunciado: O que existe na memória depois destas duas linhas?
     alternativas:
       a: São oito caixas de long, e uma caixa de ponteiro
-      b: Nos dois casos, os oito valores guardados do mesmo jeito
-      c: 'Duas caixas de ponteiro: lista também é um ponteiro'
+      b: São oito valores nos dois casos, guardados do mesmo jeito
+      c: 'São duas caixas de ponteiro: lista também é um ponteiro'
     gabarito: a
     crencas:
       b: string_literal_is_array

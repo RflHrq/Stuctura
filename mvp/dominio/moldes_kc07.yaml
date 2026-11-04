@@ -124,13 +124,10 @@ mol_kc07_B1_treino_1:
   # A FAMÍLIA É CONTEÚDO NOVO, e a assinatura de ontem não vale para
   # ela: a carga recusaria se eu tivesse deixado o nome ali. Em branco,
   # nada entra no domínio até alguém ler a folha e assinar.
-  # VAZIO DE NOVO, e pela segunda vez no mesmo ramo — e as duas vezes
-  # a trava funcionando. A correção do oráculo do `comparar_casos` e os
-  # distratores reescritos são conteúdo novo, e a assinatura de ontem
-  # cobria o conteúdo de ontem. Nada entra no domínio até alguém ler a
-  # folha nova (`candidatos/folha_molde_B1.md`) e assinar:
-  #
-  #   revisado_por: <nome>
-  #   revisado_sha: d0bc0a696cc4
-  revisado_por: ""
-  revisado_sha: ""
+  # A SEGUNDA assinatura deste molde, e a segunda vez que a trava mordeu
+  # no mesmo ramo: converter em família quebrou a primeira, corrigir o
+  # oráculo do `comparar_casos` quebrou a segunda. As duas vezes o nome
+  # saiu, a folha foi lida de novo, e a assinatura voltou amarrada ao
+  # conteúdo que está aqui — não ao de ontem.
+  revisado_por: Rafael H. S. Simao
+  revisado_sha: d0bc0a696cc4
