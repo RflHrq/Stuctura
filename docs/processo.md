@@ -2154,3 +2154,79 @@ quieta, 702 verdes. O oráculo tem timeout de dez segundos por programa, e
 sob carga um `gcc` estoura isso. Vale a mesma regra que já está escrita
 aqui: **medida de tempo se toma com a máquina quieta** — e agora também
 medida de teste que depende de compilador.
+
+### A revisão do ramo achou o defeito que a camada do oráculo existe para impedir
+
+Quatro Critical, oito Important, dez Minor — e o revisor produziu os itens
+defeituosos de verdade, em vez de os descrever.
+
+**Os três primeiros Critical são um só esquecimento.** A fatia moveu
+`codigo`, `oraculo` e `espera` para dentro de `formatos:`, e as
+validações continuaram olhando os campos de topo. Resultado: um molde com
+`int a[{tamanho_errado}]` na tela da pessoa, um oráculo constante que roda
+o mesmo programa para `n=3` e `n=8`, e um "qual destas duas linhas não
+compila?" sobre duas linhas corretas, com a resposta certa apontando uma
+terceira que a pessoa não vê. **Os três passavam com a suíte inteira
+verde.**
+
+Agora há um lugar só onde essas regras moram — uma varredura por redação,
+sobre o oráculo e o `espera` *efetivos* — e sete regras nela, cada uma
+sabotada em separado para ver o teste dela cair.
+
+**O quarto Critical é o que importa mais, e é sobre a minha camada de
+prova.** O portão do oráculo rodava o compilador nas seis variações
+*sorteadas* e declarava o molde provado para as sessenta e quatro. O
+`comparar_casos` do `B1` afirmava `sizeof {nome} != sizeof p`, e isso é
+**falso** para `char {nome}[8]`: oito bytes dos dois lados. Uma em
+dezesseis, e a expansão não a sorteava.
+
+Isto é exatamente o defeito que a camada do oráculo foi escrita para
+impedir — um molde errado erra em todas as variações de uma vez —, e ele
+passou pela própria camada, porque a camada amostrava. O portão agora
+varre o produto dos parâmetros: 64 combinações por formato, 192
+compilações para este molde.
+
+E a folha, que é o que a pessoa lê antes de assinar, dizia "em TODA
+variação". Era verdade sobre as sorteadas e mentira sobre o molde: a
+assinatura dela passava a cobrir uma garantia que ninguém tinha dado.
+Agora sai o número da varredura.
+
+#### O que a varredura custou, e por que não dá para cobrar barato
+
+A suíte foi de 87 segundos para **doze horas e meia**. Não é a conta das
+compilações (seriam uns cinco minutos): sob carga sustentada o `gcc`
+começa a estourar o timeout de dez segundos do oráculo, e aí a lentidão
+vira *falha*. É a mesma armadilha que já está escrita aqui — medida de
+tempo se toma com a máquina quieta —, agora mordendo o próprio gate.
+
+Os testes que chamam o compilador ganharam um domínio de oito
+combinações; o que precisa de domínio grande declara o seu. A suíte fechou
+em **183 segundos**, e a varredura continua inteira onde ela vale: no
+molde de verdade.
+
+#### Uma suspeita minha que não se confirmou
+
+Consertando o portão da variedade do `aprova`, li
+`novos = [a for a in aprovados if a["id"] not in ja]` e concluí que um id
+já presente era descartado em silêncio — o que importaria muito, porque
+reexpandir um molde corrigido devolve os **mesmos ids** com texto novo.
+Não é o que acontece: `confere` carrega o domínio com os candidatos
+dentro, e o carregador recusa id duplicado antes de qualquer filtro. A
+suspeita virou teste, para o dia em que alguém trocar a ordem das duas
+coisas.
+
+O que fica dela, e é operacional: **reexpandir e aprovar não substitui os
+itens velhos.** Corrigir um molde exige apagá-los do domínio de propósito,
+num commit que se vê.
+
+#### A assinatura caiu pela segunda vez no mesmo ramo
+
+Converter o molde em família quebrou a assinatura; corrigir o oráculo e os
+distratores quebrou de novo. As duas vezes a trava funcionando, e as duas
+vezes com o mesmo preço: os itens que já estavam no banco saíram de um
+molde que não existe mais, e têm de ser reexpandidos.
+
+É o segundo lugar onde este ramo encontra o mesmo problema — o primeiro
+está em [moldes.md](moldes.md), no risco em aberto do CS-6: o log não
+grava impressão digital do banco, e corrigir um molde reescreve itens com
+os mesmos ids.
