@@ -31,12 +31,14 @@ funciona igual.
 """
 from __future__ import annotations
 
+import itertools
 import json
 import os
 import pathlib
 import shutil
 import sys
 import tempfile
+from collections.abc import Mapping, Sequence
 from datetime import date
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
@@ -174,39 +176,57 @@ def esquema(d) -> dict:
 
 
 def esquema_de_molde(d) -> dict:
-    """O esquema do MOLDE. A mesma coleira: `crenca` é um enum dos ids
-    que existem, e o modelo não tem como inventar concepção errônea."""
+    """O esquema da FAMÍLIA. A coleira é a mesma: `crencas` é um enum
+    dos ids que existem, e o modelo não tem como inventar."""
     ids = sorted(d.crencas)
-    distrator = {
+    redacao = {
         "type": "object",
         "properties": {
-            "texto": {"type": "string"},
-            "crenca": {"type": "string", "enum": ids},
+            "tipo": {"type": "string", "enum": list(TIPOS)},
+            "codigo": {"type": "string"},
+            "enunciado": {"type": "string"},
+            "gabarito": {
+                "type": "string",
+                "description": "o texto da resposta certa, ou `do_oraculo` "
+                               "em prever_saida",
+            },
+            "distratores": {
+                "type": "array",
+                "description": "um por crença, NA MESMA ORDEM de `crencas`",
+                "items": {"type": "string"},
+            },
+            "oraculo": {"type": "string"},
+            "espera": {"type": "string"},
+            "nao_compila": {"type": "boolean"},
         },
-        "required": ["texto", "crenca"],
+        "required": ["tipo", "enunciado", "gabarito", "distratores"],
         "additionalProperties": False,
     }
     return {
         "type": "object",
         "properties": {
             "id": {"type": "string"},
-            "formato": {"type": "string", "enum": list(FORMATOS)},
-            "tipo": {"type": "string", "enum": list(TIPOS)},
+            "crencas": {
+                "type": "array",
+                "description": "as crenças da AFIRMAÇÃO, não da redação",
+                "items": {"type": "string", "enum": ids},
+            },
             "parametros": {
                 "type": "object",
                 "description": "nome do parâmetro -> lista de valores",
                 "additionalProperties": {"type": "array"},
             },
-            "enunciado": {"type": "string"},
-            "gabarito": {"type": "string"},
-            "distratores": {"type": "array", "items": distrator},
             "oraculo": {"type": "string"},
             "espera": {"type": "string"},
+            "formatos": {
+                "type": "object",
+                "description": "formato -> redação",
+                "additionalProperties": redacao,
+            },
             "por_que_este_oraculo": {"type": "string"},
         },
-        "required": ["id", "formato", "tipo", "parametros", "enunciado",
-                     "gabarito", "distratores", "oraculo", "espera",
-                     "por_que_este_oraculo"],
+        "required": ["id", "crencas", "parametros", "oraculo", "espera",
+                     "formatos", "por_que_este_oraculo"],
         "additionalProperties": False,
     }
 
@@ -240,7 +260,18 @@ AGORA O QUE MUDA: você não escreve um item. Escreve o MOLDE dele.
     molde inteiro. Use os buracos dentro do programa; as chaves do C
     ficam como são.
 11. A CONCORDÂNCIA tem de fechar em todas as variações: plural, gênero,
-    acento. "uma caixa" e "oito caixas"; "a" e "dados"."""
+    acento. "uma caixa" e "oito caixas"; "a" e "dados".
+12. A FAMÍLIA. Você escreve UMA afirmação perguntada em vários formatos.
+    As crenças são da afirmação e valem para todos: em cada formato, os
+    distratores vêm na MESMA ORDEM de `crencas`, um para cada. Se um
+    formato trouxesse outras, os dois deixariam de medir a mesma coisa.
+13. `achar_o_erro` precisa de um programa que NÃO compile: escreva o
+    `oraculo` próprio dele e marque `nao_compila: true`. O `codigo` é o
+    que a pessoa vê; o oráculo é o programa inteiro que o compilador
+    recusa.
+14. `prever_saida` usa `gabarito: do_oraculo` — a resposta certa é o que
+    o programa imprime, e quem a calcula é a máquina. Não escreva o
+    texto dela."""
 
     cx = contexto(d, no)
     pedido = f"""Tópico: {d.id} — {d.titulo}
@@ -391,6 +422,31 @@ def _diz(parametros: dict) -> str:
                      if kv[0] != "extenso")
 
 
+#: Teto da varredura do oráculo. O molde do `B1` tem 64 combinações e
+#: cabe inteiro; um molde maior é conferido por amostra, e aí o relatório
+#: diz o número real — porque a folha não promete mais do que foi provado.
+TETO_VARREDURA = 128
+
+
+def combinacoes_do_oraculo(parametros: Mapping[str, Sequence]) -> list[dict]:
+    """TODAS as combinações de parâmetro, e não as que a expansão sorteia.
+
+    O portão do oráculo conferia as variações expandidas — seis — e
+    declarava o molde provado para as sessenta e quatro. Uma afirmação
+    falsa numa combinação não sorteada entrava no banco escrita no
+    molde, esperando a próxima expansão.
+
+    Não é hipótese: o `comparar_casos` do kc_07 afirmava
+    `sizeof {nome} != sizeof p`, que é FALSO para `char {nome}[8]` —
+    oito bytes dos dois lados. Uma em dezesseis, e a expansão não a
+    sorteou.
+    """
+    nomes = sorted(parametros)
+    todas = [dict(zip(nomes, valores))
+             for valores in itertools.product(*(parametros[k] for k in nomes))]
+    return todas[:TETO_VARREDURA]
+
+
 def sem_buraco(item: dict) -> bool:
     """Nenhum texto do item pode chegar com buraco por preencher.
 
@@ -401,8 +457,8 @@ def sem_buraco(item: dict) -> bool:
     """
     from mvp.molde import BURACO
 
-    textos = [item.get("enunciado", "")] + list(
-        (item.get("alternativas") or {}).values())
+    textos = ([item.get("enunciado", ""), item.get("codigo", "")]
+              + list((item.get("alternativas") or {}).values()))
     return not any(BURACO.search(x or "") for x in textos)
 
 
@@ -464,23 +520,64 @@ def expande_molde(d, topico: str, molde_id: str, raiz=None,
         return [], ["molde %r não está em %s (há %s)"
                     % (molde_id, caminho.name, ", ".join(moldes) or "nenhum")]
 
-    # 1. expansão
-    variacoes = mod.expande(m, quantas)
-    itens = [mod.item_de(m, p, i) for i, p in enumerate(variacoes, 1)]
+    # 1. expansão, repartida entre as redações da família
+    pares = mod.expande_familia(m, quantas)
+    itens = []
+    contador = {}
+    for redacao, p in pares:
+        contador[redacao.formato] = contador.get(redacao.formato, 0) + 1
+        itens.append(mod.item_de(m, redacao, p, len(itens) + 1))
 
-    # 2. oráculo
+    # 2. oráculo, o DA REDAÇÃO quando ela tem o seu, sobre o DOMÍNIO
+    #    INTEIRO — e não só sobre as variações que a expansão sorteou.
     reprovadas = []
-    for item, p in zip(itens, variacoes):
-        try:
-            ok, nota = oraculo.roda(mod.preenche(m.oraculo, p),
-                                    mod.preenche(m.espera, p))
-        except oraculo.SemCompilador as erro:
-            # Molde não conferido não é molde reprovado: a mensagem sai
-            # inteira, sem pilha, porque quem a lê está noutra máquina
-            # tentando descobrir o que instalar.
-            raise SystemExit(str(erro))
-        if not ok:
-            reprovadas.append("%s (%s): %s" % (item["id"], _diz(p), nota))
+    conferido = {}
+    combinacoes = combinacoes_do_oraculo(m.parametros)
+    for redacao in m.redacoes:
+        programa = redacao.oraculo or m.oraculo
+        espera = redacao.espera or m.espera
+        for p in combinacoes:
+            chave = (redacao.formato, tuple(sorted(p.items())))
+            fonte = mod.preenche(programa, p)
+            try:
+                ok, nota = oraculo.roda(fonte, mod.preenche(espera, p),
+                                        nao_compila=redacao.nao_compila)
+            except oraculo.SemCompilador as erro:
+                # Molde não conferido não é molde reprovado: a mensagem
+                # sai inteira, sem pilha, porque quem a lê está noutra
+                # máquina tentando descobrir o que instalar.
+                raise SystemExit(str(erro))
+            conferido[chave] = (ok, nota)
+            if not ok:
+                reprovadas.append("%s [%s] (%s): %s"
+                                  % (m.id, redacao.formato, _diz(p), nota))
+    if reprovadas:
+        return [], reprovadas[:10] + [
+            "o molde %s está reprovado: %d de %d combinações de parâmetro "
+            "não conferem. Corrija a afirmação ou estreite o domínio do "
+            "parâmetro — ficar com as que passaram esconde o erro"
+            % (m.id, len(reprovadas), len(combinacoes) * len(m.redacoes))]
+
+    # Em `prever_saida` o oráculo não confere: ele CALCULA. A saída vira
+    # a alternativa certa, e só vale se puder ser uma.
+    for item, (redacao, p) in zip(itens, pares):
+        if redacao.gabarito != "do_oraculo":
+            continue
+        chave = (redacao.formato,
+                 tuple(sorted((k, v) for k, v in p.items() if k != "extenso")))
+        if chave not in conferido:
+            # A varredura bateu no teto e esta variação ficou de fora.
+            conferido[chave] = oraculo.roda(
+                mod.preenche(redacao.oraculo or m.oraculo, p),
+                mod.preenche(redacao.espera or m.espera, p),
+                nao_compila=redacao.nao_compila)
+        _, nota = conferido[chave]
+        serve, texto = mod.serve_de_alternativa(nota)
+        if not serve:
+            reprovadas.append("%s [%s] (%s): %s"
+                              % (item["id"], redacao.formato, _diz(p), texto))
+            continue
+        item["alternativas"]["a"] = texto
     if reprovadas:
         return [], reprovadas + [
             "o molde %s está reprovado: %d de %d variações não conferem. "
@@ -506,11 +603,15 @@ def expande_molde(d, topico: str, molde_id: str, raiz=None,
     # Os itens que JÁ saíram deste molde não contam como plágio: eles
     # são a saída anterior dele. Sem isto, reexpandir depois de aprovar
     # acusava "mol_x_01: enunciado igual ao de mol_x_01".
-    de_fora = {a.enunciado.strip(): a.id for a in d.atividades
-               if a.do_molde != m.id}
+    # A pergunta é o CÓDIGO mais o enunciado, que é o que a pessoa lê —
+    # é a mesma conta que `Atividade.texto` faz. Comparar só o enunciado
+    # acusava de duplicata duas variações cujo código é diferente, que é
+    # o caso normal num formato de código.
+    de_fora = {(a.codigo.strip() + "|" + a.enunciado.strip()): a.id
+               for a in d.atividades if a.do_molde != m.id}
     vistos: dict[str, str] = {}
     for item in itens:
-        texto = item["enunciado"].strip()
+        texto = (item.get("codigo") or "").strip() + "|" + item["enunciado"].strip()
         if texto in de_fora:
             problemas.append("%s: enunciado igual ao de %s"
                              % (item["id"], de_fora[texto]))
@@ -590,18 +691,23 @@ def folha_do_molde(d, molde) -> str:
     """O molde como uma PESSOA lê, para preencher o `revisado_por`.
 
     O que ela confere aqui não é o que a máquina já conferiu. O oráculo
-    garante que a afirmação é verdadeira em toda variação; o que fica
-    para ela é se a frase fecha em português, se o distrator é a crença
-    dita bem, e se a pergunta ensina alguma coisa.
+    garante que a afirmação é verdadeira em toda variação de todo
+    formato; o que fica para ela é se a frase fecha em português, se o
+    distrator é a crença dita bem, e se a pergunta ensina.
+
+    A AFIRMAÇÃO E AS CRENÇAS APARECEM UMA VEZ, no topo: é isso que ela
+    está validando, e é por isso que uma assinatura cobre a família
+    inteira. Depois vêm os formatos — os três extremos no primeiro, e
+    uma amostra de cada um dos outros.
     """
-    from mvp.molde import item_de, preenche
+    from mvp.molde import item_de
 
     linhas = [
         "# Revisão do molde — %s" % molde.id,
         "",
-        "Uma revisão deste arquivo vale por todas as variações dele. Para",
-        "aprovar, escreva no molde as DUAS linhas abaixo — o nome diz quem",
-        "leu, e a assinatura diz O QUE foi lido:",
+        "Uma revisão deste arquivo vale por todas as variações dele, em",
+        "todos os formatos. Para aprovar, escreva no molde as DUAS linhas",
+        "abaixo — o nome diz quem leu, e a assinatura diz O QUE foi lido:",
         "",
         "```yaml",
         "  revisado_por: <seu nome>",
@@ -613,14 +719,17 @@ def folha_do_molde(d, molde) -> str:
         "seu nome em variações que você não leu. Depois:",
         "",
         "```bash",
-        "python scripts/gerar.py --topico %s --molde %s --expandir"
-        % (d.id, molde.id),
+        "python scripts/gerar.py --topico %s --molde %s --expandir" % (d.id, molde.id),
         "python scripts/gerar.py --topico %s --aprovar" % d.id,
         "```",
         "",
-        "**O que a máquina já conferiu:** que o programa do oráculo compila,",
-        "roda e imprime o que o molde promete, em TODA variação. O que fica",
-        "para você é o resto:",
+        "**O que a máquina já conferiu:** que o programa do oráculo de cada",
+        "formato compila, roda e diz o que o molde promete — em %d"
+        % len(combinacoes_do_oraculo(molde.parametros)),
+        "combinações de parâmetro por formato, que é o domínio inteiro%s."
+        % ("" if len(combinacoes_do_oraculo(molde.parametros)) < TETO_VARREDURA
+           else " até o teto de %d" % TETO_VARREDURA),
+        "O que fica para você é o resto:",
         "",
         "- a frase fecha em português em todas elas (plural, gênero, acento);",
         "- cada distrator é a crença **dita bem** — alguém escolheria aquilo;",
@@ -629,56 +738,59 @@ def folha_do_molde(d, molde) -> str:
         "",
         "---",
         "",
-        "## O molde, como está escrito",
+        "## A afirmação",
         "",
-        "**nó %s** · degrau %d · %s · %s · uso %s"
-        % (molde.no, molde.nivel, molde.formato, molde.tipo, molde.uso),
+        "**nó %s** · degrau %d · uso %s" % (molde.no, molde.nivel, molde.uso),
         "",
-        "- enunciado: %s" % molde.enunciado,
-        "- **[certa]** %s" % molde.gabarito,
-    ]
-    for texto, cid in molde.distratores:
-        linhas.append("- [%s → nega %s] %s"
-                      % (cid, d.crencas[cid].nega if cid in d.crencas else "?",
-                         texto))
-    linhas += [
-        "",
-        "parâmetros:",
+        "As crenças são da afirmação, e valem para todos os formatos — em",
+        "cada um, os distratores vêm nesta ordem:",
         "",
     ]
+    for cid in molde.crencas:
+        nega = d.crencas[cid].nega if cid in d.crencas else "?"
+        linhas.append("- `%s` → nega %s" % (cid, nega))
+    linhas += ["", "parâmetros:", ""]
     for nome, valores in molde.parametros.items():
         linhas.append("- `%s`: %s" % (nome, ", ".join(str(v) for v in valores)))
-    linhas += [
-        "",
-        "oráculo (o que a máquina rodou), que espera `%s`:" % molde.espera,
-        "",
-        "```c",
-        molde.oraculo.rstrip(),
-        "```",
-        "",
-        "---",
-        "",
-        "## Três variações, dos extremos",
-        "",
-        "Não são sorteadas: são o menor e o maior número e o nome mais",
-        "longo, que é onde a concordância quebra.",
-        "",
-    ]
-    for i, p in enumerate(extremos(molde), 1):
-        item = item_de(molde, p, i)
+
+    if molde.oraculo.strip():
         linhas += [
-            "### variação %d — %s" % (i, _diz(p)),
             "",
-            item["enunciado"],
+            "oráculo da família, que espera `%s`:" % molde.espera,
             "",
+            "```c", molde.oraculo.rstrip(), "```",
         ]
-        for letra, texto in item["alternativas"].items():
-            cid = item["crencas"].get(letra)
-            if letra == item["gabarito"]:
-                linhas.append("- **[certa]** %s" % texto)
-            else:
-                linhas.append("- [%s] %s" % (cid, texto))
-        linhas.append("")
+
+    for ordem, redacao in enumerate(molde.redacoes):
+        linhas += ["", "---", "", "## formato: %s" % redacao.formato, ""]
+        if redacao.oraculo.strip():
+            # O `espera` do formato ficava de fora, e a pessoa lia um
+            # programa sem saber o que ele tem de imprimir para o molde
+            # passar — que é metade da afirmação.
+            linhas += ["oráculo próprio, %s:"
+                       % ("que espera a RECUSA do compilador"
+                          if redacao.nao_compila
+                          else "que espera `%s`" % (redacao.espera
+                                                    or molde.espera)),
+                       "", "```c", redacao.oraculo.rstrip(), "```", ""]
+        # Os extremos no primeiro formato; uma amostra nos outros, porque
+        # o que muda entre eles é a redação, e não os parâmetros.
+        quantas = 3 if ordem == 0 else 1
+        for i, p in enumerate(extremos(molde, quantas), 1):
+            item = item_de(molde, redacao, p, i)
+            linhas += ["### variação %d — %s" % (i, _diz(p)), ""]
+            if item["codigo"].strip():
+                linhas += ["```c", item["codigo"].rstrip(), "```", ""]
+            linhas += [item["enunciado"], ""]
+            for letra, texto in item["alternativas"].items():
+                if letra == item["gabarito"]:
+                    rotulo = ("**[certa]** (sai do oráculo)"
+                              if redacao.gabarito == "do_oraculo"
+                              else "**[certa]**")
+                    linhas.append("- %s %s" % (rotulo, texto))
+                else:
+                    linhas.append("- [%s] %s" % (item["crencas"].get(letra), texto))
+            linhas.append("")
     return "\n".join(linhas) + "\n"
 
 
@@ -779,6 +891,24 @@ def aprova(topico: str) -> tuple[int, list[str]]:
         return 0, problemas
 
     destino = DOMINIO / ("activities_%s.yaml" % topico.replace("_", ""))
+
+    # O portão da variedade só existia na EXPANSÃO, e `aprova` lê de
+    # `candidatos/`: um candidato pode ter sido expandido antes de o
+    # banco crescer, e entrava com a pergunta repetida — que é o que a
+    # fatia da família veio desfazer. A pergunta é o código mais o
+    # enunciado, que é o que a pessoa lê.
+    def _pergunta(a) -> str:
+        return ((a.get("codigo") or "").strip() + "|"
+                + (a.get("enunciado") or "").strip())
+
+    no_banco = {_pergunta(x): x["id"]
+                for x in (yaml.safe_load(destino.read_text(encoding="utf-8"))
+                          .get("activities") or ())}
+    repetidas = [(a["id"], no_banco[_pergunta(a)]) for a in aprovados
+                 if _pergunta(a) in no_banco and a["id"] != no_banco[_pergunta(a)]]
+    if repetidas:
+        return 0, ["%s: a pergunta é igual à de %s, que já está no banco"
+                   % par for par in repetidas]
     cru = yaml.safe_load(destino.read_text(encoding="utf-8"))
     ja = {x["id"] for x in cru.get("activities") or ()}
     novos = [a for a in aprovados if a["id"] not in ja]

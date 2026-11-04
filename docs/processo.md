@@ -2076,3 +2076,157 @@ conteúdo é o que importa, o teste é de conteúdo, e vive junto dele.
 O primeiro molde espera a assinatura: **nenhum item de molde entrou no
 domínio**. Os outros 64 nós não têm molde. E ninguém de carne e osso
 respondeu a um item gerado.
+
+## A família de formatos — a mesma afirmação, perguntada de três jeitos
+
+A primeira fatia dos moldes multiplicou o eixo do **conteúdo** e deixou
+o do **formato** como estava. O número apareceu na primeira sessão de
+verdade: o banco de treino do `B1` foi de 3 para 9 itens, e **sete deles
+do mesmo formato**. O motor prefere formato diferente a cada tentativa, e
+confirmar exige duas superfícies — a regra ficou sem com que morder.
+
+Spec na seção *A família de formatos* de [moldes.md](moldes.md), plano em
+[plano-familia.md](plano-familia.md), dez tarefas.
+
+### O que ficou de pé
+
+O molde deixou de ser uma pergunta com buracos e passou a ser uma
+**afirmação** perguntada de vários jeitos. Compartilhado: nó, parâmetros,
+crenças e oráculo. Por formato: a redação, o código, e o oráculo quando
+ele precisa ser outro.
+
+A primeira família, no `B1`, pergunta a mesma coisa de três maneiras — e
+a primeira variação é a **mesma nas três**, `int a[3]`, para que a troca
+de formato seja a única coisa que mudou:
+
+| formato | a pergunta |
+| --- | --- |
+| reconhecer_conceito | "o que existe na memória?" |
+| achar_o_erro | "qual destas três linhas não compila?" |
+| comparar_casos | "o que existe depois de `int a[3]; int *p;`?" |
+
+Resultado medido: o banco de treino do `B1` passou de 7–1–1 em três
+formatos para **3–3–2–1 em quatro**.
+
+### Três decisões de conteúdo
+
+**`prever_saida` ficou de fora desta família**, e não por custo: as duas
+crenças do `B1` levariam à **mesma previsão** num item de prever a saída,
+e dois distratores indistinguíveis não diagnosticam nada. O
+`gabarito: do_oraculo` está implementado e testado; só não é este nó que
+o estreia.
+
+**Os seis itens da geração anterior saíram do domínio.** Eram saída de
+uma versão anterior do mesmo molde, todos `reconhecer_conceito`, e mantê-
+los ao lado dos novos era guardar a pergunta repetida — justamente o que
+a fatia veio desfazer.
+
+**A assinatura caiu, e isso foi a trava funcionando.** Converter o molde
+em família é conteúdo novo: o `revisado_sha` deixou de bater e a carga
+recusou, até a folha nova ser lida e assinada.
+
+### O portão pegou um erro meu, e o oráculo pegou outro
+
+O gabarito do `comparar_casos` começava por `{extenso}`, e a alternativa
+certa virava a única em minúscula — em todas as variações daquele
+formato. É a regra que eu tinha escrito na fatia anterior, mordendo o
+meu próprio conteúdo na primeira expansão.
+
+E o portão da variedade tinha um defeito que só a família revelou: ele
+comparava o **enunciado**, e num formato de código o enunciado é fixo
+enquanto o código varia. Duas variações legítimas de `achar_o_erro` eram
+acusadas de duplicata uma da outra. Agora ele compara a pergunta inteira,
+código mais enunciado, que é o que a pessoa lê.
+
+### E a quinta vez do mesmo defeito de teste
+
+Um teste que mede conteúdo em vez de regra — desta vez um que eu mesmo
+escrevi na Tarefa 1 para proteger a assinatura do molde, e que a Tarefa
+10 derrubou ao quebrar a assinatura **de propósito**. A regra que ele
+defendia (família de um carrega como uma redação) já tinha teste próprio;
+o que restou virou teste de conteúdo, onde fatos de conteúdo pertencem.
+
+### Uma medida que não era medida
+
+Numa rodada da suíte com a máquina carregada — 28 minutos contra os 75
+segundos de sempre — um teste caiu, e passava sozinho. Com a máquina
+quieta, 702 verdes. O oráculo tem timeout de dez segundos por programa, e
+sob carga um `gcc` estoura isso. Vale a mesma regra que já está escrita
+aqui: **medida de tempo se toma com a máquina quieta** — e agora também
+medida de teste que depende de compilador.
+
+### A revisão do ramo achou o defeito que a camada do oráculo existe para impedir
+
+Quatro Critical, oito Important, dez Minor — e o revisor produziu os itens
+defeituosos de verdade, em vez de os descrever.
+
+**Os três primeiros Critical são um só esquecimento.** A fatia moveu
+`codigo`, `oraculo` e `espera` para dentro de `formatos:`, e as
+validações continuaram olhando os campos de topo. Resultado: um molde com
+`int a[{tamanho_errado}]` na tela da pessoa, um oráculo constante que roda
+o mesmo programa para `n=3` e `n=8`, e um "qual destas duas linhas não
+compila?" sobre duas linhas corretas, com a resposta certa apontando uma
+terceira que a pessoa não vê. **Os três passavam com a suíte inteira
+verde.**
+
+Agora há um lugar só onde essas regras moram — uma varredura por redação,
+sobre o oráculo e o `espera` *efetivos* — e sete regras nela, cada uma
+sabotada em separado para ver o teste dela cair.
+
+**O quarto Critical é o que importa mais, e é sobre a minha camada de
+prova.** O portão do oráculo rodava o compilador nas seis variações
+*sorteadas* e declarava o molde provado para as sessenta e quatro. O
+`comparar_casos` do `B1` afirmava `sizeof {nome} != sizeof p`, e isso é
+**falso** para `char {nome}[8]`: oito bytes dos dois lados. Uma em
+dezesseis, e a expansão não a sorteava.
+
+Isto é exatamente o defeito que a camada do oráculo foi escrita para
+impedir — um molde errado erra em todas as variações de uma vez —, e ele
+passou pela própria camada, porque a camada amostrava. O portão agora
+varre o produto dos parâmetros: 64 combinações por formato, 192
+compilações para este molde.
+
+E a folha, que é o que a pessoa lê antes de assinar, dizia "em TODA
+variação". Era verdade sobre as sorteadas e mentira sobre o molde: a
+assinatura dela passava a cobrir uma garantia que ninguém tinha dado.
+Agora sai o número da varredura.
+
+#### O que a varredura custou, e por que não dá para cobrar barato
+
+A suíte foi de 87 segundos para **doze horas e meia**. Não é a conta das
+compilações (seriam uns cinco minutos): sob carga sustentada o `gcc`
+começa a estourar o timeout de dez segundos do oráculo, e aí a lentidão
+vira *falha*. É a mesma armadilha que já está escrita aqui — medida de
+tempo se toma com a máquina quieta —, agora mordendo o próprio gate.
+
+Os testes que chamam o compilador ganharam um domínio de oito
+combinações; o que precisa de domínio grande declara o seu. A suíte fechou
+em **183 segundos**, e a varredura continua inteira onde ela vale: no
+molde de verdade.
+
+#### Uma suspeita minha que não se confirmou
+
+Consertando o portão da variedade do `aprova`, li
+`novos = [a for a in aprovados if a["id"] not in ja]` e concluí que um id
+já presente era descartado em silêncio — o que importaria muito, porque
+reexpandir um molde corrigido devolve os **mesmos ids** com texto novo.
+Não é o que acontece: `confere` carrega o domínio com os candidatos
+dentro, e o carregador recusa id duplicado antes de qualquer filtro. A
+suspeita virou teste, para o dia em que alguém trocar a ordem das duas
+coisas.
+
+O que fica dela, e é operacional: **reexpandir e aprovar não substitui os
+itens velhos.** Corrigir um molde exige apagá-los do domínio de propósito,
+num commit que se vê.
+
+#### A assinatura caiu pela segunda vez no mesmo ramo
+
+Converter o molde em família quebrou a assinatura; corrigir o oráculo e os
+distratores quebrou de novo. As duas vezes a trava funcionando, e as duas
+vezes com o mesmo preço: os itens que já estavam no banco saíram de um
+molde que não existe mais, e têm de ser reexpandidos.
+
+É o segundo lugar onde este ramo encontra o mesmo problema — o primeiro
+está em [moldes.md](moldes.md), no risco em aberto do CS-6: o log não
+grava impressão digital do banco, e corrigir um molde reescreve itens com
+os mesmos ids.

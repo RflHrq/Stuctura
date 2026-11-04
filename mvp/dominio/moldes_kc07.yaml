@@ -4,25 +4,24 @@
 # itens concretos, que vão para `activities_kc07.yaml` como quaisquer
 # outros. O motor não sabe o que é molde.
 #
-# O que isto compra, além de banco maior, é um eixo que o instrumento não
-# tinha: perguntar a MESMA ideia com a roupa trocada. Duas superfícies
-# hoje são dois formatos — duas perguntas distintas, que alguém pode ter
-# decorado uma a uma. Duas instâncias do mesmo molde são a mesma
-# pergunta com outro nome, outro tamanho, outro tipo.
+# O que isto compra, além de banco maior, são dois eixos que o
+# instrumento não tinha:
+#
+#   CONTEÚDO    a mesma ideia com a roupa trocada — int a[3], double
+#               lista[8] —, que separa generalizar de decorar aquele
+#               exemplo
+#   FORMATO     a mesma afirmação perguntada de outro jeito, que separa
+#               entender a ideia de reconhecer o molde da pergunta
 #
 # O PREÇO: um molde errado erra em todas as variações de uma vez. Por
-# isso o `oraculo` é obrigatório — um programa em C que, compilado e
-# rodado com os mesmos parâmetros, imprime o que o molde promete. Se a
-# afirmação for falsa para algum valor, a máquina reprova o MOLDE, e não
-# a variação: ficar com as que passaram esconde a generalização
-# indevida.
+# isso cada formato tem um `oraculo` — um programa em C que, compilado e
+# rodado com os mesmos parâmetros, prova a afirmação. Se ela for falsa
+# para algum valor, a máquina reprova o MOLDE, e não a variação.
 #
 # O desenho inteiro está em docs/moldes.md.
 
 mol_kc07_B1_treino_1:
   node: B1
-  tipo: teorica
-  formato: reconhecer_conceito
   nivel: 1
   uso: treino
 
@@ -31,19 +30,12 @@ mol_kc07_B1_treino_1:
     nome: [a, v, dados, lista]
     n: [3, 4, 6, 8]
 
-  enunciado: "Depois de {tipo} {nome}[{n}]; e nada mais, o que existe na memória?"
-  # Começa por palavra, e não pelo buraco: com "{extenso} caixas..." a
-  # alternativa certa era a ÚNICA em minúscula, nas seis variações — uma
-  # pista de superfície que se repete em todo o molde.
-  gabarito: "São {extenso} caixas de {tipo}, grudadas"
-  distratores:
-    - texto: "Uma caixa só, com {extenso} valores guardados dentro dela"
-      crenca: string_literal_is_array
-    - texto: "Um ponteiro, que depois aponta para {extenso} valores do tipo {tipo}"
-      crenca: array_is_pointer
+  # As crenças são da AFIRMAÇÃO, e valem para todos os formatos: em cada
+  # um, os distratores vêm nesta ordem, um para cada.
+  crencas: [string_literal_is_array, array_is_pointer]
 
-  # O oráculo prova as duas metades do gabarito: quantas caixas
-  # (`sizeof` do conjunto dividido pelo de uma), e que elas estão
+  # O oráculo da família prova as duas metades da afirmação: quantas
+  # caixas (`sizeof` do conjunto dividido pelo de uma) e que elas estão
   # grudadas (a distância entre duas vizinhas é uma posição).
   #
   # As chaves do C ficam como são: os buracos são identificadores entre
@@ -59,10 +51,83 @@ mol_kc07_B1_treino_1:
     }
   espera: "{n} 1"
 
-  # Quem escreve aqui leu a folha do molde, e não os itens: é a mudança
-  # de objeto da revisão. Em branco, nada entra no domínio.
+  formatos:
+
+    # Começa por palavra, e não pelo buraco: com "{extenso} caixas..." a
+    # alternativa certa era a ÚNICA em minúscula, em todas as variações —
+    # uma pista de superfície que se repete no molde inteiro.
+    reconhecer_conceito:
+      tipo: teorica
+      enunciado: "Depois de {tipo} {nome}[{n}]; e nada mais, o que existe na memória?"
+      gabarito: "São {extenso} caixas de {tipo}, grudadas"
+      distratores:
+        - "É uma caixa só, com {extenso} valores de {tipo} guardados dentro"
+        - "É um ponteiro, que depois aponta para {extenso} valores de {tipo}"
+
+    # Aqui o oráculo prova o CONTRÁRIO: que o compilador recusa. O
+    # `codigo` é o que a pessoa vê; o oráculo é o programa inteiro.
+    achar_o_erro:
+      tipo: codigo
+      codigo: |
+        {tipo} {nome}[{n}];
+        {tipo} *p = {nome};
+        {nome} = p;
+      enunciado: "Uma destas linhas não compila. Qual, e por quê?"
+      gabarito: "A terceira: o nome de um array não recebe atribuição"
+      distratores:
+        - "A segunda: {nome} e p guardam do mesmo jeito, e é ali que está o erro"
+        - "Nenhuma delas: {nome} já é um ponteiro, e as três linhas valem"
+      oraculo: |
+        int main(void) {
+            {tipo} {nome}[{n}];
+            {tipo} *p = {nome};
+            {nome} = p;
+            return 0;
+        }
+      nao_compila: true
+
+    # O terceiro formato é `comparar_casos`, e não `prever_saida`, por
+    # uma razão de conteúdo: num item de prever a saída, as duas crenças
+    # desta família levariam à mesma previsão, e dois distratores
+    # indistinguíveis não diagnosticam nada. Aqui cada uma tem a sua.
+    comparar_casos:
+      tipo: codigo
+      codigo: |
+        {tipo} {nome}[{n}];
+        {tipo} *p;
+      enunciado: "O que existe na memória depois destas duas linhas?"
+      # Também começa por palavra: o portão pegou isto na primeira
+      # expansão, e a pista valeria para todas as variações do formato.
+      gabarito: "São {extenso} caixas de {tipo}, e uma caixa de ponteiro"
+      distratores:
+        - "São {extenso} valores nos dois casos, guardados do mesmo jeito"
+        - "São duas caixas de ponteiro: {nome} também é um ponteiro"
+      # A segunda medida era `sizeof {nome} != sizeof p`, e era FALSA
+      # para `char {nome}[8]`: oito bytes dos dois lados. Uma em
+      # dezesseis, e a expansão não a sorteava — o portão rodava o
+      # compilador nas seis variações expandidas e declarava o molde
+      # provado para as sessenta e quatro. Agora ele varre o domínio
+      # inteiro, e esta medida é verdadeira em todas: o ponteiro é uma
+      # caixa do tamanho de um endereço, aponte ele para o que for.
+      oraculo: |
+        #include <stdio.h>
+        int main(void) {
+            {tipo} {nome}[{n}];
+            {tipo} *p;
+            printf("%zu %d\n",
+                   sizeof {nome} / sizeof {nome}[0],
+                   (int)(sizeof p == sizeof(void *)));
+            return 0;
+        }
+      espera: "{n} 1"
+
+  # A FAMÍLIA É CONTEÚDO NOVO, e a assinatura de ontem não vale para
+  # ela: a carga recusaria se eu tivesse deixado o nome ali. Em branco,
+  # nada entra no domínio até alguém ler a folha e assinar.
+  # A SEGUNDA assinatura deste molde, e a segunda vez que a trava mordeu
+  # no mesmo ramo: converter em família quebrou a primeira, corrigir o
+  # oráculo do `comparar_casos` quebrou a segunda. As duas vezes o nome
+  # saiu, a folha foi lida de novo, e a assinatura voltou amarrada ao
+  # conteúdo que está aqui — não ao de ontem.
   revisado_por: Rafael H. S. Simao
-  # A assinatura é do CONTEÚDO que foi lido na folha. Mexer no molde
-  # depois disto faz a carga recusar, em vez de estampar o nome acima em
-  # variações que ninguém leu.
-  revisado_sha: bcd92590c6df
+  revisado_sha: d0bc0a696cc4

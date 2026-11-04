@@ -107,7 +107,10 @@ calcula.
 
 ## A família de formatos
 
-> Segunda fatia, aprovada em 03/11/2026. Ainda não implementada.
+> Segunda fatia, aprovada e **implementada** em 03/11/2026 (plano em
+> [plano-familia.md](plano-familia.md), dez tarefas). A primeira família
+> está assinada, e os seis itens dela — dois por formato — estão no
+> domínio do kc_07.
 
 O molde acima multiplica o eixo do **conteúdo**: `int a[3]`, `double
 lista[8]`, a mesma pergunta com a roupa trocada. Ele não toca no eixo do
@@ -222,7 +225,9 @@ já foi usado naquele formato.
 
 **A expansão se reparte entre os formatos.** `quantas` passa a ser o
 total: seis viram duas por formato em três formatos. É isso que conserta
-o sete-contra-um-contra-um do `B1`.
+o sete-contra-um-contra-um do `B1` — **medido depois**: o banco de treino
+dele ficou com 3 `reconhecer_conceito`, 3 `comparar_casos`, 2
+`achar_o_erro` e 1 `prever_saida`, em quatro formatos em vez de três.
 
 ### O que isso não muda
 
@@ -350,6 +355,32 @@ sessão a partir do log é requisito implementado e testado (CS-6), e um
 item montado em tempo de execução precisaria do sorteio gravado para ser
 reconstruído. Expandir em sessão continua possível depois — o formato não
 impede —, mas não antes da coleta.
+
+### O risco que fica em aberto no CS-6
+
+Expandir offline resolve o sorteio, e **não** resolve o banco. O log
+grava o `id` da atividade, o `do_molde` e os `parametros`; não grava
+nenhuma impressão digital do banco. Reexecutar um log contra um banco que
+mudou desde a coleta reconstrói o mesmo *fluxo* com **outro conteúdo** —
+e o `do_molde` torna isso mais provável, porque corrigir um molde é
+reexpandir, e reexpandir reescreve itens com os mesmos ids.
+
+Já aconteceu duas vezes neste ramo: a conversão do molde em família
+reescreveu os seis itens do `B1`, e a correção do oráculo do
+`comparar_casos` os reescreveu de novo. Nos dois casos os ids
+sobreviveram e os textos mudaram.
+
+O que isso custa: um log de piloto continua reproduzindo acertos, erros e
+tempos — a análise quantitativa fica de pé —, mas a frase que a pessoa
+leu não é recuperável do log. Qualquer leitura qualitativa depende de ter
+guardado o banco daquele dia.
+
+**O remédio, quando entrar:** um campo de digest do banco no evento de
+abertura da sessão, conferido na reexecução, mais uma cópia do banco por
+coleta. Nenhum dos dois está implementado — está escrito aqui para não
+ser descoberto depois do piloto. Até lá vale a regra operacional: **copie
+`mvp/dominio/` antes de cada sessão de coleta**, que é o que a I
+(infraestrutura) já pede para backup.
 
 **Seis variações por molde**, e não as 150 — e, numa família, seis é o
 TOTAL, repartido entre os formatos: dois por formato em três formatos. A escolha é determinística e
