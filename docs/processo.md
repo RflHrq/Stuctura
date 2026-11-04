@@ -4,10 +4,21 @@
 premissas, descobre em qual premissa a pessoa está errada e a conduz, pelo
 grafo, até a premissa correta.
 
-**Fase atual:** **ensaio com uma pessoa** — roteiro e ambiente prontos
-([roteiro](ensaio-roteiro.md), `scripts/ensaio.sh`). É o próximo passo
-porque o software deixou de ser o gargalo: dos quatro P1 da revisão final,
-o único que era de código está fechado, e CS-11 nunca teve evidência.
+**Fase atual:** **fechar o instrumento antes de ensaiar com gente** —
+decisão do dono, e ela inverte a ordem que este documento vinha
+propondo. O ensaio continua preparado ([roteiro](ensaio-roteiro.md),
+`scripts/ensaio.sh`, seis portões verdes), e continua sendo a única fonte
+de evidência da CS-11 e da CS-12 — mas não é o próximo passo: o próximo
+passo é o sistema ficar redondo.
+
+O que a [varredura dos treze](#a-varredura-dos-treze--o-portão-de-conteúdo-fora-do-kc_02)
+disse que falta, em ordem: a **quarta persona** (o portão de ponta a ponta
+nunca diz "não sei", e a CS-4 nunca roda pela tela), e depois os dois P1
+de software que a revisão final deixou abertos — a exclusão que não
+alcança as cópias (P1-2, LGPD) e os dois commits que não restauram no
+Windows (P1-4). A **descida** segue sendo o maior buraco conceitual
+(1 cadeia de 79 crenças, desligada por padrão), e é conteúdo de curadoria,
+não etapa de engenharia.
 
 Antes disso, **ciclo 3 fechado** ([tarefas](tasks-ciclo-3.md)). As três
 decisões que a medição do kc_02 deixou em aberto eram de motor, e foram
@@ -2329,3 +2340,209 @@ O YAML não se mexeu, nem os 562 itens: a certa continua escrita em
 primeiro, a folha de revisão continua mostrando `**[certa]**` em
 primeiro, e a assinatura de quem revisou molde continua valendo. A
 permutação não é conteúdo.
+
+## A varredura dos treze — o portão de conteúdo fora do kc_02
+
+390 sessões: treze tópicos, três personas, dez sessões cada, oito minutos
+de parede. **Nenhuma quebra, e nenhuma premissa sem medida em nenhuma
+sessão.** A superfície HTTP se comporta como a suíte de unidade dizia.
+
+Um servidor por tópico, porque `dominio = carrega()` roda no import. O log
+foi para fora da árvore (`STRUCTURA_LOG`), que é a regra de sempre: sessão
+simulada não entra no banco do piloto. E o portão conferiu `/saude` antes
+de medir e a morte do servidor antes do próximo subir — a regra que a
+fatia da posição deixou escrita, aplicada treze vezes.
+
+### Uma correção minha, antes dos números
+
+Eu tinha dito, ao propor a varredura, que o portão de conteúdo só havia
+rodado em dois dos treze tópicos. **Isso está errado para a suíte.**
+`dominio.topicos()` descobre os treze no disco, e **16 funções de teste
+são parametrizadas sobre todos eles**, em cinco arquivos — incluindo as
+três de `test_medida.py` que cobram a CS-10. Nenhum tópico estava fora, e
+a frase "os cinco tópicos" num comentário de lá é texto de quando havia
+cinco.
+
+O que a varredura compra, então, não é cobertura da CS-10: é a **superfície
+HTTP** (telas, rotas e log de verdade, onde a medição do kc_02 achou o que
+virou o ciclo 3), a **semente por sessão** (cada código permuta as duas
+camadas de outro jeito, enquanto os testes usam política fixa) e o **custo
+em passos por tópico**, que só o kc_02 tinha.
+
+### O custo em passos, e ele é função do número de nós
+
+| kc | nós | acerta tudo | erra e aprende | não muda de ideia |
+| --- | --- | --- | --- | --- |
+| kc_00 | 5 | 38 | 63 | 60 |
+| kc_01 | 5 | 38 | 68 | 72 |
+| kc_02 | 6 | 45 | 84 | 89 |
+| kc_03 | 6 | 45 | 86 | 92 |
+| kc_04 | 6 | 45 | 83 | 87 |
+| kc_05 | 6 | 45 | 82 | 88 |
+| kc_06 | 6 | 45 | 85 | 91 |
+| kc_07 | 7 | 52 | 95 | 102 |
+| kc_08 | 6 | 45 | 82 | 88 |
+| kc_09 | 8 | 59 | 113 | 120 |
+| kc_10 | 6 | 45 | 82 | 88 |
+| kc_11 | 6 | 45 | 82 | 88 |
+| kc_12 | 6 | 45 | 82 | 88 |
+
+Medianas de dez sessões. Os dez tópicos de 6 nós são indistinguíveis entre
+si — **o custo não depende do conteúdo, depende da forma**: ~15 passos por
+nó no caminho difícil. O kc_09, com 8 nós, custa **35% mais que o piloto**.
+Isso reformula a pergunta do orçamento do PRD: não é "o tópico cabe em 30
+minutos", é "**quantos nós** cabem em 30 minutos" — e a resposta continua
+sendo de pessoa, não de medição em cliques.
+
+### Os números do roteiro do ensaio envelheceram
+
+[ensaio-roteiro.md](ensaio-roteiro.md) diz *42 / 81 / 118* para o kc_02.
+Hoje: **45 / 84 / 89**. O caminho difícil encurtou um quarto, que é o
+quarto teto cortando a cauda — consistente com o que o ciclo 3 prometeu.
+
+O `+3` uniforme nas três personas eu **não rastreei**. Pode ser tela nova
+de alguma fatia posterior, pode ser outra coisa; não atribuí, e não vou
+escrever palpite aqui como se fosse medida.
+
+### O kc_00 trunca, e era previsível na aritmética
+
+`em_aberto` em 10 de 10 sessões do `crente`. A causa estava nas constantes
+antes de qualquer corrida: `STREAK_ALVO = 2` no diagnóstico e
+`TETO_TENTATIVAS = 4` no treino pedem até **6 itens** por nó, e o kc_00 tem
+**4** — contra 7 a 13 de todos os outros.
+
+> **Corrigido depois.** Esta seção dizia também que o kc_00 era o único
+> tópico onde o `aprende` terminava com `falso_positivo`, e eu li isso
+> como propriedade do conteúdo dele. **Era artefato do portão** — ver "O
+> defeito que a quarta persona desenterrou", abaixo. Com o defeito
+> consertado, `falso_positivo` não aparece em tópico nenhum. O que
+> continua de pé é o truncamento, que é aritmética das constantes e não
+> depende daquele defeito.
+
+Como o kc_00 é pré-requisito e não objeto da medida (decisão 17), isso pode
+ser aceitável. É decisão do dono, não constatação: ou o banco dele cresce,
+ou fica registrado que aquele tópico mede menos do que os outros.
+
+### O achado que paga a varredura: as personas são limpas demais
+
+Em **12 dos 13 tópicos** o `aprende` termina 100% `confirmado` e o `crente`
+termina 100% `em_aberto`. Nenhum `lacuna` em tópico nenhum, nenhum `fragil`
+em tópico nenhum.
+
+O motivo é de uma linha: **nenhuma das três personas diz "não sei"** — zero
+ocorrências de `nao_sei` em `scripts/caminhante.py`. A **CS-4** (*"não sei"
+em qualquer camada produz lacuna, nunca crença*) tem 31 asserções na suíte
+de unidade e **nunca roda pela tela**. O portão de ponta a ponta produz os
+dois extremos do espaço de estados e nada do meio.
+
+E um defeito pequeno do próprio portão, do mesmo lado: o `sem_medida` dele
+só conta `desconhecido` e `nao_medido`. Nesta varredura não escondeu nada —
+mas `refutado` e `em_treino` também ficam de fora, e esses dois **são** fim
+de sessão quebrado. Um portão que diz "0 sem medida" numa sessão que parou
+no meio da refutação está mentindo com a verdade.
+
+### O que a varredura NÃO estabeleceu
+
+Nada sobre minutos: tudo aqui é clique. Nada sobre o efeito em quem
+aprende. Nada sobre o meio do espaço de estados, que é justamente o que a
+quarta persona existe para alcançar. E nada sobre a descida — ela está
+desligada por padrão, e estas 390 sessões passaram todas pela refutação
+afirmativa.
+
+## A quarta persona, e o que ela desenterrou
+
+A varredura mandou construir uma persona que diz "não sei", e ela entrou
+com 23 testes (`mvp/test_caminhante.py`); a suíte foi de **737 para 760**.
+
+Ela diz "não sei" na **camada 2 sempre** e na **camada 1 em metade dos
+itens**, decidida pelo sha256 do id do item — não sorteada, porque portão
+que muda de resultado sem o código mudar não é portão. E a metade existe
+por um motivo de motor: um "não sei" na camada 1 **encerra o episódio**, e
+uma persona que dissesse sempre cobriria só a camada 1, deixando a camada 2
+— o buraco de verdade — descoberta.
+
+Junto, dois consertos no próprio portão: `sem_medida` passou a contar
+`refutado` e `em_treino` (ambos são sessão parada no meio), mantendo
+`em_aberto` fora, porque o projeto já decidiu que ele é medida.
+
+### O defeito que a quarta persona desenterrou, e ele era das antigas
+
+O teste "quem deve errar não acerta" caiu, e não pela persona nova. O
+caminho de quem não está convencido fazia:
+
+```python
+next(i for i, o in enumerate(na_tela) if o.crenca == a.crenca)
+```
+
+Com `a.crenca` nulo, isso é `None == None`, e casa a alternativa cuja
+crença também é nula — **a certa**. Três itens dos 562:
+
+```
+kc_00  ciu_kc00_001   B1   diagnostico
+kc_00  ciu_kc00_t02   B1   treino
+kc_02  ciu_kc02_t12   I1   treino
+```
+
+O de **diagnóstico** é o que importa: ali o `crente` acertava, nenhuma
+crença era detectada, a refutação não acontecia — e escolhendo uma crença
+como razão em seguida, o episódio saía `falso_positivo`. Era a origem do
+`falso_positivo` do kc_00 que a primeira varredura mediu e que eu li como
+conteúdo. Plausível e errado, na própria ferramenta de medir: o portão
+rodava verde e media outra coisa.
+
+Consertado com `a.crenca is not None` na condição, e preso por um teste
+parametrizado nos treze tópicos sobre as **três** personas que erram.
+
+### Os números com as quatro personas, e o defeito fora
+
+| kc | nós | acerta tudo | erra e aprende | não muda | não sabe |
+| --- | --- | --- | --- | --- | --- |
+| kc_00 | 5 | 38 | 64 | 57 | 27 |
+| kc_01 | 5 | 38 | 68 | 72 | 37 |
+| kc_02 | 6 | 45 | 84 | 89 | 78 |
+| kc_03 | 6 | 45 | 86 | 92 | 45 |
+| kc_04 | 6 | 45 | 83 | 87 | 50 |
+| kc_05 | 6 | 45 | 82 | 88 | 49 |
+| kc_06 | 6 | 45 | 85 | 91 | 52 |
+| kc_07 | 7 | 52 | 95 | 102 | 55 |
+| kc_08 | 6 | 45 | 82 | 88 | 46 |
+| kc_09 | 8 | 59 | 113 | 120 | 62 |
+| kc_10 | 6 | 45 | 82 | 88 | 49 |
+| kc_11 | 6 | 45 | 82 | 86 | 48 |
+| kc_12 | 6 | 45 | 82 | 88 | 47 |
+
+520 sessões, nenhuma sem medida. O kc_00 mudou com o conserto (`crente` de
+60 para 57), que é o esperado de um tópico que tinha dois dos três itens
+defeituosos.
+
+### E o achado novo é maior que o que mandou fazer a persona
+
+A CS-4 passou a rodar pela tela: `lacuna` em 130 de 130 sessões da persona
+nova, nos treze tópicos. Mas o quadro inteiro ficou assim:
+
+| persona | o que ela produz |
+| --- | --- |
+| `sabido` | `confirmado` — 130 de 130 |
+| `aprende` | `confirmado` — 130 de 130 |
+| `crente` | `em_aberto` — 130 de 130 |
+| `nao_sabe` | `lacuna` — 130 de 130 |
+
+**Quatro personas, quatro extremos puros.** Cada uma produz um estado só,
+uniforme nos treze tópicos. O espaço alcançado pela tela é de três estados
+dos oito do motor: `confirmado`, `em_aberto` e `lacuna`.
+
+E o que falta é o pior possível: **`falso_positivo` não é produzido por
+persona nenhuma**. Esse é o estado da **CS-1** — *um acerto com razão
+errada não confirma a premissa* —, que é a medida central do trabalho
+inteiro. Para produzi-lo é preciso **acertar a camada 1 e errar a camada
+2**, e as quatro personas são internamente consistentes: quem acerta a
+resposta acerta a razão, quem erra erra as duas. Nenhuma é incoerente, e a
+incoerência é exatamente o fenômeno que o instrumento existe para medir.
+
+`fragil` também não aparece, e por outro motivo: ele é uma premissa
+confirmada numa superfície só, isto é, sessão truncada — não há política
+que o produza de propósito.
+
+**A quinta persona, então, não é opcional:** é a que acerta pela razão
+errada, e ela é a única que exercita pela tela o critério número um. A
+CS-4 estava descoberta; a CS-1 está descoberta, e vale mais.
