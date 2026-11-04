@@ -265,6 +265,74 @@ def test_aprovado_e_valido_entra_no_dominio(tmp_path, monkeypatch):
     assert carrega(espelho, topico="kc_02")
 
 
+def test_nao_aprova_pergunta_que_ja_esta_no_banco(tmp_path, monkeypatch):
+    """I4: o portão da variedade só existia na EXPANSÃO.
+
+    `aprova` lê de `candidatos/`, e um candidato pode ter sido expandido
+    antes de o banco crescer. Ele passava pelo carregador — id novo,
+    contrato em ordem — e entrava com a pergunta repetida, que é
+    exatamente o que a fatia da família veio desfazer.
+    """
+    import shutil
+    import yaml
+    from mvp import dominio as mod
+
+    espelho = tmp_path / "dominio"
+    shutil.copytree(mod.RAIZ, espelho)
+    monkeypatch.setattr(mod, "RAIZ", espelho)
+    antes = (espelho / "activities_kc02.yaml").read_bytes()
+
+    # Copia a pergunta de um item que JÁ está no banco, com id novo.
+    arq = espelho / "activities_kc02.yaml"
+    ja = yaml.safe_load(arq.read_text(encoding="utf-8"))["activities"][0]
+    _candidatos_falsos(tmp_path, monkeypatch,
+                       _item(revisado_por="Rafael",
+                             enunciado=ja["enunciado"]))
+
+    quantos, avisos = gerar.aprova("kc_02")
+    assert quantos == 0, avisos
+    assert any(ja["id"] in a for a in avisos), avisos
+    assert arq.read_bytes() == antes
+
+
+def test_id_que_ja_esta_no_banco_e_recusado_e_nao_pulado(tmp_path, monkeypatch):
+    """Uma suspeita minha que NÃO se confirmou, virada prova.
+
+    Consertando o I4 eu li `novos = [a for a in aprovados if a["id"] not
+    in ja]` e concluí que `aprova` descartava em silêncio um id que já
+    estivesse no banco — o que importaria muito, porque reexpandir um
+    molde corrigido devolve os MESMOS ids com texto novo, e a correção
+    se perderia sem uma palavra.
+
+    Não é o que acontece: `confere` carrega o domínio COM os candidatos
+    dentro, e o carregador de verdade recusa id duplicado antes de
+    qualquer filtro. O filtro nunca é alcançado. Fica o teste, para o
+    dia em que alguém mexer na ordem das duas coisas.
+
+    O que isso significa no caminho de corrigir um molde: reexpandir e
+    aprovar NÃO substitui os itens velhos — é preciso apagá-los do
+    domínio primeiro, de propósito e num commit que se vê.
+    """
+    import shutil
+    import yaml
+    from mvp import dominio as mod
+
+    espelho = tmp_path / "dominio"
+    shutil.copytree(mod.RAIZ, espelho)
+    monkeypatch.setattr(mod, "RAIZ", espelho)
+    arq = espelho / "activities_kc02.yaml"
+    antes = arq.read_bytes()
+    ja = yaml.safe_load(arq.read_text(encoding="utf-8"))["activities"][0]
+
+    _candidatos_falsos(tmp_path, monkeypatch,
+                       _item(revisado_por="Rafael", id=ja["id"]))
+
+    quantos, avisos = gerar.aprova("kc_02")
+    assert quantos == 0, avisos
+    assert any(ja["id"] in a and "duplicada" in a for a in avisos), avisos
+    assert arq.read_bytes() == antes
+
+
 def test_aprovado_mas_invalido_nao_escreve_nada(tmp_path, monkeypatch):
     """Meio banco gravado é pior do que nenhum: confere ANTES de escrever."""
     import shutil
@@ -297,6 +365,21 @@ tem_gcc = pytest.mark.skipif(not oraculo.GCC.exists(),
                              reason="sem compilador em %s" % oraculo.GCC)
 
 
+#: O domínio curto dos testes que CHAMAM O COMPILADOR.
+#:
+#: Desde que o portao do oraculo varre o domínio inteiro (e nao as seis
+#: variações sorteadas), cada chamada custa uma compilação por combinacao
+#: por formato. Com as 27 combinações dos fixtures, a suite passou de 87
+#: segundos para 12 horas e meia: sob carga sustentada o `gcc` comeca a
+#: estourar o timeout de dez segundos do oraculo, e a lentidão vira
+#: falha. Oito combinações exercitam o mesmo código e cabem no relógio.
+#:
+#: Quem precisa de domínio grande e
+#: `test_o_oraculo_varre_o_domínio_inteiro_e_nao_so_as_variações`, é ele
+#: declara o seu.
+CURTOS = {"tipo": ["int", "char"], "nome": ["a", "v"], "n": [3, 8]}
+
+
 def _molde(tmp_path, nome, **troca):
     """Escreve um `moldes_kc07.yaml` numa pasta só deste teste."""
     base = {
@@ -305,9 +388,7 @@ def _molde(tmp_path, nome, **troca):
         "formato": "reconhecer_conceito",
         "nivel": 1,
         "uso": "treino",
-        "parametros": {"tipo": ["int", "char", "double"],
-                       "nome": ["a", "v", "dados"],
-                       "n": [3, 5, 8]},
+        "parametros": dict(CURTOS),
         "enunciado": "{tipo} {nome}[{n}] guarda quantos valores?",
         # Começa por palavra: o portão novo recusa molde em que a certa
         # é a única alternativa que começa em minúscula.
@@ -419,7 +500,13 @@ def test_a_folha_do_molde_mostra_o_texto_e_os_extremos(tmp_path):
     concordância quebra — não em três variações sorteadas, que podem cair
     todas no meio.
     """
-    m = _le_molde(tmp_path, "folha")
+    # Domínio próprio: este teste cobra o nome mais LONGO, e o padrão
+    # dos fixtures é curto para não pagar compilação. Aqui não há
+    # compilador, então o domínio grande sai de graça.
+    m = _le_molde(tmp_path, "folha",
+                  parametros={"tipo": ["int", "char", "double"],
+                              "nome": ["a", "v", "dados"],
+                              "n": [3, 5, 8]})
     texto = gerar.folha_do_molde(D7, m)
     assert "{tipo} {nome}[{n}]" in texto, "o molde com os buracos não aparece"
     assert texto.count("### variação") == 3, texto
@@ -717,9 +804,15 @@ def test_sem_compilador_a_cli_nao_cospe_traceback(tmp_path, monkeypatch, capsys)
 # --------------------------------------------------------------------------
 
 def _familia(tmp_path, nome, **troca):
-    """Escreve a família de três formatos do kc_07 numa pasta do teste."""
+    """Escreve a família de três formatos do kc_07 numa pasta do teste.
+
+    Com o domínio curto por padrão: o fixture de `test_molde` tem 27
+    combinações, e aqui cada uma custa três compilações. Quem precisa de
+    domínio grande passa o seu.
+    """
     from mvp.test_molde import _cru_familia
 
+    troca.setdefault("parametros", dict(CURTOS))
     pasta = tmp_path / nome
     pasta.mkdir(parents=True, exist_ok=True)
     (pasta / "moldes_kc07.yaml").write_text(
@@ -848,3 +941,110 @@ def test_o_pedido_explica_a_correspondencia_posicional():
 def test_o_pedido_explica_o_achar_o_erro():
     sistema, pedido = gerar.prompt_de_molde(D7, "B1", 1)
     assert "nao_compila" in (sistema + pedido)
+
+
+@tem_gcc
+def test_o_oraculo_varre_o_dominio_inteiro_e_nao_so_as_variacoes(tmp_path):
+    """C4: o portão conferia as variações SORTEADAS e dizia molde provado.
+
+    O molde afirma uma coisa sobre 4 combinações de parâmetro; a
+    expansão sorteia 2; o portão rodava o compilador nessas 2 e aprovava
+    as 4. Uma afirmação falsa numa combinação não sorteada entrava no
+    banco escrita no molde, esperando a próxima expansão — que é
+    exatamente o que a camada do oráculo existe para impedir.
+
+    Este é o defeito que estava no molde de verdade: `sizeof {nome} !=
+    sizeof p` é falso para `char {nome}[8]`, porque os dois ocupam oito
+    bytes. Uma em dezesseis, e a expansão não a sorteou.
+    """
+    from mvp.molde import le, expande_familia
+
+    oraculo_do_tamanho = (
+        "#include <stdio.h>" + chr(10) +
+        "int main(void) {" + chr(10) +
+        "    {tipo} {nome}[{n}];" + chr(10) +
+        "    {tipo} *p;" + chr(10) +
+        "    printf(" + chr(34) + "%d" + chr(34) +
+        ", (int)(sizeof {nome} != sizeof p));" + chr(10) +
+        "    return 0;" + chr(10) + "}" + chr(10))
+    formatos = {
+        "reconhecer_conceito": {
+            "tipo": "teorica",
+            "enunciado": "Depois de {tipo} {nome}[{n}]; e {tipo} *p; o que existe?",
+            "gabarito": "São {extenso} caixas de {tipo}, e uma de ponteiro",
+            "distratores": [
+                "Uma caixa só, com {extenso} valores de {tipo} dentro",
+                "Duas caixas de ponteiro: {nome} também é um ponteiro",
+            ],
+            "codigo": "{tipo} {nome}[{n}];" + chr(10) + "{tipo} *p;",
+            "oraculo": oraculo_do_tamanho,
+            "espera": "1",
+        },
+    }
+    # O mesmo domínio do molde de verdade: 64 combinações.
+    parametros = {"tipo": ["int", "char", "double", "long"],
+                  "nome": ["a", "v", "dados", "lista"],
+                  "n": [3, 4, 6, 8]}
+    raiz = _familia(tmp_path, "varre", formatos=formatos,
+                    parametros=parametros)
+
+    # A expansão sorteia duas das 64, e nenhuma delas é char[8].
+    m = le(raiz / "moldes_kc07.yaml", D7)["mol_teste"]
+    sorteadas = [(p["tipo"], p["n"]) for _, p in expande_familia(m, 2)]
+    assert len(sorteadas) == 2
+    assert ("char", 8) not in sorteadas, sorteadas
+
+    itens, problemas = gerar.expande_molde(D7, "kc_07", "mol_teste",
+                                           raiz=raiz, quantas=2)
+    assert itens == []
+    assert any("char" in p and "8" in p for p in problemas), problemas
+
+
+@tem_gcc
+def test_a_varredura_diz_quantas_combinacoes_conferiu(tmp_path):
+    """E a folha não pode prometer mais do que a máquina provou.
+
+    Com o domínio inteiro conferido, o relatório diz 4 de 4. É esse
+    número que a folha da validação passa a mostrar, no lugar de "em
+    TODA variação" — que era verdade sobre as sorteadas e mentira sobre
+    o molde.
+    """
+    conferidas = gerar.combinacoes_do_oraculo(
+        {"tipo": ["int", "char"], "nome": ["a"], "n": [3, 8]})
+    assert len(conferidas) == 4
+    assert {"tipo": "char", "nome": "a", "n": 8} in conferidas
+
+
+def test_a_folha_diz_quantas_combinacoes_a_maquina_conferiu(tmp_path):
+    """I3: a folha dizia "em TODA variação", e não era verdade.
+
+    O portão conferia as variações expandidas. A folha, que é o que a
+    pessoa lê antes de assinar, dizia que a máquina tinha conferido
+    todas — e a assinatura dela passava a cobrir uma garantia que
+    ninguém deu. Agora o número é o da varredura, e sai escrito.
+    """
+    from mvp.molde import le
+
+    m = le(_familia(tmp_path, "folha_n") / "moldes_kc07.yaml", D7)["mol_teste"]
+    texto = gerar.folha_do_molde(D7, m)
+    # O número sai do fixture, e não cravado: foi o defeito que a
+    # revisão apontou nos testes de conteúdo, e eu acabei de repeti-lo
+    # no teste que o conserta.
+    quantas = len(gerar.combinacoes_do_oraculo(m.parametros))
+    assert str(quantas) in texto, (quantas, texto)
+    assert "TODA" not in texto, texto
+
+
+def test_a_folha_mostra_o_espera_de_cada_formato(tmp_path):
+    """E o `espera` do formato ficava escondido.
+
+    A folha mostrava o `espera` da família e, para o formato com oráculo
+    próprio, só o programa. A pessoa lia um programa sem saber o que ele
+    tem de imprimir para o molde passar — que é metade da afirmação.
+    """
+    from mvp.molde import le
+
+    m = le(_familia(tmp_path, "folha_e") / "moldes_kc07.yaml", D7)["mol_teste"]
+    texto = gerar.folha_do_molde(D7, m)
+    prever = texto.split("## formato: prever_saida")[1]
+    assert "espera" in prever.split("## formato")[0], prever[:600]
