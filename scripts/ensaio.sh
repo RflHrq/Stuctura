@@ -107,10 +107,36 @@ else
   aviso "o topico NAO carrega (acima o que esta errado)"
 fi
 
-# 5. As portas.
+# 5. As portas: quem ATENDE, e nao quem o netstat lista.
+#
+# O netstat erra nos dois sentidos, e os dois custam caro no dia:
+#
+#   falso alarme   depois de um kill forcado o Windows deixa o socket em
+#                  LISTENING com PID 0, sem ninguem atras. O portao
+#                  barrava o ensaio por um fantasma.
+#   falso ok       um servidor de ONTEM atende com outro topico e outro
+#                  log, e ninguem percebe. Aconteceu em 04/11: duas
+#                  medidas inteiras foram tomadas contra o servidor do
+#                  dia anterior antes de alguem desconfiar.
+#
+# Entao a pergunta e "alguem atende?", e quando atende o portao diz COM
+# QUE TOPICO — que e o diagnostico, nao o sintoma.
+atende() { curl -s -m 2 "http://127.0.0.1:$1/saude" 2>/dev/null; }
+
 for porta in 8010 8011; do
-  if netstat -ano 2>/dev/null | grep -q "[:.]$porta .*LISTEN"; then
-    aviso "a porta $porta ja esta ocupada — servidor velho no ar?"
+  corpo=$(atende "$porta" || true)
+  if [ -n "$corpo" ]; then
+    quem=$(printf '%s' "$corpo" | python -c '
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    print("topico %s, %s atividades" % (d.get("topico"), d.get("atividades")))
+except Exception:
+    print("algo que nao e o Structura")
+' 2>/dev/null || echo "algo que nao e o Structura")
+    aviso "a porta $porta ATENDE ($quem) — servidor velho no ar; feche-o"
+  elif netstat -ano 2>/dev/null | grep -q "[:.]$porta .*LISTEN"; then
+    ok "porta $porta: socket orfao no netstat, mas ninguem atende; serve"
   else
     ok "porta $porta livre"
   fi
