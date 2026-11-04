@@ -38,8 +38,21 @@ def d():
 # Roteiros
 # --------------------------------------------------------------------------
 
-def _errada(a):
-    return next(i for i, o in enumerate(a.opcoes) if not o.correta)
+def _errada(a, semente=""):
+    """A primeira errada NA TELA.
+
+    Era `a.opcoes`, posicao de arquivo. Com a camada 1
+    permutada, aquela posicao aponta outra alternativa — e as
+    vezes a certa, o que faria o teste medir o contrario do que
+    diz medir.
+    """
+    na_tela = motor.opcoes_na_tela(semente, a)
+    # A crenca DO ITEM, e nao "a primeira errada". Antes dava no mesmo
+    # por convencao de escrita — o YAML poe o distrator do proprio no em
+    # primeiro —, e com a tela permutada a primeira e outra crenca: a
+    # refutacao cai no vizinho, e o teste mede outro no.
+    return next((i for i, o in enumerate(na_tela) if o.crenca == a.crenca),
+                next(i for i, o in enumerate(na_tela) if not o.correta))
 
 
 def roda(d, politica, limite=300):
@@ -100,11 +113,15 @@ def _politica(*, erra_no=None, erra_diagnostico=99, erra_treino=0,
         limite = erra_treino if treino else erra_diagnostico
         if a.no == erra_no and feitos[chave] < limite:
             feitos[chave] += 1
-            i = _errada(a)
-            ultimo.update(errou=True, crenca=a.opcoes[i].crenca)
+            i = _errada(a, estado.semente)
+            ultimo.update(
+                errou=True,
+                crenca=motor.opcoes_na_tela(estado.semente, a)[i].crenca)
             return Resposta(escolha=i, confianca=confianca)
         ultimo.update(errou=False, crenca=None)
-        return Resposta(escolha=a.indice_correto, confianca=confianca)
+        return Resposta(
+            escolha=motor.indice_correto_na_tela(estado.semente, a),
+            confianca=confianca)
 
     return politica
 

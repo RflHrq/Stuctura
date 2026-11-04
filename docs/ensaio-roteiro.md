@@ -13,6 +13,7 @@ coisas que nenhuma medição automática responde.
 | **O "não sei"** | é usado, ou evitado por parecer desistência? |
 | **O falso positivo** | a pessoa **percebe** quando o sistema diz "a resposta está certa, a explicação leva a outro lugar"? É a decisão 13 |
 | **O mapa** | diz alguma coisa para quem não construiu o sistema? |
+| **A ordem das alternativas** | desde 04/11 ela é embaralhada por sessão. A pessoa repara? Reclama? Procura padrão? |
 
 ## O que este ensaio **não** é
 
@@ -122,6 +123,20 @@ suspeitas minhas e não medições:
 2. **A tela de confiança** agora aparece menos no treino (mudança do ciclo
    3). Repare se a pergunta "quanta confiança você tem nessa dupla?" é
    entendida, ou se ela responde no automático.
+3. **A ordem das alternativas é embaralhada por sessão** desde 04/11.
+   Antes disso a resposta certa estava na primeira posição em 553 dos 562
+   itens — 98,4% —, e este ensaio seria o primeiro a medir uma pessoa
+   contra esse viés. Agora não é mais.
+
+   O que muda para quem observa: *"ela escolheu a primeira"* deixou de ser
+   indício de chute por posição, porque a primeira é diferente para cada
+   participante. E se ela **disser** alguma coisa como "a certa parece ser
+   sempre a tal", isso é achado — vale anotar a frase inteira, porque
+   significa que sobrou alguma outra pista de superfície (comprimento,
+   vocabulário) que o embaralhamento não toca.
+
+   Você não precisa anotar qual posição era a certa: o log grava a ordem
+   mostrada em cada item, no campo `ordem` de `atividade_apresentada`.
 
 ---
 
@@ -178,6 +193,7 @@ MOMENTOS
   ( ) percebeu o falso positivo        o que disse: ________________
   ( ) reagiu a refutacao               como: ________________________
   ( ) olhou o mapa                     o que disse: ________________
+  ( ) falou da ordem das alternativas  a frase: ____________________
   ( ) usou o teclado                   ( ) so mouse
 
 A UNIDADE

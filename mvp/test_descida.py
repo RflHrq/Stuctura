@@ -92,14 +92,17 @@ def _politica(d, erra_no="I1"):
             return Resposta(escolha=next(i for i, z in enumerate(razoes)
                                          if z.correta))
         a = next(x for x in d.atividades if x.id == tela.dados["atividade"])
-        i = next((i for i, o in enumerate(a.opcoes) if o.crenca == CRENCA),
+        i = next((i for i, o in enumerate(
+            motor.opcoes_na_tela(estado.semente, a)) if o.crenca == CRENCA),
                  None)
         if (a.no == erra_no and i is not None
                 and tela.dados["fase"] == motor.DIAGNOSTICO
                 and not estado.no(ALVO).crenca):
             pendente["erro"] = True
             return Resposta(escolha=i, confianca="tenho certeza")
-        return Resposta(escolha=a.indice_correto, confianca="tenho certeza")
+        return Resposta(
+            escolha=motor.indice_correto_na_tela(estado.semente, a),
+            confianca="tenho certeza")
 
     return politica
 

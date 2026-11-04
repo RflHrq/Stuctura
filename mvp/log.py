@@ -63,10 +63,14 @@ ENTRADA = "entrada_recebida"
 #
 #   1  primeiro formato versionado (ciclo 2). As três camadas, o
 #      teach-back, a entrada para reexecução e o reteste já estão aqui.
+#   2  a camada 1 passou a ser permutada. O índice de `entrada_recebida`
+#      deixou de querer dizer "posição no YAML" e passou a querer dizer
+#      "posição na tela" — o mesmo número, outra alternativa. E
+#      `atividade_apresentada` ganhou `ordem`, a permutação mostrada.
 #
 # Linha sem o campo é anterior a isto: veio do ciclo 1, e `VERSAO_ZERO`
 # é como ela aparece na leitura.
-VERSAO = 1
+VERSAO = 2
 VERSAO_ZERO = 0
 
 CAMPOS_DA_ENTRADA = tuple(f.name for f in fields(motor.Resposta))
@@ -245,6 +249,31 @@ def reconstroi(d: motor.Dominio, sessao: str,
             "de as entradas existirem, não é reexecutável"
             % (sessao, len(linhas)))
 
+    # UMA SESSÃO ANTERIOR À VERSÃO 2 NÃO É REEXECUTÁVEL, e não há
+    # semente que a salve. Eu tentei `semente=""`, raciocinando que a
+    # camada 1 não era permutada no `v1`. Está errado por dois lados:
+    #
+    #   - semente vazia NÃO é a identidade. Ela devolve a ordem do
+    #     arquivo em 18% dos itens; nos outros 82% o índice gravado é
+    #     lido contra uma permutação que ninguém viu, e um acerto vira
+    #     erro COM uma crença atribuída que a pessoa nunca escolheu;
+    #   - no `v1` as razões já eram permutadas, com a sessão como
+    #     semente. Passar `""` conserta uma camada que não estava
+    #     quebrada e quebra outra que estava certa.
+    #
+    # Nenhuma semente serve para as duas ao mesmo tempo. Devolver um
+    # estado assim é exatamente o "plausível e errado" que esta classe
+    # existe para impedir, e num instrumento de pesquisa isso é pior do
+    # que não devolver nada.
+    versao = int(abertura.get("v") or VERSAO_ZERO)
+    if versao < 2:
+        raise LogIncompleto(
+            "a sessão %r foi gravada na versão %d do log, e a %d mudou o "
+            "significado do índice de `escolha`: era posição no arquivo, "
+            "passou a ser posição na tela. Reexecutar devolveria outras "
+            "respostas, com a mesma cara das certas. O log continua "
+            "legível para análise; reexecutável, não."
+            % (sessao, versao, VERSAO))
     t = motor.inicia(d, semente=sessao)
     for i, linha in enumerate(entradas, 1):
         try:

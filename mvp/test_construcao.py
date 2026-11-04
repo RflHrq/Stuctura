@@ -60,7 +60,7 @@ def _so_nao_sei(d):
 def _nao_sabia_e_aprendeu(d):
     """Diz "não sei" na PRIMEIRA vez que vê cada nó e, depois do ensino,
     acerta. É o caminho que a construção existe para abrir."""
-    gabarito = {a.id: a.indice_correto for a in d.atividades}
+    gabarito = {a.id: a for a in d.atividades}
     visto = set()
 
     def politica(tela, estado):
@@ -77,7 +77,9 @@ def _nao_sabia_e_aprendeu(d):
         if tela.dados.get("fase") != motor.ENTRADA and tela.no not in visto:
             visto.add(tela.no)
             return Resposta(nao_sei=True)
-        return Resposta(escolha=gabarito.get(tela.dados["atividade"], 0))
+        a = gabarito.get(tela.dados["atividade"])
+        return Resposta(escolha=0 if a is None else
+                        motor.indice_correto_na_tela(estado.semente, a))
     return politica
 
 
@@ -163,7 +165,8 @@ def test_acertar_a_entrada_nao_confirma_a_premissa(d2):
     t = motor.avanca(d2, t.estado, Resposta(nao_sei=True))
     t = motor.avanca(d2, t.estado, Resposta())
     item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-    t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+    t = motor.avanca(d2, t.estado, Resposta(
+        escolha=motor.indice_correto_na_tela(t.estado.semente, item)))
     assert t.estado.no(no).estado == motor.CONSTRUIDO
     assert t.estado.no(no).estado != motor.CONFIRMADO
 
@@ -180,7 +183,8 @@ def test_errar_a_entrada_mantem_a_lacuna(d2):
     t = motor.avanca(d2, t.estado, Resposta(nao_sei=True))
     t = motor.avanca(d2, t.estado, Resposta())
     item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-    errada = next(i for i, o in enumerate(item.opcoes) if not o.correta)
+    errada = next(i for i, o in enumerate(
+        motor.opcoes_na_tela(t.estado.semente, item)) if not o.correta)
     t = motor.avanca(d2, t.estado, Resposta(escolha=errada))
     assert t.estado.no(no).estado == motor.LACUNA
 
@@ -270,7 +274,8 @@ def test_a_tela_diz_que_e_a_primeira_vez(d2):
             t = motor.avanca(d2, t.estado, Resposta(texto="x"))
         elif t.tela.tipo == "atividade":
             item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-            t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+            t = motor.avanca(d2, t.estado, Resposta(
+        escolha=motor.indice_correto_na_tela(t.estado.semente, item)))
         elif t.tela.tipo == "razao":
             rz = t.estado.pendente.razoes
             t = motor.avanca(d2, t.estado,
@@ -318,7 +323,8 @@ def test_o_item_prometido_e_o_que_vem(d2):
             t = motor.avanca(d2, t.estado, Resposta(texto="x"))
         elif t.tela.tipo == "atividade":
             item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-            t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+            t = motor.avanca(d2, t.estado, Resposta(
+        escolha=motor.indice_correto_na_tela(t.estado.semente, item)))
         elif t.tela.tipo == "razao":
             rz = t.estado.pendente.razoes
             t = motor.avanca(d2, t.estado,

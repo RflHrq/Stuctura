@@ -1,6 +1,22 @@
 # A posição da alternativa certa
 
-> Desenho aprovado em 04/11/2026. Ainda não implementado.
+> Desenho aprovado e **implementado** em 04/11/2026, no ramo `posicao`
+> (plano em [plano-posicao.md](plano-posicao.md), cinco tarefas).
+>
+> **Medido depois:** a certa saiu de 98,4% na primeira posição para
+> 32,4 / 33,1 / 34,5 nas três.
+>
+> Por item, ao longo de 40 sementes, o resíduo é o que o acaso produz, e
+> não menos: entre os 549 itens de três alternativas o pior concentra 24
+> das 40 numa posição (60%, contra 33% do acaso), e entre os 13 de duas
+> o pior concentra 25 (62%, contra 50%).
+>
+> **A primeira versão desta nota citava só o 62% e dizia que era um item
+> de duas alternativas** — verdade, e tranquilizava pelo motivo errado:
+> dava a entender que a pior concentração estava confinada ao caso onde
+> ela não importa. Não está. A tranquilidade correta é outra: 24 de 40 é
+> o máximo que se espera entre 549 itens sorteados uniformemente. O
+> número estava certo; a razão, não.
 
 ## O problema
 

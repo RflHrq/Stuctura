@@ -2230,3 +2230,102 @@ molde que não existe mais, e têm de ser reexpandidos.
 está em [moldes.md](moldes.md), no risco em aberto do CS-6: o log não
 grava impressão digital do banco, e corrigir um molde reescreve itens com
 os mesmos ids.
+
+## A posição da alternativa certa — 98,4% num canto do gabarito
+
+Medida antes de qualquer código: nos 562 itens dos treze tópicos, a
+resposta certa estava na **primeira** alternativa em 553 — 98,4%, e
+nenhuma em terceira.
+
+Isso não é detalhe de apresentação. Um participante que repare no padrão
+acerta sem saber o conteúdo, e o instrumento passa a medir, em parte,
+quem reparou. Como o viés é **sistemático**, ele não some na média de 40
+pessoas. E ele contamina justo a medida central do trabalho: quem acerta
+por posição ainda escolhe uma razão, e o par sai "acerto com razão
+errada" — que o CS-1 lê como falso positivo. O viés produziria falsos
+positivos em massa, e eles pareceriam achado.
+
+Spec em [posicao.md](posicao.md), plano em
+[plano-posicao.md](plano-posicao.md), cinco tarefas.
+
+### O achado do desenho: a permutação já existia
+
+Não houve decisão nenhuma por trás dos 98,4%. O motor **já tinha** a
+permutação estável — `ordem_das_razoes`, escrita no ciclo 1 —, e ela
+cobria a camada 2. A camada 1 ficou de fora, e a tela entregava
+`a.opcoes` na ordem crua do YAML, que escreve a certa em primeiro porque
+é assim que um humano escreve um gabarito.
+
+A promessa estava escrita e não cumprida em dois lugares: no docstring de
+`Resposta` (*"`escolha` é a posição na tela"*) e no de `log.reconstroi`
+(*"a ordem das alternativas vem da semente, que é o código da sessão"*).
+
+| | antes | depois |
+| --- | --- | --- |
+| certa em `a` | 553 (98,4%) | 182 (32,4%) |
+| certa em `b` | 9 (1,6%) | 186 (33,1%) |
+| certa em `c` | 0 | 194 (34,5%) |
+
+Como a semente é o código da sessão, cada participante vê uma ordem
+diferente: o que o P03 contar ao P04 não transfere.
+
+### O risco de verdade não era o embaralhamento
+
+Era `Atividade.indice_correto`, usado por 22 chamadas. No dia em que a
+permutação existisse, aquele índice apontaria outra alternativa — e o
+motor **aceita**: não é erro de programa, é uma resposta errada. A escada
+desce em vez de subir, a crença errada é registrada, e a suíte fica verde
+contando outra história.
+
+Por isso a renomeação para `indice_correto_no_arquivo` foi uma tarefa
+inteira, **antes** de qualquer mudança de comportamento: ela troca 22
+erros silenciosos por 22 `AttributeError`.
+
+Funcionou: ligar a permutação derrubou **61 testes** de uma vez. E eles
+mostraram que o problema era maior do que o nome — quem escolhe a
+**errada** também escolhia por posição de arquivo, e com a tela permutada
+aquela posição às vezes é a certa. O pior caso virava acerto, e os nós
+saíam `confirmado` num teste chamado *"nenhuma premissa fica sem
+medida"*.
+
+### Duas políticas que diziam uma coisa e faziam outra
+
+Errar "por este nó" estava escrito como *"a primeira errada do arquivo"*.
+Dava no mesmo por convenção de escrita — o YAML põe o distrator da crença
+do próprio nó em primeiro. Com a tela permutada, a primeira da tela é
+outra crença, e a refutação caía no **vizinho**: comportamento correto do
+CS-2 sobre uma entrada que o teste não queria dar.
+
+Agora as duas escolhem a crença **do item**. Não é afrouxar teste; é
+escrever a intenção que o docstring já declarava.
+
+### A renomeação em massa comeu o próprio teste da trava
+
+`hasattr(a, "indice_correto")` virou `hasattr(a, "indice_correto_no_arquivo")`
+— que passa e afirma o contrário. O nome velho agora está escrito por
+partes, com o motivo ao lado. A fatia demonstrou em si mesma o defeito
+que ela existe para impedir.
+
+### E um portão que rodou contra ontem
+
+O caminhante é o portão de ponta a ponta, e por duas rodadas ele mediu um
+servidor que subira **no dia anterior**, com código velho, e continuava
+na porta 8010 — o `pkill` do Git Bash não o matou. A comparação
+master-contra-ramo ficou inválida e parecia regressão: o cliente novo
+calculava posição de tela contra um servidor que não permutava.
+
+Com servidor novo: 52 passos, tudo confirmado, igual ao master. Fica a
+regra, do mesmo tamanho da que já está escrita sobre medir tempo com a
+máquina quieta: **conferir `/saude` e o PID antes de usar o caminhante
+como portão.**
+
+### O que esta fatia não fez
+
+A escala de confiança **não** é embaralhada, e tem teste pinando isso:
+`("chutei", "acho que sei", "tenho certeza")` é ordinal, a ordem dela *é*
+a escala, e o viés nem existe ali porque nenhuma das três é a certa.
+
+O YAML não se mexeu, nem os 562 itens: a certa continua escrita em
+primeiro, a folha de revisão continua mostrando `**[certa]**` em
+primeiro, e a assinatura de quem revisou molde continua valendo. A
+permutação não é conteúdo.

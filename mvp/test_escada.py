@@ -87,7 +87,8 @@ def test_quem_erra_nao_sobe(d2):
     no = t.tela.no
     assert t.estado.no(no).nivel == 1
     item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-    errada = next(i for i, o in enumerate(item.opcoes) if not o.correta)
+    errada = next(i for i, o in enumerate(
+        motor.opcoes_na_tela(t.estado.semente, item)) if not o.correta)
     t = motor.avanca(d2, t.estado, Resposta(escolha=errada))
     # camada 2 e 3, explicando pela crença: episódio de crença, não de pé
     razoes = t.estado.pendente.razoes
@@ -106,7 +107,8 @@ def test_quem_acerta_pela_razao_certa_sobe(d2):
         t = motor.avanca(d2, t.estado, Resposta(texto="x"))
     no = t.tela.no
     item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-    t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+    t = motor.avanca(d2, t.estado, Resposta(
+        escolha=motor.indice_correto_na_tela(t.estado.semente, item)))
     razoes = t.estado.pendente.razoes
     t = motor.avanca(d2, t.estado,
                      Resposta(escolha=next(i for i, z in enumerate(razoes) if z.correta)))
@@ -218,7 +220,8 @@ def test_quem_acerta_pela_razao_errada_nao_sobe(d2):
     t = _ate_a_atividade(d2)
     no = t.tela.no
     item = next(x for x in d2.atividades if x.id == t.tela.dados["atividade"])
-    t = motor.avanca(d2, t.estado, Resposta(escolha=item.indice_correto))
+    t = motor.avanca(d2, t.estado, Resposta(
+        escolha=motor.indice_correto_na_tela(t.estado.semente, item)))
     razoes = t.estado.pendente.razoes
     errada = next((i for i, z in enumerate(razoes) if z.crenca), None)
     assert errada is not None, "o item não oferece razão errada; o teste não morde"

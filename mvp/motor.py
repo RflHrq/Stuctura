@@ -38,7 +38,7 @@ import os
 from dataclasses import dataclass, field, replace
 from typing import Any, Mapping
 
-from mvp.dominio import NIVEIS, Atividade, Dominio
+from mvp.dominio import NIVEIS, Atividade, Dominio, Opcao
 
 # Parâmetros do documento. Ponto de partida, não valores validados: ajustar
 # no ensaio antes da coleta.
@@ -668,7 +668,8 @@ def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = Fal
         # O degrau vai para a tela: quem responde merece saber que a
         # pergunta ficou mais dura porque ele subiu, e não por acaso.
         "nivel": a.nivel, "niveis": max(NIVEIS),
-        "opcoes": [{"texto": o.texto} for o in a.opcoes],
+        "opcoes": [{"texto": o.texto}
+                   for o in opcoes_na_tela(e.semente, a)],
         # A confiança saiu daqui: ela é da DUPLA resposta-razão, e tem tela
         # própria depois das duas (T3).
         "pede_confianca": False,
@@ -677,6 +678,11 @@ def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = Fal
         "atividade": a.id, "no": a.no, "fase": e.fase, "formato": a.formato,
         "item": a.tipo, "nivel": a.nivel, "streak": en.streak,
         "tentativas": en.tentativas, "erros": en.erros,
+        # A ordem MOSTRADA. Deriva da semente, então o CS-6 não
+        # precisa dela; a análise precisa, para medir o viés
+        # residual sem reimplementar a permutação — e para que uma
+        # mudança futura na função não reescreva o que a pessoa viu.
+        "ordem": list(ordem_das_opcoes(e.semente, a.id, len(a.opcoes))),
         **_procedencia(a),
     })]
     if reapresentada:
@@ -734,6 +740,51 @@ def ordem_das_razoes(semente: str, atividade: str, n: int) -> tuple[int, ...]:
     return tuple(i for _, i in sorted((digest[i % len(digest)], i) for i in range(n)))
 
 
+def ordem_das_opcoes(semente: str, atividade: str, n: int) -> tuple[int, ...]:
+    """A mesma permutação estável, agora na camada 1.
+
+    Ela já existia para as razões, e a camada 1 ficou de fora: a tela
+    entregava `a.opcoes` na ordem crua do YAML, e o YAML escreve a certa
+    em primeiro porque é assim que um humano escreve um gabarito. Daí os
+    98,4%.
+
+    O separador é `|opcoes|`, e não `|razoes|`: com o mesmo, as duas
+    camadas receberiam a MESMA permutação para o mesmo item, e a posição
+    da resposta prediria a posição da razão — um segundo viés no lugar
+    do primeiro.
+
+    Devolve índices DO ARQUIVO na ordem da TELA: `ordem[2]` é a opção do
+    arquivo que aparece na terceira posição.
+    """
+    digest = hashlib.sha256(("%s|opcoes|%s" % (semente, atividade)).encode()).digest()
+    return tuple(i for _, i in sorted((digest[i % len(digest)], i) for i in range(n)))
+
+
+def indice_correto_na_tela(semente: str, a: Atividade) -> int:
+    """Onde, NA TELA, está a alternativa certa daquele item.
+
+    A companheira de `Atividade.indice_correto_no_arquivo`. Os dois
+    nomes existem porque a pergunta "qual é a posição da certa?" passou
+    a ter duas respostas, e confundi-las dá resposta errada sem dar
+    erro.
+    """
+    ordem = ordem_das_opcoes(semente, a.id, len(a.opcoes))
+    return next(i for i, k in enumerate(ordem) if a.opcoes[k].correta)
+
+
+def opcoes_na_tela(semente: str, a: Atividade) -> tuple[Opcao, ...]:
+    """As alternativas na ordem em que a pessoa as vê.
+
+    As seis pontas que dependiam da posição passam por aqui: duas que
+    ESCREVEM a tela e quatro que LEEM o que voltou dela. É a simetria
+    que torna a fatia verificável — qualquer uma que ficasse para trás
+    produziria o desencontro entre o que foi mostrado e o que foi
+    julgado, e o motor aceitaria o índice sem reclamar.
+    """
+    return tuple(a.opcoes[k]
+                 for k in ordem_das_opcoes(semente, a.id, len(a.opcoes)))
+
+
 def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     """Camada 1: a resposta TRANCA, e vem a pergunta do porquê.
 
@@ -744,7 +795,7 @@ def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     """
     a = next(x for x in d.atividades if x.id == e.atividade)
     i = _indice(r.escolha, len(a.opcoes), "camada 1")
-    escolhida = a.opcoes[i] if i is not None else None
+    escolhida = opcoes_na_tela(e.semente, a)[i] if i is not None else None
     certo = bool(escolhida and escolhida.correta)
 
     pendente = Pendente(
@@ -849,7 +900,7 @@ def _pede_confianca(d: Dominio, e: Estado, a: Atividade,
                 texto="Quanta confiança você tem nessa dupla?",
                 dados={
                     "atividade": a.id,
-                    "resposta": (a.opcoes[p.escolha].texto
+                    "resposta": (opcoes_na_tela(e.semente, a)[p.escolha].texto
                                  if p.escolha is not None else ""),
                     "razao": p.razao.texto if p.razao else "",
                     "escala": list(CONFIANCAS),
@@ -1105,13 +1156,16 @@ def _segue_construcao(d: Dominio, e: Estado) -> Transicao:
                     ultima_atividade=item.id, ultimo_formato=item.formato)
     tela = Tela("atividade", no=no, texto=item.texto, dados={
         "atividade": item.id, "fase": ENTRADA, "formato": item.formato,
-        "item": item.tipo, "opcoes": [{"texto": o.texto} for o in item.opcoes],
+        "item": item.tipo, "opcoes": [{"texto": o.texto}
+                   for o in opcoes_na_tela(e.semente, item)],
         "pede_confianca": False,
     })
     evento = Evento("atividade_apresentada", {
         "atividade": item.id, "no": no, "fase": ENTRADA,
         "formato": item.formato, "item": item.tipo,
         "streak": en.streak, "tentativas": en.tentativas, "erros": en.erros,
+        "ordem": list(ordem_das_opcoes(e.semente, item.id,
+                                       len(item.opcoes))),
         **_procedencia(item),
     })
     return Transicao(novo, tela, (evento,))
@@ -1126,7 +1180,8 @@ def _responde_entrada(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     item = next(x for x in d.atividades if x.id == e.atividade)
     no = e.construindo or item.no
     i = _indice(r.escolha, len(item.opcoes), "item de entrada")
-    escolhida = item.opcoes[i] if i is not None else None
+    escolhida = (opcoes_na_tela(e.semente, item)[i]
+                 if i is not None else None)
     certo = bool(escolhida and escolhida.correta)
 
     en = e.no(no)
@@ -1523,7 +1578,7 @@ def _responde_treino(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     a = next(x for x in d.atividades if x.id == e.atividade)
     k = _indice(r.escolha, len(a.opcoes), "camada 1 do treino")
     escolhida = None if r.nao_sei else (
-        a.opcoes[k] if k is not None else None)
+        opcoes_na_tela(e.semente, a)[k] if k is not None else None)
     certo = bool(escolhida and escolhida.correta)
 
     pendente = Pendente(
