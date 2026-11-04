@@ -30,7 +30,8 @@ import urllib.error
 import urllib.request
 
 BASE = "http://127.0.0.1:8010"
-PERSONAS = ("sabido", "aprende", "crente", "nao_sabe", "explica_mal")
+PERSONAS = ("sabido", "aprende", "crente", "nao_sabe", "explica_mal",
+            "duvida")
 
 # O sinal de "não sei", devolvido por `escolhe` no lugar de um índice.
 #
@@ -76,9 +77,12 @@ def sem_medida(nos):
 # mostra à pessoa.
 VEREDITOS = ("certa", "errada", "falso_positivo", "crenca", "lacuna")
 
-# Os dois eventos que o estado final apaga, e que dizem por qual PORTA a
-# refutação entrou: pelo erro comum, ou por falso positivo repetido.
-TRANSITORIOS = ("falso_positivo", "crenca_detectada")
+# Os eventos que o estado final apaga. Os dois primeiros dizem por qual
+# PORTA a refutação entrou — pelo erro comum, ou por falso positivo
+# repetido. `no_fragil` é da mesma família: um nó pode ficar frágil num
+# momento e confirmar depois, e sem ele no relatório a persona que acerta
+# duvidando seria invisível pelo mesmo motivo que a que explica mal era.
+TRANSITORIOS = ("falso_positivo", "crenca_detectada", "no_fragil")
 
 
 def episodios(vereditos):
@@ -157,7 +161,12 @@ def escolhe(tela, persona, chaves, sessao):
         # camada 2. É o único jeito de produzir `falso_positivo`, que é o
         # estado da CS-1 — e as quatro personas anteriores eram todas
         # internamente coerentes, de modo que nenhuma o produzia.
-        or (persona == "explica_mal" and tela["tipo"] == "atividade"))
+        or (persona == "explica_mal" and tela["tipo"] == "atividade")
+        # `duvida` escolhe igual ao `sabido` nas DUAS camadas. O que a
+        # separa é a camada 3, e só ela: `classifica` devolve `fragil` em
+        # vez de `confirmada` quando a confiança fica abaixo de certeza.
+        # É a única persona cuja diferença não está em escolha nenhuma.
+        or persona == "duvida")
     if persona == "nao_sabe":
         # A camada 2 sempre, a camada 1 em metade dos itens. Quando ela
         # RESPONDE a camada 1, cai no caminho de quem não está convencido
@@ -267,6 +276,13 @@ FRASES = {
         "inicio": "é a variável que aponta pra outra, eu sei fazer isso",
         "fim": "é a variável que aponta pra outra, continuo sabendo fazer",
     },
+    # Quem acerta duvidando escreve com ressalva nas duas pontas: o par
+    # antes-e-depois dela mostra ganho de SEGURANÇA, não de conteúdo, e
+    # essa distinção é o que o codebook vai ter de separar.
+    "duvida": {
+        "inicio": "acho que guarda um endereço, mas não tenho certeza",
+        "fim": "guarda um endereço de outra variável — acho que é isso",
+    },
 }
 
 # A camada 3. Quem declara não saber não tem certeza de nada — e `chutei`
@@ -276,9 +292,13 @@ FRASES = {
 # `falso_positivo` para acerto com razão errada em QUALQUER confiança, e a
 # certeza é o caso que mais exige do instrumento — alguém convicto de uma
 # explicação torta.
+#
+# `duvida` vai com o MEIO da escala, e é a persona inteira: pela decisão
+# 11 o meio puxa para o lado conservador de cada linha, e acerto com razão
+# certa e confiança abaixo de certeza é `fragil`, não `confirmada`.
 CONFIANCA = {"sabido": "tenho certeza", "aprende": "tenho certeza",
              "crente": "acho que sei", "nao_sabe": "chutei",
-             "explica_mal": "tenho certeza"}
+             "explica_mal": "tenho certeza", "duvida": "acho que sei"}
 
 
 def main(argv):

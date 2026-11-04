@@ -465,3 +465,123 @@ def test_conta_aceita_counter(cam):
     falsy do mesmo jeito."""
     import collections
     assert cam._conta(collections.Counter(["certa", "certa"])) == "certa=2"
+
+
+# --------------------------------------------------------------------------
+# A SEXTA PERSONA: a que acerta duvidando — a CS-5
+# --------------------------------------------------------------------------
+#
+# Com cinco personas a tela alcançava quatro dos oito estados do motor:
+# `confirmado`, `em_aberto`, `lacuna` e `falso_positivo`. O que faltava
+# era `fragil`, e o motivo tem nome em `classifica`:
+#
+#     if certa and razao.correta:
+#         return CONFIRMADA if confianca == CERTEZA else FRAGIL_EP
+#
+# Acerto com razão certa e confiança ABAIXO de certeza. Nenhuma das cinco
+# duvidava enquanto acertava — `sabido` e `aprende` vão com certeza total,
+# e as outras três não acertam as duas camadas.
+#
+# `fragil` não é estado decorativo: é o que sustenta a **CS-5** (nenhuma
+# premissa é confirmada sem duas superfícies diferentes), porque premissa
+# frágil é justamente a que foi confirmada numa superfície só.
+#
+# ESTA PERSONA É A ÚNICA QUE DIFERE DAS OUTRAS PELA CONFIANÇA, e não pela
+# escolha: ela responde igual ao `sabido` nas duas camadas. O que a separa
+# é a camada 3, e é por isso que o teste de contraste abaixo existe.
+
+def test_a_sexta_persona_entra_na_lista(cam):
+    assert "duvida" in cam.PERSONAS, cam.PERSONAS
+
+
+def test_a_sexta_persona_tem_frase_e_confianca(cam):
+    assert "duvida" in cam.FRASES
+    assert set(cam.FRASES["duvida"]) == {"inicio", "fim"}
+    assert "duvida" in cam.CONFIANCA
+
+
+def test_a_confianca_dela_NAO_e_certeza(cam):
+    """O ponto inteiro da persona.
+
+    Com `tenho certeza` ela seria o `sabido` com outro nome, e
+    `classifica` devolveria `CONFIRMADA`. O estado `fragil` existe
+    exatamente no degrau abaixo.
+    """
+    assert cam.CONFIANCA["duvida"] != motor.CERTEZA
+    assert cam.CONFIANCA["duvida"] in motor.CONFIANCAS
+
+
+@pytest.mark.parametrize("topico", topicos())
+def test_duvida_acerta_as_DUAS_camadas(cam, topico):
+    """`fragil` exige razão CERTA — é o que o separa de `falso_positivo`.
+
+    Se ela errasse a razão, o episódio sairia `falso_positivo` e a
+    persona seria uma `explica_mal` mais tímida.
+    """
+    d = carrega(topico=topico)
+    chaves = ({a.id: a for a in d.atividades},
+              {c.afirma for c in d.crencas.values()},
+              {n.texto for n in d.nos.values()}
+              | {n.simples for n in d.nos.values()})
+    for a in d.atividades:
+        assert (cam.escolhe(_tela_atividade(d, a, "P01"), "duvida", chaves, "P01")
+                == motor.indice_correto_na_tela("P01", a)), (topico, a.id)
+        tela, razoes = _razao_de_verdade(d, a)
+        if tela is None:
+            continue
+        i = cam.escolhe(tela, "duvida", chaves, "P01")
+        assert isinstance(i, int), (topico, a.id, i)
+        assert razoes[i].correta, (topico, a.id, razoes[i].texto)
+
+
+@pytest.mark.parametrize("topico", topicos())
+def test_as_escolhas_dela_com_a_confianca_dela_dao_fragil(cam, topico):
+    """A amarra ao critério, pela função que a banca lê.
+
+    E o CONTRASTE no mesmo teste: as mesmas duas escolhas, com
+    `tenho certeza`, dão `CONFIRMADA`. É o que prova que o que esta
+    persona carrega é a camada 3, e não outra escolha disfarçada.
+    """
+    d = carrega(topico=topico)
+    chaves = ({a.id: a for a in d.atividades},
+              {c.afirma for c in d.crencas.values()},
+              {n.texto for n in d.nos.values()}
+              | {n.simples for n in d.nos.values()})
+    vistos = 0
+    for a in d.atividades:
+        tela, razoes = _razao_de_verdade(d, a)
+        if tela is None:
+            continue
+        z = razoes[cam.escolhe(tela, "duvida", chaves, "P01")]
+        assert (motor.classifica(True, z, cam.CONFIANCA["duvida"])
+                == motor.FRAGIL_EP), (topico, a.id)
+        assert (motor.classifica(True, z, motor.CERTEZA)
+                == motor.CONFIRMADA), (topico, a.id, "o contraste caiu")
+        vistos += 1
+    assert vistos, topico
+
+
+def test_no_fragil_entra_nos_transitorios(cam):
+    """`no_fragil` é da mesma família dos outros dois: um nó pode ficar
+    frágil num momento e confirmar depois, e aí o estado final apaga a
+    passagem. Sem ele no relatório, a sexta persona seria invisível pelo
+    mesmo motivo que a quinta era."""
+    assert "no_fragil" in cam.TRANSITORIOS
+    passos = [["resposta_registrada", "no_fragil"],
+              ["resposta_registrada"],
+              ["no_fragil", "crenca_detectada"]]
+    assert cam.transitorios(passos) == {"crenca_detectada": 1, "no_fragil": 2}
+
+
+def test_a_sexta_nao_mexeu_nas_cinco(cam, d, chaves):
+    """Trava de regressão: os episódios das cinco estão gravados em
+    `docs/processo.md`."""
+    a = next(x for x in d.atividades if len(x.opcoes) == 3)
+    certo = motor.indice_correto_na_tela("P01", a)
+    tela = _tela_atividade(d, a, "P01")
+    assert cam.escolhe(tela, "sabido", chaves, "P01") == certo
+    assert cam.escolhe(tela, "explica_mal", chaves, "P01") == certo
+    for persona in ("aprende", "crente"):
+        assert cam.escolhe(tela, persona, chaves, "P01") != certo, persona
+    assert cam.CONFIANCA["sabido"] == motor.CERTEZA
+    assert cam.CONFIANCA["nao_sabe"] == motor.CHUTE
