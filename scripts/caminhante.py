@@ -58,9 +58,20 @@ def escolhe(tela, persona, chaves, sessao):
         a = gabarito.get(tela.get("atividade"))
         if a is None:
             return 0
-        from mvp.motor import indice_correto_na_tela
-        certa = indice_correto_na_tela(sessao, a)
-        return certa if convencido else (certa + 1) % len(opcoes)
+        from mvp.motor import indice_correto_na_tela, opcoes_na_tela
+        if convencido:
+            return indice_correto_na_tela(sessao, a)
+        # A CRENÇA DO ITEM, e não "a seguinte à certa".
+        #
+        # `(certa + 1) % n` era posição de arquivo, e dava na crença do
+        # nó quase sempre por convenção de escrita: o YAML põe o
+        # distrator do próprio nó logo depois do gabarito. Aplicada à
+        # posição de TELA ela cai noutra crença em 1 de 5 itens, e a
+        # refutação vai para o vizinho — o mesmo desvio que já foi
+        # corrigido nas políticas de teste, e que aqui ficou para trás.
+        na_tela = opcoes_na_tela(sessao, a)
+        return next((i for i, o in enumerate(na_tela) if o.crenca == a.crenca),
+                    next((i for i, o in enumerate(na_tela) if not o.correta), 0))
     # camada 2: a razão certa é a fala do nó; as erradas são crenças
     crenta = [i for i, x in enumerate(opcoes) if x in crencas]
     certa = [i for i, x in enumerate(opcoes) if x in nos]

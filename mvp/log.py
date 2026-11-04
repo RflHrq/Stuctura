@@ -249,17 +249,32 @@ def reconstroi(d: motor.Dominio, sessao: str,
             "de as entradas existirem, não é reexecutável"
             % (sessao, len(linhas)))
 
-    # A SEMENTE DEPENDE DA VERSÃO. Numa sessão `v1` a camada 1 não era
-    # permutada, e o índice gravado é posição de arquivo: reexecutar com
-    # a semente leria outra alternativa, e um acerto viraria erro — o
-    # estado sairia plausível e errado, que é o que esta classe inteira
-    # existe para impedir. Semente vazia devolve a ordem de quem gravou.
+    # UMA SESSÃO ANTERIOR À VERSÃO 2 NÃO É REEXECUTÁVEL, e não há
+    # semente que a salve. Eu tentei `semente=""`, raciocinando que a
+    # camada 1 não era permutada no `v1`. Está errado por dois lados:
     #
-    # É remendo com prazo: funciona porque a camada 1 não era permutada
-    # no `v1`. No dia em que a permutação mudar de novo, nem isso serve,
-    # e aí a resposta é a versão RECUSAR em vez de reexecutar.
+    #   - semente vazia NÃO é a identidade. Ela devolve a ordem do
+    #     arquivo em 18% dos itens; nos outros 82% o índice gravado é
+    #     lido contra uma permutação que ninguém viu, e um acerto vira
+    #     erro COM uma crença atribuída que a pessoa nunca escolheu;
+    #   - no `v1` as razões já eram permutadas, com a sessão como
+    #     semente. Passar `""` conserta uma camada que não estava
+    #     quebrada e quebra outra que estava certa.
+    #
+    # Nenhuma semente serve para as duas ao mesmo tempo. Devolver um
+    # estado assim é exatamente o "plausível e errado" que esta classe
+    # existe para impedir, e num instrumento de pesquisa isso é pior do
+    # que não devolver nada.
     versao = int(abertura.get("v") or VERSAO_ZERO)
-    t = motor.inicia(d, semente=sessao if versao >= 2 else "")
+    if versao < 2:
+        raise LogIncompleto(
+            "a sessão %r foi gravada na versão %d do log, e a %d mudou o "
+            "significado do índice de `escolha`: era posição no arquivo, "
+            "passou a ser posição na tela. Reexecutar devolveria outras "
+            "respostas, com a mesma cara das certas. O log continua "
+            "legível para análise; reexecutável, não."
+            % (sessao, versao, VERSAO))
+    t = motor.inicia(d, semente=sessao)
     for i, linha in enumerate(entradas, 1):
         try:
             t = motor.avanca(d, t.estado, _entrada_de(linha))
