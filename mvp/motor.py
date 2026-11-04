@@ -678,6 +678,11 @@ def _apresenta(d: Dominio, e: Estado, a: Atividade, *, reapresentada: bool = Fal
         "atividade": a.id, "no": a.no, "fase": e.fase, "formato": a.formato,
         "item": a.tipo, "nivel": a.nivel, "streak": en.streak,
         "tentativas": en.tentativas, "erros": en.erros,
+        # A ordem MOSTRADA. Deriva da semente, então o CS-6 não
+        # precisa dela; a análise precisa, para medir o viés
+        # residual sem reimplementar a permutação — e para que uma
+        # mudança futura na função não reescreva o que a pessoa viu.
+        "ordem": list(ordem_das_opcoes(e.semente, a.id, len(a.opcoes))),
         **_procedencia(a),
     })]
     if reapresentada:
@@ -1159,6 +1164,8 @@ def _segue_construcao(d: Dominio, e: Estado) -> Transicao:
         "atividade": item.id, "no": no, "fase": ENTRADA,
         "formato": item.formato, "item": item.tipo,
         "streak": en.streak, "tentativas": en.tentativas, "erros": en.erros,
+        "ordem": list(ordem_das_opcoes(e.semente, item.id,
+                                       len(item.opcoes))),
         **_procedencia(item),
     })
     return Transicao(novo, tela, (evento,))

@@ -225,3 +225,106 @@ def test_o_item_reapresentado_volta_na_mesma_ordem(d):
     t2 = motor._apresenta(d, t1.estado, a, reapresentada=True)
     assert t2.tela.dados["opcoes"] == t1.tela.dados["opcoes"]
     assert any(e.tipo == "item_reapresentado" for e in t2.eventos)
+
+
+# --------------------------------------------------------------------------
+# O log, e a versão
+# --------------------------------------------------------------------------
+
+def _grava_ate_a_atividade(d, caminho, semente):
+    """Roda a sessão no motor até a primeira atividade, gravando tudo."""
+    from mvp import log
+
+    t = motor.inicia(d, semente=semente)
+    log.grava(semente, t.eventos, caminho)
+    for _ in range(12):
+        if t.tela.tipo == "atividade":
+            return t
+        r = motor.Resposta(texto="x", ms=100)
+        t = motor.avanca(d, t.estado, r)
+        log.grava(semente, t.eventos, caminho, entrada=r)
+    raise AssertionError("não cheguei à atividade")
+
+
+def _escreve_log(caminho, sessao, *, v, topico, entradas):
+    """Um log à mão, para a versão que o código de hoje não grava mais."""
+    import json
+
+    from mvp import log
+
+    linhas = []
+    for tipo, dados in [("unidade_iniciada", {"topico": topico})] + [
+            (log.ENTRADA, x) for x in entradas]:
+        linha = {"ts": log.agora(), "sessao": sessao, "tipo": tipo, **dados}
+        if v is not None:
+            linha = {"v": v, **linha}
+        linhas.append(json.dumps(linha, ensure_ascii=False))
+    caminho.write_text("\n".join(linhas) + "\n", encoding="utf-8")
+
+
+def test_a_ordem_mostrada_vai_para_o_log(d, tmp_path):
+    """Redundante para o CS-6 e não para a análise: com o campo, o viés
+    residual é medível no próprio dado, e uma mudança futura na função
+    não reescreve o que os participantes viram."""
+    from mvp import log
+
+    caminho = tmp_path / "eventos.jsonl"
+    _grava_ate_a_atividade(d, caminho, "P01")
+    linha = next(x for x in log.le("P01", caminho)
+                 if x["tipo"] == "atividade_apresentada")
+    a = next(x for x in d.atividades if x.id == linha["atividade"])
+    assert linha["ordem"] == list(
+        motor.ordem_das_opcoes("P01", a.id, len(a.opcoes)))
+
+
+def test_a_versao_subiu_porque_o_indice_mudou_de_significado():
+    """A regra está escrita no próprio `log.py`: "sobe quando o
+    significado de uma linha muda, não quando o código muda". Um índice
+    em `entrada_recebida` deixou de querer dizer "posição no YAML" e
+    passou a querer dizer "posição na tela"."""
+    from mvp import log
+
+    assert log.VERSAO == 2
+
+
+def test_sessao_v1_ainda_reexecuta(d, tmp_path):
+    """Gravada sem permutação na camada 1: o índice dela é posição de
+    ARQUIVO. Reexecutar com semente devolveria OUTRA resposta — acerto
+    virando erro, e o estado saindo plausível e errado.
+
+    O log `v1` é escrito à mão, porque gravar um com o código de hoje é
+    impossível: ele grava `v2`.
+    """
+    from mvp import log
+
+    caminho = tmp_path / "v1.jsonl"
+    _escreve_log(caminho, "S1", v=1, topico=d.id,
+                 entradas=[{"texto": "x", "ms": 100}])
+    t = log.reconstroi(d, "S1", caminho)
+    assert t is not None
+    assert t.estado.semente == "", "v1 reexecuta sem permutação na camada 1"
+
+
+def test_linha_sem_campo_v_reexecuta_como_v1(d, tmp_path):
+    """`VERSAO_ZERO`, do ciclo 1: caso distinto de `v1`, mesmo ramo.
+    Linha sem o campo não pode cair no ramo da permutação por omissão."""
+    from mvp import log
+
+    caminho = tmp_path / "v0.jsonl"
+    _escreve_log(caminho, "S0", v=None, topico=d.id,
+                 entradas=[{"texto": "x", "ms": 100}])
+    t = log.reconstroi(d, "S0", caminho)
+    assert t is not None
+    assert t.estado.semente == ""
+
+
+def test_sessao_v2_reexecuta_com_a_semente(d, tmp_path):
+    """A outra metade: `v2` foi gravada COM permutação, e reexecutar sem
+    ela leria os índices de outro jeito."""
+    from mvp import log
+
+    caminho = tmp_path / "v2.jsonl"
+    _grava_ate_a_atividade(d, caminho, "P01")
+    t = log.reconstroi(d, "P01", caminho)
+    assert t is not None
+    assert t.estado.semente == "P01"

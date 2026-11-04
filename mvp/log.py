@@ -63,10 +63,14 @@ ENTRADA = "entrada_recebida"
 #
 #   1  primeiro formato versionado (ciclo 2). As três camadas, o
 #      teach-back, a entrada para reexecução e o reteste já estão aqui.
+#   2  a camada 1 passou a ser permutada. O índice de `entrada_recebida`
+#      deixou de querer dizer "posição no YAML" e passou a querer dizer
+#      "posição na tela" — o mesmo número, outra alternativa. E
+#      `atividade_apresentada` ganhou `ordem`, a permutação mostrada.
 #
 # Linha sem o campo é anterior a isto: veio do ciclo 1, e `VERSAO_ZERO`
 # é como ela aparece na leitura.
-VERSAO = 1
+VERSAO = 2
 VERSAO_ZERO = 0
 
 CAMPOS_DA_ENTRADA = tuple(f.name for f in fields(motor.Resposta))
@@ -245,7 +249,17 @@ def reconstroi(d: motor.Dominio, sessao: str,
             "de as entradas existirem, não é reexecutável"
             % (sessao, len(linhas)))
 
-    t = motor.inicia(d, semente=sessao)
+    # A SEMENTE DEPENDE DA VERSÃO. Numa sessão `v1` a camada 1 não era
+    # permutada, e o índice gravado é posição de arquivo: reexecutar com
+    # a semente leria outra alternativa, e um acerto viraria erro — o
+    # estado sairia plausível e errado, que é o que esta classe inteira
+    # existe para impedir. Semente vazia devolve a ordem de quem gravou.
+    #
+    # É remendo com prazo: funciona porque a camada 1 não era permutada
+    # no `v1`. No dia em que a permutação mudar de novo, nem isso serve,
+    # e aí a resposta é a versão RECUSAR em vez de reexecutar.
+    versao = int(abertura.get("v") or VERSAO_ZERO)
+    t = motor.inicia(d, semente=sessao if versao >= 2 else "")
     for i, linha in enumerate(entradas, 1):
         try:
             t = motor.avanca(d, t.estado, _entrada_de(linha))
