@@ -1,6 +1,12 @@
 # A posição da alternativa certa
 
-> Desenho aprovado em 04/11/2026. Ainda não implementado.
+> Desenho aprovado e **implementado** em 04/11/2026, no ramo `posicao`
+> (plano em [plano-posicao.md](plano-posicao.md), cinco tarefas).
+>
+> **Medido depois:** a certa saiu de 98,4% na primeira posição para
+> 32,4 / 33,1 / 34,5 nas três. Por item, ao longo de 40 sementes, o pior
+> caso é 62% numa posição — e é um item de **duas** alternativas, onde o
+> acaso já dá 50%.
 
 ## O problema
 

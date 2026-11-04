@@ -328,3 +328,58 @@ def test_sessao_v2_reexecuta_com_a_semente(d, tmp_path):
     t = log.reconstroi(d, "P01", caminho)
     assert t is not None
     assert t.estado.semente == "P01"
+
+
+# --------------------------------------------------------------------------
+# A medida do viés — a prova direta de que a fatia resolveu o que a
+# motivou. As outras provam o mecanismo.
+# --------------------------------------------------------------------------
+
+def _todos_os_itens():
+    """Os 562 itens dos treze tópicos, e não só os do kc_07."""
+    import pathlib
+    import re
+
+    from mvp.dominio import RAIZ
+
+    itens = []
+    for f in sorted(pathlib.Path(RAIZ).glob("activities_kc*.yaml")):
+        m = re.match(r"activities_kc(\d+)", f.name)
+        itens += carrega(topico="kc_%s" % m.group(1)).atividades
+    return itens
+
+
+def test_o_vies_de_posicao_acabou():
+    """Antes: 553 de 562 com a certa na primeira — 98,4%.
+
+    A medida é POR ITEM, ao longo de 40 sementes (uma por participante
+    do piloto), porque o confundimento é ENTRE participantes. Entre
+    itens não funcionaria: 13 dos 562 têm duas alternativas, `n=2` tem
+    duas permutações, e metade das sementes devolve a identidade.
+
+    O limite, e não o número: número cravado é a recorrência de um
+    defeito de teste que este projeto já catalogou cinco vezes.
+    """
+    sementes = ["P%02d" % i for i in range(1, 41)]
+    for a in _todos_os_itens():
+        k = len(a.opcoes)
+        c = collections.Counter(
+            motor.indice_correto_na_tela(s, a) for s in sementes)
+        assert set(c) == set(range(k)), (a.id, k, dict(c))
+        assert max(c.values()) <= len(sementes) / k * 1.8, (a.id, dict(c))
+
+
+def test_o_banco_inteiro_numa_sessao_nao_concentra():
+    """A visão de UM participante: na sessão dele, a certa não fica na
+    primeira posição mais do que o acaso. É a medida que estava em
+    98,4%, agora pela permutação.
+
+    Só os de três alternativas: nos 13 de duas, metade das sementes
+    devolve a identidade, e misturar os dois grupos mede ruído.
+    """
+    tres = [a for a in _todos_os_itens() if len(a.opcoes) == 3]
+    assert len(tres) > 500, len(tres)
+    c = collections.Counter(
+        motor.indice_correto_na_tela("P01", a) for a in tres)
+    assert set(c) == {0, 1, 2}, dict(c)
+    assert max(c.values()) <= len(tres) / 3 * 1.3, dict(c)
