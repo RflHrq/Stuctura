@@ -734,6 +734,38 @@ def ordem_das_razoes(semente: str, atividade: str, n: int) -> tuple[int, ...]:
     return tuple(i for _, i in sorted((digest[i % len(digest)], i) for i in range(n)))
 
 
+def ordem_das_opcoes(semente: str, atividade: str, n: int) -> tuple[int, ...]:
+    """A mesma permutação estável, agora na camada 1.
+
+    Ela já existia para as razões, e a camada 1 ficou de fora: a tela
+    entregava `a.opcoes` na ordem crua do YAML, e o YAML escreve a certa
+    em primeiro porque é assim que um humano escreve um gabarito. Daí os
+    98,4%.
+
+    O separador é `|opcoes|`, e não `|razoes|`: com o mesmo, as duas
+    camadas receberiam a MESMA permutação para o mesmo item, e a posição
+    da resposta prediria a posição da razão — um segundo viés no lugar
+    do primeiro.
+
+    Devolve índices DO ARQUIVO na ordem da TELA: `ordem[2]` é a opção do
+    arquivo que aparece na terceira posição.
+    """
+    digest = hashlib.sha256(("%s|opcoes|%s" % (semente, atividade)).encode()).digest()
+    return tuple(i for _, i in sorted((digest[i % len(digest)], i) for i in range(n)))
+
+
+def indice_correto_na_tela(semente: str, a: Atividade) -> int:
+    """Onde, NA TELA, está a alternativa certa daquele item.
+
+    A companheira de `Atividade.indice_correto_no_arquivo`. Os dois
+    nomes existem porque a pergunta "qual é a posição da certa?" passou
+    a ter duas respostas, e confundi-las dá resposta errada sem dar
+    erro.
+    """
+    ordem = ordem_das_opcoes(semente, a.id, len(a.opcoes))
+    return next(i for i, k in enumerate(ordem) if a.opcoes[k].correta)
+
+
 def _responde_diagnostico(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     """Camada 1: a resposta TRANCA, e vem a pergunta do porquê.
 
