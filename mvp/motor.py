@@ -1318,11 +1318,28 @@ def _tela_refutacao(d: Dominio, e: Estado) -> Tela:
     alvo = e.alvo or nid
     crenca = d.crencas.get(e.no(alvo).crenca or "")
     ultimo = e.passo == len(e.plano) - 1
+    # O APOIO: as premissas que a pessoa REALMENTE percorreu até aqui.
+    #
+    # A tela dizia "as premissas que você acabou de confirmar levam a",
+    # fixo no HTML, sem condição. Em 1.050 das 2.270 refutações da
+    # varredura dos treze — 46% — não havia premissa nenhuma confirmada,
+    # porque o nó de base não tem suporte e o plano tem um passo só.
+    #
+    # A tese é refutar CONDUZINDO pelo grafo. Alegar a condução sem
+    # conduzir é afirmar o mecanismo em vez de executá-lo.
+    #
+    # `confirmada` distingue o que é estado do instrumento (CONFIRMADO:
+    # duas superfícies, CS-5) do que é só aceitação de tela. Chamar os
+    # dois de "confirmar" gastaria o termo em dois sentidos.
+    apoio = [{"no": nid_, "texto": d.nos[nid_].simples,
+              "confirmada": e.no(nid_).estado == CONFIRMADO}
+             for nid_ in (e.plano[:-1] if ultimo else ())]
     return Tela("refutacao", no=nid, texto=d.nos[nid].simples, dados={
         "passo": e.passo + 1, "total": len(e.plano),
         # No último passo — o nó que a crença nega — as duas frases ficam
         # lado a lado. A contradição é entre coisas que ele mesmo disse.
         "contradiz": crenca.afirma if (ultimo and crenca) else "",
+        "apoio": apoio,
         # Pediu de novo: volta a mesma premissa, agora com a analogia
         # daquele nó. É a mesma afirmação, dita por outro caminho.
         "reexplicacao": d.resgate(nid) if e.repeticoes else "",

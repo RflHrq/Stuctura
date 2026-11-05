@@ -71,6 +71,16 @@ h2{margin:0 0 14px; font-size:20px}
 .crenca{margin:0 0 12px; color:var(--erro)}
 .certo{margin:0; color:var(--ok)}
 
+/* As premissas que a pessoa percorreu de verdade, quando houve percurso.
+   Entram NOMEADAS em vez de alegadas — o rótulo antigo dizia "as
+   premissas que você acabou de confirmar" sem citar nenhuma, e em 46%
+   das refutações não havia nenhuma a citar. A que está `confirmada` é
+   estado do instrumento (duas superfícies, CS-5), não aceitação de tela,
+   e por isso ela se distingue. */
+.apoio{margin:0 0 12px; padding-left:18px; color:var(--tinta2)}
+.apoio li{margin:0 0 4px}
+.apoio li.confirmada{color:var(--ok)}
+
 .mapa{display:flex; flex-direction:column; gap:10px; margin-bottom:18px}
 .premissa{display:grid; grid-template-columns:34px 1fr; gap:12px; align-items:start;
           border:1px solid var(--linha); border-radius:9px; padding:12px 14px}

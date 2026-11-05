@@ -555,6 +555,35 @@
     if (temContraste) {
       $("ref-crenca").textContent = t.contradiz;
       $("ref-certo").textContent = t.texto;
+
+      /* O QUE A CAIXA PODE AFIRMAR vem do motor, em `apoio`, e não daqui.
+       *
+       * O rótulo era fixo no HTML — "as premissas que você acabou de
+       * confirmar levam a" — e em 46% das refutações não havia premissa
+       * nenhuma: o nó de base não tem suporte, e o plano tem um passo só.
+       * Alegar a condução sem conduzir é afirmar o mecanismo da tese em
+       * vez de executá-lo.
+       *
+       * Três casos, três frases, e nenhuma delas inventa percurso:
+       *   confirmada por resposta  -> "que você confirmou respondendo"
+       *   só percorrida agora      -> "que você acabou de aceitar"
+       *   nada                     -> a premissa entra sozinha, sem alegar
+       */
+      var apoio = t.apoio || [];
+      var lista = $("ref-apoio");
+      lista.textContent = "";
+      lista.classList.toggle("oculto", apoio.length === 0);
+      apoio.forEach(function (p) {
+        var li = document.createElement("li");
+        li.textContent = p.texto;
+        if (p.confirmada) { li.className = "confirmada"; }
+        lista.appendChild(li);
+      });
+      var confirmadas = apoio.some(function (p) { return p.confirmada; });
+      $("ref-rotulo-apoio").textContent =
+        apoio.length === 0 ? "Mas a premissa diz"
+        : confirmadas ? "As premissas que você confirmou respondendo levam a"
+        : "As premissas que você acabou de aceitar levam a";
     }
 
     /* A figura entra sempre; a reexplicação, só quando ele pediu. A mesma

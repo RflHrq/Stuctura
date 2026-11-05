@@ -121,10 +121,16 @@
     <p class="ideia" id="ref-texto"></p>
     <div class="figura" id="ref-figura" hidden></div>
     <div class="reexplicacao oculto" id="ref-reexplicacao"></div>
+    <!-- O rótulo do apoio NÃO é fixo aqui, e não pode voltar a ser.
+         Ele dizia "as premissas que você acabou de confirmar levam a" em
+         toda refutação, e em 46% delas nada havia sido percorrido nem
+         confirmado. Quem decide o que a caixa pode afirmar é o motor,
+         pelo campo `apoio`. -->
     <div class="contraste oculto" id="ref-contraste">
       <p class="rotulo">Você partiu de</p>
       <p class="crenca" id="ref-crenca"></p>
-      <p class="rotulo">As premissas que você acabou de confirmar levam a</p>
+      <p class="rotulo" id="ref-rotulo-apoio"></p>
+      <ul class="apoio oculto" id="ref-apoio"></ul>
       <p class="certo" id="ref-certo"></p>
     </div>
     <div class="acoes">
