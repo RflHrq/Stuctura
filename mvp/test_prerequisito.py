@@ -266,18 +266,25 @@ def test_com_o_inventario_real_a_descida_nao_e_acionada(monkeypatch):
     """A decisão arquitetural, protegida de ponta a ponta.
 
     Percorre uma sessão inteira do kc_02 com a descida LIGADA e com o
-    inventário de verdade — que está vazio. Nenhum evento de descida pode
-    aparecer, e a refutação afirmativa tem de acontecer no lugar.
+    inventário de verdade. Nenhum evento de descida pode aparecer, e a
+    refutação afirmativa tem de acontecer no lugar.
 
     Este teste não usa inventário de teste nenhum de propósito: é ele que
     garante que a fixture do `test_descida.py` não virou liberação
     implícita em algum lugar do caminho.
+
+    A primeira versão afirmava `inventario == {}`, que era um atalho
+    válido enquanto o inventário estava vazio. Depois da auditoria de
+    05/11 ele tem 14 entradas e continua não liberando nenhuma cadeia —
+    o atalho virou letra errada de um espírito certo. O que importa não
+    é o inventário estar vazio: é nenhuma cadeia estar liberada.
     """
     conceitos.recarrega()
-    assert conceitos.carrega() == {}, "o inventário real deixou de estar vazio"
-
     monkeypatch.setattr(motor, "DESCIDA_LIGADA", True)
     d = carrega(topico="kc_02")
+    assert [c for c, de in d.descidas.items() if de.liberada] == [], (
+        "alguma cadeia foi liberada: este teste precisa ser repensado, "
+        "porque ele existe para o caso em que nenhuma está")
 
     def politica(tela, estado):
         if tela.tipo == "frase":

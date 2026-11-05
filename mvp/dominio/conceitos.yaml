@@ -1,1 +1,194 @@
-conceitos: {}
+# O inventário de conceitos: o que o aluno já teve oportunidade de aprender.
+#
+# REGRA DE LIBERAÇÃO, e ela é estreita de propósito: só entra como
+# `disponivel` o conceito cuja EXPLICAÇÃO está no material de ensino,
+# acompanhada de exemplo. Construto que aparece num exemplo cuja
+# explicação é sobre outra coisa **não** conta — é menção, não ensino.
+#
+# AUDITORIA DE 05/11/2026, por leitura dos cartões de ensino do kc_00,
+# kc_01 e kc_02. A varredura por padrão produziu três falsos positivos
+# (`derreferencia`, `sizeof`, `funcao_com_parametro`), todos do mesmo
+# tipo: o construto está num exemplo que ensina outra coisa. É por isso
+# que esta auditoria foi feita lendo, e não medindo.
+#
+# COMO LER `evidencia`: `onde` é o cartão de ensino, `tipo` diz se houve
+# explicação com exemplo ou só menção. Qualquer liberação aqui tem de
+# poder ser conferida abrindo aquele cartão.
+#
+# O QUE ESTA AUDITORIA ACHOU, e vale mais que o inventário: o kc_02
+# ensina em três cartões que um ponteiro guarda um endereço, e **nunca
+# ensina a usar esse endereço**. Desreferência não aparece em cartão
+# nenhum, nem aqui nem no kc_01 com explicação — ela estreia em item de
+# diagnóstico de nível 2. A pessoa é testada num construto que o sistema
+# não apresentou.
+
+conceitos:
+
+  endereco:
+    nome: "endereço: o número que identifica um lugar da memória"
+    status: disponivel
+    introduzido_em: kc_02
+    evidencia:
+      onde: "kc_02, cartão de ensino B1"
+      texto: "A memória é uma rua de lugares numerados. O número do lugar
+              é o endereço — não o que está guardado nele."
+      exemplo: 'int idade = 20; printf("%p", (void *)&idade);'
+      tipo: explicacao_com_exemplo
+
+  ponteiro:
+    nome: "ponteiro: variável que ocupa lugar e tem endereço próprio"
+    status: disponivel
+    introduzido_em: kc_02
+    evidencia:
+      onde: "kc_02, cartão de ensino B2"
+      texto: "p é uma caixa como as outras: ocupa espaço, e a caixa p
+              também tem um endereço, que é dela."
+      exemplo: 'int x = 42; int *p = &x;'
+      tipo: explicacao_com_exemplo
+
+  operador_endereco:
+    nome: "o operador & : pegar o endereço de uma variável"
+    status: disponivel
+    introduzido_em: kc_02
+    evidencia:
+      onde: "kc_02, cartões de ensino B1, B2 e B3"
+      texto: "os três cartões usam &idade e &x no exemplo, e o texto de
+              cada um diz o que o resultado é — em B2, 'a caixa p também
+              tem um endereço, que é dela', com &p ao lado"
+      tipo: explicacao_com_exemplo
+      ressalva: >
+        É a mais fraca das três liberações. O texto explica o que um
+        endereço É; o operador aparece rotulado por comentário, e não
+        definido em prosa. Se for rebaixado para so_avaliado, as três
+        cadeias que dependem dele caem junto.
+
+  # ------------------------------------------------------------------
+  # NÃO LIBERADOS, com o que foi encontrado e por que não basta
+  # ------------------------------------------------------------------
+
+  derreferencia:
+    nome: "o operador * : chegar ao valor que está no endereço"
+    status: so_avaliado
+    introduzido_em: ""
+    evidencia:
+      onde: "kc_01, cartão B3 (menção) · kc_02, itens de nível 2 em diante"
+      texto: >
+        O cartão B3 do kc_01 mostra `*p = 7` dentro de um exemplo de
+        malloc, e o texto daquele cartão é sobre o bloco continuar
+        válido depois que a função acaba — não sobre o que o asterisco
+        faz. Nenhum cartão de ensino, em nenhum dos três tópicos,
+        explica a desreferência.
+      tipo: mencionado_sem_explicacao
+      consequencia: >
+        É o conceito que mais bloqueia cadeia: quatro das seis do kc_02
+        dependem dele, inclusive a `pointer_is_data`, que é a escolhida
+        para a primeira liberação experimental.
+
+  printf_ponteiro:
+    nome: "imprimir endereço com %p"
+    status: desconhecido
+    introduzido_em: ""
+    evidencia:
+      onde: "kc_02, cartões B1, B2 e B3"
+      texto: >
+        Aparece nos três exemplos do ensino e não é explicado em lugar
+        nenhum: nenhum texto diz o que %p faz nem por que o cast para
+        void * está ali. Usar não é ensinar.
+      tipo: usado_sem_explicacao
+
+  sizeof:
+    nome: "sizeof: o tamanho em bytes"
+    status: so_avaliado
+    introduzido_em: ""
+    evidencia:
+      onde: "kc_01, cartão B3 (menção) · kc_00 e kc_02, itens"
+      texto: >
+        `sizeof(int)` aparece dentro do malloc do cartão B3 do kc_01,
+        num exemplo que ensina tempo de vida. No kc_02 só em item de
+        nível 2.
+      tipo: mencionado_sem_explicacao
+
+  ponteiro_de_ponteiro:
+    nome: "ponteiro para ponteiro (int **)"
+    status: so_avaliado
+    introduzido_em: ""
+    evidencia:
+      onde: "kc_02, um item de diagnóstico de nível 3"
+      texto: "aparece uma vez, em avaliação, nunca em ensino"
+      tipo: so_em_avaliacao
+
+  comparacao_de_ponteiros:
+    nome: "comparar ponteiros com =="
+    status: so_avaliado
+    introduzido_em: ""
+    evidencia:
+      onde: "kc_02, itens"
+      texto: "nenhum cartão de ensino compara ponteiros"
+      tipo: so_em_avaliacao
+
+  tipo_do_ponteiro:
+    nome: "o ponteiro tem tipo, e quem sabe dele é o compilador"
+    status: so_avaliado
+    introduzido_em: ""
+    evidencia:
+      onde: "kc_02, nó I2 e seus itens"
+      texto: >
+        É premissa do tópico e tem itens, mas não tem cartão de ensino:
+        o ensino cobre B1, B2 e B3, e I2 é inferência.
+      tipo: so_em_avaliacao
+
+  compilacao:
+    nome: "o que acontece na compilação, e o que sobra no executável"
+    status: so_avaliado
+    introduzido_em: ""
+    evidencia:
+      onde: "itens dos três tópicos"
+      texto: "nenhum cartão de ensino trata de compilação"
+      tipo: so_em_avaliacao
+
+  atribuicao_entre_tipos:
+    nome: "o compilador recusa atribuição entre tipos incompatíveis"
+    status: nao_introduzido
+    introduzido_em: ""
+    evidencia:
+      onde: "em lugar nenhum de kc_00, kc_01 ou kc_02"
+      texto: "nem ensino, nem item"
+      tipo: nao_encontrado
+
+  funcao_com_parametro:
+    nome: "função que recebe parâmetro, e passagem por valor"
+    status: nao_introduzido
+    introduzido_em: ""
+    evidencia:
+      onde: "kc_01, cartões B2 e B3"
+      texto: >
+        Funções aparecem, e PARÂMETRO NENHUM: as duas assinaturas dos
+        cartões são `int conta(void)` e `int *faz(void)`. Passagem por
+        valor não é tratada em cartão nenhum dos três tópicos.
+      tipo: nao_encontrado
+      consequencia: >
+        Bloqueia o degrau substituto proposto para o `scanf`, que se
+        apoiava justamente em passagem por valor.
+
+  scanf:
+    nome: "scanf, e o & que ele exige"
+    status: nao_introduzido
+    introduzido_em: ""
+    evidencia:
+      onde: "em lugar nenhum de kc_00, kc_01 ou kc_02"
+      texto: >
+        Nem ensino, nem item, nem crença. O degrau que o usa apoiava-se
+        numa familiaridade vinda da disciplina, que este sistema não tem
+        como comprovar.
+      tipo: nao_encontrado
+
+  array:
+    nome: "array: um conjunto de casas grudadas"
+    status: desconhecido
+    introduzido_em: ""
+    evidencia:
+      onde: "kc_07 — fora do caminho de pré-requisito auditado aqui"
+      texto: >
+        Esta auditoria cobriu kc_00, kc_01 e kc_02, que é o caminho até
+        o tópico-piloto. O kc_07 tem o seu, e não foi lido.
+      tipo: nao_auditado
