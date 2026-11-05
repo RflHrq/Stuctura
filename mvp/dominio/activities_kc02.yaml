@@ -86,8 +86,10 @@ exemplos:
 
   B1: |
     int idade = 20;
+    int outra = 7;
     printf("%p\n", (void *)&idade);   /* o lugar */
     printf("%d\n", idade);            /* o que tem nele */
+    printf("%d\n", &idade == &outra); /* 0: lugares diferentes */
 
   B2: |
     int x = 42;

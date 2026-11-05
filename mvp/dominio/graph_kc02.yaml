@@ -32,6 +32,43 @@ nodes:
       endereço — não o que está guardado nele.
     negated_by:
       - memory_is_by_name
+    # AMPLIACAO EXPLICATIVA, 05/11/2026 — nao e premissa nova.
+    #
+    # A auditoria da cadeia liberada achou que ela exigia comparacao de
+    # enderecos sem declarar o requisito e sem que cartao nenhum
+    # ensinasse. O B1 ja afirma que o endereco IDENTIFICA um lugar, e
+    # identificar e exatamente o que permite dizer se dois lugares sao o
+    # mesmo — entao a operacao pertence a este cartao.
+    #
+    # O LIMITE TECNICO, e ele decide o que entra:
+    #
+    #   &idade == &outra    compila limpo, da 0        <- esta aqui
+    #   &idade == &idade    AVISA (self-comparison)    <- fica fora
+    #   p == &x             limpo, mas p e do B2       <- fica fora
+    #
+    # A metade "mesmo lugar" exige dois nomes para o mesmo lugar, e sem
+    # ponteiro o unico jeito e comparar um endereco consigo mesmo, que o
+    # gcc acusa. Entao o cartao AFIRMA o caso igual e DEMONSTRA o caso
+    # diferente. Afirmar sem demonstrar e menos que o ideal, e e melhor
+    # que demonstrar com um exemplo que sai avisando.
+    #
+    # E NENHUM PONTEIRO APARECE AQUI: ponteiro e o B2, e antecipa-lo
+    # seria o erro que esta auditoria existe para pegar.
+    interpretation: >
+      O endereço serve para identificar: dois endereços iguais são o
+      mesmo lugar, e dois endereços diferentes são lugares diferentes.
+      Em C isso se pergunta com ==, do mesmo jeito que se comparam dois
+      números — porque é disso que se trata.
+
+
+      No exemplo, idade e outra são duas variáveis, cada uma no seu
+      lugar. Por isso &idade == &outra dá 0: lugares diferentes. Se
+      desse 1, as duas estariam no mesmo lugar, e escrever numa mudaria
+      a outra.
+
+
+      Guarde a leitura do resultado: 1 quer dizer mesmo lugar, 0 quer
+      dizer lugares diferentes.
 
   B2:
     type: observavel
