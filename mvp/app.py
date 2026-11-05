@@ -24,7 +24,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from mvp import log, motor
-from mvp.dominio import carrega
+from mvp.dominio import Dominio, carrega
 
 AQUI = Path(__file__).resolve().parent
 
@@ -56,6 +56,69 @@ class RespostaBody(BaseModel):
     # Texto livre do teach-back. DADO PESSOAL: vai para o log com o código
     # da sessão, nunca com nome.
     texto: str = Field(default="", max_length=LIMITE_DA_FRASE)
+
+
+# AS FASES EM QUE O SISTEMA ENSINA, e são as únicas que explicam o erro.
+#
+# Erro de diagnóstico e de reteste é EVIDÊNCIA: é dele que sai a crença, e
+# é dele que sai a medida de transferência. Explicar ali ensina no meio da
+# medição e contamina os itens seguintes da MESMA sessão. Quem erra no
+# diagnóstico com crença detectada já recebe a refutação, que é o
+# mecanismo da tese; quem erra sem detecção segue sem explicação de
+# propósito, e isso está medido e registrado como pendência.
+ENSINA = ("treino", "entrada")
+
+
+def _explica_erro(d: Dominio, semente: str, dados: dict) -> dict | None:
+    """A explicação do erro, MONTADA do domínio — nunca redigida.
+
+    Dois textos, e os dois são cadastrados palavra por palavra: a fala da
+    crença que a alternativa escolhida afirma, e o enunciado da premissa
+    da pergunta. A frase que liga as duas é do cliente e não varia com o
+    conteúdo, então não existe lugar por onde uma justificativa inventada
+    entre.
+
+    `contradiz` é o terceiro ingrediente, e é um FATO do domínio, não um
+    rótulo: a crença escolhida nega esta premissa ou nega outra. Medido
+    nos treze tópicos, 512 das 1.101 alternativas erradas com crença — 46%
+    — negam OUTRO nó. Afirmar "e isso contradiz" sem olhar seria falso em
+    quase metade das telas, o mesmo defeito que a caixa de contraste da
+    refutação já teve.
+
+    E nada disto precisou de campo novo no log: a alternativa clicada é
+    RECUPERADA de `atividade` + `escolha`, que o `resposta_registrada` já
+    gravava, porque `opcoes_na_tela` é determinística desde a fatia da
+    posição. A versão do log continua 3.
+    """
+    no = dados.get("no")
+    if no not in d.nos:
+        return None
+    i = dados.get("escolha")
+    # Quem declarou "não sei", ou não respondeu, não escolheu alternativa
+    # nenhuma: não há ideia dela para nomear. O veredito desse caso é
+    # `lacuna`, e tem retorno próprio.
+    if not isinstance(i, int) or isinstance(i, bool):
+        return None
+    a = next((x for x in d.atividades if x.id == dados.get("atividade")), None)
+    if a is None:
+        return None
+    na_tela = motor.opcoes_na_tela(semente, a)
+    if not 0 <= i < len(na_tela):
+        return None
+    cid = na_tela[i].crenca or ""
+    tem = cid in d.crencas
+    # Sem `no` no retorno, de propósito: o cliente não o leria, o grafo já
+    # recebe `foco` em toda resposta, e campo que ninguém usa é campo que
+    # ninguém confere. Quem precisa saber de que nó é a premissa lê o `no`
+    # do `resposta_registrada`, que é onde ele é dado.
+    return {
+        "premissa": d.nos[no].simples,
+        # Vazio quando a alternativa é distrator plausível sem crença
+        # catalogada — 10 das 1.111 nos treze tópicos. O sistema não sabe
+        # por onde a pessoa foi, e calar é o que a regra manda.
+        "escolheu": d.crencas[cid].afirma if tem else "",
+        "contradiz": bool(tem and d.crencas[cid].nega == no),
+    }
 
 
 def _resposta(sessao: str, t: motor.Transicao,
@@ -102,6 +165,14 @@ def _resposta(sessao: str, t: motor.Transicao,
                 "no": alvo,
                 "vezes": falso.dados.get("vezes"),
             }
+
+    # O ERRO QUE EXPLICA. Antes daqui a tela do erro simples dizia "Ainda
+    # não. Olhe de novo com calma" e mais nada — 79 vezes por varredura dos
+    # treze tópicos, e 24 numa sessão de kc_02 de quem erra. O material
+    # estava no domínio desde sempre; faltava montar.
+    if (retorno is None and veredito == "errada"
+            and resposta.dados.get("fase") in ENSINA):
+        retorno = _explica_erro(dominio, t.estado.semente, resposta.dados)
 
     return {
         "sessao": sessao,

@@ -98,12 +98,21 @@
   <section id="tela-retorno" class="cartao oculto">
     <p class="veredito" id="ret-veredito"></p>
     <p class="ideia" id="ret-texto"></p>
-    <!-- So no falso positivo: a explicacao escolhida, e a premissa que ela
-         contradiz. As duas frases vem do dominio, nunca do cliente. -->
+    <!-- Serve os DOIS retornos que o servidor monta do dominio: o falso
+         positivo (a explicacao escolhida contra a premissa que ela nega) e
+         o erro que explica (a ideia da alternativa clicada contra a
+         premissa da pergunta). As frases vem do dominio, nunca do cliente.
+
+         OS ROTULOS SAO ESCRITOS POR CADA RAMO, e nenhum fica fixo aqui: o
+         rotulo da refutacao ficou fixo no HTML e mentia em 46% das telas.
+         A fatia de crencas que negam OUTRO no e, medida, de 46% tambem —
+         "e isso contradiz" seria falso em quase metade dos erros. -->
     <div class="contraste oculto" id="ret-contraste">
-      <p class="rotulo">Você explicou por</p>
-      <p class="crenca" id="ret-crenca"></p>
-      <p class="rotulo">E isso contradiz</p>
+      <div id="ret-par-crenca">
+        <p class="rotulo" id="ret-rotulo-crenca"></p>
+        <p class="crenca" id="ret-crenca"></p>
+      </div>
+      <p class="rotulo" id="ret-rotulo-certo"></p>
       <p class="certo" id="ret-certo"></p>
     </div>
     <button class="btn" id="btn-retorno">Continuar</button>

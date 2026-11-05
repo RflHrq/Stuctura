@@ -2953,3 +2953,101 @@ ensino, o outro pede refutação.
 Nenhuma cadeia roda. O inventário tem quatro conceitos disponíveis e
 `comparacao_de_ponteiros` ainda não; as duas cadeias estão `em_revisao` e
 `reprovada`, com motivo escrito. O ensaio continua sem a descida.
+
+## O erro que explica
+
+A primeira fatia pedagógica. O dono pediu a prioridade 1 assim: *corrigir
+as ocorrências de erro simples sem explicação, aproveitando a fala
+correta da premissa e a crença identificada*. E pôs a regra que governa
+tudo o que vier depois:
+
+> a IA não deve inventar a justificativa do erro. Ela precisa usar a
+> crença, a premissa negada e a explicação acadêmica cadastrada no seu
+> domínio.
+
+### O que estava acontecendo, medido
+
+Atravessando os treze tópicos como quem erra duas vezes em cada premissa:
+
+| | erradas | explicam |
+| --- | --- | --- |
+| diagnóstico | 79 | 79 — todas viram refutação |
+| treino | 79 | **0** |
+
+A tela do treino dizia "Ainda não. Olhe de novo com calma" e nada mais.
+
+E o material para explicar já estava no domínio: das **1.111**
+alternativas erradas dos treze tópicos, **1.101 têm crença cadastrada**,
+todo nó tem `simples`, toda crença tem `afirma`. Não faltava texto;
+faltava montar.
+
+### Por que só treino e entrada
+
+Erro de diagnóstico e de reteste é **evidência**: é dele que sai a
+crença, e é dele que sai a medida de transferência. Explicar ali ensina
+no meio da medição e contamina os itens seguintes da mesma sessão. As
+duas fases que ENSINAM explicam; as duas que MEDEM continuam caladas.
+
+### O terceiro ingrediente, que a caixa de contraste ensinou
+
+A crença da alternativa clicada **nem sempre nega a premissa da
+pergunta**: medido, **512 das 1.101 — 46%** — negam outro nó. Um rótulo
+fixo dizendo "e isso contradiz" seria falso em quase metade das telas,
+que é exatamente o tamanho do defeito que a refutação já teve. Então o
+servidor manda o FATO (`contradiz`) e o cliente escolhe o rótulo:
+
+| caso | rótulo | medida |
+| --- | --- | --- |
+| a crença nega esta premissa | "E isso contradiz" | 589 |
+| a crença nega outro nó | "E a premissa diz" | 512 |
+| alternativa sem crença | o par da ideia SAI da tela | 10 |
+
+### Sem campo novo no log, e a versão continua 3
+
+O `resposta_registrada` já gravava `atividade` e `escolha`, e
+`opcoes_na_tela` é determinística desde a fatia da posição: a
+alternativa clicada se **recupera** do que já está gravado. A CS-6
+pagando juros.
+
+### O que o retorno NÃO tem
+
+Três chaves: `premissa`, `escolheu`, `contradiz`. As duas de texto são
+string do domínio palavra por palavra, e `test_o_retorno_nao_carrega_prosa`
+cai se aparecer uma quarta. A frase de ligação é do cliente e não varia
+com o conteúdo — é por isso que não existe lugar por onde uma
+justificativa redigida possa entrar.
+
+O campo `no` foi **tirado** do retorno: o cliente não o lia, o grafo já
+recebe `foco` em toda resposta, e campo que ninguém usa é campo que
+ninguém confere.
+
+### Oito sabotagens
+
+Portão de fase removido (14 testes caem), crença do item no lugar da
+clicada (5), `contradiz` fixo em `True` e em `False`, explicação
+desligada, campo de prosa acrescentado, rótulo fixo de volta no HTML, id
+errado no JS. Todas falham contra o caso que devem pegar.
+
+E uma assertiva que **não podia falhar** foi achada no caminho, a quarta
+da sessão: `test_a_medicao_continua_calada` era vazio, porque na
+política coerente todo erro de diagnóstico vira refutação e não existe
+veredito `errada` para conferir. O caso real é o **escorregão** — errar
+a camada 1 e acertar a razão —, e com ele o teste cobre os treze
+tópicos.
+
+### Duas pendências que a medição abriu
+
+**O escorregão não explica, e é o buraco maior.** Errar a camada 1 e
+acertar a razão produz **158 erradas nos treze tópicos e ZERO
+refutações**: o sistema não diz nada, nem "Ainda não" com caixa, porque
+é diagnóstico. A T4 decidiu não contestar o escorregão, e isso continua
+certo — contestá-lo seria o erro simétrico ao falso positivo. Mas *não
+contestar* não precisa ser *não dizer nada*, e a decisão é do dono.
+
+**Onze das 79 premissas começam por conectivo** ("Então", "Logo", "Por
+isso"), todas em nós de inferência. Na refutação isso lê bem, porque vem
+depois da cadeia. Sozinha na caixa de contraste, "E isso contradiz →
+Então p e a caixa apontada são duas caixas diferentes" tropeça. É
+conteúdo do domínio, e conteúdo não se reescreve sem o orientador.
+
+1.159 + 252 verdes.

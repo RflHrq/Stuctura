@@ -530,7 +530,10 @@
         " que eu quero cuidar agora.";
       if (j.retorno) {
         $("ret-contraste").classList.remove("oculto");
+        $("ret-par-crenca").classList.remove("oculto");
+        $("ret-rotulo-crenca").textContent = "Você explicou por";
         $("ret-crenca").textContent = j.retorno.crenca;
+        $("ret-rotulo-certo").textContent = "E isso contradiz";
         $("ret-certo").textContent = j.retorno.contradiz;
       }
     } else if (j.veredito === "lacuna") {
@@ -546,9 +549,38 @@
     } else {
       v.textContent = "Ainda não";
       v.className = "veredito errado";
-      $("ret-texto").textContent =
-        "Olhe de novo com calma — a próxima pergunta volta ao mesmo ponto" +
-        " de outro jeito.";
+      /* O ERRO QUE EXPLICA. Os dois textos vem do dominio; a frase de
+       * ligacao e do cliente e NAO varia com o conteudo — e por isso que
+       * nao existe lugar por onde uma justificativa inventada entre.
+       *
+       * Sem `retorno` fica a fala antiga: e o diagnostico e o reteste, que
+       * MEDEM, e onde o silencio e proposito e nao esquecimento. */
+      if (j.retorno && j.retorno.premissa) {
+        var temIdeia = Boolean(j.retorno.escolheu);
+        $("ret-texto").textContent = !temIdeia
+          ? "Olhe o que a premissa afirma — a próxima pergunta volta ao" +
+            " mesmo ponto de outro jeito."
+          : j.retorno.contradiz
+            ? "A ideia que você marcou nega esta premissa: as duas não" +
+              " podem valer juntas."
+            : "A ideia que você marcou é sobre outro ponto do mapa. Esta" +
+              " pergunta é sobre a premissa abaixo.";
+        $("ret-contraste").classList.remove("oculto");
+        /* Alternativa sem crenca catalogada: o sistema nao sabe por onde a
+         * pessoa foi, e o par da ideia SAI da tela em vez de aparecer
+         * vazio com rotulo afirmando que ela escolheu algo. */
+        $("ret-par-crenca").classList.toggle("oculto", !temIdeia);
+        $("ret-rotulo-crenca").textContent = "Você escolheu";
+        $("ret-crenca").textContent = j.retorno.escolheu;
+        $("ret-rotulo-certo").textContent = !temIdeia
+          ? "A premissa diz"
+          : j.retorno.contradiz ? "E isso contradiz" : "E a premissa diz";
+        $("ret-certo").textContent = j.retorno.premissa;
+      } else {
+        $("ret-texto").textContent =
+          "Olhe de novo com calma — a próxima pergunta volta ao mesmo" +
+          " ponto de outro jeito.";
+      }
     }
     $("btn-retorno").onclick = function () { aplica(S.pendente); };
     mostra("retorno");
