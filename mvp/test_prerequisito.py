@@ -294,8 +294,18 @@ def test_com_o_inventario_real_a_descida_nao_e_acionada(monkeypatch):
     monkeypatch.setattr(motor, "DESCIDA_LIGADA", True)
     d = carrega(topico="kc_02")
 
-    # O que a auditoria de 05/11/2026 liberou, e só isto.
-    auditadas = {"pointer_and_target_are_one"}
+    # O CONJUNTO LIBERADO, e hoje ele e VAZIO de novo.
+    #
+    # Era {pointer_and_target_are_one} ate a auditoria achar que o
+    # degrau 3 dela dependia de comparacao de enderecos sem declarar —
+    # e que a comparacao que ele escrevia, `&p == &x`, nem compila
+    # limpo em C. Declarar o requisito real fechou a cadeia pelo
+    # proprio portao, sem ninguem tocar no inventario.
+    #
+    # Voltar a zero nao e regressao: e a primeira vez que o conjunto
+    # vazio significa "nenhuma cadeia passou por auditoria COMPLETA",
+    # em vez de "o inventario esta vazio".
+    auditadas = set()
     liberadas = {c for c, de in d.descidas.items() if de.liberada}
     assert liberadas == auditadas, (
         "liberadas a mais: %s · bloqueadas que deveriam rodar: %s"

@@ -306,13 +306,27 @@ class Dominio:
         refutação de sempre. É o que torna o protótipo de UMA crença
         possível sem tocar nas outras setenta e oito.
 
-        E CADEIA BLOQUEADA NÃO SAI DAQUI. Se algum degrau exige conceito
-        que o inventário não dá como ensinado, a cadeia não é entregue, e
-        o motor cai na mesma refutação afirmativa de um tópico sem cadeia
-        escrita. O portão tem de estar no caminho, e não só no relatório.
+        DUAS AUTORIZAÇÕES, e as duas são exigidas aqui:
+
+            liberada   todo conceito que a cadeia exige está ensinado
+            aprovada   aquela cadeia passou na revisão pedagógica
+
+        São perguntas diferentes. A primeira é curricular e vale para o
+        conceito; a segunda é sobre ESTA sequência. Uma simulação mostrou
+        por que não podem ser a mesma: liberar `comparacao_de_ponteiros`
+        abriria duas cadeias de uma vez, e uma delas reprova em três das
+        cinco perguntas da revisão.
+
+        Faltando qualquer uma, o motor cai na refutação afirmativa de um
+        tópico sem cadeia escrita. O portão tem de estar no caminho, e
+        não só no relatório.
         """
+        from mvp import aprovacao
+
         d = self.descidas.get(crenca or "")
-        return d if (d is not None and d.liberada) else None
+        if d is None or not d.liberada:
+            return None
+        return d if aprovacao.aprovada(d.crenca) else None
 
     @property
     def ordem(self) -> tuple[str, ...]:

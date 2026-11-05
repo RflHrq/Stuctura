@@ -174,6 +174,12 @@ def test_ampliar_o_b1_nao_mexe_no_inventario():
     assert conceitos.status("comparacao_de_ponteiros") == conceitos.SO_AVALIADO
 
 
-def test_a_cadeia_liberada_continua_sendo_a_unica(d):
+def test_nenhuma_cadeia_esta_liberada(d):
+    """Afirmava o contrario ate a auditoria do degrau 3.
+
+    A `pointer_and_target_are_one` estava liberada porque declarava
+    menos do que exigia. Com o requisito declarado, o portao a fechou —
+    e e isso que um portao faz quando a declaracao melhora.
+    """
     liberadas = sorted(c for c, de in d.descidas.items() if de.liberada)
-    assert liberadas == ["pointer_and_target_are_one"], liberadas
+    assert liberadas == [], liberadas

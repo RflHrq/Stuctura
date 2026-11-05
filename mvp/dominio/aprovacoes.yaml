@@ -1,0 +1,45 @@
+# A aprovacao pedagogica de cada cadeia de refutacao.
+#
+# PRINCIPIO: a disponibilidade de um conceito autoriza seu uso
+# potencial. Nao autoriza, por si so, a utilizacao de qualquer cadeia
+# que o contenha.
+#
+# Este arquivo e SEPARADO do das cadeias de proposito: quem escreve a
+# cadeia declara `requer` no YAML dela; quem aprova escreve aqui. No
+# mesmo arquivo, os dois seriam escritos na mesma passada — que e o
+# defeito que a separacao existe para impedir.
+#
+# O PADRAO E SEM_REVISAO. Cadeia que nao aparece aqui nao roda, e
+# esquecer de revisar nao vira autorizacao.
+#
+# O motor exige AS DUAS: `liberada` (todo conceito exigido esta
+# ensinado) e `aprovada` (esta sequencia passou na revisao pedagogica).
+
+aprovacoes:
+
+  pointer_is_data:
+    status: em_revisao
+    em: 2026-11-05
+    por: revisao pedagogica do dono
+    nota: >
+      Confronta bem nos quatro degraus e o ultimo reconstroi de
+      verdade: exige sintetizar os tres anteriores numa afirmacao
+      positiva. Duas pendencias antes de aprovar — a alternativa (b) do
+      degrau 2 diz "p acompanha x", que e vago e nao nomeia o mecanismo
+      (p guarda o endereco, *p le o que estiver la); e falta a
+      distincao, na resposta da pessoa, entre nao conhecer o recurso e
+      persistir na crenca.
+
+  pointer_and_target_are_one:
+    status: reprovada
+    em: 2026-11-05
+    por: revisao pedagogica do dono
+    nota: >
+      Reprova em tres das cinco perguntas da revisao. O degrau 1 exige
+      declaracao multipla (int x = 1, y = 2;) e reatribuicao de ponteiro
+      (p = &y), nenhuma das duas ensinada em cartao nenhum do caminho, e
+      nenhuma das duas declarada em `requer` — e e o degrau de ABERTURA.
+      O degrau 3, mesmo depois de substituido, ficou verificacao e nao
+      confronto: a resposta certa e o texto do B2 quase literal, e o
+      enunciado ja entrega os ingredientes. O degrau 4 afirma o B2 e
+      pede para contar caixas, o que e repeticao e nao reconstrucao.

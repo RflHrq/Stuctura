@@ -313,16 +313,33 @@ descidas:
           *p = 9 muda o que está no destino. p continua com o mesmo
           endereço dentro dele. Uma escrita, um alvo só.
 
+      # SUBSTITUIDO EM 05/11/2026. A versao anterior perguntava se &p e
+      # &x dariam o mesmo numero — e em C esses dois tem tipos
+      # DIFERENTES, `int **` e `int *`, com o gcc exigindo cast:
+      #
+      #   warning: comparison of distinct pointer types lacks a cast
+      #
+      # Nao era so pre-requisito faltando. O degrau pedia raciocinio
+      # sobre codigo que nao compila limpo, e a resposta certa era
+      # verdadeira por um motivo que ele nao dizia: antes de serem
+      # lugares diferentes, sao tipos diferentes.
+      #
+      # A versao nova trabalha a mesma distincao — guardar um endereco
+      # nao e ocupar aquele endereco — sem escrever comparacao nenhuma
+      # em codigo. E declara o requisito que a versao velha escondia:
+      # falar em "mesmo lugar" exige a nocao de que enderecos
+      # identificam, que e o que o B1 passou a ensinar.
       - pergunta: >
-          Se p e o apontado são um só, &p e &x dariam o mesmo número,
-          porque uma coisa só está num lugar só. Dão?
+          Sabemos que p guarda o endereço de x. Isso significa que a
+          própria variável p está armazenada no mesmo lugar que x?
         funcao: confrontar
-        requer: [operador_endereco]
-        decorre: "Dão: é a mesma coisa, logo o mesmo lugar"
-        verdade: "Não dão: são dois lugares diferentes"
+        requer: [ponteiro, endereco, comparacao_de_ponteiros]
+        decorre: "Sim: guardar o endereço de x é estar no lugar de x"
+        verdade: "Não: p guarda o endereço de x, e tem lugar próprio"
         porque: >
-          São dois endereços diferentes, porque são duas caixas, em dois
-          lugares.
+          Guardar o endereço de um lugar não é ocupar aquele lugar. O
+          papel com o número da casa do vizinho fica na sua casa, não na
+          dele — e é por isso que p tem endereço próprio.
 
       - pergunta: >
           Um ponteiro é uma variável: ocupa um lugar e tem endereço

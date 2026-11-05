@@ -2889,3 +2889,67 @@ E o degrau do `scanf` continua escrito. A decisão do dono foi substituí-lo
 por uma situação feita com recurso já ensinado — o que exige o inventário
 preenchido, que ainda não existe. Até lá o portão o bloqueia junto com o
 resto.
+
+## Duas autorizações: disponibilidade curricular e aprovação pedagógica
+
+**O princípio, e ele é do projeto inteiro:**
+
+> A disponibilidade de um conceito autoriza seu uso potencial. Não
+> autoriza, por si só, a utilização de qualquer cadeia que o contenha.
+
+### A simulação que o obrigou
+
+Com `comparacao_de_ponteiros` ainda bloqueado, simulei liberá-lo. **Duas**
+cadeias passariam a disponíveis de uma vez — e uma delas reprova em três
+das cinco perguntas da revisão pedagógica, incluindo o degrau de
+abertura, que exige declaração múltipla e reatribuição de ponteiro, sem
+nenhuma das duas ensinada nem declarada.
+
+Uma decisão **curricular** (este conceito foi ensinado?) estava decidindo
+uma questão **pedagógica** (esta sequência confronta a crença?).
+
+### As duas, e o motor exige as duas
+
+| | pergunta | onde mora | quem decide |
+| --- | --- | --- | --- |
+| `liberada` | todo conceito exigido foi ensinado? | `conceitos.yaml` | auditoria do material |
+| `aprovada` | **esta** sequência confronta? | `aprovacoes.yaml` | revisão pedagógica |
+
+`Dominio.descida()` só entrega com as duas. Faltando qualquer uma, o
+motor cai na refutação afirmativa — a mesma degradação de um tópico sem
+cadeia escrita.
+
+Os estados da aprovação são `aprovada`, `em_revisao`, `reprovada` e
+`sem_revisao`, e o padrão é o último: cadeia que ninguém revisou não
+roda, e esquecer de revisar não vira autorização. `aprovada` exige dizer
+**quem e quando**; `reprovada` exige **o motivo** — as duas cobradas por
+teste.
+
+### Por que o arquivo é separado do das cadeias
+
+Quem escreve a cadeia declara `requer` no YAML dela. Quem aprova escreve
+noutro arquivo. No mesmo lugar, os dois seriam escritos na mesma passada
+— e foi exatamente isso que produziu o problema que esta fatia conserta:
+a `pointer_and_target_are_one` passou no portão porque **eu** declarei
+os requisitos dela, e declarei menos do que ela exige.
+
+### O que a revisão das duas cadeias achou
+
+| pergunta | `pointer_is_data` | `pointer_and_target_are_one` |
+| --- | --- | --- |
+| Confronta em todos os degraus? | sim | **não** — o 3 é verificação, o 4 é repetição |
+| Confunde endereço com conteúdo? | quase não — "p acompanha x" é vago | não |
+| Só exige o apresentado? | sim | **não** — o degrau 1, de abertura |
+| O último reconstrói? | **sim** | **não** |
+| Distingue desconhecer de persistir? | **não** | **não** |
+
+A última linha é a mesma para as duas, e é lacuna de arquitetura, não de
+redação: escolher a alternativa da crença grava "continua acreditando",
+e pode ser "não conheço o recurso". São diagnósticos opostos — um pede
+ensino, o outro pede refutação.
+
+### O estado, e ele é o conservador
+
+Nenhuma cadeia roda. O inventário tem quatro conceitos disponíveis e
+`comparacao_de_ponteiros` ainda não; as duas cadeias estão `em_revisao` e
+`reprovada`, com motivo escrito. O ensaio continua sem a descida.

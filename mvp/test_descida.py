@@ -82,12 +82,33 @@ def inventario_de_teste(tmp_path_factory):
     p = tmp_path_factory.mktemp("inventario") / "conceitos.yaml"
     p.write_text("\n".join(corpo) + "\n", encoding="utf-8")
 
+    # A SEGUNDA AUTORIZACAO. O motor exige `liberada` E `aprovada`:
+    # a primeira e curricular (o conceito foi ensinado), a segunda e
+    # pedagogica (esta sequencia confronta). Estes testes exercitam o
+    # MECANISMO e nao medem nenhuma das duas, entao declaram as duas.
+    #
+    # Vale o mesmo aviso: mundo artificial, e nunca evidencia de que
+    # alguem revisou a cadeia de verdade. As aprovacoes reais ficam em
+    # `mvp/dominio/aprovacoes.yaml`, e hoje nao ha nenhuma.
+    from mvp import aprovacao
+
+    ap = ["aprovacoes:"]
+    for cid in ("array_is_pointer",):
+        ap += ["  %s:" % cid, "    status: aprovada",
+               "    em: teste", "    por: fixture de mvp/test_descida.py",
+               "    nota: mundo de teste — NAO e revisao pedagogica"]
+    pa = p.parent / "aprovacoes.yaml"
+    pa.write_text("\n".join(ap) + "\n", encoding="utf-8")
+
     mp = pytest.MonkeyPatch()
     mp.setenv("STRUCTURA_CONCEITOS", str(p))
+    mp.setenv("STRUCTURA_APROVACOES", str(pa))
     conceitos.recarrega()
+    aprovacao.recarrega()
     yield
     mp.undo()
     conceitos.recarrega()
+    aprovacao.recarrega()
 
 
 @pytest.fixture(scope="module")

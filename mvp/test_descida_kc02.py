@@ -75,12 +75,35 @@ def inventario_de_teste(tmp_path_factory):
     p = tmp_path_factory.mktemp("inventario") / "conceitos.yaml"
     p.write_text("\n".join(corpo) + "\n", encoding="utf-8")
 
+    # A SEGUNDA AUTORIZACAO. O motor exige `liberada` E `aprovada`:
+    # a primeira e curricular (o conceito foi ensinado), a segunda e
+    # pedagogica (esta sequencia confronta). Estes testes exercitam o
+    # MECANISMO e nao medem nenhuma das duas, entao declaram as duas.
+    #
+    # Vale o mesmo aviso: mundo artificial, e nunca evidencia de que
+    # alguem revisou a cadeia de verdade. As aprovacoes reais ficam em
+    # `mvp/dominio/aprovacoes.yaml`, e hoje nao ha nenhuma.
+    from mvp import aprovacao
+
+    ap = ["aprovacoes:"]
+    for cid in ("memory_is_by_name", "pointer_has_no_address", "pointer_is_data",
+                "pointer_and_target_are_one", "pointer_is_integer",
+                "pointer_is_pointless"):
+        ap += ["  %s:" % cid, "    status: aprovada",
+               "    em: teste", "    por: fixture de mvp/test_descida_kc02.py",
+               "    nota: mundo de teste — NAO e revisao pedagogica"]
+    pa = p.parent / "aprovacoes.yaml"
+    pa.write_text("\n".join(ap) + "\n", encoding="utf-8")
+
     mp = pytest.MonkeyPatch()
     mp.setenv("STRUCTURA_CONCEITOS", str(p))
+    mp.setenv("STRUCTURA_APROVACOES", str(pa))
     conceitos.recarrega()
+    aprovacao.recarrega()
     yield
     mp.undo()
     conceitos.recarrega()
+    aprovacao.recarrega()
 
 
 @pytest.fixture(scope="module")
@@ -282,3 +305,55 @@ def test_a_descida_que_colide_fora_do_corte_e_descartada(quantas):
 def test_no_topico_inteiro_as_seis_sobrevivem():
     """O conserto não pode descartar demais: sem corte, as seis ficam."""
     assert len(carrega(topico="kc_02").descidas) == 6
+
+
+# --------------------------------------------------------------------------
+# O DEGRAU 3 NAO PODE DEPENDER DE COMPARACAO MAL-FORMADA
+# --------------------------------------------------------------------------
+#
+# A versao anterior perguntava se `&p` e `&x` dariam o mesmo numero. Em C
+# esses dois tem tipos DIFERENTES — `int **` e `int *` — e o gcc exige
+# cast:
+#
+#   warning: comparison of distinct pointer types lacks a cast
+#
+# Nao era so pre-requisito faltando. A pergunta pedia que o aluno
+# raciocinasse sobre codigo que nao compila limpo, e a resposta "nao dao
+# o mesmo numero" e verdadeira por um motivo que o degrau nao diz: antes
+# de serem lugares diferentes, sao tipos diferentes.
+#
+# A substituicao trabalha a mesma distincao — guardar um endereco nao e
+# ocupar aquele endereco — sem escrever a comparacao em codigo.
+
+def test_nenhum_degrau_compara_tipos_incompativeis(d):
+    """`&p` contra `&x` e a forma que o gcc acusa. Se voltar, aqui cai.
+
+    A regra vale para a cadeia inteira e para as outras: comparar o
+    endereco de um ponteiro com o endereco de um int exige cast, e
+    pergunta de recuperacao nao se apoia em codigo que avisa.
+    """
+    import re
+    for cid, de in d.descidas.items():
+        for i, p in enumerate(de.passos, 1):
+            txt = " ".join((p.pergunta, p.decorre, p.verdade, p.porque))
+            assert not re.search(r"&\s*p\b[^.]{0,30}&\s*x\b", txt), (cid, i, txt)
+            assert not re.search(r"&\s*x\b[^.]{0,30}&\s*p\b", txt), (cid, i, txt)
+
+
+def test_o_degrau_3_trabalha_guardar_contra_ocupar(d):
+    """A distincao que substituiu a comparacao: p guarda o endereco de x
+    e tem lugar proprio. E a afirmacao do B2, aplicada."""
+    p = d.descidas["pointer_and_target_are_one"].passos[2]
+    junto = (p.pergunta + " " + p.verdade + " " + p.porque).lower()
+    assert "guarda o endereço" in junto, p.pergunta
+    assert "próprio" in junto, p.verdade
+    assert p.funcao == "confrontar"
+
+
+def test_o_degrau_3_declara_o_que_realmente_exige(d):
+    """O requisito implicito que esta auditoria achou: falar em "mesmo
+    lugar" exige a nocao de que enderecos identificam — e isso e
+    `comparacao_de_ponteiros`, ensinado no B1 e ainda nao liberado."""
+    p = d.descidas["pointer_and_target_are_one"].passos[2]
+    assert set(p.requer) == {"ponteiro", "endereco", "comparacao_de_ponteiros"}, \
+        p.requer
