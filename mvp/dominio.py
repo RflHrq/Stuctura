@@ -351,10 +351,25 @@ def _corta(alvo: str, quantas: int, cru_topico, grafo,
     if cru_topico.get("conclusion_node") not in vivos:
         cru_topico["conclusion_node"] = fica[-1]
 
-    # A descida de uma crença que saiu no corte sai junto.
+    # A descida de uma crença que saiu no corte sai junto — e também a
+    # que sobrevive apontando `colide_com` para um nó que saiu.
+    #
+    # O segundo caso faltava, e derrubava a CARGA INTEIRA com "colide_com
+    # não é nó deste tópico". Ficou invisível enquanto só existia a cadeia
+    # do kc_07, que nega I3 e colide com B1: todo corte que a preserva
+    # preserva o B1 junto, por ele ser o primeiro. A primeira cadeia que
+    # nega o PRIMEIRO nó de um tópico expõe a lacuna — e é o caso de
+    # `memory_is_by_name` no kc_02.
+    #
+    # Descartar é o conserto, e não cortar menos: numa sessão sem a
+    # premissa da colisão o último degrau não teria onde bater, e a
+    # descida degrada para a refutação afirmativa — que é o que ela já faz
+    # em todo tópico sem cadeia escrita.
     if cru_desc and cru_desc.get("descidas"):
-        cru_desc["descidas"] = {k: v for k, v in cru_desc["descidas"].items()
-                                if k in crencas_vivas}
+        cru_desc["descidas"] = {
+            k: v for k, v in cru_desc["descidas"].items()
+            if k in crencas_vivas
+            and str((v or {}).get("colide_com") or "").split(":")[-1] in vivos}
 
 
 def carrega(raiz: Path | None = None, topico: str | None = None,

@@ -1,0 +1,482 @@
+# Descidas do kc_02 — as seis crenças do tópico-piloto.
+#
+# É o conteúdo da REFUTAÇÃO INTERROGATIVA: em vez de o sistema afirmar as
+# premissas corretas e exibir a contradição no fim, ele pergunta, passo a
+# passo, o que decorre de tomar a crença como verdadeira — e a própria
+# pessoa chega numa consequência que ela sabe ser falsa.
+#
+# A INVERSÃO QUE ISTO TEM, e ela é única no projeto: em toda atividade do
+# sistema a alternativa certa é a VERDADEIRA. Aqui, a alternativa que faz
+# a cadeia ANDAR é a falsa — estamos pedindo à pessoa que seja consistente
+# com o erro dela, de propósito. Quem for mexer nestes arquivos depois:
+# `decorre` é o que a crença prevê, e NÃO é a resposta certa.
+#
+# POR QUE SEIS AQUI, quando o kc_07 tem uma. O kc_07 é protótipo: uma
+# cadeia, para provar o mecanismo. O kc_02 é o tópico do PILOTO, e é onde
+# a pessoa vai atravessar. Deixá-lo com refutação afirmativa faria o
+# ensaio medir explicação bem escrita, e não a refutação que o trabalho
+# propõe. Fora destes dois tópicos a descida continua desligada.
+#
+# O RISCO ESTÁ DECLARADO NO kc_07 E VALE IGUAL AQUI: pedir que alguém
+# raciocine A PARTIR da própria crença pode REFORÇÁ-LA se a cadeia não
+# fechar. Por isso toda cadeia aqui termina num passo que não depende de
+# teoria — compila ou não compila, imprime 1 ou imprime 7 —, e toda uma
+# tem evidência RODADA, não citada de memória.
+#
+# O QUE ESTAS SEIS AINDA NÃO TÊM: ninguém de carne e osso as atravessou.
+# O mecanismo tem 31 testes; o efeito em quem aprende não tem nenhum. E a
+# redação é de quem escreveu o sistema, não de um autor de domínio — a
+# revisão por alguém que ensina C continua sendo a pendência que a
+# revisão final já apontava.
+#
+# LIMITE DO TÓPICO, respeitado de propósito: `p + 1` NÃO aparece em
+# cadeia nenhuma. Aritmética de ponteiro é kc_11, e o cabeçalho do grafo
+# deste tópico declara que ali a metáfora da rua cala. Usá-la aqui seria
+# refutar uma crença com uma ideia que o tópico não sustenta.
+
+descidas:
+
+  # ------------------------------------------------------------------
+  memory_is_by_name:
+    # Fecha em B3: se não existe número de lugar, não há o que um
+    # ponteiro guarde.
+    colide_com: B3
+
+    passos:
+
+      - pergunta: >
+          Vamos levar a sua ideia a sério. Se o computador acha a variável
+          pelo nome dela, então o nome precisa existir enquanto o programa
+          roda. O executável guarda os nomes que você escreveu?
+        decorre: "Guarda: é por eles que ele acha cada variável"
+        verdade: "Não guarda: o nome some na compilação"
+        porque: >
+          O nome é para você e para o compilador. Depois de compilado não
+          sobra nome nenhum para procurar — e alguma outra coisa tem de
+          dizer onde a variável está.
+
+      - pergunta: >
+          Se é o nome que localiza, então &idade devolveria o nome.
+          O que você consegue imprimir com %p?
+        decorre: "O nome: a palavra idade"
+        verdade: "Um número, em hexadecimal"
+        porque: >
+          O que sai é um número. Ele existe, dá para guardar e dá para
+          comparar — e não é o nome.
+
+      - pergunta: >
+          Com int *p = &idade; e depois *p = 31;, a variável muda de
+          20 para 31. A palavra idade não aparece nessa linha. Como ela
+          foi alcançada?
+        decorre: "Pelo nome: o compilador entendeu quem era"
+        verdade: "Pelo número que estava guardado em p"
+        porque: >
+          Nada ali nomeia a variável. O que estava na mão era o número do
+          lugar, e foi por ele que a caixa foi alcançada.
+
+      # A atribuição desta premissa — "você confirmou" ou só "esta
+      # unidade afirma" — é do MOTOR, que sabe o que esta sessão viu.
+      - pergunta: >
+          Um ponteiro guarda alguma coisa dentro dele. Se número de lugar
+          é detalhe do compilador e não existe em tempo de execução, o que
+          estaria dentro de p?
+        decorre: "O nome da variável, em texto"
+        verdade: "O número do lugar — o endereço"
+        porque: >
+          Dentro de p está um número de lugar. Se esses números fossem
+          detalhe do compilador, p estaria vazio — e *p = 31 não teria
+          como funcionar. O nome é a sua etiqueta; o número é o endereço.
+
+    evidencia:
+      tipo: saida_definida
+      fonte: |
+        #include <stdio.h>
+        int main(void) {
+            int idade = 20;
+            int *p = &idade;
+
+            *p = 31;                  /* o nome idade nao aparece aqui */
+
+            printf("%d\n", idade);
+            return 0;
+        }
+      comando: "gcc -std=c17 -Wall -o e1 e1.c && ./e1"
+      afirmacao: >
+        Sai 31. A variável foi alterada por uma linha que não a nomeia:
+        o que estava na mão era o número do lugar dela.
+      saida: |
+        31
+      origem: gravada
+      onde: >
+        gcc (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r3)
+        16.2.0, Windows 11, em 05/11/2026.
+
+  # ------------------------------------------------------------------
+  pointer_has_no_address:
+    # Fecha em B1: tudo que está na memória ocupa um lugar numerado, e p
+    # está na memória.
+    colide_com: B1
+
+    passos:
+
+      - pergunta: >
+          Vamos levar a sua ideia a sério. Se o ponteiro é só a seta que
+          liga uma caixa à outra, então ele não ocupa espaço. O que
+          sizeof p deveria dar?
+        decorre: "Nada ou zero: seta não tem tamanho"
+        verdade: "Um tamanho, como o de qualquer variável"
+        porque: >
+          sizeof p devolve um tamanho em bytes, igual ao de qualquer
+          outra variável. O que não ocupa espaço não tem o que medir.
+
+      - pergunta: >
+          Se p não ocupa lugar, então ele não tem endereço próprio e
+          &p não teria o que devolver. Tem o que devolver?
+        decorre: "Não tem: a seta não fica em lugar nenhum"
+        verdade: "Tem: &p devolve o endereço da caixa p"
+        porque: >
+          &p devolve um endereço — o da caixa onde p mora, que é
+          diferente do endereço que está guardado dentro dele.
+
+      - pergunta: >
+          Se p não tivesse endereço próprio, int **pp = &p; não poderia
+          existir, porque não haveria endereço de p para guardar.
+          Compila?
+        decorre: "Não compila: não há endereço de p"
+        verdade: "Compila, e **pp chega ao valor original"
+        porque: >
+          Existe ponteiro para ponteiro, e ele funciona porque p tem um
+          endereço como qualquer caixa.
+
+      - pergunta: >
+          Tudo que está guardado na memória ocupa um lugar, e lugar tem
+          número. p está guardado na memória?
+        decorre: "Não está: ele é a ligação entre duas caixas"
+        verdade: "Está: p é uma caixa como as outras"
+        porque: >
+          p é uma caixa como as outras: ocupa um lugar, aquele lugar tem
+          número, e é por isso que &p responde. A seta é o DESENHO que a
+          gente faz do que está guardado dentro dele — não é o ponteiro.
+
+    evidencia:
+      tipo: saida_definida
+      fonte: |
+        #include <stdio.h>
+        int main(void) {
+            int x = 42;
+            int *p = &x;
+            int **pp = &p;            /* so existe se p tiver endereco */
+
+            printf("%zu\n", sizeof p);
+            printf("%d\n", p == &x);
+            printf("%d\n", **pp);
+            return 0;
+        }
+      comando: "gcc -std=c17 -Wall -o e2 e2.c && ./e2"
+      afirmacao: >
+        p tem tamanho, tem endereço próprio e pode ser apontado por outro
+        ponteiro. Nada disso vale para uma seta que não ocupa lugar.
+      saida: |
+        8
+        1
+        42
+      origem: gravada
+      onde: >
+        gcc (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r3)
+        16.2.0, Windows 11, em 05/11/2026. O 8 é o tamanho do ponteiro
+        nesta máquina de 64 bits; noutra pode ser 4, e o que a evidência
+        afirma é que existe tamanho, não qual é.
+
+  # ------------------------------------------------------------------
+  pointer_is_data:
+    # Fecha em B1: o que está dentro de p é número de lugar, e números de
+    # lugar são o que B1 afirma existirem.
+    colide_com: B1
+
+    passos:
+
+      - pergunta: >
+          Vamos levar a sua ideia a sério. Com int x = 42; e
+          int *p = &x;, se o que está dentro de p é o valor, então
+          dentro de p está 42. Para que serviria o * em *p?
+        decorre: "Para nada: p já é o valor"
+        verdade: "Para ir até o lugar e pegar o que está lá"
+        porque: >
+          Se p já fosse o valor, o * não teria função nenhuma — e ele é
+          obrigatório para chegar ao 42.
+
+      - pergunta: >
+          Se dentro de p está o 42, mudar x depois não deveria mexer em p.
+          Com x = 7; e sem tocar em p, o que *p passa a mostrar?
+        decorre: "42: p guardou uma cópia"
+        verdade: "7: p acompanha x"
+        porque: >
+          *p passou a mostrar 7 sem ninguém ter tocado em p. O que está
+          guardado em p não é o valor — é o caminho até onde o valor mora.
+
+      - pergunta: >
+          Se p guardasse o valor, p == &x seria falso, porque um valor
+          não é um endereço. É falso?
+        decorre: "É falso: são coisas de natureza diferente"
+        verdade: "É verdadeiro: p é igual ao endereço de x"
+        porque: >
+          p é exatamente igual a &x. O que está dentro dele é o
+          endereço, e por isso a comparação dá verdadeiro.
+
+      - pergunta: >
+          Cada lugar da memória tem um número que o identifica. Se o que
+          está dentro de p não é o valor, o que resta ele guardar?
+        decorre: "Uma cópia do conteúdo, de outro jeito"
+        verdade: "O número do lugar onde o valor mora"
+        porque: >
+          O que está dentro de p é o número de um lugar. É por isso que
+          mudar x muda o que *p mostra: p nunca teve o valor, só o
+          caminho até ele.
+
+    evidencia:
+      tipo: saida_definida
+      fonte: |
+        #include <stdio.h>
+        int main(void) {
+            int x = 42;
+            int *p = &x;
+
+            printf("%d\n", *p);
+            x = 7;                    /* nao tocamos em p */
+            printf("%d\n", *p);
+            return 0;
+        }
+      comando: "gcc -std=c17 -Wall -o e3 e3.c && ./e3"
+      afirmacao: >
+        Sai 42 e depois 7. Ninguém tocou em p entre as duas linhas: se p
+        guardasse o valor, a segunda também seria 42.
+      saida: |
+        42
+        7
+      origem: gravada
+      onde: >
+        gcc (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r3)
+        16.2.0, Windows 11, em 05/11/2026.
+
+  # ------------------------------------------------------------------
+  pointer_and_target_are_one:
+    # Fecha em B2: p é uma caixa própria, e mexer nela não é mexer na
+    # outra.
+    colide_com: B2
+
+    passos:
+
+      - pergunta: >
+          Vamos levar a sua ideia a sério. Com int x = 1, y = 2; e
+          int *p = &x;, se mexer em p é mexer no apontado, então
+          p = &y; deveria mudar o valor de x. Muda?
+        decorre: "Muda: p e x são a mesma coisa"
+        verdade: "Não muda: x continua 1"
+        porque: >
+          p = &y troca para onde p aponta e não encosta em x. Se fossem
+          a mesma coisa, x teria mudado junto.
+
+      - pergunta: >
+          Agora o contrário: *p = 9;. Se são a mesma coisa, isso
+          deveria mudar p também — o endereço guardado nele. Muda?
+        decorre: "Muda: a alteração atinge os dois"
+        verdade: "Não: muda y, e p continua apontando para y"
+        porque: >
+          *p = 9 muda o que está no destino. p continua com o mesmo
+          endereço dentro dele. Uma escrita, um alvo só.
+
+      - pergunta: >
+          Se p e o apontado são um só, &p e &x dariam o mesmo número,
+          porque uma coisa só está num lugar só. Dão?
+        decorre: "Dão: é a mesma coisa, logo o mesmo lugar"
+        verdade: "Não dão: são dois lugares diferentes"
+        porque: >
+          São dois endereços diferentes, porque são duas caixas, em dois
+          lugares.
+
+      - pergunta: >
+          Um ponteiro é uma variável: ocupa um lugar e tem endereço
+          próprio. Se p tem lugar próprio e x tem lugar próprio, quantas
+          caixas existem?
+        decorre: "Uma: duas maneiras de falar da mesma"
+        verdade: "Duas, cada uma no seu lugar"
+        porque: >
+          São duas caixas. p = ... escreve numa, *p = ... escreve na
+          outra — e é essa diferença de uma estrelinha que decide em qual.
+
+    evidencia:
+      tipo: saida_definida
+      fonte: |
+        #include <stdio.h>
+        int main(void) {
+            int x = 1, y = 2;
+            int *p = &x;
+
+            p = &y;                   /* mexe no ponteiro */
+            printf("%d\n", x);
+            *p = 9;                   /* mexe no apontado */
+            printf("%d\n", y);
+            printf("%d\n", x);
+            return 0;
+        }
+      comando: "gcc -std=c17 -Wall -o e4 e4.c && ./e4"
+      afirmacao: >
+        Sai 1, 9 e 1. Mexer em p não mexeu em x, e mexer no apontado
+        mudou y sem mudar x. São alvos separados.
+      saida: |
+        1
+        9
+        1
+      origem: gravada
+      onde: >
+        gcc (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r3)
+        16.2.0, Windows 11, em 05/11/2026.
+
+  # ------------------------------------------------------------------
+  pointer_is_integer:
+    # Fecha em B3: dentro de p está um endereço, e endereço não é número
+    # solto porque o compilador sabe de que tipo ele é.
+    colide_com: B3
+
+    passos:
+
+      - pergunta: >
+          Vamos levar a sua ideia a sério. Se ponteiro é só um número
+          inteiro, então int n; n = p; deveria compilar sem reclamação,
+          como qualquer atribuição entre inteiros. Compila?
+        decorre: "Compila: número recebe número"
+        verdade: "O compilador recusa"
+        porque: >
+          O compilador recusa a linha. Para ele os dois tipos não são
+          intercambiáveis, mesmo que por baixo os dois sejam números.
+
+      - pergunta: >
+          Se os dois são apenas números, então int *p = 42; deveria ser
+          tão normal quanto int n = 42;. É?
+        decorre: "É: 42 é 42 nos dois casos"
+        verdade: "Não é: o compilador avisa"
+        porque: >
+          O compilador trata os dois casos de maneira diferente, porque um
+          é um número e o outro é um endereço com tipo.
+
+      - pergunta: >
+          Quem sabe que p aponta para um int é o compilador, que leu
+          int *p. Em tempo de execução, o que viaja junto do endereço?
+        decorre: "O tipo: o endereço carrega essa informação"
+        verdade: "Nada: só o número viaja"
+        porque: >
+          Em tempo de execução viaja só o número. O tipo é do ponteiro, e
+          quem sabe dele é o compilador — é por isso que ele pode recusar
+          n = p antes de o programa existir.
+
+      - pergunta: >
+          O valor guardado num ponteiro é um endereço. Um endereço é um
+          número solto, igual a qualquer outro inteiro?
+        decorre: "É: um número é um número"
+        verdade: "Não: é um endereço, e o compilador sabe de quê"
+        porque: >
+          O número está lá, mas não está solto: o compilador sabe de que
+          tipo é aquele endereço, e é esse saber que faz n = p ser
+          recusado e *p saber quantos bytes ler.
+
+    evidencia:
+      tipo: erro_de_compilacao
+      fonte: |
+        int main(void) {
+            int x = 42;
+            int *p = &x;
+            int n;
+
+            n = p;                    /* trocar um pelo outro */
+
+            return n;
+        }
+      comando: "gcc -std=c17 -c e5.c"
+      afirmacao: >
+        A linha n = p; não compila. Atribuir um ponteiro a um inteiro
+        sem conversão explícita é violação de restrição, e o compilador é
+        obrigado a diagnosticar.
+      garantia: >
+        ISO C 6.5.16.1 fixa os tipos que podem aparecer numa atribuição
+        simples, e inteiro recebendo ponteiro não é um deles. Violação de
+        restrição obriga diagnóstico; o texto da mensagem é de cada
+        compilador, a recusa é do padrão.
+      saida: |
+        e5.c: In function 'main':
+        e5.c:6:7: error: assignment to 'int' from 'int *' makes integer from pointer without a cast [-Wint-conversion]
+            6 |     n = p;                    /* trocar um pelo outro */
+              |       ^
+      origem: gravada
+      onde: >
+        gcc (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r3)
+        16.2.0, Windows 11, em 05/11/2026. Sai com código 1. Neste
+        compilador -Wint-conversion é erro por padrão; em versões mais
+        antigas a mesma linha sai como aviso, e o programa chega a
+        compilar — a recusa continua sendo o que o padrão manda
+        diagnosticar.
+
+  # ------------------------------------------------------------------
+  pointer_is_pointless:
+    # Fecha em I1: são duas caixas em dois lugares, e é por isso que
+    # existe algo que só o endereço resolve.
+    colide_com: I1
+
+    passos:
+
+      - pergunta: >
+          Vamos levar a sua ideia a sério. Se variável comum faz o mesmo,
+          então uma função que recebe int v consegue mudar a variável de
+          quem chamou. Consegue?
+        decorre: "Consegue: é a mesma variável lá dentro"
+        verdade: "Não consegue: ela recebeu uma cópia"
+        porque: >
+          A função mexeu na cópia dela. Quem chamou continua com o valor
+          de antes, e nenhuma variável comum resolve isso.
+
+      - pergunta: >
+          Você já usou scanf("%d", &x). Se o & não fizesse falta,
+          bastaria escrever scanf("%d", x). Por que o & está lá?
+        decorre: "Por hábito: é como se escreve e pronto"
+        verdade: "Porque a função precisa do endereço para alcançar x"
+        porque: >
+          scanf precisa escrever na SUA variável, e ela está noutro
+          ponto do programa. O que você entrega é o endereço — sem ele a
+          função não teria como chegar lá.
+
+      - pergunta: >
+          O ponteiro e a caixa apontada são duas coisas, cada uma no seu
+          lugar. Para alcançar a caixa de outro ponto do programa, o que
+          precisa estar na mão?
+        decorre: "Nada: basta declarar outra variável comum"
+        verdade: "O endereço daquela caixa"
+        porque: >
+          Outra variável comum seria outra caixa, noutro lugar — mexer
+          nela não mexe naquela. O que alcança a mesma caixa de longe é o
+          endereço dela, e guardar endereço é o que um ponteiro faz.
+
+    evidencia:
+      tipo: saida_definida
+      fonte: |
+        #include <stdio.h>
+        static void por_copia(int v)     { v = 99; }
+        static void por_endereco(int *v) { *v = 99; }
+        int main(void) {
+            int x = 1;
+
+            por_copia(x);
+            printf("%d\n", x);
+            por_endereco(&x);
+            printf("%d\n", x);
+            return 0;
+        }
+      comando: "gcc -std=c17 -Wall -o e6 e6.c && ./e6"
+      afirmacao: >
+        Sai 1 e depois 99. As duas funções fazem a mesma atribuição; só a
+        que recebeu o endereço alcançou a variável de quem chamou.
+      saida: |
+        1
+        99
+      origem: gravada
+      onde: >
+        gcc (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r3)
+        16.2.0, Windows 11, em 05/11/2026.
