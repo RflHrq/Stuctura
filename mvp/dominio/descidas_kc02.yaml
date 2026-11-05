@@ -354,10 +354,11 @@ descidas:
           Se os dois são apenas números, então int *p = 42; deveria ser
           tão normal quanto int n = 42;. É?
         decorre: "É: 42 é 42 nos dois casos"
-        verdade: "Não é: o compilador avisa"
+        verdade: "Não é: o compilador recusa também esta"
         porque: >
-          O compilador trata os dois casos de maneira diferente, porque um
-          é um número e o outro é um endereço com tipo.
+          O compilador recusa a linha, como recusou a outra. Para ele um
+          número e um endereço com tipo não se trocam em direção nenhuma.
+          Rodado: int *p = 42 sai com error, nao com aviso.
 
       - pergunta: >
           Quem sabe que p aponta para um int é o compilador, que leu
