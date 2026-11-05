@@ -48,6 +48,8 @@ descidas:
           Vamos levar a sua ideia a sério. Se o computador acha a variável
           pelo nome dela, então o nome precisa existir enquanto o programa
           roda. O executável guarda os nomes que você escreveu?
+        funcao: explicitar
+        requer: [compilacao]
         decorre: "Guarda: é por eles que ele acha cada variável"
         verdade: "Não guarda: o nome some na compilação"
         porque: >
@@ -58,6 +60,8 @@ descidas:
       - pergunta: >
           Se é o nome que localiza, então &idade devolveria o nome.
           O que você consegue imprimir com %p?
+        funcao: confrontar
+        requer: [operador_endereco, printf_ponteiro]
         decorre: "O nome: a palavra idade"
         verdade: "Um número, em hexadecimal"
         porque: >
@@ -68,6 +72,8 @@ descidas:
           Com int *p = &idade; e depois *p = 31;, a variável muda de
           20 para 31. A palavra idade não aparece nessa linha. Como ela
           foi alcançada?
+        funcao: confrontar
+        requer: [operador_endereco, derreferencia]
         decorre: "Pelo nome: o compilador entendeu quem era"
         verdade: "Pelo número que estava guardado em p"
         porque: >
@@ -80,6 +86,8 @@ descidas:
           Um ponteiro guarda alguma coisa dentro dele. Se número de lugar
           é detalhe do compilador e não existe em tempo de execução, o que
           estaria dentro de p?
+        funcao: reconstruir
+        requer: [ponteiro, endereco]
         decorre: "O nome da variável, em texto"
         verdade: "O número do lugar — o endereço"
         porque: >
@@ -123,6 +131,8 @@ descidas:
           Vamos levar a sua ideia a sério. Se o ponteiro é só a seta que
           liga uma caixa à outra, então ele não ocupa espaço. O que
           sizeof p deveria dar?
+        funcao: explicitar
+        requer: [sizeof]
         decorre: "Nada ou zero: seta não tem tamanho"
         verdade: "Um tamanho, como o de qualquer variável"
         porque: >
@@ -132,6 +142,8 @@ descidas:
       - pergunta: >
           Se p não ocupa lugar, então ele não tem endereço próprio e
           &p não teria o que devolver. Tem o que devolver?
+        funcao: confrontar
+        requer: [operador_endereco]
         decorre: "Não tem: a seta não fica em lugar nenhum"
         verdade: "Tem: &p devolve o endereço da caixa p"
         porque: >
@@ -142,6 +154,8 @@ descidas:
           Se p não tivesse endereço próprio, int **pp = &p; não poderia
           existir, porque não haveria endereço de p para guardar.
           Compila?
+        funcao: confrontar
+        requer: [ponteiro_de_ponteiro, operador_endereco]
         decorre: "Não compila: não há endereço de p"
         verdade: "Compila, e **pp chega ao valor original"
         porque: >
@@ -151,6 +165,8 @@ descidas:
       - pergunta: >
           Tudo que está guardado na memória ocupa um lugar, e lugar tem
           número. p está guardado na memória?
+        funcao: reconstruir
+        requer: [endereco]
         decorre: "Não está: ele é a ligação entre duas caixas"
         verdade: "Está: p é uma caixa como as outras"
         porque: >
@@ -199,6 +215,8 @@ descidas:
           Vamos levar a sua ideia a sério. Com int x = 42; e
           int *p = &x;, se o que está dentro de p é o valor, então
           dentro de p está 42. Para que serviria o * em *p?
+        funcao: explicitar
+        requer: [derreferencia, operador_endereco]
         decorre: "Para nada: p já é o valor"
         verdade: "Para ir até o lugar e pegar o que está lá"
         porque: >
@@ -208,6 +226,8 @@ descidas:
       - pergunta: >
           Se dentro de p está o 42, mudar x depois não deveria mexer em p.
           Com x = 7; e sem tocar em p, o que *p passa a mostrar?
+        funcao: confrontar
+        requer: [derreferencia]
         decorre: "42: p guardou uma cópia"
         verdade: "7: p acompanha x"
         porque: >
@@ -217,6 +237,8 @@ descidas:
       - pergunta: >
           Se p guardasse o valor, p == &x seria falso, porque um valor
           não é um endereço. É falso?
+        funcao: confrontar
+        requer: [operador_endereco, comparacao_de_ponteiros]
         decorre: "É falso: são coisas de natureza diferente"
         verdade: "É verdadeiro: p é igual ao endereço de x"
         porque: >
@@ -226,6 +248,8 @@ descidas:
       - pergunta: >
           Cada lugar da memória tem um número que o identifica. Se o que
           está dentro de p não é o valor, o que resta ele guardar?
+        funcao: reconstruir
+        requer: [endereco, ponteiro]
         decorre: "Uma cópia do conteúdo, de outro jeito"
         verdade: "O número do lugar onde o valor mora"
         porque: >
@@ -270,6 +294,8 @@ descidas:
           Vamos levar a sua ideia a sério. Com int x = 1, y = 2; e
           int *p = &x;, se mexer em p é mexer no apontado, então
           p = &y; deveria mudar o valor de x. Muda?
+        funcao: explicitar
+        requer: [operador_endereco, ponteiro]
         decorre: "Muda: p e x são a mesma coisa"
         verdade: "Não muda: x continua 1"
         porque: >
@@ -279,6 +305,8 @@ descidas:
       - pergunta: >
           Agora o contrário: *p = 9;. Se são a mesma coisa, isso
           deveria mudar p também — o endereço guardado nele. Muda?
+        funcao: confrontar
+        requer: [derreferencia]
         decorre: "Muda: a alteração atinge os dois"
         verdade: "Não: muda y, e p continua apontando para y"
         porque: >
@@ -288,6 +316,8 @@ descidas:
       - pergunta: >
           Se p e o apontado são um só, &p e &x dariam o mesmo número,
           porque uma coisa só está num lugar só. Dão?
+        funcao: confrontar
+        requer: [operador_endereco]
         decorre: "Dão: é a mesma coisa, logo o mesmo lugar"
         verdade: "Não dão: são dois lugares diferentes"
         porque: >
@@ -298,6 +328,8 @@ descidas:
           Um ponteiro é uma variável: ocupa um lugar e tem endereço
           próprio. Se p tem lugar próprio e x tem lugar próprio, quantas
           caixas existem?
+        funcao: reconstruir
+        requer: [endereco, ponteiro]
         decorre: "Uma: duas maneiras de falar da mesma"
         verdade: "Duas, cada uma no seu lugar"
         porque: >
@@ -344,6 +376,8 @@ descidas:
           Vamos levar a sua ideia a sério. Se ponteiro é só um número
           inteiro, então int n; n = p; deveria compilar sem reclamação,
           como qualquer atribuição entre inteiros. Compila?
+        funcao: explicitar
+        requer: [atribuicao_entre_tipos, compilacao]
         decorre: "Compila: número recebe número"
         verdade: "O compilador recusa"
         porque: >
@@ -353,6 +387,8 @@ descidas:
       - pergunta: >
           Se os dois são apenas números, então int *p = 42; deveria ser
           tão normal quanto int n = 42;. É?
+        funcao: confrontar
+        requer: [atribuicao_entre_tipos, compilacao]
         decorre: "É: 42 é 42 nos dois casos"
         verdade: "Não é: o compilador recusa também esta"
         porque: >
@@ -363,6 +399,8 @@ descidas:
       - pergunta: >
           Quem sabe que p aponta para um int é o compilador, que leu
           int *p. Em tempo de execução, o que viaja junto do endereço?
+        funcao: confrontar
+        requer: [tipo_do_ponteiro, compilacao]
         decorre: "O tipo: o endereço carrega essa informação"
         verdade: "Nada: só o número viaja"
         porque: >
@@ -373,6 +411,8 @@ descidas:
       - pergunta: >
           O valor guardado num ponteiro é um endereço. Um endereço é um
           número solto, igual a qualquer outro inteiro?
+        funcao: reconstruir
+        requer: [endereco, tipo_do_ponteiro]
         decorre: "É: um número é um número"
         verdade: "Não: é um endereço, e o compilador sabe de quê"
         porque: >
@@ -428,6 +468,8 @@ descidas:
           Vamos levar a sua ideia a sério. Se variável comum faz o mesmo,
           então uma função que recebe int v consegue mudar a variável de
           quem chamou. Consegue?
+        funcao: explicitar
+        requer: [funcao_com_parametro]
         decorre: "Consegue: é a mesma variável lá dentro"
         verdade: "Não consegue: ela recebeu uma cópia"
         porque: >
@@ -437,6 +479,8 @@ descidas:
       - pergunta: >
           Você já usou scanf("%d", &x). Se o & não fizesse falta,
           bastaria escrever scanf("%d", x). Por que o & está lá?
+        funcao: confrontar
+        requer: [scanf, operador_endereco]
         decorre: "Por hábito: é como se escreve e pronto"
         verdade: "Porque a função precisa do endereço para alcançar x"
         porque: >
@@ -448,6 +492,8 @@ descidas:
           O ponteiro e a caixa apontada são duas coisas, cada uma no seu
           lugar. Para alcançar a caixa de outro ponto do programa, o que
           precisa estar na mão?
+        funcao: reconstruir
+        requer: [endereco, ponteiro]
         decorre: "Nada: basta declarar outra variável comum"
         verdade: "O endereço daquela caixa"
         porque: >

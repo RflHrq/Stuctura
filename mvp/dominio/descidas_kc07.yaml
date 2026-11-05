@@ -30,6 +30,8 @@ descidas:
           Vamos levar a sua ideia a sério. Se array e ponteiro são a mesma
           coisa, então o nome a guarda um endereço dentro dele, como p
           guarda?
+        funcao: explicitar
+        requer: [array, ponteiro]
         decorre: "Guarda: a aponta para a primeira casa"
         verdade: "Não guarda: a é o conjunto das casas"
         porque: >
@@ -40,6 +42,8 @@ descidas:
       - pergunta: >
           Se o nome a guarda um endereço como p guarda, então sizeof a
           deveria medir esse endereço. Mede?
+        funcao: confrontar
+        requer: [sizeof, array]
         decorre: "Mede: dá o tamanho de um ponteiro"
         verdade: "Não: mede as cinco caixas juntas"
         porque: >
@@ -49,6 +53,8 @@ descidas:
       - pergunta: >
           Se são a mesma coisa, então a = p deveria compilar, do mesmo
           jeito que p = a compila. Compila?
+        funcao: confrontar
+        requer: [atribuicao_entre_tipos, compilacao, array]
         decorre: "Compila: um recebe o outro"
         verdade: "Não compila: só p = a compila"
         porque: >
@@ -63,6 +69,8 @@ descidas:
       - pergunta: >
           int a[5] cria cinco caixas grudadas, e int *p cria uma caixa
           só. Cinco caixas e uma caixa são a mesma coisa?
+        funcao: reconstruir
+        requer: [array, ponteiro]
         decorre: "São: o resto é detalhe"
         verdade: "Não são: cinco caixas não são uma caixa"
         porque: >

@@ -44,8 +44,54 @@ ALVO = "I3"                      # o nó que ela nega
 COLIDE = "B1"                    # a premissa com que o último degrau colide
 
 
+@pytest.fixture(scope="module", autouse=True)
+def inventario_de_teste(tmp_path_factory):
+    """UM MUNDO PEDAGÓGICO ARTIFICIAL, e só para este arquivo.
+
+    Estes testes exercitam o MECANISMO da descida — fechamento,
+    profundidade, retomada, o "não sei". Eles não medem disponibilidade
+    de conteúdo, e não podem ficar reféns dela: o inventário de verdade
+    (`mvp/dominio/conceitos.yaml`) começa VAZIO de propósito, e com ele
+    vazio nenhuma cadeia é acionada.
+
+    O PRINCÍPIO QUE GOVERNA ISTO, e que vale para qualquer fixture
+    futura do mesmo tipo: um teste pode criar um mundo pedagógico
+    explícito para exercitar o mecanismo, e **nunca** pode transformar
+    esse mundo artificial em evidência de que a disciplina ensinou
+    aquilo. Nada daqui vaza para o inventário real — é arquivo
+    temporário, apontado por `STRUCTURA_CONCEITOS` e desfeito no fim.
+
+    O portão continua sendo testado contra o inventário de verdade, em
+    `mvp/test_prerequisito.py`, inclusive com um percurso de sessão
+    inteira que confirma que a descida NÃO é acionada com ele vazio.
+    """
+    from mvp import conceitos
+
+    # Exatamente o que a cadeia do kc_07 exige, e nada mais: um
+    # inventário de teste generoso esconderia um requisito esquecido.
+    entradas = ("array", "ponteiro", "sizeof", "atribuicao_entre_tipos",
+                "compilacao")
+    corpo = ["conceitos:"]
+    for c in entradas:
+        corpo += ["  %s:" % c,
+                  "    nome: %s (mundo de teste)" % c,
+                  "    status: disponivel",
+                  "    introduzido_em: teste",
+                  "    evidencia: fixture de mvp/test_descida.py — NAO e"
+                  " evidencia curricular"]
+    p = tmp_path_factory.mktemp("inventario") / "conceitos.yaml"
+    p.write_text("\n".join(corpo) + "\n", encoding="utf-8")
+
+    mp = pytest.MonkeyPatch()
+    mp.setenv("STRUCTURA_CONCEITOS", str(p))
+    conceitos.recarrega()
+    yield
+    mp.undo()
+    conceitos.recarrega()
+
+
 @pytest.fixture(scope="module")
-def d():
+def d(inventario_de_teste):
     return carrega(topico="kc_07")
 
 

@@ -41,8 +41,50 @@ tem_gcc = pytest.mark.skipif(not oraculo.GCC.exists(),
                              reason="sem compilador em %s" % oraculo.GCC)
 
 
+@pytest.fixture(scope="module", autouse=True)
+def inventario_de_teste(tmp_path_factory):
+    """UM MUNDO PEDAGÓGICO ARTIFICIAL, e só para este arquivo.
+
+    Mesma fixture de `test_descida.py`, e de propósito duplicada em vez
+    de escondida num conftest: cada arquivo declara o mundo em que roda,
+    e quem lê um teste daqui vê o mundo dele sem procurar noutro lugar.
+
+    O PRINCÍPIO: um teste pode criar um mundo pedagógico explícito para
+    exercitar o MECANISMO, e nunca pode transformar esse mundo artificial
+    em evidência de que a disciplina ensinou aquilo. Nada daqui vaza — é
+    arquivo temporário, apontado por `STRUCTURA_CONCEITOS` e desfeito no
+    fim. O inventário de verdade continua vazio, e o portão é cobrado
+    contra ele em `mvp/test_prerequisito.py`, inclusive com uma sessão
+    inteira que confirma que a descida não é acionada.
+    """
+    from mvp import conceitos
+
+    entradas = ("compilacao", "operador_endereco", "printf_ponteiro",
+                "derreferencia", "ponteiro", "endereco", "sizeof",
+                "ponteiro_de_ponteiro", "comparacao_de_ponteiros",
+                "atribuicao_entre_tipos", "tipo_do_ponteiro",
+                "funcao_com_parametro", "scanf")
+    corpo = ["conceitos:"]
+    for c in entradas:
+        corpo += ["  %s:" % c,
+                  "    nome: %s (mundo de teste)" % c,
+                  "    status: disponivel",
+                  "    introduzido_em: teste",
+                  "    evidencia: fixture de mvp/test_descida_kc02.py — NAO"
+                  " e evidencia curricular"]
+    p = tmp_path_factory.mktemp("inventario") / "conceitos.yaml"
+    p.write_text("\n".join(corpo) + "\n", encoding="utf-8")
+
+    mp = pytest.MonkeyPatch()
+    mp.setenv("STRUCTURA_CONCEITOS", str(p))
+    conceitos.recarrega()
+    yield
+    mp.undo()
+    conceitos.recarrega()
+
+
 @pytest.fixture(scope="module")
-def d():
+def d(inventario_de_teste):
     return carrega(topico="kc_02")
 
 

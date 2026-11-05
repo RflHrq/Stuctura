@@ -2776,3 +2776,116 @@ dela. Pela decisão 13 — *o falso positivo é contado à pessoa, porque
 calar desperdiça o único momento em que ela percebe a própria rota
 torta* — o argumento simétrico diria que a fragilidade também deveria
 ser contada. Não mexi: é regra de interface e de instrumento.
+
+## O portão de pré-requisito, e um princípio sobre o que um teste pode criar
+
+**O princípio, e ele vale para o projeto inteiro:**
+
+> Um teste pode criar mundos pedagógicos explícitos para exercitar o
+> mecanismo, mas nunca pode transformar esses mundos artificiais em
+> evidência de que o conteúdo foi ensinado na disciplina real.
+
+### A medição que obrigou o portão
+
+Atravessando o kc_02 como participante, e depois medindo nas 180
+detecções de crença da varredura:
+
+| | |
+| --- | --- |
+| Detecções no **nível 1** | **135 de 180** |
+| Depois de **um erro só** | 99 |
+| `sizeof`, no tópico | só em item de **nível 2** |
+| `int **`, no tópico | só em item de **nível 3** |
+| `scanf` | **em lugar nenhum** |
+
+A pessoa cai na descida antes de encontrar qualquer um dos três, e
+responde no chute um degrau que deveria medir a crença dela.
+
+**"Está no material" era o critério errado, e era o meu.** O certo tem
+duas partes: o recurso aparece no tópico, **e** aparece em ENSINO. Item
+de prova não autoriza o uso numa cadeia de recuperação — é por isso que
+`so_avaliado` é um estado próprio e não um sinônimo de disponível.
+
+### Os quatro estados, e a lista que começa vazia
+
+`disponivel` · `so_avaliado` · `nao_introduzido` · `desconhecido`
+
+O padrão é **desconhecido**: id que ninguém declarou não libera nada,
+senão errar o nome do conceito viraria autorização. E
+`mvp/dominio/conceitos.yaml` começa **vazio**, de propósito — com ele
+vazio as sete cadeias ficam bloqueadas e o sistema cai na refutação
+afirmativa em todo lugar. Uma lista preenchida por suposição faria o
+portão medir a suposição de quem a escreveu sobre a ementa da
+disciplina.
+
+Cada entrada liberada carrega `introduzido_em` e `evidencia`: a
+rastreabilidade é o que separa isto de uma lista de desejos, e há teste
+cobrando as duas.
+
+### O esquema do degrau
+
+Cada degrau declara a **função pedagógica** — `explicitar`, `confrontar`
+ou `reconstruir` — e os conceitos que **requer**. A carga recusa o que
+não declarar, e cobra duas coisas de cada cadeia: o último degrau tem de
+ser `reconstruir`, e algum degrau tem de `confrontar`.
+
+As duas regras têm motivo. Terminar na contradição deixa a pessoa
+sabendo que a ideia dela não fecha e sem nenhuma no lugar — que é o
+estado em que uma crença volta, não o estado em que ela é trocada. E só
+explicitar e reconstruir é uma aula, não uma refutação.
+
+`requer: []` é declaração válida; `requer` ausente é erro. A diferença
+importa: lista vazia diz "nada além do que o tópico ensina", campo
+ausente diz que ninguém decidiu.
+
+### O que isso custou, e por que não foi afrouxado
+
+Ligar o portão derrubou **20 dos 31 testes de `test_descida.py`** — todos
+de MECANISMO, nenhum por defeito. Eles exercitam fechamento,
+profundidade, retomada e o "não sei", e ficaram reféns da
+disponibilidade de conteúdo, que é outra responsabilidade.
+
+A saída **não** foi afrouxar o portão nem preencher o inventário. Foi dar
+aos testes de mecanismo um inventário próprio, por
+`STRUCTURA_CONCEITOS`, declarado numa fixture rotulada como mundo
+artificial, com o aviso de que não é evidência curricular. **Nenhuma
+asserção existente mudou.**
+
+E o portão continua cobrado contra o inventário de verdade, em
+`mvp/test_prerequisito.py`: inventário vazio bloqueia as seis, conceito
+só avaliado não libera, conceito não introduzido bloqueia, inventário
+incompleto não libera, e inventário completo libera **só** a cadeia
+autorizada. Mais um teste de integração que percorre uma sessão inteira
+com a descida ligada e o inventário real vazio, e confirma que nenhum
+evento de descida aparece — é ele que garante que a fixture não virou
+liberação implícita em algum ponto do caminho.
+
+### O que o ciclo de recuperação JÁ fazia, medido
+
+A pergunta era se o sistema faz: erro → cadeia de confronto → **questão
+de transferência** → desfecho. Faz, e o reteste é transferência de
+verdade:
+
+| | |
+| --- | --- |
+| Retestes medidos | 180 |
+| Com o **mesmo item** que disparou o erro | **0** |
+| Com **formato diferente** | 173 |
+| Nível | sempre **sobe**: 1→2 (87), 1→3 (67), 2→3 (26) |
+| Distância do erro | 96 a 316 eventos, mediana 186 |
+
+E os três desfechos já são distinguíveis no log, pelos campos `correta`,
+`razao_correta` e `voltou`: acertou, errou pela mesma crença, errou por
+outro motivo.
+
+### O que falta, e é o próximo
+
+Distinguir, **na resposta da pessoa**, "não conheço este recurso" de
+"continuo acreditando". Hoje as duas viram o mesmo registro, e são
+diagnósticos opostos: um pede ensino, o outro pede refutação. O `não
+sei` da descida existe, mas conflata as duas.
+
+E o degrau do `scanf` continua escrito. A decisão do dono foi substituí-lo
+por uma situação feita com recurso já ensinado — o que exige o inventário
+preenchido, que ainda não existe. Até lá o portão o bloqueia junto com o
+resto.

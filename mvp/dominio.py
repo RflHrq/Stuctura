@@ -17,6 +17,8 @@ from typing import Mapping
 
 import yaml
 
+from mvp import conceitos
+
 RAIZ = Path(__file__).resolve().parent / "dominio"
 
 # O tópico que uma execução carrega. UM por processo: o motor é de uma
@@ -200,6 +202,15 @@ class Passo:
     decorre: str
     verdade: str
     porque: str
+    # A FUNÇÃO PEDAGÓGICA: explicitar, confrontar ou reconstruir.
+    # Declarar obriga quem escreve a responder "o que esta pergunta faz?"
+    # antes de escrevê-la, e um degrau que não faz nenhuma das três
+    # provavelmente é dispensável.
+    funcao: str = ""
+    # OS CONCEITOS QUE O DEGRAU EXIGE. Tupla vazia é declaração válida —
+    # quer dizer "nada além do que o tópico ensina". O que não vale é o
+    # campo não existir, porque aí ninguém decidiu.
+    requer: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -225,6 +236,9 @@ class Descida:
     colide_com: str
     passos: tuple[Passo, ...]
     evidencia: Evidencia
+    # Se os requisitos de TODO degrau estão disponíveis. Cadeia bloqueada
+    # existe no domínio e não é entregue ao motor: ver `Dominio.descida`.
+    liberada: bool = False
 
 
 @dataclass(frozen=True)
@@ -275,8 +289,14 @@ class Dominio:
         Tópico sem descida nenhuma continua funcionando: o motor cai na
         refutação de sempre. É o que torna o protótipo de UMA crença
         possível sem tocar nas outras setenta e oito.
+
+        E CADEIA BLOQUEADA NÃO SAI DAQUI. Se algum degrau exige conceito
+        que o inventário não dá como ensinado, a cadeia não é entregue, e
+        o motor cai na mesma refutação afirmativa de um tópico sem cadeia
+        escrita. O portão tem de estar no caminho, e não só no relatório.
         """
-        return self.descidas.get(crenca or "")
+        d = self.descidas.get(crenca or "")
+        return d if (d is not None and d.liberada) else None
 
     @property
     def ordem(self) -> tuple[str, ...]:
@@ -600,11 +620,41 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
             if faltam:
                 problemas.append("%s, degrau %d: falta %s"
                                  % (onde, i, ", ".join(faltam)))
+            funcao = str(p.get("funcao") or "")
+            if funcao not in conceitos.FUNCOES:
+                problemas.append(
+                    "%s, degrau %d: funcao %r (use %s) — um degrau que não "
+                    "explicita, não confronta e não reconstrói provavelmente "
+                    "é dispensável"
+                    % (onde, i, funcao, ", ".join(conceitos.FUNCOES)))
+            # `requer` AUSENTE é erro; `requer: []` é declaração válida.
+            # A diferença importa: lista vazia diz "nada além do que o
+            # tópico ensina", e campo ausente diz que ninguém decidiu.
+            if "requer" not in p:
+                problemas.append(
+                    "%s, degrau %d: sem `requer` — declare os conceitos "
+                    "exigidos, ou [] para nenhum" % (onde, i))
+            requer = tuple(str(x) for x in (p.get("requer") or []))
             passos.append(Passo(
                 pergunta=_texto(p.get("pergunta")),
                 decorre=_texto(p.get("decorre")),
                 verdade=_texto(p.get("verdade")),
-                porque=_texto(p.get("porque"))))
+                porque=_texto(p.get("porque")),
+                funcao=funcao, requer=requer))
+
+        if passos:
+            # A cadeia não pode terminar na contradição: confrontar sem
+            # reconstruir deixa a pessoa sabendo que a ideia dela não
+            # fecha e sem nenhuma no lugar — que é o estado em que uma
+            # crença volta, não o estado em que ela é trocada.
+            if passos[-1].funcao != conceitos.RECONSTRUIR:
+                problemas.append(
+                    "%s: o último degrau é %r, e tem de ser %r"
+                    % (onde, passos[-1].funcao, conceitos.RECONSTRUIR))
+            if not any(x.funcao == conceitos.CONFRONTAR for x in passos):
+                problemas.append(
+                    "%s: nenhum degrau confronta — só explicitar e "
+                    "reconstruir é uma aula, não uma refutação" % onde)
 
         ev = bruto.get("evidencia") or {}
         if ev.get("tipo") not in TIPOS_EVIDENCIA:
@@ -641,8 +691,13 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
             problemas.append(
                 "%s: evidência pendente sem garantia — sem saída gravada, "
                 "é só isto que a tela tem de verdadeiro" % onde)
+        parcial = Descida(
+            crenca=cid, colide_com=colide, passos=tuple(passos),
+            evidencia=Evidencia(tipo="", fonte="", comando="", afirmacao="",
+                                garantia=""))
         descidas[cid] = Descida(
             crenca=cid, colide_com=colide, passos=tuple(passos),
+            liberada=conceitos.liberada(parcial),
             evidencia=Evidencia(
                 tipo=str(ev.get("tipo") or ""),
                 fonte=(ev.get("fonte") or "").strip("\n"),
