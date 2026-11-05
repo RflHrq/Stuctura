@@ -19,6 +19,8 @@ from __future__ import annotations
 
 import collections
 
+import pathlib
+
 import pytest
 
 from mvp import motor
@@ -281,10 +283,21 @@ def test_a_versao_subiu_porque_o_indice_mudou_de_significado():
     """A regra está escrita no próprio `log.py`: "sobe quando o
     significado de uma linha muda, não quando o código muda". Um índice
     em `entrada_recebida` deixou de querer dizer "posição no YAML" e
-    passou a querer dizer "posição na tela"."""
+    passou a querer dizer "posição na tela".
+
+    Este teste cobrava `VERSAO == 2`, e a v3 o derrubou — pelo motivo
+    certo: a descida passou a distinguir declarar desconhecimento de
+    manter a crença, e `escolha: "decorre"` virou `declarado:
+    "mantenho"`. Fixar o número prendia a versão de UMA fatia, quando o
+    que esta fatia garante é que a mudança da camada 1 TEM uma versão
+    própria e que nada anterior a ela reexecuta.
+    """
     from mvp import log
 
-    assert log.VERSAO == 2
+    assert log.VERSAO >= 2, "a versão da permutação não pode sumir"
+    # e a razão dela continua escrita, para quem for ler o histórico
+    fonte = pathlib.Path(log.__file__).read_text(encoding="utf-8")
+    assert "posição na tela" in fonte
 
 
 def test_sessao_v1_e_RECUSADA(d, tmp_path):

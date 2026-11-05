@@ -67,10 +67,18 @@ ENTRADA = "entrada_recebida"
 #      deixou de querer dizer "posição no YAML" e passou a querer dizer
 #      "posição na tela" — o mesmo número, outra alternativa. E
 #      `atividade_apresentada` ganhou `ordem`, a permutação mostrada.
+#   3  a descida passou a distinguir DESCONHECER de MANTER.
+#      `descida_passo` gravava `escolha: "decorre"`, que queria dizer
+#      "seguiu a crença, motivo desconhecido"; passou a gravar
+#      `declarado: "mantenho"`, que quer dizer "seguiu a crença E NÃO
+#      declarou desconhecer o recurso". Mesmo gesto, outra leitura — e
+#      sessão v2 não tem como sustentar a segunda, porque nela não havia
+#      como declarar. Entrou `descida_sem_recurso`, e o
+#      `descida_iniciada` passou a gravar os requisitos de cada degrau.
 #
 # Linha sem o campo é anterior a isto: veio do ciclo 1, e `VERSAO_ZERO`
 # é como ela aparece na leitura.
-VERSAO = 2
+VERSAO = 3
 VERSAO_ZERO = 0
 
 CAMPOS_DA_ENTRADA = tuple(f.name for f in fields(motor.Resposta))
@@ -266,13 +274,16 @@ def reconstroi(d: motor.Dominio, sessao: str,
     # existe para impedir, e num instrumento de pesquisa isso é pior do
     # que não devolver nada.
     versao = int(abertura.get("v") or VERSAO_ZERO)
-    if versao < 2:
+    if versao < VERSAO:
         raise LogIncompleto(
-            "a sessão %r foi gravada na versão %d do log, e a %d mudou o "
-            "significado do índice de `escolha`: era posição no arquivo, "
-            "passou a ser posição na tela. Reexecutar devolveria outras "
-            "respostas, com a mesma cara das certas. O log continua "
-            "legível para análise; reexecutável, não."
+            "a sessão %r foi gravada na versão %d do log, e a %d não a "
+            "reexecuta. A v2 mudou o significado do índice de `escolha` "
+            "(era posição no arquivo, passou a ser posição na tela) e a "
+            "v3 mudou o da resposta na descida (seguir a crença deixou "
+            "de querer dizer 'motivo desconhecido' e passou a querer "
+            "dizer 'não declarou desconhecer'). Reexecutar devolveria "
+            "afirmações que a sessão não tem como sustentar. O log "
+            "continua legível para análise; reexecutável, não."
             % (sessao, versao, VERSAO))
     t = motor.inicia(d, semente=sessao)
     for i, linha in enumerate(entradas, 1):

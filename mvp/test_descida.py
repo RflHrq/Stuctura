@@ -262,7 +262,10 @@ def test_seguir_a_propria_crenca_anda_na_cadeia(d, ligada):
         assert t.tela.tipo == "descida"
         assert t.tela.dados["passo"] == passo + 1
         passos = [e for e in t.eventos if e.tipo == "descida_passo"]
-        assert passos and passos[0].dados["escolha"] == "decorre"
+        # Era `escolha: "decorre"` ate a v3. O campo mudou de nome
+        # porque mudou de significado: agora quer dizer "seguiu a
+        # crenca E NAO declarou desconhecer o recurso".
+        assert passos and passos[0].dados["declarado"] == "mantenho"
         assert passos[0].dados["profundidade"] == passo
 
 

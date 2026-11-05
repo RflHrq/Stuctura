@@ -207,6 +207,10 @@ class Resposta:
     # "Não sei", em qualquer das três camadas. Não é o mesmo que não
     # responder: é uma declaração, e vale como dado.
     nao_sei: bool = False
+    # DECLARAR QUE NAO CONHECE O RECURSO e diferente de nao saber
+    # responder: um pede ensino, o outro pede investigacao. Ver o
+    # cabecalho da versao 3 em `log.py`.
+    nao_conheco: bool = False
     # Texto livre do teach-back. O sistema NÃO corrige e NÃO classifica:
     # guarda, e devolve para a própria pessoa comparar.
     texto: str = ""
@@ -284,6 +288,13 @@ class EstadoNo:
     ultimo_formato: str = ""
     ultima_atividade: str = ""
     crenca: str | None = None           # a hipótese levantada aqui
+    # A DESCIDA DAQUELA CRENCA FOI ABANDONADA NESTA SESSAO.
+    #
+    # Acontece quando a pessoa declara nao conhecer um recurso que um
+    # degrau exige. Abandonar e para a SESSAO, e nao para o momento: sem
+    # isto, uma nova deteccao da mesma crenca a devolveria a pergunta
+    # que ela acabou de dizer que nao tem como responder.
+    descida_abandonada: bool = False
     vacilou: bool = False               # errou uma vez e corrigiu sozinho
     # CS-5: formatos em que a pessoa acertou PELA RAZÃO CERTA, com
     # confiança. Confirmar exige dois diferentes — um acerto só pode ser
@@ -1284,7 +1295,11 @@ def _segue_validacao(d: Dominio, e: Estado) -> Transicao:
     possível sem mexer nas outras setenta e oito.
     """
     alvo = e.alvo or ""
-    descida = d.descida(e.no(alvo).crenca) if DESCIDA_LIGADA else None
+    # Crenca cuja descida foi abandonada nesta sessao nao volta para a
+    # descida: a pessoa declarou nao conhecer um recurso que ela exige.
+    abandonada = e.no(alvo).descida_abandonada
+    descida = (d.descida(e.no(alvo).crenca)
+               if (DESCIDA_LIGADA and not abandonada) else None)
     if descida is not None:
         return _inicia_descida(d, e, alvo, descida)
     return _inicia_refutacao(d, e, alvo)
@@ -1418,11 +1433,47 @@ DECORRE = 0
 VERDADE = 1
 
 
+def versao_da_cadeia(desc) -> str:
+    """Resumo do conteudo E DA ESTRUTURA de uma cadeia, para o log.
+
+    Derivado, e nao escrito a mao: um numero que alguem precisa lembrar
+    de subir e um numero que fica para tras — este projeto ja tem a
+    licao com a versao do log.
+
+    Entra o que muda o que a pessoa VE e o que a cadeia EXIGE: o texto
+    dos quatro campos de cada degrau, a funcao pedagogica, os requisitos
+    declarados e o no da colisao. Duas cadeias com o mesmo texto e
+    requisitos diferentes sao cadeias diferentes para a analise — uma
+    rodou exigindo um conceito que a outra nao exigia.
+    """
+    partes = [desc.crenca, desc.colide_com]
+    for p in desc.passos:
+        partes += [p.pergunta, p.decorre, p.verdade, p.porque,
+                   p.funcao, "|".join(p.requer)]
+    # O separador vai como ESCAPE, e nao como o byte literal: a
+    # primeira versao deste arquivo saiu com um 0x1F de VERDADE no
+    # meio da linha, invisivel na listagem. Quem pegou foi o guarda de
+    # bytes de controle em `test_procedimentos.py`, e nao revisao de
+    # codigo — e e a decima primeira vez nesta sessao que um escape se
+    # perde ao escrever arquivo por script.
+    sep = chr(31)
+    return hashlib.sha256(
+        sep.join(partes).encode("utf-8")).hexdigest()[:12]
+
+
 def _inicia_descida(d: Dominio, e: Estado, no: str, desc) -> Transicao:
     novo = replace(e, fase=DESCIDA, alvo=no, plano=(), passo=0, repeticoes=0)
+    # OS REQUISITOS DE CADA DEGRAU VAO PARA O LOG, um por degrau.
+    #
+    # A informacao existia no dominio desde a fatia do portao e se
+    # perdia na hora de medir: quem analisasse sabia o que a pessoa
+    # respondeu e nao sabia o que lhe foi EXIGIDO. Sem isso, nao ha como
+    # cruzar um "nao conheco" com o recurso que o degrau pedia.
     evento = Evento("descida_iniciada", {
-        "no": no, "crenca": desc.crenca, "degraus": len(desc.passos),
-        "colide_com": desc.colide_com})
+        "no": no, "crenca": desc.crenca, "cadeia": desc.crenca,
+        "versao_cadeia": versao_da_cadeia(desc),
+        "degraus": len(desc.passos), "colide_com": desc.colide_com,
+        "requer": [list(x.requer) for x in desc.passos]})
     return Transicao(novo, _tela_descida(d, novo, desc), (evento,))
 
 
@@ -1456,8 +1507,44 @@ def _responde_descida(d: Dominio, e: Estado, r: Resposta) -> Transicao:
 
     p = desc.passos[e.passo]
     ultimo = e.passo == len(desc.passos) - 1
-    base = {"no": alvo, "crenca": desc.crenca,
-            "profundidade": e.passo + 1, "total": len(desc.passos)}
+    base = {"no": alvo, "crenca": desc.crenca, "cadeia": desc.crenca,
+            "versao_cadeia": versao_da_cadeia(desc),
+            "profundidade": e.passo + 1, "total": len(desc.passos),
+            "requer": list(p.requer)}
+
+    # DECLAROU NAO CONHECER O RECURSO: a descida PARA aqui.
+    #
+    # Nao fecha, nao refuta, nao avanca a profundidade e nao grava
+    # persistencia — quem diz nao conhecer nao contradisse a propria
+    # crenca nem a sustentou. Interpretar isso como teimosia seria
+    # confundir falta de oportunidade de aprender com resistencia a
+    # mudar de ideia, que e o defeito que esta versao do log existe para
+    # impedir.
+    #
+    # E o que vem depois e ENSINO, nao a evidencia. Interromper sem
+    # oferecer nada deixaria a pessoa parada numa pergunta que ela
+    # acabou de dizer que nao tem como responder.
+    if r.nao_conheco:
+        # TRES INFORMACOES SEPARADAS, e elas nao sao a mesma coisa:
+        #
+        #   descida_sem_recurso  o RELATO do participante
+        #   cadeia_abandonada    a DECISAO OPERACIONAL do motor
+        #   o reteste adiante    a EVIDENCIA posterior
+        #
+        # Nao existe `conceito_desconhecido: true` em lugar nenhum: a
+        # pessoa declarou, e o sistema nao provou. E o abandono e
+        # marcado no NO para valer a sessao inteira — em 6 das 7
+        # cadeias nenhum conceito e comum a todos os degraus, entao
+        # voltar depois do ensino devolveria a pessoa a um degrau e nao
+        # a cadeia, com ate cinco lacunas novas adiante.
+        novo = replace(e, fase=CONSTRUCAO, construindo=alvo)
+        novo = novo.com(alvo, descida_abandonada=True)
+        return Transicao(
+            novo, _tela_construcao(d, alvo, "lacuna"),
+            (Evento("descida_sem_recurso",
+                    dict(base, declarado="nao_conheco", ms=r.ms)),
+             Evento("cadeia_abandonada",
+                    dict(base, motivo="desconhecimento_declarado"))))
 
     escolha = None if r.nao_sei else _indice(r.escolha, 2, "descida")
 
@@ -1465,7 +1552,7 @@ def _responde_descida(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         # Nem seguiu nem contradisse: a cadeia não fecha pela boca dela, e
         # inventar que fechou seria falso. Vai para o fato.
         return _evidencia(d, e, desc, (Evento("descida_sem_resposta", dict(
-            base, nao_sei=r.nao_sei, ms=r.ms)),))
+            base, declarado="nao_sei", nao_sei=r.nao_sei, ms=r.ms)),))
 
     if escolha == VERDADE:
         # A pessoa acabou de contradizer a própria crença. É o fim da
@@ -1482,10 +1569,11 @@ def _responde_descida(d: Dominio, e: Estado, r: Resposta) -> Transicao:
             "no_fim": ultimo,
         })
         return Transicao(novo, tela, (Evento("descida_fechou",
-                                             dict(base, no_fim=ultimo,
+                                             dict(base, declarado="verdade",
+                                                  no_fim=ultimo,
                                                   ms=r.ms)),))
 
-    eventos = (Evento("descida_passo", dict(base, escolha="decorre",
+    eventos = (Evento("descida_passo", dict(base, declarado="mantenho",
                                             ms=r.ms)),)
     if not ultimo:
         novo = replace(e, passo=e.passo + 1)
