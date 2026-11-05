@@ -273,18 +273,33 @@ def test_com_o_inventario_real_a_descida_nao_e_acionada(monkeypatch):
     garante que a fixture do `test_descida.py` não virou liberação
     implícita em algum lugar do caminho.
 
-    A primeira versão afirmava `inventario == {}`, que era um atalho
-    válido enquanto o inventário estava vazio. Depois da auditoria de
-    05/11 ele tem 14 entradas e continua não liberando nenhuma cadeia —
-    o atalho virou letra errada de um espírito certo. O que importa não
-    é o inventário estar vazio: é nenhuma cadeia estar liberada.
+    DUAS VEZES ESTE TESTE PRECISOU SER REPENSADO, e as duas estão aqui
+    porque a forma dele conta a história do portão.
+
+    A primeira versão afirmava `inventario == {}` — atalho válido
+    enquanto o inventário estava vazio, e letra errada depois da
+    auditoria, que o encheu de 14 entradas sem liberar nada.
+
+    A segunda afirmava que NENHUMA cadeia estava liberada, e caiu no dia
+    em que a primeira foi — a `pointer_and_target_are_one`, depois de o
+    cartão B3 passar a ensinar desreferência e o dono aprovar a
+    liberação. Cair ali era o trabalho dela: liberação sem ninguém
+    perceber é exatamente o que o portão existe para impedir.
+
+    A terceira forma é a que resiste às duas: o conjunto liberado é
+    EXATAMENTE o auditado. Liberar outra sem passar pela auditoria
+    derruba este teste, e bloquear uma que já passou também.
     """
     conceitos.recarrega()
     monkeypatch.setattr(motor, "DESCIDA_LIGADA", True)
     d = carrega(topico="kc_02")
-    assert [c for c, de in d.descidas.items() if de.liberada] == [], (
-        "alguma cadeia foi liberada: este teste precisa ser repensado, "
-        "porque ele existe para o caso em que nenhuma está")
+
+    # O que a auditoria de 05/11/2026 liberou, e só isto.
+    auditadas = {"pointer_and_target_are_one"}
+    liberadas = {c for c, de in d.descidas.items() if de.liberada}
+    assert liberadas == auditadas, (
+        "liberadas a mais: %s · bloqueadas que deveriam rodar: %s"
+        % (sorted(liberadas - auditadas), sorted(auditadas - liberadas)))
 
     def politica(tela, estado):
         if tela.tipo == "frase":
@@ -303,15 +318,33 @@ def test_com_o_inventario_real_a_descida_nao_e_acionada(monkeypatch):
         return motor.Resposta(escolha=i, ms=10)
 
     t = motor.inicia(d, semente="P01")
-    tipos = [e.tipo for e in t.eventos]
+    eventos = list(t.eventos)
     for _ in range(400):
         if t.tela.tipo == "mapa":
             break
         t = motor.avanca(d, t.estado, politica(t.tela, t.estado))
-        tipos += [e.tipo for e in t.eventos]
+        eventos += list(t.eventos)
     else:
         raise AssertionError("a unidade não terminou")
+    tipos = [e.tipo for e in eventos]
 
-    da_descida = [x for x in tipos if x.startswith("descida_")]
-    assert da_descida == [], da_descida
-    assert "refutacao_iniciada" in tipos, "nem descida, nem refutação"
+    # A sessão tem de produzir refutação. Qual das duas — a afirmativa
+    # ou a descida — depende de qual crença foi detectada, e isso varia
+    # com a semente; o que não pode é não haver nenhuma.
+    assert "refutacao_iniciada" in tipos or "descida_iniciada" in tipos, (
+        "a sessão não refutou de jeito nenhum")
+
+    # E TODA descida que aconteceu tem de ser de cadeia liberada.
+    #
+    # A conferência é pelo NÓ do evento, e não pelo tipo: o tipo é
+    # sempre `descida_iniciada`, e comparar tipos não distinguiria uma
+    # cadeia liberada de uma bloqueada. A primeira versão desta checagem
+    # comparava contra uma string que nunca existe — passava sempre, e
+    # não testava nada.
+    por_no = {d.crencas[c].nega.split(":")[-1]: c for c in d.descidas}
+    for ev in eventos:
+        if ev.tipo != "descida_iniciada":
+            continue
+        cid = por_no.get(ev.dados.get("no"))
+        assert cid and d.descidas[cid].liberada, (
+            "desceu numa cadeia bloqueada: %s" % ev.dados)

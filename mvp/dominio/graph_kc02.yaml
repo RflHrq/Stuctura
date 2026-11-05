@@ -69,24 +69,41 @@ nodes:
     # Este campo e lido SO pela tela de ensino. O `plain_text` nao foi
     # esticado porque ele aparece em sete telas, e numa delas e a
     # alternativa certa da camada 2.
+    # REVISAO DE 05/11/2026, duas mudancas e os dois motivos:
+    #
+    # 1. A explicacao de &x subiu para o primeiro paragrafo. O aluno
+    #    encontra &x na PRIMEIRA linha do exemplo e so recebia a
+    #    explicacao no quarto paragrafo — quem parasse de ler antes do
+    #    fim levava a distincao p x *p e nao a de &x.
+    #
+    # 2. "O asterisco e o caminho de volta" deixou de ficar sozinho. A
+    #    metafora e intuitiva e sugere que * simplesmente desfaz o &, o
+    #    que nao vale em qualquer contexto. Ela some, e no lugar fica o
+    #    que * faz: acessa o conteudo do lugar apontado.
+    #
+    # E a acentuacao foi consertada. O texto nasceu sem acento nenhum —
+    # "endereco", "numero", "nao" — enquanto todo o resto do material e
+    # portugues correto. Foi confusao minha entre a regra da CRASE (o
+    # caractere de acento grave, que o cliente escreveria literalmente
+    # na tela) e a acentuacao normal, que e obrigatoria.
     interpretation: >
-      Se o que esta dentro de p e o endereco de x, entao da para ir ate
-      la. O asterisco e o caminho de volta: *p nao e p, e vai ao lugar
-      cujo numero esta guardado em p.
+      Se o que está dentro de p é o endereço de x, então dá para ir até
+      lá. O operador & obtém o endereço de uma variável: &x é o endereço
+      de x. O asterisco permite acessar o conteúdo do lugar cujo
+      endereço está guardado em p: *p não é p.
 
 
-      Lendo: *p mostra 42, que e o valor que mora em x. Repare que p
-      sozinho nao serve — p e o numero do lugar, e *p e o que esta
-      naquele lugar.
+      Lendo: *p mostra 42, que é o valor que mora em x. Repare que p
+      sozinho não serve para obter esse conteúdo: p guarda o número do
+      lugar, enquanto *p acessa o que está naquele lugar.
 
 
-      Escrevendo: *p = 7 nao muda p. Muda o que esta guardado no lugar
-      apontado, e por isso x passa a valer 7 sem a letra x aparecer na
-      linha.
+      Escrevendo: *p = 7 não muda p. Muda o conteúdo do objeto apontado,
+      e por isso x passa a valer 7 sem a letra x aparecer na linha.
 
 
-      Tres expressoes, tres coisas: &x e o endereco de x; p guarda esse
-      endereco; *p e o conteudo que mora nele.
+      Três expressões, três coisas: &x é o endereço de x; p guarda esse
+      endereço; *p acessa o conteúdo que mora naquele lugar.
 
   I1:
     type: inferencia

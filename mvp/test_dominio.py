@@ -13,6 +13,7 @@ o teste falha pelo motivo que diz, e não porque esqueci uma chave.
 from __future__ import annotations
 
 import copy
+import re
 from pathlib import Path
 
 import pytest
@@ -576,6 +577,62 @@ def test_nenhum_texto_de_tela_usa_crase(topico):
     com_crase = [(onde, texto) for onde, texto in textos_de_tela(d)
                  if "`" in (texto or "")]
     assert not com_crase, com_crase
+
+
+# Palavras que NAO EXISTEM assim em portugues. A lista e curta de
+# proposito: nao e corretor ortografico, e o que ela pega e o texto de
+# tela escrito em ASCII por descuido.
+#
+# Cada entrada e comparada com BORDA DE PALAVRA. A primeira versao
+# comparava substring e acusou "dela." por conter "la." — criterio burro
+# da falso positivo e ensina quem vier depois a desligar o teste.
+DIVIDA_DE_ACENTO = {"kc_00": 44}
+
+SEM_ACENTO = ("nao", "ate", "tres", "voce", "entao", "endereco",
+              "enderecos", "numero", "numeros", "conteudo", "conteudos",
+              "variavel", "variaveis", "memoria", "codigo", "funcao",
+              "funcoes", "expressao", "expressoes", "proprio", "propria")
+
+
+@pytest.mark.parametrize("topico", topicos())
+def test_nenhum_texto_de_tela_perde_a_acentuacao(topico):
+    """A regra irma da crase, e nasceu do mesmo jeito: vendo na tela.
+
+    A ampliacao do B3 nasceu inteira em ASCII — "Se o que esta dentro de
+    p e o endereco de x" — enquanto o resto do material e portugues
+    correto. Foi confusao entre duas coisas de nome parecido: a CRASE
+    proibida e o caractere de acento grave, que o cliente escreveria
+    literalmente na tela porque usa textContent. Acento normal nao so e
+    permitido como e obrigatorio: o texto vai para a cara de um
+    estudante.
+
+    O CODIGO FICA DE FORA, e de proposito. Comentario em C se escreve
+    sem acento neste projeto por convencao, e os exemplos de todos os
+    treze topicos seguem isso.
+    """
+    d = carrega(topico=topico)
+    maus = []
+    for onde, texto in textos_de_tela(d):
+        # CODIGO FICA DE FORA: comentario em C se escreve sem acento
+        # neste projeto, por convencao, e a saida de compilador e o que
+        # o compilador escreveu — nao ha o que acentuar ali.
+        if (onde.startswith("exemplos/") or onde.endswith("/codigo")
+                or "/evidencia/fonte" in onde or "/evidencia/saida" in onde):
+            continue
+        for palavra in SEM_ACENTO:
+            if re.search(r"\b%s\b" % palavra, (texto or "").lower()):
+                maus.append((onde, palavra))
+    # DIVIDA DECLARADA, e fixada no numero exato.
+    #
+    # O kc_00 inteiro foi escrito em ASCII — titulo, premissas, teachback.
+    # Nao e descuido de uma linha: e um topico escrito assim desde o
+    # comeco. Consertar e passada de conteudo, e o kc_00 nao e o topico
+    # do piloto.
+    #
+    # Fica PINADO no numero: se crescer, o teste cai; se alguem
+    # consertar, o teste tambem cai e cobra a atualizacao da divida. O
+    # que nao pode e divida crescer em silencio.
+    assert len(maus) == DIVIDA_DE_ACENTO.get(topico, 0), maus
 
 
 # --------------------------------------------------------------------------

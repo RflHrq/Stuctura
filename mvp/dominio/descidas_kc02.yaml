@@ -394,7 +394,7 @@ descidas:
         porque: >
           O compilador recusa a linha, como recusou a outra. Para ele um
           número e um endereço com tipo não se trocam em direção nenhuma.
-          Rodado: int *p = 42 sai com error, nao com aviso.
+          Rodado: int *p = 42 sai com erro, e não com aviso.
 
       - pergunta: >
           Quem sabe que p aponta para um int é o compilador, que leu

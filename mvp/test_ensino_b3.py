@@ -174,17 +174,41 @@ def test_no_sem_ampliacao_continua_carregando(topico):
 # E NÃO libera cadeia nenhuma
 # --------------------------------------------------------------------------
 
-def test_ampliar_o_b3_nao_libera_cadeia(d):
-    """A condição do dono: a liberação é decisão à parte, depois da
-    auditoria do conteúdo final. Escrever o cartão não é auditá-lo."""
-    assert [c for c, de in d.descidas.items() if de.liberada] == []
+def test_a_liberacao_da_derreferencia_aponta_para_este_cartao():
+    """Estes dois testes afirmavam o contrário até 05/11/2026, e a troca
+    é parte do registro.
+
+    Enquanto o cartão estava escrito e não auditado, eles cobravam que
+    `derreferencia` continuasse `so_avaliado` e que nenhuma cadeia
+    estivesse liberada — existiam para impedir o autor de liberar o que
+    o autor acabara de escrever. Fizeram esse trabalho.
+
+    Depois da revisão do dono, que pediu duas correções e aprovou, a
+    letra deles ficou obsoleta e o que sobra de guardável é a
+    RASTREABILIDADE: a liberação tem de apontar para o material que a
+    justifica. Uma entrada `disponivel` cuja evidência não diz onde
+    aquilo foi ensinado seria a lista de desejos que o inventário existe
+    para não ser.
+    """
+    c = conceitos.carrega()["derreferencia"]
+    assert c["status"] == conceitos.DISPONIVEL
+    assert c["introduzido_em"] == "kc_02"
+    ev = c["evidencia"]
+    assert ev["arquivo"] == "kc_02" and ev["secao"] == "B3", ev
+    assert ev["tipo"] == "explicacao_com_leitura_e_escrita", ev
+    assert ev.get("aprovacao"), "liberação sem registro de quem aprovou"
 
 
-def test_a_derreferencia_continua_bloqueada_no_inventario():
-    """Até a auditoria do conteúdo final, `derreferencia` continua
-    `so_avaliado`. Mudar o inventário no mesmo passo em que se escreve o
-    material seria o autor se auditando."""
-    assert conceitos.status("derreferencia") == conceitos.SO_AVALIADO
+def test_o_cartao_sustenta_o_que_a_evidencia_promete(d):
+    """A evidência diz `explicacao_com_leitura_e_escrita`. O cartão tem
+    de ter as duas, senão o inventário promete mais do que o material
+    entrega — e o portão passa a liberar com base no rótulo, não no
+    conteúdo."""
+    t = d.interpretacao("B3")
+    assert "Lendo:" in t and "Escrevendo:" in t, t
+    codigo = d.exemplo("B3")
+    assert "*p);" in codigo or "*p)" in codigo, "sem leitura no código"
+    assert "*p = 7" in codigo, "sem escrita no código"
 
 
 # --------------------------------------------------------------------------

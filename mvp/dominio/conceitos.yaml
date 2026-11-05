@@ -68,21 +68,33 @@ conceitos:
 
   derreferencia:
     nome: "o operador * : chegar ao valor que está no endereço"
-    status: so_avaliado
-    introduzido_em: ""
+    status: disponivel
+    introduzido_em: kc_02
     evidencia:
-      onde: "kc_01, cartão B3 (menção) · kc_02, itens de nível 2 em diante"
+      arquivo: kc_02
+      secao: B3
+      tipo: explicacao_com_leitura_e_escrita
+      onde: "kc_02, cartão de ensino B3, campo `interpretation`"
       texto: >
-        O cartão B3 do kc_01 mostra `*p = 7` dentro de um exemplo de
-        malloc, e o texto daquele cartão é sobre o bloco continuar
-        válido depois que a função acaba — não sobre o que o asterisco
-        faz. Nenhum cartão de ensino, em nenhum dos três tópicos,
-        explica a desreferência.
-      tipo: mencionado_sem_explicacao
-      consequencia: >
-        É o conceito que mais bloqueia cadeia: quatro das seis do kc_02
-        dependem dele, inclusive a `pointer_is_data`, que é a escolhida
-        para a primeira liberação experimental.
+        O cartão explica as três expressões no primeiro parágrafo — o
+        operador & obtém o endereço, e o asterisco acessa o conteúdo do
+        lugar cujo endereço está em p —, demonstra a LEITURA
+        (`printf("%d", *p)` sai 42) e a ESCRITA (`*p = 7`, e x passa a
+        valer 7), e fecha distinguindo &x, p e *p lado a lado. O exemplo
+        foi compilado e executado antes de entrar.
+      aprovacao: >
+        Liberado em 05/11/2026 por revisão do dono, depois de duas
+        correções pedidas por ele: a explicação de &x subiu para o
+        primeiro parágrafo, porque o aluno encontra &x na primeira linha
+        do exemplo e só a recebia no quarto; e a metáfora do "caminho de
+        volta" saiu, porque sugere que o asterisco apenas desfaz o &, o
+        que não vale em qualquer contexto.
+      antes: >
+        Era `so_avaliado`. O kc_01, cartão B3, mostrava `*p = 7` dentro
+        de um exemplo de malloc cujo texto é sobre tempo de vida, não
+        sobre o asterisco — menção, não ensino. A desreferência era
+        cobrada desde o nível 1 sem ter sido apresentada em cartão
+        nenhum dos três tópicos do caminho.
 
   printf_ponteiro:
     nome: "imprimir endereço com %p"
