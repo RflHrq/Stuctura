@@ -54,6 +54,39 @@ nodes:
       caixa fica.
     negated_by:
       - pointer_is_data
+    # AMPLIACAO EXPLICATIVA, 05/11/2026 — nao e premissa nova.
+    #
+    # A auditoria do material achou que o kc_02 ensinava em tres cartoes
+    # que um ponteiro guarda um endereco e NUNCA ensinava a usar esse
+    # endereco: desreferencia nao aparecia com explicacao em cartao
+    # nenhum dos tres topicos do caminho, e era cobrada desde o nivel 1.
+    #
+    # A afirmacao do B3 nao mudou, a crenca que o nega nao mudou, e
+    # nenhum no entrou no grafo. O que entrou foi a explicacao da
+    # consequencia direta do que o B3 ja afirmava: se o que esta dentro
+    # de p e um endereco, da para ir ate la.
+    #
+    # Este campo e lido SO pela tela de ensino. O `plain_text` nao foi
+    # esticado porque ele aparece em sete telas, e numa delas e a
+    # alternativa certa da camada 2.
+    interpretation: >
+      Se o que esta dentro de p e o endereco de x, entao da para ir ate
+      la. O asterisco e o caminho de volta: *p nao e p, e vai ao lugar
+      cujo numero esta guardado em p.
+
+
+      Lendo: *p mostra 42, que e o valor que mora em x. Repare que p
+      sozinho nao serve — p e o numero do lugar, e *p e o que esta
+      naquele lugar.
+
+
+      Escrevendo: *p = 7 nao muda p. Muda o que esta guardado no lugar
+      apontado, e por isso x passa a valer 7 sem a letra x aparecer na
+      linha.
+
+
+      Tres expressoes, tres coisas: &x e o endereco de x; p guarda esse
+      endereco; *p e o conteudo que mora nele.
 
   I1:
     type: inferencia

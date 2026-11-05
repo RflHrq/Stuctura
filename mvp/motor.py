@@ -416,6 +416,10 @@ def _tela_ensino(d: Dominio, e: Estado) -> Tela:
         # variável. O exemplo ancora, e é o mesmo código que as atividades
         # daquele nó usam.
         "codigo": d.exemplo(nid),
+        # A ampliação explicativa, quando o cartão tem uma. Só aqui: o
+        # campo existe para não inchar `simples`, que é alternativa de
+        # resposta na camada 2.
+        "interpretacao": d.interpretacao(nid),
     })
 
 

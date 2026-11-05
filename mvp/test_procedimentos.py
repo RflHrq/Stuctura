@@ -422,3 +422,56 @@ def test_o_ensaio_recusa_topico_que_nao_carrega(area):
     r = _ensaio("E01", "--pasta", rel(area), "--topico", "kc_99")
     assert r.returncode != 0
     assert "NAO carrega" in r.stdout
+
+
+# --------------------------------------------------------------------------
+# O CLIENTE PRECISA AO MENOS FAZER PARSE
+# --------------------------------------------------------------------------
+#
+# Achado ao ampliar o cartao B3: um script meu escreveu uma expressao
+# regular quebrada em `app.js`, partindo a linha no meio, e a suite
+# inteira — 1026 testes — passou verde. Nenhum deles abre o cliente.
+#
+# Um `app.js` que nao faz parse derruba a sessao na primeira tela, e o
+# participante ve uma pagina morta. E o tipo de defeito que custa o
+# ensaio inteiro, e custa zero para pegar.
+
+def _tem_node():
+    import shutil
+    return shutil.which("node") is not None
+
+
+@pytest.mark.skipif(not _tem_node(), reason="sem node para conferir sintaxe")
+@pytest.mark.parametrize("arquivo", ["app.js", "figuras.js"])
+def test_o_javascript_do_cliente_faz_parse(arquivo):
+    r = subprocess.run(["node", "--check", "mvp/web/%s" % arquivo],
+                       cwd=RAIZ, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr or r.stdout
+
+
+# --------------------------------------------------------------------------
+# NENHUM BYTE DE CONTROLE NO FONTE
+# --------------------------------------------------------------------------
+#
+# Cinco vezes numa sessao um escape se perdeu ao escrever arquivo por
+# script: um regex do app.js virou quebra de linha de verdade, o
+# especificador de nova linha de um printf no YAML partiu a linha em
+# duas, e a borda-de-palavra de um teste virou o caractere BACKSPACE
+# (0x08) — invisivel na listagem, e o teste passou a casar contra nada.
+#
+# O ultimo e o pior: o fonte parece certo na tela e esta errado no disco.
+# Nenhuma revisao de codigo pega isso lendo.
+
+@pytest.mark.parametrize("pasta", ["mvp", "scripts"])
+def test_nenhum_byte_de_controle_invisivel_no_fonte(pasta):
+    maus = []
+    for caminho in sorted((RAIZ / pasta).rglob("*")):
+        if caminho.suffix not in (".py", ".js", ".yaml", ".html", ".css", ".sh"):
+            continue
+        if "__pycache__" in caminho.parts:
+            continue
+        bruto = caminho.read_bytes()
+        achados = sorted({b for b in bruto if b < 9 or (13 < b < 32)})
+        if achados:
+            maus.append((caminho.name, achados))
+    assert not maus, maus

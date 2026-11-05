@@ -97,7 +97,10 @@ exemplos:
   B3: |
     int x = 42;
     int *p = &x;
-    printf("%p\n", (void *)p);        /* dentro de p: o endereco de x */
+    printf("%p\n", (void *)p);   /* dentro de p: o endereco de x */
+    printf("%d\n", *p);          /* 42: o conteudo que mora la */
+    *p = 7;                      /* escreve no lugar apontado */
+    printf("%d\n", x);           /* 7: mudou sem nomear x */
 
   I1: |
     int x = 42, y = 7;

@@ -282,6 +282,29 @@
     $("ensino-codigo").textContent = t.codigo || "";
     $("ensino-codigo").hidden = !t.codigo;
     Figuras.dentro($("ensino-figura"), t.no);
+
+    /* A AMPLIACAO EXPLICATIVA, depois do exemplo e do desenho.
+     *
+     * A ordem e deliberada: o codigo demonstra, o desenho ancora, e este
+     * texto interpreta o que acabou de ser mostrado. Cartao sem
+     * ampliacao nao desenha a secao — doze dos treze topicos nao tem
+     * nenhuma, e uma caixa vazia parece defeito.
+     *
+     * Paragrafo por paragrafo, e nao um bloco so: a ampliacao do B3 tem
+     * quatro partes (ler, escrever, e a distincao entre as tres
+     * expressoes), e espremidas num paragrafo elas se perdem. */
+    var caixa = $("ensino-interpretacao");
+    caixa.textContent = "";
+    var partes = (t.interpretacao || "").split(/\n\s*\n/)
+                   .map(function (s) { return s.trim(); })
+                   .filter(Boolean);
+    partes.forEach(function (s) {
+      var par = document.createElement("p");
+      par.textContent = s;
+      caixa.appendChild(par);
+    });
+    caixa.classList.toggle("oculto", partes.length === 0);
+
     $("btn-ensino").onclick = function () { responde({}); };
     mostra("ensino");
   }

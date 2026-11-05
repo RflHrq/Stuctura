@@ -137,6 +137,13 @@ class No:
     simples: str
     suporte: tuple[str, ...] = ()
     negado_por: tuple[str, ...] = ()
+    # A AMPLIAÇÃO EXPLICATIVA do cartão de ensino, opcional.
+    #
+    # Não vai em `simples` de propósito: aquela frase é a canônica do nó
+    # e aparece em SETE telas, inclusive como a alternativa CERTA da
+    # camada 2 (`motor.razoes_de`). Esticá-la transformaria uma opção de
+    # resposta num parágrafo. Este campo é lido só pela tela de ensino.
+    interpretacao: str = ""
 
     @property
     def observavel(self) -> bool:
@@ -273,6 +280,15 @@ class Dominio:
         """O código que acompanha a premissa na tela de ensino."""
         return self.exemplos.get(no, "")
 
+    def interpretacao(self, no: str) -> str:
+        """A ampliação explicativa daquele cartão, se houver.
+
+        Opcional: nó sem ampliação devolve vazio, e a tela não desenha a
+        seção. Doze dos treze tópicos não têm nenhuma.
+        """
+        n = self.nos.get(no)
+        return n.interpretacao if n else ""
+
     def entrada(self, no: str, usadas: tuple[str, ...] = ()) -> Atividade | None:
         """O item de entrada do nó, se o banco tiver um ainda não usado."""
         return next((a for a in self.atividades_do_no(no, "entrada")
@@ -308,6 +324,19 @@ class Dominio:
 
 def _texto(valor) -> str:
     return " ".join(str(valor or "").split())
+
+
+def _paragrafos(valor) -> str:
+    """Como `_texto`, mas a linha em branco SOBREVIVE.
+
+    A ampliacao explicativa de um cartao tem partes — ler, escrever, a
+    distincao entre as expressoes — e `_texto` colapsava tudo num
+    paragrafo so. Quatro ideias espremidas numa parede de texto e pior
+    que tres, e foi o que a tela mostrou antes deste conserto.
+    """
+    branco = "\n\n"
+    partes = [" ".join(b.split()) for b in str(valor or "").split(branco)]
+    return branco.join(x for x in partes if x)
 
 
 def _corta(alvo: str, quantas: int, cru_topico, grafo,
@@ -437,6 +466,7 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
             simples=_texto(bruto.get("plain_text")) or _texto(bruto.get("text")),
             suporte=tuple(bruto.get("support") or ()),
             negado_por=tuple(bruto.get("negated_by") or ()),
+            interpretacao=_paragrafos(bruto.get("interpretation")),
         )
 
     for nid, no in nos.items():

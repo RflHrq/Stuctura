@@ -77,6 +77,13 @@ h2{margin:0 0 14px; font-size:20px}
    das refutações não havia nenhuma a citar. A que está `confirmada` é
    estado do instrumento (duas superfícies, CS-5), não aceitação de tela,
    e por isso ela se distingue. */
+/* A ampliacao explicativa do cartao de ensino. Entra discreta: ela
+   interpreta o exemplo que esta logo acima, e nao compete com ele. */
+.interpretacao{margin:14px 0 0; border-top:1px solid var(--linha);
+               padding-top:12px}
+.interpretacao p{margin:0 0 10px; color:var(--tinta2)}
+.interpretacao p:last-child{margin-bottom:0}
+
 .apoio{margin:0 0 12px; padding-left:18px; color:var(--tinta2)}
 .apoio li{margin:0 0 4px}
 .apoio li.confirmada{color:var(--ok)}
