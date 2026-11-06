@@ -3051,3 +3051,61 @@ Então p e a caixa apontada são duas caixas diferentes" tropeça. É
 conteúdo do domínio, e conteúdo não se reescreve sem o orientador.
 
 1.159 + 252 verdes.
+
+## O caminho de quem não sabe, medido
+
+A fatia do erro que explica cobriu quem **erra**. Esta medição olha quem
+**não sabe** — e o dono apontou para ela antes de mim: *"se a pessoa não
+sabe ou não tem certeza, quer dizer que ela precisa saber... cai uma
+questão e a pessoa não entende o processo que está na tela"*.
+
+Persona `nao_sabe` atravessando os treze tópicos, em processo. **A
+replicação foi validada contra o HTTP**: kc_02 deu 36 lacunas, 6
+construções e 30 dispensadas pelos dois caminhos, número por número.
+
+| | |
+| --- | --- |
+| "não sei" declarados | **250** |
+| momentos de ensino | **79** |
+| construções dispensadas | **171** |
+| perguntas feitas depois do "não sei" naquele nó | **245** |
+| dessas, com nível MAIS ALTO do que onde ela declarou | **153 (62%)** |
+
+**De cada 10 "não sei", 3,2 recebem ensino.**
+
+### 79 construções para 79 nós
+
+Exatamente uma por nó, em todo o conjunto. O teto de
+`construcoes == 0` não é um limite que às vezes é atingido — é o
+comportamento normal. O motivo escrito ao lado dele é honesto ("ensinar
+de novo a mesma coisa não ensina mais, e sem teto a unidade não
+termina"), mas a premissa só vale se o ensino for **o mesmo**, e é o que
+acontece: dos quatro materiais explicativos do sistema, a construção
+gasta um.
+
+| material | cobertura | onde aparece |
+| --- | --- | --- |
+| `figura` | **79 de 79** | cartão de ensino |
+| `resgate` (analogia) | todos | **só** na validação — só para quem teve crença |
+| `simples` | 79 de 79 | cartão, e no erro de treino |
+| `interpretacao` | **2 de 79** | cartão de ensino |
+
+Quem declara lacuna nunca vê a analogia: a validação só acontece quando
+há crença. E o cartão de ensino tem **um** botão, "Entendi" — o único
+"ainda não entendi" do sistema está na refutação, que também só acontece
+para quem tem crença.
+
+### O instrumento foi desenhado para quem erra, não para quem não sabe
+
+Quem tem crença recebe validação, refutação, treino e reteste. Quem não
+tem ideia nenhuma recebe um cartão, um item de entrada, e depois mais
+perguntas — **subindo de nível em 62% das vezes**. A pessoa que mais
+precisa do sistema é a que recebe menos dele, e em ponteiros em C ela é
+provavelmente a maioria.
+
+### A ordem decidida
+
+1. parar de subir o nível depois de lacuna declarada — 153 ocorrências
+2. botão "não entendi" no cartão, com o `LIMITE_REEXPLICACAO` que existe
+3. segunda construção por nó, com material DIFERENTE da primeira — 171
+4. juntar figura + analogia + premissa na construção
