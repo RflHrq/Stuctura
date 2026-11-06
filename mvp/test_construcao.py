@@ -116,6 +116,35 @@ def test_o_ensino_da_construcao_e_do_no_que_a_pessoa_nao_sabia(d2):
     assert t.tela.dados["resgate"]
 
 
+def test_a_construcao_leva_a_ampliacao_do_cartao(d2):
+    """A ampliação é o texto que caminha pela figura, e ela não chegava aqui.
+
+    `_tela_ensino` mandava `interpretacao`; `_tela_construcao` não. O
+    cliente desenha o mesmo elemento nas duas, então quem declarava
+    lacuna em B1 ou B3 — os dois únicos nós dos treze tópicos com
+    ampliação — recebia o cartão SEM ela. Justo quem mais precisava.
+
+    Achado ao ligar o "ainda não entendi", e separado dele de propósito:
+    aquilo era mecanismo, isto é material de ensino.
+    """
+    com_ampliacao = [n for n in d2.nos if (d2.interpretacao(n) or "").strip()]
+    assert com_ampliacao, "o kc_02 perdeu as ampliações de B1 e B3"
+    for no in com_ampliacao:
+        tela = motor._tela_construcao(d2, no, "lacuna")
+        assert tela.dados.get("interpretacao") == d2.interpretacao(no), (
+            "a construção do nó %s não leva a ampliação" % no)
+
+
+def test_no_sem_ampliacao_nao_inventa_campo(d2):
+    """77 dos 79 nós não têm ampliação. Campo com texto de outro nó, ou
+    com placeholder, seria pior que campo vazio."""
+    sem = [n for n in d2.nos if not (d2.interpretacao(n) or "").strip()]
+    assert sem, "todos os nós do kc_02 têm ampliação?"
+    for no in sem:
+        tela = motor._tela_construcao(d2, no, "lacuna")
+        assert not (tela.dados.get("interpretacao") or "").strip()
+
+
 def test_depois_do_ensino_vem_o_item_mais_facil(d2):
     """E ele é o item de entrada, não um item de diagnóstico."""
     t = motor.inicia(d2, semente="s")

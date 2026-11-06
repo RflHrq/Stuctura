@@ -3195,3 +3195,45 @@ termina"), não zerar o contador ao mudar de cartão (1) e ignorar o
 `repetir` no despacho (2).
 
 1.213 + 252 verdes.
+
+### Item 3: a segunda construção NÃO foi feita, e o motivo é conteúdo
+
+Medido antes de escrever uma linha, nos treze tópicos:
+
+| material | nós que têm |
+| --- | --- |
+| enunciado, exemplo, figura, analogia | **79 de 79** |
+| ampliação (`interpretacao`) | **2 de 79** |
+| itens de entrada por nó | **1** em 74 nós, **0** em 5 |
+
+Os quatro primeiros já aparecem **na primeira** construção. Uma segunda
+mostraria o mesmo cartão, o mesmo exemplo, a mesma figura e a mesma
+analogia — e sem item de entrada, porque o único já foi gasto. Seria
+exatamente o que o comentário do teto recusa: *"ensinar de novo a mesma
+coisa não ensina mais"*. Construir isso entregaria uma casca com cara de
+funcionalidade.
+
+**O item 3 está bloqueado em conteúdo, não em mecanismo.** Ele fica
+possível quando houver `interpretacao` nos outros 77 nós — e esse texto
+passa pelo orientador.
+
+### O que foi feito: a ampliação chega à tela de construção
+
+`_tela_ensino` mandava o campo e `_tela_construcao` não, e o cliente
+desenha o mesmo elemento nas duas. Quem declarava lacuna em B1 ou B3 —
+os dois únicos nós com ampliação — recebia o cartão sem ela. Justo quem
+mais precisava.
+
+Conferido na tela: o cartão de lacuna do B1 agora traz os cinco
+materiais, com a ampliação em três parágrafos.
+
+### E uma armadilha de demonstração, descoberta aqui
+
+O servidor de pré-visualização **não recarrega o Python**. Os arquivos
+estáticos (`app.js`, `index.html`) vêm do disco a cada pedido, então
+mudança de cliente aparece ao recarregar a página; mudança de motor, não.
+A primeira conferência desta fatia mostrou a ampliação ausente porque o
+processo era o de antes da edição. Depois de mexer em `mvp/`, reinicie o
+servidor antes de mostrar a alguém.
+
+1.215 + 252 verdes.

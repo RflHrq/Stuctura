@@ -1229,6 +1229,12 @@ def _tela_construcao(d: Dominio, no: str, motivo: str = "lacuna",
         "motivo": motivo,
         "codigo": d.exemplo(no),
         "resgate": d.resgate(no),
+        # A AMPLIAÇÃO, que não chegava aqui. `_tela_ensino` mandava o
+        # campo e esta função não, e o cliente desenha o mesmo elemento
+        # nas duas: quem declarava lacuna em B1 ou B3 — os dois únicos nós
+        # dos treze tópicos com ampliação — recebia o cartão sem ela.
+        # Justo quem mais precisava.
+        "interpretacao": d.interpretacao(no),
         # Aqui a analogia já aparece de primeira, então pedir de novo
         # reapresenta o MESMO. Fazer a segunda vez ser diferente é a fatia
         # seguinte; esta só devolve à pessoa o direito de não entender.
