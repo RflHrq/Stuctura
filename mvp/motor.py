@@ -296,6 +296,14 @@ class EstadoNo:
     # que ela acabou de dizer que nao tem como responder.
     descida_abandonada: bool = False
     vacilou: bool = False               # errou uma vez e corrigiu sozinho
+    # ESCORREGÃO é outra coisa, e os dois campos existem separados por
+    # isso. `vacilou` é posto no ramo CONFIRMADA a partir de
+    # `bool(en.erros)`: vale para quem errou por QUALQUER motivo e depois
+    # acertou, crença inclusive. `escorregou` é posto só no ramo
+    # FALSO_NEGATIVO — errou a resposta e enunciou a razão CERTA. Com um
+    # campo só, o mapa final dizia "você explicou certo" a quem explicou
+    # errado, que é o defeito do rótulo fixo outra vez.
+    escorregou: bool = False
     # CS-5: formatos em que a pessoa acertou PELA RAZÃO CERTA, com
     # confiança. Confirmar exige dois diferentes — um acerto só pode ser
     # reconhecimento do molde da pergunta.
@@ -1140,7 +1148,8 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
     if episodio == FALSO_NEGATIVO_EP:
         # CS-3: errar pelo motivo certo não dispara refutação. O sistema
         # não contesta uma ideia que a pessoa acabou de enunciar direito.
-        novo = e.com(a.no, erros=en.erros + 1, vacilou=True)
+        novo = e.com(a.no, erros=en.erros + 1, vacilou=True,
+                     escorregou=True)
         eventos.append(Evento("vacilo_detectado", {
             "no": a.no, "crenca_suspeita": None, "atividade": a.id}))
         return _segue(d, novo, eventos)
@@ -2071,6 +2080,9 @@ def estado_dos_nos(d: Dominio, e: Estado) -> list[dict]:
             "generalizou": _generalizou(en.instancias),
             "via_treino": en.estado == CONFIRMADO and bool(en.crenca),
             "vacilou": en.vacilou,
+            # Errou a resposta e enunciou a razão CERTA. Não é o mesmo
+            # que `vacilou` — ver o comentário em `EstadoNo`.
+            "escorregou": en.escorregou,
             "crenca": en.crenca,
             # Para a tela poder dizer POR QUE este nó ficou assim sem a
             # pessoa ter respondido nada sobre ele.

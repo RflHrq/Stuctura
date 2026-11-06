@@ -562,6 +562,25 @@
       $("ret-texto").textContent =
         "Isso é informação, não erro: aqui não há nada para corrigir, há" +
         " algo para construir.";
+    } else if (j.veredito === "escorregao") {
+      /* O ESCORREGAO: errou a resposta e enunciou a razao certa.
+       *
+       * Antes daqui isto caia no `else` e lia "Ainda nao. Olhe de novo
+       * com calma" — conselho que pressupoe mal-entendido, dado a quem
+       * acabou de explicar a premissa direito. 79 vezes por varredura
+       * dos treze topicos.
+       *
+       * Nenhuma palavra do dominio entra aqui, e nao e por estilo: o
+       * servidor nao manda `retorno` neste veredito, entao nao existe
+       * premissa, crenca nem figura para mostrar. A fase e o
+       * diagnostico, que MEDE. */
+      v.textContent = "A resposta não bate com a sua explicação";
+      v.className = "veredito neutro";
+      $("ret-texto").textContent =
+        "A explicação que você escolheu é a correta — foi a alternativa" +
+        " marcada que não seguiu dela. Isso é escorregão, não" +
+        " mal-entendido: o sistema não vai contestar uma ideia que você" +
+        " acabou de enunciar direito.";
     } else if (j.veredito === "certa") {
       v.textContent = "Isso mesmo";
       v.className = "veredito certo";
@@ -830,6 +849,24 @@
         p.className = "nota";
         p.textContent = nota;
         corpo.appendChild(p);
+      }
+      /* O ESCORREGAO no mapa final, em paragrafo PROPRIO.
+       *
+       * Aqui nao custa medida nenhuma: o mapa acontece depois de tudo
+       * medido. E informacao sobre o CAMINHO, nao sobre onde a premissa
+       * chegou — errar pela razao certa nao enfraquece o no, e a tabela
+       * de `forca()` conta esse erro como zero de proposito.
+       *
+       * E `escorregou`, NAO `vacilou`: o segundo vale para quem errou
+       * por qualquer motivo e depois acertou, crenca inclusive, e esta
+       * frase afirmaria a essa pessoa que ela explicou certo. */
+      if (n.escorregou) {
+        var esc = document.createElement("p");
+        esc.className = "nota";
+        esc.textContent =
+          "Houve um escorregão aqui: a resposta não bateu com a sua" +
+          " explicação, e a explicação estava certa.";
+        corpo.appendChild(esc);
       }
       var porque = porqueDe(n);
       if (porque) {

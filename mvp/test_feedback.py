@@ -356,16 +356,42 @@ def test_a_medicao_continua_calada(topico, monkeypatch):
     A primeira assertiva existe porque a versão anterior deste teste era
     VAZIA: com a política coerente, todo erro de diagnóstico virava
     refutação, e o laço não conferia nada. Removido o portão, ele passava.
+
+    E ELA DISPAROU DE NOVO, na fatia do escorregão: aquele erro deixou de
+    ter veredito `errada` e passou a ter o seu — e o escorregão era a
+    ÚNICA trilha que produzia `errada` numa fase que mede. O teste ficou
+    sem nada para olhar e disse isso, como projetado.
+
+    A correção não foi estreitar o filtro: foi ALARGÁ-LO. Agora o laço
+    passa por TODA resposta das fases que medem, qualquer que seja o
+    veredito — certa, escorregão, crença, lacuna —, e exige que nenhuma
+    traga retorno. A única exceção é o falso positivo, que tem forma
+    própria e fala ali desde a Decisão 13, e a exceção é nomeada em vez
+    de ser um buraco no filtro.
     """
     d = carrega(topico=topico)
-    erradas = _erradas(percorre(d, monkeypatch, escorregao=True))
-    de_medicao = [(p, f) for p, f, _ in erradas if f in MEDE]
+    passos = percorre(d, monkeypatch, escorregao=True)
+    de_medicao = []
+    for payload, eventos in passos:
+        reg = next((e for e in eventos if e.tipo == "resposta_registrada"),
+                   None)
+        if reg is not None and reg.dados["fase"] in MEDE:
+            de_medicao.append((payload, reg.dados["fase"]))
     assert de_medicao, (
-        "%s não produziu errada de medição nenhuma: o teste ficaria vazio"
+        "%s não produziu resposta de medição nenhuma: o teste ficaria vazio"
         % topico)
+    # E o escorregão tem de estar entre elas, senão a fatia que o nomeou
+    # deixou de ser exercida aqui e o alargamento não cobre o que veio
+    # cobrir.
+    assert any(p["veredito"] == "escorregao" for p, _ in de_medicao), (
+        "%s: nenhum escorregão no percurso — o teste perdeu o caso que o "
+        "fez crescer" % topico)
     for payload, fase in de_medicao:
+        if payload["veredito"] == "falso_positivo":
+            continue        # Decisão 13: forma própria, e ela fala
         assert payload["retorno"] is None, (
-            "%s: a fase %s explicou, e ela MEDE" % (topico, fase))
+            "%s: a fase %s explicou com %r, e ela MEDE"
+            % (topico, fase, payload["veredito"]))
 
 
 def test_o_reteste_errado_nao_explica(monkeypatch):

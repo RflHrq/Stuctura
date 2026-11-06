@@ -3304,3 +3304,79 @@ traz os quatro — "Você escolheu / o ponteiro não ocupa lugar nenhum",
 "E isso contradiz / p é uma caixa como as outras", o desenho das duas
 casas com dois números de porta, e a analogia do papel que não flutua.
 No retorno seguinte, de outro veredito, o desenho sumiu.
+
+## O escorregão deixa de ser invisível
+
+Errar a resposta e acertar a razão. A tabela de classificação chama isso
+de `falso_negativo`, o motor grava `vacilo_detectado`, marca o nó e leva
+o dado no payload do mapa. **Nenhuma tela mostrava.**
+
+Medido antes de escrever uma linha, nos treze tópicos, com a persona que
+erra a camada 1 e marca sempre a razão correta:
+
+| o que | quanto |
+| --- | --- |
+| escorregões (1 erro por nó) | **79** — payload `errada`, retorno `None`, 79 de 79 |
+| escorregões (2 erros por nó) | **158** — idem, 158 de 158 |
+| o nó volta a ser perguntado | **153 de 158**, mediana de **3 passos** |
+| como o nó termina (1 erro) | 74 `confirmado`, 5 `fragil` |
+| telas que mostravam `vacilou` | **nenhuma** |
+
+**O fluxo não estava quebrado** — isso corrige o que eu havia afirmado.
+Quem escorrega recebe o mesmo nó na pergunta seguinte e quase sempre o
+confirma. Quebrada estava a TELA: a pessoa que acabou de enunciar a
+premissa corretamente lia *"Ainda não. Olhe de novo com calma — a
+próxima pergunta volta ao mesmo ponto de outro jeito"*, o mesmo texto de
+quem tem um mal-entendido.
+
+### Por que falar numa fase que mede
+
+A regra do projeto é que o diagnóstico e o reteste ficam calados, e a
+justificativa dela é literal: *explicar ali **ensina** no meio da
+medição*. Nomear um escorregão não ensina. O servidor **não manda
+`retorno`** neste veredito — então não existe caminho por onde premissa,
+crença ou figura cheguem à tela, e a frase é do cliente e não varia com
+o conteúdo. É menos do que o falso positivo já diz na mesma fase desde a
+Decisão 13, que mostra texto do domínio.
+
+**O custo, e é decisão metodológica:** a pessoa fica sabendo que a razão
+marcada era a correta, três passos antes de o mesmo nó voltar, em 153 de
+158 casos. Isto vai ao orientador, e é um commit para desfazer.
+
+### Três superfícies
+
+1. **A tela do instante**: veredito próprio, neutro, sem conteúdo.
+2. **O mapa final**: parágrafo próprio, depois do estado. Ali não custa
+   medida nenhuma — o mapa acontece depois de tudo medido.
+3. **O painel do pesquisador**: a coluna do estado do episódio imprimia
+   `falso_negativo` cru, porque o dicionário de nomes só traduzia estado
+   de NÓ. Traduzidos também `confirmada` e `crenca`, que estavam crus
+   pelo mesmo motivo.
+
+### `escorregou` não é `vacilou`, e uma correção minha
+
+`vacilou` é posto no ramo CONFIRMADA a partir de `bool(en.erros)`:
+"errou uma vez e corrigiu sozinho", **qualquer** que tenha sido o erro.
+A primeira versão desta fatia pôs a frase do escorregão atrás dele, e eu
+afirmei que isso faria o mapa mentir para quem errou por crença.
+
+Fui medir: treze tópicos × dezesseis personas (escorregar em todos / em
+B1 / em B2 / em nenhum × um ou dois erros por nó × duas confianças) e
+achei **zero** nós com `vacilou` e sem escorregão — a crença manda o nó
+para a refutação, e ele não volta pelo ramo CONFIRMADA do diagnóstico.
+Então o campo novo não conserta um defeito observado: ele impede um. O
+teste que separa os dois não finge uma persona que não existe — ele
+constrói o estado pela API do motor.
+
+Foi o navegador que levantou isso, não a suíte: o teste só procurava a
+palavra `vacilou` no arquivo.
+
+### O teste que cresceu
+
+`test_a_medicao_continua_calada` disparou a própria trava de vacuidade
+pela segunda vez: o escorregão era a **única** trilha que produzia
+veredito `errada` numa fase que mede, e ao ganhar veredito próprio
+deixou o teste sem nada para olhar. A correção foi **alargar**: o laço
+passa agora por toda resposta das fases que medem, qualquer que seja o
+veredito, e exige retorno nenhum. A exceção é o falso positivo, nomeada
+em vez de ser um buraco no filtro.

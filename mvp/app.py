@@ -150,6 +150,7 @@ def _resposta(sessao: str, t: motor.Transicao,
     lacuna = next((e for e in t.eventos if e.tipo == "lacuna_registrada"
                    and e.dados.get("declarada")), None)
     falso = next((e for e in t.eventos if e.tipo == "falso_positivo"), None)
+    vacilo = next((e for e in t.eventos if e.tipo == "vacilo_detectado"), None)
     veredito = None
     if crenca is not None:
         veredito = "crenca"        # retorno NEUTRO: a refutação é que ensina
@@ -159,6 +160,25 @@ def _resposta(sessao: str, t: motor.Transicao,
         veredito = "falso_positivo"
     elif lacuna is not None:
         veredito = "lacuna"        # ela DISSE que não sabe: não é erro
+    elif vacilo is not None:
+        # O ESCORREGÃO: errou a resposta e enunciou a razão certa. O motor
+        # já concluía isso — classifica como `falso_negativo`, grava
+        # `vacilo_detectado`, marca `vacilou` no nó — e a tela era o único
+        # lugar que não sabia: 79 de 79 liam "Ainda não. Olhe de novo com
+        # calma", o mesmo texto de quem tem um mal-entendido.
+        #
+        # Isto acontece no DIAGNÓSTICO, que mede, e a regra é que ali o
+        # sistema não fala. A justificativa da regra é literal — explicar
+        # ali ENSINA no meio da medição —, e nomear um escorregão não
+        # ensina: `retorno` continua None, então não existe caminho por
+        # onde premissa, crença ou figura cheguem à tela. A frase é do
+        # cliente e não varia com o conteúdo. O falso positivo, na mesma
+        # fase, já diz mais do que isto desde a Decisão 13.
+        #
+        # O CUSTO, medido: a pessoa fica sabendo que a razão marcada era a
+        # certa, e o mesmo nó volta três passos depois em 153 de 158 casos.
+        # Está em docs/processo.md como decisão metodológica.
+        veredito = "escorregao"
     elif resposta is not None:
         veredito = "certa" if resposta.dados.get("correta") else "errada"
 

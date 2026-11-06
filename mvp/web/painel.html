@@ -109,7 +109,15 @@ footer{padding:12px 20px; border-top:1px solid var(--linha);
     confirmado: "confirmada", fragil: "frágil", falso_positivo: "falso positivo",
     refutado: "crença", lacuna: "lacuna", em_treino: "em treino",
     em_aberto: "em aberto", desconhecido: "não tocada",
-    nao_medido: "não medida", construido: "construída"
+    nao_medido: "não medida", construido: "construída",
+    /* A MESMA coluna serve a dois vocabulários: estado de NÓ (onde a
+       premissa chegou) e estado de EPISÓDIO (o que aquela resposta foi).
+       Os três de baixo são de episódio e não tinham tradução, então a
+       tabela imprimia `falso_negativo`, `confirmada` e `crenca` crus. O
+       pesquisador lia o nome interno do código na coluna que ele usa
+       para separar escorregão de mal-entendido. */
+    falso_negativo: "escorregão", confirmada: "confirmada",
+    crenca: "crença"
   };
   var FASE = { diagnostico: "diag.", treino: "treino", reteste: "RETESTE" };
   var CLASSE = {
