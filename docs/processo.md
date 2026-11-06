@@ -3146,3 +3146,52 @@ anti-vacuidade estava por tópico, e zero perguntas depois de um "não sei"
 a ser do conjunto.
 
 1.190 + 252 verdes.
+
+### Item 2 feito: o cartão de ensino ganha "ainda não entendi"
+
+O cartão tinha UM botão, `Entendi`. O único "ainda não entendi" do
+sistema estava na refutação — que só acontece para quem **tem uma
+crença**. Quem não sabe nada lia o cartão e só podia afirmar que
+entendeu. Pior que falta de recurso: o sistema colhia "Entendi" de quem
+não entendeu, e `forca()` descontava ponto por um contador
+(`reexplicacoes`) que para esse público nunca saía de zero.
+
+O mecanismo já existia inteiro — `Resposta.repetir`,
+`LIMITE_REEXPLICACAO = 2`, `EstadoNo.reexplicacoes`, `Estado.repeticoes`
+e o evento `premissa_reapresentada`. Esta fatia ligou o que a refutação
+já usava, nas três telas de ensino (abertura, primeiro contato e
+construção), com o mesmo teto e o mesmo log.
+
+**O que muda na segunda vez, e é pouco de propósito:** no cartão de
+abertura a analogia de resgate não aparecia, e passa a aparecer. No
+cartão de lacuna ela já vem de primeira — ali repetir reapresenta o
+mesmo. Fazer a segunda vez ser DIFERENTE é o item 3.
+
+### Duas correções de afirmações minhas
+
+**A analogia não some para quem declara lacuna.** Eu disse que sim, com
+base no comentário do YAML ("é ela que aparece no passo de validação"), e
+não conferi o cliente: `telaEnsino` já desenhava `ensino-resgate` quando
+o motivo é `lacuna` ou `primeiro_contato`. Na tela de construção os
+quatro materiais JÁ se encontram. Onde eles não se encontram é na tela de
+ERRO do treino, que mostra dois dos quatro.
+
+**E o `interpretacao` não chega à tela de construção.** `_tela_ensino`
+manda o campo; `_tela_construcao` não manda. Quem declara lacuna em B1 ou
+B3 — os dois únicos nós com ampliação — não recebe a ampliação. Uma
+linha, achada ao mexer na função, NÃO corrigida aqui: é material de
+ensino na construção, que é o item 3. Registrada para não se perder.
+
+### A fatia quase passou verde sem mudar a tela
+
+A primeira versão mandava só `reexplicacao` e não `resgate`. O motor
+passou nos 23 testes, e no navegador **nada acontecia**: o cliente desenha
+um elemento só para a analogia e não tinha texto para pôr nele. Pego
+olhando a tela, não a suíte — o mesmo motivo pelo qual a regra de ver no
+navegador existe.
+
+Três sabotagens: sem teto (14 caem, inclusive os 13 de "a unidade
+termina"), não zerar o contador ao mudar de cartão (1) e ignorar o
+`repetir` no despacho (2).
+
+1.213 + 252 verdes.

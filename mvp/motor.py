@@ -419,10 +419,45 @@ def _evento_ensino(d: Dominio, e: Estado) -> Evento:
         "momento": "abertura"})
 
 
+def _pede_de_novo(e: Estado, nid: str, onde: str) -> tuple[Estado, Evento]:
+    """"Ainda não entendi" numa tela de ensino: conta e registra.
+
+    Mesma contabilidade da refutação, que já fazia isto desde a T-inicial:
+    o percurso NÃO anda, o nó enfraquece (`forca` desconta ponto por
+    reexplicação) e o log guarda o pedido. O que não existia era o botão —
+    o cartão de ensino tinha um só, "Entendi", e colher "Entendi" de quem
+    não entendeu é pior do que não ter o recurso.
+    """
+    novo = replace(e, repeticoes=e.repeticoes + 1)
+    novo = novo.com(nid, reexplicacoes=novo.no(nid).reexplicacoes + 1)
+    return novo, Evento("premissa_reapresentada", {
+        "no": nid, "vez": novo.repeticoes, "onde": onde})
+
+
+def _nao_fechou(nid: str, e: Estado, onde: str) -> tuple[Evento, ...]:
+    """Estourou o teto: segue, e o log diz que ficou sem ser entendida.
+
+    Insistir uma terceira vez na mesma frase não ensina, e sem teto a
+    unidade não termina. O que vem depois é quem pega isso.
+    """
+    return (Evento("premissa_nao_fechou", {
+        "no": nid, "repeticoes": e.repeticoes, "onde": onde}),)
+
+
 def _tela_ensino(d: Dominio, e: Estado) -> Tela:
     nid = _cartoes(d)[e.cartao]
     return Tela("ensino", no=nid, texto=d.nos[nid].simples, dados={
         "indice": e.cartao + 1, "total": len(_cartoes(d)),
+        # Pediu de novo: a mesma afirmação por outro caminho. No cartão de
+        # abertura a analogia não é mostrada, e passa a ser.
+        #
+        # `resgate` vai JUNTO, e tem de ir: o cliente desenha um elemento
+        # só para a analogia, e sem este campo ele não tinha o texto para
+        # pôr nele. A primeira versão desta fatia mandou só o
+        # `reexplicacao`, o motor passou no teste e a tela não mudou nada.
+        "resgate": d.resgate(nid),
+        "reexplicacao": d.resgate(nid) if e.repeticoes else "",
+        "pode_repetir": e.repeticoes < LIMITE_REEXPLICACAO,
         # A frase sozinha fica abstrata para quem nunca declarou uma
         # variável. O exemplo ancora, e é o mesmo código que as atividades
         # daquele nó usam.
@@ -440,7 +475,7 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     if e.fase == FECHAMENTO:
         return _fecha_unidade(d, e, r)
     if e.fase == ENSINO:
-        return _segue_ensino(d, e)
+        return _segue_ensino(d, e, repetir=r.repetir)
     if e.fase in (DIAGNOSTICO, RETESTE):
         # O reteste pergunta as TRÊS camadas, como o diagnóstico: o
         # critério fala da razão e da confiança, não só do acerto.
@@ -461,9 +496,16 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         return _responde_treino(d, e, r)
     if e.fase == PRIMEIRO_CONTATO:
         a = next(x for x in d.atividades if x.id == e.atividade)
-        return _apresenta(d, replace(e, fase=DIAGNOSTICO), a)
+        nid = e.alvo or a.no
+        if r.repetir and e.repeticoes < LIMITE_REEXPLICACAO:
+            novo, evento = _pede_de_novo(e, nid, "primeiro_contato")
+            return Transicao(novo, _tela_construcao(
+                d, nid, "primeiro_contato", novo.repeticoes), (evento,))
+        antes = _nao_fechou(nid, e, "primeiro_contato") if r.repetir else ()
+        t = _apresenta(d, replace(e, fase=DIAGNOSTICO, repeticoes=0), a)
+        return Transicao(t.estado, t.tela, antes + t.eventos)
     if e.fase == CONSTRUCAO:
-        return _segue_construcao(d, e)
+        return _segue_construcao(d, e, repetir=r.repetir)
     if e.fase == ENTRADA:
         return _responde_entrada(d, e, r)
     return Transicao(e, _mapa(d, e))
@@ -488,15 +530,25 @@ def _fecha_unidade(d: Dominio, e: Estado, r: Resposta) -> Transicao:
     return Transicao(novo, _mapa(d, novo), (evento,))
 
 
-def _segue_ensino(d: Dominio, e: Estado) -> Transicao:
+def _segue_ensino(d: Dominio, e: Estado, repetir: bool = False) -> Transicao:
+    nid = _cartoes(d)[e.cartao]
+    if repetir and e.repeticoes < LIMITE_REEXPLICACAO:
+        novo, evento = _pede_de_novo(e, nid, "ensino")
+        return Transicao(novo, _tela_ensino(d, novo), (evento,))
+    antes = _nao_fechou(nid, e, "ensino") if repetir else ()
+
     # O cartão que acabou de ser lido marca o nó: ele não precisa de
     # primeiro contato depois.
-    e = e.com(_cartoes(d)[e.cartao], ensinado=True)
+    e = e.com(nid, ensinado=True)
     proximo = e.cartao + 1
     if proximo < len(_cartoes(d)):
-        novo = replace(e, cartao=proximo)
-        return Transicao(novo, _tela_ensino(d, novo), (_evento_ensino(d, novo),))
-    return _proxima_diagnostica(d, replace(e, fase=DIAGNOSTICO))
+        # `repeticoes` zera ao mudar de cartão: o teto é POR premissa, e
+        # sem zerar o limite do primeiro nó fecharia a porta do segundo.
+        novo = replace(e, cartao=proximo, repeticoes=0)
+        return Transicao(novo, _tela_ensino(d, novo),
+                         antes + (_evento_ensino(d, novo),))
+    t = _proxima_diagnostica(d, replace(e, fase=DIAGNOSTICO, repeticoes=0))
+    return Transicao(t.estado, t.tela, antes + t.eventos)
 
 
 # --------------------------------------------------------------------------
@@ -1165,7 +1217,8 @@ def _inicia_construcao(d: Dominio, e: Estado, no: str) -> Transicao:
     return Transicao(novo, _tela_construcao(d, no), (evento,))
 
 
-def _tela_construcao(d: Dominio, no: str, motivo: str = "lacuna") -> Tela:
+def _tela_construcao(d: Dominio, no: str, motivo: str = "lacuna",
+                     repeticoes: int = 0) -> Tela:
     """A mesma premissa da tela de ensino, com o resgate e o exemplo.
 
     `motivo` existe para a tela poder dizer POR QUE ela apareceu agora: a
@@ -1176,12 +1229,25 @@ def _tela_construcao(d: Dominio, no: str, motivo: str = "lacuna") -> Tela:
         "motivo": motivo,
         "codigo": d.exemplo(no),
         "resgate": d.resgate(no),
+        # Aqui a analogia já aparece de primeira, então pedir de novo
+        # reapresenta o MESMO. Fazer a segunda vez ser diferente é a fatia
+        # seguinte; esta só devolve à pessoa o direito de não entender.
+        "reexplicacao": d.resgate(no) if repeticoes else "",
+        "pode_repetir": repeticoes < LIMITE_REEXPLICACAO,
     })
 
 
-def _segue_construcao(d: Dominio, e: Estado) -> Transicao:
+def _segue_construcao(d: Dominio, e: Estado,
+                      repetir: bool = False) -> Transicao:
     """Depois do ensino, o item de entrada — se o banco tiver um."""
     no = e.construindo or ""
+    if repetir and e.repeticoes < LIMITE_REEXPLICACAO:
+        novo, evento = _pede_de_novo(e, no, "construcao")
+        return Transicao(novo,
+                         _tela_construcao(d, no, "lacuna", novo.repeticoes),
+                         (evento,))
+    antes = _nao_fechou(no, e, "construcao") if repetir else ()
+    e = replace(e, repeticoes=0)
     item = d.entrada(no, e.no(no).usadas)
     if item is None:
         # Sem item de entrada o nó foi ensinado e nada foi medido. Dizer
@@ -1189,7 +1255,7 @@ def _segue_construcao(d: Dominio, e: Estado) -> Transicao:
         novo = replace(e, fase=DIAGNOSTICO, construindo=None)
         evento = Evento("entrada_sem_item", {
             "no": no, "motivo": "o banco do nó não tem item de entrada"})
-        return _segue(d, novo, [evento], preferir=no)
+        return _segue(d, novo, list(antes) + [evento], preferir=no)
     en = e.no(no)
     novo = replace(e, fase=ENTRADA, atividade=item.id)
     novo = novo.com(no, usadas=en.usadas + (item.id,),
@@ -1208,7 +1274,7 @@ def _segue_construcao(d: Dominio, e: Estado) -> Transicao:
                                        len(item.opcoes))),
         **_procedencia(item),
     })
-    return Transicao(novo, tela, (evento,))
+    return Transicao(novo, tela, antes + (evento,))
 
 
 def _responde_entrada(d: Dominio, e: Estado, r: Resposta) -> Transicao:

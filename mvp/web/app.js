@@ -272,9 +272,15 @@
     if (primeiraVez) etiqueta = "Antes da próxima pergunta";
     $("ensino-passo").textContent = etiqueta;
     /* O resgate vai junto nos dois casos em que a tela volta para UM no:
-     * e a analogia daquela premissa, e a abertura nao a tem. */
-    $("ensino-resgate").textContent = t.resgate || "";
-    $("ensino-resgate").hidden = !(daLacuna || primeiraVez) || !t.resgate;
+     * e a analogia daquela premissa, e a abertura nao a tem.
+     *
+     * E vai tambem quando a pessoa pediu de novo: no cartao de abertura
+     * essa e a unica coisa que muda na segunda vez — a mesma afirmacao
+     * por outro caminho, que e o que a refutacao ja fazia. */
+    var analogia = t.resgate || t.reexplicacao || "";
+    $("ensino-resgate").textContent = analogia;
+    $("ensino-resgate").hidden =
+      !analogia || !(daLacuna || primeiraVez || t.reexplicacao);
     $("btn-ensino").textContent = daLacuna || primeiraVez
       ? "Entendi, quero tentar" : "Entendi";
     $("ensino-texto").textContent = t.texto;
@@ -306,6 +312,13 @@
     caixa.classList.toggle("oculto", partes.length === 0);
 
     $("btn-ensino").onclick = function () { responde({}); };
+
+    /* "Ainda nao entendi" some quando o teto estoura. Oferecer o botao
+     * depois disso faria a pessoa clicar e o percurso andar sem
+     * explicacao nenhuma — pior do que nao ter o botao. */
+    $("btn-ensino-nao").classList.toggle("oculto", !t.pode_repetir);
+    $("btn-ensino-nao").onclick = function () { responde({ repetir: true }); };
+
     mostra("ensino");
   }
 
