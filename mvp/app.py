@@ -107,10 +107,6 @@ def _explica_erro(d: Dominio, semente: str, dados: dict) -> dict | None:
         return None
     cid = na_tela[i].crenca or ""
     tem = cid in d.crencas
-    # Sem `no` no retorno, de propósito: o cliente não o leria, o grafo já
-    # recebe `foco` em toda resposta, e campo que ninguém usa é campo que
-    # ninguém confere. Quem precisa saber de que nó é a premissa lê o `no`
-    # do `resposta_registrada`, que é onde ele é dado.
     return {
         "premissa": d.nos[no].simples,
         # Vazio quando a alternativa é distrator plausível sem crença
@@ -118,6 +114,20 @@ def _explica_erro(d: Dominio, semente: str, dados: dict) -> dict | None:
         # por onde a pessoa foi, e calar é o que a regra manda.
         "escolheu": d.crencas[cid].afirma if tem else "",
         "contradiz": bool(tem and d.crencas[cid].nega == no),
+        # O `no` havia sido tirado deste retorno com a justificativa de que
+        # campo que ninguém lê é campo que ninguém confere. Ele volta COM
+        # USO: o banco de figuras é do cliente e é indexado por nó, e é por
+        # este campo que o desenho da premissa é escolhido. Quem garante
+        # que o uso existe na tela, e não só no JSON, é o
+        # `test_o_cliente_le_todos_os_campos_que_o_servidor_monta`.
+        "no": no,
+        # A analogia DAQUELE NÓ, e nunca `d.resgate(no)`: esse acessador cai
+        # no resumo do tópico quando o nó não tem versão própria, e o resumo
+        # mapeia as cinco premissas de uma vez — na tela de um erro de
+        # treino ele entregaria a resposta de atividade ainda não feita. Nó
+        # sem versão própria sai sem analogia, e a tela esconde a linha.
+        # Medido: 79 de 79 têm a própria, então hoje a tela nunca cala.
+        "resgate": d.resgates.get(no, ""),
     }
 
 

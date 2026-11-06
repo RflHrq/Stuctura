@@ -148,12 +148,20 @@ def test_alternativa_sem_crenca_explica_so_a_premissa(d):
 def test_o_retorno_nao_carrega_prosa(d):
     """A REGRA DO DONO, como teste.
 
-    Três chaves: duas de texto, que são string do domínio palavra por
-    palavra, e um booleano. Campo novo com frase escrita por mim cai
-    aqui — é o único jeito de a proibição ter dente.
+    Cinco chaves: três de texto, que são string do domínio palavra por
+    palavra, um booleano e um id de nó. Campo novo com frase escrita por
+    mim cai aqui — é o único jeito de a proibição ter dente.
+
+    E ELE CAIU, na fatia do erro desenhado: o retorno passou a levar `no`
+    e `resgate`. O teste não foi afrouxado para passar — as duas chaves
+    novas entraram com a MESMA exigência das antigas (a analogia tem de
+    ser string cadastrada do nó; o `no` tem de ser nó deste domínio) e a
+    igualdade exata do conjunto de chaves continua aqui. Frase redigida
+    por mim em qualquer das cinco continua caindo.
     """
     textos = {n.simples for n in d.nos.values()}
     textos |= {c.afirma for c in d.crencas.values()}
+    textos |= set(d.resgates.values())
     textos.add("")
     for a in d.atividades:
         na_tela = motor.opcoes_na_tela("P01", a)
@@ -161,11 +169,14 @@ def test_o_retorno_nao_carrega_prosa(d):
             if o.correta:
                 continue
             r = aplicacao._explica_erro(d, "P01", _dados(d, "P01", a.id, i))
-            assert set(r) == {"premissa", "escolheu", "contradiz"}, (
+            assert set(r) == {"premissa", "escolheu", "contradiz",
+                              "no", "resgate"}, (
                 "chave nova em %s: %s" % (a.id, sorted(r)))
             assert r["premissa"] in textos
             assert r["escolheu"] in textos
+            assert r["resgate"] in textos
             assert isinstance(r["contradiz"], bool)
+            assert r["no"] in d.nos
 
 
 def test_contradiz_so_quando_a_crenca_nega_ESTA_premissa(d):
@@ -461,3 +472,146 @@ def test_o_falso_positivo_nao_virou_errada(monkeypatch):
               and p["retorno"]]
     for payload in falsos:
         assert set(payload["retorno"]) == {"crenca", "contradiz", "no", "vezes"}
+
+
+# --------------------------------------------------------------------------
+# O ERRO DESENHADO: a figura e a analogia na mesma tela da premissa
+#
+# MEDIDO antes de escrever uma linha, nos treze tópicos:
+#
+#     telas de erro de treino/entrada por varredura     79
+#     premissas com figura no banco de `figuras.js`     79 de 79
+#     premissas com analogia PRÓPRIA (`resgates[no]`)   79 de 79
+#     materiais que a tela do erro mostrava              2 de 4
+#
+# Os quatro materiais do cartão de ensino — enunciado, exemplo, figura e
+# analogia — já se encontram na tela de ensino e na de construção. Onde
+# eles não se encontravam é aqui: a tela do erro mostrava o enunciado da
+# premissa e a fala da ideia marcada, e nenhum desenho.
+#
+# E A ANALOGIA NÃO É `d.resgate(no)`. Esse acessador cai no RESUMO do
+# tópico quando o nó não tem versão própria, e o resumo mapeia as cinco
+# premissas de uma vez — na tela de um erro de treino ele entregaria a
+# resposta de atividade que ainda não foi feita. Aqui se manda a do nó, ou
+# nada. Hoje são 79 de 79 com versão própria, então o caso não acontece em
+# nenhum tópico; o teste existe para o nó que alguém cadastrar amanhã.
+# --------------------------------------------------------------------------
+
+def test_o_retorno_do_erro_diz_de_que_premissa_desenhar(d):
+    """O banco de figuras é do CLIENTE e é indexado por nó.
+
+    O `no` já tinha sido tirado deste retorno de propósito, com a
+    justificativa de que campo que ninguém lê é campo que ninguém confere.
+    Ele volta com uso: é por ele que o desenho é escolhido. E
+    `test_o_cliente_le_todos_os_campos_que_o_servidor_monta` é o que
+    garante que o uso existe de fato na tela.
+    """
+    a = next(x for x in d.atividades if x.no == "B1")
+    r = aplicacao._explica_erro(d, "P01", _dados(d, "P01", a.id,
+                                                 _uma_errada(d, a)))
+    assert r["no"] == a.no
+
+
+def test_o_retorno_do_erro_leva_a_analogia_do_no(d):
+    """Palavra por palavra do domínio, como os outros dois textos."""
+    a = next(x for x in d.atividades if x.no == "B1")
+    r = aplicacao._explica_erro(d, "P01", _dados(d, "P01", a.id,
+                                                 _uma_errada(d, a)))
+    assert r["resgate"] == d.resgates[a.no]
+    assert r["resgate"].strip(), "a analogia do B1 do kc_02 veio vazia"
+
+
+def test_a_analogia_do_erro_nao_cai_no_resumo_do_topico(d):
+    """O sabotador: trocar isto por `d.resgate(no)` cai aqui.
+
+    Um nó sem versão própria faria o acessador devolver o resumo do
+    tópico, que mapeia as cinco premissas de uma vez. Numa tela de erro de
+    treino isso entrega a resposta de atividade ainda não feita — e é por
+    isso que a validação usa a do nó, não o resumo.
+    """
+    import dataclasses
+
+    assert d.analogia.strip(), "o kc_02 perdeu o resumo: o teste fica vazio"
+    sem = dataclasses.replace(d, resgates={})
+    a = next(x for x in d.atividades if x.no == "B1")
+    r = aplicacao._explica_erro(sem, "P01", _dados(sem, "P01", a.id,
+                                                   _uma_errada(sem, a)))
+    assert r["resgate"] == "", (
+        "nó sem analogia própria recebeu o resumo do tópico: %r"
+        % r["resgate"])
+
+
+@pytest.mark.parametrize("topico", topicos())
+def test_toda_premissa_tem_analogia_propria(topico):
+    """A medida virada teste: 79 de 79.
+
+    Como a tela do erro CALA quando o nó não tem versão própria, nó novo
+    sem analogia sai sem ela e ninguém percebe. Este teste é o aviso para
+    quem cadastrar o próximo: escreva a analogia do nó.
+    """
+    dd = carrega(topico=topico)
+    faltam = [n for n in dd.ordem if not dd.resgates.get(n, "").strip()]
+    assert faltam == [], "%s: premissa sem analogia própria: %s" % (
+        topico, faltam)
+
+
+@pytest.mark.parametrize("topico", topicos())
+def test_a_errada_de_ensino_vem_com_figura_e_analogia(topico, monkeypatch):
+    """A invariante desta fatia, nos treze tópicos.
+
+    Toda errada de treino ou de entrada chega à tela com os quatro
+    ingredientes: o enunciado da premissa, a ideia marcada, de que
+    premissa é o desenho, e a analogia daquela premissa.
+    """
+    d = carrega(topico=topico)
+    erradas = _erradas(percorre(d, monkeypatch))
+    de_ensino = [(p, f, n) for p, f, n in erradas if f in ENSINA]
+    assert de_ensino, "%s não produziu errada de ensino nenhuma" % topico
+    for payload, fase, no in de_ensino:
+        r = payload["retorno"]
+        assert r["no"] == no, (
+            "%s: o retorno manda desenhar %r e a pergunta é do nó %r"
+            % (topico, r["no"], no))
+        assert r["resgate"] == d.resgates.get(no, ""), (
+            "%s: a analogia do retorno não é a cadastrada do nó %s"
+            % (topico, no))
+        assert r["resgate"].strip(), (
+            "%s: errada de %s no nó %s sem analogia" % (topico, fase, no))
+
+
+# --------------------------------------------------------------------------
+# Entre artefatos: o desenho na tela
+# --------------------------------------------------------------------------
+
+def test_o_cliente_desenha_a_figura_do_erro():
+    """`Figuras.dentro` é quem troca o SVG e esconde o elemento vazio.
+
+    O cliente já desenhava no cartão de ensino, na validação e na
+    refutação. A tela do erro era a única das quatro sem desenho.
+    """
+    js = _web("app.js")
+    # COM O NÓ DO RETORNO, e a primeira versão deste teste não exigia isso:
+    # ela procurava só `Figuras.dentro($("ret-figura")`, e a linha que LIMPA
+    # o elemento no alto de `mostraRetorno` já casava com isso. Apagada a
+    # linha que desenha, o teste continuava verde. Sabotagem é o que
+    # descobre assertiva frouxa; lê-la de novo, não.
+    assert 'Figuras.dentro($("ret-figura"), j.retorno.no)' in js, (
+        "a tela do erro continua sem desenhar a premissa da pergunta")
+
+
+def test_o_cliente_limpa_o_desenho_antes_de_escolher_o_veredito():
+    """Cinco vereditos dividem a MESMA tela de retorno.
+
+    A caixa de contraste é escondida no alto de `mostraRetorno` por este
+    motivo exato: sem isso, o desenho do erro anterior fica na tela do
+    acerto seguinte. Figura de premissa errada é pior que figura nenhuma.
+    """
+    import re
+
+    js = _web("app.js")
+    abre = re.search(r"function mostraRetorno\(.*?if \(j\.veredito",
+                     js, flags=re.S)
+    assert abre, "`mostraRetorno` mudou de forma"
+    for ident in ("ret-figura", "ret-resgate"):
+        assert ident in abre.group(0), (
+            "#%s não é limpo antes do veredito ser escolhido" % ident)

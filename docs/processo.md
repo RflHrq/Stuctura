@@ -3237,3 +3237,70 @@ processo era o de antes da edição. Depois de mexer em `mvp/`, reinicie o
 servidor antes de mostrar a alguém.
 
 1.215 + 252 verdes.
+
+## Item 4: o erro que DESENHA
+
+A tela de erro do treino era a única das quatro telas de ensino sem
+desenho. Medido antes de escrever uma linha, nos treze tópicos:
+
+| o que | quanto |
+| --- | --- |
+| telas de erro de treino/entrada por varredura | **79** |
+| premissas com figura no banco de `figuras.js` | **79 de 79** |
+| premissas com analogia própria (`resgates[no]`) | **79 de 79** |
+| materiais que a tela do erro mostrava | **2 de 4** |
+
+Os quatro materiais do cartão — enunciado, exemplo, figura, analogia —
+já se encontravam no ensino, na construção, na validação e na refutação.
+A tela do erro mostrava o enunciado da premissa e a fala da ideia
+marcada, e mais nada. Agora mostra os quatro.
+
+### O `no` volta ao retorno, com uso
+
+Na fatia do feedback explicativo o `no` tinha sido **tirado** deste
+retorno, com a justificativa de que campo que ninguém lê é campo que
+ninguém confere. Ele volta porque agora tem uso: o banco de figuras é do
+cliente e é indexado por nó, e é por este campo que o desenho é
+escolhido. Quem garante que o uso existe na tela, e não só no JSON, é o
+`test_o_cliente_le_todos_os_campos_que_o_servidor_monta`, que já existia.
+
+### A analogia não é `d.resgate(no)`, e isso importa
+
+Esse acessador cai no **resumo do tópico** quando o nó não tem versão
+própria — e o resumo mapeia as cinco premissas de uma vez. Na tela de um
+erro de treino ele entregaria a resposta de atividade que ainda não foi
+feita. O retorno manda `d.resgates.get(no, "")`: a do nó, ou nada, e a
+tela esconde a linha vazia. Hoje são 79 de 79 com versão própria, então
+o caso não acontece em tópico nenhum; `test_toda_premissa_tem_analogia_propria`
+existe para o nó que alguém cadastrar amanhã.
+
+### O teste que caiu, e não foi afrouxado
+
+`test_o_retorno_nao_carrega_prosa` guarda a regra do dono — o sistema não
+redige a justificativa do erro — e o faz exigindo **igualdade exata** do
+conjunto de chaves, para que campo novo com frase escrita pela IA caia
+ali. Ele caiu, como projetado. Foi **estendido**, não relaxado: as duas
+chaves novas entraram com a mesma exigência das antigas (a analogia tem
+de ser string cadastrada; o `no` tem de ser nó do domínio) e a igualdade
+exata continua. Cinco chaves pinadas em vez de três.
+
+### Uma assertiva frouxa, achada pela sabotagem
+
+A primeira versão de `test_o_cliente_desenha_a_figura_do_erro` procurava
+`Figuras.dentro($("ret-figura")` — e a linha que **limpa** o elemento no
+alto de `mostraRetorno` já casava com isso. Apagada a linha que desenha,
+o teste continuava verde. Corrigido para exigir a chamada com
+`j.retorno.no`. Foi a sabotagem que mostrou; reler o teste não mostrou.
+
+### O que ficou de fora, de propósito
+
+O **falso positivo** divide a mesma tela e já recebe um `no` do servidor
+(o nó que a crença nega), e o cliente o ignora. Pôr o desenho ali é outra
+fatia: a relação é diferente — "você explicou por" não é "você escolheu"
+— e misturar as duas repetiria o defeito do rótulo fixo.
+
+Conferido na tela, numa sessão de kc_02: erro no item de entrada do B1
+traz os quatro — "Você escolheu / o ponteiro não ocupa lugar nenhum",
+"E isso contradiz / p é uma caixa como as outras", o desenho das duas
+casas com dois números de porta, e a analogia do papel que não flutua.
+No retorno seguinte, de outro veredito, o desenho sumiu.

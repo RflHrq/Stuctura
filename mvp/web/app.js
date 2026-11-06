@@ -525,6 +525,13 @@
     // congelada no passo anterior enquanto o retorno estava visível.
     $("trilha").textContent = contexto.fase === "TREINO" ? "Treinando" : "Praticando";
     $("ret-contraste").classList.add("oculto");
+    /* Cinco vereditos dividem esta mesma tela. A caixa de contraste e
+     * escondida aqui por isso, e o desenho tem de ser tambem: sem limpar,
+     * a figura da premissa errada do passo anterior fica na tela do acerto
+     * seguinte, e figura de outra premissa e pior que figura nenhuma. */
+    Figuras.dentro($("ret-figura"), null);
+    $("ret-resgate").hidden = true;
+    $("ret-resgate").textContent = "";
     var v = $("ret-veredito");
     if (j.veredito === "crenca") {
       v.textContent = "Vamos olhar isso com calma";
@@ -589,6 +596,14 @@
           ? "A premissa diz"
           : j.retorno.contradiz ? "E isso contradiz" : "E a premissa diz";
         $("ret-certo").textContent = j.retorno.premissa;
+        /* O DESENHO E A ANALOGIA, na ordem do cartao de ensino: a premissa
+         * afirma, o desenho mostra, a analogia traduz. O banco de figuras
+         * e do cliente e e indexado por no — e por isso que o retorno
+         * manda `no`. `Figuras.dentro` esconde o elemento quando aquela
+         * premissa nao tem desenho. */
+        Figuras.dentro($("ret-figura"), j.retorno.no);
+        $("ret-resgate").textContent = j.retorno.resgate || "";
+        $("ret-resgate").hidden = !j.retorno.resgate;
       } else {
         $("ret-texto").textContent =
           "Olhe de novo com calma — a próxima pergunta volta ao mesmo" +
