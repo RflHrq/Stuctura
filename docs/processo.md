@@ -3109,3 +3109,40 @@ provavelmente a maioria.
 2. botão "não entendi" no cartão, com o `LIMITE_REEXPLICACAO` que existe
 3. segunda construção por nó, com material DIFERENTE da primeira — 171
 4. juntar figura + analogia + premissa na construção
+
+### Item 1 feito: a pergunta não endurece contra quem disse que não sabe
+
+O defeito **não era a escada**. Ela está certa, e `test_escada.py` já
+guardava: o nível de um nó só sobe em acerto. Era o `_no_degrau`. Cada
+"não sei" **consome um item** daquele degrau; quando os do degrau atual
+acabam, o seletor subia. Esgotamento de banco lido como progressão.
+
+A regra nova: enquanto o nó estiver em lacuna declarada, o seletor não
+sobe. Aceita degrau mais BAIXO, se houver, e devolve nada se não houver —
+e nada é honesto, porque `lacuna` já é terminal legítimo e conta como
+medida no portão da CS-10.
+
+| | antes | depois |
+| --- | --- | --- |
+| "não sei" declarados | 250 | **85** |
+| momentos de ensino | 79 | 79 |
+| construções dispensadas | 171 | **6** |
+| perguntas após o "não sei" | 245 | **80** |
+| dessas, com nível MAIS ALTO | **153** | **0** |
+
+**A ressalva, e ela importa para não se contar vantagem:** a razão
+"de cada 10 'não sei', 9,3 recebem ensino" (era 3,2) melhorou porque o
+DENOMINADOR caiu. Continuam 79 momentos de ensino. A pessoa não recebe
+mais ensino — deixa de receber 165 perguntas inúteis. É parar de
+machucar, não passar a ensinar. Isso são os itens 3 e 4.
+
+Três sabotagens: subir sempre (16 testes caem), nunca subir (2, incluindo
+o `test_degrau_vazio_no_banco_vira_evento` antigo, que é o guarda de não
+ter quebrado o caso normal) e pegar o item mais alto (16).
+
+E a QUINTA assertiva vazia da sessão, pega antes de rodar: o guarda
+anti-vacuidade estava por tópico, e zero perguntas depois de um "não sei"
+é resultado legítimo da fatia — no kc_00 o nó acaba ali. O guarda passou
+a ser do conjunto.
+
+1.190 + 252 verdes.

@@ -632,17 +632,42 @@ def _no_degrau(d: Dominio, e: Estado, nid: str):
     aqui = [a for a in livres if a.nivel == en.nivel]
     if aqui:
         return aqui[0], None, ""
-    acima = sorted([a for a in livres if a.nivel > en.nivel],
-                   key=lambda a: a.nivel)
-    if acima:
-        tinha = any(a.nivel == en.nivel for a in todas)
-        return acima[0], acima[0].nivel, (
-            "o degrau %d do nó acabou: todos os itens dele já foram usados"
-            % en.nivel if tinha else
-            "o banco do nó não tem item no degrau %d" % en.nivel)
-    # Só restam degraus mais baixos: o nó já passou por eles e o que
-    # sobrou ainda mede alguma coisa. Usa sem mexer no degrau.
-    return sorted(livres, key=lambda a: -a.nivel)[0], None, ""
+
+    # A PERGUNTA NÃO ENDURECE CONTRA QUEM DISSE QUE NÃO SABE.
+    #
+    # MEDIDO na persona `nao_sabe` nos treze tópicos: das 245 perguntas
+    # feitas depois de um "não sei" naquele nó, **153 — 62% — vinham num
+    # degrau MAIS ALTO** do que aquele em que a pessoa desistiu.
+    #
+    # E não era a escada: ela só sobe em acerto, e `test_escada.py` guarda
+    # isso. Era aqui. Cada "não sei" CONSOME um item do degrau; quando os
+    # do degrau atual acabam, este seletor subia — esgotamento de banco
+    # lido como progressão. Quem declarava não saber nada no degrau 1
+    # recebia o 2 e depois o 3.
+    #
+    # Subir continua certo para quem NÃO declarou lacuna: ali o degrau
+    # acabou por uso, não por desistência.
+    if en.estado != LACUNA:
+        acima = sorted([a for a in livres if a.nivel > en.nivel],
+                       key=lambda a: a.nivel)
+        if acima:
+            tinha = any(a.nivel == en.nivel for a in todas)
+            return acima[0], acima[0].nivel, (
+                "o degrau %d do nó acabou: todos os itens dele já foram usados"
+                % en.nivel if tinha else
+                "o banco do nó não tem item no degrau %d" % en.nivel)
+
+    # Só restam degraus mais baixos — ou a pessoa declarou lacuna e os de
+    # cima estão fora de alcance. O nó já passou por eles e o que sobrou
+    # ainda mede alguma coisa. Usa sem mexer no degrau.
+    #
+    # Nada abaixo devolve NADA, e nada é honesto: `lacuna` já é estado
+    # terminal legítimo ("a pessoa sabe que não sabe") e conta como medida
+    # no portão da CS-10. Inventar uma pergunta mais difícil era o defeito.
+    nao_sobem = [a for a in livres if a.nivel <= en.nivel]
+    if not nao_sobem:
+        return None, None, ""
+    return sorted(nao_sobem, key=lambda a: -a.nivel)[0], None, ""
 
 
 def _procedencia(a: Atividade) -> dict:
