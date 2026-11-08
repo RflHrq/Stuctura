@@ -122,9 +122,31 @@ def test_o_exemplo_do_b3_mostra_o_que_a_interpretacao_explica(d):
 
 def test_a_interpretacao_nao_usa_crase(d):
     """A mesma regra dos outros textos de tela: o cliente escreve com
-    textContent, e crase no YAML vira crase na cara da pessoa."""
+    textContent, e crase no YAML vira crase na cara da pessoa.
+
+    ESTE TESTE PEGOU 58 CRASES do material profundo, na hora em que ele
+    foi aplicado ao domínio — mas só as 32 da ampliação, que era o único
+    campo que ele cobria. As outras 26 estavam em `caso_resolvido`,
+    `outra_rota` e `narracao`, e teriam chegado caladas à tela. Por isso
+    o teste abaixo existe.
+    """
     for nid in d.nos:
         assert "`" not in (d.interpretacao(nid) or ""), nid
+
+
+def test_nenhum_texto_de_ensino_usa_crase(d):
+    """A mesma regra, nos três campos que o esquema ganhou.
+
+    Só a PROSA: em `codigo` e `saida` não há crase, e procurá-la ali
+    seria procurar no lugar errado.
+    """
+    for nid in d.nos:
+        for b in d.caso_resolvido(nid) + d.outra_rota(nid):
+            prosa = b.get("prosa")
+            if prosa is not None:
+                assert "`" not in prosa, "%s: %r" % (nid, prosa[:60])
+        for linha in d.narracao(nid):
+            assert "`" not in linha["diz"], "%s: %r" % (nid, linha["diz"][:60])
 
 
 def test_a_interpretacao_nao_depende_de_conhecimento_futuro(d):

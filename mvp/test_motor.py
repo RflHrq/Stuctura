@@ -227,7 +227,12 @@ def test_pedir_de_novo_repete_a_premissa_com_a_analogia(d):
 
     t2 = motor.avanca(d, t.estado, Resposta(repetir=True))
     assert t2.tela.no == premissa, "o percurso andou em vez de repetir"
-    assert t2.tela.dados["reexplicacao"] == d.resgate(premissa)
+    # LISTA DE BLOCOS, e não string. A chave `reexplicacao` tinha o
+    # mesmo nome nas três telas e carregava string aqui e lista nas de
+    # ensino; chave com dois tipos é armadilha para quem mexer depois.
+    # A asserção é a mesma: sem material próprio do nó, a segunda vez
+    # traz o resgate — agora embrulhado num bloco de prosa.
+    assert t2.tela.dados["reexplicacao"] == [{"prosa": d.resgate(premissa)}]
     assert [e.tipo for e in t2.eventos] == ["premissa_reapresentada"]
     assert t2.eventos[0].dados["vez"] == 1
 

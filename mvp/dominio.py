@@ -269,6 +269,32 @@ class Dominio:
 
     exemplos: Mapping[str, str] = field(default_factory=dict)
 
+    # OS TRES CAMPOS DE ENSINO QUE FALTAVAM. A unidade do kc_02 oferecia
+    # 811 palavras para seis premissas sobre ponteiros, e o dono, depois
+    # de usar o sistema, disse que nao conseguia aprender.
+    #
+    #   narracoes        o exemplo explicado LINHA A LINHA
+    #   casos_resolvidos um caso trabalhado ANTES de pedir qualquer coisa
+    #   outras_rotas     o que o "Ainda nao entendi" mostra na segunda vez
+    #
+    # SAO LISTAS DE BLOCOS, e nao texto corrido, porque `_paragrafos`
+    # preserva linha em branco e COLA o resto -- rodei a primeira versao
+    # do material por ela e as linhas de codigo sairam grudadas numa so.
+    narracoes: Mapping[str, tuple] = field(default_factory=dict)
+    casos_resolvidos: Mapping[str, tuple] = field(default_factory=dict)
+    outras_rotas: Mapping[str, tuple] = field(default_factory=dict)
+
+    def narracao(self, no: str) -> list:
+        """O exemplo do cartao, linha a linha. Vazio quando nao ha."""
+        return list(self.narracoes.get(no) or ())
+
+    def caso_resolvido(self, no: str) -> list:
+        return list(self.casos_resolvidos.get(no) or ())
+
+    def outra_rota(self, no: str) -> list:
+        """O material da SEGUNDA vez. Vazio cai no resgate, no motor."""
+        return list(self.outras_rotas.get(no) or ())
+
     def atividades_do_no(self, no: str, uso: str | None = None) -> tuple[Atividade, ...]:
         """As atividades do nó, teórica antes de código."""
         itens = [a for a in self.atividades
@@ -334,6 +360,41 @@ class Dominio:
         base = [n for n in self.nos if self.nos[n].observavel]
         inferencia = [n for n in self.nos if not self.nos[n].observavel]
         return tuple(base + inferencia)
+
+
+BLOCOS_DE_ENSINO = ("prosa", "codigo", "saida")
+
+
+def _blocos(cru, chave):
+    """Le um campo de blocos: {no: [{prosa|codigo|saida: texto}]}.
+
+    A prosa passa por `_texto` (um espaco entre palavras); o codigo e a
+    saida NAO, porque neles a quebra de linha e o conteudo. Era isso que
+    `_paragrafos` destruia quando o material vinha como texto corrido.
+    """
+    fora = {}
+    for no, lista in ((cru or {}).get(chave) or {}).items():
+        blocos = []
+        for b in lista or ():
+            if not isinstance(b, dict):
+                continue
+            for k, v in b.items():
+                if k not in BLOCOS_DE_ENSINO:
+                    continue
+                blocos.append({k: _texto(v) if k == "prosa"
+                               else (v or "").strip(chr(10))})
+        fora[no] = tuple(blocos)
+    return fora
+
+
+def _narracoes(cru):
+    """{no: [{linha, diz}]} -- o exemplo explicado linha a linha."""
+    fora = {}
+    for no, lista in ((cru or {}).get("narracoes") or {}).items():
+        fora[no] = tuple({"linha": (x.get("linha") or "").strip(),
+                          "diz": _texto(x.get("diz"))}
+                         for x in (lista or ()) if isinstance(x, dict))
+    return fora
 
 
 def _texto(valor) -> str:
@@ -406,7 +467,8 @@ def _corta(alvo: str, quantas: int, cru_topico, grafo,
                         if v in crencas_vivas}
         sobram.append(a)
     cru_atv["activities"] = sobram
-    for chave in ("resgates", "exemplos"):
+    for chave in ("resgates", "exemplos", "narracoes",
+                  "casos_resolvidos", "outras_rotas"):
         if cru_atv.get(chave):
             cru_atv[chave] = {k: v for k, v in cru_atv[chave].items()
                               if k in vivos}
@@ -765,5 +827,8 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
         resgates={k: _texto(v) for k, v in ((cru_atv or {}).get("resgates") or {}).items()},
         exemplos={k: (v or "").strip("\n")
                   for k, v in ((cru_atv or {}).get("exemplos") or {}).items()},
+        narracoes=_narracoes(cru_atv),
+        casos_resolvidos=_blocos(cru_atv, "casos_resolvidos"),
+        outras_rotas=_blocos(cru_atv, "outras_rotas"),
         descidas=descidas,
     )

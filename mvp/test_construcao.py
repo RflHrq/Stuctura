@@ -135,14 +135,31 @@ def test_a_construcao_leva_a_ampliacao_do_cartao(d2):
             "a construção do nó %s não leva a ampliação" % no)
 
 
-def test_no_sem_ampliacao_nao_inventa_campo(d2):
-    """77 dos 79 nós não têm ampliação. Campo com texto de outro nó, ou
-    com placeholder, seria pior que campo vazio."""
-    sem = [n for n in d2.nos if not (d2.interpretacao(n) or "").strip()]
-    assert sem, "todos os nós do kc_02 têm ampliação?"
-    for no in sem:
-        tela = motor._tela_construcao(d2, no, "lacuna")
-        assert not (tela.dados.get("interpretacao") or "").strip()
+def test_no_sem_ampliacao_nao_inventa_campo():
+    """Nó sem ampliação recebe campo vazio, nunca texto de outro nó.
+
+    O TÓPICO MUDOU DEBAIXO DESTE TESTE, e a trava de vacuidade dele foi
+    quem avisou. Ele usava o kc_02 e exigia achar lá um nó sem
+    ampliação; quando o material profundo entrou, os seis passaram a
+    ter uma e a lista ficou vazia. O teste não estava errado — o
+    exemplo é que acabou.
+
+    Agora ele procura o nó sem ampliação onde ainda há muitos: dos 79
+    do projeto, a grande maioria continua sem. Se um dia não houver
+    nenhum, a trava dispara de novo, e aí o teste perdeu o objeto —
+    que é exatamente o que ela existe para dizer.
+    """
+    achou = False
+    for topico in topicos():
+        dd = carrega(topico=topico)
+        for no in dd.nos:
+            if (dd.interpretacao(no) or "").strip():
+                continue
+            achou = True
+            tela = motor._tela_construcao(dd, no, "lacuna")
+            assert not (tela.dados.get("interpretacao") or "").strip(), (
+                "%s/%s" % (topico, no))
+    assert achou, "nenhum nó sem ampliação em tópico nenhum: teste sem objeto"
 
 
 def test_depois_do_ensino_vem_o_item_mais_facil(d2):

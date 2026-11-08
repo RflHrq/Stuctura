@@ -84,6 +84,34 @@ h2{margin:0 0 14px; font-size:20px}
 .interpretacao p{margin:0 0 10px; color:var(--tinta2)}
 .interpretacao p:last-child{margin-bottom:0}
 
+/* O EXEMPLO LINHA A LINHA. O par e o ponto: o codigo a esquerda e o que
+   ele faz ao lado. Em tela estreita um cai embaixo do outro, e a
+   correspondencia se mantem pela ordem. */
+.narracao{margin:14px 0 0}
+.narracao-linha{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);
+                gap:10px 16px; align-items:start; padding:8px 0;
+                border-top:1px solid var(--linha)}
+.narracao-linha:first-child{border-top:0}
+.narracao-linha pre{margin:0}
+.narracao-linha p{margin:0; font-size:14.5px; color:var(--tinta2)}
+@media (max-width:620px){
+  .narracao-linha{grid-template-columns:1fr; gap:6px}
+}
+
+/* O CASO RESOLVIDO: prosa e codigo alternados, antes de qualquer
+   pergunta. Recuado para se ler como um exemplo trabalhado, e nao como
+   continuacao do cartao. */
+.caso{margin:14px 0 0; border-left:3px solid var(--linha2);
+      padding:2px 0 2px 16px}
+.caso p{margin:0 0 10px; color:var(--tinta2); font-size:15px}
+.caso p:last-child{margin-bottom:0}
+.caso pre{margin:0 0 10px}
+
+/* A reexplicacao agora e lista de blocos, como as duas de cima. */
+.reexplicacao p{margin:0 0 10px}
+.reexplicacao p:last-child{margin-bottom:0}
+.reexplicacao pre{margin:0 0 10px}
+
 .apoio{margin:0 0 12px; padding-left:18px; color:var(--tinta2)}
 .apoio li{margin:0 0 4px}
 .apoio li.confirmada{color:var(--ok)}

@@ -452,6 +452,28 @@ def _nao_fechou(nid: str, e: Estado, onde: str) -> tuple[Evento, ...]:
         "no": nid, "repeticoes": e.repeticoes, "onde": onde}),)
 
 
+def _outra_vez(d: Dominio, nid: str, repeticoes: int) -> list:
+    """O que a SEGUNDA vez do cartão mostra, sempre como lista de blocos.
+
+    A chave `reexplicacao` já existia na tela, preenchida com
+    `d.resgate(nid)` — um paliativo, porque pedir de novo reapresentava
+    o mesmo cartão. Agora ela traz o material PRÓPRIO do nó quando há, e
+    o resgate embrulhado num bloco quando não há.
+
+    O tipo é um só, de propósito: o cliente desenha blocos e não precisa
+    de um `if` de tipo. Lista vazia na primeira vez — a reexplicação é o
+    que a segunda mostra, e trazê-la de saída gasta o material e tira o
+    sentido do botão.
+    """
+    if not repeticoes:
+        return []
+    proprio = d.outra_rota(nid)
+    if proprio:
+        return proprio
+    resgate = d.resgate(nid)
+    return [{"prosa": resgate}] if resgate else []
+
+
 def _tela_ensino(d: Dominio, e: Estado) -> Tela:
     nid = _cartoes(d)[e.cartao]
     return Tela("ensino", no=nid, texto=d.nos[nid].simples, dados={
@@ -464,8 +486,14 @@ def _tela_ensino(d: Dominio, e: Estado) -> Tela:
         # pôr nele. A primeira versão desta fatia mandou só o
         # `reexplicacao`, o motor passou no teste e a tela não mudou nada.
         "resgate": d.resgate(nid),
-        "reexplicacao": d.resgate(nid) if e.repeticoes else "",
+        "reexplicacao": _outra_vez(d, nid, e.repeticoes),
         "pode_repetir": e.repeticoes < LIMITE_REEXPLICACAO,
+        # O EXEMPLO EXPLICADO LINHA A LINHA, e o caso resolvido antes de
+        # qualquer pergunta. Medido: a unidade do kc_02 dá 811 palavras
+        # de ensino para seis premissas sobre ponteiros, e o dono, depois
+        # de usar o sistema, disse que não conseguia aprender.
+        "narracao": d.narracao(nid),
+        "caso_resolvido": d.caso_resolvido(nid),
         # A frase sozinha fica abstrata para quem nunca declarou uma
         # variável. O exemplo ancora, e é o mesmo código que as atividades
         # daquele nó usam.
@@ -1244,11 +1272,17 @@ def _tela_construcao(d: Dominio, no: str, motivo: str = "lacuna",
         # dos treze tópicos com ampliação — recebia o cartão sem ela.
         # Justo quem mais precisava.
         "interpretacao": d.interpretacao(no),
-        # Aqui a analogia já aparece de primeira, então pedir de novo
-        # reapresenta o MESMO. Fazer a segunda vez ser diferente é a fatia
-        # seguinte; esta só devolve à pessoa o direito de não entender.
-        "reexplicacao": d.resgate(no) if repeticoes else "",
+        # A SEGUNDA VEZ PASSA A SER DIFERENTE, quando o nó tem material
+        # para isso. Era a dívida registrada quando o botão foi
+        # construído: "fazer a segunda vez ser diferente é a fatia
+        # seguinte". Sem `outra_rota`, cai no resgate, como antes.
+        "reexplicacao": _outra_vez(d, no, repeticoes),
         "pode_repetir": repeticoes < LIMITE_REEXPLICACAO,
+        # Os mesmos campos da abertura: o cliente desenha o MESMO
+        # elemento nas duas telas, e campo que só uma manda é seção que
+        # some sem ninguém perceber — foi o que aconteceu com a ampliação.
+        "narracao": d.narracao(no),
+        "caso_resolvido": d.caso_resolvido(no),
     })
 
 
@@ -1467,7 +1501,11 @@ def _tela_refutacao(d: Dominio, e: Estado) -> Tela:
         "apoio": apoio,
         # Pediu de novo: volta a mesma premissa, agora com a analogia
         # daquele nó. É a mesma afirmação, dita por outro caminho.
-        "reexplicacao": d.resgate(nid) if e.repeticoes else "",
+        #
+        # MESMA FORMA DAS TELAS DE ENSINO, e não é enfeite: a chave tinha
+        # o mesmo nome nas três telas e carregava string aqui e lista
+        # lá. Chave com dois tipos é armadilha para quem mexer depois.
+        "reexplicacao": _outra_vez(d, nid, e.repeticoes),
         "repeticoes": e.repeticoes,
         "pode_repetir": e.repeticoes < LIMITE_REEXPLICACAO,
     })

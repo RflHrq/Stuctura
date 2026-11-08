@@ -311,6 +311,13 @@
     });
     caixa.classList.toggle("oculto", partes.length === 0);
 
+    /* O EXEMPLO LINHA A LINHA, e o caso resolvido antes de perguntar.
+     * Medido: a unidade do kc_02 dava 811 palavras de ensino para seis
+     * premissas sobre ponteiros. */
+    desenhaNarracao($("ensino-narracao"), t.narracao);
+    desenhaBlocos($("ensino-caso"), t.caso_resolvido);
+    desenhaBlocos($("ensino-reexplicacao"), t.reexplicacao);
+
     $("btn-ensino").onclick = function () { responde({}); };
 
     /* "Ainda nao entendi" some quando o teto estoura. Oferecer o botao
@@ -506,6 +513,58 @@
       S.escolha === null || (t.pede_confianca && !S.confianca);
   }
 
+  /* ------------------------------------------------- blocos de ensino */
+
+  /* Prosa e codigo sao BLOCOS separados, e nao texto corrido, por um
+   * motivo medido: `_paragrafos`, do lado do servidor, preserva linha em
+   * branco e COLA o resto. O material escrito como prosa com codigo no
+   * meio saia com os `printf` grudados numa linha so.
+   *
+   * Tres tipos: `prosa` vira paragrafo, `codigo` vira <pre> com a mesma
+   * classe do exemplo do cartao, e `saida` vira <pre> de terminal. */
+  function desenhaBlocos(caixa, blocos) {
+    caixa.textContent = "";
+    var lista = blocos || [];
+    lista.forEach(function (b) {
+      var el;
+      if (b.codigo !== undefined) {
+        el = document.createElement("pre");
+        el.className = "codigo";
+        el.textContent = b.codigo;
+      } else if (b.saida !== undefined) {
+        el = document.createElement("pre");
+        el.className = "terminal";
+        el.textContent = b.saida;
+      } else {
+        el = document.createElement("p");
+        el.textContent = b.prosa || "";
+      }
+      caixa.appendChild(el);
+    });
+    caixa.classList.toggle("oculto", lista.length === 0);
+  }
+
+  /* A narracao e um par por linha: o codigo a esquerda, o que ele faz a
+   * direita. Nao e bloco solto — a correspondencia linha-a-linha e o que
+   * a torna util para quem nao sabe o que olhar num trecho de C. */
+  function desenhaNarracao(caixa, linhas) {
+    caixa.textContent = "";
+    var lista = linhas || [];
+    lista.forEach(function (x) {
+      var par = document.createElement("div");
+      par.className = "narracao-linha";
+      var cod = document.createElement("pre");
+      cod.className = "codigo";
+      cod.textContent = x.linha || "";
+      var diz = document.createElement("p");
+      diz.textContent = x.diz || "";
+      par.appendChild(cod);
+      par.appendChild(diz);
+      caixa.appendChild(par);
+    });
+    caixa.classList.toggle("oculto", lista.length === 0);
+  }
+
   function rotuloFormato(f) {
     return { reconhecer_conceito: "reconhecer o conceito",
              achar_o_erro: "achar o erro",
@@ -692,9 +751,9 @@
      * premissa volta dita pela analogia — não é conteúdo novo, é outro
      * caminho para a mesma afirmação. */
     Figuras.dentro($("ref-figura"), t.no);
-    var caixa = $("ref-reexplicacao");
-    caixa.textContent = t.reexplicacao || "";
-    caixa.classList.toggle("oculto", !t.reexplicacao);
+    /* Mesma forma das telas de ensino: a chave `reexplicacao` carregava
+     * string aqui e lista la, e chave com dois tipos e armadilha. */
+    desenhaBlocos($("ref-reexplicacao"), t.reexplicacao);
 
     $("btn-refutacao").onclick = function () { responde({}); };
     var naoEntendi = $("btn-refutacao-nao");
