@@ -202,20 +202,34 @@ conceitos:
       # mesma caixa". Pela regra de liberacao deste arquivo, isso seria
       # explicacao com exemplo.
       #
-      # SO QUE O I3 E INFERENCIA. `_cartoes()` (mvp/motor.py:412) poe na
-      # abertura apenas os nos OBSERVAVEIS -- no kc_02, B1, B2 e B3. A
-      # ampliacao do I3 so e desenhada pelo caminho lacuna -> construcao,
-      # entao ela chega a quem DECLARA que nao sabe. Os sete itens que
-      # cobram o construto chegam a todos.
+      # CORRECAO, 08/11/2026 -- a nota anterior aqui ESTAVA ERRADA.
       #
-      # Marcar `disponivel` aqui diria mais do que foi ensinado. Fica
-      # `nao_introduzido`, e os sete erros do auditor ficam como divida
-      # DECLARADA -- que e melhor que divida escondida atras de um
-      # status generoso.
+      # Eu havia escrito que a ampliacao do I3 so chega a quem declara
+      # lacuna, porque `_cartoes()` poe na abertura apenas os nos
+      # observaveis. A primeira metade e verdade; a conclusao, nao.
       #
-      # O QUE DESTRAVA: a abertura passar a ensinar os seis cartoes, e
-      # nao tres. E decisao de desenho da unidade, do dono e do
-      # orientador, e muda o comprimento da sessao.
+      # `_apresenta` (mvp/motor.py) usa `_tela_construcao(d, nid,
+      # "primeiro_contato")` -- o MESMO cartao completo, com ampliacao,
+      # colado na primeira pergunta sobre aquele no. Medido com a
+      # persona que acerta tudo: os seis nos do kc_02 recebem tela de
+      # ensino com ampliacao, os tres de inferencia por primeiro
+      # contato. Nenhuma premissa e perguntada sem ter sido apresentada,
+      # e existe teste que percorre a sessao inteira cobrando isso.
+      #
+      # E a abertura de TRES cartoes e decisao pedagogica, nao limitacao.
+      # O commit fa8df68 escreve: "Nao enfileirei as seis na abertura de
+      # proposito: seis telas antes da primeira pergunta e aula, nao
+      # diagnostico."
+      #
+      # ENTAO A PERGUNTA MUDA. Dentro do kc_02, o conceito E apresentado
+      # antes de ser cobrado. O que resta e se quem chega aos OUTROS
+      # topicos passou pelo kc_02 -- o que o grafo de pre-requisitos
+      # declara (kc_06 -> kc_04 -> kc_02) e nada hoje obriga, porque o
+      # topico e escolhido por variavel de ambiente.
+      #
+      # A promocao para `disponivel`, com `introduzido_em: kc_02`, e a
+      # mesma forma que `derreferencia` ja usa. Fica para o dono: nao
+      # promovo conceito para deixar validador verde.
       consequencia: >
         Bloqueia o degrau substituto proposto para o `scanf`, que se
         apoiava justamente em passagem por valor.
