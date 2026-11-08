@@ -213,46 +213,33 @@ reexplicacao:
 
 
 # ---------------------------------------------------------------------------
-# ITEM DE ENTRADA — UM, não dois.
+# ITEM DE ENTRADA: NENHUM. E a premissa que me fez escrever doze deles
+# estava errada.
 #
-# O degrau 1 do I2 já tem quatro itens: `ciu_kc02_013` (int * e char * não
-# são a mesma coisa), `ciu_kc02_e5` (conta de luz), `kc02_gi2_n1_1` (um
-# papel diz 1000) e `ciu_kc02_t13` (quem sabe o tipo em tempo de
-# execução). Mais o `ciu_kc02_014` logo acima, no degrau 2 (`int n = &x`,
-# "por que o compilador reclama").
+# EU ESCREVI doze itens novos (dois por no), com a justificativa de que o
+# motor tinha um so para servir e numa segunda passagem nao teria o que
+# perguntar. Fui medir o motor:
 #
-# Os dois itens da primeira versão eram paráfrases do e5 e do 014. O
-# único ângulo que o banco não cobre é atribuir um ponteiro a outro de
-# tipo diferente — que é também a evidência nova da reexplicação.
+#     `_resolve_diagnostico`, ramo LACUNA, linha 1163:
+#         if novo.no(a.no).construcoes == 0:  -> constroi
+#         senao: `construcao_dispensada`
 #
-# O enunciado diz "reclama", não "recusa": é o verbo do `ciu_kc02_014`, e
-# é o que continua verdadeiro em qualquer versão de compilador.
+#     Persona que diz "nao sei" em tudo, treze topicos:
+#         nos que consumiram item de entrada ....... 74
+#         maximo consumido num mesmo no ............  1
+#
+# O motor constroi cada no UMA vez por sessao. Entao ele nunca chega a
+# servir um segundo item de entrada, e UM por no e exatamente o que ele
+# consome. Nao faltava item; faltava texto de ensino.
+#
+# E os doze que eu escrevi eram, todos, reformulacao de item que ja
+# existe -- seis do degrau 1 e seis dos degraus 2 e 3. O banco do kc_02
+# tem dez itens por no e esta saturado em todos os degraus.
+#
+# Se um dia o teto da construcao mudar, o conserto tambem nao e escrever
+# item: e o motor poder servir um item de degrau 1 de outro `uso`
+# quando nao houver `entrada` sobrando.
 # ---------------------------------------------------------------------------
-
-activities:
-
-- id: ciu_kc02_I2_e2
-  node: kc02:I2
-  nivel: 1
-  formato: reconhecer_conceito
-  tipo: codigo
-  uso: entrada
-  codigo: |
-    int  *p;
-    char *q;
-    p = q;
-  recusa: true
-  enunciado: "Os dois guardam endereço. Por que o compilador reclama da terceira linha?"
-  alternativas:
-    a: porque os dois tipos de ponteiro são diferentes
-    b: porque endereço de char não cabe num ponteiro de int
-    c: porque falta copiar o valor, e não o endereço
-  gabarito: a
-  crencas:
-    b: pointer_is_integer
-    c: pointer_is_data
-  gerado_por: Claude Opus 5, 08/11/2026
-  revisado_por: ____
 
 
 # DESCIDA — `pointer_is_integer` já tem, com 4 passos. ATENÇÃO: dois

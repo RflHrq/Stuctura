@@ -133,39 +133,33 @@ reexplicacao:
 
 
 # ---------------------------------------------------------------------------
-# ITEM DE ENTRADA — UM, não dois.
+# ITEM DE ENTRADA: NENHUM. E a premissa que me fez escrever doze deles
+# estava errada.
 #
-# O degrau 1 do B2 já tem quatro: `ciu_kc02_004` (quantos lugares em
-# jogo), `ciu_kc02_e2` (o papel na casa 2A00), `kc02_gb2_n1_1` (quantas
-# casas nessa história) e `ciu_kc02_t04` (&x e &p são). Os três
-# primeiros são da analogia; o quarto pede o par.
+# EU ESCREVI doze itens novos (dois por no), com a justificativa de que o
+# motor tinha um so para servir e numa segunda passagem nao teria o que
+# perguntar. Fui medir o motor:
 #
-# Este fica porque pergunta por &p SOZINHO, que é a afirmação do nó, e
-# em código.
+#     `_resolve_diagnostico`, ramo LACUNA, linha 1163:
+#         if novo.no(a.no).construcoes == 0:  -> constroi
+#         senao: `construcao_dispensada`
+#
+#     Persona que diz "nao sei" em tudo, treze topicos:
+#         nos que consumiram item de entrada ....... 74
+#         maximo consumido num mesmo no ............  1
+#
+# O motor constroi cada no UMA vez por sessao. Entao ele nunca chega a
+# servir um segundo item de entrada, e UM por no e exatamente o que ele
+# consome. Nao faltava item; faltava texto de ensino.
+#
+# E os doze que eu escrevi eram, todos, reformulacao de item que ja
+# existe -- seis do degrau 1 e seis dos degraus 2 e 3. O banco do kc_02
+# tem dez itens por no e esta saturado em todos os degraus.
+#
+# Se um dia o teto da construcao mudar, o conserto tambem nao e escrever
+# item: e o motor poder servir um item de degrau 1 de outro `uso`
+# quando nao houver `entrada` sobrando.
 # ---------------------------------------------------------------------------
-
-activities:
-
-- id: ciu_kc02_B2_e2
-  node: kc02:B2
-  nivel: 1
-  formato: reconhecer_conceito
-  tipo: codigo
-  uso: entrada
-  codigo: |
-    int x = 42;
-    int *p = &x;
-  enunciado: "Depois dessas duas linhas, &p vale:"
-  alternativas:
-    a: o endereço da caixa p
-    b: o endereço da caixa x
-    c: nada, porque p não tem endereço
-  gabarito: a
-  crencas:
-    b: pointer_and_target_are_one
-    c: pointer_has_no_address
-  gerado_por: Claude Opus 5, 08/11/2026
-  revisado_por: ____
 
 
 # DESCIDA — `pointer_has_no_address` já tem, com 4 passos.

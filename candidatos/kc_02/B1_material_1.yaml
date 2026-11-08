@@ -104,40 +104,33 @@ reexplicacao:
 
 
 # ---------------------------------------------------------------------------
-# ITEM DE ENTRADA — UM, não dois.
+# ITEM DE ENTRADA: NENHUM. E a premissa que me fez escrever doze deles
+# estava errada.
 #
-# O degrau 1 do B1 já tem quatro itens: `ciu_kc02_001` (o que é o
-# endereço), `ciu_kc02_t01` (variável comum tem endereço), `ciu_kc02_e1`
-# (a rua de casas) e `kc02_gb1_n1_1` (duas casas, sofás idênticos). O
-# banco está saturado no degrau 1, e o segundo item que eu havia escrito
-# repetia o último deles.
+# EU ESCREVI doze itens novos (dois por no), com a justificativa de que o
+# motor tinha um so para servir e numa segunda passagem nao teria o que
+# perguntar. Fui medir o motor:
 #
-# Este fica porque é o único em CÓDIGO no degrau 1: os quatro existentes
-# são teóricos ou da analogia, e o item de entrada vem logo depois de um
-# cartão cujo exemplo é código.
+#     `_resolve_diagnostico`, ramo LACUNA, linha 1163:
+#         if novo.no(a.no).construcoes == 0:  -> constroi
+#         senao: `construcao_dispensada`
+#
+#     Persona que diz "nao sei" em tudo, treze topicos:
+#         nos que consumiram item de entrada ....... 74
+#         maximo consumido num mesmo no ............  1
+#
+# O motor constroi cada no UMA vez por sessao. Entao ele nunca chega a
+# servir um segundo item de entrada, e UM por no e exatamente o que ele
+# consome. Nao faltava item; faltava texto de ensino.
+#
+# E os doze que eu escrevi eram, todos, reformulacao de item que ja
+# existe -- seis do degrau 1 e seis dos degraus 2 e 3. O banco do kc_02
+# tem dez itens por no e esta saturado em todos os degraus.
+#
+# Se um dia o teto da construcao mudar, o conserto tambem nao e escrever
+# item: e o motor poder servir um item de degrau 1 de outro `uso`
+# quando nao houver `entrada` sobrando.
 # ---------------------------------------------------------------------------
-
-activities:
-
-- id: ciu_kc02_B1_e2
-  node: kc02:B1
-  nivel: 1
-  formato: reconhecer_conceito
-  tipo: codigo
-  uso: entrada
-  codigo: |
-    int idade = 20;
-  enunciado: "Depois dessa linha, &idade vale:"
-  alternativas:
-    a: o número do lugar onde idade está
-    b: 20, que é o que está guardado
-    c: a palavra idade, que o programa procura
-  gabarito: a
-  crencas:
-    b: pointer_is_data
-    c: memory_is_by_name
-  gerado_por: Claude Opus 5, 08/11/2026
-  revisado_por: ____
 
 
 # DESCIDA — `memory_is_by_name` já tem, com 4 passos.

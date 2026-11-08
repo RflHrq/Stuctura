@@ -6,12 +6,12 @@ e esta folha substitui as duas anteriores (`REVISAO-B2_material_1.md` e
 
 | nó | assinatura |
 | --- | --- |
-| B1 | `df2b72b820cd` |
-| B2 | `4f3c4b9c37bb` |
-| B3 | `1688adb30f97` |
-| I1 | `abe7758e2007` |
-| I2 | `a1062efa6178` |
-| I3 | `1dc8026b0325` |
+| B1 | `fb66395f52c6` |
+| B2 | `37797bc0cd42` |
+| B3 | `a25eed655b98` |
+| I1 | `7618fe8002b5` |
+| I2 | `e065a658bcc8` |
+| I3 | `7a1b4efd2c74` |
 
 Para aprovar, escreva no cabeçalho do YAML correspondente:
 
@@ -19,6 +19,38 @@ Para aprovar, escreva no cabeçalho do YAML correspondente:
 revisado_por: <seu nome>
 revisado_sha: <a assinatura da linha acima>
 ```
+
+## Quarta rodada: todos os itens saíram, e a premissa deles era falsa
+
+Uma revisão independente, agora **seguindo a skill**, reprovou o último
+item do I2: ele era o `kc02_gi2_n3_3` com a atribuição invertida — mesmo
+cenário, mesma resposta, mesmo mapa de crenças — e o gêmeo está no
+**degrau 3** enquanto o meu estava no **degrau 1**. Eu não tinha olhado
+o degrau 3.
+
+Fui conferir os outros cinco contra os degraus 2 e 3, e **os cinco eram
+reformulação também**. O mais claro: o meu item do B2 é o
+`ciu_kc02_005`, com o mesmo código e a mesma resposta.
+
+E então medi a premissa que me fez escrever doze itens:
+
+```
+_resolve_diagnostico, ramo LACUNA (mvp/motor.py:1163):
+    if novo.no(a.no).construcoes == 0:  -> constrói
+    senão: `construcao_dispensada`
+
+persona que diz "não sei" em tudo, treze tópicos:
+    nós que consumiram item de entrada ....... 74
+    máximo consumido num mesmo nó ............  1
+```
+
+**O motor constrói cada nó uma vez por sessão, então serve no máximo um
+item de entrada.** Não faltava item: um por nó é exatamente o que ele
+consome. Os doze foram escritos contra uma escassez que não existe.
+
+**Os seis arquivos agora são só texto de ensino.** É o que faltava
+desde o começo, e é o que a medição da sessão apontava: 811 palavras
+para seis premissas sobre ponteiros.
 
 ## O que mudou da primeira versão para esta
 
