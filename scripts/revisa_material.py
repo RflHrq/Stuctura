@@ -59,8 +59,13 @@ BLOCOS_VALIDOS = ("prosa", "codigo", "saida")
 SEVERIDADE = re.compile(r"\b(recusa|recusam|não compila|nao compila|"
                         r"é erro|e erro|nem compila)\b", re.I)
 
-# A lista de `docs/linguagem.md`: o enunciado não tem absoluto.
+# A lista de `docs/linguagem.md`: o enunciado não tem absoluto nem NOME
+# DE PESSOA. O segundo faltava aqui, e a auditoria do domínio achou um:
+# `ciu_kc00_003` começa com "Rafael diz:".
 PROIBIDAS = re.compile(r"\b(sempre|nunca|jamais)\b", re.I)
+NOME_DE_PESSOA = re.compile(
+    r"\b(Rafael|Ana|João|Joao|Maria|Pedro|Lucas|Bruno|Carla|José|Jose|"
+    r"Paulo|Júlia|Julia|Marcos|Clara|Thiago|Tiago)\b")
 
 # Construto no CÓDIGO -> conceito do inventário. Nunca aplicado à prosa:
 # a primeira versão varria tudo junto, e o padrão de "função com
@@ -186,7 +191,8 @@ def _itens(d: dict, dom, achados: list) -> None:
             achados.append(("ERRO", "%s: gabarito %r não é alternativa"
                             % (aid, gab)))
             continue
-        if max(alts, key=lambda k: len(alts[k])) == gab:
+        outras = [len(v) for k, v in alts.items() if k != gab]
+        if outras and len(alts[gab]) > max(outras):
             achados.append(("ERRO", "%s: a alternativa certa é a mais longa "
                                     "— é pista de formato" % aid))
         if gab in crencas:
@@ -206,6 +212,8 @@ def _itens(d: dict, dom, achados: list) -> None:
         if PROIBIDAS.search(enun):
             achados.append(("ERRO", "%s: enunciado tem absoluto proibido"
                             % aid))
+        if NOME_DE_PESSOA.search(enun):
+            achados.append(("ERRO", "%s: enunciado tem nome de pessoa" % aid))
         if SEVERIDADE.search(enun):
             achados.append(("ERRO", "%s: o enunciado afirma a severidade do "
                                     "compilador; use 'reclama'" % aid))
@@ -357,10 +365,123 @@ def revisa(caminho: pathlib.Path) -> list[tuple[str, str]]:
     return achados
 
 
+def audita_dominio(topico: str) -> list[tuple[str, str]]:
+    """Os mesmos portoes, aplicados ao dominio que JA ESTA NO AR.
+
+    O modo candidato confere material que ainda nao entrou. Este confere
+    o que ja entrou -- e existe porque a auditoria do kc_02 achou, num
+    item ja revisado e em producao (`kc02_gi2_n3_3`), a mesma afirmacao
+    de severidade pela qual um candidato tinha sido reprovado: "por que
+    o compilador RECUSA a terceira linha".
+
+    Portao que so faz sentido aqui: item contra item DENTRO do no. No
+    candidato a comparacao e contra o banco; aqui o banco e o alvo.
+    """
+    achados: list[tuple[str, str]] = []
+    inv = yaml.safe_load((AQUI / "mvp" / "dominio" / "conceitos.yaml")
+                         .read_text(encoding="utf-8"))["conceitos"]
+    dom = carrega(topico=topico)
+
+    for a in dom.atividades:
+        certa = next((o for o in a.opcoes if o.correta), None)
+        if certa is None:
+            achados.append(("ERRO", "%s: nenhuma alternativa correta" % a.id))
+            continue
+        if len(a.opcoes) < 3:
+            achados.append(("AVISO", "%s: menos de tres alternativas (%d)"
+                            % (a.id, len(a.opcoes))))
+        outras = [len(o.texto) for o in a.opcoes if o is not certa]
+        if outras and len(certa.texto) > max(outras):
+            achados.append(("ERRO", "%s: a certa e a mais longa (%d contra "
+                                    "%d) — e pista de formato"
+                            % (a.id, len(certa.texto), max(outras))))
+        for o in a.opcoes:
+            if o.correta:
+                continue
+            if not o.crenca:
+                achados.append(("AVISO", "%s: distrator sem crenca: %r"
+                                % (a.id, o.texto[:50])))
+            elif o.crenca not in dom.crencas:
+                achados.append(("ERRO", "%s: distrator aponta %r, fora do "
+                                        "catalogo" % (a.id, o.crenca)))
+        if PROIBIDAS.search(a.enunciado):
+            achados.append(("ERRO", "%s: enunciado tem absoluto proibido"
+                            % a.id))
+        if NOME_DE_PESSOA.search(a.enunciado):
+            achados.append(("ERRO", "%s: enunciado tem nome de pessoa"
+                            % a.id))
+        if SEVERIDADE.search(a.enunciado):
+            achados.append(("ERRO", "%s: o enunciado afirma a severidade do "
+                                    "compilador: %r"
+                            % (a.id, a.enunciado[:60])))
+        usados = {cid for padrao, cid in CONSTRUTOS
+                  if padrao.search(a.codigo or "")}
+        for cid in sorted(usados):
+            estado = (inv.get(cid) or {}).get("status", "ausente")
+            if estado in ("nao_introduzido", "ausente"):
+                achados.append(("ERRO", "%s: codigo usa %r, que esta %r"
+                                % (a.id, cid, estado)))
+
+    # Item contra item, dentro do no.
+    for nid in dom.ordem:
+        itens = list(dom.atividades_do_no(nid))
+        for i in range(len(itens)):
+            for j in range(i + 1, len(itens)):
+                x, y = itens[i], itens[j]
+                cx = next((o.texto for o in x.opcoes if o.correta), "")
+                cy = next((o.texto for o in y.opcoes if o.correta), "")
+                sim = _jaccard(_trigramas(x.enunciado + " " + cx),
+                               _trigramas(y.enunciado + " " + cy))
+                if sim >= 0.30:
+                    achados.append(("PISTA", "%s e %s (%.2f, n%d e n%d) — "
+                                             "leia os dois"
+                                    % (x.id, y.id, sim, x.nivel, y.nivel)))
+
+    # O texto de ensino do topico.
+    for nid in dom.ordem:
+        for campo, texto in (("simples", dom.nos[nid].simples),
+                             ("resgate", dom.resgates.get(nid, "")),
+                             ("ampliacao", dom.interpretacao(nid))):
+            if texto and SEVERIDADE.search(texto):
+                achados.append(("AVISO", "%s/%s afirma severidade de "
+                                         "compilador" % (nid, campo)))
+        usados = {cid for padrao, cid in CONSTRUTOS
+                  if padrao.search(dom.exemplo(nid) or "")}
+        for cid in sorted(usados):
+            estado = (inv.get(cid) or {}).get("status", "ausente")
+            if estado in ("nao_introduzido", "ausente"):
+                achados.append(("ERRO", "%s: o exemplo do cartao usa %r, que "
+                                        "esta %r" % (nid, cid, estado)))
+    return achados
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="portões mecânicos da revisão")
-    ap.add_argument("alvo", help="arquivo candidato ou pasta")
+    ap.add_argument("alvo", nargs="?", help="arquivo candidato ou pasta")
+    ap.add_argument("--dominio", metavar="TOPICO",
+                    help="audita o domínio que já está no ar; `todos` varre "
+                         "os treze tópicos")
     args = ap.parse_args()
+
+    if args.dominio:
+        from mvp.dominio import topicos
+        alvos = topicos() if args.dominio == "todos" else [args.dominio]
+        erros = 0
+        for t in alvos:
+            achados = audita_dominio(t)
+            duros = [x for x in achados if x[0] == "ERRO"]
+            erros += len(duros)
+            marca = "ERRO" if duros else ("aviso" if achados else "ok")
+            print(NL + "== %s  [%s]" % (t, marca))
+            for nivel, msg in achados:
+                print("   %-5s %s" % (nivel, msg))
+            if not achados:
+                print("   nenhum achado mecânico")
+        print(NL + "%d erro(s) em %d tópico(s)." % (erros, len(alvos)))
+        return 1 if erros else 0
+
+    if not args.alvo:
+        ap.error("informe um candidato, ou use --dominio")
     alvo = pathlib.Path(args.alvo)
     arquivos = (sorted(alvo.glob("*_material_*.yaml")) if alvo.is_dir()
                 else [alvo])
