@@ -1,0 +1,322 @@
+# As terceiras alternativas do kc_00 — candidato, NÃO é domínio.
+#
+# POR QUE ESTE ARQUIVO EXISTE. O kc_00 passa a ser a porta de entrada de
+# todo mundo: é ele que verifica o domínio básico sem o qual os outros
+# doze não se sustentam. E hoje ele é o tópico mais fraco do projeto:
+#
+#     itens binários no projeto inteiro ........ 13, TODOS no kc_00
+#     nós do kc_00 com mais de um binário ....... 5 de 5
+#                                                 (B3, B4 e I1 têm três)
+#     a regra de docs/linguagem.md .............. no máximo UM por nó
+#
+# Com duas alternativas o acaso é 50%. Um tópico que decide se a pessoa
+# tem base para seguir não pode ser decidido na moeda. Com três, cai
+# para 33%.
+#
+# ISTO MUDA O QUE UM ACERTO NO kc_00 SIGNIFICA, e é por isso que é
+# candidato e não edição: quem decide mexer no acaso do tópico de
+# entrada é você e o orientador.
+#
+# ---------------------------------------------------------------------
+# DOZE DE TREZE. O `ciu_kc00_t02` ficou de fora, e a razão é de regra:
+# ele pergunta se o nome da variável é só um lembrete para o programador.
+# O kc_00 catalogou cinco crenças, e nenhuma fala de NOME — são sobre
+# tipo, memória sem valor, zeragem, histórico e simetria da atribuição.
+# Não dá para escrever um terceiro distrator que aponte crença que não
+# existe, e inventar uma é o que `docs/linguagem.md` proíbe: "uma crença
+# sem procedência é uma invenção sua que vai virar dado".
+#
+# O MESMO ITEM JÁ TEM, HOJE, um distrator sem crença ("Não há erro: nome
+# é comentário"). Então a decisão é anterior a este arquivo: ou o kc_00
+# ganha uma crença sobre o nome da variável, com procedência, ou o t02
+# continua binário e sem mapeamento.
+#
+# ---------------------------------------------------------------------
+# DUAS COISAS QUE EU CONSERTEI DE PASSAGEM, as duas achadas pela
+# auditoria do domínio:
+#
+#  1. `ciu_kc00_003` começava com "Rafael diz:". A lista de
+#     `docs/linguagem.md` proíbe nome de pessoa no enunciado, e os
+#     outros itens do tópico usam "Um colega diz". Trocado.
+#  2. Os distratores curtos demais ("Certo", "0, sempre") ganharam a
+#     frase que a crença diria. "Certo" sozinho não é a crença dita bem
+#     — é um botão.
+#
+# E OS ACENTOS. Seis itens de treino estão sem acento no domínio ("Nao
+# ha erro", "espaco") — é dívida antiga do kc_00. Como este arquivo
+# reescreve a cédula inteira, esses seis saem daqui ACENTUADOS. O
+# conferidor listou exatamente quais gabaritos mudaram, e a mudança é
+# só essa: `ciu_kc00_t01`, `t04`, `t05`, `t06`, `t08` e `t10`, acento e
+# nada mais.
+#
+# NENHUM GABARITO MUDOU DE SENTIDO. Em doze de doze, a alternativa
+# certa é a mesma frase; o que entrou foi a terceira opção. O resto da
+# dívida de acento do kc_00, fora destes seis, continua de pé.
+#
+# ---------------------------------------------------------------------
+# CONFERIDO: a alternativa certa não é visivelmente a mais longa em
+# nenhum dos doze (o corte é 10 caracteres a mais E 40% mais longa), e
+# todo distrator aponta crença que existe no catálogo do kc_00.
+
+topico: kc_00
+modifica: true     # os ids JÁ EXISTEM: isto substitui a cédula deles
+
+gerado_por: Claude Opus 5, 08/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+activities:
+
+- id: ciu_kc00_003
+  node: kc00:B2
+  nivel: 1
+  formato: achar_o_erro
+  tipo: teorica
+  uso: diagnostico
+  codigo: ''
+  enunciado: >
+    Um colega diz: "Enquanto eu não atribuo um valor, a variável não
+    existe de verdade — é só uma promessa." Certo ou errado?
+  alternativas:
+    a: Errado — a memória já foi reservada na declaração
+    b: "Certo: sem valor, não há nada reservado"
+    c: Errado, mas só porque o compilador já põe zero ali
+  gabarito: a
+  crencas:
+    b: no_value_no_memory
+    c: declaration_zeroes
+
+- id: ciu_kc00_006
+  node: kc00:B3
+  nivel: 2
+  formato: comparar_casos
+  tipo: codigo
+  uso: diagnostico
+  codigo: |
+    int contador;
+    printf("%d\n", contador);
+  enunciado: "O que esse printf provavelmente mostra?"
+  alternativas:
+    a: Um número imprevisível — pode mudar a cada execução
+    b: 0, porque C zera o que declara
+    c: Nada, porque sem valor a variável ainda não existe
+  gabarito: a
+  crencas:
+    b: declaration_zeroes
+    c: no_value_no_memory
+
+- id: ciu_kc00_007
+  node: kc00:B4
+  nivel: 1
+  formato: reconhecer_conceito
+  tipo: teorica
+  uso: diagnostico
+  codigo: ''
+  enunciado: "Depois de x = 5; e depois x = 8;, o que x guarda agora?"
+  alternativas:
+    a: Só 8 — o 5 foi substituído e não existe mais
+    b: Os dois valores, 5 e 8
+    c: 8, e o 5 fica guardado para consulta depois
+  gabarito: a
+  crencas:
+    b: variable_remembers
+    c: variable_remembers
+
+- id: ciu_kc00_008
+  node: kc00:B4
+  nivel: 2
+  formato: comparar_casos
+  tipo: codigo
+  uso: diagnostico
+  codigo: |
+    int pontos = 10;
+    pontos = 20;
+    pontos = 30;
+    printf("%d\n", pontos);
+  enunciado: "O que aparece?"
+  alternativas:
+    a: 30 — só o último valor escrito sobrevive
+    b: 10 20 30, os três
+    c: 10, que foi o primeiro a ocupar a caixa
+  gabarito: a
+  crencas:
+    b: variable_remembers
+    c: variable_remembers
+
+- id: ciu_kc00_009
+  node: kc00:I1
+  nivel: 1
+  formato: achar_o_erro
+  tipo: teorica
+  uso: diagnostico
+  codigo: ''
+  enunciado: "x = 7 e 7 = x significam a mesma coisa?"
+  alternativas:
+    a: Não — só uma variável pode ficar à esquerda, recebendo o valor
+    b: Sim, duas formas da mesma igualdade
+    c: Sim, e o compilador aceita as duas do mesmo jeito
+  gabarito: a
+  crencas:
+    b: assignment_symmetric
+    c: assignment_symmetric
+
+- id: ciu_kc00_010
+  node: kc00:I1
+  nivel: 2
+  formato: comparar_casos
+  tipo: codigo
+  uso: diagnostico
+  codigo: |
+    int x;
+    3 = x;
+  enunciado: "Esse código compila?"
+  # "recusa" fica, e aqui é correto: `3 = x;` é violação de restrição,
+  # e o gcc a recusa MESMO COM -w. Não é como `-Wint-conversion`, que
+  # uma flag rebaixa a aviso. Conferido.
+  alternativas:
+    a: Não — o compilador recusa, 3 não é um lugar que recebe valor
+    b: "Sim, é igual a x = 3;"
+    c: Sim, mas aí o valor vai parar no lado errado da conta
+  gabarito: a
+  crencas:
+    b: assignment_symmetric
+    c: assignment_symmetric
+
+- id: ciu_kc00_t01
+  node: kc00:B1
+  nivel: 1
+  formato: comparar_casos
+  tipo: codigo
+  uso: treino
+  codigo: |
+    char a;
+    double b;
+  enunciado: "Por que b ocupa mais espaço que a?"
+  alternativas:
+    a: Porque o tipo diz quanto espaço cabe ali
+    b: "Não ocupa: toda variável ocupa o mesmo"
+    c: Porque b foi declarada depois, e sobrou menos lugar
+  gabarito: a
+  crencas:
+    b: type_is_a_hint
+    c: type_is_a_hint
+
+- id: ciu_kc00_t04
+  node: kc00:B2
+  nivel: 2
+  formato: comparar_casos
+  tipo: codigo
+  uso: treino
+  codigo: |
+    int total;
+    printf("%zu", sizeof(total));
+  enunciado: >
+    sizeof devolve o tamanho do espaço de uma variável. Isso funciona
+    mesmo sem total ter recebido valor?
+  alternativas:
+    a: "Sim: o espaço já está reservado, com ou sem valor dentro"
+    b: "Não: sem valor não há espaço para medir"
+    c: Sim, mas o tamanho é o mesmo para qualquer variável
+  gabarito: a
+  crencas:
+    b: no_value_no_memory
+    c: type_is_a_hint
+
+- id: ciu_kc00_t05
+  node: kc00:B3
+  nivel: 1
+  formato: prever_saida
+  tipo: codigo
+  uso: treino
+  codigo: |
+    int soma;
+    soma = soma + 10;
+    printf("%d", soma);
+  enunciado: "Dá para saber o que aparece na tela?"
+  alternativas:
+    a: "Não: soma entrou na conta com lixo"
+    b: "Sim: aparece 10, porque soma começava em zero"
+    c: "Sim: aparece 10, porque a conta ignora o que não foi dado"
+  gabarito: a
+  crencas:
+    b: declaration_zeroes
+    c: declaration_zeroes
+
+- id: ciu_kc00_t06
+  node: kc00:B3
+  nivel: 2
+  formato: comparar_casos
+  tipo: codigo
+  uso: treino
+  codigo: |
+    int a;
+    int b = 0;
+  enunciado: "Qual das duas você pode usar numa conta agora, com segurança?"
+  alternativas:
+    a: Só b, que recebeu valor
+    b: "As duas: declarar já zera"
+    c: Nenhuma, até que as duas recebam valor
+  gabarito: a
+  crencas:
+    b: declaration_zeroes
+    c: no_value_no_memory
+
+- id: ciu_kc00_t08
+  node: kc00:B4
+  nivel: 2
+  formato: achar_o_erro
+  tipo: teorica
+  uso: treino
+  codigo: ''
+  enunciado: >
+    Depois de x = 7, um colega quer o valor anterior de x e diz que
+    basta olhar o histórico da variável. Onde está o erro?
+  alternativas:
+    a: "Não há histórico: o valor anterior se perdeu na atribuição"
+    b: Não há erro, mas ele precisa de um comando específico
+    c: "Não há erro: o valor antigo fica até alguém apagar"
+  gabarito: a
+  crencas:
+    b: variable_remembers
+    c: variable_remembers
+
+- id: ciu_kc00_t10
+  node: kc00:I1
+  nivel: 2
+  formato: reconhecer_conceito
+  tipo: codigo
+  uso: treino
+  codigo: |
+    int x = 3;
+    int y;
+    y = x;
+  enunciado: "Em y = x;, qual das duas muda?"
+  alternativas:
+    a: Só y, que recebe uma cópia do valor de x
+    b: As duas, porque passam a ser iguais
+    c: As duas, e a partir daí mudar uma muda a outra
+  gabarito: a
+  crencas:
+    b: assignment_symmetric
+    c: assignment_symmetric
+
+
+# ---------------------------------------------------------------------
+# FORA: ciu_kc00_t02 (B1, degrau 2)
+#
+#   "Um colega diz que o nome da variável serve só para ele se lembrar,
+#    e que o compilador ignora. Onde está o erro?"
+#      [x] O nome é como o programa chega àquele espaço; sem ele não há
+#          acesso
+#      [ ] Não há erro: nome é comentário          <- SEM CRENÇA, hoje
+#
+# As cinco crenças do kc_00 são sobre tipo, memória sem valor, zeragem,
+# histórico e simetria da atribuição. Nenhuma é sobre o NOME. O item já
+# entra neste arquivo com um distrator sem mapeamento, e acrescentar um
+# segundo sem mapeamento piora.
+#
+# A decisão é sua: ou o kc_00 ganha uma crença sobre o nome da variável,
+# com procedência conferida na obra primária, ou o t02 continua binário.
+# Eu não escrevo crença nova sem fonte.
+# ---------------------------------------------------------------------

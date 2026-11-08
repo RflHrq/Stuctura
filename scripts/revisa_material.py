@@ -91,6 +91,43 @@ POR_FALA = ("atribuicao_entre_tipos", "compilacao")
 ASSINATURA = re.compile(r"^\s*[A-Za-z_][\w \*]*\w\s*\([^;]*\)\s*\{")
 
 
+def _recusa_obrigatoria(codigo: str | None) -> bool:
+    """O compilador recusa este código mesmo com `-w`?
+
+    É o que separa violação de restrição — que todo compilador conforme
+    tem de diagnosticar — de aviso promovido a erro por versão ou flag.
+    Sem esta distinção, o portão de severidade acusa os dois.
+    """
+    if not (codigo or "").strip():
+        return False
+    try:
+        from scripts.oraculo import GCC
+    except ImportError:
+        sys.path.insert(0, str(AQUI / "scripts"))
+        from oraculo import GCC                          # type: ignore
+    if not pathlib.Path(GCC).exists():
+        return True          # sem compilador, não acusa por suposição
+    import subprocess
+    import tempfile
+    arquivo, dentro = [], []
+    for linha in codigo.splitlines():
+        (arquivo if ASSINATURA.match(linha) else dentro).append(
+            linha if ASSINATURA.match(linha) else "    " + linha)
+    prog = ("#include <stdio.h>" + NL + NL.join(arquivo) + NL
+            + "int main(void)" + NL + "{" + NL + NL.join(dentro) + NL
+            + "    return 0;" + NL + "}" + NL)
+    with tempfile.TemporaryDirectory() as tmp:
+        p = pathlib.Path(tmp)
+        (p / "o.c").write_text(prog, encoding="utf-8")
+        try:
+            r = subprocess.run([str(GCC), "-std=c17", "-w", "-o", "o.exe",
+                                "o.c"], capture_output=True, text=True,
+                               timeout=10, cwd=str(p))
+        except (subprocess.TimeoutExpired, OSError):
+            return True
+        return r.returncode != 0
+
+
 def _pista_de_tamanho(certa, opcoes) -> bool:
     """A certa é VISIVELMENTE a mais longa?
 
@@ -440,9 +477,19 @@ def audita_dominio(topico: str) -> list[tuple[str, str]]:
         if NOME_DE_PESSOA.search(a.enunciado):
             achados.append(("ERRO", "%s: enunciado tem nome de pessoa"
                             % a.id))
-        if SEVERIDADE.search(a.enunciado):
+        # Severidade só é defeito quando o diagnóstico é CONFIGURÁVEL.
+        # `3 = x;` e `a = p;` com array são violação de restrição: falham
+        # até com `-w`, e aí dizer "o compilador recusa" é verdade em
+        # qualquer compilador. `int *p = x;` não é: `-Wno-error=int-
+        # conversion` o rebaixa a aviso e o executável existe.
+        #
+        # A primeira versão deste portão não distinguia, e acusou os dez
+        # itens do domínio que afirmam severidade. Medido com `-w`: os
+        # dez são obrigatórios, e os dez estavam certos.
+        if SEVERIDADE.search(a.enunciado) and not _recusa_obrigatoria(a.codigo):
             achados.append(("ERRO", "%s: o enunciado afirma a severidade do "
-                                    "compilador: %r"
+                                    "compilador, e o diagnóstico é "
+                                    "configurável: %r"
                             % (a.id, a.enunciado[:60])))
         usados = {cid for padrao, cid in CONSTRUTOS
                   if padrao.search(a.codigo or "")}
