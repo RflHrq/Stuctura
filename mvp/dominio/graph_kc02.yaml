@@ -81,6 +81,68 @@ nodes:
     negated_by:
       - pointer_has_no_address
 
+    # AMPLIACAO EXPLICATIVA, 08/11/2026 -- nao e premissa nova.
+    #
+    # E AQUI que `sizeof` e explicado, e nao no I2. O inventario o tem
+    # como `so_avaliado` -- mencionado dentro de um malloc do kc_01 cujo
+    # texto e sobre tempo de vida. Se esta ampliacao ficar, a evidencia
+    # do inventario deve apontar para ca.
+    #
+    # A REGRA DA SETA vale em cada linha, e nenhuma derreferencia: *p e
+    # o B3.
+    interpretation: >
+      Se p é uma caixa, então p tem as duas coisas que toda
+      caixa tem: um lugar e um tamanho. O lugar se pergunta com
+      &p, do mesmo jeito que se pergunta &x — e as duas
+      respostas saem diferentes, porque são duas caixas.
+
+      O tamanho se pergunta com sizeof. sizeof(alguma coisa)
+      devolve quantos bytes aquilo ocupa na memória, e é o
+      compilador que responde, pelo tipo: sizeof(x), com x
+      inteiro, dá 4 nesta máquina. Pergunte sizeof(p) e ele dá 8
+      — p ocupa espaço, e ocupa um espaço seu, que não é o de x.
+      O 8 se repete para int *, char * ou double *, porque o que
+      p guarda é sempre um endereço, e endereço tem um tamanho
+      só.
+
+      É por aqui que o desenho da seta engana. A seta mostra a
+      relação entre as duas caixas, e para isso ela serve. Mas
+      seta não tem lugar nem tamanho, e p tem os dois. Quem
+      pensa o ponteiro COMO a seta fica sem resposta para "onde
+      fica p?" — e &p é uma pergunta que o compilador responde
+      sem reclamar.
+
+    # AMPLIACAO EXPLICATIVA, 08/11/2026 -- nao e premissa nova.
+    #
+    # E AQUI que `sizeof` e explicado, e nao no I2. O inventario o tem
+    # como `so_avaliado` -- mencionado dentro de um malloc do kc_01 cujo
+    # texto e sobre tempo de vida. Se esta ampliacao ficar, a evidencia
+    # do inventario deve apontar para ca.
+    #
+    # A REGRA DA SETA vale em cada linha, e nenhuma derreferencia: *p e
+    # o B3.
+    interpretation: >
+      Se p é uma caixa, então p tem as duas coisas que toda
+      caixa tem: um lugar e um tamanho. O lugar se pergunta com
+      &p, do mesmo jeito que se pergunta &x — e as duas
+      respostas saem diferentes, porque são duas caixas.
+
+      O tamanho se pergunta com sizeof. sizeof(alguma coisa)
+      devolve quantos bytes aquilo ocupa na memória, e é o
+      compilador que responde, pelo tipo: sizeof(x), com x
+      inteiro, dá 4 nesta máquina. Pergunte sizeof(p) e ele dá 8
+      — p ocupa espaço, e ocupa um espaço seu, que não é o de x.
+      O 8 se repete para int *, char * ou double *, porque o que
+      p guarda é sempre um endereço, e endereço tem um tamanho
+      só.
+
+      É por aqui que o desenho da seta engana. A seta mostra a
+      relação entre as duas caixas, e para isso ela serve. Mas
+      seta não tem lugar nem tamanho, e p tem os dois. Quem
+      pensa o ponteiro COMO a seta fica sem resposta para "onde
+      fica p?" — e &p é uma pergunta que o compilador responde
+      sem reclamar.
+
   B3:
     type: observavel
     role: espinha
@@ -153,6 +215,54 @@ nodes:
     negated_by:
       - pointer_and_target_are_one
 
+    # AMPLIACAO EXPLICATIVA, 08/11/2026 -- nao e premissa nova.
+    #
+    # O I1 e INFERENCIA, e sai de B2 + B3. A ampliacao mostra a
+    # DERIVACAO em vez de so afirmar: quem aceitou que p e uma caixa e
+    # que dentro dela ha um endereco nao tem como recusar que sao duas.
+    interpretation: >
+      Esta não é uma ideia nova: ela cai das duas anteriores. O
+      B2 disse que p é uma caixa, com lugar próprio. O B3 disse
+      que o que está dentro de p é o endereço de outra caixa.
+      Junte as duas e você tem duas caixas — a de p e a apontada
+      — em dois lugares, e &p e p respondem números diferentes.
+
+      O que decorre disso é o que separa as duas operações do
+      tópico. Escrever p = &y mexe no conteúdo de p: troca o
+      endereço guardado, e a caixa antes apontada continua
+      exatamente como estava. Escrever *p = 99 não toca em p:
+      usa o endereço que está nele para chegar à outra caixa e
+      mudar o que mora lá.
+
+      Mexer no ponteiro e mexer no apontado são coisas
+      diferentes porque são caixas diferentes. Quem acha que são
+      a mesma espera que p = &y também mude o valor antigo — e a
+      máquina mostra que não muda.
+
+    # AMPLIACAO EXPLICATIVA, 08/11/2026 -- nao e premissa nova.
+    #
+    # O I1 e INFERENCIA, e sai de B2 + B3. A ampliacao mostra a
+    # DERIVACAO em vez de so afirmar: quem aceitou que p e uma caixa e
+    # que dentro dela ha um endereco nao tem como recusar que sao duas.
+    interpretation: >
+      Esta não é uma ideia nova: ela cai das duas anteriores. O
+      B2 disse que p é uma caixa, com lugar próprio. O B3 disse
+      que o que está dentro de p é o endereço de outra caixa.
+      Junte as duas e você tem duas caixas — a de p e a apontada
+      — em dois lugares, e &p e p respondem números diferentes.
+
+      O que decorre disso é o que separa as duas operações do
+      tópico. Escrever p = &y mexe no conteúdo de p: troca o
+      endereço guardado, e a caixa antes apontada continua
+      exatamente como estava. Escrever *p = 99 não toca em p:
+      usa o endereço que está nele para chegar à outra caixa e
+      mudar o que mora lá.
+
+      Mexer no ponteiro e mexer no apontado são coisas
+      diferentes porque são caixas diferentes. Quem acha que são
+      a mesma espera que p = &y também mude o valor antigo — e a
+      máquina mostra que não muda.
+
   I2:
     type: inferencia
     role: espinha
@@ -168,6 +278,38 @@ nodes:
     negated_by:
       - pointer_is_integer
 
+    # REESCRITA, 08/11/2026: de 277 para 137 palavras.
+    #
+    # E A ABERTURA MUDOU POR UM DEFEITO CONCEITUAL, nao por tamanho. Ela
+    # dizia 'um endereco e um numero, e isso e verdade' -- e isso e quase
+    # a propria crenca que este no existe para negar: pointer_is_integer
+    # diz 'ponteiro e so um numero inteiro'. A ampliacao abria afirmando
+    # a concepcao que ela deve desmontar. Agora: 'pode ser representado
+    # numericamente, mas isso nao conta toda a historia'.
+    #
+    # O QUE SAIU, e onde mora agora:
+    #   aritmetica de ponteiro (p + 1) -> kc_11, e o cabecalho deste
+    #     grafo manda calar sobre ela aqui;
+    #   `int *p = x;` -> ja e o item ciu_kc02_014, no degrau 2;
+    #   a ressalva de severidade -> so existia porque o texto afirmava
+    #     que o compilador recusa; tirada a afirmacao, ela perde a funcao.
+    interpretation: >
+      Um endereço pode ser representado numericamente, mas isso
+      não conta toda a história. A sua declaração disse mais do
+      que o número: ela disse o que esperar encontrar quando se
+      chegar lá. Foi isso que você escreveu em int *p — não "p
+      guarda um número", e sim "p guarda o lugar de um int".
+
+      No exemplo, a mesma pergunta vai a dois ponteiros.
+      sizeof(*p) == sizeof(*q) dá 0: o que mora no fim de p não
+      tem o tamanho do que mora no fim de q. E sizeof(*p) ==
+      sizeof(x) dá 1: no fim de p mora um int, igual a x. Os
+      dois guardam endereço, e o que os separa é o tipo.
+
+      E quem carrega essa informação não é a memória nem o
+      endereço: é o compilador, que leu a sua declaração antes
+      de o programa existir.
+
   I3:
     type: inferencia
     role: conclusao
@@ -180,3 +322,27 @@ nodes:
       ponto do programa, sem copiar o conteúdo.
     negated_by:
       - pointer_is_pointless
+
+    # REESCRITA, 08/11/2026: de 205 para 123 palavras.
+    #
+    # E A CONCLUSAO MUDOU POR SER FALSA, nao por tamanho. Ela dizia que
+    # o ponteiro e 'a UNICA forma de uma funcao alcancar a caixa de quem
+    # a chamou', e nao e: variavel global tambem alcanca. Agora o texto
+    # diz o que de fato se ganha -- acessar e modificar diretamente, sem
+    # depender de global -- sem afirmar uma exclusividade que nao existe.
+    interpretation: >
+      Quando você passa uma variável para uma função, a função
+      recebe uma CÓPIA do valor. Ela mexe na cópia, a cópia
+      morre no fim, e a sua variável continua como estava. Por
+      isso uma função que recebe int v não tem como alterar a
+      variável de quem a chamou.
+
+      O endereço resolve isso porque ele também é um valor — e
+      um valor que pode ser copiado sem perder o que importa. A
+      função recebe uma cópia do ENDEREÇO, e uma cópia do
+      endereço ainda aponta para a mesma caixa. Com ela, *q =
+      ... chega à caixa original.
+
+      É assim que uma função consegue acessar e modificar
+      diretamente a variável de quem a chamou, sem depender de
+      uma variável global.

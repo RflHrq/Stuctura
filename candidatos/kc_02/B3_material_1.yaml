@@ -39,30 +39,17 @@ revisado_sha: ____
 ampliacao: ja_existe_no_dominio
 
 
-narracao:
-  - linha: "int x = 42;"
-    diz: >
-      Uma caixa para x, com 42 dentro, num lugar com número próprio.
-  - linha: "int *p = &x;"
-    diz: >
-      Outra caixa, p, e dentro dela o número do lugar de x. Dentro de p
-      não há um 42: há um endereço.
-  - linha: 'printf("%p\n", (void *)p);'
-    diz: >
-      Sem asterisco, o que se lê é o conteúdo de p — e o conteúdo de p é
-      o endereço de x. Sai um endereço.
-  - linha: 'printf("%d\n", *p);'
-    diz: >
-      Com asterisco, o programa vai até o lugar cujo número está dentro
-      de p e lê o que mora lá. Sai 42.
-  - linha: "*p = 7;"
-    diz: >
-      O mesmo caminho, agora para escrever: vai até aquele lugar e põe 7
-      nele. Quem mudou foi x, sem a palavra x aparecer na linha.
-  - linha: 'printf("%d\n", x);'
-    diz: >
-      Sai 7. É a prova de que o caminho chegou à caixa certa.
-
+# NARRACAO: CORTADA em 08/11/2026.
+#
+# O no tem teste de mesa, e a tabela diz linha a linha o que cada
+# instrucao fez -- com os valores reais da execucao, e marcando o que
+# mudou. A narracao dizia a mesma coisa em prosa.
+#
+# Manter as duas e a reclamacao do dono em uma frase: verborragico e
+# pouco ilustrado. A tabela e a ilustracao; esta era a verborragia.
+#
+# Fica nos nos SEM tabela: I2 (o ponto dele e tipo, nao estado) e I3
+# (o gerador recusa funcao).
 
 caso_resolvido:
   - prosa: >

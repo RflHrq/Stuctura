@@ -110,15 +110,31 @@ conceitos:
 
   sizeof:
     nome: "sizeof: o tamanho em bytes"
-    status: so_avaliado
-    introduzido_em: ""
+    status: disponivel
+    introduzido_em: kc_02
     evidencia:
-      onde: "kc_01, cartão B3 (menção) · kc_00 e kc_02, itens"
+      onde: "kc_02, cartão de ensino B2, campo `interpretation`"
       texto: >
-        `sizeof(int)` aparece dentro do malloc do cartão B3 do kc_01,
-        num exemplo que ensina tempo de vida. No kc_02 só em item de
-        nível 2.
-      tipo: mencionado_sem_explicacao
+        "O tamanho se pergunta com sizeof. sizeof(alguma coisa) devolve
+        quantos bytes aquilo ocupa na memória, e é o compilador que
+        responde, pelo tipo: sizeof(x), com x inteiro, dá 4 nesta
+        máquina. Pergunte sizeof(p) e ele dá 8."
+      exemplo: 'int x = 42; int *p = &x;   /* sizeof(x) dá 4, sizeof(p) dá 8 */'
+      tipo: explicacao_com_exemplo
+      aprovacao: >
+        Liberado em 08/11/2026, junto com o material de ensino profundo
+        do kc_02. O B2 é nó OBSERVÁVEL, e `_cartoes()` o põe na
+        abertura: todo mundo que entra no kc_02 vê esta explicação,
+        não só quem declara lacuna.
+      antes: >
+        Era `so_avaliado`: `sizeof(int)` aparecia dentro do malloc do
+        cartão B3 do kc_01, num exemplo cujo texto é sobre tempo de
+        vida, e no kc_02 só em item de nível 2. Menção, não ensino.
+      nota: >
+        `disponivel` quer dizer que o aluno TEVE OPORTUNIDADE de
+        aprender — é o que o cabeçalho deste arquivo define. Não quer
+        dizer compreendido nem demonstrado: quem mede isso é o
+        diagnóstico e o reteste, não o inventário.
 
   ponteiro_de_ponteiro:
     nome: "ponteiro para ponteiro (int **)"
@@ -178,6 +194,28 @@ conceitos:
         cartões são `int conta(void)` e `int *faz(void)`. Passagem por
         valor não é tratada em cartão nenhum dos três tópicos.
       tipo: nao_encontrado
+      # 08/11/2026 -- NAO FOI PROMOVIDO, e o motivo e fino.
+      #
+      # A ampliacao do I3 do kc_02 agora EXPLICA passagem por valor, com
+      # exemplo: "a funcao recebe uma COPIA do valor... o endereco
+      # tambem e um valor, e uma copia do endereco ainda aponta para a
+      # mesma caixa". Pela regra de liberacao deste arquivo, isso seria
+      # explicacao com exemplo.
+      #
+      # SO QUE O I3 E INFERENCIA. `_cartoes()` (mvp/motor.py:412) poe na
+      # abertura apenas os nos OBSERVAVEIS -- no kc_02, B1, B2 e B3. A
+      # ampliacao do I3 so e desenhada pelo caminho lacuna -> construcao,
+      # entao ela chega a quem DECLARA que nao sabe. Os sete itens que
+      # cobram o construto chegam a todos.
+      #
+      # Marcar `disponivel` aqui diria mais do que foi ensinado. Fica
+      # `nao_introduzido`, e os sete erros do auditor ficam como divida
+      # DECLARADA -- que e melhor que divida escondida atras de um
+      # status generoso.
+      #
+      # O QUE DESTRAVA: a abertura passar a ensinar os seis cartoes, e
+      # nao tres. E decisao de desenho da unidade, do dono e do
+      # orientador, e muda o comprimento da sessao.
       consequencia: >
         Bloqueia o degrau substituto proposto para o `scanf`, que se
         apoiava justamente em passagem por valor.

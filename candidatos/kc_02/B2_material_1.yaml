@@ -69,21 +69,17 @@ ampliacao: >
   responde sem reclamar.
 
 
-narracao:
-  - linha: "int x = 42;"
-    diz: >
-      Reserva uma caixa para x e guarda 42 nela. A caixa passa a existir
-      num lugar da memória, com um número próprio que você não escolheu.
-  - linha: "int *p = &x;"
-    diz: >
-      Reserva OUTRA caixa, chamada p, e guarda nela o número do lugar de
-      x. Agora são duas caixas: a de x, com 42 dentro; a de p, com o
-      endereço de x dentro.
-  - linha: 'printf("%p\n", (void *)&p);'
-    diz: >
-      &p é o número do lugar da caixa p — não o que está dentro dela.
-      Sai um endereço, e ele não é igual a &x.
-
+# NARRACAO: CORTADA em 08/11/2026.
+#
+# O no tem teste de mesa, e a tabela diz linha a linha o que cada
+# instrucao fez -- com os valores reais da execucao, e marcando o que
+# mudou. A narracao dizia a mesma coisa em prosa.
+#
+# Manter as duas e a reclamacao do dono em uma frase: verborragico e
+# pouco ilustrado. A tabela e a ilustracao; esta era a verborragia.
+#
+# Fica nos nos SEM tabela: I2 (o ponto dele e tipo, nao estado) e I3
+# (o gerador recusa funcao).
 
 caso_resolvido:
   - prosa: >

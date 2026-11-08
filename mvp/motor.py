@@ -452,6 +452,31 @@ def _nao_fechou(nid: str, e: Estado, onde: str) -> tuple[Evento, ...]:
         "no": nid, "repeticoes": e.repeticoes, "onde": onde}),)
 
 
+def _rotas(d: Dominio, nid: str) -> list:
+    """As rotas daquele nó, em ordem, para quem diz que não entendeu.
+
+    DUAS ROTAS, E ELAS SÃO DIFERENTES ENTRE SI:
+
+        1ª  `outra_rota`     a mesma ideia por outro caminho
+        2ª  `caso_resolvido` um caso trabalhado do começo ao fim
+
+    O caso resolvido SAIU DA PRIMEIRA TELA por isto. Ele é uma segunda
+    explicação, e mostrá-lo antes de alguém pedir é o princípio da
+    coerência de Mayer violado: material extra, mesmo correto, atrapalha.
+    Medido, o cartão do B2 tinha 392 palavras numa tela só.
+
+    E ISTO RESPONDE AO TETO. `LIMITE_REEXPLICACAO` valia 2 e parecia
+    política pedagógica; era fim de material. Agora as duas tentativas
+    trazem coisas diferentes, e quem escrever uma terceira rota para um
+    nó compra uma terceira tentativa nele.
+    """
+    fora = [r for r in (d.outra_rota(nid), d.caso_resolvido(nid)) if r]
+    if not fora:
+        resgate = d.resgate(nid)
+        return [[{"prosa": resgate}]] if resgate else []
+    return fora
+
+
 def _outra_vez(d: Dominio, nid: str, repeticoes: int) -> list:
     """O que a SEGUNDA vez do cartão mostra, sempre como lista de blocos.
 
@@ -467,11 +492,13 @@ def _outra_vez(d: Dominio, nid: str, repeticoes: int) -> list:
     """
     if not repeticoes:
         return []
-    proprio = d.outra_rota(nid)
-    if proprio:
-        return proprio
-    resgate = d.resgate(nid)
-    return [{"prosa": resgate}] if resgate else []
+    rotas = _rotas(d, nid)
+    if not rotas:
+        return []
+    # A primeira vez que ele pede traz a rota 1; a segunda, a rota 2.
+    # Quem pedir mais vezes do que há rotas recebe a última — mas o teto
+    # chega antes disso.
+    return rotas[min(repeticoes, len(rotas)) - 1]
 
 
 def _tela_ensino(d: Dominio, e: Estado) -> Tela:
@@ -493,7 +520,11 @@ def _tela_ensino(d: Dominio, e: Estado) -> Tela:
         # de ensino para seis premissas sobre ponteiros, e o dono, depois
         # de usar o sistema, disse que não conseguia aprender.
         "narracao": d.narracao(nid),
-        "caso_resolvido": d.caso_resolvido(nid),
+        # O TESTE DE MESA: o valor de cada variavel depois de cada
+        # linha, gerado pela execucao. E a peca que substitui prosa por
+        # ilustracao -- a tabela do I1 mostra, sem uma palavra, que
+        # `p = &y` muda so o p e que `*p = 99` muda so o y.
+        "teste_de_mesa": d.teste_de_mesa(nid),
         # A frase sozinha fica abstrata para quem nunca declarou uma
         # variável. O exemplo ancora, e é o mesmo código que as atividades
         # daquele nó usam.
@@ -1282,7 +1313,7 @@ def _tela_construcao(d: Dominio, no: str, motivo: str = "lacuna",
         # elemento nas duas telas, e campo que só uma manda é seção que
         # some sem ninguém perceber — foi o que aconteceu com a ampliação.
         "narracao": d.narracao(no),
-        "caso_resolvido": d.caso_resolvido(no),
+        "teste_de_mesa": d.teste_de_mesa(no),
     })
 
 

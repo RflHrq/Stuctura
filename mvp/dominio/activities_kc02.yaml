@@ -87,19 +87,16 @@ exemplos:
   B1: |
     int idade = 20;
     int outra = 7;
-    printf("%p\n", (void *)&idade);   /* o lugar */
     printf("%d\n", idade);            /* o que tem nele */
     printf("%d\n", &idade == &outra); /* 0: lugares diferentes */
 
   B2: |
     int x = 42;
     int *p = &x;
-    printf("%p\n", (void *)&p);       /* p tambem tem endereco */
 
   B3: |
     int x = 42;
     int *p = &x;
-    printf("%p\n", (void *)p);   /* dentro de p: o endereco de x */
     printf("%d\n", *p);          /* 42: o conteudo que mora la */
     *p = 7;                      /* escreve no lugar apontado */
     printf("%d\n", x);           /* 7: mudou sem nomear x */
@@ -110,10 +107,20 @@ exemplos:
     p = &y;        /* muda p  */
     *p = 99;       /* muda y  */
 
+  # primeiro nao e ensinado em lugar nenhum da programacao, e o segundo
+  # e aritmetica de ponteiro, que o cabecalho deste grafo manda calar
+  # porque e kc_11. Uma segunda versao usou %zu e caiu no mesmo
+  # defeito: construto obscuro aparecendo sem explicacao.
+  #
+  # Agora a pergunta e feita com ==, que devolve 0 ou 1 e imprime com
+  # %d -- o que o exemplo do B1 ja faz, e cuja leitura a ampliacao do B1
+  # ja ensina ("1 quer dizer mesmo lugar, 0 quer dizer lugares
+  # diferentes"). Conferido: compila limpo ate com -pedantic, sai 0 e 1.
   I2: |
-    int x = 42;
-    int *p = &x;
-    printf("%p\n", (void *)(p + 1));  /* anda sizeof(int), nao 1 */
+    int  x = 42;   int  *p = &x;
+    char c = 'a';  char *q = &c;
+    printf("%d\n", sizeof(*p) == sizeof(*q));  /* 0: nao sao do mesmo tamanho */
+    printf("%d\n", sizeof(*p) == sizeof(x));   /* 1: no fim de p mora um int  */
 
   I3: |
     void dobra(int *q) { *q = *q * 2; }
@@ -121,7 +128,432 @@ exemplos:
     int n = 10;
     dobra(&n);     /* n agora e 20 */
 
+# ---------------------------------------------------------------------
+# O MATERIAL DE ENSINO PROFUNDO, aplicado dos candidatos de 08/11/2026.
+#
+# A MEDICAO QUE PEDIU ISTO: a unidade do kc_02 oferecia 811 palavras de
+# ensino para seis premissas sobre ponteiros, e a refutacao, que e o
+# mecanismo da tese, tinha 24 palavras por tela. O dono usou o sistema
+# e disse que nao conseguia aprender. Com estes tres campos sao 3.465.
+#
+# SAO LISTAS DE BLOCOS porque `_paragrafos` preserva linha em branco e
+# COLA o resto: o material escrito como prosa com codigo no meio saia
+# com os printf grudados numa linha so.
+#
+# SEM CRASE na prosa: o cliente escreve com textContent, e crase no
+# YAML vira crase na cara da pessoa. A primeira aplicacao trouxe 58, e
+# foi um teste que ja existia que as pegou.
+#
+# A revisao esta em candidatos/kc_02/REVISAO-kc02.md.
+# ---------------------------------------------------------------------
+
+narracoes:
+
+  I2:
+    - linha: "int x = 42;"
+      diz: >
+        Uma caixa com 42 dentro, como sempre.
+    - linha: "int *p = &x;"
+      diz: >
+        p guarda o endereço de x. E a declaração registra, no
+        compilador, que o que mora nesse endereço é um int.
+    - linha: "printf(\"%p\\n\", (void *)(p + 1));"
+      diz: >
+        Sai um endereço maior que o de x. O quanto maior depende do
+        tipo declarado, não do número guardado — e esse "quanto" é
+        assunto de outro tópico. Aqui basta: o tipo entra na conta.
+
+  I3:
+    - linha: "void dobra(int *q) { *q = *q * 2; }"
+      diz: >
+        A função recebe um endereço, não um número. Dentro dela, q é
+        uma caixa nova com uma cópia desse endereço — e *q vai até a
+        caixa original para ler e escrever.
+    - linha: "int n = 10;"
+      diz: >
+        Uma caixa com 10 dentro, na função que chama.
+    - linha: "dobra(&n);"
+      diz: >
+        Passa o ENDEREÇO de n, não o 10. A cópia que chega lá dentro
+        aponta para a mesma caixa, e por isso o que a função escreve
+        chega aqui.
+    - linha: "/* n agora é 20 */"
+      diz: >
+        Confirmado pela máquina. Com a assinatura dobra(int v) e a
+        chamada dobra(n), n continua 10 — a função teria mexido numa
+        cópia.
+
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int a = 20;
+        int b = 20;
+    - prosa: >
+        As duas guardam o mesmo valor. Pergunta: &a == &b dá 1 ou 0?
+    - prosa: >
+        A tentação é responder 1 — os valores são iguais, então "é a
+        mesma coisa". Siga a declaração em vez do valor. São duas
+        declarações, e cada declaração reserva um lugar. Dois
+        lugares.
+    - prosa: >
+        O endereço é o número do lugar, não o que está guardado
+        nele. Dois lugares diferentes têm números diferentes, mesmo
+        com o mesmo 20 dentro. Então sai 0.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a=20 b=20   &a==&b -> 0
+        &a=...FE4C  &b=...FE48
+    - prosa: >
+        Os dois números terminam diferentes, e a diferença entre
+        eles é 4 — o tamanho de um int. Duas caixas, lado a lado.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto, do começo ao fim.
+    - codigo: |
+        int x = 42;
+        int *p = &x;
+    - prosa: >
+        Pergunta: depois dessas duas linhas, quantas caixas existem,
+        e o que tem dentro de cada uma?
+    - prosa: >
+        Comece contando as declarações. São duas, x e p. Toda
+        declaração reserva uma caixa — então são duas caixas, não
+        uma.
+    - prosa: >
+        Agora veja o que entra em cada uma. Em x entra 42. Em p
+        entra &x, que é o número do lugar de x. Fica assim:
+    - saida: |
+        caixa x   num lugar, digamos 0x1000   dentro: 42
+        caixa p   em outro, digamos 0x2A00    dentro: 0x1000
+    - prosa: >
+        Repare no que a segunda linha NÃO fez. Ela não mudou x. Ela
+        não criou um apelido para x. E ela não deixou p sem lugar: p
+        é uma caixa nova, preenchida com um número — e esse número
+        por acaso é o endereço de outra caixa.
+    - prosa: >
+        Se alguém perguntar "onde fica p?", a resposta é 0x2A00. A
+        pergunta tem resposta, e é isso que esta premissa afirma.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 42;
+        int *p = &x;
+    - prosa: >
+        Pergunta: qual a diferença entre imprimir p e imprimir *p?
+    - prosa: >
+        Comece pelo que está guardado. Dentro de p está o endereço
+        de x — digamos 0x1000. Esse é o conteúdo da caixa p, do
+        mesmo jeito que 42 é o conteúdo da caixa x.
+    - saida: |
+        p    é o conteúdo de p      -> 0x1000, um endereço
+        *p   é o conteúdo do lugar  -> 42, o que mora em 0x1000
+             cujo número está em p
+    - prosa: >
+        O asterisco é a viagem. Sem ele você fica na caixa p e lê o
+        número que está nela; com ele você usa esse número para
+        chegar a outra caixa e lê o que está lá.
+    - prosa: >
+        É por isso que *p = 7; muda x. A linha não nomeia x em lugar
+        nenhum — ela diz "vá ao lugar cujo número está em p, e
+        escreva 7 ali". E o número que está em p é justamente o
+        lugar de x. A máquina confirma: depois dessa linha, x vale
+        7.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto, contando as caixas antes de
+        responder.
+    - codigo: |
+        int a = 42, b = 7;
+        int *q = &a;
+        q = &b;
+        *q = 99;
+    - prosa: >
+        Pergunta: no fim, quanto valem a e b?
+    - prosa: >
+        Primeiro, quantas caixas? Três declarações, três caixas: a,
+        b e q.
+    - prosa: >
+        Agora linha por linha, anotando só o que MUDA:
+    - saida: |
+        int *q = &a;   q passa a guardar o endereço de a
+        q = &b;        q passa a guardar o endereço de b
+                       (a não foi tocado: continua 42)
+        *q = 99;       vai ao lugar guardado em q, que é o de b,
+                       e escreve 99 lá
+    - prosa: >
+        Então a continua 42 e b vira 99. A máquina confirma: a -> 42
+        e b -> 99.
+    - prosa: >
+        O erro comum é esperar que a terceira linha, ao "desligar" q
+        de a, mexesse em a. Ela não mexe, e o motivo é esta
+        premissa: q e a são duas caixas. Apagar o que está escrito
+        num papel não derruba parede nenhuma.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto, e este é o caso que mais convence.
+    - codigo: |
+        int x = 42;
+        int *p = x;
+    - prosa: >
+        Pergunta: o compilador aceita isso?
+    - prosa: >
+        A tentação é dizer que sim. Se um endereço é um número, e 42
+        é um número, por que não? Pergunte a ele:
+    - saida: |
+        initialization of 'int *' from 'int' makes pointer
+        from integer without a cast [-Wint-conversion]
+    - prosa: >
+        Ele reclama. Repare no que a frase dele diz: não que o
+        número esteja errado, e sim que ponteiro e inteiro são tipos
+        diferentes e que ele não vai fingir que não são. Dependendo
+        da versão do compilador isso vem como erro, e aí nem
+        executável existe, ou como aviso, e aí o programa compila
+        mesmo assim. A reclamação é a mesma.
+    - prosa: >
+        Agora troque por int *p = &x; e ele fica quieto. A diferença
+        não está no número — o endereço de x também é um número.
+        Está em o compilador saber, pela declaração, o que cada
+        coisa é.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto, com as duas versões lado a lado.
+    - codigo: |
+        void dobra_valor(int v)  { v = v * 2; }
+        void dobra(int *q)       { *q = *q * 2; }
+
+        int m = 10;   dobra_valor(m);
+        int n = 10;   dobra(&n);
+    - prosa: >
+        Pergunta: quanto valem m e n no fim?
+    - prosa: >
+        Comece pela primeira. dobra_valor(m) entrega o VALOR 10. Lá
+        dentro, v é uma caixa nova com 10. A linha v = v * 2 põe 20
+        nessa caixa nova. A função termina, a caixa v some, e m
+        nunca foi tocado. m = 10.
+    - prosa: >
+        Agora a segunda. dobra(&n) entrega o ENDEREÇO de n. Lá
+        dentro, q é uma caixa nova com uma cópia desse endereço. A
+        linha *q = *q * 2 não escreve em q: usa o endereço que está
+        em q para chegar à caixa de n e escrever lá. n = 20.
+    - prosa: >
+        A máquina confirma: m -> 10 e n -> 20.
+    - prosa: >
+        Repare no que as duas têm em comum: as duas receberam uma
+        cópia. A diferença é do que era a cópia. Cópia de um valor é
+        um valor novo; cópia de um endereço aponta para a mesma
+        caixa de antes.
+
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho, agora sem analogia. Pegue duas variáveis com
+        o MESMO valor e pergunte duas coisas à máquina:
+    - codigo: |
+        int a = 20, b = 20;
+        printf("%d\n", a == b);     /* os valores */
+        printf("%d\n", &a == &b);   /* os lugares */
+    - prosa: >
+        A primeira linha sai 1: os valores são iguais. A segunda sai
+        0: os lugares não são.
+    - prosa: >
+        Se o endereço fosse o valor, as duas sairiam iguais. Se o
+        endereço fosse o nome, a pergunta nem faria sentido — não dá
+        para comparar dois nomes com ==. Ele é uma terceira coisa: o
+        número do lugar.
+
+  B2:
+    - prosa: >
+        Outro caminho para a mesma ideia, agora sem analogia
+        nenhuma. Peça os três números à máquina:
+    - codigo: |
+        int x = 42;
+        int *p = &x;
+        printf("%p\n",  (void *)&x);   /* onde x mora    */
+        printf("%p\n",  (void *)&p);   /* onde p mora    */
+        printf("%zu\n", sizeof(p));    /* quanto p ocupa */
+    - prosa: >
+        Os dois primeiros saem diferentes, e isso já responde a
+        pergunta: se p não ocupasse lugar nenhum, &p não teria o que
+        imprimir. O terceiro sai 8 — espaço ocupado, medido pelo
+        compilador.
+    - prosa: >
+        Uma seta desenhada no quadro não tem endereço nem tamanho. A
+        caixa p tem os dois, e a máquina diz quais são.
+
+  B3:
+    - prosa: >
+        Outro caminho, pela pergunta ao contrário: o que teria de
+        ser verdade para *p sair o mesmo que p?
+    - codigo: |
+        int x = 42;
+        int *p = &x;
+        printf("%p\n", (void *)p);   /* um endereço */
+        printf("%d\n", *p);          /* 42          */
+    - prosa: >
+        As duas linhas leem a MESMA caixa p, e saem coisas
+        diferentes. Isso só é possível porque a segunda não para em
+        p: ela usa o que está dentro de p como um caminho e vai
+        adiante.
+    - prosa: >
+        Se o que estivesse dentro de p fosse o próprio 42, não
+        haveria para onde ir, e as duas linhas sairiam iguais. Saem
+        diferentes. Então o que está dentro é endereço, não dado.
+
+  I1:
+    - prosa: >
+        Outro caminho: conte os endereços em vez de seguir a
+        história.
+    - codigo: |
+        int a = 42, b = 7;
+        int *q = &a;
+        printf("%d\n", &a == &b);   /* 0 */
+        printf("%d\n", &a == &q);   /* 0 */
+    - prosa: >
+        Três perguntas, três números de lugar, e nenhum igual ao
+        outro. Se o ponteiro e a caixa apontada fossem a mesma
+        coisa, &a == &q daria 1 — e dá 0.
+    - prosa: >
+        É a mesma conta do B2 e do B3, agora as duas de uma vez: p
+        tem lugar (B2), dentro de p mora um endereço (B3), e um
+        endereço é de OUTRO lugar. Duas caixas.
+
+  I2:
+    - prosa: >
+        Outro caminho, e este não precisa de conta nenhuma. Pegue
+        dois ponteiros que guardam, os dois, um endereço:
+    - codigo: |
+        int  x = 42;   int  *p = &x;
+        char c = 'a';  char *q = &c;
+        p = q;
+    - prosa: >
+        Se ponteiro fosse só um número, a última linha seria copiar
+        um número para outro lugar — a coisa mais simples do mundo.
+        O compilador reclama:
+    - saida: |
+        assignment to 'int *' from incompatible pointer type 'char *'
+    - prosa: >
+        Os dois guardam endereço. Os dois são números. E ainda assim
+        ele recusa trocar um pelo outro, porque para ele não são a
+        mesma espécie de coisa. Isso é o tipo, e ele não está no
+        número: está na declaração que você escreveu.
+
+  I3:
+    - prosa: >
+        Outro caminho: tente fazer sem ponteiro e veja onde trava.
+    - prosa: >
+        Você quer uma função que troque duas variáveis de lugar. Com
+        valores, a função recebe cópias, troca as cópias, e as suas
+        duas variáveis continuam exatamente como estavam — não
+        existe jeito de consertar isso de dentro da função, porque o
+        nome das suas variáveis não existe lá.
+    - prosa: >
+        Com endereços, a função recebe os dois lugares e vai até
+        eles. Não é um estilo diferente de escrever a mesma coisa: é
+        a diferença entre conseguir e não conseguir.
+    - prosa: >
+        O mesmo aparece quando a função precisa devolver dois
+        resultados. return devolve um. Com um endereço recebido, ela
+        escreve o segundo direto na caixa de quem chamou.
+
+
+# ---------------------------------------------------------------------
+# O TESTE DE MESA, GERADO por scripts/mesa.py -- nao edite a mao.
+#
+# Cada linha e uma instrucao do exemplo do cartao, e cada coluna e uma
+# variavel ou o endereco dela. Os valores sairam de um programa
+# instrumentado, compilado e executado pelo gcc do projeto.
+#
+# `mvp/test_mesa.py` regenera e compara: se alguem mexer no exemplo e
+# nao regerar a tabela, a suite acusa. Tabela errada e pior que tabela
+# nenhuma, porque ela parece medida.
+#
+# E e ela que tira o (void *) da tela: o cast fica no programa
+# instrumentado, e o aluno ve o valor.
+# ---------------------------------------------------------------------
+# O TESTE DE MESA, GERADO por scripts/mesa.py -- nao edite a mao.
+#
+# Cada linha e uma instrucao do exemplo do cartao, e cada coluna e uma
+# variavel ou o endereco dela. Os valores sairam de um programa
+# instrumentado, compilado e executado pelo gcc do projeto.
+#
+# `mvp/test_mesa.py` regenera e compara: se alguem mexer no exemplo e
+# nao regerar a tabela, a suite acusa. Tabela errada e pior que tabela
+# nenhuma, porque ela parece medida.
+#
+# E e ela que tira o (void *) da tela: o cast fica no programa
+# instrumentado, e o aluno ve o valor.
+# ---------------------------------------------------------------------
+
+testes_de_mesa:
+
+  B1:
+    colunas: ["idade", "&idade", "outra", "&outra"]
+    linhas:
+      - codigo: "int idade = 20;"
+        valores: ["20", "0000009B22FFF84C", "", ""]
+      - codigo: "int outra = 7;"
+        valores: ["20", "0000009B22FFF84C", "7", "0000009B22FFF848"]
+
+  B2:
+    colunas: ["x", "&x", "p", "&p"]
+    linhas:
+      - codigo: "int x = 42;"
+        valores: ["42", "000000411EFFFD0C", "", ""]
+      - codigo: "int *p = &x;"
+        valores: ["42", "000000411EFFFD0C", "000000411EFFFD0C", "000000411EFFFD00"]
+
+  B3:
+    colunas: ["x", "&x", "p", "&p"]
+    linhas:
+      - codigo: "int x = 42;"
+        valores: ["42", "0000008D467FFA5C", "", ""]
+      - codigo: "int *p = &x;"
+        valores: ["42", "0000008D467FFA5C", "0000008D467FFA5C", "0000008D467FFA50"]
+      - codigo: "*p = 7;"
+        valores: ["7", "0000008D467FFA5C", "0000008D467FFA5C", "0000008D467FFA50"]
+
+  I1:
+    colunas: ["x", "&x", "y", "&y", "p", "&p"]
+    linhas:
+      - codigo: "int x = 42, y = 7;"
+        valores: ["42", "0000009D597FFCAC", "7", "0000009D597FFCA8", "", ""]
+      - codigo: "int *p = &x;"
+        valores: ["42", "0000009D597FFCAC", "7", "0000009D597FFCA8", "0000009D597FFCAC", "0000009D597FFCA0"]
+      - codigo: "p = &y;"
+        valores: ["42", "0000009D597FFCAC", "7", "0000009D597FFCA8", "0000009D597FFCA8", "0000009D597FFCA0"]
+      - codigo: "*p = 99;"
+        valores: ["42", "0000009D597FFCAC", "99", "0000009D597FFCA8", "0000009D597FFCA8", "0000009D597FFCA0"]
+
 activities:
+  # ciu_kc02_015 e ciu_kc02_t15 SAIRAM em 08/11/2026.
+  #
+  # Os dois cobravam aritmetica de ponteiro -- "para onde p + 1 e c + 1
+  # apontam" e "andar uma posicao anda quantos bytes" -- e o cartao do
+  # I2 deixou de falar disso, porque o cabecalho deste grafo manda a
+  # metafora calar sobre aritmetica: isso e kc_11.
+  #
+  # NAO FORAM MOVIDOS, e foi a verificacao que decidiu: o kc_11 JA cobre
+  # os dois, e melhor colocado --
+  #     ciu_kc11_003 (B1, n3) "As duas somas andam o mesmo tanto?"
+  #                           certa: "Nao: cada tipo tem seu passo"
+  #     ciu_kc11_016 (I3, n1) "p + 1 anda o que?"
+  #                           certa: "Um elemento do tipo de p"
+  # Move-los criaria duplicata no banco de destino, que e o defeito que
+  # esta sessao ja produziu doze vezes hoje.
+  #
+  # O conhecimento continua sendo cobrado. So nao aqui.
+
 
   # ------------------------------------------------------------------
   # B1 — cada lugar da memória tem um número que o identifica
@@ -592,7 +1024,13 @@ activities:
     tipo: teorica
     enunciado: "Por que int *p e char *c não são a mesma coisa, se os dois guardam endereços?"
     alternativas:
-      a: "Porque o tipo diz o que existe no destino, e é ele que decide quanto p + 1 anda"
+      # O gabarito terminava em "e e ele que decide quanto p + 1
+      # anda". A PERGUNTA e do I2 -- por que dois ponteiros nao sao a
+      # mesma coisa --, mas a RESPOSTA se apoiava em aritmetica, que
+      # saiu do cartao deste no e vive no kc_11. Item cuja resposta
+      # certa cobra o que o cartao nao ensinou e o mesmo defeito, um
+      # passo adiante.
+      a: "Porque o tipo diz o que existe no destino"
       b: "Não são diferentes: endereço é endereço, os dois guardam um número"
       c: "Porque cada um guarda o endereço junto com o tipo do destino"
     gabarito: a
@@ -617,24 +1055,6 @@ activities:
     crencas:
       b: pointer_is_integer
       c: pointer_has_no_address
-
-  - id: ciu_kc02_015
-    node: kc02:I2
-    nivel: 3
-    formato: comparar_casos
-    tipo: codigo
-    codigo: |
-      int  *p;   /* suponha p = 1000 */
-      char *c;   /* suponha c = 1000 */
-    enunciado: "Os dois guardam 1000. Para onde p + 1 e c + 1 apontam?"
-    alternativas:
-      a: "p + 1 anda o tamanho de um int; c + 1 anda um byte"
-      b: "Os dois vão para 1001: somar 1 é somar 1"
-      c: "Depende do valor que estiver guardado em cada um deles"
-    gabarito: a
-    crencas:
-      b: pointer_is_integer
-      c: pointer_is_data
 
   - id: ciu_kc02_t13
     node: kc02:I2
@@ -669,30 +1089,6 @@ activities:
     gabarito: a
     crencas:
       b: pointer_is_integer
-
-  - id: ciu_kc02_t15
-    node: kc02:I2
-    nivel: 3
-    uso: treino
-    formato: comparar_casos
-    tipo: codigo
-    codigo: |
-      int  a[3];
-      char b[3];
-    enunciado: "Andar uma posição em cada um desses arrays anda quantos bytes?"
-    alternativas:
-      a: "Em a, o tamanho de um int; em b, um byte"
-      b: "Um byte nos dois: uma posição é uma posição"
-      c: "Depende do valor guardado em cada posição"
-    gabarito: a
-    crencas:
-      b: pointer_is_integer
-      c: pointer_is_data
-
-  # ------------------------------------------------------------------
-  # I3 — guardar um endereço permite alcançar a mesma caixa de longe
-  # crença do nó: pointer_is_pointless
-  # ------------------------------------------------------------------
 
   - id: ciu_kc02_016
     node: kc02:I3

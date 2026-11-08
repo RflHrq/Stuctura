@@ -314,6 +314,7 @@
     /* O EXEMPLO LINHA A LINHA, e o caso resolvido antes de perguntar.
      * Medido: a unidade do kc_02 dava 811 palavras de ensino para seis
      * premissas sobre ponteiros. */
+    desenhaMesa($("ensino-mesa"), t.teste_de_mesa);
     desenhaNarracao($("ensino-narracao"), t.narracao);
     desenhaBlocos($("ensino-caso"), t.caso_resolvido);
     desenhaBlocos($("ensino-reexplicacao"), t.reexplicacao);
@@ -542,6 +543,69 @@
       caixa.appendChild(el);
     });
     caixa.classList.toggle("oculto", lista.length === 0);
+  }
+
+  /* O TESTE DE MESA. Uma linha por instrucao, uma coluna por variavel e
+   * pelo endereco dela, com o valor DEPOIS daquela linha.
+   *
+   * Os enderecos vem inteiros do dominio e sao encurtados aqui: o que a
+   * tabela ensina nao e o numero, e QUAIS sao iguais entre si. Mostrar
+   * 000000A61FFB5C em seis celulas e ruido; mostrar o fim de cada um faz
+   * a igualdade saltar aos olhos.
+   *
+   * Celula vazia quer dizer que a variavel ainda nao existe naquele
+   * ponto, e isso tambem ensina. */
+  function encurta(v) {
+    var s = String(v || "").trim();
+    if (!s) return "";
+    if (/^0?[0-9A-Fa-f]{8,}$/.test(s)) return "…" + s.slice(-4).toUpperCase();
+    return s;
+  }
+
+  function desenhaMesa(caixa, mesa) {
+    caixa.textContent = "";
+    var tem = mesa && mesa.colunas && mesa.colunas.length && mesa.linhas
+              && mesa.linhas.length;
+    caixa.classList.toggle("oculto", !tem);
+    if (!tem) return;
+
+    var tab = document.createElement("table");
+    var thead = document.createElement("thead");
+    var tr = document.createElement("tr");
+    var vazio = document.createElement("th");
+    vazio.textContent = "depois desta linha";
+    tr.appendChild(vazio);
+    mesa.colunas.forEach(function (c) {
+      var th = document.createElement("th");
+      th.textContent = c;
+      tr.appendChild(th);
+    });
+    thead.appendChild(tr);
+    tab.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    var antes = null;
+    mesa.linhas.forEach(function (l) {
+      var linha = document.createElement("tr");
+      var cod = document.createElement("td");
+      cod.className = "mesa-codigo";
+      cod.textContent = l.codigo;
+      linha.appendChild(cod);
+      l.valores.forEach(function (v, i) {
+        var td = document.createElement("td");
+        td.textContent = encurta(v);
+        /* O QUE MUDOU nesta linha fica marcado. E o que a tabela veio
+         * mostrar: `p = &y` muda so o p, `*p = 99` muda so o y. */
+        if (antes && antes[i] !== v && String(v || "").trim()) {
+          td.className = "mudou";
+        }
+        linha.appendChild(td);
+      });
+      antes = l.valores;
+      tbody.appendChild(linha);
+    });
+    tab.appendChild(tbody);
+    caixa.appendChild(tab);
   }
 
   /* A narracao e um par por linha: o codigo a esquerda, o que ele faz a

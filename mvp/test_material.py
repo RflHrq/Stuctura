@@ -114,20 +114,53 @@ def _ate_a_construcao(d):
     raise AssertionError("não cheguei à construção")
 
 
-def test_o_cartao_de_abertura_leva_os_tres(d):
+def test_o_cartao_de_abertura_leva_a_narracao(d):
     t = motor.inicia(d)
     t = motor.avanca(d, t.estado, Resposta(texto="uma frase"))
     assert t.tela.tipo == "ensino"
-    for campo in ("narracao", "caso_resolvido"):
-        assert campo in t.tela.dados, "a abertura não manda `%s`" % campo
+    assert "narracao" in t.tela.dados
 
 
-def test_o_cartao_de_lacuna_leva_os_tres(d):
+def test_o_cartao_de_lacuna_leva_a_narracao(d):
     """A fatia da ampliação existiu porque `_tela_construcao` não mandava
     o que `_tela_ensino` mandava. Não repetir."""
     t = _ate_a_construcao(d)
-    for campo in ("narracao", "caso_resolvido"):
-        assert campo in t.tela.dados, "a construção não manda `%s`" % campo
+    assert "narracao" in t.tela.dados
+
+
+def test_o_caso_resolvido_NAO_vem_na_primeira_tela(d):
+    """Ele é uma SEGUNDA explicação, e mostrá-lo antes de alguém pedir é
+    o princípio da coerência violado: material extra, mesmo correto,
+    atrapalha. Medido, o cartão do B2 tinha 392 palavras numa tela só.
+
+    Ele agora é a segunda rota de quem diz que não entendeu.
+    """
+    abertura = motor.avanca(d, motor.inicia(d).estado,
+                            Resposta(texto="uma frase")).tela
+    lacuna = _ate_a_construcao(d).tela
+    for tela, nome in ((abertura, "abertura"), (lacuna, "construção")):
+        assert "caso_resolvido" not in tela.dados, (
+            "a %s voltou a despejar o caso resolvido de saída" % nome)
+
+
+def test_as_duas_chances_trazem_coisas_DIFERENTES(d):
+    """O teto de reexplicação parecia política e era fim de material.
+
+    Agora a primeira vez que a pessoa pede traz `outra_rota` e a segunda
+    traz `caso_resolvido`. Se as duas trouxerem o mesmo, o botão vira
+    enfeite — que é o defeito que ele tinha antes de existir material
+    próprio.
+    """
+    t = _ate_a_construcao(d)
+    no = t.tela.no
+    if not (d.outra_rota(no) and d.caso_resolvido(no)):
+        pytest.skip("o nó %s não tem as duas rotas" % no)
+    um = motor.avanca(d, t.estado, Resposta(repetir=True))
+    dois = motor.avanca(d, um.estado, Resposta(repetir=True))
+    a = um.tela.dados["reexplicacao"]
+    b = dois.tela.dados["reexplicacao"]
+    assert a and b, "alguma das duas chances veio vazia"
+    assert a != b, "as duas chances mostram a mesma coisa"
 
 
 def test_as_duas_telas_mandam_os_mesmos_campos(d):

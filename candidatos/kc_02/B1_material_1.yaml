@@ -38,27 +38,17 @@ revisado_sha: ____
 ampliacao: ja_existe_no_dominio
 
 
-narracao:
-  - linha: "int idade = 20;"
-    diz: >
-      Reserva um lugar na memória e guarda 20 nele. O lugar passa a ter
-      um número próprio, que você não escolheu e não escreveu.
-  - linha: "int outra = 7;"
-    diz: >
-      Outro lugar, com outro número e outro valor. Duas declarações,
-      dois lugares.
-  - linha: 'printf("%p\n", (void *)&idade);'
-    diz: >
-      &idade não é o 20. É o número do lugar onde o 20 está guardado, e
-      %p imprime esse número.
-  - linha: 'printf("%d\n", idade);'
-    diz: >
-      Aqui sim sai 20: sem o &, o que se lê é o conteúdo do lugar.
-  - linha: 'printf("%d\n", &idade == &outra);'
-    diz: >
-      Compara os dois números de lugar. Sai 0 — são lugares diferentes.
-      Se saísse 1, escrever numa mudaria a outra.
-
+# NARRACAO: CORTADA em 08/11/2026.
+#
+# O no tem teste de mesa, e a tabela diz linha a linha o que cada
+# instrucao fez -- com os valores reais da execucao, e marcando o que
+# mudou. A narracao dizia a mesma coisa em prosa.
+#
+# Manter as duas e a reclamacao do dono em uma frase: verborragico e
+# pouco ilustrado. A tabela e a ilustracao; esta era a verborragia.
+#
+# Fica nos nos SEM tabela: I2 (o ponto dele e tipo, nao estado) e I3
+# (o gerador recusa funcao).
 
 caso_resolvido:
   - prosa: >

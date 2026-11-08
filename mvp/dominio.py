@@ -295,6 +295,24 @@ class Dominio:
         """O material da SEGUNDA vez. Vazio cai no resgate, no motor."""
         return list(self.outras_rotas.get(no) or ())
 
+    # O TESTE DE MESA: o valor de cada variavel depois de cada linha.
+    # GERADO por `scripts/mesa.py`, que instrumenta o exemplo do cartao,
+    # compila e executa -- nao e escrito a mao. `test_mesa.py` regenera e
+    # compara, para a tabela nao envelhecer quando o exemplo mudar.
+    #
+    # E e ele que tira o `(void *)` da tela: o cast fica no programa
+    # instrumentado, e o aluno ve o valor.
+    testes_de_mesa: Mapping[str, Mapping] = field(default_factory=dict)
+
+    def teste_de_mesa(self, no: str) -> dict:
+        t = self.testes_de_mesa.get(no)
+        if not t:
+            return {}
+        return {"colunas": list(t.get("colunas") or ()),
+                "linhas": [{"codigo": l.get("codigo", ""),
+                            "valores": list(l.get("valores") or ())}
+                           for l in (t.get("linhas") or ())]}
+
     def atividades_do_no(self, no: str, uso: str | None = None) -> tuple[Atividade, ...]:
         """As atividades do nó, teórica antes de código."""
         itens = [a for a in self.atividades
@@ -387,6 +405,27 @@ def _blocos(cru, chave):
     return fora
 
 
+def _mesas(cru):
+    """{no: {colunas, linhas}} -- o teste de mesa gerado.
+
+    So estrutura: os valores sao strings que vieram da execucao, e
+    normalizar texto aqui estragaria um endereco.
+    """
+    fora = {}
+    for no, t in ((cru or {}).get("testes_de_mesa") or {}).items():
+        if not isinstance(t, dict):
+            continue
+        fora[no] = {
+            "colunas": tuple(str(c) for c in (t.get("colunas") or ())),
+            "linhas": tuple({"codigo": str(l.get("codigo", "")).strip(),
+                             "valores": tuple(str(v) for v in
+                                              (l.get("valores") or ()))}
+                            for l in (t.get("linhas") or ())
+                            if isinstance(l, dict)),
+        }
+    return fora
+
+
 def _narracoes(cru):
     """{no: [{linha, diz}]} -- o exemplo explicado linha a linha."""
     fora = {}
@@ -468,7 +507,8 @@ def _corta(alvo: str, quantas: int, cru_topico, grafo,
         sobram.append(a)
     cru_atv["activities"] = sobram
     for chave in ("resgates", "exemplos", "narracoes",
-                  "casos_resolvidos", "outras_rotas"):
+                  "casos_resolvidos", "outras_rotas",
+                  "testes_de_mesa"):
         if cru_atv.get(chave):
             cru_atv[chave] = {k: v for k, v in cru_atv[chave].items()
                               if k in vivos}
@@ -830,5 +870,6 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
         narracoes=_narracoes(cru_atv),
         casos_resolvidos=_blocos(cru_atv, "casos_resolvidos"),
         outras_rotas=_blocos(cru_atv, "outras_rotas"),
+        testes_de_mesa=_mesas(cru_atv),
         descidas=descidas,
     )

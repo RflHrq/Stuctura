@@ -60,23 +60,17 @@ ampliacao: >
   também mude o valor antigo — e a máquina mostra que não muda.
 
 
-narracao:
-  - linha: "int x = 42, y = 7;"
-    diz: >
-      Duas caixas, cada uma no seu lugar, com 42 e 7 dentro.
-  - linha: "int *p = &x;"
-    diz: >
-      Uma terceira caixa, p, com o endereço de x dentro. Três caixas na
-      história, não duas.
-  - linha: "p = &y;"
-    diz: >
-      Muda o CONTEÚDO de p: agora é o endereço de y que está guardado
-      ali. x não foi tocado e continua 42.
-  - linha: "*p = 99;"
-    diz: >
-      Não toca em p. Usa o endereço que está dentro dele para chegar a y
-      e escrever 99 lá. Agora y é 99, e x continua 42.
-
+# NARRACAO: CORTADA em 08/11/2026.
+#
+# O no tem teste de mesa, e a tabela diz linha a linha o que cada
+# instrucao fez -- com os valores reais da execucao, e marcando o que
+# mudou. A narracao dizia a mesma coisa em prosa.
+#
+# Manter as duas e a reclamacao do dono em uma frase: verborragico e
+# pouco ilustrado. A tabela e a ilustracao; esta era a verborragia.
+#
+# Fica nos nos SEM tabela: I2 (o ponto dele e tipo, nao estado) e I3
+# (o gerador recusa funcao).
 
 caso_resolvido:
   - prosa: >

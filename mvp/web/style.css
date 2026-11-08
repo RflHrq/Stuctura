@@ -39,9 +39,14 @@ h2{margin:0 0 14px; font-size:20px}
 .etiqueta{font-size:12px; letter-spacing:.09em; text-transform:uppercase;
           color:var(--tinta2); margin:0 0 10px}
 .ideia{font-size:19px; line-height:1.45; margin:0 0 20px}
-.codigo{font:14px/1.5 ui-monospace,Consolas,monospace; white-space:pre-wrap;
-        background:var(--papel); border:1px solid var(--linha); border-radius:8px;
-        padding:12px 14px; margin:0 0 16px}
+/* `pre`, e NAO `pre-wrap`. Com pre-wrap a linha longa dobra no meio da
+   expressao: na tela, `printf("%p\n", (void *)&idade);` aparecia
+   partido com o `*)` comecando a segunda linha, e codigo que dobra no
+   meio deixa de parecer codigo. Agora ele rola na horizontal, como num
+   editor. */
+.codigo{font:14px/1.5 ui-monospace,Consolas,monospace; white-space:pre;
+        overflow-x:auto; background:var(--papel); border:1px solid var(--linha);
+        border-radius:8px; padding:12px 14px; margin:0 0 16px}
 
 .opcoes{display:flex; flex-direction:column; gap:8px; margin-bottom:18px}
 .opcao{text-align:left; font:inherit; color:inherit; cursor:pointer;
@@ -278,3 +283,20 @@ textarea:focus{outline:2px solid var(--acento); outline-offset:1px}
 /* A troca de superficie nao e um estado: e uma qualificacao do estado.
    Por isso entra na legenda como frase, e nao como pino. */
 .nota-legenda{flex-basis:100%; font-style:italic}
+
+/* O TESTE DE MESA. Fonte de codigo na coluna da instrucao e nos valores:
+   o que a tabela compara sao numeros e enderecos, e fonte proporcional
+   desalinha a comparacao que ela existe para fazer. */
+.mesa{margin:14px 0 0; overflow-x:auto}
+.mesa table{border-collapse:collapse; font:13px/1.5 ui-monospace,Consolas,monospace;
+            width:100%}
+.mesa th{text-align:left; font:600 11.5px/1.4 inherit; letter-spacing:.04em;
+         text-transform:uppercase; color:var(--tinta2);
+         border-bottom:1px solid var(--linha2); padding:6px 10px 6px 0;
+         white-space:nowrap}
+.mesa td{padding:6px 10px 6px 0; border-bottom:1px solid var(--linha);
+         white-space:nowrap; color:var(--tinta2)}
+.mesa tr:last-child td{border-bottom:0}
+.mesa .mesa-codigo{color:var(--tinta); padding-right:20px}
+/* A celula que MUDOU naquela linha. E o que a tabela veio mostrar. */
+.mesa .mudou{color:var(--acento); font-weight:600}

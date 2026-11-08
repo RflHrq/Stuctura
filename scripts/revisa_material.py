@@ -432,6 +432,43 @@ def revisa(caminho: pathlib.Path) -> list[tuple[str, str]]:
     return achados
 
 
+def cobrancas_sem_ensino(dom, inventario) -> dict:
+    """{(no, conceito): [ids]} -- quem cobra construto nao introduzido.
+
+    AGRUPADO POR NO, e nao item a item, porque e o agrupamento que da o
+    CONTEXTO CURRICULAR. Medido no kc_02: os sete achados estao todos no
+    I3, cuja premissa e "alcancar a caixa de outro ponto do programa" --
+    o no inteiro e sobre atravessar a fronteira de uma funcao. E o kc_06
+    tem 24, quatro em CADA um dos seis nos, e se chama "Passagem por
+    referencia".
+
+    Nos dois casos o construto e INERENTE a premissa, e aí mover o item
+    nao resolve: o no depende dele. Diferente de um exemplo que por
+    acaso usa o construto, onde o item muda ou sai.
+
+    A proporcao `k de n itens do no` e o que separa os dois casos, e ela
+    vai no relatorio em vez de uma classificacao minha -- quem le julga
+    com o numero na mao.
+    """
+    fora: dict = {}
+    for a in dom.atividades:
+        for padrao, cid in CONSTRUTOS:
+            if not padrao.search(a.codigo or ""):
+                continue
+            estado = (inventario.get(cid) or {}).get("status", "ausente")
+            if estado in ("nao_introduzido", "ausente"):
+                fora.setdefault((a.no, cid), []).append(a.id)
+    return fora
+
+
+def contexto(dom, no: str, cid: str, ids: list) -> str:
+    """Uma linha de contexto curricular para um grupo de achados."""
+    total = len(dom.atividades_do_no(no))
+    premissa = dom.nos[no].simples if no in dom.nos else "(nó desconhecido)"
+    return ("%s: %d de %d itens do nó usam %r — \"%s\""
+            % (no, len(ids), total, cid, premissa[:72]))
+
+
 def audita_dominio(topico: str) -> list[tuple[str, str]]:
     """Os mesmos portoes, aplicados ao dominio que JA ESTA NO AR.
 
@@ -491,13 +528,12 @@ def audita_dominio(topico: str) -> list[tuple[str, str]]:
                                     "compilador, e o diagnóstico é "
                                     "configurável: %r"
                             % (a.id, a.enunciado[:60])))
-        usados = {cid for padrao, cid in CONSTRUTOS
-                  if padrao.search(a.codigo or "")}
-        for cid in sorted(usados):
-            estado = (inv.get(cid) or {}).get("status", "ausente")
-            if estado in ("nao_introduzido", "ausente"):
-                achados.append(("ERRO", "%s: codigo usa %r, que esta %r"
-                                % (a.id, cid, estado)))
+
+    # COBRANCA SEM ENSINO, agrupada por no: e o agrupamento que da o
+    # contexto curricular. Ver `cobrancas_sem_ensino`.
+    for (no, cid), ids in sorted(cobrancas_sem_ensino(dom, inv).items()):
+        achados.append(("ERRO", contexto(dom, no, cid, ids)))
+        achados.append(("", "      itens: %s" % ", ".join(sorted(ids))))
 
     # Item contra item, dentro do no.
     for nid in dom.ordem:
