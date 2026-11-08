@@ -118,6 +118,8 @@ reexplicacao:
       Outro caminho para a mesma ideia, agora sem analogia nenhuma. Peça
       os três números à máquina:
   - codigo: |
+      int x = 42;
+      int *p = &x;
       printf("%p\n",  (void *)&x);   /* onde x mora    */
       printf("%p\n",  (void *)&p);   /* onde p mora    */
       printf("%zu\n", sizeof(p));    /* quanto p ocupa */

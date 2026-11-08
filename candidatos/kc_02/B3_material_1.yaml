@@ -96,6 +96,8 @@ reexplicacao:
       Outro caminho, pela pergunta ao contrário: o que teria de ser
       verdade para `*p` sair o mesmo que `p`?
   - codigo: |
+      int x = 42;
+      int *p = &x;
       printf("%p\n", (void *)p);   /* um endereço */
       printf("%d\n", *p);          /* 42          */
   - prosa: >

@@ -160,6 +160,7 @@ caso_resolvido:
   - codigo: |
       int x = 42;
       int *p = x;
+    recusa: true
   - prosa: >
       Pergunta: o compilador aceita isso?
   - prosa: >
@@ -197,6 +198,7 @@ reexplicacao:
       int  x = 42;   int  *p = &x;
       char c = 'a';  char *q = &c;
       p = q;
+    recusa: true
   - prosa: >
       Se ponteiro fosse só um número, a última linha seria copiar um
       número para outro lugar — a coisa mais simples do mundo. O
@@ -239,6 +241,7 @@ activities:
     int  *p;
     char *q;
     p = q;
+  recusa: true
   enunciado: "Os dois guardam endereço. Por que o compilador reclama da terceira linha?"
   alternativas:
     a: porque os dois tipos de ponteiro são diferentes
