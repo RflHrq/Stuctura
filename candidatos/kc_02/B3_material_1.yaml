@@ -85,7 +85,7 @@ caso_resolvido:
       que está nela; com ele você usa esse número para chegar a outra
       caixa e lê o que está lá.
   - prosa: >
-      É por isso que `*p = 7;` muda x. A linha não nomeia x em lugar
+      É por isso que *p = 7; muda x. A linha não nomeia x em lugar
       nenhum — ela diz "vá ao lugar cujo número está em p, e escreva 7
       ali". E o número que está em p é justamente o lugar de x. A
       máquina confirma: depois dessa linha, x vale 7.
@@ -94,7 +94,7 @@ caso_resolvido:
 reexplicacao:
   - prosa: >
       Outro caminho, pela pergunta ao contrário: o que teria de ser
-      verdade para `*p` sair o mesmo que `p`?
+      verdade para *p sair o mesmo que p?
   - codigo: |
       int x = 42;
       int *p = &x;

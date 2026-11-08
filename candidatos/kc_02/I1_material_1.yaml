@@ -49,14 +49,14 @@ ampliacao: >
 
 
   O que decorre disso é o que separa as duas operações do tópico.
-  Escrever `p = &y` mexe no conteúdo de p: troca o endereço guardado, e
+  Escrever p = &y mexe no conteúdo de p: troca o endereço guardado, e
   a caixa antes apontada continua exatamente como estava. Escrever
-  `*p = 99` não toca em p: usa o endereço que está nele para chegar à
+  *p = 99 não toca em p: usa o endereço que está nele para chegar à
   outra caixa e mudar o que mora lá.
 
 
   Mexer no ponteiro e mexer no apontado são coisas diferentes porque são
-  caixas diferentes. Quem acha que são a mesma espera que `p = &y`
+  caixas diferentes. Quem acha que são a mesma espera que p = &y
   também mude o valor antigo — e a máquina mostra que não muda.
 
 

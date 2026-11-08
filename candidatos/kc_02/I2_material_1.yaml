@@ -89,16 +89,16 @@ revisado_sha: ____
 ampliacao: >
   Um endereço é um número, e isso é verdade. Mas a sua declaração disse
   mais do que o número: ela disse o que esperar encontrar quando se
-  chegar lá. Foi isso que você escreveu em `int *p` — não "p guarda um
+  chegar lá. Foi isso que você escreveu em int *p — não "p guarda um
   número", e sim "p guarda o lugar de um int".
 
 
   Em C, tipo não é enfeite da declaração: o compilador recusa juntar
   coisas de tipos que ele não considera compatíveis, e é essa recusa que
-  deixa o tipo visível. Experimente escrever `int *p = x;`, com x
+  deixa o tipo visível. Experimente escrever int *p = x;, com x
   inteiro: ele reclama que aquilo faz um ponteiro a partir de um
-  inteiro. Agora o caso que fecha a questão: declare `int *p` e
-  `char *q`, que guardam os dois um endereço, e tente `p = q`. Ele
+  inteiro. Agora o caso que fecha a questão: declare int *p e
+  char *q, que guardam os dois um endereço, e tente p = q. Ele
   reclama de novo, dizendo que são tipos de ponteiro incompatíveis. Dois
   endereços, dois números — e mesmo assim não dá para trocar um pelo
   outro.
@@ -176,7 +176,7 @@ caso_resolvido:
       compilador isso vem como erro, e aí nem executável existe, ou como
       aviso, e aí o programa compila mesmo assim. A reclamação é a mesma.
   - prosa: >
-      Agora troque por `int *p = &x;` e ele fica quieto. A diferença não
+      Agora troque por int *p = &x; e ele fica quieto. A diferença não
       está no número — o endereço de x também é um número. Está em o
       compilador saber, pela declaração, o que cada coisa é.
 

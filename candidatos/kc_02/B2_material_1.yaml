@@ -53,11 +53,11 @@ ampliacao: >
   caixas.
 
 
-  O tamanho se pergunta com sizeof. `sizeof(alguma coisa)` devolve
+  O tamanho se pergunta com sizeof. sizeof(alguma coisa) devolve
   quantos bytes aquilo ocupa na memória, e é o compilador que responde,
-  pelo tipo: `sizeof(x)`, com x inteiro, dá 4 nesta máquina. Pergunte
-  `sizeof(p)` e ele dá 8 — p ocupa espaço, e ocupa um espaço seu, que
-  não é o de x. O 8 se repete para `int *`, `char *` ou `double *`,
+  pelo tipo: sizeof(x), com x inteiro, dá 4 nesta máquina. Pergunte
+  sizeof(p) e ele dá 8 — p ocupa espaço, e ocupa um espaço seu, que
+  não é o de x. O 8 se repete para int *, char * ou double *,
   porque o que p guarda é sempre um endereço, e endereço tem um tamanho
   só.
 
