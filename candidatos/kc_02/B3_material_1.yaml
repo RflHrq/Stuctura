@@ -1,0 +1,148 @@
+# Material de ensino do B3 — candidato, NÃO é domínio.
+#
+# O B3 JÁ TEM AMPLIAÇÃO (137 palavras), e foi ela que liberou
+# `derreferencia` no inventário em 05/11/2026. Este arquivo não escreve
+# outra: acrescenta narração, caso resolvido, segunda explicação e dois
+# itens de entrada.
+#
+# CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra, sem avisos):
+#     *p                      -> 42
+#     x, depois de *p = 7     -> 7
+
+topico: kc_02
+node: kc02:B3
+premissa: "O valor guardado num ponteiro é um endereço."
+crenca_que_nega: pointer_is_data
+
+gerado_por: Claude Opus 5, 08/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+ampliacao: ja_existe_no_dominio
+
+
+narracao:
+  - linha: "int x = 42;"
+    diz: >
+      Uma caixa para x, com 42 dentro, num lugar com número próprio.
+  - linha: "int *p = &x;"
+    diz: >
+      Outra caixa, p, e dentro dela o número do lugar de x. Dentro de p
+      não há um 42: há um endereço.
+  - linha: 'printf("%p\n", (void *)p);'
+    diz: >
+      Sem asterisco, o que se lê é o conteúdo de p — e o conteúdo de p é
+      o endereço de x. Sai um endereço.
+  - linha: 'printf("%d\n", *p);'
+    diz: >
+      Com asterisco, o programa vai até o lugar cujo número está dentro
+      de p e lê o que mora lá. Sai 42.
+  - linha: "*p = 7;"
+    diz: >
+      O mesmo caminho, agora para escrever: vai até aquele lugar e põe 7
+      nele. Quem mudou foi x, sem a palavra x aparecer na linha.
+  - linha: 'printf("%d\n", x);'
+    diz: >
+      Sai 7. É a prova de que o caminho chegou à caixa certa.
+
+
+caso_resolvido: >
+  Vamos resolver um junto.
+
+
+      int x = 42;
+      int *p = &x;
+
+
+  Pergunta: qual a diferença entre imprimir p e imprimir *p?
+
+
+  Comece pelo que está guardado. Dentro de p está o endereço de x —
+  digamos 0x1000. Esse é o conteúdo da caixa p, do mesmo jeito que 42 é
+  o conteúdo da caixa x.
+
+
+  Então:
+
+
+      p    é o conteúdo de p          -> 0x1000, um endereço
+      *p   é o conteúdo do lugar      -> 42, o que mora em 0x1000
+           cujo número está em p
+
+
+  O asterisco é a viagem. Sem ele você fica na caixa p e lê o número
+  que está nela; com ele você usa esse número para chegar a outra caixa
+  e lê o que está lá.
+
+
+  É por isso que `*p = 7;` muda x. A linha não nomeia x em lugar nenhum
+  — ela diz "vá ao lugar cujo número está em p, e escreva 7 ali". E o
+  número que está em p é justamente o lugar de x. A máquina confirma:
+  depois dessa linha, x vale 7.
+
+
+reexplicacao: >
+  Outro caminho, agora pela pergunta ao contrário: o que teria de ser
+  verdade para `*p` sair o mesmo que `p`?
+
+
+      printf("%p\n", (void *)p);   /* um endereço */
+      printf("%d\n", *p);          /* 42          */
+
+
+  As duas linhas leem a MESMA caixa p, e saem coisas diferentes. Isso só
+  é possível porque a segunda não para em p: ela usa o que está dentro
+  de p como um caminho e vai adiante.
+
+
+  Se o que estivesse dentro de p fosse o próprio 42, não haveria para
+  onde ir, e as duas linhas sairiam iguais. Saem diferentes. Então o que
+  está dentro é endereço, não dado.
+
+
+activities:
+
+- id: ciu_kc02_B3_e2
+  node: kc02:B3
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  uso: entrada
+  codigo: ''
+  enunciado: >
+    Você abre o papel guardado na casa 2A00 e lê 1000. Para saber que
+    móvel tem na sala da casa 1000, você precisa:
+  alternativas:
+    a: ir até a casa 1000
+    b: olhar de novo o papel, que já diz o móvel
+    c: nada, porque o papel e a casa são a mesma coisa
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: pointer_and_target_are_one
+  gerado_por: Claude Opus 5, 08/11/2026
+  revisado_por: ____
+
+- id: ciu_kc02_B3_e3
+  node: kc02:B3
+  nivel: 1
+  formato: reconhecer_conceito
+  tipo: codigo
+  uso: entrada
+  codigo: |
+    int x = 42;
+    int *p = &x;
+  enunciado: "O que está guardado dentro de p?"
+  alternativas:
+    a: o endereço de x
+    b: o valor 42
+    c: o nome x, para o programa procurar depois
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: memory_is_by_name
+  gerado_por: Claude Opus 5, 08/11/2026
+  revisado_por: ____
+
+
+# DESCIDA — `pointer_is_data` já tem, com 4 passos.

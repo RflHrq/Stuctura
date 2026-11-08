@@ -1,0 +1,169 @@
+# Material de ensino do B1 — candidato, NÃO é domínio.
+#
+# Quem move para `mvp/dominio/` é você, depois da folha REVISAO-kc02-cinco.md.
+#
+# O B1 JÁ TEM AMPLIAÇÃO (93 palavras, sobre comparar endereços com ==).
+# Este arquivo não escreve outra: acrescenta o que falta — narração do
+# exemplo, caso resolvido, segunda explicação e dois itens de entrada.
+#
+# RESTRIÇÃO DURA DESTE NÓ, do cabeçalho de graph_kc02.yaml: nenhum
+# ponteiro aparece aqui. Ponteiro é o B2, e antecipá-lo é o erro que a
+# auditoria existe para pegar. Nada de `int *p`, nada de `*`.
+#
+# CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra, sem avisos):
+#     &idade == &outra          -> 0
+#     idade                     -> 20
+#     a=20, b=20, &a == &b      -> 0   (mesmo valor, lugares diferentes)
+
+topico: kc_02
+node: kc02:B1
+premissa: "Cada lugar da memória tem um número que o identifica: o endereço."
+crenca_que_nega: memory_is_by_name
+
+gerado_por: Claude Opus 5, 08/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+ampliacao: ja_existe_no_dominio
+
+
+# ---------------------------------------------------------------------------
+# NARRAÇÃO DO EXEMPLO  (campo novo)
+# ---------------------------------------------------------------------------
+
+narracao:
+  - linha: "int idade = 20;"
+    diz: >
+      Reserva um lugar na memória e guarda 20 nele. O lugar passa a ter
+      um número próprio, que você não escolheu e não escreveu.
+  - linha: "int outra = 7;"
+    diz: >
+      Outro lugar, com outro número e outro valor. Duas declarações, dois
+      lugares.
+  - linha: 'printf("%p\n", (void *)&idade);'
+    diz: >
+      &idade não é o 20. É o número do lugar onde o 20 está guardado, e
+      %p imprime esse número.
+  - linha: 'printf("%d\n", idade);'
+    diz: >
+      Aqui sim sai 20: sem o &, o que se lê é o conteúdo do lugar.
+  - linha: 'printf("%d\n", &idade == &outra);'
+    diz: >
+      Compara os dois números de lugar. Sai 0 — são lugares diferentes.
+      Se saísse 1, escrever numa mudaria a outra.
+
+
+# ---------------------------------------------------------------------------
+# CASO RESOLVIDO  (campo novo)
+# ---------------------------------------------------------------------------
+
+caso_resolvido: >
+  Vamos resolver um junto.
+
+
+      int a = 20;
+      int b = 20;
+
+
+  As duas guardam o mesmo valor. Pergunta: &a == &b dá 1 ou 0?
+
+
+  A tentação é responder 1 — os valores são iguais, então "é a mesma
+  coisa". Siga a declaração em vez do valor. São duas declarações, e
+  cada declaração reserva um lugar. Dois lugares.
+
+
+  O endereço é o número do lugar, não o que está guardado nele. Dois
+  lugares diferentes têm números diferentes, mesmo com o mesmo 20
+  dentro. Então sai 0.
+
+
+  A máquina confirma:
+
+
+      a=20 b=20   &a==&b -> 0
+      &a=...FE4C  &b=...FE48
+
+
+  Repare que os dois números terminam diferentes, e que a diferença
+  entre eles é 4 — o tamanho de um int. Duas caixas, lado a lado.
+
+
+# ---------------------------------------------------------------------------
+# REEXPLICAÇÃO  (campo novo — o que o "Ainda não entendi" mostra)
+#
+# Mesma metáfora, OUTRA ROTA: em vez da rua de casas, a evidência.
+# ---------------------------------------------------------------------------
+
+reexplicacao: >
+  Outro caminho, agora sem analogia. Pegue duas variáveis com o MESMO
+  valor e pergunte duas coisas à máquina:
+
+
+      int a = 20, b = 20;
+      printf("%d\n", a == b);     /* os valores   */
+      printf("%d\n", &a == &b);   /* os lugares   */
+
+
+  A primeira linha sai 1: os valores são iguais. A segunda sai 0: os
+  lugares não são.
+
+
+  Se o endereço fosse o valor, as duas sairiam iguais. Se o endereço
+  fosse o nome, a pergunta nem faria sentido — não dá para comparar dois
+  nomes com ==. Ele é uma terceira coisa: o número do lugar.
+
+
+# ---------------------------------------------------------------------------
+# ITENS DE ENTRADA  (cabem no esquema de hoje)
+#
+# O B1 tem UM: `ciu_kc02_e1`, na analogia da rua.
+# ---------------------------------------------------------------------------
+
+activities:
+
+- id: ciu_kc02_B1_e2
+  node: kc02:B1
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  uso: entrada
+  codigo: ''
+  enunciado: >
+    Duas casas da mesma rua guardam exatamente o mesmo móvel. Os números
+    das duas portas são:
+  alternativas:
+    a: diferentes, porque são duas casas
+    b: iguais, porque o conteúdo é o mesmo
+    c: inexistentes até alguém precisar entregar algo ali
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: memory_is_by_name
+  gerado_por: Claude Opus 5, 08/11/2026
+  revisado_por: ____
+
+- id: ciu_kc02_B1_e3
+  node: kc02:B1
+  nivel: 1
+  formato: reconhecer_conceito
+  tipo: codigo
+  uso: entrada
+  codigo: |
+    int idade = 20;
+  enunciado: "Depois dessa linha, &idade vale:"
+  alternativas:
+    a: o número do lugar onde idade está
+    b: 20, que é o que está guardado
+    c: a palavra idade, que o programa procura
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: memory_is_by_name
+  gerado_por: Claude Opus 5, 08/11/2026
+  revisado_por: ____
+
+
+# ---------------------------------------------------------------------------
+# DESCIDA — nada a escrever: `memory_is_by_name` já tem, com 4 passos.
+# ---------------------------------------------------------------------------

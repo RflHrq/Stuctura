@@ -1,0 +1,201 @@
+# Material de ensino do I3 — candidato, NÃO é domínio.
+#
+# ============================================================
+# ATENÇÃO, E ESTE É O ARQUIVO COM O PROBLEMA MAIOR
+# ============================================================
+#
+# O I3 é o nó de CONCLUSÃO do kc_02: "guardar um endereço permite
+# alcançar a mesma caixa de outro ponto do programa". O exemplo dele no
+# domínio é `void dobra(int *q) { *q = *q * 2; }`, e os dez itens dele
+# são todos sobre passar endereço para função.
+#
+# E o inventário diz, sobre `funcao_com_parametro`:
+#
+#     status: nao_introduzido
+#     texto:  "Funções aparecem, e PARÂMETRO NENHUM: as duas assinaturas
+#              dos cartões são `int conta(void)` e `int *faz(void)`.
+#              Passagem por valor não é tratada em cartão nenhum."
+#
+# Ou seja: o nó que fecha o tópico se apoia num construto que o material
+# nunca apresentou. Não dá para ensinar o I3 honestamente sem isso — "de
+# outro ponto do programa" É a fronteira de uma função; sem ela, o
+# benefício do ponteiro não aparece, porque bastaria usar o nome.
+#
+# ESTE MATERIAL INTRODUZ `funcao_com_parametro`, de propósito e no
+# mínimo necessário: uma função que recebe, e o contraste entre receber
+# o valor e receber o endereço. Se for aprovado, o inventário sai de
+# `nao_introduzido` com evidência apontando para cá — e isso destrava
+# também o degrau substituto do `scanf`, que a entrada do inventário
+# registra como bloqueado por este mesmo motivo.
+#
+# A DECISÃO É SUA E DO ORIENTADOR. As alternativas são: aprovar a
+# introdução aqui; mover o I3 para depois de um tópico que ensine
+# funções; ou tirar o I3 do kc_02. Eu recomendo a primeira, porque o
+# contraste valor/endereço é exatamente o que o I3 afirma, mas é
+# decisão curricular e não minha.
+#
+# CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra, sem avisos):
+#     n = 10; dobra(&n);        ->  n = 20
+#     m = 10; dobra_valor(m);   ->  m = 10   (não mudou)
+
+topico: kc_02
+node: kc02:I3
+premissa: "Guardar um endereço permite alcançar a mesma caixa de outro ponto do programa."
+suporte: [I1, I2]
+crenca_que_nega: pointer_is_pointless
+exige_conceito: funcao_com_parametro      # hoje `nao_introduzido`
+
+gerado_por: Claude Opus 5, 08/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+ampliacao: >
+  Até aqui o ponteiro parecia trabalho a mais: se você tem x, escreva x.
+  O I3 é onde isso deixa de valer, e o motivo é uma regra de C que vale
+  a pena ver de frente: quando você passa uma variável para uma função,
+  a função recebe uma CÓPIA do valor. Ela mexe na cópia, a cópia morre
+  no fim, e a sua variável continua como estava.
+
+
+  Então uma função que recebe `int v` não tem como alterar a variável de
+  quem a chamou. Nenhuma. O nome x não existe lá dentro, e o valor que
+  chegou é outro objeto, em outro lugar.
+
+
+  O endereço resolve isso porque ele também é um valor — e um valor que
+  pode ser copiado sem perder o que importa. A função recebe uma cópia
+  do ENDEREÇO, e uma cópia do endereço ainda aponta para a mesma caixa.
+  Com ela, `*q = ...` chega à caixa original. É o mesmo mecanismo do B3,
+  agora atravessando a fronteira de uma função.
+
+
+  É daí que vem a resposta para "para que serve": não é um jeito
+  complicado de fazer o que uma variável comum já faz. É a única forma
+  de uma função alcançar a caixa de quem a chamou.
+
+
+narracao:
+  - linha: "void dobra(int *q) { *q = *q * 2; }"
+    diz: >
+      A função recebe um endereço, não um número. Dentro dela, q é uma
+      caixa nova com uma cópia desse endereço — e `*q` vai até a caixa
+      original para ler e escrever.
+  - linha: "int n = 10;"
+    diz: >
+      Uma caixa com 10 dentro, na função que chama.
+  - linha: "dobra(&n);"
+    diz: >
+      Passa o ENDEREÇO de n, não o 10. A cópia que chega lá dentro
+      aponta para a mesma caixa, e por isso o que a função escreve chega
+      aqui.
+  - linha: "/* n agora é 20 */"
+    diz: >
+      Confirmado pela máquina. Trocando a assinatura para `dobra(int v)`
+      e chamando `dobra(n)`, n continua 10 — a função teria mexido numa
+      cópia.
+
+
+caso_resolvido: >
+  Vamos resolver um junto, com as duas versões lado a lado.
+
+
+      void dobra_valor(int v)  { v = v * 2; }
+      void dobra(int *q)       { *q = *q * 2; }
+
+      int m = 10;   dobra_valor(m);
+      int n = 10;   dobra(&n);
+
+
+  Pergunta: quanto valem m e n no fim?
+
+
+  Comece pela primeira. `dobra_valor(m)` entrega o VALOR 10. Lá dentro,
+  v é uma caixa nova com 10. A linha `v = v * 2` põe 20 nessa caixa
+  nova. A função termina, a caixa v some, e m nunca foi tocado. m = 10.
+
+
+  Agora a segunda. `dobra(&n)` entrega o ENDEREÇO de n. Lá dentro, q é
+  uma caixa nova com uma cópia desse endereço. A linha `*q = *q * 2`
+  não escreve em q: usa o endereço que está em q para chegar à caixa de
+  n e escrever lá. n = 20.
+
+
+  A máquina confirma: `m -> 10` e `n -> 20`.
+
+
+  Repare no que as duas têm em comum: as duas receberam uma cópia. A
+  diferença é do que era a cópia. Cópia de um valor é um valor novo;
+  cópia de um endereço aponta para a mesma caixa de antes.
+
+
+reexplicacao: >
+  Outro caminho: tente fazer sem ponteiro e veja onde trava.
+
+
+  Você quer uma função que troque duas variáveis de lugar. Com valores,
+  a função recebe cópias, troca as cópias, e as suas duas variáveis
+  continuam exatamente como estavam — não existe jeito de consertar
+  isso de dentro da função, porque o nome das suas variáveis não existe
+  lá.
+
+
+  Com endereços, a função recebe os dois lugares e vai até eles. Não é
+  um estilo diferente de escrever a mesma coisa: é a diferença entre
+  conseguir e não conseguir.
+
+
+  O mesmo aparece quando a função precisa devolver dois resultados.
+  `return` devolve um. Com um endereço recebido, ela escreve o segundo
+  direto na caixa de quem chamou.
+
+
+activities:
+
+- id: ciu_kc02_I3_e2
+  node: kc02:I3
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  uso: entrada
+  codigo: ''
+  enunciado: >
+    Você viaja e quer que o vizinho regue a SUA planta. Você manda para
+    a casa dele uma foto da planta ou o número da sua casa?
+  alternativas:
+    a: o número da casa
+    b: a foto, que já mostra a planta
+    c: tanto faz, porque dá no mesmo
+  gabarito: a
+  crencas:
+    b: pointer_is_data
+    c: pointer_is_pointless
+  gerado_por: Claude Opus 5, 08/11/2026
+  revisado_por: ____
+
+- id: ciu_kc02_I3_e3
+  node: kc02:I3
+  nivel: 1
+  formato: prever_saida
+  tipo: codigo
+  uso: entrada
+  codigo: |
+    void dobra_valor(int v) { v = v * 2; }
+
+    int m = 10;
+    dobra_valor(m);
+  enunciado: "Depois dessas linhas, m vale:"
+  alternativas:
+    a: 10, porque a função recebeu uma cópia
+    b: 20, porque a função dobrou m
+    c: 20, e por isso o endereço seria desnecessário
+  gabarito: a
+  crencas:
+    b: pointer_and_target_are_one
+    c: pointer_is_pointless
+  gerado_por: Claude Opus 5, 08/11/2026
+  revisado_por: ____
+
+
+# DESCIDA — `pointer_is_pointless` já tem, com 3 passos (as outras cinco
+# do kc_02 têm 4).

@@ -1,0 +1,177 @@
+# Material de ensino do I2 — candidato, NÃO é domínio.
+#
+# DUAS COISAS QUE O REVISOR PRECISA SABER ANTES DE LER:
+#
+# 1. `tipo_do_ponteiro` está `so_avaliado` no inventário, com esta
+#    justificativa: "é premissa do tópico e tem itens, mas não tem cartão
+#    de ensino: o ensino cobre B1, B2 e B3, e I2 é inferência". Este
+#    arquivo É o cartão que falta. Se for aprovado, o inventário muda de
+#    `so_avaliado` para `disponivel`, com a evidência apontando para cá.
+#
+# 2. `sizeof` também está `so_avaliado` — mencionado dentro de um malloc
+#    do kc_01 cujo texto é sobre tempo de vida. Este material usa sizeof
+#    e o EXPLICA. Mesma consequência: ou o inventário é atualizado junto,
+#    ou o material tira o sizeof. Eu recomendo atualizar, porque o I2 não
+#    tem como mostrar "o tipo importa" sem medir alguma coisa.
+#
+# A METÁFORA CALA AQUI, e é regra do cabeçalho do tópico: números de casa
+# andam de um em um, endereços andam do tamanho do objeto. `p + 1` é
+# kc_11. Este material usa p + 1 apenas como EVIDÊNCIA de que o tipo
+# muda o comportamento, e diz em voz alta que QUANTO ele anda é assunto
+# de outro tópico. Nenhuma casa é mencionada nessa parte.
+#
+# CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra):
+#     (pi+1) - pi em bytes   -> 4        sizeof(int)  -> 4
+#     (pc+1) - pc em bytes   -> 1        sizeof(char) -> 1
+#     int *p = x;            -> ERRO de compilação, não aviso:
+#        "initialization of 'int *' from 'int' makes pointer from
+#         integer without a cast [-Wint-conversion]"
+
+topico: kc_02
+node: kc02:I2
+premissa: "Um ponteiro tem tipo, e por isso não é um inteiro qualquer."
+suporte: [B1, B3]
+crenca_que_nega: pointer_is_integer
+
+gerado_por: Claude Opus 5, 08/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+ampliacao: >
+  Um endereço é um número, e é verdade. Mas a declaração diz mais do que
+  o número: ela diz o que se espera encontrar quando se chegar lá. Foi
+  isso que você escreveu em `int *p` — não "p guarda um número", e sim
+  "p guarda o lugar de um int".
+
+
+  Duas consequências, e as duas dá para ver na máquina. A primeira: o
+  compilador recusa trocar um pelo outro. `int *p = x;`, com x inteiro,
+  não compila — ele responde que aquilo faz um ponteiro a partir de um
+  inteiro sem conversão. Não é aviso, é erro. A segunda: o tipo muda o
+  que as operações fazem. Com `int *pi` e `char *pc` guardando números,
+  `pi + 1` e `pc + 1` não andam a mesma coisa — andam 4 e 1 byte nesta
+  máquina, que é exatamente sizeof(int) e sizeof(char).
+
+
+  Quanto cada um anda, e por quê, é assunto de outro tópico. O que
+  importa aqui é mais simples: o mesmo número, declarado de dois jeitos,
+  se comporta de dois jeitos. Então o tipo não é enfeite da declaração —
+  é parte do que o ponteiro é. E quem guarda essa informação não é a
+  memória: é o compilador, que leu a sua declaração.
+
+
+narracao:
+  - linha: "int x = 42;"
+    diz: >
+      Uma caixa com 42 dentro, como sempre.
+  - linha: "int *p = &x;"
+    diz: >
+      p guarda o endereço de x. E a declaração registra, no compilador,
+      que o que mora nesse endereço é um int.
+  - linha: 'printf("%p\n", (void *)(p + 1));'
+    diz: >
+      Sai um endereço maior que o de x. O quanto maior depende do tipo
+      declarado, não do número guardado — e esse "quanto" é assunto de
+      outro tópico. Aqui basta: o tipo entra na conta.
+
+
+caso_resolvido: >
+  Vamos resolver um junto, e este é o caso que mais convence.
+
+
+      int x = 42;
+      int *p = x;
+
+
+  Pergunta: isso compila?
+
+
+  A tentação é responder que sim. Se um endereço é um número, e 42 é um
+  número, por que não? Peça ao compilador:
+
+
+      error: initialization of 'int *' from 'int' makes pointer
+             from integer without a cast [-Wint-conversion]
+
+
+  Erro, não aviso — o programa nem chega a existir. E repare na frase
+  dele: "makes pointer from integer". Ele não está dizendo que o número
+  está errado. Está dizendo que ponteiro e inteiro são tipos diferentes,
+  e que ele não vai fingir que não são.
+
+
+  Agora o outro lado. Troque por `int *p = &x;` e compila limpo. A
+  diferença não está no número — o endereço de x também é um número. A
+  diferença está em o compilador saber, pela declaração, o que cada
+  coisa é.
+
+
+reexplicacao: >
+  Outro caminho: dê o mesmo número a dois ponteiros de tipos diferentes
+  e peça para a máquina comparar.
+
+
+      int  arr[4];   int  *pi = arr;
+      char cs[4];    char *pc = cs;
+
+      /* quantos bytes cada um anda ao somar 1 */
+      printf("%td\n", (char *)(pi + 1) - (char *)pi);   /* 4 */
+      printf("%td\n", (char *)(pc + 1) - (char *)pc);   /* 1 */
+
+
+  Mesma operação, resultados diferentes: 4 e 1. Nada no número guardado
+  explica isso — o que explica é o tipo com que cada um foi declarado,
+  e 4 e 1 são justamente sizeof(int) e sizeof(char).
+
+
+  Se ponteiro fosse só um inteiro, somar 1 somaria 1 nos dois casos. Não
+  soma. O tipo está lá, e é o compilador que o carrega.
+
+
+activities:
+
+- id: ciu_kc02_I2_e2
+  node: kc02:I2
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  uso: entrada
+  codigo: ''
+  enunciado: >
+    O mesmo 1000 aparece numa conta de luz e numa porta de rua. O que
+    diz qual dos dois é qual?
+  alternativas:
+    a: quem lê o papel, pelo contexto
+    b: o próprio número, que já carrega o significado
+    c: o nome escrito ao lado do número
+  gabarito: a
+  crencas:
+    b: pointer_is_integer
+    c: memory_is_by_name
+  gerado_por: Claude Opus 5, 08/11/2026
+  revisado_por: ____
+
+- id: ciu_kc02_I2_e3
+  node: kc02:I2
+  nivel: 1
+  formato: achar_o_erro
+  tipo: codigo
+  uso: entrada
+  codigo: |
+    int x = 42;
+    int *p = x;
+  enunciado: "O compilador recusa a segunda linha. Por quê?"
+  alternativas:
+    a: ponteiro e inteiro são tipos diferentes
+    b: 42 é um endereço pequeno demais para caber
+    c: o compilador precisa do nome x, e não do valor
+  gabarito: a
+  crencas:
+    b: pointer_is_integer
+    c: memory_is_by_name
+  gerado_por: Claude Opus 5, 08/11/2026
+  revisado_por: ____
+
+
+# DESCIDA — `pointer_is_integer` já tem, com 4 passos.
