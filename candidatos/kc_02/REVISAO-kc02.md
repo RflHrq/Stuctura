@@ -7,10 +7,10 @@ e esta folha substitui as duas anteriores (`REVISAO-B2_material_1.md` e
 | nó | assinatura |
 | --- | --- |
 | B1 | `df2b72b820cd` |
-| B2 | `e26c16ff9fc9` |
-| B3 | `f7124cc09e9d` |
+| B2 | `4f3c4b9c37bb` |
+| B3 | `1688adb30f97` |
 | I1 | `abe7758e2007` |
-| I2 | `ae61ca7435d0` |
+| I2 | `a1062efa6178` |
 | I3 | `1dc8026b0325` |
 
 Para aprovar, escreva no cabeçalho do YAML correspondente:
@@ -21,6 +21,29 @@ revisado_sha: <a assinatura da linha acima>
 ```
 
 ## O que mudou da primeira versão para esta
+
+### Terceira rodada: o que o validador pegou
+
+Depois de escrito, `scripts/revisa_material.py` rodou nos seis e achou
+**dois defeitos que nem eu nem a revisão independente tínhamos visto**:
+as reexplicações do B2 e do B3 mostravam `printf` usando `x` e `p` sem
+declará-los no próprio bloco — na tela de quem acabou de dizer que não
+entendeu. As duas linhas de declaração entraram.
+
+Os três blocos do I2 que existem para **provar** que o compilador
+reclama ganharam `recusa: true`, que é como o oráculo distingue código
+quebrado de código que é a evidência do nó.
+
+Rode antes de ler:
+
+```
+python scripts/revisa_material.py candidatos/kc_02/
+```
+
+Hoje: **0 erros**. Sobram avisos, e um deles é achado de verdade —
+`printf_ponteiro` está `desconhecido` no inventário e **todos** os
+cartões do kc_02 usam `%p`.
+
 
 ### Seis itens saíram, porque eram duplicatas
 
