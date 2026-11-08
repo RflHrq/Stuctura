@@ -1,0 +1,230 @@
+# Material de ensino do B2 — candidato, NÃO é domínio.
+#
+# Vale a regra do projeto: candidato nunca vira domínio sozinho. Quem move
+# para `mvp/dominio/` é você, depois de ler a folha REVISAO-B2_material_1.md.
+#
+# POR QUE O B2, e não o B1. O B1 é um dos DOIS nós, em 79, que já têm
+# ampliação. Montar o B1 e achar bonito provaria pouco — ele já era o nó
+# mais rico do projeto. O B2 é típico: uma analogia, um exemplo, um item
+# de entrada, zero ampliação. E é onde mora a confusão central do tópico.
+#
+# O QUE ESTE ARQUIVO AFIRMA, e o que a máquina conferiu (gcc, sem avisos):
+#
+#     &x e &p saem diferentes                      ..... confirmado
+#     sizeof(p) = 8 e sizeof(x) = 4                ..... confirmado
+#     sizeof igual para int *, char * e double *   ..... confirmado NESTA máquina
+#
+# A REGRA DA SETA, do cabeçalho de graph_kc02.yaml, vale em cada linha
+# daqui: desenhe a seta, nunca diga que o ponteiro É a seta. É a frase que
+# fabrica a crença que este nó refuta.
+#
+# E NENHUMA DERREFERÊNCIA: `*p` é o B3. Não aparece em lugar nenhum aqui.
+
+topico: kc_02
+# `node:`, e não `no:` — em YAML a palavra `no` é o booleano falso, e a
+# chave vira `False`. Foi o conferidor que pegou, na primeira carga.
+node: kc02:B2
+premissa: "Um ponteiro é uma variável: ocupa um lugar e tem endereço próprio."
+crenca_que_nega: pointer_has_no_address
+
+gerado_por: Claude Opus 5, 08/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# ---------------------------------------------------------------------------
+# 1. AMPLIAÇÃO  (campo `interpretation` do nó)
+#
+# CABE NO ESQUEMA DE HOJE. O nó já aceita `interpretation`; o B1 e o B3 têm
+# uma, e os outros 77 do projeto não. Esta pode entrar sem mexer em código.
+#
+# Segue a regra das duas que já existem: não é premissa nova, é a
+# consequência direta do que o nó já afirma. Se p é uma caixa, então p tem
+# as duas coisas que toda caixa tem.
+# ---------------------------------------------------------------------------
+
+ampliacao: >
+  Se p é uma caixa, então p tem as duas coisas que toda caixa tem: um
+  lugar e um tamanho. O lugar se pergunta com &p, do mesmo jeito que se
+  pergunta &x — e as duas respostas saem diferentes, porque são duas
+  caixas. O tamanho se pergunta com sizeof(p): nesta máquina ele dá 8,
+  enquanto sizeof(x) dá 4, e dá os mesmos 8 para int *, char * ou
+  double *. O que p guarda é sempre um endereço, e endereço tem um
+  tamanho só.
+
+
+  É por aqui que o desenho da seta engana. A seta mostra a relação entre
+  as duas caixas, e para isso ela serve. Mas seta não tem lugar nem
+  tamanho, e p tem os dois. Quem pensa o ponteiro COMO a seta fica sem
+  resposta para "onde fica p?" — e &p é uma pergunta que o compilador
+  responde sem reclamar.
+
+
+# ---------------------------------------------------------------------------
+# 2. NARRAÇÃO DO EXEMPLO  (campo NOVO — exige mudança de esquema)
+#
+# O exemplo do B2 hoje são três linhas de C soltas, com um comentário. A
+# pessoa que não sabe lê código e não sabe o que olhar. Isto diz, linha a
+# linha, o que acontece e o que muda na memória.
+# ---------------------------------------------------------------------------
+
+narracao:
+  - linha: "int x = 42;"
+    diz: >
+      Reserva uma caixa para x e guarda 42 nela. A caixa passa a existir
+      num lugar da memória, com um número próprio que você não escolheu.
+  - linha: "int *p = &x;"
+    diz: >
+      Reserva OUTRA caixa, chamada p, e guarda nela o número do lugar de
+      x. Agora são duas caixas: a de x, com 42 dentro; a de p, com o
+      endereço de x dentro.
+  - linha: 'printf("%p\n", (void *)&p);'
+    diz: >
+      &p é o número do lugar da caixa p — não o que está dentro dela.
+      Sai um endereço, e ele não é igual a &x.
+
+
+# ---------------------------------------------------------------------------
+# 3. CASO RESOLVIDO  (campo NOVO — exige mudança de esquema)
+#
+# Um exemplo trabalhado do começo ao fim, ANTES de pedir qualquer coisa.
+# Hoje a pessoa que diz "não sei" recebe um cartão e já cai numa pergunta.
+# ---------------------------------------------------------------------------
+
+caso_resolvido: >
+  Vamos resolver um junto, do começo ao fim.
+
+
+      int x = 42;
+      int *p = &x;
+
+
+  Pergunta: depois dessas duas linhas, quantas caixas existem, e o que
+  tem dentro de cada uma?
+
+
+  Comece contando as declarações. São duas, x e p. Toda declaração
+  reserva uma caixa — então são duas caixas, não uma.
+
+
+  Agora veja o que entra em cada uma. Em x entra 42. Em p entra &x, que
+  é o número do lugar de x. Fica assim:
+
+
+      caixa x   num lugar, digamos 0x1000   dentro: 42
+      caixa p   em outro, digamos 0x2A00    dentro: 0x1000
+
+
+  Repare no que a segunda linha NÃO fez. Ela não mudou x. Ela não criou
+  um apelido para x. E ela não deixou p sem lugar: p é uma caixa nova,
+  que foi preenchida com um número — e esse número por acaso é o
+  endereço de outra caixa.
+
+
+  Se alguém perguntar "onde fica p?", a resposta é 0x2A00. A pergunta
+  tem resposta, e é isso que esta premissa afirma.
+
+
+# ---------------------------------------------------------------------------
+# 4. REEXPLICAÇÃO  (campo NOVO — exige mudança de esquema)
+#
+# O que o botão "Ainda não entendi" mostra na segunda vez. Hoje ele
+# remostra o mesmo cartão, e eu registrei isso como dívida quando o
+# construí.
+#
+# NÃO é outra metáfora: trocar de metáfora obriga a pessoa a aprender a
+# metáfora junto com o conceito, e o cabeçalho do tópico proíbe. É outra
+# ROTA — em vez de analogia, evidência.
+# ---------------------------------------------------------------------------
+
+reexplicacao: >
+  Outro caminho para a mesma ideia, agora sem analogia nenhuma. Peça os
+  três números à máquina:
+
+
+      printf("%p\n",  (void *)&x);   /* onde x mora    */
+      printf("%p\n",  (void *)&p);   /* onde p mora    */
+      printf("%zu\n", sizeof(p));    /* quanto p ocupa */
+
+
+  Os dois primeiros saem diferentes, e isso já responde a pergunta: se p
+  não ocupasse lugar nenhum, &p não teria o que imprimir. O terceiro sai
+  8 — espaço ocupado, medido pelo compilador.
+
+
+  Uma seta desenhada no quadro não tem endereço nem tamanho. A caixa p
+  tem os dois, e a máquina diz quais são.
+
+
+# ---------------------------------------------------------------------------
+# 5. ITENS DE ENTRADA  (cabem no esquema de hoje)
+#
+# O B2 tem UM item de entrada: `ciu_kc02_e2`, na analogia. Estes dois
+# completam o degrau 1 e dão ao motor por onde escolher — hoje, depois da
+# construção, só existe um item para servir, e numa segunda passagem pelo
+# nó não há o que perguntar.
+#
+# Os ids NÃO seguem `ciu_kc02_eN`: essa sequência já vai até e6, uma por
+# nó — `ciu_kc02_e3` é o item de entrada do B3. O conferidor pegou a
+# colisão na primeira carga. Daqui em diante o nó entra no id.
+#
+# Conferidos contra a lista de `docs/linguagem.md`: três alternativas, a
+# certa não é a mais longa, todo distrator aponta uma crença, e o
+# enunciado não tem negativa, "sempre", "nunca" nem nome de pessoa.
+# ---------------------------------------------------------------------------
+
+activities:
+
+- id: ciu_kc02_B2_e2
+  node: kc02:B2
+  nivel: 1
+  formato: comparar_casos
+  tipo: teorica
+  uso: entrada
+  codigo: ''
+  enunciado: >
+    Na rua das casas numeradas, você guarda um papel com o número 1000
+    escrito dentro da casa 2A00. O papel e a casa 1000 são:
+  alternativas:
+    a: duas coisas, em dois lugares diferentes
+    b: a mesma coisa, vista de dois jeitos
+    c: uma ligação entre as casas, que não fica em lugar nenhum
+  gabarito: a
+  crencas:
+    b: pointer_and_target_are_one
+    c: pointer_has_no_address
+  gerado_por: Claude Opus 5, 08/11/2026
+  revisado_por: ____
+
+- id: ciu_kc02_B2_e3
+  node: kc02:B2
+  nivel: 1
+  formato: reconhecer_conceito
+  tipo: codigo
+  uso: entrada
+  codigo: |
+    int x = 42;
+    int *p = &x;
+  enunciado: "Depois dessas duas linhas, &p vale:"
+  alternativas:
+    a: o endereço da caixa p
+    b: o endereço da caixa x
+    c: nada, porque p não tem endereço
+  gabarito: a
+  crencas:
+    b: pointer_and_target_are_one
+    c: pointer_has_no_address
+  gerado_por: Claude Opus 5, 08/11/2026
+  revisado_por: ____
+
+
+# ---------------------------------------------------------------------------
+# 6. DESCIDA — nada a escrever
+#
+# A crença `pointer_has_no_address` JÁ TEM descida, com 4 passos. Ela está
+# atrás de STRUCTURA_DESCIDA=1 e desligada por padrão.
+#
+# São 7 descidas para 79 crenças, e as 6 do kc_02 estão entre elas. Para
+# este tópico, a persona que erra já tem o caminho inteiro escrito — falta
+# ligar a chave e decidir, com o orientador, se ela entra na coleta.
+# ---------------------------------------------------------------------------
