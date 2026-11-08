@@ -9,7 +9,7 @@ O que falta ao Structura não é um tabuleiro. É a quarta camada:
 | --- | --- |
 | grafo curricular | sim — e o `prerequisites` é **descartado** pelo carregador |
 | motor pedagógico | sim |
-| log de eventos | sim — por sessão, por nó, **nunca por conceito** |
+| log de eventos | sim — por sessão e por nó; nenhum evento diz o que um cartão **ensinou** |
 | **histórico individual** | **não** |
 
 ## As três perguntas, respondidas com evidência
@@ -66,6 +66,20 @@ Uma crença refutada no kc_02 poderia voltar no kc_08, no mesmo id, num
 contexto genuinamente outro. **O catálogo já sustenta a medida que a
 tese quer; o mecanismo é que não a faz.**
 
+**E a travessia é da CRENÇA, não do nó.** Medido ao escrever os testes:
+das catorze, **treze negam um nó diferente em cada tópico** —
+`pointer_is_integer` nega o `I2` no kc_02 e o `B1` no kc_11. Só
+`declaration_zeroes` cai no `B3` nos dois, e é coincidência.
+
+Isso decide o índice do histórico. Um histórico indexado por nó perderia
+a travessia de treze das catorze e **juntaria erradas as outras**, porque
+os ids colidem entre tópicos. O índice é a crença.
+
+E há um custo de banco a registrar: a superfície que falta ao kc_02 para
+`pointer_is_integer` — o formato `comparar_casos` — **existe no kc_11**, e
+o seletor não a alcança. O limite não é só arquitetural; ele custa
+medida que já está escrita.
+
 **Especificação.** O reteste entre contextos é uma medida NOVA, e não
 uma extensão da atual. Ela precisa de nome próprio no log
 (`crenca_retestada_em_outro_contexto`), porque misturá-la com
@@ -93,10 +107,37 @@ chance de aprender"*.
 
 ## Os quatro eventos conceituais
 
-Hoje o log grava `ensino_apresentado {no}` e `premissa_apresentada
-{no}` — **por nó, nunca por conceito**. Que o cartão do I3 do kc_02
-apresenta `funcao_com_parametro` é verdade do `conceitos.yaml`, não do
-log.
+Hoje o log grava `ensino_apresentado {no, indice, total, momento}` e
+`premissa_apresentada {no, antes_de}` — **por nó**. Que o cartão do I3 do
+kc_02 apresenta `funcao_com_parametro` é verdade do `conceitos.yaml`, não
+do log.
+
+### Uma correção: o log JÁ fala de conceito, num lugar
+
+A primeira versão desta especificação escreveu que o log é "por sessão,
+por nó, **nunca por conceito**". A segunda metade é falsa, e escrever os
+testes é que mostrou.
+
+**Sete eventos da descida carregam `requer`** — `descida_iniciada`,
+`descida_passo`, `descida_fechou`, `descida_sustentada`,
+`descida_sem_recurso`, `descida_sem_resposta` e `cadeia_abandonada` —, e
+`requer` é lista de ids de `conceitos.yaml`. A frase errada passou porque
+esses eventos não dizem o que um cartão **ensinou**: dizem o que um
+degrau **exige**. São coisas diferentes, e a distinção é a mesma que o
+inventário já faz entre `disponivel` e `confirmado`.
+
+Duas consequências, as duas boas:
+
+1. **O vocabulário dos quatro eventos novos já está escolhido**: é o do
+   inventário, e não um segundo catálogo. Está conferido — todo `requer`
+   de todo degrau é id de `conceitos.yaml`.
+2. **A convenção de nomear conceito no log já existe**, e foi construída
+   no único lugar onde o projeto precisou dela até hoje.
+
+Com uma ressalva que importa para a leitura dos ensaios: a descida está
+**desligada** por padrão e, hoje, sem nenhuma cadeia aprovada — então
+nenhuma sessão já gravada contém um desses sete. Medido: treze tópicos,
+três personas, 39 sessões, zero eventos com conceito.
 
 | evento | o que demonstra | de onde sai |
 | --- | --- | --- |
@@ -135,21 +176,49 @@ mexeria no motor sem necessidade.
 
 ## Testes de arquitetura, sem tocar no motor
 
-Cinco, e todos verificam o que já existe:
+Escritos em `mvp/test_arquitetura.py`: **34 testes**, cinco grupos,
+nenhuma linha de `mvp/` alterada.
 
-1. **Os ids de nó colidem** — pina a colisão como fato conhecido, para
-   que ela seja decisão e não surpresa.
-2. **Nenhum evento do log carrega conceito** — cai no dia em que o
-   primeiro carregar, que é quando a especificação começa a existir.
-3. **O `prerequisites` não chega ao `Dominio`** — pina o descarte.
-4. **O reteste só acha item do tópico carregado** — pina o limite da
-   medida de transferência atual.
-5. **14 crenças aparecem em mais de um tópico** — pina a travessia
-   possível, e avisa se o catálogo mudar.
+| grupo | o que pina | testes |
+| --- | --- | --- |
+| 1. identidade do nó | os oito ids e em quantos tópicos cada um existe; `Estado.nos` indexado por id simples; 25 eventos dizem o nó, 3 dizem o tópico, nenhum diz os dois | 4 |
+| 2. conceito no log | os 49 nomes de evento do motor; os quatro conceituais não existem; `requer` é a única chave de conceito, e é da descida; nenhuma das 39 sessões grava conceito | 17 |
+| 3. `prerequisites` | declarado nos 13; o carregador lê 4 das 7 chaves do tópico e descarta esta; nenhum módulo do `mvp/` a cita; `Dominio` não tem onde guardá-la | 4 |
+| 4. limite do reteste | o item sai do banco carregado; esgotado o tópico o seletor desiste em vez de atravessar; a superfície que falta existe no outro tópico; `_superficie_nova` compara formato; o "já viu" é consultado por nó | 6 |
+| 5. crenças que atravessam | as 14 de 60, com os tópicos; 13 negam nó diferente em cada um; todas têm item dos dois lados | 3 |
 
-São testes de **constatação**, não de requisito. Eles descrevem o
-sistema como ele é, para que cada mudança dessa arquitetura seja
-deliberada.
+São testes de **constatação**, não de requisito. Eles descrevem o sistema
+como ele é, para que cada mudança dessa arquitetura seja deliberada.
+
+**E foram conferidos por sabotagem, não por releitura.** O perigo deste
+tipo de teste é virar enfeite: passar hoje e continuar passando depois da
+mudança que ele deveria acusar. Então cada fato foi quebrado de
+propósito, um por vez, e o teste tinha de cair — **18 sabotagens, 18
+quedas**, cobrindo os 22 testes distintos:
+
+| sabotagem | caiu |
+| --- | --- |
+| nó novo existindo num tópico só | os dois testes de colisão |
+| `Estado.com` qualificando o id | o teste do estado |
+| `premissa_apresentada` gravando `kc_02:I3` | o teste do evento |
+| `Evento("conceito_apresentado", …)` no motor | a catraca dos 49 e o teste dos quatro |
+| `ensino_apresentado` ganhando `requer` | o teste da descida |
+| `ensino_apresentado` ganhando `conceito` | os treze tópicos |
+| `requer` com id fora do inventário | o teste do vocabulário |
+| tópico sem `prerequisites` | o teste dos treze |
+| carregador lendo `prerequisites` | os dois testes do descarte |
+| `Dominio` ganhando o campo | o teste dos quinze campos |
+| reteste devolvendo nada / reusando o visto | os dois do seletor |
+| "já viu" deixando de ser por nó | o teste que liga o 4 ao 1 |
+| o item `comparar_casos` do kc_11 trocando de formato | o teste da superfície que falta |
+| `_superficie_nova` sempre verdadeira | o teste do formato |
+| crença nova atravessando sem item | os dois do catálogo |
+| crença que atravessa negando o mesmo nó | o teste dos treze de catorze |
+
+As duas catracas do grupo 2 — **49 nomes de evento** e **os quatro
+conceituais não existem** — são as que obrigam a passar por aqui: evento
+novo derruba a primeira, e o primeiro evento conceitual derruba a
+segunda. Cair ali é a especificação começando a existir, e não defeito.
 
 ## O que esta especificação não resolve
 
