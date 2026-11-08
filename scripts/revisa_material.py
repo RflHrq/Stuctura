@@ -91,6 +91,34 @@ POR_FALA = ("atribuicao_entre_tipos", "compilacao")
 ASSINATURA = re.compile(r"^\s*[A-Za-z_][\w \*]*\w\s*\([^;]*\)\s*\{")
 
 
+def _pista_de_tamanho(certa, opcoes) -> bool:
+    """A certa é VISIVELMENTE a mais longa?
+
+    CALIBRAGEM, e ela é o conserto de um erro meu que quase custou caro.
+    A primeira versão marcava qualquer diferença de um caractere, e
+    acusou 153 dos 562 itens do domínio — 27%. Fui medir se a pista era
+    explorável:
+
+        persona que sempre marca a mais longa ..... 35% de acerto
+        acaso numa cédula de três ................. 33%
+        itens cuja folga é de 1 a 5 caracteres .... 133 dos 153
+
+    Dois pontos acima do acaso não é pista: é ruído. Reescrever 153
+    gabaritos do instrumento por causa disso seria estragá-lo de graça.
+
+    A regra de `docs/linguagem.md` fala do defeito clássico de redação —
+    a certa conspicuamente mais longa —, e é isso que este portão mede:
+    pelo menos 10 caracteres a mais E 40% mais longa. Com esse corte
+    sobram 9 itens, e oito deles são binários do kc_00, onde a folga vem
+    de "Certo" contra "Errado — <explicação>".
+    """
+    outras = [len(o.texto) for o in opcoes if o is not certa]
+    if not outras:
+        return False
+    maior = max(outras)
+    return len(certa.texto) - maior >= 10 and len(certa.texto) >= 1.4 * maior
+
+
 def _sem_acento(s: str) -> list[str]:
     s = unicodedata.normalize("NFKD", (s or "").lower())
     s = "".join(c for c in s if not unicodedata.combining(c))
@@ -192,9 +220,11 @@ def _itens(d: dict, dom, achados: list) -> None:
                             % (aid, gab)))
             continue
         outras = [len(v) for k, v in alts.items() if k != gab]
-        if outras and len(alts[gab]) > max(outras):
-            achados.append(("ERRO", "%s: a alternativa certa é a mais longa "
-                                    "— é pista de formato" % aid))
+        if outras and (len(alts[gab]) - max(outras) >= 10
+                       and len(alts[gab]) >= 1.4 * max(outras)):
+            achados.append(("ERRO", "%s: a alternativa certa é visivelmente "
+                                    "a mais longa — é pista de formato"
+                            % aid))
         if gab in crencas:
             achados.append(("ERRO", "%s: o gabarito está marcado como crença"
                             % aid))
@@ -390,11 +420,11 @@ def audita_dominio(topico: str) -> list[tuple[str, str]]:
         if len(a.opcoes) < 3:
             achados.append(("AVISO", "%s: menos de tres alternativas (%d)"
                             % (a.id, len(a.opcoes))))
-        outras = [len(o.texto) for o in a.opcoes if o is not certa]
-        if outras and len(certa.texto) > max(outras):
-            achados.append(("ERRO", "%s: a certa e a mais longa (%d contra "
-                                    "%d) — e pista de formato"
-                            % (a.id, len(certa.texto), max(outras))))
+        if _pista_de_tamanho(certa, a.opcoes):
+            maior = max(len(o.texto) for o in a.opcoes if o is not certa)
+            achados.append(("ERRO", "%s: a certa e VISIVELMENTE a mais longa "
+                                    "(%d contra %d)"
+                            % (a.id, len(certa.texto), maior)))
         for o in a.opcoes:
             if o.correta:
                 continue
