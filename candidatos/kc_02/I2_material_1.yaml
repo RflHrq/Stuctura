@@ -1,65 +1,132 @@
 # Material de ensino do I2 — candidato, NÃO é domínio.
 #
-# DUAS COISAS QUE O REVISOR PRECISA SABER ANTES DE LER:
+# SEGUNDA VERSÃO. A primeira foi reprovada numa revisão independente, com
+# cinco bloqueios. O que mudou está no fim deste cabeçalho.
 #
-# 1. `tipo_do_ponteiro` está `so_avaliado` no inventário, com esta
-#    justificativa: "é premissa do tópico e tem itens, mas não tem cartão
-#    de ensino: o ensino cobre B1, B2 e B3, e I2 é inferência". Este
-#    arquivo É o cartão que falta. Se for aprovado, o inventário muda de
-#    `so_avaliado` para `disponivel`, com a evidência apontando para cá.
+# ---------------------------------------------------------------------
+# CONSEQUÊNCIAS DE INVENTÁRIO, e agora são QUATRO. A primeira versão
+# declarava duas e escondia a mais forte.
 #
-# 2. `sizeof` também está `so_avaliado` — mencionado dentro de um malloc
-#    do kc_01 cujo texto é sobre tempo de vida. Este material usa sizeof
-#    e o EXPLICA. Mesma consequência: ou o inventário é atualizado junto,
-#    ou o material tira o sizeof. Eu recomendo atualizar, porque o I2 não
-#    tem como mostrar "o tipo importa" sem medir alguma coisa.
+#   atribuicao_entre_tipos   nao_introduzido   <- a mais forte, e faltava
+#   tipo_do_ponteiro         so_avaliado
+#   compilacao               so_avaliado
+#   sizeof                   so_avaliado       <- ver nota abaixo
 #
-# A METÁFORA CALA AQUI, e é regra do cabeçalho do tópico: números de casa
-# andam de um em um, endereços andam do tamanho do objeto. `p + 1` é
-# kc_11. Este material usa p + 1 apenas como EVIDÊNCIA de que o tipo
-# muda o comportamento, e diz em voz alta que QUANTO ele anda é assunto
-# de outro tópico. Nenhuma casa é mencionada nessa parte.
+# `atribuicao_entre_tipos` é a espinha deste material: a recusa do
+# compilador é a evidência de que o tipo existe. O inventário diz dele
+# "em lugar nenhum de kc_00, kc_01 ou kc_02: nem ensino, nem item", e o
+# `aprovacoes.yaml` já REPROVOU uma cadeia por exatamente isto — exigir
+# conceito não ensinado e não declarado. A explicação que o libera está
+# agora na AMPLIAÇÃO, que é o único campo que entra no esquema de hoje;
+# na primeira versão ela estava no caso resolvido, que não entra.
 #
-# CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra):
-#     (pi+1) - pi em bytes   -> 4        sizeof(int)  -> 4
-#     (pc+1) - pc em bytes   -> 1        sizeof(char) -> 1
-#     int *p = x;            -> ERRO de compilação, não aviso:
-#        "initialization of 'int *' from 'int' makes pointer from
-#         integer without a cast [-Wint-conversion]"
+# SOBRE O `sizeof`: a primeira versão afirmava "este material usa sizeof
+# e o EXPLICA". Era falso — ele aparecia só como rótulo de número já
+# medido, que é a definição de `mencionado_sem_explicacao`. Agora o
+# sizeof NÃO aparece neste arquivo. Quem o explica é o B2, e é por lá que
+# a promoção dele deve ser justificada.
+#
+# ---------------------------------------------------------------------
+# O LIMITE DO kc_11, que a primeira versão furou. Ela dizia "andam 4 e 1
+# byte, que é exatamente sizeof(int) e sizeof(char)" e na frase seguinte
+# "quanto cada um anda é assunto de outro tópico" — tinha dado o quanto e
+# o porquê. Agora a aritmética de ponteiro aparece só como MENÇÃO de que
+# o comportamento difere, sem número e sem igualar a sizeof.
+#
+# A EVIDÊNCIA PRINCIPAL MUDOU por causa disso. Não é mais `p + 1`: é dois
+# PONTEIROS, os dois guardando endereço, e o compilador recusando trocar
+# um pelo outro. É evidência de tipo sem tocar em aritmética.
+#
+# ---------------------------------------------------------------------
+# SEVERIDADE É AMBIENTE, NÃO É C. A primeira versão afirmava três vezes
+# "não é aviso, é erro". Medido nesta máquina:
+#
+#   gcc -std=c17 -Wall                                  -> error, sem .exe
+#   gcc -std=c17 -Wall -Wno-error=int-conversion        -> warning, com .exe
+#   gcc ... -Wno-error=incompatible-pointer-types       -> warning, com .exe
+#
+# É erro porque o gcc >= 14 promoveu esses avisos. Num gcc mais antigo o
+# programa compila. Num instrumento de pesquisa isso custa caro: quem
+# rodar num laboratório com compilador que só avisa não tem alternativa
+# certa para marcar. O material agora diz "reclama", que é o verbo que o
+# próprio domínio já usa em `ciu_kc02_014`.
+#
+# ---------------------------------------------------------------------
+# UM ITEM, NÃO DOIS. O degrau 1 do I2 já tem quatro itens, e os dois que
+# eu havia escrito eram paráfrases: um do `ciu_kc02_e5` (conta de luz) e
+# outro do `ciu_kc02_014` (`int n = &x`, "por que o compilador reclama",
+# mesma resposta). O banco deste nó está saturado no degrau 1. Sobra um
+# ângulo não coberto: atribuir um ponteiro a outro de tipo diferente.
+#
+# CONFERIDO PELO ORÁCULO (gcc 16.2.0, -std=c17 -Wall -Wextra):
+#   int *p = &x; char *q = &c; p = q;
+#     -> "assignment to 'int *' from incompatible pointer type 'char *'"
+#   int *p = x;
+#     -> "initialization of 'int *' from 'int' makes pointer from
+#         integer without a cast"
 
 topico: kc_02
 node: kc02:I2
 premissa: "Um ponteiro tem tipo, e por isso não é um inteiro qualquer."
 suporte: [B1, B3]
 crenca_que_nega: pointer_is_integer
+exige_conceitos: [atribuicao_entre_tipos, compilacao, tipo_do_ponteiro]
 
-gerado_por: Claude Opus 5, 08/11/2026
+gerado_por: Claude Opus 5, 08/11/2026 (2a versão)
 revisado_por: ____
 revisado_sha: ____
 
 
+# ---------------------------------------------------------------------------
+# AMPLIAÇÃO  (campo `interpretation` — CABE NO ESQUEMA DE HOJE)
+#
+# É o único campo que entra hoje, e por isso é ele que precisa carregar a
+# explicação de `atribuicao_entre_tipos`. Sem isso, o item de entrada
+# avaliaria um construto que o sistema não apresentou — o defeito que a
+# auditoria de 05/11 registrou.
+# ---------------------------------------------------------------------------
+
 ampliacao: >
-  Um endereço é um número, e é verdade. Mas a declaração diz mais do que
-  o número: ela diz o que se espera encontrar quando se chegar lá. Foi
-  isso que você escreveu em `int *p` — não "p guarda um número", e sim
-  "p guarda o lugar de um int".
+  Um endereço é um número, e isso é verdade. Mas a sua declaração disse
+  mais do que o número: ela disse o que esperar encontrar quando se
+  chegar lá. Foi isso que você escreveu em `int *p` — não "p guarda um
+  número", e sim "p guarda o lugar de um int".
 
 
-  Duas consequências, e as duas dá para ver na máquina. A primeira: o
-  compilador recusa trocar um pelo outro. `int *p = x;`, com x inteiro,
-  não compila — ele responde que aquilo faz um ponteiro a partir de um
-  inteiro sem conversão. Não é aviso, é erro. A segunda: o tipo muda o
-  que as operações fazem. Com `int *pi` e `char *pc` guardando números,
-  `pi + 1` e `pc + 1` não andam a mesma coisa — andam 4 e 1 byte nesta
-  máquina, que é exatamente sizeof(int) e sizeof(char).
+  Em C, tipo não é enfeite da declaração: o compilador recusa juntar
+  coisas de tipos que ele não considera compatíveis, e é essa recusa que
+  deixa o tipo visível. Experimente escrever `int *p = x;`, com x
+  inteiro: ele reclama que aquilo faz um ponteiro a partir de um
+  inteiro. Agora o caso que fecha a questão: declare `int *p` e
+  `char *q`, que guardam os dois um endereço, e tente `p = q`. Ele
+  reclama de novo, dizendo que são tipos de ponteiro incompatíveis. Dois
+  endereços, dois números — e mesmo assim não dá para trocar um pelo
+  outro.
 
 
-  Quanto cada um anda, e por quê, é assunto de outro tópico. O que
-  importa aqui é mais simples: o mesmo número, declarado de dois jeitos,
-  se comporta de dois jeitos. Então o tipo não é enfeite da declaração —
-  é parte do que o ponteiro é. E quem guarda essa informação não é a
-  memória: é o compilador, que leu a sua declaração.
+  O quanto ele reclama depende da versão: nos compiladores recentes isso
+  é erro e o programa não chega a existir; em versões mais antigas é
+  aviso e o programa compila. O que não muda é o que ele está dizendo —
+  que os tipos não são o mesmo.
 
+
+  O tipo também muda o que as operações fazem: somar 1 a um ponteiro de
+  int e a um ponteiro de char não leva ao mesmo lugar. Quanto cada um
+  anda, e por quê, é assunto de outro tópico; aqui basta que o
+  comportamento dependa do tipo e não do número guardado.
+
+
+  E quem carrega essa informação não é a memória nem o endereço: é o
+  compilador, que leu a sua declaração antes de o programa existir.
+
+
+# ---------------------------------------------------------------------------
+# NARRAÇÃO DO EXEMPLO  (campo novo)
+#
+# Esta parte não mudou: foi a única da primeira versão que segurou o
+# limite do kc_11, mencionando que o "quanto" é de outro tópico sem dar
+# o número.
+# ---------------------------------------------------------------------------
 
 narracao:
   - linha: "int x = 42;"
@@ -76,102 +143,116 @@ narracao:
       outro tópico. Aqui basta: o tipo entra na conta.
 
 
-caso_resolvido: >
-  Vamos resolver um junto, e este é o caso que mais convence.
+# ---------------------------------------------------------------------------
+# CASO RESOLVIDO  (campo novo)
+#
+# ESTRUTURADO EM BLOCOS, e não mais num texto corrido. Motivo medido: a
+# única tubulação de texto de ensino do projeto é `_paragrafos`
+# (mvp/dominio.py), que preserva linha em branco e colapsa o resto —
+# rodei o texto da primeira versão por ela e os dois `printf` saíram na
+# mesma linha. Prosa e código precisam ser blocos separados para a tela
+# poder desenhar cada um do seu jeito.
+# ---------------------------------------------------------------------------
 
-
+caso_resolvido:
+  - prosa: >
+      Vamos resolver um junto, e este é o caso que mais convence.
+  - codigo: |
       int x = 42;
       int *p = x;
+  - prosa: >
+      Pergunta: o compilador aceita isso?
+  - prosa: >
+      A tentação é dizer que sim. Se um endereço é um número, e 42 é um
+      número, por que não? Pergunte a ele:
+  - saida: |
+      initialization of 'int *' from 'int' makes pointer
+      from integer without a cast [-Wint-conversion]
+  - prosa: >
+      Ele reclama. Repare no que a frase dele diz: não que o número
+      esteja errado, e sim que ponteiro e inteiro são tipos diferentes e
+      que ele não vai fingir que não são. Dependendo da versão do
+      compilador isso vem como erro, e aí nem executável existe, ou como
+      aviso, e aí o programa compila mesmo assim. A reclamação é a mesma.
+  - prosa: >
+      Agora troque por `int *p = &x;` e ele fica quieto. A diferença não
+      está no número — o endereço de x também é um número. Está em o
+      compilador saber, pela declaração, o que cada coisa é.
 
 
-  Pergunta: isso compila?
+# ---------------------------------------------------------------------------
+# REEXPLICAÇÃO  (campo novo — o que o "Ainda não entendi" mostra)
+#
+# TROCADA POR INTEIRO. A primeira versão estreava, na tela de quem já
+# disse que não entendeu: array, decaimento de array para ponteiro, dois
+# casts para char *, subtração de ponteiros e %td — nenhum deles no
+# inventário como disponível. Esta usa só o que o tópico já tem.
+# ---------------------------------------------------------------------------
+
+reexplicacao:
+  - prosa: >
+      Outro caminho, e este não precisa de conta nenhuma. Pegue dois
+      ponteiros que guardam, os dois, um endereço:
+  - codigo: |
+      int  x = 42;   int  *p = &x;
+      char c = 'a';  char *q = &c;
+      p = q;
+  - prosa: >
+      Se ponteiro fosse só um número, a última linha seria copiar um
+      número para outro lugar — a coisa mais simples do mundo. O
+      compilador reclama:
+  - saida: |
+      assignment to 'int *' from incompatible pointer type 'char *'
+  - prosa: >
+      Os dois guardam endereço. Os dois são números. E ainda assim ele
+      recusa trocar um pelo outro, porque para ele não são a mesma
+      espécie de coisa. Isso é o tipo, e ele não está no número: está na
+      declaração que você escreveu.
 
 
-  A tentação é responder que sim. Se um endereço é um número, e 42 é um
-  número, por que não? Peça ao compilador:
-
-
-      error: initialization of 'int *' from 'int' makes pointer
-             from integer without a cast [-Wint-conversion]
-
-
-  Erro, não aviso — o programa nem chega a existir. E repare na frase
-  dele: "makes pointer from integer". Ele não está dizendo que o número
-  está errado. Está dizendo que ponteiro e inteiro são tipos diferentes,
-  e que ele não vai fingir que não são.
-
-
-  Agora o outro lado. Troque por `int *p = &x;` e compila limpo. A
-  diferença não está no número — o endereço de x também é um número. A
-  diferença está em o compilador saber, pela declaração, o que cada
-  coisa é.
-
-
-reexplicacao: >
-  Outro caminho: dê o mesmo número a dois ponteiros de tipos diferentes
-  e peça para a máquina comparar.
-
-
-      int  arr[4];   int  *pi = arr;
-      char cs[4];    char *pc = cs;
-
-      /* quantos bytes cada um anda ao somar 1 */
-      printf("%td\n", (char *)(pi + 1) - (char *)pi);   /* 4 */
-      printf("%td\n", (char *)(pc + 1) - (char *)pc);   /* 1 */
-
-
-  Mesma operação, resultados diferentes: 4 e 1. Nada no número guardado
-  explica isso — o que explica é o tipo com que cada um foi declarado,
-  e 4 e 1 são justamente sizeof(int) e sizeof(char).
-
-
-  Se ponteiro fosse só um inteiro, somar 1 somaria 1 nos dois casos. Não
-  soma. O tipo está lá, e é o compilador que o carrega.
-
+# ---------------------------------------------------------------------------
+# ITEM DE ENTRADA — UM, não dois.
+#
+# O degrau 1 do I2 já tem quatro itens: `ciu_kc02_013` (int * e char * não
+# são a mesma coisa), `ciu_kc02_e5` (conta de luz), `kc02_gi2_n1_1` (um
+# papel diz 1000) e `ciu_kc02_t13` (quem sabe o tipo em tempo de
+# execução). Mais o `ciu_kc02_014` logo acima, no degrau 2 (`int n = &x`,
+# "por que o compilador reclama").
+#
+# Os dois itens da primeira versão eram paráfrases do e5 e do 014. O
+# único ângulo que o banco não cobre é atribuir um ponteiro a outro de
+# tipo diferente — que é também a evidência nova da reexplicação.
+#
+# O enunciado diz "reclama", não "recusa": é o verbo do `ciu_kc02_014`, e
+# é o que continua verdadeiro em qualquer versão de compilador.
+# ---------------------------------------------------------------------------
 
 activities:
 
 - id: ciu_kc02_I2_e2
   node: kc02:I2
   nivel: 1
-  formato: comparar_casos
-  tipo: teorica
-  uso: entrada
-  codigo: ''
-  enunciado: >
-    O mesmo 1000 aparece numa conta de luz e numa porta de rua. O que
-    diz qual dos dois é qual?
-  alternativas:
-    a: quem lê o papel, pelo contexto
-    b: o próprio número, que já carrega o significado
-    c: o nome escrito ao lado do número
-  gabarito: a
-  crencas:
-    b: pointer_is_integer
-    c: memory_is_by_name
-  gerado_por: Claude Opus 5, 08/11/2026
-  revisado_por: ____
-
-- id: ciu_kc02_I2_e3
-  node: kc02:I2
-  nivel: 1
-  formato: achar_o_erro
+  formato: reconhecer_conceito
   tipo: codigo
   uso: entrada
   codigo: |
-    int x = 42;
-    int *p = x;
-  enunciado: "O compilador recusa a segunda linha. Por quê?"
+    int  *p;
+    char *q;
+    p = q;
+  enunciado: "Os dois guardam endereço. Por que o compilador reclama da terceira linha?"
   alternativas:
-    a: ponteiro e inteiro são tipos diferentes
-    b: 42 é um endereço pequeno demais para caber
-    c: o compilador precisa do nome x, e não do valor
+    a: porque os dois tipos de ponteiro são diferentes
+    b: porque endereço de char não cabe num ponteiro de int
+    c: porque falta copiar o valor, e não o endereço
   gabarito: a
   crencas:
     b: pointer_is_integer
-    c: memory_is_by_name
+    c: pointer_is_data
   gerado_por: Claude Opus 5, 08/11/2026
   revisado_por: ____
 
 
-# DESCIDA — `pointer_is_integer` já tem, com 4 passos.
+# DESCIDA — `pointer_is_integer` já tem, com 4 passos. ATENÇÃO: dois
+# deles declaram `requer: [atribuicao_entre_tipos, compilacao]`, e ela
+# não está em `aprovacoes.yaml` — o padrão é `sem_revisao`. Ter quatro
+# passos escritos não é a mesma coisa que poder rodar.

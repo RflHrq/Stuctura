@@ -1,20 +1,38 @@
 # Material de ensino do B3 — candidato, NÃO é domínio.
 #
+# SEGUNDA VERSÃO, e este foi o arquivo mais corrigido: os DOIS itens que
+# eu havia escrito eram duplicatas de itens que já são domínio.
+#
+#   o que eu escrevi                      o que já existia
+#   -------------------------------       ---------------------------
+#   "você abre o papel e lê 1000;         `kc02_gb3_n1_1`: "você quer
+#    para saber o móvel você precisa"      saber o que tem na sala da
+#                                          casa cujo número está no
+#                                          papel. Basta ler o papel?"
+#
+#   "o que está guardado dentro de p?"    `ciu_kc02_007`: "o que está
+#                                          guardado dentro de um
+#                                          ponteiro?"
+#
+# O segundo é a mesma pergunta com outra redação. Os dois saíram, e
+# entrou um só, num ângulo que o degrau 1 não cobre.
+#
+# `caso_resolvido` e `reexplicacao` viraram LISTA DE BLOCOS, porque
+# `_paragrafos` colapsa linha de código.
+#
 # O B3 JÁ TEM AMPLIAÇÃO (137 palavras), e foi ela que liberou
-# `derreferencia` no inventário em 05/11/2026. Este arquivo não escreve
-# outra: acrescenta narração, caso resolvido, segunda explicação e dois
-# itens de entrada.
+# `derreferencia` no inventário em 05/11/2026.
 #
 # CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra, sem avisos):
-#     *p                      -> 42
-#     x, depois de *p = 7     -> 7
+#     *p                   -> 42
+#     x, depois de *p = 7  -> 7
 
 topico: kc_02
 node: kc02:B3
 premissa: "O valor guardado num ponteiro é um endereço."
 crenca_que_nega: pointer_is_data
 
-gerado_por: Claude Opus 5, 08/11/2026
+gerado_por: Claude Opus 5, 08/11/2026 (2a versão)
 revisado_por: ____
 revisado_sha: ____
 
@@ -46,84 +64,73 @@ narracao:
       Sai 7. É a prova de que o caminho chegou à caixa certa.
 
 
-caso_resolvido: >
-  Vamos resolver um junto.
-
-
+caso_resolvido:
+  - prosa: >
+      Vamos resolver um junto.
+  - codigo: |
       int x = 42;
       int *p = &x;
-
-
-  Pergunta: qual a diferença entre imprimir p e imprimir *p?
-
-
-  Comece pelo que está guardado. Dentro de p está o endereço de x —
-  digamos 0x1000. Esse é o conteúdo da caixa p, do mesmo jeito que 42 é
-  o conteúdo da caixa x.
-
-
-  Então:
-
-
-      p    é o conteúdo de p          -> 0x1000, um endereço
-      *p   é o conteúdo do lugar      -> 42, o que mora em 0x1000
+  - prosa: >
+      Pergunta: qual a diferença entre imprimir p e imprimir *p?
+  - prosa: >
+      Comece pelo que está guardado. Dentro de p está o endereço de x —
+      digamos 0x1000. Esse é o conteúdo da caixa p, do mesmo jeito que
+      42 é o conteúdo da caixa x.
+  - saida: |
+      p    é o conteúdo de p      -> 0x1000, um endereço
+      *p   é o conteúdo do lugar  -> 42, o que mora em 0x1000
            cujo número está em p
+  - prosa: >
+      O asterisco é a viagem. Sem ele você fica na caixa p e lê o número
+      que está nela; com ele você usa esse número para chegar a outra
+      caixa e lê o que está lá.
+  - prosa: >
+      É por isso que `*p = 7;` muda x. A linha não nomeia x em lugar
+      nenhum — ela diz "vá ao lugar cujo número está em p, e escreva 7
+      ali". E o número que está em p é justamente o lugar de x. A
+      máquina confirma: depois dessa linha, x vale 7.
 
 
-  O asterisco é a viagem. Sem ele você fica na caixa p e lê o número
-  que está nela; com ele você usa esse número para chegar a outra caixa
-  e lê o que está lá.
-
-
-  É por isso que `*p = 7;` muda x. A linha não nomeia x em lugar nenhum
-  — ela diz "vá ao lugar cujo número está em p, e escreva 7 ali". E o
-  número que está em p é justamente o lugar de x. A máquina confirma:
-  depois dessa linha, x vale 7.
-
-
-reexplicacao: >
-  Outro caminho, agora pela pergunta ao contrário: o que teria de ser
-  verdade para `*p` sair o mesmo que `p`?
-
-
+reexplicacao:
+  - prosa: >
+      Outro caminho, pela pergunta ao contrário: o que teria de ser
+      verdade para `*p` sair o mesmo que `p`?
+  - codigo: |
       printf("%p\n", (void *)p);   /* um endereço */
       printf("%d\n", *p);          /* 42          */
+  - prosa: >
+      As duas linhas leem a MESMA caixa p, e saem coisas diferentes.
+      Isso só é possível porque a segunda não para em p: ela usa o que
+      está dentro de p como um caminho e vai adiante.
+  - prosa: >
+      Se o que estivesse dentro de p fosse o próprio 42, não haveria
+      para onde ir, e as duas linhas sairiam iguais. Saem diferentes.
+      Então o que está dentro é endereço, não dado.
 
 
-  As duas linhas leem a MESMA caixa p, e saem coisas diferentes. Isso só
-  é possível porque a segunda não para em p: ela usa o que está dentro
-  de p como um caminho e vai adiante.
-
-
-  Se o que estivesse dentro de p fosse o próprio 42, não haveria para
-  onde ir, e as duas linhas sairiam iguais. Saem diferentes. Então o que
-  está dentro é endereço, não dado.
-
+# ---------------------------------------------------------------------------
+# ITEM DE ENTRADA — UM, e nenhum dos dois que eu tinha escrito.
+#
+# O degrau 1 do B3 já tem quatro: `ciu_kc02_007` (o que está guardado
+# dentro de um ponteiro), `ciu_kc02_t07` (dois ponteiros, mesmo
+# endereço), `ciu_kc02_e3` (abrir o papel da casa 2A00) e
+# `kc02_gb3_n1_1` (basta ler o papel?).
+#
+# O ângulo que falta: ESCREVER através do ponteiro. Os quatro itens do
+# degrau 1 só leem; `*p = 7` aparece pela primeira vez no `ciu_kc02_t09`,
+# no degrau 3. E é a última linha da narração deste cartão — a aplicação
+# mais direta do que a pessoa acabou de ler.
+#
+# A primeira versão deste item oferecia `*p`, `p` e `&p` como
+# alternativas. Dois defeitos: com alternativas de duas letras a regra
+# "a certa não é a mais longa" não quer dizer nada, e `&p` não mapeava
+# em crença nenhuma do catálogo — era confusão de operador, não
+# concepção errônea.
+# ---------------------------------------------------------------------------
 
 activities:
 
 - id: ciu_kc02_B3_e2
-  node: kc02:B3
-  nivel: 1
-  formato: comparar_casos
-  tipo: teorica
-  uso: entrada
-  codigo: ''
-  enunciado: >
-    Você abre o papel guardado na casa 2A00 e lê 1000. Para saber que
-    móvel tem na sala da casa 1000, você precisa:
-  alternativas:
-    a: ir até a casa 1000
-    b: olhar de novo o papel, que já diz o móvel
-    c: nada, porque o papel e a casa são a mesma coisa
-  gabarito: a
-  crencas:
-    b: pointer_is_data
-    c: pointer_and_target_are_one
-  gerado_por: Claude Opus 5, 08/11/2026
-  revisado_por: ____
-
-- id: ciu_kc02_B3_e3
   node: kc02:B3
   nivel: 1
   formato: reconhecer_conceito
@@ -132,15 +139,16 @@ activities:
   codigo: |
     int x = 42;
     int *p = &x;
-  enunciado: "O que está guardado dentro de p?"
+    *p = 7;
+  enunciado: "Depois dessas linhas, o que mudou?"
   alternativas:
-    a: o endereço de x
-    b: o valor 42
-    c: o nome x, para o programa procurar depois
+    a: x, que agora vale 7
+    b: p, que agora guarda 7
+    c: "os dois: p e x são a mesma caixa"
   gabarito: a
   crencas:
     b: pointer_is_data
-    c: memory_is_by_name
+    c: pointer_and_target_are_one
   gerado_por: Claude Opus 5, 08/11/2026
   revisado_por: ____
 

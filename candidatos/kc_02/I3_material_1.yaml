@@ -1,38 +1,42 @@
 # Material de ensino do I3 — candidato, NÃO é domínio.
 #
+# SEGUNDA VERSÃO. Duas correções:
+#
+# 1. O item da planta SAIU. Ele era "você viaja e quer que o vizinho
+#    regue a sua planta; você manda uma foto ou o número da sua casa?" —
+#    e o `ciu_kc02_e6`, que JÁ É o item de entrada deste nó, é "você
+#    quer que um vizinho regue a sua planta enquanto você viaja; o que
+#    você manda para ele? O número da sua casa". Eu reescrevi o item que
+#    já existia.
+#
+# 2. `caso_resolvido` virou LISTA DE BLOCOS, porque `_paragrafos`
+#    colapsa linha de código que não esteja separada por linha em
+#    branco.
+#
 # ============================================================
-# ATENÇÃO, E ESTE É O ARQUIVO COM O PROBLEMA MAIOR
+# O PROBLEMA DE FUNDO DESTE NÓ, que continua de pé
 # ============================================================
 #
-# O I3 é o nó de CONCLUSÃO do kc_02: "guardar um endereço permite
-# alcançar a mesma caixa de outro ponto do programa". O exemplo dele no
-# domínio é `void dobra(int *q) { *q = *q * 2; }`, e os dez itens dele
-# são todos sobre passar endereço para função.
+# `funcao_com_parametro` está `nao_introduzido` no inventário:
 #
-# E o inventário diz, sobre `funcao_com_parametro`:
+#     "Funções aparecem, e PARÂMETRO NENHUM: as duas assinaturas dos
+#      cartões são `int conta(void)` e `int *faz(void)`. Passagem por
+#      valor não é tratada em cartão nenhum."
 #
-#     status: nao_introduzido
-#     texto:  "Funções aparecem, e PARÂMETRO NENHUM: as duas assinaturas
-#              dos cartões são `int conta(void)` e `int *faz(void)`.
-#              Passagem por valor não é tratada em cartão nenhum."
+# E o I3 — o nó que FECHA o tópico — tem como exemplo
+# `void dobra(int *q)` e dez itens sobre passar endereço para função.
+# Não dá para ensiná-lo honestamente sem isso: "de outro ponto do
+# programa" É a fronteira de uma função; sem ela bastaria usar o nome.
 #
-# Ou seja: o nó que fecha o tópico se apoia num construto que o material
-# nunca apresentou. Não dá para ensinar o I3 honestamente sem isso — "de
-# outro ponto do programa" É a fronteira de uma função; sem ela, o
-# benefício do ponteiro não aparece, porque bastaria usar o nome.
+# ESTE MATERIAL INTRODUZ o conceito, no mínimo necessário: uma função
+# que recebe, e o contraste entre receber o valor e receber o endereço.
+# Se aprovado, o inventário sai de `nao_introduzido` com evidência
+# apontando para cá — e isso destrava também o degrau substituto do
+# `scanf`, que a entrada do inventário registra como bloqueado pelo
+# mesmo motivo.
 #
-# ESTE MATERIAL INTRODUZ `funcao_com_parametro`, de propósito e no
-# mínimo necessário: uma função que recebe, e o contraste entre receber
-# o valor e receber o endereço. Se for aprovado, o inventário sai de
-# `nao_introduzido` com evidência apontando para cá — e isso destrava
-# também o degrau substituto do `scanf`, que a entrada do inventário
-# registra como bloqueado por este mesmo motivo.
-#
-# A DECISÃO É SUA E DO ORIENTADOR. As alternativas são: aprovar a
-# introdução aqui; mover o I3 para depois de um tópico que ensine
-# funções; ou tirar o I3 do kc_02. Eu recomendo a primeira, porque o
-# contraste valor/endereço é exatamente o que o I3 afirma, mas é
-# decisão curricular e não minha.
+# A DECISÃO É SUA E DO ORIENTADOR: aprovar a introdução aqui, mover o I3
+# para depois de um tópico que ensine funções, ou tirar o I3 do kc_02.
 #
 # CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra, sem avisos):
 #     n = 10; dobra(&n);        ->  n = 20
@@ -43,9 +47,9 @@ node: kc02:I3
 premissa: "Guardar um endereço permite alcançar a mesma caixa de outro ponto do programa."
 suporte: [I1, I2]
 crenca_que_nega: pointer_is_pointless
-exige_conceito: funcao_com_parametro      # hoje `nao_introduzido`
+exige_conceitos: [funcao_com_parametro]      # hoje `nao_introduzido`
 
-gerado_por: Claude Opus 5, 08/11/2026
+gerado_por: Claude Opus 5, 08/11/2026 (2a versão)
 revisado_por: ____
 revisado_sha: ____
 
@@ -87,93 +91,80 @@ narracao:
   - linha: "dobra(&n);"
     diz: >
       Passa o ENDEREÇO de n, não o 10. A cópia que chega lá dentro
-      aponta para a mesma caixa, e por isso o que a função escreve chega
-      aqui.
+      aponta para a mesma caixa, e por isso o que a função escreve
+      chega aqui.
   - linha: "/* n agora é 20 */"
     diz: >
-      Confirmado pela máquina. Trocando a assinatura para `dobra(int v)`
-      e chamando `dobra(n)`, n continua 10 — a função teria mexido numa
+      Confirmado pela máquina. Com a assinatura `dobra(int v)` e a
+      chamada `dobra(n)`, n continua 10 — a função teria mexido numa
       cópia.
 
 
-caso_resolvido: >
-  Vamos resolver um junto, com as duas versões lado a lado.
-
-
+caso_resolvido:
+  - prosa: >
+      Vamos resolver um junto, com as duas versões lado a lado.
+  - codigo: |
       void dobra_valor(int v)  { v = v * 2; }
       void dobra(int *q)       { *q = *q * 2; }
 
       int m = 10;   dobra_valor(m);
       int n = 10;   dobra(&n);
+  - prosa: >
+      Pergunta: quanto valem m e n no fim?
+  - prosa: >
+      Comece pela primeira. `dobra_valor(m)` entrega o VALOR 10. Lá
+      dentro, v é uma caixa nova com 10. A linha `v = v * 2` põe 20
+      nessa caixa nova. A função termina, a caixa v some, e m nunca foi
+      tocado. m = 10.
+  - prosa: >
+      Agora a segunda. `dobra(&n)` entrega o ENDEREÇO de n. Lá dentro, q
+      é uma caixa nova com uma cópia desse endereço. A linha
+      `*q = *q * 2` não escreve em q: usa o endereço que está em q para
+      chegar à caixa de n e escrever lá. n = 20.
+  - prosa: >
+      A máquina confirma: m -> 10 e n -> 20.
+  - prosa: >
+      Repare no que as duas têm em comum: as duas receberam uma cópia. A
+      diferença é do que era a cópia. Cópia de um valor é um valor novo;
+      cópia de um endereço aponta para a mesma caixa de antes.
 
 
-  Pergunta: quanto valem m e n no fim?
+reexplicacao:
+  - prosa: >
+      Outro caminho: tente fazer sem ponteiro e veja onde trava.
+  - prosa: >
+      Você quer uma função que troque duas variáveis de lugar. Com
+      valores, a função recebe cópias, troca as cópias, e as suas duas
+      variáveis continuam exatamente como estavam — não existe jeito de
+      consertar isso de dentro da função, porque o nome das suas
+      variáveis não existe lá.
+  - prosa: >
+      Com endereços, a função recebe os dois lugares e vai até eles. Não
+      é um estilo diferente de escrever a mesma coisa: é a diferença
+      entre conseguir e não conseguir.
+  - prosa: >
+      O mesmo aparece quando a função precisa devolver dois resultados.
+      `return` devolve um. Com um endereço recebido, ela escreve o
+      segundo direto na caixa de quem chamou.
 
 
-  Comece pela primeira. `dobra_valor(m)` entrega o VALOR 10. Lá dentro,
-  v é uma caixa nova com 10. A linha `v = v * 2` põe 20 nessa caixa
-  nova. A função termina, a caixa v some, e m nunca foi tocado. m = 10.
-
-
-  Agora a segunda. `dobra(&n)` entrega o ENDEREÇO de n. Lá dentro, q é
-  uma caixa nova com uma cópia desse endereço. A linha `*q = *q * 2`
-  não escreve em q: usa o endereço que está em q para chegar à caixa de
-  n e escrever lá. n = 20.
-
-
-  A máquina confirma: `m -> 10` e `n -> 20`.
-
-
-  Repare no que as duas têm em comum: as duas receberam uma cópia. A
-  diferença é do que era a cópia. Cópia de um valor é um valor novo;
-  cópia de um endereço aponta para a mesma caixa de antes.
-
-
-reexplicacao: >
-  Outro caminho: tente fazer sem ponteiro e veja onde trava.
-
-
-  Você quer uma função que troque duas variáveis de lugar. Com valores,
-  a função recebe cópias, troca as cópias, e as suas duas variáveis
-  continuam exatamente como estavam — não existe jeito de consertar
-  isso de dentro da função, porque o nome das suas variáveis não existe
-  lá.
-
-
-  Com endereços, a função recebe os dois lugares e vai até eles. Não é
-  um estilo diferente de escrever a mesma coisa: é a diferença entre
-  conseguir e não conseguir.
-
-
-  O mesmo aparece quando a função precisa devolver dois resultados.
-  `return` devolve um. Com um endereço recebido, ela escreve o segundo
-  direto na caixa de quem chamou.
-
+# ---------------------------------------------------------------------------
+# ITEM DE ENTRADA — UM, e é o mais importante dos seis arquivos.
+#
+# O degrau 1 do I3 já tem quatro: `ciu_kc02_016` (para que serve passar
+# o endereço), `ciu_kc02_t16` (devolver dois resultados), `ciu_kc02_e6`
+# (o vizinho e a planta) e `kc02_gi3_n1_1` (o vizinho com o número da
+# casa). Todos olham o lado do ENDEREÇO.
+#
+# Nenhum olha o outro lado — o que acontece quando se passa o VALOR. E é
+# justamente aí que está `funcao_com_parametro`, o conceito que este
+# material introduz: sem ver a cópia falhar, "para que serve o endereço"
+# não tem contraste.
+# ---------------------------------------------------------------------------
 
 activities:
 
 - id: ciu_kc02_I3_e2
-  node: kc02:I3
-  nivel: 1
-  formato: comparar_casos
-  tipo: teorica
-  uso: entrada
-  codigo: ''
-  enunciado: >
-    Você viaja e quer que o vizinho regue a SUA planta. Você manda para
-    a casa dele uma foto da planta ou o número da sua casa?
-  alternativas:
-    a: o número da casa
-    b: a foto, que já mostra a planta
-    c: tanto faz, porque dá no mesmo
-  gabarito: a
-  crencas:
-    b: pointer_is_data
-    c: pointer_is_pointless
-  gerado_por: Claude Opus 5, 08/11/2026
-  revisado_por: ____
-
-- id: ciu_kc02_I3_e3
   node: kc02:I3
   nivel: 1
   formato: prever_saida

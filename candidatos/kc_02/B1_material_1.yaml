@@ -1,35 +1,42 @@
 # Material de ensino do B1 — candidato, NÃO é domínio.
 #
-# Quem move para `mvp/dominio/` é você, depois da folha REVISAO-kc02-cinco.md.
+# SEGUNDA VERSÃO. Duas correções, as duas vindas de defeito conferido:
 #
-# O B1 JÁ TEM AMPLIAÇÃO (93 palavras, sobre comparar endereços com ==).
-# Este arquivo não escreve outra: acrescenta o que falta — narração do
-# exemplo, caso resolvido, segunda explicação e dois itens de entrada.
+# 1. O item `ciu_kc02_B1_e2` SAIU. Ele era "duas casas da mesma rua
+#    guardam o mesmo móvel; os números das portas são diferentes" — e o
+#    `kc02_gb1_n1_1`, que já é domínio, é "duas casas da mesma rua têm
+#    sofás idênticos; o que distingue uma da outra? O número de cada
+#    porta". Mesmo cenário, mesma resposta. Um item de entrada que
+#    repete pergunta que a pessoa já viu não dá segundo item nenhum.
 #
-# RESTRIÇÃO DURA DESTE NÓ, do cabeçalho de graph_kc02.yaml: nenhum
-# ponteiro aparece aqui. Ponteiro é o B2, e antecipá-lo é o erro que a
-# auditoria existe para pegar. Nada de `int *p`, nada de `*`.
+#    MEDIDO, e vale como aviso: por trigramas esses dois dão 0.09 de
+#    semelhança. Reuso de cenário não se pega com regex.
+#
+# 2. `caso_resolvido` e `reexplicacao` viraram LISTA DE BLOCOS. A única
+#    tubulação de texto de ensino do projeto, `_paragrafos`, preserva
+#    linha em branco e colapsa o resto — rodei a primeira versão por ela
+#    e as linhas de código saíram grudadas numa só.
+#
+# O B1 JÁ TEM AMPLIAÇÃO (93 palavras). Este arquivo não escreve outra.
+#
+# RESTRIÇÃO DURA DESTE NÓ: nenhum ponteiro aparece aqui. Ponteiro é o B2.
 #
 # CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra, sem avisos):
-#     &idade == &outra          -> 0
-#     idade                     -> 20
-#     a=20, b=20, &a == &b      -> 0   (mesmo valor, lugares diferentes)
+#     &idade == &outra      -> 0
+#     idade                 -> 20
+#     a=20, b=20, &a == &b  -> 0   (mesmo valor, lugares diferentes)
 
 topico: kc_02
 node: kc02:B1
 premissa: "Cada lugar da memória tem um número que o identifica: o endereço."
 crenca_que_nega: memory_is_by_name
 
-gerado_por: Claude Opus 5, 08/11/2026
+gerado_por: Claude Opus 5, 08/11/2026 (2a versão)
 revisado_por: ____
 revisado_sha: ____
 
 ampliacao: ja_existe_no_dominio
 
-
-# ---------------------------------------------------------------------------
-# NARRAÇÃO DO EXEMPLO  (campo novo)
-# ---------------------------------------------------------------------------
 
 narracao:
   - linha: "int idade = 20;"
@@ -38,8 +45,8 @@ narracao:
       um número próprio, que você não escolheu e não escreveu.
   - linha: "int outra = 7;"
     diz: >
-      Outro lugar, com outro número e outro valor. Duas declarações, dois
-      lugares.
+      Outro lugar, com outro número e outro valor. Duas declarações,
+      dois lugares.
   - linha: 'printf("%p\n", (void *)&idade);'
     diz: >
       &idade não é o 20. É o número do lugar onde o 20 está guardado, e
@@ -53,97 +60,66 @@ narracao:
       Se saísse 1, escrever numa mudaria a outra.
 
 
-# ---------------------------------------------------------------------------
-# CASO RESOLVIDO  (campo novo)
-# ---------------------------------------------------------------------------
-
-caso_resolvido: >
-  Vamos resolver um junto.
-
-
+caso_resolvido:
+  - prosa: >
+      Vamos resolver um junto.
+  - codigo: |
       int a = 20;
       int b = 20;
-
-
-  As duas guardam o mesmo valor. Pergunta: &a == &b dá 1 ou 0?
-
-
-  A tentação é responder 1 — os valores são iguais, então "é a mesma
-  coisa". Siga a declaração em vez do valor. São duas declarações, e
-  cada declaração reserva um lugar. Dois lugares.
-
-
-  O endereço é o número do lugar, não o que está guardado nele. Dois
-  lugares diferentes têm números diferentes, mesmo com o mesmo 20
-  dentro. Então sai 0.
-
-
-  A máquina confirma:
-
-
+  - prosa: >
+      As duas guardam o mesmo valor. Pergunta: &a == &b dá 1 ou 0?
+  - prosa: >
+      A tentação é responder 1 — os valores são iguais, então "é a mesma
+      coisa". Siga a declaração em vez do valor. São duas declarações, e
+      cada declaração reserva um lugar. Dois lugares.
+  - prosa: >
+      O endereço é o número do lugar, não o que está guardado nele. Dois
+      lugares diferentes têm números diferentes, mesmo com o mesmo 20
+      dentro. Então sai 0.
+  - prosa: >
+      A máquina confirma:
+  - saida: |
       a=20 b=20   &a==&b -> 0
       &a=...FE4C  &b=...FE48
+  - prosa: >
+      Os dois números terminam diferentes, e a diferença entre eles é 4
+      — o tamanho de um int. Duas caixas, lado a lado.
 
 
-  Repare que os dois números terminam diferentes, e que a diferença
-  entre eles é 4 — o tamanho de um int. Duas caixas, lado a lado.
-
-
-# ---------------------------------------------------------------------------
-# REEXPLICAÇÃO  (campo novo — o que o "Ainda não entendi" mostra)
-#
-# Mesma metáfora, OUTRA ROTA: em vez da rua de casas, a evidência.
-# ---------------------------------------------------------------------------
-
-reexplicacao: >
-  Outro caminho, agora sem analogia. Pegue duas variáveis com o MESMO
-  valor e pergunte duas coisas à máquina:
-
-
+reexplicacao:
+  - prosa: >
+      Outro caminho, agora sem analogia. Pegue duas variáveis com o
+      MESMO valor e pergunte duas coisas à máquina:
+  - codigo: |
       int a = 20, b = 20;
-      printf("%d\n", a == b);     /* os valores   */
-      printf("%d\n", &a == &b);   /* os lugares   */
-
-
-  A primeira linha sai 1: os valores são iguais. A segunda sai 0: os
-  lugares não são.
-
-
-  Se o endereço fosse o valor, as duas sairiam iguais. Se o endereço
-  fosse o nome, a pergunta nem faria sentido — não dá para comparar dois
-  nomes com ==. Ele é uma terceira coisa: o número do lugar.
+      printf("%d\n", a == b);     /* os valores */
+      printf("%d\n", &a == &b);   /* os lugares */
+  - prosa: >
+      A primeira linha sai 1: os valores são iguais. A segunda sai 0: os
+      lugares não são.
+  - prosa: >
+      Se o endereço fosse o valor, as duas sairiam iguais. Se o endereço
+      fosse o nome, a pergunta nem faria sentido — não dá para comparar
+      dois nomes com ==. Ele é uma terceira coisa: o número do lugar.
 
 
 # ---------------------------------------------------------------------------
-# ITENS DE ENTRADA  (cabem no esquema de hoje)
+# ITEM DE ENTRADA — UM, não dois.
 #
-# O B1 tem UM: `ciu_kc02_e1`, na analogia da rua.
+# O degrau 1 do B1 já tem quatro itens: `ciu_kc02_001` (o que é o
+# endereço), `ciu_kc02_t01` (variável comum tem endereço), `ciu_kc02_e1`
+# (a rua de casas) e `kc02_gb1_n1_1` (duas casas, sofás idênticos). O
+# banco está saturado no degrau 1, e o segundo item que eu havia escrito
+# repetia o último deles.
+#
+# Este fica porque é o único em CÓDIGO no degrau 1: os quatro existentes
+# são teóricos ou da analogia, e o item de entrada vem logo depois de um
+# cartão cujo exemplo é código.
 # ---------------------------------------------------------------------------
 
 activities:
 
 - id: ciu_kc02_B1_e2
-  node: kc02:B1
-  nivel: 1
-  formato: comparar_casos
-  tipo: teorica
-  uso: entrada
-  codigo: ''
-  enunciado: >
-    Duas casas da mesma rua guardam exatamente o mesmo móvel. Os números
-    das duas portas são:
-  alternativas:
-    a: diferentes, porque são duas casas
-    b: iguais, porque o conteúdo é o mesmo
-    c: inexistentes até alguém precisar entregar algo ali
-  gabarito: a
-  crencas:
-    b: pointer_is_data
-    c: memory_is_by_name
-  gerado_por: Claude Opus 5, 08/11/2026
-  revisado_por: ____
-
-- id: ciu_kc02_B1_e3
   node: kc02:B1
   nivel: 1
   formato: reconhecer_conceito
@@ -164,6 +140,4 @@ activities:
   revisado_por: ____
 
 
-# ---------------------------------------------------------------------------
-# DESCIDA — nada a escrever: `memory_is_by_name` já tem, com 4 passos.
-# ---------------------------------------------------------------------------
+# DESCIDA — `memory_is_by_name` já tem, com 4 passos.

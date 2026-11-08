@@ -1,56 +1,65 @@
 # Material de ensino do B2 — candidato, NÃO é domínio.
 #
-# Vale a regra do projeto: candidato nunca vira domínio sozinho. Quem move
-# para `mvp/dominio/` é você, depois de ler a folha REVISAO-B2_material_1.md.
+# SEGUNDA VERSÃO. Duas correções:
 #
-# POR QUE O B2, e não o B1. O B1 é um dos DOIS nós, em 79, que já têm
-# ampliação. Montar o B1 e achar bonito provaria pouco — ele já era o nó
-# mais rico do projeto. O B2 é típico: uma analogia, um exemplo, um item
-# de entrada, zero ampliação. E é onde mora a confusão central do tópico.
+# 1. O item do papel na casa 2A00 SAIU. Ele era "o papel e a casa 1000
+#    são duas coisas em dois lugares" — e o `kc02_gb2_n1_1`, que já é
+#    domínio, é "você guarda um papel com 1000 dentro da casa 2A00;
+#    quantas casas existem nessa história? Duas". Mesmo cenário, mesma
+#    ideia. Por trigramas deu 0.28, e o `ciu_kc02_e2` (também domínio)
+#    usa o mesmo papel na mesma casa.
 #
-# O QUE ESTE ARQUIVO AFIRMA, e o que a máquina conferiu (gcc, sem avisos):
+# 2. `caso_resolvido` e `reexplicacao` viraram LISTA DE BLOCOS, porque
+#    `_paragrafos` colapsa linha de código que não esteja separada por
+#    linha em branco.
 #
-#     &x e &p saem diferentes                      ..... confirmado
-#     sizeof(p) = 8 e sizeof(x) = 4                ..... confirmado
-#     sizeof igual para int *, char * e double *   ..... confirmado NESTA máquina
+# POR QUE O B2 FOI O PRIMEIRO A SER ESCRITO: o B1 é um dos dois nós, em
+# 79, que já têm ampliação. O B2 é típico, e é onde mora a confusão
+# central do tópico.
 #
-# A REGRA DA SETA, do cabeçalho de graph_kc02.yaml, vale em cada linha
-# daqui: desenhe a seta, nunca diga que o ponteiro É a seta. É a frase que
-# fabrica a crença que este nó refuta.
+# A REGRA DA SETA vale em cada linha: desenhe a seta, nunca diga que o
+# ponteiro É a seta. E NENHUMA DERREFERÊNCIA: `*p` é o B3.
 #
-# E NENHUMA DERREFERÊNCIA: `*p` é o B3. Não aparece em lugar nenhum aqui.
+# CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra, sem avisos):
+#     &x e &p saem diferentes
+#     sizeof(p) = 8 e sizeof(x) = 4
+#     sizeof igual para int *, char * e double *   (NESTA máquina)
 
 topico: kc_02
-# `node:`, e não `no:` — em YAML a palavra `no` é o booleano falso, e a
-# chave vira `False`. Foi o conferidor que pegou, na primeira carga.
 node: kc02:B2
 premissa: "Um ponteiro é uma variável: ocupa um lugar e tem endereço próprio."
 crenca_que_nega: pointer_has_no_address
+exige_conceitos: [sizeof]
 
-gerado_por: Claude Opus 5, 08/11/2026
+gerado_por: Claude Opus 5, 08/11/2026 (2a versão)
 revisado_por: ____
 revisado_sha: ____
 
 
 # ---------------------------------------------------------------------------
-# 1. AMPLIAÇÃO  (campo `interpretation` do nó)
+# AMPLIAÇÃO  (campo `interpretation` — CABE NO ESQUEMA DE HOJE)
 #
-# CABE NO ESQUEMA DE HOJE. O nó já aceita `interpretation`; o B1 e o B3 têm
-# uma, e os outros 77 do projeto não. Esta pode entrar sem mexer em código.
-#
-# Segue a regra das duas que já existem: não é premissa nova, é a
-# consequência direta do que o nó já afirma. Se p é uma caixa, então p tem
-# as duas coisas que toda caixa tem.
+# É AQUI que `sizeof` é explicado, e não no I2. O inventário o tem como
+# `so_avaliado` — mencionado dentro de um malloc do kc_01 cujo texto é
+# sobre tempo de vida. Se este arquivo for aprovado, é esta ampliação
+# que justifica promovê-lo, e a evidência do inventário deve apontar
+# para cá.
 # ---------------------------------------------------------------------------
 
 ampliacao: >
   Se p é uma caixa, então p tem as duas coisas que toda caixa tem: um
   lugar e um tamanho. O lugar se pergunta com &p, do mesmo jeito que se
   pergunta &x — e as duas respostas saem diferentes, porque são duas
-  caixas. O tamanho se pergunta com sizeof(p): nesta máquina ele dá 8,
-  enquanto sizeof(x) dá 4, e dá os mesmos 8 para int *, char * ou
-  double *. O que p guarda é sempre um endereço, e endereço tem um
-  tamanho só.
+  caixas.
+
+
+  O tamanho se pergunta com sizeof. `sizeof(alguma coisa)` devolve
+  quantos bytes aquilo ocupa na memória, e é o compilador que responde,
+  pelo tipo: `sizeof(x)`, com x inteiro, dá 4 nesta máquina. Pergunte
+  `sizeof(p)` e ele dá 8 — p ocupa espaço, e ocupa um espaço seu, que
+  não é o de x. O 8 se repete para `int *`, `char *` ou `double *`,
+  porque o que p guarda é sempre um endereço, e endereço tem um tamanho
+  só.
 
 
   É por aqui que o desenho da seta engana. A seta mostra a relação entre
@@ -59,14 +68,6 @@ ampliacao: >
   resposta para "onde fica p?" — e &p é uma pergunta que o compilador
   responde sem reclamar.
 
-
-# ---------------------------------------------------------------------------
-# 2. NARRAÇÃO DO EXEMPLO  (campo NOVO — exige mudança de esquema)
-#
-# O exemplo do B2 hoje são três linhas de C soltas, com um comentário. A
-# pessoa que não sabe lê código e não sabe o que olhar. Isto diz, linha a
-# linha, o que acontece e o que muda na memória.
-# ---------------------------------------------------------------------------
 
 narracao:
   - linha: "int x = 42;"
@@ -84,119 +85,66 @@ narracao:
       Sai um endereço, e ele não é igual a &x.
 
 
-# ---------------------------------------------------------------------------
-# 3. CASO RESOLVIDO  (campo NOVO — exige mudança de esquema)
-#
-# Um exemplo trabalhado do começo ao fim, ANTES de pedir qualquer coisa.
-# Hoje a pessoa que diz "não sei" recebe um cartão e já cai numa pergunta.
-# ---------------------------------------------------------------------------
-
-caso_resolvido: >
-  Vamos resolver um junto, do começo ao fim.
-
-
+caso_resolvido:
+  - prosa: >
+      Vamos resolver um junto, do começo ao fim.
+  - codigo: |
       int x = 42;
       int *p = &x;
-
-
-  Pergunta: depois dessas duas linhas, quantas caixas existem, e o que
-  tem dentro de cada uma?
-
-
-  Comece contando as declarações. São duas, x e p. Toda declaração
-  reserva uma caixa — então são duas caixas, não uma.
-
-
-  Agora veja o que entra em cada uma. Em x entra 42. Em p entra &x, que
-  é o número do lugar de x. Fica assim:
-
-
+  - prosa: >
+      Pergunta: depois dessas duas linhas, quantas caixas existem, e o
+      que tem dentro de cada uma?
+  - prosa: >
+      Comece contando as declarações. São duas, x e p. Toda declaração
+      reserva uma caixa — então são duas caixas, não uma.
+  - prosa: >
+      Agora veja o que entra em cada uma. Em x entra 42. Em p entra &x,
+      que é o número do lugar de x. Fica assim:
+  - saida: |
       caixa x   num lugar, digamos 0x1000   dentro: 42
       caixa p   em outro, digamos 0x2A00    dentro: 0x1000
+  - prosa: >
+      Repare no que a segunda linha NÃO fez. Ela não mudou x. Ela não
+      criou um apelido para x. E ela não deixou p sem lugar: p é uma
+      caixa nova, preenchida com um número — e esse número por acaso é o
+      endereço de outra caixa.
+  - prosa: >
+      Se alguém perguntar "onde fica p?", a resposta é 0x2A00. A
+      pergunta tem resposta, e é isso que esta premissa afirma.
 
 
-  Repare no que a segunda linha NÃO fez. Ela não mudou x. Ela não criou
-  um apelido para x. E ela não deixou p sem lugar: p é uma caixa nova,
-  que foi preenchida com um número — e esse número por acaso é o
-  endereço de outra caixa.
-
-
-  Se alguém perguntar "onde fica p?", a resposta é 0x2A00. A pergunta
-  tem resposta, e é isso que esta premissa afirma.
-
-
-# ---------------------------------------------------------------------------
-# 4. REEXPLICAÇÃO  (campo NOVO — exige mudança de esquema)
-#
-# O que o botão "Ainda não entendi" mostra na segunda vez. Hoje ele
-# remostra o mesmo cartão, e eu registrei isso como dívida quando o
-# construí.
-#
-# NÃO é outra metáfora: trocar de metáfora obriga a pessoa a aprender a
-# metáfora junto com o conceito, e o cabeçalho do tópico proíbe. É outra
-# ROTA — em vez de analogia, evidência.
-# ---------------------------------------------------------------------------
-
-reexplicacao: >
-  Outro caminho para a mesma ideia, agora sem analogia nenhuma. Peça os
-  três números à máquina:
-
-
+reexplicacao:
+  - prosa: >
+      Outro caminho para a mesma ideia, agora sem analogia nenhuma. Peça
+      os três números à máquina:
+  - codigo: |
       printf("%p\n",  (void *)&x);   /* onde x mora    */
       printf("%p\n",  (void *)&p);   /* onde p mora    */
       printf("%zu\n", sizeof(p));    /* quanto p ocupa */
-
-
-  Os dois primeiros saem diferentes, e isso já responde a pergunta: se p
-  não ocupasse lugar nenhum, &p não teria o que imprimir. O terceiro sai
-  8 — espaço ocupado, medido pelo compilador.
-
-
-  Uma seta desenhada no quadro não tem endereço nem tamanho. A caixa p
-  tem os dois, e a máquina diz quais são.
+  - prosa: >
+      Os dois primeiros saem diferentes, e isso já responde a pergunta:
+      se p não ocupasse lugar nenhum, &p não teria o que imprimir. O
+      terceiro sai 8 — espaço ocupado, medido pelo compilador.
+  - prosa: >
+      Uma seta desenhada no quadro não tem endereço nem tamanho. A caixa
+      p tem os dois, e a máquina diz quais são.
 
 
 # ---------------------------------------------------------------------------
-# 5. ITENS DE ENTRADA  (cabem no esquema de hoje)
+# ITEM DE ENTRADA — UM, não dois.
 #
-# O B2 tem UM item de entrada: `ciu_kc02_e2`, na analogia. Estes dois
-# completam o degrau 1 e dão ao motor por onde escolher — hoje, depois da
-# construção, só existe um item para servir, e numa segunda passagem pelo
-# nó não há o que perguntar.
+# O degrau 1 do B2 já tem quatro: `ciu_kc02_004` (quantos lugares em
+# jogo), `ciu_kc02_e2` (o papel na casa 2A00), `kc02_gb2_n1_1` (quantas
+# casas nessa história) e `ciu_kc02_t04` (&x e &p são). Os três
+# primeiros são da analogia; o quarto pede o par.
 #
-# Os ids NÃO seguem `ciu_kc02_eN`: essa sequência já vai até e6, uma por
-# nó — `ciu_kc02_e3` é o item de entrada do B3. O conferidor pegou a
-# colisão na primeira carga. Daqui em diante o nó entra no id.
-#
-# Conferidos contra a lista de `docs/linguagem.md`: três alternativas, a
-# certa não é a mais longa, todo distrator aponta uma crença, e o
-# enunciado não tem negativa, "sempre", "nunca" nem nome de pessoa.
+# Este fica porque pergunta por &p SOZINHO, que é a afirmação do nó, e
+# em código.
 # ---------------------------------------------------------------------------
 
 activities:
 
 - id: ciu_kc02_B2_e2
-  node: kc02:B2
-  nivel: 1
-  formato: comparar_casos
-  tipo: teorica
-  uso: entrada
-  codigo: ''
-  enunciado: >
-    Na rua das casas numeradas, você guarda um papel com o número 1000
-    escrito dentro da casa 2A00. O papel e a casa 1000 são:
-  alternativas:
-    a: duas coisas, em dois lugares diferentes
-    b: a mesma coisa, vista de dois jeitos
-    c: uma ligação entre as casas, que não fica em lugar nenhum
-  gabarito: a
-  crencas:
-    b: pointer_and_target_are_one
-    c: pointer_has_no_address
-  gerado_por: Claude Opus 5, 08/11/2026
-  revisado_por: ____
-
-- id: ciu_kc02_B2_e3
   node: kc02:B2
   nivel: 1
   formato: reconhecer_conceito
@@ -218,13 +166,4 @@ activities:
   revisado_por: ____
 
 
-# ---------------------------------------------------------------------------
-# 6. DESCIDA — nada a escrever
-#
-# A crença `pointer_has_no_address` JÁ TEM descida, com 4 passos. Ela está
-# atrás de STRUCTURA_DESCIDA=1 e desligada por padrão.
-#
-# São 7 descidas para 79 crenças, e as 6 do kc_02 estão entre elas. Para
-# este tópico, a persona que erra já tem o caminho inteiro escrito — falta
-# ligar a chave e decidir, com o orientador, se ela entra na coleta.
-# ---------------------------------------------------------------------------
+# DESCIDA — `pointer_has_no_address` já tem, com 4 passos.

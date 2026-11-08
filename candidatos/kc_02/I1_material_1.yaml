@@ -1,21 +1,32 @@
 # Material de ensino do I1 — candidato, NÃO é domínio.
 #
-# O I1 é INFERÊNCIA, e sai de B2 + B3. Isso muda o material: além de
-# afirmar, ele precisa MOSTRAR DE ONDE SAI. Quem já aceitou que p é uma
-# caixa (B2) e que dentro dela há um endereço (B3) não tem como recusar
-# que são duas caixas — e é esse passo que o material tem de tornar
-# visível.
+# SEGUNDA VERSÃO. Três correções:
+#
+# 1. O item do papel apagado SAIU. Ele era "você apaga o papel da casa
+#    2A00 e escreve o número de outra; a casa que estava escrita antes
+#    continua igual" — e o `ciu_kc02_e4`, que JÁ É o item de entrada
+#    deste nó, é "você apaga o papel e escreve nele o número de outra
+#    casa; o que acontece com a casa que estava escrita antes? Nada".
+#    Eu escrevi o item de entrada que já existia. Por trigramas: 0.31.
+#
+# 2. O segundo item foi reescrito. Ele perguntava quanto vale x depois
+#    de `p = &y`, e o `ciu_kc02_010` já pergunta "quando você escreve
+#    p = &y, o que muda? Só p". Mesmo ângulo. Agora ele pergunta o
+#    complemento que o banco não cobre: o que acontece com p quando se
+#    escreve `*p = 99`.
+#
+# 3. `caso_resolvido` e `reexplicacao` viraram LISTA DE BLOCOS.
+#
+# O I1 é INFERÊNCIA, e sai de B2 + B3. Por isso a ampliação mostra a
+# derivação em vez de só afirmar.
 #
 # ACHADO DO INVENTÁRIO, e vale para I1, I2 e I3: a abertura ensina TRÊS
 # cartões — B1, B2 e B3. Os nós de inferência não têm cartão de ensino;
-# eles só são apresentados a quem declara lacuna. Está escrito em
-# conceitos.yaml, na entrada `tipo_do_ponteiro`: "é premissa do tópico e
-# tem itens, mas não tem cartão de ensino". Decisão sua e do orientador:
-# a abertura passa a ter seis cartões, ou as inferências continuam
-# aparecendo só sob demanda?
+# só aparecem para quem declara lacuna. Está em `conceitos.yaml`, na
+# entrada `tipo_do_ponteiro`.
 #
 # CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra, sem avisos):
-#     a=42, b=7; q=&a; q=&b; *q=99   ->  a=42   b=99
+#     a=42, b=7; q=&a; q=&b; *q=99   ->  a = 42,  b = 99
 #     &a == &b                        ->  0
 
 topico: kc_02
@@ -24,18 +35,10 @@ premissa: "O ponteiro e o objeto apontado são duas coisas, cada uma no seu luga
 suporte: [B2, B3]
 crenca_que_nega: pointer_and_target_are_one
 
-gerado_por: Claude Opus 5, 08/11/2026
+gerado_por: Claude Opus 5, 08/11/2026 (2a versão)
 revisado_por: ____
 revisado_sha: ____
 
-
-# ---------------------------------------------------------------------------
-# AMPLIAÇÃO  (campo `interpretation` — CABE NO ESQUEMA DE HOJE)
-#
-# O I1 não tem. Como é inferência, a ampliação é o lugar certo para
-# mostrar a derivação: duas premissas que a pessoa já aceitou, e a
-# conclusão que não dá para recusar depois delas.
-# ---------------------------------------------------------------------------
 
 ampliacao: >
   Esta não é uma ideia nova: ela cai das duas anteriores. O B2 disse que
@@ -75,104 +78,91 @@ narracao:
       e escrever 99 lá. Agora y é 99, e x continua 42.
 
 
-caso_resolvido: >
-  Vamos resolver um junto, contando as caixas antes de responder.
-
-
+caso_resolvido:
+  - prosa: >
+      Vamos resolver um junto, contando as caixas antes de responder.
+  - codigo: |
       int a = 42, b = 7;
       int *q = &a;
       q = &b;
       *q = 99;
-
-
-  Pergunta: no fim, quanto valem a e b?
-
-
-  Primeiro, quantas caixas? Três declarações, três caixas: a, b e q.
-
-
-  Agora linha por linha, anotando só o que MUDA:
-
-
+  - prosa: >
+      Pergunta: no fim, quanto valem a e b?
+  - prosa: >
+      Primeiro, quantas caixas? Três declarações, três caixas: a, b e q.
+  - prosa: >
+      Agora linha por linha, anotando só o que MUDA:
+  - saida: |
       int *q = &a;   q passa a guardar o endereço de a
       q = &b;        q passa a guardar o endereço de b
                      (a não foi tocado: continua 42)
       *q = 99;       vai ao lugar guardado em q, que é o de b,
                      e escreve 99 lá
+  - prosa: >
+      Então a continua 42 e b vira 99. A máquina confirma: a -> 42 e
+      b -> 99.
+  - prosa: >
+      O erro comum é esperar que a terceira linha, ao "desligar" q de a,
+      mexesse em a. Ela não mexe, e o motivo é esta premissa: q e a são
+      duas caixas. Apagar o que está escrito num papel não derruba
+      parede nenhuma.
 
 
-  Então a continua 42 e b vira 99. A máquina confirma: `a -> 42  b -> 99`.
-
-
-  O erro comum é esperar que a terceira linha, ao "desligar" q de a,
-  mexesse em a. Ela não mexe, e o motivo é esta premissa: q e a são duas
-  caixas. Apagar o que está escrito num papel não derruba parede nenhuma.
-
-
-reexplicacao: >
-  Outro caminho: conte os endereços em vez de seguir a história.
-
-
+reexplicacao:
+  - prosa: >
+      Outro caminho: conte os endereços em vez de seguir a história.
+  - codigo: |
       int a = 42, b = 7;
       int *q = &a;
       printf("%d\n", &a == &b);   /* 0 */
       printf("%d\n", &a == &q);   /* 0 */
+  - prosa: >
+      Três perguntas, três números de lugar, e nenhum igual ao outro. Se
+      o ponteiro e a caixa apontada fossem a mesma coisa, &a == &q daria
+      1 — e dá 0.
+  - prosa: >
+      É a mesma conta do B2 e do B3, agora as duas de uma vez: p tem
+      lugar (B2), dentro de p mora um endereço (B3), e um endereço é de
+      OUTRO lugar. Duas caixas.
 
 
-  Três perguntas, três números de lugar, e nenhum igual ao outro. Se o
-  ponteiro e a caixa apontada fossem a mesma coisa, `&a == &q` daria 1 —
-  e dá 0.
-
-
-  É a mesma conta do B2 e do B3, só que agora as duas de uma vez: p tem
-  lugar (B2), dentro de p mora um endereço (B3), e um endereço é de
-  OUTRO lugar. Duas caixas.
-
+# ---------------------------------------------------------------------------
+# ITEM DE ENTRADA — UM, e reescrito.
+#
+# O degrau 1 do I1 já tem quatro: `ciu_kc02_010` (p = &y, o que muda),
+# `ciu_kc02_e4` (apagar o papel), `kc02_gi1_n1_1` (duas pessoas, mesmo
+# número de casa) e `ciu_kc02_t10` (prever saída).
+#
+# Todos olham o que acontece com o APONTADO. Nenhum pergunta o que
+# acontece com o PONTEIRO quando se escreve através dele — que é a
+# metade da ampliação que distingue `p = &y` de `*p = 99`.
+# ---------------------------------------------------------------------------
 
 activities:
 
 - id: ciu_kc02_I1_e2
   node: kc02:I1
   nivel: 1
-  formato: comparar_casos
-  tipo: teorica
-  uso: entrada
-  codigo: ''
-  enunciado: >
-    Você apaga o papel da casa 2A00 e escreve nele o número de outra
-    casa. A casa que estava escrita antes:
-  alternativas:
-    a: continua igual, no mesmo lugar
-    b: muda junto, porque o papel falava dela
-    c: deixa de existir, porque ninguém mais a alcança
-  gabarito: a
-  crencas:
-    b: pointer_and_target_are_one
-    c: pointer_is_pointless
-  gerado_por: Claude Opus 5, 08/11/2026
-  revisado_por: ____
-
-- id: ciu_kc02_I1_e3
-  node: kc02:I1
-  nivel: 1
   formato: reconhecer_conceito
   tipo: codigo
   uso: entrada
   codigo: |
-    int x = 42, y = 7;
-    int *p = &x;
-    p = &y;
-  enunciado: "Depois da terceira linha, x vale:"
+    int y = 7;
+    int *p = &y;
+    *p = 99;
+  enunciado: "Depois da terceira linha, o que está guardado dentro de p?"
   alternativas:
-    a: 42, porque x não foi tocado
-    b: 7, porque p passou a ser y
-    c: "nada: x perdeu o valor ao ser desapontado"
+    a: o mesmo endereço de antes
+    b: 99, que é o valor escrito
+    c: nada, porque p virou a própria caixa y
   gabarito: a
   crencas:
-    b: pointer_and_target_are_one
-    c: pointer_is_pointless
+    b: pointer_is_data
+    c: pointer_and_target_are_one
   gerado_por: Claude Opus 5, 08/11/2026
   revisado_por: ____
 
 
-# DESCIDA — `pointer_and_target_are_one` já tem, com 4 passos.
+# DESCIDA — `pointer_and_target_are_one` já tem, com 4 passos. Ela está
+# REPROVADA em `aprovacoes.yaml`, por exigir reatribuição e declaração
+# múltipla sem nenhuma das duas ensinada nem declarada em `requer`.
