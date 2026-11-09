@@ -67,19 +67,13 @@ NOME_DE_PESSOA = re.compile(
     r"\b(Rafael|Ana|João|Joao|Maria|Pedro|Lucas|Bruno|Carla|José|Jose|"
     r"Paulo|Júlia|Julia|Marcos|Clara|Thiago|Tiago)\b")
 
-# Construto no CÓDIGO -> conceito do inventário. Nunca aplicado à prosa:
-# a primeira versão varria tudo junto, e o padrão de "função com
-# parâmetro" casou com a frase "...de b / (a não foi tocado...".
-CONSTRUTOS = (
-    (re.compile(r"\bsizeof\b"), "sizeof"),
-    (re.compile(r"\bscanf\b"), "scanf"),
-    (re.compile(r"%p"), "printf_ponteiro"),
-    (re.compile(r"\*\s*\*"), "ponteiro_de_ponteiro"),
-    (re.compile(r"\w+\s*\[\s*\d"), "array"),
-    (re.compile(r"&\w+\s*==\s*&?\w+"), "comparacao_de_ponteiros"),
-    (re.compile(r"^\s*[A-Za-z_][\w \*]*\w\s*\(\s*(?!void\s*\))"
-                r"[A-Za-z_]\w*\s+\**\w+", re.M), "funcao_com_parametro"),
-)
+# Construto no CÓDIGO -> conceito do inventário. MUDOU DE CASA em
+# 09/11/2026: mora em `mvp/conceitos.py`, porque a verificação de entrada
+# do histórico individual também precisa dele e duas listas divergiriam.
+# Nunca aplicado à prosa — a primeira versão varria tudo junto, e o
+# padrão de "função com parâmetro" casou com a frase "...de b / (a não
+# foi tocado...".
+from mvp.conceitos import CONSTRUTOS                  # noqa: E402
 
 # Conceitos que padrão nenhum denuncia: quando a PROSA fala de o
 # compilador reclamar, os dois estão em jogo.

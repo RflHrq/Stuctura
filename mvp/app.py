@@ -239,15 +239,36 @@ def cria_sessao(body: SessaoBody | None = None) -> dict:
                 status_code=400,
                 detail="código fora do formato: letra, depois letras, "
                        "números, hífen ou _, até 16")
-        # Abrir duas vezes o mesmo código juntaria duas pessoas num
-        # participante só, e a análise não teria como separar depois.
+        # Abrir duas vezes o mesmo código NO MESMO TÓPICO juntaria duas
+        # pessoas num participante só, e a análise não teria como separar
+        # depois. A razão é a original; o que mudou em 09/11/2026 é o
+        # guarda ser o PAR `(código, tópico)`.
+        #
+        # Pelo código sozinho, um log único — que é o que o histórico
+        # individual quer — recusaria o participante ao entrar no segundo
+        # tópico: o guarda que protege a identidade seria o mesmo que
+        # impede o histórico. O que a razão protege é a SESSÃO, não a
+        # pessoa.
+        #
         # Tolerante de propósito: uma linha ilegível no arquivo não pode
-        # impedir o começo de uma sessão.
-        linhas, _ = log.le_tolerante()
-        if any(x.get("sessao") == codigo for x in linhas):
+        # impedir o começo de uma sessão. Com uma exceção — se a linha
+        # quebrada tiver ESTE código, não há como saber de que tópico era
+        # aquela sessão, e deixar passar arriscaria o dano que o guarda
+        # existe para impedir.
+        pares, ilegiveis = log.aberturas()
+        if (codigo, dominio.id) in pares:
             raise HTTPException(
                 status_code=409,
-                detail="já existe sessão com o código %r neste log" % codigo)
+                detail="já existe sessão com o código %r no tópico %s"
+                       % (codigo, dominio.id))
+        quebradas = [x for x in ilegiveis if codigo in x]
+        if quebradas:
+            raise HTTPException(
+                status_code=409,
+                detail="o log tem %d linha(s) ilegível(eis) com o código "
+                       "%r, e sem elas não dá para saber em que tópico "
+                       "essa sessão foi aberta. Confira o arquivo antes "
+                       "de reusar o código." % (len(quebradas), codigo))
         sessao = codigo
     else:
         sessao = uuid.uuid4().hex[:12]

@@ -51,6 +51,13 @@ DESTINO = Path(os.environ.get("STRUCTURA_LOG")
 # que existe log.
 ENTRADA = "entrada_recebida"
 
+# O evento que abre uma unidade, e o único que diz o TÓPICO dela. É por
+# ele que `aberturas` e `mvp/historico.py` descobrem o que uma pessoa
+# atravessou — e é por ele estar sozinho nessa função que uma linha
+# ilegível de abertura é tratada com cuidado especial.
+ABERTURA_DA_UNIDADE = "unidade_iniciada"
+FECHO_DA_UNIDADE = "unidade_encerrada"
+
 # Versão do formato, em toda linha gravada.
 #
 # O formato já mudou duas vezes no primeiro ciclo — a T10 acrescentou
@@ -188,6 +195,45 @@ def le_tolerante(destino: Path | None = None) -> tuple[list[dict], int]:
 def le(sessao: str | None = None, destino: Path | None = None) -> list[dict]:
     """As linhas do log, na ordem em que foram escritas. Estrito."""
     return _le(sessao, destino, estrito=True)[0]
+
+
+def aberturas(destino: Path | None = None) -> tuple[frozenset, tuple[str, ...]]:
+    """Os pares `(código, tópico)` abertos no log, e as linhas ilegíveis.
+
+    O que o guarda de identidade de `app.py` consulta. Ele recusava pelo
+    CÓDIGO sozinho, e passou a recusar pelo PAR em 09/11/2026: num log
+    único — que é o que um histórico individual quer — recusar pelo
+    código impediria o participante de entrar no segundo tópico, e o
+    guarda que protege a identidade seria o mesmo que impede o histórico.
+
+    AS LINHAS ILEGÍVEIS VOLTAM CRUAS, e não só contadas, porque o tópico
+    está SÓ no `unidade_iniciada`. Se justamente essa linha sair pela
+    metade — o caso documentado em `VERSAO`, o processo morrendo no meio
+    de uma escrita —, o guarda não tem como saber de que tópico era
+    aquela sessão, e quem chama precisa poder procurar o código no texto
+    cru para decidir. Tolerante no resto: uma linha quebrada de OUTRO
+    participante não pode impedir o começo de uma sessão.
+    """
+    caminho = Path(destino) if destino else DESTINO
+    if not caminho.exists():
+        return frozenset(), ()
+    pares, ilegiveis = set(), []
+    linhas = caminho.read_text(encoding="utf-8").splitlines()
+    for i, linha in enumerate(linhas):
+        if not linha.strip():
+            continue
+        try:
+            dado = json.loads(linha)
+        except json.JSONDecodeError:
+            # A última tem desculpa, como em `_le` — mas aqui ela entra
+            # na lista mesmo assim: descartá-la é seguro para reexecutar
+            # e perigoso para decidir identidade.
+            ilegiveis.append(linha)
+            continue
+        if dado.get("tipo") == ABERTURA_DA_UNIDADE:
+            pares.add((str(dado.get("sessao", "")),
+                       str(dado.get("topico", ""))))
+    return frozenset(pares), tuple(ilegiveis)
 
 
 def _le(sessao: str | None, destino: Path | None,

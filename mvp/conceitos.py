@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+import re
 
 import yaml
 
@@ -132,6 +133,40 @@ def disponivel(cid: str) -> bool:
 # só quem tem `tipo` de explicação declara cartão: a auditoria de 05/11
 # achou três falsos positivos de varredura por padrão, todos com o
 # construto num exemplo que ensina outra coisa. Usar não é ensinar.
+
+
+# Construto no CÓDIGO -> conceito do inventário. NUNCA aplicado à prosa:
+# a primeira versão varria tudo junto, e o padrão de "função com
+# parâmetro" casou com a frase "...de b / (a não foi tocado...".
+#
+# MORAVA EM `scripts/revisa_material.py`, e veio para cá em 09/11/2026
+# porque deixou de ser conhecimento de script: é o mapa que diz o que um
+# ITEM cobra, e a verificação de entrada do histórico individual
+# (`mvp/historico.py`) precisa dele. O script continua importando daqui,
+# para não haver duas listas.
+#
+# E ele é o oposto de `cartoes`, de propósito. Este diz o que um item
+# COBRA, e varredura serve: o construto está no código ou não está.
+# `cartoes` diz o que um cartão ENSINA, e ali varredura não serve — a
+# auditoria de 05/11 achou três falsos positivos, todos com o construto
+# num exemplo que ensina outra coisa. Cobrar é mecânico; ensinar não.
+CONSTRUTOS = (
+    (re.compile(r"\bsizeof\b"), "sizeof"),
+    (re.compile(r"\bscanf\b"), "scanf"),
+    (re.compile(r"%p"), "printf_ponteiro"),
+    (re.compile(r"\*\s*\*"), "ponteiro_de_ponteiro"),
+    (re.compile(r"\w+\s*\[\s*\d"), "array"),
+    (re.compile(r"&\w+\s*==\s*&?\w+"), "comparacao_de_ponteiros"),
+    (re.compile(r"^\s*[A-Za-z_][\w \*]*\w\s*\(\s*(?!void\s*\))"
+                r"[A-Za-z_]\w*\s+\**\w+", re.M), "funcao_com_parametro"),
+)
+
+
+def construtos_de(codigo: str | None) -> tuple[str, ...]:
+    """Os conceitos que este código usa, pela varredura. Ordenados."""
+    texto = codigo or ""
+    return tuple(sorted({cid for padrao, cid in CONSTRUTOS
+                         if padrao.search(texto)}))
 
 
 def cartoes(cid: str) -> tuple[str, ...]:

@@ -333,18 +333,98 @@ coisa que aquele teste tem para oferecer é exaustividade.
 | mecanismo | estado |
 | --- | --- |
 | **1. eventos conceituais** | **completo** — os quatro, com 121 testes (40 da declaração e da assinatura, 26 do apresentado, 55 dos três de percurso) |
-| **2. identidade de nó qualificada** | aplicada nos quatro eventos, que é onde o dado atravessa. Falta o guarda do 409 virar `(código, tópico)` |
-| **3. reconstrução individual por logs** | não começou — é leitura sobre os logs de um código, sem estado novo |
+| **2. identidade de nó qualificada** | **completo** — nos quatro eventos, e o guarda do 409 passou a ser `(código, tópico)`, com 7 testes |
+| **3. reconstrução individual por logs** | **completo** — `mvp/historico.py` e `scripts/percurso.py`, com 24 testes |
 
-Nenhum dos dois que faltam cria evento, então a catraca dos 53 continua
-valendo como está.
+Nenhum dos dois últimos criou evento, então a catraca dos 53 continuou
+valendo sem mexer.
+
+### O guarda da identidade
+
+`app.py` recusava pelo **código sozinho**, e o log é um arquivo. Num log
+único — que é o que um histórico individual quer — o participante seria
+recusado ao entrar no segundo tópico: o guarda que protege a identidade
+era o mesmo que impedia o histórico.
+
+Agora o par: **P07 abre o kc_02 e depois o kc_07; não abre o kc_02 duas
+vezes.** A razão original está inteira, porque o que ela protege é a
+sessão, não a pessoa.
+
+**E a mudança criou um risco novo, que foi tratado.** O tópico está
+**só** no `unidade_iniciada`, e `le_tolerante` pula linha ilegível de
+propósito. Se justamente essa linha sair pela metade — o caso que o
+`log.py` documenta, o processo morrendo no meio de uma escrita —, não há
+como saber de que tópico era. Então o guarda procura o código no texto
+cru das linhas quebradas e recusa se o achar. Uma linha quebrada de
+**outro** participante continua não impedindo nada.
+
+O que fica indetectável está dito: corrupção que apague o código inteiro
+da linha. Não há como achar o que não está escrito, e travar toda sessão
+nova porque o arquivo tem um defeito trocaria um risco de pesquisa por
+uma coleta parada.
+
+### A leitura do percurso
+
+`mvp/historico.py` — **leitura, nada mais.** Nenhuma função abre arquivo
+para escrita, e há teste conferindo que o arquivo não muda. E não é
+cadeado: `sem_oportunidade` devolve lista, nunca veredito, e de propósito
+não existe campo `pode_entrar` — seria o cadeado entrando pela porta de
+trás.
+
+A resposta à pergunta original, de uma execução real:
+
+```text
+percurso de P20, entrando em kc_06 (Passagem por referência)
+  tópicos antes: kc_02
+
+  com oportunidade registrada (1)
+    sizeof                     1 itens  disponivel   em kc_02:B2
+
+  este tópico vai cobrar, sem oportunidade registrada (3)
+    funcao_com_parametro      23 itens  nao_introduzido
+    ponteiro_de_ponteiro       1 itens  so_avaliado
+    scanf                      1 itens  nao_introduzido
+```
+
+**E o relatório declara o que ele não vê.** A varredura de construto
+cobre **7 dos 14** conceitos do inventário; `derreferencia`, `endereco`,
+`operador_endereco`, `ponteiro`, `tipo_do_ponteiro`, `compilacao` e
+`atribuicao_entre_tipos` não têm padrão nenhum. Para eles a lista não diz
+nada — nem que o tópico cobra, nem que não. Dizer menos do que se sabe é
+tolerável; calar que se está dizendo menos, não.
+
+O limite apareceu por um teste meu que esperava `derreferencia` na lista
+do kc_11 e caiu.
+
+### Duas sabotagens que acharam defeito, e não só confirmaram
+
+**O mapa de construtos mudou de casa.** `CONSTRUTOS` morava em
+`scripts/revisa_material.py` e veio para `mvp/conceitos.py`: deixou de
+ser conhecimento de script quando a verificação de entrada passou a
+precisar dele. Duas listas divergiriam.
+
+**E o teste que separava apresentado de confirmado não separava nada.**
+Com um único participante no arquivo — o que acerta tudo —, todo conceito
+apresentado também era confirmado, e os dois conjuntos eram **iguais**:
+trocar `confirmados()` por `apresentados()` passava em todos os testes.
+Quem achou foi a sabotagem. O conserto foi pôr no arquivo um participante
+que declara lacuna: ele tem as cinco oportunidades, é diagnosticado,
+revisita na construção e **não confirma nenhuma** — e é ele que torna a
+distinção testável.
 
 ## O que esta especificação não resolve
 
 - **Se o código do participante deve mesmo ser a identidade.** Ele é
   pseudônimo (P01…P40) e já serve à anonimização. Mas é digitado na
-  URL, e nada impede duas pessoas usando o mesmo — o 409 só pega dentro
-  de um log.
+  URL, e nada impede duas pessoas usando o mesmo: o guarda pega
+  repetição no log, não impostura.
+- **`app.sessoes` continua indexado pelo código sozinho.** Dois tópicos
+  no mesmo processo se sobrescreveriam ali. Hoje não acontece porque um
+  processo serve um tópico — `carrega()` roda no import, e trocar de
+  tópico é reiniciar —, e está pinado em `mvp/test_arquitetura.py`.
+- **A verificação de entrada não está na tela.** É de terminal, porque
+  quem escolhe o tópico hoje é quem sobe o servidor. Quando o estudante
+  escolher, vira rota; `mvp/historico.py` serve as duas.
 - **Quanto da dívida de `funcao_com_parametro` some** com percurso
   garantido. São 63 itens, todos a jusante do kc_02 no grafo declarado.
 - **O custo da travessia para o piloto.** Um participante que faz vários
