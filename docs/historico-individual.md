@@ -139,12 +139,14 @@ Com uma ressalva que importa para a leitura dos ensaios: a descida está
 nenhuma sessão já gravada contém um desses sete. Medido: treze tópicos,
 três personas, 39 sessões, zero eventos com conceito.
 
-| evento | o que demonstra | de onde sai | estado |
-| --- | --- | --- | --- |
-| `conceito_apresentado` | teve oportunidade | cartão mostrado + os conceitos declarados nele | **feito, 09/11/2026** |
-| `conceito_diagnosticado` | demonstrou algo no diagnóstico | `episodio_classificado`, com o conceito do item | falta |
-| `conceito_confirmado` | evidência de domínio pela regra do sistema | `no_confirmado`, com os conceitos do nó | falta |
-| `conceito_revisitado` | foi trabalhado de novo | treino, reexplicação, construção | falta |
+**Os quatro estão de pé, desde 09/11/2026.**
+
+| evento | o que demonstra | de onde sai |
+| --- | --- | --- |
+| `conceito_apresentado` | teve oportunidade | cartão mostrado + os conceitos declarados nele |
+| `conceito_diagnosticado` | demonstrou algo no diagnóstico | `episodio_classificado`, com o `estado` do episódio |
+| `conceito_confirmado` | o nó fechou pela regra do sistema | `no_confirmado`, com o `via` dele |
+| `conceito_revisitado` | foi trabalhado de novo | reexplicação, construção, treino |
 
 **Apresentação não é compreensão.** Os quatro são distintos de
 propósito: sem isso, o histórico vira declaração falsa de domínio — que
@@ -197,6 +199,59 @@ tem teste próprio: se divergisse por persona, o evento estaria medindo
 desempenho em vez de apresentação, e o histórico passaria a dizer que a
 pessoa teve menos chance porque foi mal.
 
+### De onde sai o conceito nos três de percurso
+
+**Esta é uma aproximação, e o payload declara que é.**
+
+A especificação dizia que `conceito_diagnosticado` sairia "com o conceito
+do item". **Não existe conceito do item.** O inventário declara CARTÃO, e
+derivar do código do item por varredura é exatamente o que a auditoria de
+05/11 provou que não funciona: três falsos positivos, todos com o
+construto num exemplo que ensina outra coisa.
+
+Então os três atribuem pelo cartão do nó, e cada evento carrega
+`atribuicao: "cartao_do_no"`.
+
+**O preço é real e precisa ficar dito:** o cartão do B2 apresenta três
+conceitos, então um episódio no B2 produz três eventos, e nenhum afirma
+que aquele item mediu aquele conceito — afirma que o episódio foi na
+premissa cujo cartão apresenta os três. É diluição. O campo existe para a
+análise saber: no dia em que houver declaração por item, ele passa a
+`"item"` e as duas épocas ficam separáveis no mesmo arquivo.
+
+E `conceito_confirmado` **não** quer dizer que a pessoa domina o
+conceito: quer dizer que o nó cujo cartão o apresenta fechou pela CS-5.
+Dissolver essa diferença transformaria o histórico em declaração falsa de
+domínio.
+
+### As três trajetórias que o log passou a distinguir
+
+Medido no kc_02, com as mesmas três personas que medem a arquitetura:
+
+| persona | apresentado | diagnosticado | revisitado | confirmado |
+| --- | --- | --- | --- | --- |
+| **acerta** | 7 | 14 | — | **7** |
+| **crente** | 7 | 7 | 7 (treino) | **7** |
+| **nao_sabe** | 7 | 14 | 7 (construção) | **nenhum** |
+
+É a diferença entre as três linhas que torna isto uma medida. Se fossem
+iguais, o log estaria registrando o currículo e não a pessoa.
+
+E a linha que mais importa é a última: quem diz "não sei" **recebe as sete
+oportunidades, é diagnosticado catorze vezes, revisita sete e nunca
+confirma nada.** O log já dizia isso por nó; saber qual CONCEITO ficou
+sem confirmação exigia reler o `conceitos.yaml` e cruzar à mão.
+
+### A invariante do princípio, agora medida
+
+> *Nenhum conhecimento deve ser cobrado antes de existir uma oportunidade
+> identificável de aprendizagem.*
+
+Dentro de um tópico isso já tinha mecanismo — o `PRIMEIRO_CONTATO` — e
+nenhuma medida. Agora tem: há teste exigindo que **nenhum conceito seja
+diagnosticado, revisitado ou confirmado sem ter sido apresentado antes**,
+no mesmo log. A palavra que faltava mecanismo era "identificável".
+
 ### A versão do material
 
 Cada `conceito_apresentado` carrega a **assinatura do material** que
@@ -222,13 +277,13 @@ mexeria no motor sem necessidade.
 
 ## Testes de arquitetura, sem tocar no motor
 
-Escritos em `mvp/test_arquitetura.py`: **34 testes**, cinco grupos,
+Escritos em `mvp/test_arquitetura.py`: **36 testes**, cinco grupos,
 nenhuma linha de `mvp/` alterada.
 
 | grupo | o que pina | testes |
 | --- | --- | --- |
-| 1. identidade do nó | os oito ids e em quantos tópicos cada um existe; `Estado.nos` indexado por id simples; 25 eventos dizem o nó, 3 dizem o tópico, nenhum diz os dois | 4 |
-| 2. conceito no log | os 49 nomes de evento do motor; os quatro conceituais não existem; `requer` é a única chave de conceito, e é da descida; nenhuma das 39 sessões grava conceito | 17 |
+| 1. identidade do nó | os oito ids e em quantos tópicos cada um existe; `Estado.nos` indexado por id simples; 29 eventos dizem o nó, 3 dizem o tópico, e **só os quatro conceituais qualificam** | 4 |
+| 2. conceito no log | os **53** nomes de evento do motor; os quatro conceituais existem; o log fala de conceito em **duas gramáticas** — `requer`, exigência de degrau, e `conceito`, evidência de percurso — e elas não se misturam; as três trajetórias | 19 |
 | 3. `prerequisites` | declarado nos 13; o carregador lê 4 das 7 chaves do tópico e descarta esta; nenhum módulo do `mvp/` a cita; `Dominio` não tem onde guardá-la | 4 |
 | 4. limite do reteste | o item sai do banco carregado; esgotado o tópico o seletor desiste em vez de atravessar; a superfície que falta existe no outro tópico; `_superficie_nova` compara formato; o "já viu" é consultado por nó | 6 |
 | 5. crenças que atravessam | as 14 de 60, com os tópicos; 13 negam nó diferente em cada um; todas têm item dos dois lados | 3 |
@@ -261,10 +316,28 @@ quedas**, cobrindo os 22 testes distintos:
 | crença nova atravessando sem item | os dois do catálogo |
 | crença que atravessa negando o mesmo nó | o teste dos treze de catorze |
 
-As duas catracas do grupo 2 — **49 nomes de evento** e **os quatro
-conceituais não existem** — são as que obrigam a passar por aqui: evento
-novo derruba a primeira, e o primeiro evento conceitual derruba a
-segunda. Cair ali é a especificação começando a existir, e não defeito.
+As duas catracas do grupo 2 — **53 nomes de evento** e **o placar dos
+quatro conceituais** — são as que obrigam a passar por aqui. Elas já
+fizeram o trabalho: entre 08 e 09/11 **mudaram de lado três vezes**, e
+cada mudança foi um commit declarando a arquitetura nova em vez de
+descobri-la depois. Cair ali é a especificação acontecendo, não defeito.
+
+E a terceira queda consertou o scanner em vez de abrir mão dele. Quando
+os quatro eventos passaram a sair de uma FÁBRICA — `_por_conceito`, que
+recebe o nome do evento por parâmetro —, a varredura passou a ver 49 em
+vez de 53. A correção foi ensinar o scanner a reconhecer fábrica: a única
+coisa que aquele teste tem para oferecer é exaustividade.
+
+## Onde estão os três mecanismos
+
+| mecanismo | estado |
+| --- | --- |
+| **1. eventos conceituais** | **completo** — os quatro, com 121 testes (40 da declaração e da assinatura, 26 do apresentado, 55 dos três de percurso) |
+| **2. identidade de nó qualificada** | aplicada nos quatro eventos, que é onde o dado atravessa. Falta o guarda do 409 virar `(código, tópico)` |
+| **3. reconstrução individual por logs** | não começou — é leitura sobre os logs de um código, sem estado novo |
+
+Nenhum dos dois que faltam cria evento, então a catraca dos 53 continua
+valendo como está.
 
 ## O que esta especificação não resolve
 

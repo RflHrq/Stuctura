@@ -427,6 +427,40 @@ def _evento_ensino(d: Dominio, e: Estado) -> Evento:
         "momento": "abertura"})
 
 
+def _por_conceito(d: Dominio, nid: str, tipo: str,
+                  **campos) -> tuple[Evento, ...]:
+    """Um evento `tipo` por conceito que o cartão daquele nó apresenta.
+
+    O construtor dos QUATRO eventos conceituais. Centralizado porque as
+    duas coisas que todos eles têm em comum são as que não podem variar:
+    a lista de conceitos vem do inventário, sempre pelo mesmo caminho, e
+    o nó sai QUALIFICADO pelo tópico — `kc_02:B2`, não `B2`.
+
+    Nó sem conceito declarado devolve vazio, e os quatro calam juntos.
+    """
+    alvo = "%s:%s" % (d.id, nid)
+    return tuple(Evento(tipo, {"conceito": cid, "no": alvo, **campos})
+                 for cid in d.conceitos_de(nid))
+
+
+# De onde sai o conceito nos três eventos de PERCURSO, e por que o
+# payload declara isso.
+#
+# A especificação dizia que `conceito_diagnosticado` sairia "com o
+# conceito do item". NÃO EXISTE conceito do item: o inventário declara
+# CARTÃO (`evidencia.cartoes`), e derivar do código do item por varredura
+# é o que a auditoria de 05/11 provou que não funciona — três falsos
+# positivos, todos com o construto num exemplo que ensina outra coisa.
+#
+# Então os três atribuem pelo cartão do nó, e dizem isso. O PREÇO É REAL:
+# o cartão do B2 apresenta três conceitos, então um episódio no B2 produz
+# três eventos, e nenhum afirma que aquele item mediu aquele conceito. É
+# diluição, e a análise tem de saber — o campo existe para ela saber. No
+# dia em que houver declaração por item, ele passa a "item" e as duas
+# épocas ficam separáveis no mesmo arquivo.
+ATRIBUICAO = "cartao_do_no"
+
+
 def _conceitos_apresentados(d: Dominio, nid: str,
                             momento: str) -> tuple[Evento, ...]:
     """`conceito_apresentado`, um por conceito que aquele cartão ensina.
@@ -462,15 +496,62 @@ def _conceitos_apresentados(d: Dominio, nid: str,
     conceito seria declarar oportunidade onde a auditoria não achou
     nenhuma. O cartão continua registrado pelo evento do nó.
     """
-    assinatura = d.assinatura(nid)
-    return tuple(
-        Evento("conceito_apresentado", {
-            "conceito": cid,
-            "no": "%s:%s" % (d.id, nid),
-            "momento": momento,
-            "material": assinatura,
-        })
-        for cid in d.conceitos_de(nid))
+    return _por_conceito(d, nid, "conceito_apresentado",
+                         momento=momento, material=d.assinatura(nid))
+
+
+def _conceitos_diagnosticados(d: Dominio, a: Atividade,
+                              episodio: str) -> tuple[Evento, ...]:
+    """`conceito_diagnosticado`: o que o episódio demonstrou.
+
+    Carrega o ESTADO inteiro do episódio, e não só "houve episódio":
+    lacuna, crença e confirmada são diagnósticos opostos, e um histórico
+    que não os separasse valeria tanto quanto um boletim.
+
+    Vale para as seis classificações, inclusive a lacuna — quem diz "não
+    sei" demonstrou algo, e é justo o dado que mostra se faltou
+    oportunidade.
+    """
+    return _por_conceito(d, a.no, "conceito_diagnosticado",
+                         atividade=a.id, estado=episodio,
+                         atribuicao=ATRIBUICAO)
+
+
+def _conceitos_confirmados(d: Dominio, nid: str,
+                           via: str) -> tuple[Evento, ...]:
+    """`conceito_confirmado`: o nó fechou pela regra do sistema.
+
+    NÃO quer dizer que a pessoa domina o conceito. Quer dizer que o nó
+    cujo cartão o apresenta fechou pela CS-5 — duas superfícies
+    diferentes —, e o conceito está atribuído pelo cartão. Dissolver essa
+    diferença transformaria o histórico em declaração falsa de domínio, e
+    é a mesma separação que o inventário faz entre `disponivel` e
+    `confirmado`.
+
+    `via` acompanha o do nó: confirmar no diagnóstico e confirmar depois
+    de uma crença refutada são evidências de forças diferentes, e
+    `forca()` já desconta por isso.
+    """
+    return _por_conceito(d, nid, "conceito_confirmado",
+                         via=via, atribuicao=ATRIBUICAO)
+
+
+def _conceitos_revisitados(d: Dominio, nid: str,
+                           momento: str) -> tuple[Evento, ...]:
+    """`conceito_revisitado`: foi trabalhado de novo.
+
+    Três momentos, e cada um mede coisa diferente — colapsá-los apagaria
+    a diferença:
+
+        reexplicacao   a PESSOA disse que não entendeu
+        construcao     o SISTEMA respondeu a uma lacuna declarada
+        treino         reconstrução depois de crença refutada
+
+    É este evento que permite `conceito_apresentado` calar na repetição:
+    ver de novo não é oportunidade nova.
+    """
+    return _por_conceito(d, nid, "conceito_revisitado",
+                         momento=momento, atribuicao=ATRIBUICAO)
 
 
 def _eventos_do_cartao(d: Dominio, e: Estado) -> tuple[Evento, ...]:
@@ -479,7 +560,8 @@ def _eventos_do_cartao(d: Dominio, e: Estado) -> tuple[Evento, ...]:
             + _conceitos_apresentados(d, _cartoes(d)[e.cartao], "abertura"))
 
 
-def _pede_de_novo(e: Estado, nid: str, onde: str) -> tuple[Estado, Evento]:
+def _pede_de_novo(d: Dominio, e: Estado, nid: str,
+                  onde: str) -> tuple[Estado, tuple[Evento, ...]]:
     """"Ainda não entendi" numa tela de ensino: conta e registra.
 
     Mesma contabilidade da refutação, que já fazia isto desde a T-inicial:
@@ -487,11 +569,16 @@ def _pede_de_novo(e: Estado, nid: str, onde: str) -> tuple[Estado, Evento]:
     reexplicação) e o log guarda o pedido. O que não existia era o botão —
     o cartão de ensino tinha um só, "Entendi", e colher "Entendi" de quem
     não entendeu é pior do que não ter o recurso.
+
+    Devolve uma TUPLA de eventos desde 09/11/2026: o pedido, e a revisita
+    por conceito. Era um evento só, e o domínio entrou na assinatura por
+    causa disto — a lista de conceitos vem dele.
     """
     novo = replace(e, repeticoes=e.repeticoes + 1)
     novo = novo.com(nid, reexplicacoes=novo.no(nid).reexplicacoes + 1)
-    return novo, Evento("premissa_reapresentada", {
-        "no": nid, "vez": novo.repeticoes, "onde": onde})
+    return novo, ((Evento("premissa_reapresentada", {
+        "no": nid, "vez": novo.repeticoes, "onde": onde}),)
+        + _conceitos_revisitados(d, nid, "reexplicacao"))
 
 
 def _nao_fechou(nid: str, e: Estado, onde: str) -> tuple[Evento, ...]:
@@ -617,9 +704,9 @@ def avanca(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         a = next(x for x in d.atividades if x.id == e.atividade)
         nid = e.alvo or a.no
         if r.repetir and e.repeticoes < LIMITE_REEXPLICACAO:
-            novo, evento = _pede_de_novo(e, nid, "primeiro_contato")
+            novo, eventos = _pede_de_novo(d, e, nid, "primeiro_contato")
             return Transicao(novo, _tela_construcao(
-                d, nid, "primeiro_contato", novo.repeticoes), (evento,))
+                d, nid, "primeiro_contato", novo.repeticoes), eventos)
         antes = _nao_fechou(nid, e, "primeiro_contato") if r.repetir else ()
         t = _apresenta(d, replace(e, fase=DIAGNOSTICO, repeticoes=0), a)
         return Transicao(t.estado, t.tela, antes + t.eventos)
@@ -652,8 +739,8 @@ def _fecha_unidade(d: Dominio, e: Estado, r: Resposta) -> Transicao:
 def _segue_ensino(d: Dominio, e: Estado, repetir: bool = False) -> Transicao:
     nid = _cartoes(d)[e.cartao]
     if repetir and e.repeticoes < LIMITE_REEXPLICACAO:
-        novo, evento = _pede_de_novo(e, nid, "ensino")
-        return Transicao(novo, _tela_ensino(d, novo), (evento,))
+        novo, eventos = _pede_de_novo(d, e, nid, "ensino")
+        return Transicao(novo, _tela_ensino(d, novo), eventos)
     antes = _nao_fechou(nid, e, "ensino") if repetir else ()
 
     # O cartão que acabou de ser lido marca o nó: ele não precisa de
@@ -1189,6 +1276,10 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
             "crenca": p.razao.crenca if p.razao else None,
         }),
     ]
+    # O mesmo episódio, legível POR CONCEITO. Sem isto o histórico teria
+    # oportunidade sem desfecho: a análise contaria a apresentação e
+    # perderia o resultado.
+    eventos.extend(_conceitos_diagnosticados(d, a, episodio))
 
     # ---------------------------------------------------------- acertou
     if episodio == CONFIRMADA:
@@ -1203,9 +1294,11 @@ def _resolve_diagnostico(d: Dominio, e: Estado, a: Atividade,
                      instancias=en.instancias + _instancias_de(a))
         eventos.append(_degrau(a.no, en.nivel, novo.no(a.no).nivel, a))
         if fechou:
+            via = "vacilo" if en.erros else "diagnostico"
             eventos.append(Evento("no_confirmado", {
-                "no": a.no, "via": "vacilo" if en.erros else "diagnostico",
+                "no": a.no, "via": via,
                 "superficies": sorted(set(superficies))}))
+            eventos.extend(_conceitos_confirmados(d, a.no, via))
         else:
             eventos.append(Evento("no_fragil", {
                 "no": a.no, "motivo": "uma superfície só",
@@ -1335,7 +1428,8 @@ def _inicia_construcao(d: Dominio, e: Estado, no: str) -> Transicao:
     tem_item = d.entrada(no, en.usadas) is not None
     evento = Evento("construcao_iniciada", {
         "no": no, "tem_item_de_entrada": tem_item})
-    return Transicao(novo, _tela_construcao(d, no), (evento,))
+    return Transicao(novo, _tela_construcao(d, no),
+                     (evento,) + _conceitos_revisitados(d, no, "construcao"))
 
 
 def _tela_construcao(d: Dominio, no: str, motivo: str = "lacuna",
@@ -1375,10 +1469,10 @@ def _segue_construcao(d: Dominio, e: Estado,
     """Depois do ensino, o item de entrada — se o banco tiver um."""
     no = e.construindo or ""
     if repetir and e.repeticoes < LIMITE_REEXPLICACAO:
-        novo, evento = _pede_de_novo(e, no, "construcao")
+        novo, eventos = _pede_de_novo(d, e, no, "construcao")
         return Transicao(novo,
                          _tela_construcao(d, no, "lacuna", novo.repeticoes),
-                         (evento,))
+                         eventos)
     antes = _nao_fechou(no, e, "construcao") if repetir else ()
     e = replace(e, repeticoes=0)
     item = d.entrada(no, e.no(no).usadas)
@@ -1645,7 +1739,7 @@ def _para_treino(d: Dominio, e: Estado, alvo: str,
     eventos = tuple(eventos) + (
         Evento("refutacao_concluida", {"no": alvo, "via": via}),
         Evento("treino_iniciado", {"no": alvo, "streak_alvo": STREAK_ALVO}),
-    )
+    ) + _conceitos_revisitados(d, alvo, "treino")
     seguinte = _proximo_treino(d, novo, alvo)
     return Transicao(seguinte.estado, seguinte.tela, eventos + seguinte.eventos)
 
@@ -1884,7 +1978,7 @@ def _proximo_treino(d: Dominio, e: Estado, no: str) -> Transicao:
                 "no": no, "streak": en.streak, "tentativas": en.tentativas,
                 "crenca": en.crenca}),
             Evento("no_confirmado", {"no": no, "via": "treino"}),
-        )
+        ) + _conceitos_confirmados(d, no, "treino")
         seguinte = _proxima_diagnostica(d, replace(novo, fase=DIAGNOSTICO, alvo=None))
         return Transicao(seguinte.estado, seguinte.tela, eventos + seguinte.eventos)
 

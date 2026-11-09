@@ -243,7 +243,7 @@ def test_so_o_evento_conceitual_qualifica_o_no_com_o_topico(eventos_kc02):
     com_no = {e.tipo for e in eventos_kc02 if "no" in (e.dados or {})}
     com_topico = {e.tipo for e in eventos_kc02
                   if "topico" in (e.dados or {})}
-    assert len(com_no) == 26, sorted(com_no)
+    assert len(com_no) == 29, sorted(com_no)
     assert com_topico == {"unidade_iniciada", "teachback_inicial",
                           "teachback_final"}, sorted(com_topico)
 
@@ -252,11 +252,11 @@ def test_so_o_evento_conceitual_qualifica_o_no_com_o_topico(eventos_kc02):
     qualificam = {e.tipo for e in eventos_kc02
                   if isinstance((e.dados or {}).get("no"), str)
                   and ":" in e.dados["no"]}
-    assert qualificam == {"conceito_apresentado"}, sorted(qualificam)
+    assert qualificam == set(CONCEITUAIS), sorted(qualificam)
 
-    # E o que ele qualifica é um nó de verdade, deste tópico.
+    # E o que eles qualificam é um nó de verdade, deste tópico.
     for e in eventos_kc02:
-        if e.tipo != "conceito_apresentado":
+        if e.tipo not in CONCEITUAIS:
             continue
         topico, _, no = e.dados["no"].partition(":")
         assert topico == "kc_02", e.dados
@@ -277,11 +277,12 @@ def test_so_o_evento_conceitual_qualifica_o_no_com_o_topico(eventos_kc02):
 # dela. Varrer o fonte com `ast` cobre os 49 nomes, inclusive os que
 # sessão nenhuma produz hoje.
 
-EVENTOS_DO_MOTOR = 50
+EVENTOS_DO_MOTOR = 53
 CONCEITUAIS = ("conceito_apresentado", "conceito_diagnosticado",
                "conceito_confirmado", "conceito_revisitado")
-# Dos quatro, quantos já existem. Em 09/11/2026 entrou o primeiro.
-CONCEITUAIS_PRONTOS = ("conceito_apresentado",)
+# Os quatro entraram em 09/11/2026: o primeiro, e depois os três de
+# percurso. O primeiro mecanismo do histórico individual está completo.
+CONCEITUAIS_PRONTOS = CONCEITUAIS
 
 # A única chave de payload que carrega conceito, e os eventos que a levam.
 CHAVE_DE_CONCEITO = "requer"
@@ -326,16 +327,51 @@ def _chaves_de(no: ast.AST, locais: dict, espalha: list) -> set:
     return {None}
 
 
+def _fabricas(arvore) -> dict:
+    """As funções que constroem `Evento` com o NOME vindo de parâmetro.
+
+    `_por_conceito(d, nid, tipo, **campos)` é uma: ela faz
+    `Evento(tipo, {...})`, e por isso o nome do evento não está onde ela
+    está — está em quem a chama. Sem reconhecer isso, a varredura
+    perderia os quatro eventos conceituais e deixaria de ser exaustiva,
+    que é a única coisa que ela tem para oferecer.
+
+    Devolve {função: (parâmetro do nome, chaves literais, parâmetro **)}.
+    """
+    fora = {}
+    for fn in [n for n in ast.walk(arvore)
+               if isinstance(n, ast.FunctionDef)]:
+        nomes_de_param = [a.arg for a in fn.args.args]
+        kwargs = fn.args.kwarg.arg if fn.args.kwarg else None
+        for no in ast.walk(fn):
+            if not (isinstance(no, ast.Call)
+                    and isinstance(no.func, ast.Name)
+                    and no.func.id == "Evento"
+                    and no.args and isinstance(no.args[0], ast.Name)
+                    and no.args[0].id in nomes_de_param):
+                continue
+            chaves = set()
+            if len(no.args) > 1 and isinstance(no.args[1], ast.Dict):
+                for chave in no.args[1].keys:
+                    if isinstance(chave, ast.Constant):
+                        chaves.add(chave.value)
+            fora[fn.name] = (no.args[0].id, chaves, kwargs)
+    return fora
+
+
 def eventos_do_fonte(alvo: pathlib.Path | None = None):
     """{nome do evento: chaves do payload}, e os espalhamentos opacos.
 
-    Lê `Evento(...)` no fonte do motor. É a varredura EXAUSTIVA: inclui o
-    que nenhuma sessão de hoje produz.
+    Lê `Evento(...)` no fonte do motor, e também as FÁBRICAS — funções
+    que recebem o nome do evento por parâmetro. É a varredura EXAUSTIVA:
+    inclui o que nenhuma sessão de hoje produz.
     """
     arvore = ast.parse((alvo or (RAIZ / "motor.py"))
                        .read_text(encoding="utf-8"))
     achados: dict[str, set] = collections.defaultdict(set)
     opacos: list = []
+    fabricas = _fabricas(arvore)
+
     escopos = [arvore] + [n for n in ast.walk(arvore)
                           if isinstance(n, ast.FunctionDef)]
     for escopo in escopos:
@@ -347,10 +383,41 @@ def eventos_do_fonte(alvo: pathlib.Path | None = None):
                 locais[no.targets[0].id] = _chaves_de(no.value, locais,
                                                       espalha)
         for no in ast.walk(escopo):
-            if not (isinstance(no, ast.Call) and isinstance(no.func, ast.Name)
-                    and no.func.id == "Evento"):
+            if not (isinstance(no, ast.Call) and isinstance(no.func, ast.Name)):
+                continue
+
+            # Chamada a uma fábrica: o nome do evento está AQUI.
+            if no.func.id in fabricas:
+                param, literais, kwargs = fabricas[no.func.id]
+                pos = [a.arg for a in next(
+                    f for f in ast.walk(arvore)
+                    if isinstance(f, ast.FunctionDef)
+                    and f.name == no.func.id).args.args].index(param)
+                valor = None
+                if len(no.args) > pos and isinstance(no.args[pos],
+                                                     ast.Constant):
+                    valor = no.args[pos].value
+                else:
+                    for kw in no.keywords:
+                        if kw.arg == param and isinstance(kw.value,
+                                                          ast.Constant):
+                            valor = kw.value.value
+                if valor is None:
+                    continue           # repasse entre fábricas
+                achados[valor] |= set(literais)
+                achados[valor] |= {kw.arg for kw in no.keywords
+                                   if kw.arg and kw.arg != param}
+                continue
+
+            if no.func.id != "Evento":
                 continue
             if not no.args or not isinstance(no.args[0], ast.Constant):
+                # Nome vindo de parâmetro DENTRO da fábrica: resolvido
+                # pelos chamadores, logo não é opaco.
+                if any(isinstance(no.args[0], ast.Name)
+                       and no.args[0].id == p
+                       for p, _, _ in fabricas.values()):
+                    continue
                 opacos.append(("<nome não literal>", no.lineno))
                 continue
             nome = no.args[0].value
@@ -366,12 +433,18 @@ def eventos_do_fonte(alvo: pathlib.Path | None = None):
     return dict(achados), tuple(sorted(set(opacos)))
 
 
-def test_o_motor_tem_cinquenta_eventos():
+def test_o_motor_tem_cinquenta_e_tres_eventos():
     """A catraca que obriga quem criar evento novo a passar por aqui.
 
-    Era 49 e virou 50 em 09/11/2026, com `conceito_apresentado`. Quando
-    ela cair: suba o número E responda, no mesmo commit, se o evento novo
-    carrega conceito. Foi para isso que ela existe.
+    Era 49, virou 50 com `conceito_apresentado` e 53 com os três de
+    percurso, tudo em 09/11/2026. Quando ela cair: suba o número E
+    responda, no mesmo commit, se o evento novo carrega conceito.
+
+    E ela só continua valendo porque a varredura enxerga FÁBRICA: os
+    quatro conceituais são construídos por `_por_conceito`, que recebe o
+    nome do evento por parâmetro. Quando eles entraram, o scan passou a
+    ver 49 em vez de 53 — e consertar o scanner foi o certo, porque a
+    única coisa que este teste tem para oferecer é exaustividade.
     """
     nomes, _ = eventos_do_fonte()
     assert len(nomes) == EVENTOS_DO_MOTOR, (
@@ -381,53 +454,76 @@ def test_o_motor_tem_cinquenta_eventos():
         % (len(nomes), EVENTOS_DO_MOTOR, sorted(nomes)))
 
 
-def test_dos_quatro_eventos_conceituais_existe_o_primeiro():
-    """O placar do histórico individual, e ele é uma catraca de dois lados.
+def test_os_quatro_eventos_conceituais_existem():
+    """O placar do histórico individual: os quatro estão de pé.
 
-    `conceito_apresentado` entrou em 09/11/2026 — a oportunidade de
-    aprendizagem deixou de ser inferência do currículo e passou a ser
-    fato gravado. Faltam três, e cada um que entrar derruba este teste:
-    é assim que o placar não envelhece calado.
+    O teste nasceu em 08/11 negando os quatro, e mudou de lado duas
+    vezes num dia — primeiro para "existe um, faltam três", agora para os
+    quatro. Era para ser assim: ele é o placar, e placar que não muda
+    não está medindo nada.
+
+    Com os quatro prontos, o PRIMEIRO mecanismo do histórico individual
+    está completo. Faltam o guarda `(código, tópico)` e a leitura por
+    código — e nenhum dos dois cria evento.
     """
     nomes, _ = eventos_do_fonte()
     existem = tuple(n for n in CONCEITUAIS if n in nomes)
     assert existem == CONCEITUAIS_PRONTOS, (
         "o placar dos eventos conceituais mudou.\n"
         "  existem: %s\n  esperado: %s\n"
-        "Se entrou um dos três que faltam, atualize CONCEITUAIS_PRONTOS "
-        "e `docs/historico-individual.md` no mesmo commit."
-        % (sorted(existem), sorted(CONCEITUAIS_PRONTOS)))
-    faltam = [n for n in CONCEITUAIS if n not in nomes]
-    assert len(faltam) == 3, faltam
+        "Atualize CONCEITUAIS_PRONTOS e `docs/historico-individual.md` "
+        "no mesmo commit." % (sorted(existem), sorted(CONCEITUAIS_PRONTOS)))
+    # E cada um carrega o que o desenho dele exige: o conceito, o nó
+    # qualificado, e o campo que diz de onde o conceito foi atribuído.
+    for nome in CONCEITUAIS:
+        assert "conceito" in nomes[nome], (nome, sorted(nomes[nome]))
+        assert "no" in nomes[nome], (nome, sorted(nomes[nome]))
+    assert "material" in nomes["conceito_apresentado"]
+    for nome in CONCEITUAIS[1:]:
+        assert "atribuicao" in nomes[nome], (nome, sorted(nomes[nome]))
 
 
-def test_so_a_descida_carrega_conceito_e_como_exigencia():
-    """`requer` é a ÚNICA chave de conceito no log, e ela não diz ensino.
+def test_o_log_fala_de_conceito_em_duas_gramaticas_e_so_duas():
+    """`requer` diz o que um degrau EXIGE; `conceito` diz o que ACONTECEU.
 
-    A CORREÇÃO QUE ESTE TESTE FEZ. A especificação dizia que o log nunca
-    fala de conceito. Fala: sete eventos da descida carregam `requer`,
-    lista de ids do inventário. O que eles não fazem é dizer que um
-    cartão APRESENTOU algo — `requer` é exigência de um degrau, e é por
-    isso que a frase errada passou.
+    A CORREÇÃO QUE ESTE TESTE FEZ, em 08/11: a especificação dizia que o
+    log nunca fala de conceito. Falava — sete eventos da descida carregam
+    `requer`, lista de ids do inventário —, e a frase errada passou
+    porque eles não dizem que um cartão apresentou algo.
 
-    Importa porque o vocabulário dos quatro eventos novos já está
-    escolhido: é o do inventário, e não um segundo catálogo.
+    Hoje são duas gramáticas, e é importante que continuem separadas: a
+    exigência de um degrau de refutação não é evidência sobre a pessoa.
+    Misturá-las deixaria a análise somar coisas que não se somam.
+
+    E O ENSINO CONTINUA MUDO sobre conceito: `ensino_apresentado` e
+    `premissa_apresentada` dizem só o nó, e quem fala de conceito é o
+    evento conceitual ao lado deles. É o que mantém os dois registros
+    independentes — se um dia o evento do nó passar a carregar conceito,
+    haverá duas fontes para o mesmo fato.
     """
     nomes, opacos = eventos_do_fonte()
     assert opacos == ESPALHAMENTOS, (
         "o fonte ganhou payload que o `ast` não lê: %s. Enquanto ele "
         "existir, a varredura não é exaustiva e a afirmação deste "
         "arquivo sobre conceito fica sem prova." % (opacos,))
-    com_conceito = {n for n, ch in nomes.items()
-                    if CHAVE_DE_CONCEITO in ch}
-    assert com_conceito == LEVAM_CONCEITO, (
+
+    exigencia = {n for n, ch in nomes.items() if CHAVE_DE_CONCEITO in ch}
+    assert exigencia == LEVAM_CONCEITO, (
         "quem carrega `requer` mudou.\n  agora: %s\n  antes: %s"
-        % (sorted(com_conceito), sorted(LEVAM_CONCEITO)))
-    for nome in com_conceito:
+        % (sorted(exigencia), sorted(LEVAM_CONCEITO)))
+    for nome in exigencia:
         assert nome.startswith("descida") or nome == "cadeia_abandonada", nome
-    # E o ensino continua mudo: as telas que APRESENTAM dizem só o nó.
+
+    evidencia = {n for n, ch in nomes.items() if "conceito" in ch}
+    assert evidencia == set(CONCEITUAIS), sorted(evidencia)
+    assert not (exigencia & evidencia), sorted(exigencia & evidencia)
+
     assert nomes["ensino_apresentado"] == {"no", "indice", "total", "momento"}
     assert nomes["premissa_apresentada"] == {"no", "antes_de"}
+    assert nomes["episodio_classificado"] == {
+        "atividade", "no", "estado", "correta", "confianca", "nao_sei",
+        "razao_correta", "crenca"}
+    assert nomes["no_confirmado"] == {"no", "via", "superficies"}
 
 
 def test_o_requer_da_descida_fala_o_vocabulario_do_inventario():
@@ -454,14 +550,37 @@ def test_o_requer_da_descida_fala_o_vocabulario_do_inventario():
 # no B1, três no B2, dois no B3.
 OPORTUNIDADES = {"kc_02": 7}
 
+# O HISTÓRICO CONCEITUAL DE CADA PERSONA no kc_02, medido. São três
+# trajetórias de aprendizagem diferentes, e o log passou a contá-las por
+# conceito — que é o que o histórico individual existe para fazer.
+#
+#   acerta     teve oportunidade, foi diagnosticado, CONFIRMOU, e nunca
+#              precisou revisitar
+#   crente     teve oportunidade, errou pela crença, REVISITOU no treino
+#              e aí confirmou
+#   nao_sabe   teve oportunidade, declarou lacuna, revisitou na
+#              construção e NUNCA CONFIRMOU
+#
+# É a diferença entre as três que torna o histórico uma medida. Se as
+# três linhas fossem iguais, o log estaria registrando o currículo e não
+# a pessoa.
+TRAJETORIAS = {
+    "acerta": {"conceito_apresentado": 7, "conceito_diagnosticado": 14,
+               "conceito_confirmado": 7},
+    "crente": {"conceito_apresentado": 7, "conceito_diagnosticado": 7,
+               "conceito_revisitado": 7, "conceito_confirmado": 7},
+    "nao_sabe": {"conceito_apresentado": 7, "conceito_diagnosticado": 14,
+                 "conceito_revisitado": 7},
+}
+
 
 @pytest.mark.parametrize("topico", topicos())
-def test_o_conceito_no_log_sai_so_pelo_evento_conceitual(topico):
-    """Os treze tópicos, as três personas: quem fala de conceito e quanto.
+def test_o_conceito_no_log_sai_so_pelos_eventos_conceituais(topico):
+    """Os treze tópicos, as três personas: quem fala de conceito.
 
-    ESTE TESTE MUDOU DE LADO em 09/11/2026. Ele exigia que nenhuma sessão
-    gravasse conceito; agora exige que o único a gravar seja o evento
-    feito para isso, e na quantidade que o inventário declara.
+    ESTE TESTE MUDOU DE LADO DUAS VEZES em 09/11/2026 — exigia que
+    nenhuma sessão gravasse conceito, depois que só um evento gravasse, e
+    agora que só os quatro gravem.
 
     Doze tópicos continuam em ZERO, e é verdade medida, não defeito
     escondido: a auditoria do inventário cobriu kc_00, kc_01 e kc_02, e
@@ -469,24 +588,24 @@ def test_o_conceito_no_log_sai_so_pelo_evento_conceitual(topico):
     novo for auditado — e é esse o trabalho que destrava o resto.
     """
     d = carrega(topico=topico)
-    fora, quantos = [], 0
+    fora = []
     for nome in PERSONAS:
-        por_sessao = 0
+        apresentados = 0
         for e in percorre(d, nome):
-            if e.tipo == "conceito_apresentado":
-                por_sessao += 1
+            if e.tipo in CONCEITUAIS:
+                if e.tipo == "conceito_apresentado":
+                    apresentados += 1
                 continue
             for chave, valor in (e.dados or {}).items():
                 if "conceito" in chave.lower():
                     fora.append((nome, e.tipo, chave, valor))
                 elif isinstance(valor, str) and valor in CONCEITOS:
                     fora.append((nome, e.tipo, chave, valor))
-        quantos = max(quantos, por_sessao)
-        assert por_sessao == OPORTUNIDADES.get(topico, 0), (
+        assert apresentados == OPORTUNIDADES.get(topico, 0), (
             "%s/%s: %d oportunidades registradas, esperava %d"
-            % (topico, nome, por_sessao, OPORTUNIDADES.get(topico, 0)))
+            % (topico, nome, apresentados, OPORTUNIDADES.get(topico, 0)))
     assert not fora, (
-        "%s: evento que NÃO é o conceitual falou de conceito: %s. Se foi "
+        "%s: evento que NÃO é conceitual falou de conceito: %s. Se foi "
         "de propósito, diga aqui qual e por quê." % (topico, fora[:5]))
 
 
@@ -504,6 +623,28 @@ def test_a_oportunidade_nao_depende_de_quem_acerta():
                              if e.tipo == "conceito_apresentado")
                    for nome in PERSONAS}
     assert set(por_persona.values()) == {7}, por_persona
+
+
+def test_as_tres_personas_deixam_tres_historicos_diferentes():
+    """O que o histórico conceitual passou a poder distinguir.
+
+    E a linha que mais importa é a última: a persona que diz "não sei"
+    recebe as sete oportunidades, é diagnosticada catorze vezes,
+    revisita sete — e NUNCA confirma nada. Antes disto o log dizia isso
+    por NÓ, e saber qual CONCEITO ficou sem confirmação exigia reler o
+    `conceitos.yaml` e cruzar à mão.
+    """
+    d = carrega(topico="kc_02")
+    medido = {}
+    for nome in PERSONAS:
+        contas = collections.Counter(e.tipo for e in percorre(d, nome)
+                                     if e.tipo in CONCEITUAIS)
+        medido[nome] = dict(contas)
+    assert medido == TRAJETORIAS, (
+        "as trajetórias conceituais mudaram.\n  agora: %s\n  antes: %s"
+        % (sorted(medido.items()), sorted(TRAJETORIAS.items())))
+    assert "conceito_confirmado" not in medido["nao_sabe"]
+    assert "conceito_revisitado" not in medido["acerta"]
 
 
 # --------------------------------------------------------------------------
