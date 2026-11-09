@@ -166,7 +166,15 @@ def _jaccard(a: set, b: set) -> float:
 
 
 def _codigo_todo(d: dict) -> str:
-    partes = [str(x.get("linha", "")) for x in d.get("narracao") or []]
+    # Mesmo cuidado de `_prosa_toda`: a forma do campo e conferida, e nao
+    # suposta. Um `narracao: cortada` derrubava o validador aqui.
+    partes = [str(x.get("linha", "")) for x in d.get("narracao") or []
+              if isinstance(x, dict)]
+    # O codigo do cartao tambem entra, quando o candidato o traz: e dele
+    # que a tabela e tracada, e e onde os construtos aparecem.
+    exemplo = d.get("exemplo")
+    if isinstance(exemplo, str):
+        partes.append(exemplo)
     for campo in CAMPOS_EM_BLOCO:
         for b in d.get(campo) or []:
             if isinstance(b, dict) and "codigo" in b:
@@ -182,7 +190,15 @@ def _prosa_toda(d: dict) -> str:
         v = d.get(campo)
         if isinstance(v, str) and v != "ja_existe_no_dominio":
             partes.append(v)
-    partes.extend(str(x.get("diz", "")) for x in d.get("narracao") or [])
+    # `isinstance` em vez de confiar na forma: um `narracao: cortada` --
+    # string onde o campo e lista de blocos -- derrubava o validador com
+    # AttributeError em vez de dar veredito. Validador que estoura e pior
+    # que validador que reclama: quem escreveu o YAML fica sem saber o
+    # que esta errado, e o portao mecanico perde a serventia dele.
+    for x in d.get("narracao") or []:
+        if isinstance(x, dict):
+            partes.append(str(x.get("diz", "")))
+            partes.append(str(x.get("prosa", "")))
     for campo in CAMPOS_EM_BLOCO:
         v = d.get(campo)
         if isinstance(v, list):

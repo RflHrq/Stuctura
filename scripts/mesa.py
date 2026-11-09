@@ -50,8 +50,20 @@ FORMATO = {"int": "%d", "char": "%c", "long": "%ld", "double": "%g",
 # `int x = 42;` / `int x = 42, y = 7;` / `int *p = &x;` / `char *q;`
 DECLARACAO = re.compile(
     r"^\s*(?P<tipo>unsigned\s+\w+|[A-Za-z_]\w*)\s+(?P<resto>[^;]+);\s*$")
-# `x = 7;` / `*p = 9;` / `p = &y;`
-ATRIBUICAO = re.compile(r"^\s*\*?\s*[A-Za-z_]\w*\s*=\s*[^;]+;\s*$")
+# `x = 7;` / `*p = 9;` / `p = &y;` / `a[0] = 7;`
+#
+# O INDICE ENTROU em 09/11/2026: sem ele o gerador recusava o B1 do
+# kc_07 inteiro, com "nao sei sondar: a[0] = 7;" -- e aquele no afirma
+# justamente que cada caixa e uma caixa, que e o que a tabela mostra.
+# Indice LITERAL so: `a[i] = 7` exigiria saber quanto vale i, e o
+# gerador nao executa para descobrir onde escrever.
+ATRIBUICAO = re.compile(
+    r"^\s*\*?\s*[A-Za-z_]\w*\s*(?:\[\s*\d+\s*\])?\s*=\s*[^;]+;\s*$")
+
+# O declarador de array dentro do `resto` de uma declaracao: `a[3]`.
+ARRAY = re.compile(r"^(?P<nome>[A-Za-z_]\w*)\s*\[\s*(?P<n>[^\]]*?)\s*\]$")
+# O alvo de uma atribuicao com indice: `a[0]`.
+ALVO_INDICE = re.compile(r"^\s*(?P<nome>[A-Za-z_]\w*)\s*\[\s*(?P<i>\d+)\s*\]")
 
 
 # NOS QUE NAO LEVAM TABELA, e o motivo de cada um.
@@ -82,20 +94,62 @@ def _e_declaracao(linha: str):
     return None
 
 
+def _declara(parte: str, tipo: str) -> list[tuple[str, str, bool, bool]]:
+    """(nome, tipo, é_ponteiro, tem_valor) do que esta parte declara.
+
+    UMA DECLARAÇÃO DE ARRAY DECLARA N VARIÁVEIS, chamadas `a[0]`..
+    `a[N-1]`. É a decisão que faz o resto do gerador valer sem exceção:
+    par de colunas por caixa, valor e endereço — e o que a tabela passa
+    a mostrar é exatamente o que o B1 do kc_07 afirma, que cada caixa é
+    uma caixa.
+
+    `tem_valor` diz se a declaração JÁ deixa um valor determinado ali.
+    Array com inicializador deixa: em C, `int a[5] = {1,2}` zera o
+    resto. Array sem inicializador não deixa nenhum, e aí a tabela
+    mostra `?` em vez de inventar o lixo que estiver na memória.
+    """
+    declarador, _, inicial = parte.partition("=")
+    declarador, tem_valor = declarador.strip(), bool(inicial.strip())
+
+    arr = ARRAY.match(declarador)
+    if arr:
+        bruto = arr.group("n")
+        if not bruto.isdigit():
+            raise NaoSeiSondar(
+                "o tamanho do array %r não é literal (%r): o gerador não "
+                "executa para descobrir quantas colunas emitir"
+                % (arr.group("nome"), bruto))
+        quantas = int(bruto)
+        if quantas < 1:
+            raise NaoSeiSondar("array %r com tamanho %d"
+                               % (arr.group("nome"), quantas))
+        return [("%s[%d]" % (arr.group("nome"), i), tipo, False, tem_valor)
+                for i in range(quantas)]
+
+    nome = re.match(r"\**\s*([A-Za-z_]\w*)", declarador)
+    if not nome:
+        raise NaoSeiSondar("não achei o nome em %r" % parte)
+    return [(nome.group(1), tipo, declarador.lstrip().startswith("*"),
+             tem_valor)]
+
+
+def _declaradas(linha: str) -> list[tuple[str, str, bool, bool]]:
+    """O que esta linha declara, se declarar."""
+    m = _e_declaracao(linha)
+    if not m:
+        return []
+    fora = []
+    for parte in m.group("resto").split(","):
+        fora += _declara(parte.strip(), m.group("tipo"))
+    return fora
+
+
 def _variaveis(linhas: list[str]) -> list[tuple[str, str, bool]]:
     """(nome, tipo, é_ponteiro) de cada variável declarada, na ordem."""
     achadas: list[tuple[str, str, bool]] = []
     for l in linhas:
-        m = _e_declaracao(l)
-        if not m:
-            continue
-        tipo = m.group("tipo")
-        for parte in m.group("resto").split(","):
-            parte = parte.strip()
-            nome = re.match(r"\**\s*([A-Za-z_]\w*)", parte)
-            if not nome:
-                raise NaoSeiSondar("não achei o nome em %r" % parte)
-            achadas.append((nome.group(1), tipo, parte.lstrip().startswith("*")))
+        for nome, tipo, ponteiro, _ in _declaradas(l):
+            achadas.append((nome, tipo, ponteiro))
     if not achadas:
         raise NaoSeiSondar("nenhuma variável declarada neste trecho")
     return achadas
@@ -105,6 +159,10 @@ def _executaveis(codigo: str) -> list[str]:
     """As linhas que MUDAM estado. `printf` sai: ele é saída, não estado,
     e é justamente o que a tabela vem substituir."""
     fora = []
+    # Os tamanhos declarados, para recusar indice fora do array: gerar a
+    # tabela de `a[5] = 1` num `int a[3]` significaria compilar e rodar
+    # acesso fora, e o resultado nao e afirmacao sobre nada.
+    tamanhos: dict[str, int] = {}
     for l in codigo.splitlines():
         limpa = re.sub(r"/\*.*?\*/", "", l).strip()
         if not limpa or limpa.startswith("//"):
@@ -122,6 +180,26 @@ def _executaveis(codigo: str) -> list[str]:
                 continue
             if not (_e_declaracao(s) or ATRIBUICAO.match(s)):
                 raise NaoSeiSondar("não sei sondar: %s" % s)
+            if _e_declaracao(s):
+                for nome, _t, _p, _v in _declaradas(s):
+                    arr = ALVO_INDICE.match(nome)
+                    if arr:
+                        tamanhos[arr.group("nome")] = max(
+                            tamanhos.get(arr.group("nome"), 0),
+                            int(arr.group("i")) + 1)
+            else:
+                alvo = ALVO_INDICE.match(s)
+                if alvo:
+                    nome, i = alvo.group("nome"), int(alvo.group("i"))
+                    if nome not in tamanhos:
+                        raise NaoSeiSondar(
+                            "%s usa índice e %r não foi declarado como array "
+                            "neste trecho" % (s, nome))
+                    if i >= tamanhos[nome]:
+                        raise NaoSeiSondar(
+                            "%s[%d] está fora de %s[%d]: acesso fora do "
+                            "array não vira tabela"
+                            % (nome, i, nome, tamanhos[nome]))
             fora.append(s)
     return fora
 
@@ -136,25 +214,45 @@ def _programa(linhas: list[str], vars_: list[tuple[str, str, bool]]) -> str:
     sai vazia -- que e o certo tambem para quem le a tabela: a variavel
     aparece quando passa a existir.
     """
-    nomes = [n for n, _, _ in vars_]
     corpo = []
     vivas: list[str] = []
+    # QUEM TEM VALOR DETERMINADO. `int a[3];` declara tres caixas e nao
+    # da valor a nenhuma; imprimir o lixo que estiver la daria uma
+    # tabela diferente a cada execucao -- e ela e GUARDADA no YAML, logo
+    # ficaria errada no dia seguinte. Caixa sem valor sai `?`, e o
+    # endereco sai, porque ele E determinado desde a declaracao.
+    #
+    # De graca, isso faz a tabela ensinar que C nao zera o que declara,
+    # que e o kc_00:B3.
+    definidas: set[str] = set()
     for l in linhas:
         corpo.append("    " + l)
-        m = _e_declaracao(l)
-        if m:
-            for parte in m.group("resto").split(","):
-                n = re.match(r"\**\s*([A-Za-z_]\w*)", parte.strip())
-                if n:
-                    vivas.append(n.group(1))
+        declaradas = _declaradas(l)
+        if declaradas:
+            for nome, _t, _p, tem_valor in declaradas:
+                vivas.append(nome)
+                if tem_valor:
+                    definidas.add(nome)
+        else:
+            alvo = ALVO_INDICE.match(l)
+            if alvo:
+                definidas.add("%s[%s]" % (alvo.group("nome"),
+                                          alvo.group("i")))
+            else:
+                simples = re.match(r"^\s*\*?\s*([A-Za-z_]\w*)\s*=", l)
+                if simples:
+                    definidas.add(simples.group(1))
         campos, args = [], []
         for nome, tipo, ponteiro in vars_:
             if nome not in vivas:
                 campos.append("")
                 campos.append("")
                 continue
-            campos.append("%p" if ponteiro else FORMATO[tipo])
-            args.append("(void *)%s" % nome if ponteiro else nome)
+            if nome in definidas:
+                campos.append("%p" if ponteiro else FORMATO[tipo])
+                args.append("(void *)%s" % nome if ponteiro else nome)
+            else:
+                campos.append("?")
             campos.append("%p")
             args.append("(void *)&%s" % nome)
         # `chr(92) + "n"` e a sequencia que vai para DENTRO da string de

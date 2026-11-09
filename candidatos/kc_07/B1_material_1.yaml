@@ -1,0 +1,180 @@
+# Material de ensino do B1 do kc_07 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 09/11/2026. O nó não tem ampliação, narração, caso
+# resolvido nem outra rota: o kc_07 inteiro tem 222 palavras de ensino
+# para sete premissas, e este arquivo escreve as quatro peças do B1.
+#
+# A CRENÇA QUE ESTE CARTÃO CONFRONTA é a que entrou hoje:
+# `array_confused_with_cell` — "uma variável guarda vários valores de uma
+# vez: int a[5] é uma caixa com os cinco dentro". Sorva (2012), Apêndice
+# A, itens 151 ("Confusion between an array and its cell") e 9 ("A
+# variable can hold multiple values at a time").
+#
+# SEGUNDA VERSÃO, mesmo dia: O NÓ PASSOU A TER TABELA.
+#
+# A primeira versão dizia que `scripts/mesa.py` RECUSA índice de array,
+# e dizia a verdade: `_executaveis` levantava `NaoSeiSondar: não sei
+# sondar: a[0] = 7;`. O gerador foi estendido, e agora uma declaração de
+# array declara N variáveis — `a[0]`..`a[N-1]` —, com par de colunas por
+# caixa. A tabela do exemplo deste cartão sai assim:
+#
+#     linha       a[0]   &a[0]    a[1]   &a[1]    a[2]   &a[2]
+#     int a[3];   ?      …F724    ?      …F728    ?      …F72C
+#     a[0] = 10;  10     …F724    ?      …F728    ?      …F72C
+#     a[1] = 20;  10     …F724    20     …F728    ?      …F72C
+#
+# Ela derruba a crença sem uma palavra de prosa: dez e vinte ao mesmo
+# tempo, em dois lugares, com endereços 4 apart. É o contrário de "uma
+# caixa só com os valores dentro".
+#
+# E O `?` É NOVO NO GERADOR: caixa declarada e não escrita não tem valor
+# determinado, e imprimir o lixo daria tabela diferente a cada execução
+# — a tabela é guardada no YAML, logo ficaria errada no dia seguinte. De
+# graça, a coluna de `?` ensina que C não zera o que declara (kc_00:B3).
+#
+# A NARRAÇÃO FOI CORTADA por causa disso, pela regra que o kc_02 já
+# seguia: ela dizia em prosa o que a tabela mostra com valores reais, e
+# manter as duas é a reclamação do dono em uma frase — verborrágico e
+# pouco ilustrado. A tabela é a ilustração.
+#
+# O EXEMPLO DO CARTÃO MUDA, e é o que a tabela traça. O atual é só
+# comentário (`int a[5]; /* cinco caixas, grudadas */`), e comentário não
+# tem estado para traçar.
+#
+# RESTRIÇÃO DURA DESTE NÓ, do cabeçalho do grafo: a metáfora do
+# quarteirão CALA onde ela sugere que existe uma caixa guardando o
+# quarteirão. Então nada aqui diz onde o nome `a` mora, nem que ele
+# guarda coisa alguma — isso é o `array_is_pointer`, e quem o refuta é o
+# I3. E nada aqui fala de quem construiu nem por quanto tempo fica, que
+# é do kc_01.
+#
+# O QUE NÃO APARECE, por não estar no inventário: `%p` e o cast
+# `(void *)` (printf_ponteiro está `desconhecido`, e o dono já recusou
+# os dois no kc_02), `%zu` (recusado pelo mesmo motivo), função com
+# parâmetro, `scanf`, aritmética de ponteiro e comparação de ponteiros
+# com `==`. O `sizeof` aparece, e está `disponivel` desde o kc_02:B2.
+#
+# CONFERIDO PELO ORÁCULO (gcc -Wall -Wextra, sem avisos) — a saída de
+# cada trecho está transcrita junto dele, abaixo.
+
+topico: kc_07
+node: kc07:B1
+premissa: "int a[5] cria cinco caixas de inteiro grudadas uma na outra. O nome a vale para o conjunto inteiro, não para uma caixa só."
+crenca_que_nega: array_confused_with_cell
+
+gerado_por: Claude Opus 5, 09/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# `array` está `desconhecido` no inventário, e este material é o que o
+# ENSINA — declarar aqui é o mesmo que o `B2_material_1.yaml` do kc_02
+# fez com o `sizeof`, que estava `so_avaliado` e foi promovido junto com
+# a aprovação daquele cartão.
+#
+# E O B1 É NÓ OBSERVÁVEL: `_cartoes()` o põe na abertura, então todo
+# mundo que entra no kc_07 vê esta explicação — não só quem declara
+# lacuna. É a condição que o inventário exige para promover, e é a
+# mesma razão pela qual o `sizeof` passou e o `funcao_com_parametro`
+# não.
+exige_conceitos: [array]
+
+
+# A AMPLIAÇÃO. Dois fatos observáveis, e cada um derruba uma metade da
+# crença: escrever numa caixa não mexe na outra (então não é uma caixa
+# só), e cada caixa tem lugar próprio (então são cinco lugares).
+#
+# "Nesta máquina" fica escrito nos dois números, como o B2 do kc_02 já
+# faz com o sizeof: tamanho de tipo é do ambiente, e afirmar 4 sem
+# ressalva seria afirmação que falha noutro laboratório.
+ampliacao: >
+  Cinco caixas, e não uma caixa com cinco coisas dentro. A diferença se
+  vê escrevendo: ponha 10 em a[0], 20 em a[1], e pergunte a[0] de novo.
+  Continua 10. Se fosse uma caixa só, guardar 20 nela teria substituído
+  o que estava lá.
+
+  E cada caixa tem lugar próprio. &a[0] e &a[1] respondem números
+  diferentes, e a distância entre eles é o tamanho de um int — 4 nesta
+  máquina. Cinco endereços, cinco caixas, uma do lado da outra: é isso
+  que "grudadas" quer dizer.
+
+  O nome a é do conjunto, não de uma caixa. a[2] é uma caixa; a são as
+  cinco. Por isso sizeof a dá o tamanho das cinco juntas — 20 bytes
+  aqui — e sizeof a[2] dá o de uma só.
+
+
+# O EXEMPLO do cartão, que é o que a tabela traça. Três instruções, e
+# nenhuma delas é `printf`: a tabela mostra ESTADO, e o printf é saída —
+# é justamente o que ela vem substituir.
+exemplo: |
+  int a[3];
+  a[0] = 10;
+  a[1] = 20;
+
+# A TABELA é GERADA, não escrita:
+#     python scripts/mesa.py --topico kc_07 --no B1 --escreve
+# Está transcrita no cabeçalho deste arquivo, para quem revisa poder ler
+# sem rodar nada.
+
+# NARRAÇÃO: CORTADA, e a chave não entra nem vazia — é como o
+# `B1_material_1.yaml` do kc_02 faz. O nó tem tabela, e a narração dizia
+# em prosa o que ela mostra com valores reais. Fica nos nós SEM tabela.
+
+
+# O CASO RESOLVIDO: a segunda chance de quem disse que não entendeu.
+# Nomeia a tentação antes de responder, como o B1 do kc_02 faz.
+#
+# A pergunta é sobre a[0] DEPOIS de escrever em a[1], e não sobre caixa
+# nunca escrita: ler caixa sem valor daria número diferente em cada
+# máquina, e o portão de ambiente recusa afirmação assim.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int a[3];
+      a[0] = 7;
+      a[1] = 7;
+      a[2] = 7;
+      a[1] = 99;
+  - prosa: "Pergunta: depois da última linha, quanto vale a[0]?"
+  - prosa: >
+      A tentação é dizer 99 — "guardei 99 no a". Siga a declaração em
+      vez do nome. `int a[3]` reservou TRÊS caixas, e `a[1] = 99`
+      escreveu em UMA delas. As outras duas ninguém tocou.
+  - prosa: "Então a[0] continua 7. E a[2] também."
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a[0]=7  a[1]=99  a[2]=7
+  - prosa: >
+      Se a fosse uma caixa só com três valores dentro, escrever 99
+      "no a" teria substituído o conteúdo, e os três sairiam 99. Saem
+      dois 7 e um 99 porque são três caixas, e a última linha mexeu em
+      uma.
+
+
+# A OUTRA ROTA: a PRIMEIRA chance, e tem de ser diferente do caso
+# resolvido — há teste no projeto exigindo isso.
+#
+# Ela não usa analogia nenhuma, de propósito: ancora o array em algo de
+# que ninguém duvida, que é variável solta.
+reexplicacao:
+  - prosa: >
+      Outro caminho, sem analogia. Declare duas variáveis soltas e um
+      array, e faça a mesma coisa nos dois:
+  - codigo: |
+      int x0 = 10, x1 = 20;
+      int a[2];
+      a[0] = 10;
+      a[1] = 20;
+      x1 = 99;
+      a[1] = 99;
+  - prosa: >
+      Que x1 = 99 não mexe em x0 ninguém discute: são duas declarações,
+      dois lugares. Olhe agora a linha de baixo. a[1] = 99 não mexe em
+      a[0] pelo mesmo motivo, e não por outro.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      x0=10  x1=99
+      a[0]=10  a[1]=99
+  - prosa: >
+      O array não mudou a regra de lugar nenhum. Ele deu UM nome ao
+      conjunto e um número a cada lugar — e é só isso que ele faz de
+      diferente de cinco variáveis soltas.
