@@ -164,13 +164,19 @@ def test_o_evento_nao_diz_que_a_pessoa_aprendeu(d):
             assert chave not in proibidos, e.dados
 
 
-@pytest.mark.parametrize("topico", [t for t in topicos() if t != "kc_02"])
-def test_cartao_sem_declaracao_nao_grava_conceito(topico):
-    """Doze dos treze tópicos não têm declaração, e o log fica calado.
+COM_DECLARACAO = ("kc_02", "kc_07")
 
-    Calar é a resposta certa: inventar que o cartão do kc_07 apresenta
-    algo seria dizer que houve oportunidade onde a auditoria não achou
-    nenhuma. O cartão continua registrado em `ensino_apresentado`.
+
+@pytest.mark.parametrize("topico", [t for t in topicos()
+                                    if t not in COM_DECLARACAO])
+def test_cartao_sem_declaracao_nao_grava_conceito(topico):
+    """ONZE dos treze tópicos não têm declaração, e o log fica calado.
+
+    Eram doze até 09/11/2026, quando o B1 do kc_07 ganhou material e o
+    `array` foi promovido. Calar nos onze é a resposta certa: inventar
+    que o cartão do kc_06 apresenta algo seria dizer que houve
+    oportunidade onde a auditoria não achou nenhuma. O cartão continua
+    registrado em `ensino_apresentado`.
     """
     eventos, _ = _abre(carrega(topico=topico))
     assert _conceituais(eventos) == []

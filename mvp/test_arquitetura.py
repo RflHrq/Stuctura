@@ -546,9 +546,15 @@ def test_o_requer_da_descida_fala_o_vocabulario_do_inventario():
 
 
 # Quantas oportunidades de aprendizagem cada tópico registra por sessão.
-# Medido em 09/11/2026: só o kc_02 declara cartão, e lá são sete — dois
-# no B1, três no B2, dois no B3.
-OPORTUNIDADES = {"kc_02": 7}
+#
+# Medido em 09/11/2026. O kc_02 tem sete — dois no B1, três no B2, dois
+# no B3. E o kc_07 tem UMA, a do `array` no B1, que entrou no mesmo dia
+# com o material de ensino profundo daquele cartão.
+#
+# O SEGUNDO TÓPICO É O QUE IMPORTA AQUI: enquanto só o kc_02 declarava,
+# "histórico individual" e "histórico de um tópico" eram a mesma coisa.
+# Com dois, a travessia passa a ter o que atravessar.
+OPORTUNIDADES = {"kc_02": 7, "kc_07": 1}
 
 # O HISTÓRICO CONCEITUAL DE CADA PERSONA no kc_02, medido. São três
 # trajetórias de aprendizagem diferentes, e o log passou a contá-las por

@@ -52,6 +52,31 @@ nodes:
     plain_text: >
       int a[5] cria cinco caixas de inteiro grudadas uma na outra. O nome
       a vale para o conjunto inteiro, não para uma caixa só.
+    # A AMPLIAÇÃO, de 09/11/2026. Dois fatos observáveis, e cada um
+    # derruba uma metade da `array_confused_with_cell`: escrever numa
+    # caixa não mexe na outra (então não é uma caixa só), e cada caixa
+    # tem lugar próprio (então são cinco lugares).
+    #
+    # "Nesta máquina" fica escrito nos dois números, como o B2 do kc_02
+    # já faz com o sizeof: tamanho de tipo é do ambiente, e afirmar 4 sem
+    # ressalva seria afirmação que falha noutro laboratório. Os dois
+    # números foram conferidos no compilador: 4 e 20 aqui.
+    interpretation: >
+      Cinco caixas, e não uma caixa com cinco coisas dentro. A diferença
+      se vê escrevendo: ponha 10 em a[0], 20 em a[1], e pergunte a[0] de
+      novo. Continua 10. Se fosse uma caixa só, guardar 20 nela teria
+      substituído o que estava lá.
+
+
+      E cada caixa tem lugar próprio. &a[0] e &a[1] respondem números
+      diferentes, e a distância entre eles é o tamanho de um int — 4
+      nesta máquina. Cinco endereços, cinco caixas, uma do lado da
+      outra: é isso que "grudadas" quer dizer.
+
+
+      O nome a é do conjunto, não de uma caixa. a[2] é uma caixa; a são
+      as cinco. Por isso sizeof a dá o tamanho das cinco juntas — 20
+      bytes aqui — e sizeof a[2] dá o de uma só.
     # DUAS, desde 09/11/2026, e o B1 é o único nó do tópico com duas.
     # `string_literal_is_array` é sobre literal de string (FAQ 1.32) e
     # serve aos sete itens do nó que usam `char` com literal; os outros

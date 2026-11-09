@@ -44,14 +44,18 @@ DOMINIO = pathlib.Path(__file__).resolve().parent / "dominio"
 _CRU = yaml.safe_load(
     (DOMINIO / "conceitos.yaml").read_text(encoding="utf-8"))["conceitos"]
 
-# O que a auditoria de 05/11 e a de 08/11 escreveram em prosa, agora em
-# forma de mapa. São os cinco conceitos `disponivel`, todos do kc_02.
+# O que as auditorias escreveram em prosa, agora em forma de mapa.
+#
+# O `array` entrou em 09/11/2026, com o material de ensino profundo do
+# B1 do kc_07 — e é o PRIMEIRO cartão declarado fora do kc_02, que é o
+# que faz o histórico individual ganhar um segundo tópico.
 CARTOES_ESPERADOS = {
     "endereco": ("kc_02:B1",),
     "ponteiro": ("kc_02:B2",),
     "operador_endereco": ("kc_02:B1", "kc_02:B2", "kc_02:B3"),
     "derreferencia": ("kc_02:B3",),
     "sizeof": ("kc_02:B2",),
+    "array": ("kc_07:B1",),
 }
 
 # O mapa inverso, que é o que o evento vai consultar.
@@ -59,6 +63,7 @@ CONCEITOS_POR_CARTAO = {
     ("kc_02", "B1"): ("endereco", "operador_endereco"),
     ("kc_02", "B2"): ("operador_endereco", "ponteiro", "sizeof"),
     ("kc_02", "B3"): ("derreferencia", "operador_endereco"),
+    ("kc_07", "B1"): ("array",),
 }
 
 # `tipo` da evidência que significa ENSINO, e não menção. A auditoria usa
@@ -157,15 +162,18 @@ def test_do_cartao_devolve_os_conceitos_daquele_cartao():
 
 
 def test_cartao_sem_conceito_declarado_devolve_vazio():
-    """Doze dos treze tópicos não têm declaração nenhuma, e é verdade.
+    """ONZE dos treze tópicos não têm declaração nenhuma, e é verdade.
 
-    A auditoria cobriu kc_00, kc_01 e kc_02. O evento conceitual vai sair
-    VAZIO nos outros — e isso é o diagnóstico que a tese quer, não um
-    defeito a esconder.
+    Eram doze até 09/11/2026, quando o B1 do kc_07 ganhou material de
+    ensino e o `array` foi promovido. O evento conceitual continua
+    saindo VAZIO nos onze — e isso é o diagnóstico que a tese quer, não
+    um defeito a esconder.
     """
-    assert conceitos.do_cartao("kc_07", "B1") == ()
+    assert conceitos.do_cartao("kc_07", "B2") == ()
     assert conceitos.do_cartao("kc_02", "I3") == ()
     assert conceitos.do_cartao("kc_99", "B1") == ()
+    # E o que PASSOU a ter declaração tem de ter.
+    assert conceitos.do_cartao("kc_07", "B1") == ("array",)
 
 
 def test_cartoes_de_um_conceito_sai_do_inventario():

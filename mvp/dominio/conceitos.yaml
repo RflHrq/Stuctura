@@ -265,11 +265,36 @@ conceitos:
 
   array:
     nome: "array: um conjunto de casas grudadas"
-    status: desconhecido
-    introduzido_em: ""
+    status: disponivel
+    introduzido_em: kc_07
     evidencia:
-      onde: "kc_07 — fora do caminho de pré-requisito auditado aqui"
+      cartoes: ["kc_07:B1"]
+      onde: "kc_07, cartão de ensino B1, campo `interpretation`"
       texto: >
-        Esta auditoria cobriu kc_00, kc_01 e kc_02, que é o caminho até
-        o tópico-piloto. O kc_07 tem o seu, e não foi lido.
-      tipo: nao_auditado
+        "Cinco caixas, e não uma caixa com cinco coisas dentro. A
+        diferença se vê escrevendo: ponha 10 em a[0], 20 em a[1], e
+        pergunte a[0] de novo. Continua 10. [...] O nome a é do
+        conjunto, não de uma caixa. a[2] é uma caixa; a são as cinco."
+      exemplo: 'int a[3]; a[0] = 10; a[1] = 20;'
+      tipo: explicacao_com_exemplo
+      aprovacao: >
+        Liberado em 09/11/2026, com o material de ensino profundo do B1
+        do kc_07. O B1 é nó OBSERVÁVEL, e `_cartoes()` o põe na
+        abertura: todo mundo que entra no kc_07 vê esta explicação, não
+        só quem declara lacuna. É a mesma condição pela qual o `sizeof`
+        passou e o `funcao_com_parametro` não.
+      antes: >
+        Era `desconhecido` — ninguém tinha declarado. A auditoria de
+        05/11 cobriu kc_00, kc_01 e kc_02, que é o caminho até o kc_02,
+        e o kc_07 ficou sem leitura. A nota dizia isso.
+      nota: >
+        O cartão tem TESTE DE MESA, e é ele que carrega o ensino: uma
+        linha por instrução, uma coluna por caixa, mostrando que
+        escrever em a[1] não mexe em a[0] e que os três endereços
+        distam 4. A tabela é gerada executando o exemplo, e o gerador
+        aprendeu índice de array no mesmo dia para isso ser possível.
+
+        O que isto destrava: as 30 cobranças de `array` do kc_07 param
+        de ser cobrança sem ensino, e cai uma das três travas da cadeia
+        `array_is_pointer` — sobram `atribuicao_entre_tipos` e
+        `compilacao`.

@@ -74,9 +74,15 @@ resgates:
 
 exemplos:
 
+  # TROCADO em 09/11/2026. Era `int a[5];` mais dois comentários, e
+  # comentário não tem estado para traçar: o teste de mesa é gerado
+  # executando o exemplo, e um exemplo sem instrução não dá tabela.
+  # Agora as três instruções mostram o que o nó afirma — escrever numa
+  # caixa não mexe na outra.
   B1: |
-    int a[5];      /* cinco caixas, grudadas */
-    /* o nome a vale pelas cinco */
+    int a[3];
+    a[0] = 10;
+    a[1] = 20;
 
   B2: |
     int *p;        /* uma caixa: a de p */
@@ -104,6 +110,107 @@ exemplos:
     int a[4];  int *p = a;
     sizeof a   /* quatro ints  */
     sizeof p   /* um ponteiro  */
+
+
+# MATERIAL DE ENSINO PROFUNDO, de 09/11/2026 — o primeiro nó do kc_07 a
+# ter. O tópico tinha 222 palavras de ensino para sete premissas, e o
+# dono, depois de usar o sistema, disse que não conseguia aprender.
+#
+# O B1 NÃO TEM NARRAÇÃO, de propósito: ele tem teste de mesa, e a
+# narração dizia em prosa o que a tabela mostra com valores reais.
+# Manter as duas é a reclamação do dono em uma frase — verborrágico e
+# pouco ilustrado. A tabela é a ilustração.
+#
+# Revisado em `candidatos/kc_07/B1_material_1.yaml`, com os cinco
+# trechos de código conferidos no oráculo (gcc -Wall -Wextra).
+
+# A PRIMEIRA chance de quem diz que não entendeu. Sem analogia nenhuma,
+# de propósito: ancora o array em algo de que ninguém duvida, que é
+# variável solta.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho, sem analogia. Declare duas variáveis soltas e um
+        array, e faça a mesma coisa nos dois:
+    - codigo: |
+        int x0 = 10, x1 = 20;
+        int a[2];
+        a[0] = 10;
+        a[1] = 20;
+        x1 = 99;
+        a[1] = 99;
+    - prosa: >
+        Que x1 = 99 não mexe em x0 ninguém discute: são duas
+        declarações, dois lugares. Olhe agora a linha de baixo. a[1] = 99
+        não mexe em a[0] pelo mesmo motivo, e não por outro.
+    - prosa: "A máquina confirma:"
+    - saida: |
+        x0=10  x1=99
+        a[0]=10  a[1]=99
+    - prosa: >
+        O array não mudou a regra de lugar nenhum. Ele deu UM nome ao
+        conjunto e um número a cada lugar — e é só isso que ele faz de
+        diferente de cinco variáveis soltas.
+
+
+# A SEGUNDA chance. Nomeia a tentação antes de responder, como o B1 do
+# kc_02 faz — e tem de ser diferente da outra rota, que há teste
+# exigindo.
+#
+# A pergunta é sobre a[0] DEPOIS de escrever em a[1], e não sobre caixa
+# nunca escrita: ler caixa sem valor daria número diferente em cada
+# máquina, e o portão de ambiente recusa afirmação assim.
+casos_resolvidos:
+
+  B1:
+    - prosa: "Vamos resolver um junto."
+    - codigo: |
+        int a[3];
+        a[0] = 7;
+        a[1] = 7;
+        a[2] = 7;
+        a[1] = 99;
+    - prosa: "Pergunta: depois da última linha, quanto vale a[0]?"
+    - prosa: >
+        A tentação é dizer 99 — "guardei 99 no a". Siga a declaração em
+        vez do nome. int a[3] reservou TRÊS caixas, e a[1] = 99 escreveu
+        em UMA delas. As outras duas ninguém tocou.
+    - prosa: "Então a[0] continua 7. E a[2] também."
+    - prosa: "A máquina confirma:"
+    - saida: |
+        a[0]=7  a[1]=99  a[2]=7
+    - prosa: >
+        Se a fosse uma caixa só com três valores dentro, escrever 99 "no
+        a" teria substituído o conteúdo, e os três sairiam 99. Saem dois
+        7 e um 99 porque são três caixas, e a última linha mexeu em uma.
+
+# ---------------------------------------------------------------------
+# O TESTE DE MESA, GERADO por scripts/mesa.py -- nao edite a mao.
+#
+# Cada linha e uma instrucao do exemplo do cartao, e cada coluna e uma
+# variavel ou o endereco dela. Os valores sairam de um programa
+# instrumentado, compilado e executado pelo gcc do projeto.
+#
+# `mvp/test_mesa.py` regenera e compara: se alguem mexer no exemplo e
+# nao regerar a tabela, a suite acusa. Tabela errada e pior que tabela
+# nenhuma, porque ela parece medida.
+#
+# E e ela que tira o (void *) da tela: o cast fica no programa
+# instrumentado, e o aluno ve o valor.
+# ---------------------------------------------------------------------
+
+testes_de_mesa:
+
+  B1:
+    colunas: ["a[0]", "&a[0]", "a[1]", "&a[1]", "a[2]", "&a[2]"]
+    linhas:
+      - codigo: "int a[3];"
+        valores: ["?", "000000F4A9BFFD74", "?", "000000F4A9BFFD78", "?", "000000F4A9BFFD7C"]
+      - codigo: "a[0] = 10;"
+        valores: ["10", "000000F4A9BFFD74", "?", "000000F4A9BFFD78", "?", "000000F4A9BFFD7C"]
+      - codigo: "a[1] = 20;"
+        valores: ["10", "000000F4A9BFFD74", "20", "000000F4A9BFFD78", "?", "000000F4A9BFFD7C"]
 
 activities:
 
