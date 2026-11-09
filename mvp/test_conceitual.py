@@ -215,9 +215,26 @@ def test_a_assinatura_e_estavel(d):
         assert d.assinatura(no) == outra.assinatura(no), no
 
 
-def test_cartoes_diferentes_tem_assinaturas_diferentes(d):
-    assinaturas = {no: d.assinatura(no) for no in d.nos}
-    assert len(set(assinaturas.values())) == len(assinaturas), assinaturas
+@pytest.mark.parametrize("topico", topicos())
+def test_cartoes_diferentes_tem_assinaturas_diferentes(topico):
+    """E isto vale porque o ID DO NÓ NÃO entra na assinatura.
+
+    A primeira versão punha o id no corpo do hash, e a sabotagem mostrou
+    que era pior que inútil: com o id dentro, dois cartões de material
+    idêntico sairiam com assinaturas diferentes e a duplicação ficaria
+    escondida. Sem ele, este teste passa a afirmar algo sobre o
+    MATERIAL — que nos treze tópicos não há dois cartões iguais.
+    """
+    dom = carrega(topico=topico)
+    assinaturas = {no: dom.assinatura(no) for no in dom.nos}
+    repetidas = {}
+    for no, a in assinaturas.items():
+        repetidas.setdefault(a, []).append(no)
+    iguais = [v for v in repetidas.values() if len(v) > 1]
+    assert not iguais, (
+        "%s: estes cartões têm material IDÊNTICO: %s. Dois nós com o "
+        "mesmo cartão é defeito de conteúdo, e a assinatura é o que o "
+        "mostra." % (topico, iguais))
 
 
 def test_a_assinatura_cobre_tudo_o_que_a_tela_do_cartao_mostra(d):

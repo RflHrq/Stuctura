@@ -374,8 +374,14 @@ class Dominio:
         import json
 
         n = self.nos.get(no)
+        # O ID DO NÓ NÃO ENTRA, e a primeira versão o punha aqui. A
+        # sabotagem mostrou que ele era inútil — dois cartões já diferem
+        # pelo conteúdo — e pior que inútil: com o id dentro, dois
+        # cartões de material IDÊNTICO sairiam com assinaturas
+        # diferentes, e a duplicação ficaria escondida. A assinatura é do
+        # MATERIAL; material igual é assinatura igual. Conferido nos
+        # treze tópicos: não há dois cartões com o mesmo conteúdo.
         corpo = {
-            "no": no,
             "texto": n.texto if n else "",
             "simples": n.simples if n else "",
             "interpretacao": n.interpretacao if n else "",
