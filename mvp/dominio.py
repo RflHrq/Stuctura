@@ -333,6 +333,62 @@ class Dominio:
         n = self.nos.get(no)
         return n.interpretacao if n else ""
 
+    def conceitos_de(self, no: str) -> tuple[str, ...]:
+        """Os conceitos que o cartão deste nó APRESENTA, pelo inventário.
+
+        Vazio quando o inventário não declarou nenhum — doze dos treze
+        tópicos, hoje, porque a auditoria cobriu kc_00, kc_01 e kc_02. O
+        motor pergunta aqui, e não ao `conceitos` direto, pelo mesmo
+        motivo que `descida()` existe: o estado de autorização é do
+        domínio, e o motor fica sem saber que o inventário existe.
+        """
+        return conceitos.do_cartao(self.id, no)
+
+    def assinatura(self, no: str) -> str:
+        """A versão do MATERIAL daquele cartão: 12 hex do sha256.
+
+        A mesma convenção do `revisado_sha` que os candidatos já usam.
+
+        PARA QUE SERVE. O histórico individual grava que a pessoa teve
+        oportunidade de aprender um conceito naquele cartão. Se o cartão
+        mudar amanhã, é preciso saber o que ela viu ontem — e este
+        projeto reescreveu dois cartões inteiros numa única noite. Sem
+        assinatura, o histórico mente em silêncio quando o material
+        evolui.
+
+        POR CARTÃO, E NÃO POR ARQUIVO. O cartão do B2 mora em dois
+        arquivos — a ampliação no `graph_`, a narração e o teste de mesa
+        no `activities_` —, e um sha do arquivo mudaria quando um item de
+        outro nó mudasse. Isto cobre o que a TELA mostra, e só isso.
+
+        E NÃO DEPENDE DO MOMENTO. `reexplicacao` muda conforme quantas
+        vezes a pessoa pediu de novo; a assinatura cobre TODAS as rotas
+        do cartão, senão o mesmo cartão teria três assinaturas na mesma
+        sessão.
+
+        `mvp/test_conceitual.py` exige que mexer em qualquer campo de
+        conteúdo que as duas telas de ensino mandam mude a assinatura:
+        campo novo no cartão sem entrar aqui é histórico mentindo.
+        """
+        import hashlib
+        import json
+
+        n = self.nos.get(no)
+        corpo = {
+            "no": no,
+            "texto": n.texto if n else "",
+            "simples": n.simples if n else "",
+            "interpretacao": n.interpretacao if n else "",
+            "exemplo": self.exemplo(no),
+            "resgate": self.resgate(no),
+            "narracao": self.narracao(no),
+            "caso_resolvido": self.caso_resolvido(no),
+            "outra_rota": self.outra_rota(no),
+            "teste_de_mesa": self.teste_de_mesa(no),
+        }
+        cru = json.dumps(corpo, sort_keys=True, ensure_ascii=False)
+        return hashlib.sha256(cru.encode("utf-8")).hexdigest()[:12]
+
     def entrada(self, no: str, usadas: tuple[str, ...] = ()) -> Atividade | None:
         """O item de entrada do nó, se o banco tiver um ainda não usado."""
         return next((a for a in self.atividades_do_no(no, "entrada")

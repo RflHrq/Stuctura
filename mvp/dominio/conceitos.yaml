@@ -15,6 +15,18 @@
 # explicação com exemplo ou só menção. Qualquer liberação aqui tem de
 # poder ser conferida abrindo aquele cartão.
 #
+# `cartoes` É O MESMO QUE `onde`, legível por máquina — `kc_02:B1`, na
+# convenção que as crenças já usam em `negates`. Entrou em 09/11/2026
+# para o primeiro mecanismo do histórico individual: o log passar a
+# dizer que CONCEITO um cartão apresentou, e não só qual nó.
+#
+# A prosa de `onde` FICA, e continua sendo a evidência: quem aprova lê
+# prosa. E `cartoes` não é varredura de código — a auditoria de 05/11
+# achou três falsos positivos de varredura por padrão (`derreferencia`,
+# `sizeof`, `funcao_com_parametro`), todos com o construto num exemplo
+# que ensina outra coisa. Só declara cartão quem tem `tipo` de
+# explicação; usar não é ensinar.
+#
 # O QUE ESTA AUDITORIA ACHOU, e vale mais que o inventário: o kc_02
 # ensina em três cartões que um ponteiro guarda um endereço, e **nunca
 # ensina a usar esse endereço**. Desreferência não aparece em cartão
@@ -29,6 +41,7 @@ conceitos:
     status: disponivel
     introduzido_em: kc_02
     evidencia:
+      cartoes: ["kc_02:B1"]
       onde: "kc_02, cartão de ensino B1"
       texto: "A memória é uma rua de lugares numerados. O número do lugar
               é o endereço — não o que está guardado nele."
@@ -40,6 +53,7 @@ conceitos:
     status: disponivel
     introduzido_em: kc_02
     evidencia:
+      cartoes: ["kc_02:B2"]
       onde: "kc_02, cartão de ensino B2"
       texto: "p é uma caixa como as outras: ocupa espaço, e a caixa p
               também tem um endereço, que é dela."
@@ -51,6 +65,7 @@ conceitos:
     status: disponivel
     introduzido_em: kc_02
     evidencia:
+      cartoes: ["kc_02:B1", "kc_02:B2", "kc_02:B3"]
       onde: "kc_02, cartões de ensino B1, B2 e B3"
       texto: "os três cartões usam &idade e &x no exemplo, e o texto de
               cada um diz o que o resultado é — em B2, 'a caixa p também
@@ -71,6 +86,7 @@ conceitos:
     status: disponivel
     introduzido_em: kc_02
     evidencia:
+      cartoes: ["kc_02:B3"]
       arquivo: kc_02
       secao: B3
       tipo: explicacao_com_leitura_e_escrita
@@ -113,6 +129,7 @@ conceitos:
     status: disponivel
     introduzido_em: kc_02
     evidencia:
+      cartoes: ["kc_02:B2"]
       onde: "kc_02, cartão de ensino B2, campo `interpretation`"
       texto: >
         "O tamanho se pergunta com sizeof. sizeof(alguma coisa) devolve

@@ -231,25 +231,36 @@ def test_o_estado_da_sessao_e_indexado_por_id_simples():
         % sorted(set(chaves) - set(d.nos)))
 
 
-def test_nenhum_evento_qualifica_o_no_com_o_topico(eventos_kc02):
-    """Vinte e cinco eventos dizem o nó; três dizem o tópico; zero dizem
-    os dois.
+def test_so_o_evento_conceitual_qualifica_o_no_com_o_topico(eventos_kc02):
+    """O SEGUNDO MECANISMO, aplicado só onde o dado atravessa tópico.
 
-    É a consequência da colisão DENTRO do log: num arquivo com dois
-    tópicos, `no: "I3"` não diz de qual tópico é, e só a ordem das linhas
-    separa — e ordem não é identidade.
+    ESTE TESTE MUDOU DE LADO em 09/11/2026, e era para mudar. Ele dizia
+    "nenhum evento qualifica o nó", e caiu quando `conceito_apresentado`
+    entrou — que é a mudança que `docs/historico-individual.md`
+    especifica. A catraca funcionou: quem mexeu veio aqui declarar a
+    arquitetura nova em vez de descobri-la depois.
     """
     com_no = {e.tipo for e in eventos_kc02 if "no" in (e.dados or {})}
     com_topico = {e.tipo for e in eventos_kc02
                   if "topico" in (e.dados or {})}
-    assert len(com_no) == 25, sorted(com_no)
+    assert len(com_no) == 26, sorted(com_no)
     assert com_topico == {"unidade_iniciada", "teachback_inicial",
                           "teachback_final"}, sorted(com_topico)
-    assert not (com_no & com_topico), sorted(com_no & com_topico)
-    sujos = [(e.tipo, e.dados["no"]) for e in eventos_kc02
-             if isinstance((e.dados or {}).get("no"), str)
-             and ":" in e.dados["no"]]
-    assert not sujos, sujos
+
+    # Os eventos de SESSÃO ficam com o id simples: eles são lidos dentro
+    # de um tópico, e qualificar ali mexeria no motor sem necessidade.
+    qualificam = {e.tipo for e in eventos_kc02
+                  if isinstance((e.dados or {}).get("no"), str)
+                  and ":" in e.dados["no"]}
+    assert qualificam == {"conceito_apresentado"}, sorted(qualificam)
+
+    # E o que ele qualifica é um nó de verdade, deste tópico.
+    for e in eventos_kc02:
+        if e.tipo != "conceito_apresentado":
+            continue
+        topico, _, no = e.dados["no"].partition(":")
+        assert topico == "kc_02", e.dados
+        assert no in carrega(topico="kc_02").nos, e.dados
 
 
 # --------------------------------------------------------------------------
@@ -266,9 +277,11 @@ def test_nenhum_evento_qualifica_o_no_com_o_topico(eventos_kc02):
 # dela. Varrer o fonte com `ast` cobre os 49 nomes, inclusive os que
 # sessão nenhuma produz hoje.
 
-EVENTOS_DO_MOTOR = 49
+EVENTOS_DO_MOTOR = 50
 CONCEITUAIS = ("conceito_apresentado", "conceito_diagnosticado",
                "conceito_confirmado", "conceito_revisitado")
+# Dos quatro, quantos já existem. Em 09/11/2026 entrou o primeiro.
+CONCEITUAIS_PRONTOS = ("conceito_apresentado",)
 
 # A única chave de payload que carrega conceito, e os eventos que a levam.
 CHAVE_DE_CONCEITO = "requer"
@@ -353,32 +366,39 @@ def eventos_do_fonte(alvo: pathlib.Path | None = None):
     return dict(achados), tuple(sorted(set(opacos)))
 
 
-def test_o_motor_tem_quarenta_e_nove_eventos():
+def test_o_motor_tem_cinquenta_eventos():
     """A catraca que obriga quem criar evento novo a passar por aqui.
 
-    Quando ela cair: suba o número E responda, no mesmo commit, se o
-    evento novo carrega conceito. Foi para isso que ela existe.
+    Era 49 e virou 50 em 09/11/2026, com `conceito_apresentado`. Quando
+    ela cair: suba o número E responda, no mesmo commit, se o evento novo
+    carrega conceito. Foi para isso que ela existe.
     """
     nomes, _ = eventos_do_fonte()
     assert len(nomes) == EVENTOS_DO_MOTOR, (
         "o motor tem %d nomes de evento, e este teste esperava %d.\n"
-        "  novos:  %s\n"
+        "  agora:  %s\n"
         "Evento novo não entra calado: diga se ele carrega conceito."
         % (len(nomes), EVENTOS_DO_MOTOR, sorted(nomes)))
 
 
-def test_os_quatro_eventos_conceituais_nao_existem():
-    """A especificação ainda não foi implementada, e o teste diz isso.
+def test_dos_quatro_eventos_conceituais_existe_o_primeiro():
+    """O placar do histórico individual, e ele é uma catraca de dois lados.
 
-    Este é o teste que CAI no dia em que o primeiro dos quatro passar a
-    ser gravado — e esse é o dia em que o histórico individual começa a
-    existir. Cair aqui é a boa notícia, não o defeito.
+    `conceito_apresentado` entrou em 09/11/2026 — a oportunidade de
+    aprendizagem deixou de ser inferência do currículo e passou a ser
+    fato gravado. Faltam três, e cada um que entrar derruba este teste:
+    é assim que o placar não envelhece calado.
     """
     nomes, _ = eventos_do_fonte()
-    existem = [n for n in CONCEITUAIS if n in nomes]
-    assert not existem, (
-        "%s já é gravado. Se o histórico individual começou, reescreva "
-        "este teste para exigir os quatro, e não para negá-los." % existem)
+    existem = tuple(n for n in CONCEITUAIS if n in nomes)
+    assert existem == CONCEITUAIS_PRONTOS, (
+        "o placar dos eventos conceituais mudou.\n"
+        "  existem: %s\n  esperado: %s\n"
+        "Se entrou um dos três que faltam, atualize CONCEITUAIS_PRONTOS "
+        "e `docs/historico-individual.md` no mesmo commit."
+        % (sorted(existem), sorted(CONCEITUAIS_PRONTOS)))
+    faltam = [n for n in CONCEITUAIS if n not in nomes]
+    assert len(faltam) == 3, faltam
 
 
 def test_so_a_descida_carrega_conceito_e_como_exigencia():
@@ -429,26 +449,61 @@ def test_o_requer_da_descida_fala_o_vocabulario_do_inventario():
         "requisito que não está no inventário: %s" % fora)
 
 
-@pytest.mark.parametrize("topico", topicos())
-def test_nenhuma_sessao_produz_evento_com_conceito(topico):
-    """Os treze tópicos, as três personas: nenhum conceito no log.
+# Quantas oportunidades de aprendizagem cada tópico registra por sessão.
+# Medido em 09/11/2026: só o kc_02 declara cartão, e lá são sete — dois
+# no B1, três no B2, dois no B3.
+OPORTUNIDADES = {"kc_02": 7}
 
-    O fonte prova a exaustividade; isto prova o comportamento. Cai no dia
-    em que `conceito_apresentado` for gravado — e nesse dia a asserção
-    vira o contrário dela.
+
+@pytest.mark.parametrize("topico", topicos())
+def test_o_conceito_no_log_sai_so_pelo_evento_conceitual(topico):
+    """Os treze tópicos, as três personas: quem fala de conceito e quanto.
+
+    ESTE TESTE MUDOU DE LADO em 09/11/2026. Ele exigia que nenhuma sessão
+    gravasse conceito; agora exige que o único a gravar seja o evento
+    feito para isso, e na quantidade que o inventário declara.
+
+    Doze tópicos continuam em ZERO, e é verdade medida, não defeito
+    escondido: a auditoria do inventário cobriu kc_00, kc_01 e kc_02, e
+    só o kc_02 tem cartão com explicação. O número sobe quando material
+    novo for auditado — e é esse o trabalho que destrava o resto.
     """
     d = carrega(topico=topico)
-    achados = []
+    fora, quantos = [], 0
     for nome in PERSONAS:
+        por_sessao = 0
         for e in percorre(d, nome):
+            if e.tipo == "conceito_apresentado":
+                por_sessao += 1
+                continue
             for chave, valor in (e.dados or {}).items():
                 if "conceito" in chave.lower():
-                    achados.append((nome, e.tipo, chave, valor))
+                    fora.append((nome, e.tipo, chave, valor))
                 elif isinstance(valor, str) and valor in CONCEITOS:
-                    achados.append((nome, e.tipo, chave, valor))
-    assert not achados, (
-        "%s: o log falou de conceito em %s. Se o histórico individual "
-        "chegou, este teste muda de lado." % (topico, achados[:5]))
+                    fora.append((nome, e.tipo, chave, valor))
+        quantos = max(quantos, por_sessao)
+        assert por_sessao == OPORTUNIDADES.get(topico, 0), (
+            "%s/%s: %d oportunidades registradas, esperava %d"
+            % (topico, nome, por_sessao, OPORTUNIDADES.get(topico, 0)))
+    assert not fora, (
+        "%s: evento que NÃO é o conceitual falou de conceito: %s. Se foi "
+        "de propósito, diga aqui qual e por quê." % (topico, fora[:5]))
+
+
+def test_a_oportunidade_nao_depende_de_quem_acerta():
+    """As três personas recebem as MESMAS sete oportunidades no kc_02.
+
+    É o que a palavra oportunidade tem de significar: quem erra tudo viu
+    o mesmo cartão que quem acerta tudo. Se o número divergisse por
+    persona, o evento estaria medindo desempenho e não apresentação — e
+    o histórico passaria a dizer que a pessoa teve menos chance porque
+    foi mal, que é o contrário do princípio.
+    """
+    d = carrega(topico="kc_02")
+    por_persona = {nome: sum(1 for e in percorre(d, nome)
+                             if e.tipo == "conceito_apresentado")
+                   for nome in PERSONAS}
+    assert set(por_persona.values()) == {7}, por_persona
 
 
 # --------------------------------------------------------------------------

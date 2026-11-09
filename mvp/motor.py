@@ -427,6 +427,58 @@ def _evento_ensino(d: Dominio, e: Estado) -> Evento:
         "momento": "abertura"})
 
 
+def _conceitos_apresentados(d: Dominio, nid: str,
+                            momento: str) -> tuple[Evento, ...]:
+    """`conceito_apresentado`, um por conceito que aquele cartão ensina.
+
+    O PRIMEIRO MECANISMO do histórico individual, de
+    `docs/historico-individual.md`. O log dizia `ensino_apresentado
+    {no: B2}` e com isso não dizia que aquele cartão apresenta
+    `ponteiro`, `operador_endereco` e `sizeof` — era verdade do
+    `conceitos.yaml`, declarada no currículo e nunca registrada na
+    sessão. "Teve oportunidade" virava inferência; agora é fato gravado.
+
+    TRÊS DECISÕES, e o que custam se forem ao contrário:
+
+      um evento POR CONCEITO   o B2 apresenta três, e são três
+                               oportunidades. Uma lista obrigaria a
+                               análise a desaninhar para contar.
+
+      o nó QUALIFICADO         `kc_02:B2`, e não `B2`. Este evento é
+                               feito para ser lido ATRAVÉS de tópicos, e
+                               os ids colidem nos treze. Os eventos de
+                               sessão ficam com o id simples — o segundo
+                               mecanismo entra só onde o dado atravessa.
+
+      a ASSINATURA do material o que a pessoa viu, não o que o arquivo
+                               diz hoje. Este projeto reescreveu dois
+                               cartões numa noite.
+
+    E APRESENTAÇÃO NÃO É COMPREENSÃO: nada aqui diz que ela aprendeu.
+    Quem mede isso é o diagnóstico e o reteste — a mesma separação que o
+    inventário faz entre `disponivel` e `confirmado`.
+
+    Cartão sem declaração não grava nada, e calar é o certo: inventar
+    conceito seria declarar oportunidade onde a auditoria não achou
+    nenhuma. O cartão continua registrado pelo evento do nó.
+    """
+    assinatura = d.assinatura(nid)
+    return tuple(
+        Evento("conceito_apresentado", {
+            "conceito": cid,
+            "no": "%s:%s" % (d.id, nid),
+            "momento": momento,
+            "material": assinatura,
+        })
+        for cid in d.conceitos_de(nid))
+
+
+def _eventos_do_cartao(d: Dominio, e: Estado) -> tuple[Evento, ...]:
+    """O cartão da abertura: o evento do nó, e os dos conceitos dele."""
+    return ((_evento_ensino(d, e),)
+            + _conceitos_apresentados(d, _cartoes(d)[e.cartao], "abertura"))
+
+
 def _pede_de_novo(e: Estado, nid: str, onde: str) -> tuple[Estado, Evento]:
     """"Ainda não entendi" numa tela de ensino: conta e registra.
 
@@ -585,7 +637,7 @@ def _abre(d: Dominio, e: Estado, r: Resposta) -> Transicao:
         "topico": d.id, "texto": frase,
         "caracteres": len(frase), "em_branco": not frase, "ms": r.ms})
     return Transicao(novo, _tela_ensino(d, novo),
-                     (evento, _evento_ensino(d, novo)))
+                     (evento,) + _eventos_do_cartao(d, novo))
 
 
 def _fecha_unidade(d: Dominio, e: Estado, r: Resposta) -> Transicao:
@@ -613,7 +665,7 @@ def _segue_ensino(d: Dominio, e: Estado, repetir: bool = False) -> Transicao:
         # sem zerar o limite do primeiro nó fecharia a porta do segundo.
         novo = replace(e, cartao=proximo, repeticoes=0)
         return Transicao(novo, _tela_ensino(d, novo),
-                         antes + (_evento_ensino(d, novo),))
+                         antes + _eventos_do_cartao(d, novo))
     t = _proxima_diagnostica(d, replace(e, fase=DIAGNOSTICO, repeticoes=0))
     return Transicao(t.estado, t.tela, antes + t.eventos)
 
@@ -733,7 +785,8 @@ def _primeiro_contato(d: Dominio, e: Estado, nid: str,
     novo = novo.com(nid, ensinado=True)
     return Transicao(novo, _tela_construcao(d, nid, "primeiro_contato"),
                      (Evento("premissa_apresentada",
-                             {"no": nid, "antes_de": a.id}),))
+                             {"no": nid, "antes_de": a.id}),)
+                     + _conceitos_apresentados(d, nid, "primeiro_contato"))
 
 
 def _no_degrau(d: Dominio, e: Estado, nid: str):

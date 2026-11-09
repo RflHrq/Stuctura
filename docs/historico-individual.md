@@ -139,17 +139,63 @@ Com uma ressalva que importa para a leitura dos ensaios: a descida está
 nenhuma sessão já gravada contém um desses sete. Medido: treze tópicos,
 três personas, 39 sessões, zero eventos com conceito.
 
-| evento | o que demonstra | de onde sai |
-| --- | --- | --- |
-| `conceito_apresentado` | teve oportunidade | cartão mostrado + os conceitos declarados nele |
-| `conceito_diagnosticado` | demonstrou algo no diagnóstico | `episodio_classificado`, com o conceito do item |
-| `conceito_confirmado` | evidência de domínio pela regra do sistema | `no_confirmado`, com os conceitos do nó |
-| `conceito_revisitado` | foi trabalhado de novo | treino, reexplicação, construção |
+| evento | o que demonstra | de onde sai | estado |
+| --- | --- | --- | --- |
+| `conceito_apresentado` | teve oportunidade | cartão mostrado + os conceitos declarados nele | **feito, 09/11/2026** |
+| `conceito_diagnosticado` | demonstrou algo no diagnóstico | `episodio_classificado`, com o conceito do item | falta |
+| `conceito_confirmado` | evidência de domínio pela regra do sistema | `no_confirmado`, com os conceitos do nó | falta |
+| `conceito_revisitado` | foi trabalhado de novo | treino, reexplicação, construção | falta |
 
 **Apresentação não é compreensão.** Os quatro são distintos de
 propósito: sem isso, o histórico vira declaração falsa de domínio — que
 é o defeito que o `conceitos.yaml` já evita ao separar `disponivel` de
 `confirmado`.
+
+### O primeiro está de pé
+
+`conceito_apresentado` entrou em 09/11/2026, com 54 testes. Uma linha
+real, de uma sessão real pela rota HTTP:
+
+```json
+{"v": 3, "sessao": "P01", "tipo": "conceito_apresentado",
+ "conceito": "sizeof", "no": "kc_02:B2",
+ "momento": "abertura", "material": "ace8d9db95c8"}
+```
+
+**Quatro decisões, e o que cada uma custaria ao contrário:**
+
+| decisão | se fosse ao contrário |
+| --- | --- |
+| **um evento por conceito** — o B2 apresenta três | uma lista obrigaria a análise a desaninhar para contar qualquer coisa |
+| **o nó qualificado** (`kc_02:B2`) só neste evento; os de sessão ficam com o id simples | os ids colidem nos treze tópicos, e dois cartões ocupariam a mesma linha de histórico |
+| **a declaração vem do inventário** (`evidencia.cartoes`), não de varredura de código | a auditoria de 05/11 achou **três falsos positivos** de varredura por padrão, todos com o construto num exemplo que ensina outra coisa |
+| **a assinatura é do cartão**, não do arquivo | o cartão mora em dois arquivos, e um sha de arquivo mudaria quando um item de outro nó mudasse |
+
+**A versão do log NÃO subiu, e o motivo está escrito em `mvp/log.py`.** O
+gate de `reconstroi` protege a *reexecução*, e a v2 e a v3 subiram porque
+um campo de **entrada** mudou de significado. Este evento não toca
+entrada nenhuma: é linha aditiva, e há teste provando que apagar todas as
+linhas conceituais dá o mesmo estado reconstruído. Subir para 4 faria o
+sistema recusar todos os logs já gravados em troca de nada.
+
+O que se perde está registrado: a ausência do evento numa linha v3 fica
+ambígua — "nenhum conceito declarado" ou "gravada antes de o evento
+existir". É tolerável **porque não há coleta gravada**. Com coleta em
+andamento, a mesma mudança exigiria o número novo.
+
+### E o número que ele revela
+
+**Sete oportunidades por sessão no kc_02. Zero nos outros doze.**
+
+Não é defeito do mecanismo: a auditoria do inventário cobriu kc_00, kc_01
+e kc_02, e só o kc_02 tem cartão com explicação e exemplo. O evento
+mostra em números o que o levantamento de material já dizia — e o número
+sobe quando material novo for auditado.
+
+E as sete são as mesmas para quem acerta tudo e para quem erra tudo. Isso
+tem teste próprio: se divergisse por persona, o evento estaria medindo
+desempenho em vez de apresentação, e o histórico passaria a dizer que a
+pessoa teve menos chance porque foi mal.
 
 ### A versão do material
 

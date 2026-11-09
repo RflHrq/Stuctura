@@ -78,6 +78,26 @@ ENTRADA = "entrada_recebida"
 #
 # Linha sem o campo é anterior a isto: veio do ciclo 1, e `VERSAO_ZERO`
 # é como ela aparece na leitura.
+#
+# 09/11/2026 -- `conceito_apresentado` ENTROU E A VERSAO NAO SUBIU, e o
+# motivo precisa ficar escrito porque a decisão não é óbvia.
+#
+# O que o gate de `reconstroi` protege é a REEXECUÇÃO: a v2 mudou o
+# significado do índice de `escolha` e a v3 o da resposta na descida —
+# nos dois casos um campo de ENTRADA passou a querer dizer outra coisa, e
+# reexecutar devolveria afirmação que a sessão não sustenta. O evento
+# conceitual não toca entrada nenhuma: ele é linha nova, aditiva, e
+# reexecutar um log v3 de ontem com o código de hoje dá o mesmo estado.
+# Subir para 4 faria `reconstroi` RECUSAR todos os logs já gravados, o
+# que é regressão de verdade em troca de nada.
+#
+# O QUE SE PERDE, e é honesto registrar: a ausência de
+# `conceito_apresentado` numa linha v3 fica ambígua — pode ser "nenhum
+# conceito declarado naquele cartão" (doze dos treze tópicos, hoje) ou
+# "gravada antes de o evento existir". Isso é tolerável porque NÃO HÁ
+# COLETA GRAVADA: os logs de hoje são de desenvolvimento, e toda sessão
+# de piloto terá o evento. Com coleta em andamento, esta mesma mudança
+# exigiria o número novo.
 VERSAO = 3
 VERSAO_ZERO = 0
 

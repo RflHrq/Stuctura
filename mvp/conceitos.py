@@ -117,6 +117,51 @@ def disponivel(cid: str) -> bool:
     return status(cid) == DISPONIVEL
 
 
+# --------------------------------------------------------------------------
+# Que cartão apresenta que conceito
+# --------------------------------------------------------------------------
+#
+# O PRIMEIRO MECANISMO do histórico individual
+# (`docs/historico-individual.md`): o log dizer que CONCEITO um cartão
+# apresentou, e não só qual nó. `ensino_apresentado {no: B2}` não diz que
+# aquele cartão ensina `ponteiro` e `sizeof` — isso é verdade deste
+# arquivo, e o log não a tinha.
+#
+# A DECLARAÇÃO É DADO, NÃO VARREDURA. `evidencia.cartoes` é a forma
+# legível por máquina do que a auditoria escreveu em `evidencia.onde`, e
+# só quem tem `tipo` de explicação declara cartão: a auditoria de 05/11
+# achou três falsos positivos de varredura por padrão, todos com o
+# construto num exemplo que ensina outra coisa. Usar não é ensinar.
+
+
+def cartoes(cid: str) -> tuple[str, ...]:
+    """Os cartões que apresentam este conceito, como `kc_02:B1`.
+
+    Vazio para conceito que ninguém declarou, para o que só aparece em
+    avaliação e para o que é usado sem explicação — e vazio é a resposta
+    certa nos três casos.
+    """
+    ev = carrega().get(cid, {}).get("evidencia") or ""
+    if not isinstance(ev, dict):
+        return ()
+    return tuple(str(c) for c in (ev.get("cartoes") or ()))
+
+
+def do_cartao(topico: str, no: str) -> tuple[str, ...]:
+    """O mapa inverso: os conceitos que ESTE cartão apresenta, ordenados.
+
+    É o que o evento conceitual consulta. Ordenado por id para o log não
+    depender da ordem do YAML — duas sessões do mesmo cartão têm de
+    gravar a mesma lista.
+
+    Devolve vazio para cartão sem declaração, que hoje são doze dos treze
+    tópicos: a auditoria cobriu kc_00, kc_01 e kc_02. Vazio ali é o
+    diagnóstico que interessa, não defeito a esconder.
+    """
+    alvo = "%s:%s" % (topico, no)
+    return tuple(sorted(cid for cid in carrega() if alvo in cartoes(cid)))
+
+
 def faltando(descida) -> tuple[str, ...]:
     """Os conceitos que a cadeia exige e que não estão disponíveis.
 
