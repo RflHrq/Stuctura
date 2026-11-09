@@ -6,7 +6,7 @@ abaixo — o nome diz quem leu, e a assinatura diz O QUE foi lido:
 
 ```yaml
   revisado_por: <seu nome>
-  revisado_sha: d0bc0a696cc4
+  revisado_sha: 89a6e44c4662
 ```
 
 A assinatura é do conteúdo que está nesta folha. Se o molde mudar
@@ -37,7 +37,7 @@ O que fica para você é o resto:
 As crenças são da afirmação, e valem para todos os formatos — em
 cada um, os distratores vêm nesta ordem:
 
-- `string_literal_is_array` → nega B1
+- `array_confused_with_cell` → nega B1
 - `array_is_pointer` → nega I3
 
 parâmetros:
@@ -68,7 +68,7 @@ int main(void) {
 Depois de int a[3]; e nada mais, o que existe na memória?
 
 - **[certa]** São três caixas de int, grudadas
-- [string_literal_is_array] É uma caixa só, com três valores de int guardados dentro
+- [array_confused_with_cell] É uma caixa só, com três valores de int guardados dentro
 - [array_is_pointer] É um ponteiro, que depois aponta para três valores de int
 
 ### variação 2 — n=8, nome=a, tipo=int
@@ -76,7 +76,7 @@ Depois de int a[3]; e nada mais, o que existe na memória?
 Depois de int a[8]; e nada mais, o que existe na memória?
 
 - **[certa]** São oito caixas de int, grudadas
-- [string_literal_is_array] É uma caixa só, com oito valores de int guardados dentro
+- [array_confused_with_cell] É uma caixa só, com oito valores de int guardados dentro
 - [array_is_pointer] É um ponteiro, que depois aponta para oito valores de int
 
 ### variação 3 — n=3, nome=a, tipo=double
@@ -84,7 +84,7 @@ Depois de int a[8]; e nada mais, o que existe na memória?
 Depois de double a[3]; e nada mais, o que existe na memória?
 
 - **[certa]** São três caixas de double, grudadas
-- [string_literal_is_array] É uma caixa só, com três valores de double guardados dentro
+- [array_confused_with_cell] É uma caixa só, com três valores de double guardados dentro
 - [array_is_pointer] É um ponteiro, que depois aponta para três valores de double
 
 
@@ -114,7 +114,7 @@ a = p;
 Uma destas linhas não compila. Qual, e por quê?
 
 - **[certa]** A terceira: o nome de um array não recebe atribuição
-- [string_literal_is_array] A segunda: a e p guardam do mesmo jeito, e é ali que está o erro
+- [array_confused_with_cell] A segunda: a e p guardam do mesmo jeito, e é ali que está o erro
 - [array_is_pointer] Nenhuma delas: a já é um ponteiro, e as três linhas valem
 
 
@@ -146,6 +146,6 @@ int *p;
 O que existe na memória depois destas duas linhas?
 
 - **[certa]** São três caixas de int, e uma caixa de ponteiro
-- [string_literal_is_array] São três valores nos dois casos, guardados do mesmo jeito
+- [array_confused_with_cell] São três valores nos dois casos, guardados do mesmo jeito
 - [array_is_pointer] São duas caixas de ponteiro: a também é um ponteiro
 

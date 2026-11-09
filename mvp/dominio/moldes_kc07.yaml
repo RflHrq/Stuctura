@@ -32,7 +32,21 @@ mol_kc07_B1_treino_1:
 
   # As crenças são da AFIRMAÇÃO, e valem para todos os formatos: em cada
   # um, os distratores vêm nesta ordem, um para cada.
-  crencas: [string_literal_is_array, array_is_pointer]
+  #
+  # A PRIMEIRA ERA `string_literal_is_array`, E ESTAVA ERRADA. Nenhum
+  # dos três formatos deste molde tem literal de string: o código é
+  # `{tipo} {nome}[{n}]` com tipo em [int, char, double, long], e o
+  # distrator de posição 1 diz "é uma caixa só, com os valores dentro" /
+  # "{nome} e p guardam do mesmo jeito". Uma revisão de 09/11/2026 achou
+  # isso, e a conta era 6 itens de 13 no nó.
+  #
+  # E não era descuido: `string_literal_is_array` era a única crença que
+  # negava o B1, e o carregador exige que ao menos uma da família negue
+  # o próprio nó. Não havia outra para pôr. `array_confused_with_cell`
+  # entrou para isso, grade D — Sorva (2012), itens 151 e 9 do Apêndice
+  # A —, e nenhum texto de distrator precisou mudar, porque ela foi
+  # redigida para dizer o que os três já diziam.
+  crencas: [array_confused_with_cell, array_is_pointer]
 
   # O oráculo da família prova as duas metades da afirmação: quantas
   # caixas (`sizeof` do conjunto dividido pelo de uma) e que elas estão
@@ -89,7 +103,10 @@ mol_kc07_B1_treino_1:
     # O terceiro formato é `comparar_casos`, e não `prever_saida`, por
     # uma razão de conteúdo: num item de prever a saída, as duas crenças
     # desta família levariam à mesma previsão, e dois distratores
-    # indistinguíveis não diagnosticam nada. Aqui cada uma tem a sua.
+    # indistinguíveis não diagnosticam nada. Aqui cada uma tem a sua — e
+    # com a crença de posição 1 corrigida isso passou a ser verdade:
+    # "guardados do mesmo jeito" é o que a declaração RESERVA, e "as
+    # duas são caixas de ponteiro" é o que elas SÃO.
     comparar_casos:
       tipo: codigo
       codigo: |
@@ -129,5 +146,17 @@ mol_kc07_B1_treino_1:
   # oráculo do `comparar_casos` quebrou a segunda. As duas vezes o nome
   # saiu, a folha foi lida de novo, e a assinatura voltou amarrada ao
   # conteúdo que está aqui — não ao de ontem.
+  #
+  # A TERCEIRA VEZ, 09/11/2026: a crença de posição 1 mudou de
+  # `string_literal_is_array` para `array_confused_with_cell`, e isso é
+  # mudança de MEDIDA — é a crença que a sessão vai atribuir a quem
+  # escolher aquele distrator. A assinatura `d0bc0a696cc4` era do
+  # conteúdo anterior e saiu junto com o nome.
+  #
+  # Enquanto estiver em branco, os cinco itens já expandidos em
+  # `activities_kc07.yaml` continuam com o mapeamento ANTIGO: eles
+  # carregam `revisado_por` copiado daqui, e reescrevê-los sem
+  # assinatura nova faria um item assinado afirmar conteúdo que ninguém
+  # leu. A folha está em `candidatos/kc_07/`.
   revisado_por: Rafael H. S. Simao
-  revisado_sha: d0bc0a696cc4
+  revisado_sha: 89a6e44c4662

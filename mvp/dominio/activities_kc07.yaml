@@ -142,8 +142,11 @@ activities:
       b: "Uma caixa com as cinco dentro"
       c: "Um ponteiro para cinco ints"
     gabarito: a
+    # `b` era `string_literal_is_array`, e não há literal de string
+    # nenhum neste item — ele fala de `int a[5]`. Remapeado em
+    # 09/11/2026 para a crença que a frase diz de fato.
     crencas:
-      b: string_literal_is_array
+      b: array_confused_with_cell
       c: array_is_pointer
 
   - id: ciu_kc07_002
@@ -1046,7 +1049,7 @@ activities:
       c: É um ponteiro, que depois aponta para três valores de int
     gabarito: a
     crencas:
-      b: string_literal_is_array
+      b: array_confused_with_cell
       c: array_is_pointer
     do_molde: mol_kc07_B1_treino_1
     parametros:
@@ -1073,7 +1076,7 @@ activities:
       c: 'Nenhuma delas: a já é um ponteiro, e as três linhas valem'
     gabarito: a
     crencas:
-      b: string_literal_is_array
+      b: array_confused_with_cell
       c: array_is_pointer
     do_molde: mol_kc07_B1_treino_1
     parametros:
@@ -1098,7 +1101,7 @@ activities:
       c: 'São duas caixas de ponteiro: a também é um ponteiro'
     gabarito: a
     crencas:
-      b: string_literal_is_array
+      b: array_confused_with_cell
       c: array_is_pointer
     do_molde: mol_kc07_B1_treino_1
     parametros:
@@ -1121,7 +1124,7 @@ activities:
       c: É um ponteiro, que depois aponta para quatro valores de char
     gabarito: a
     crencas:
-      b: string_literal_is_array
+      b: array_confused_with_cell
       c: array_is_pointer
     do_molde: mol_kc07_B1_treino_1
     parametros:
@@ -1148,7 +1151,7 @@ activities:
       c: 'Nenhuma delas: dados já é um ponteiro, e as três linhas valem'
     gabarito: a
     crencas:
-      b: string_literal_is_array
+      b: array_confused_with_cell
       c: array_is_pointer
     do_molde: mol_kc07_B1_treino_1
     parametros:
@@ -1173,7 +1176,7 @@ activities:
       c: 'São duas caixas de ponteiro: lista também é um ponteiro'
     gabarito: a
     crencas:
-      b: string_literal_is_array
+      b: array_confused_with_cell
       c: array_is_pointer
     do_molde: mol_kc07_B1_treino_1
     parametros:

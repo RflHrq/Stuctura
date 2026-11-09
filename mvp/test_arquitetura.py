@@ -897,7 +897,12 @@ CRENCAS_EM_VARIOS = {
     "string_literal_is_array": ["kc_07", "kc_11"],
     "system_frees_auto": ["kc_01", "kc_08"],
 }
-CRENCAS_DO_PROJETO = 60
+# Eram 60 até 09/11/2026, quando `array_confused_with_cell` entrou no
+# kc_07 — a crença que o B1 não tinha, e sem a qual seis distratores
+# daquele nó eram atribuídos a `string_literal_is_array`, que é sobre
+# literal de string. Ela é de um tópico só, então as catorze que
+# atravessam não mudaram.
+CRENCAS_DO_PROJETO = 61
 
 # A crença que atravessa negando o MESMO id de nó nos dois tópicos. Uma,
 # de catorze — e é coincidência, não desenho.

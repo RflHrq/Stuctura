@@ -606,13 +606,27 @@ def test_a_familia_do_kc07_esta_assinada():
     da família de um continua coberta por
     `test_molde_sem_formatos_e_familia_de_um`; o que mora aqui agora é o
     estado do arquivo de verdade.
+
+    A CRENÇA DE POSIÇÃO 1 MUDOU em 09/11/2026, e é por isso que este
+    teste mudou junto. Era `string_literal_is_array`, e uma revisão
+    mediu que ela estava errada nos seis itens do molde: nenhum dos três
+    formatos tem literal de string, e a crença é sobre `char *s = "abc"`
+    contra `char s[] = "abc"` (FAQ 1.32). Entrou
+    `array_confused_with_cell`, grade D, do catálogo do Sorva (2012) —
+    itens 151 e 9 do Apêndice A. A assinatura saiu e voltou, que é a
+    trava funcionando pela terceira vez neste molde.
     """
     d = carrega(topico="kc_07")
     m = le(RAIZ_DOMINIO / "moldes_kc07.yaml", d)["mol_kc07_B1_treino_1"]
     assert m.revisado is True, "a família está sem assinatura válida"
     assert [r.formato for r in m.redacoes] == [
         "reconhecer_conceito", "achar_o_erro", "comparar_casos"]
-    assert m.crencas == ("string_literal_is_array", "array_is_pointer")
+    assert m.crencas == ("array_confused_with_cell", "array_is_pointer")
+    # E a crença de posição 1 tem de negar o PRÓPRIO nó: é a regra do
+    # carregador, e é ela que explicava por que o mapeamento errado
+    # estava ali — `string_literal_is_array` era a única que negava o B1.
+    assert d.crencas[m.crencas[0]].nega == m.no
+    assert d.crencas[m.crencas[0]].procedencia == "D"
 
 
 def test_familia_sem_crencas_nao_carrega(tmp_path, d7):

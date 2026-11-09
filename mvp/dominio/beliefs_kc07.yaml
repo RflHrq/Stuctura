@@ -1,9 +1,26 @@
-# Crenças do kc_07 — uma por nó, sete no total.
+# Crenças do kc_07 — OITO, e o B1 tem duas.
 #
-# Zero `E`, e este é o tópico em que a curadoria mais contribui: SEIS das
-# sete crenças são dela, todas grade L, todas com entrada do FAQ do
-# comp.lang.c. A sétima (`declaration_allocates`) vem do kc_03, e a
-# própria curadoria registra que o nó B2 é "importado de kc_03:I1".
+# Eram sete, uma por nó, e seis delas são da curadoria: grade L, todas
+# com entrada do FAQ do comp.lang.c. A sétima (`declaration_allocates`)
+# vem do kc_03, e a própria curadoria registra que o nó B2 é "importado
+# de kc_03:I1".
+#
+# A OITAVA ENTROU EM 09/11/2026, grade `D`, e o tópico segue com zero
+# `E` — que é o que a regra do piloto exige e o que um teste cobra
+# (`test_piloto_nao_tem_crenca_estimada`).
+#
+# Ela existe porque uma revisão achou um defeito de MEDIDA: seis dos
+# treze distratores de `string_literal_is_array` estavam em itens sem
+# literal de string nenhum — falavam de `int a[3]`, `double dados[6]`,
+# `long lista[8]`.
+#
+# E ela NASCEU `E` E VIROU `D` no mesmo dia, porque a primeira busca
+# procurou a palavra errada. Está contado na fonte dela.
+#
+# E o defeito não era descuido. `string_literal_is_array` era a ÚNICA
+# crença que negava o B1, e o carregador de moldes exige que ao menos
+# uma crença da família negue o próprio nó: tirá-la de lá deixaria o B1
+# sem atribuição nenhuma. O autor não tinha outra para pôr.
 #
 # A seção 6 do FAQ (arrays e ponteiros, 24 entradas) foi lida pelo índice
 # nesta sessão, e as entradas citadas foram conferidas uma a uma em
@@ -15,6 +32,54 @@
 # "What is the difference between these initializations? char a[] =
 # "string literal"; char *p = "string literal";". As duas ficam citadas, a
 # 1.32 primeiro — é a precisa, e foi lida no original.
+
+- id: array_confused_with_cell
+  negates: kc_07:B1
+  provenance: D
+  label_pt: "Uma variável guarda vários valores de uma vez: int a[5] é uma caixa com os cinco dentro, e int *p guarda do mesmo jeito."
+  source: >
+    Sorva (2012), Apêndice A, Tabela A.1, DOIS itens, que são as duas
+    metades desta frase:
+
+    p. 367, item 151 (tópico `Misc`): "Confusion between an array and
+    its cell." (du Boulay 1986). É a segunda metade: não distinguir o
+    conjunto da caixa, que é exatamente o que B1 afirma ao dizer que o
+    nome "vale para o conjunto inteiro, não para uma caixa só".
+
+    p. 359, item 9 (tópico `VarAssign`): "A variable can hold multiple
+    values at a time / 'remembers' old values." (du Boulay 1986;
+    Soloway et al. 1982; Putnam et al. 1986; Sleeman et al. 1986;
+    Doukakis et al. 2007). É a primeira metade, e tem CINCO estudos
+    independentes atrás dela — é a mais bem documentada das oito crenças
+    deste tópico.
+
+    A BUSCA ANTERIOR ERROU DE VOCABULÁRIO, e é a segunda vez que isso
+    acontece neste catálogo. Esta crença entrou como `E` com a nota
+    "procurei e não está lá", porque a procura foi por ARRAY na seção 6
+    do FAQ do comp.lang.c — uma fonte de C, onde a palavra existe. O
+    item 9 do Sorva fala de VARIÁVEL, e o 151 está no tópico `Misc`, não
+    num tópico de array. Mesmo padrão do `pointer_has_no_address`, que
+    passou de `E` para `T` quando a busca foi refeita.
+
+    CALIBRAGEM DA PÁGINA: conferida contra a própria curadoria deste
+    projeto. A citação existente diz "p. 360, item 14", e o item 14 cai
+    na p. 360 pelos marcadores de rodapé do texto integral. As páginas
+    acima seguem a mesma régua.
+
+    `D` E NÃO `T`: os estudos são em BASIC e Logo, mas "confusão entre o
+    array e a célula dele" não depende de linguagem — array e célula
+    existem nas três. Não há transposição a declarar, diferente do
+    `pointer_has_no_address`, onde C acrescenta `&p` observável.
+
+    E ELA NÃO É A `array_is_pointer`: aquela é sobre o que as duas
+    coisas SÃO, e o I3 existe para refutá-la. Esta é sobre uma variável
+    guardar vários valores de uma vez, e é o que o B1 afirma. Dá para
+    sustentar uma sem nunca ter pensado na outra — e nos quatro itens em
+    que as duas são oferecidas juntas, é essa diferença que a coleta vai
+    medir.
+
+    Texto integral lido em 09/11/2026 no repositório aberto da Aalto
+    (`aaltodoc`, handle 123456789/3534), bundle TEXT.
 
 - id: string_literal_is_array
   negates: kc_07:B1

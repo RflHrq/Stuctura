@@ -52,8 +52,15 @@ nodes:
     plain_text: >
       int a[5] cria cinco caixas de inteiro grudadas uma na outra. O nome
       a vale para o conjunto inteiro, não para uma caixa só.
+    # DUAS, desde 09/11/2026, e o B1 é o único nó do tópico com duas.
+    # `string_literal_is_array` é sobre literal de string (FAQ 1.32) e
+    # serve aos sete itens do nó que usam `char` com literal; os outros
+    # seis falam de `int a[3]`, `double dados[6]` e `long lista[8]`, e é
+    # a segunda que os atende. Antes disso os seis eram atribuídos à
+    # primeira, e o diagnóstico saía errado.
     negated_by:
       - string_literal_is_array
+      - array_confused_with_cell
 
   B2:
     type: observavel
