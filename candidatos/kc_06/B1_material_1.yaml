@@ -1,0 +1,200 @@
+# Material de ensino do B1 do kc_06 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 11/11/2026. O kc_06 inteiro tem ampliação VAZIA nos
+# seis nós: `interpretation` não existe em nenhum deles. O tópico se
+# chama "passagem por referência", é onde `funcao_com_parametro` teria
+# de nascer, e o inventário registra o buraco com todas as letras:
+#
+#   funcao_com_parametro: status nao_introduzido
+#   evidencia.texto: "Funções aparecem, e PARÂMETRO NENHUM: as duas
+#     assinaturas dos cartões são `int conta(void)` e `int *faz(void)`."
+#
+# O QUE ISSO CUSTA HOJE, medido:
+#
+#   62 itens, em 11 tópicos, cobram `funcao_com_parametro` sem que
+#      cartão nenhum o ensine (23 só no kc_06);
+#   10 cartões o usam no exemplo e nenhum o explica;
+#    1 premissa do kc_02 — o I3, que é a CONCLUSÃO daquele tópico —
+#      fica sem prova na tela de refutação por causa dele.
+#
+# Esta é a primeira das peças que fecham isso. É um cartão só, e o
+# tópico tem seis.
+#
+# ---------------------------------------------------------------------
+# O QUE ESTE CARTÃO ENSINA, E O QUE ELE SE PROÍBE
+#
+# O B1 afirma DUAS coisas, e só duas: o parâmetro é uma variável NOVA, e
+# ela é LOCAL a f. Tudo o que decorre disso é de outro nó, e o cabeçalho
+# do grafo é explícito sobre onde a metáfora cala:
+#
+#   modificar o parâmetro não afeta o argumento  -> I1
+#   passar &x, e o que a cópia do endereço alcança -> I2
+#   a casa nova sumir quando a função termina    -> kc_01, e aqui
+#     "não interessa: o ponto é o que a cópia ALCANÇA enquanto a
+#     função roda"
+#
+# Por isso NENHUM trecho deste arquivo modifica um parâmetro, e nenhum
+# fala de tempo de vida. O caso resolvido passa um LITERAL — `f(2)` — de
+# propósito: passar `f(x)` e mexer em `n` seria escrever o I1 no cartão
+# do B1, e a escada mediria duas vezes a mesma coisa.
+#
+# ---------------------------------------------------------------------
+# A DEMONSTRAÇÃO ESCOLHIDA, e por que ela e não outra
+#
+# "Variável nova" se demonstra bem com DOIS NOMES IGUAIS: um `n` no
+# `main` e um `n` como parâmetro de `f`, com valores diferentes NO MESMO
+# INSTANTE. O compilador aceita os dois, e os dois respondem coisas
+# diferentes — que é a definição de "são duas variáveis". Não precisa
+# modificar nada para mostrar isso, e é por isso que serve ao B1.
+#
+# O ITEM `ciu_kc06_003` JÁ USA ESSE CENÁRIO (`int g = 5;` fora,
+# `void f(int g)` dentro), e isso é a favor e não contra: ele é item de
+# degrau 3, e um cartão que não tivesse ensinado o cenário estaria
+# cobrando o que não deu. O item ACRESCENTA a modificação (`g = 9`); o
+# cartão para antes dela.
+#
+# "Local a f" se demonstra pelo contrário: escrever `n` fora de `f` faz
+# o compilador RECLAMAR. O bloco vai marcado `recusa: true`, e o verbo é
+# "reclama" — não "é erro" —, pela regra de ambiente do projeto: a
+# severidade muda de compilador para compilador, e num laboratório com
+# gcc mais velho o participante veria o programa compilar.
+#
+# ---------------------------------------------------------------------
+# O EXEMPLO DO CARTÃO NÃO MUDA. O que está lá — `void f(int n) { ... }`,
+# `int x = 1;`, `f(x);` — já introduz a sintaxe, que é o construto. Mexer
+# nele sem precisar é risco sem ganho.
+#
+# NARRAÇÃO: não entra. O nó não tem teste de mesa (o `mesa.py` não
+# instrumenta chamada de função), e a narração em prosa do exemplo
+# repetiria a ampliação em outras palavras.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução, e o bloco de recusa foi confirmado recusando.
+
+topico: kc_06
+node: kc06:B1
+premissa: "Ao chamar f(x), o parâmetro é uma variável nova, local a f."
+crenca_que_nega: funcao_usa_a_variavel_do_chamador
+
+gerado_por: Claude Opus 5, 11/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# O construto que este cartão introduz. Hoje `nao_introduzido`, e a
+# aprovação deste material é o que o move — como o `sizeof` foi movido
+# junto com a aprovação do `kc_02:B2`, e como o `array` foi com o
+# `kc_07:B1`.
+#
+# E O B1 É NÓ OBSERVÁVEL: `_cartoes()` o põe na abertura, então todo
+# mundo que entra no kc_06 vê esta explicação — não só quem declara
+# lacuna. É a condição que o inventário exige para promover.
+exige_conceitos: [funcao_com_parametro]
+
+
+# A AMPLIAÇÃO. Três parágrafos, e cada um responde uma pergunta que a
+# premissa levanta: o que o parâmetro É, de quem ele é, e por que é
+# OUTRA variável.
+ampliacao: >
+  O que está entre os parênteses de void f(int n) é uma declaração. int
+  n ali dentro cria uma variável, do mesmo jeito que int n; criaria em
+  qualquer outro lugar. O que muda é quem a preenche: não é você
+  escrevendo um valor, é a chamada.
+
+  Ela é de f, e o nome só vale lá dentro. Escreva n no main e o
+  compilador reclama: naquele trecho ninguém declarou n. O nome de uma
+  variável vale onde ela foi declarada, e o parâmetro foi declarado no
+  cabeçalho de f.
+
+  E ela é OUTRA variável, não a sua com outro nome. Dá para ter um n no
+  main e um n dentro de f ao mesmo tempo, cada um com o seu valor, e o
+  compilador aceita os dois sem reclamar de nada. Dois nomes iguais, e
+  mesmo assim duas variáveis: é a declaração que separa, não o nome.
+
+
+# O exemplo que já está no domínio, repetido aqui para quem revisa ler
+# sem abrir outro arquivo. NÃO MUDA.
+exemplo: |
+  void f(int n) { /* n e caixa nova, de f */ }
+  int x = 1;
+  f(x);
+
+
+# O CASO RESOLVIDO: a segunda chance de quem disse que não entendeu.
+# Nomeia a tentação antes de responder, como os cartões aprovados fazem.
+#
+# `f(2)` passa um LITERAL. Passar `f(x)` convidaria a pergunta "e o x,
+# mudou?" — que é o I1, e não é deste cartão.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      void f(int n)
+      {
+          printf("dentro de f, n vale %d\n", n);
+      }
+  - codigo: |
+      int n = 1;
+      f(2);
+      printf("no main, n vale %d\n", n);
+  - prosa: "Pergunta: as duas linhas falam do mesmo n?"
+  - prosa: >
+      A tentação é dizer que sim — o nome é o mesmo, e nome igual
+      costuma querer dizer coisa igual. Siga as declarações em vez do
+      nome. Há DUAS: uma no cabeçalho de f, outra dentro do main. Duas
+      declarações criam duas variáveis, e o fato de terem o mesmo nome
+      não as junta.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dentro de f, n vale 2
+      no main, n vale 1
+  - prosa: >
+      Dois valores diferentes, ao mesmo tempo, sob o mesmo nome. Se
+      fosse uma variável só, os dois printf diriam o mesmo número.
+
+
+# A OUTRA ROTA: a PRIMEIRA chance, e tem de ser diferente do caso
+# resolvido — há teste no projeto exigindo isso.
+#
+# A PRIMEIRA VERSÃO MOSTRAVA O COMPILADOR RECUSANDO `n` fora de `f`, com
+# o bloco marcado `recusa: true`, e o validador a REPROVOU — com razão.
+# Material que exibe uma recusa põe `compilacao` e
+# `atribuicao_entre_tipos` em jogo, e os dois estão fora do inventário:
+# um `so_avaliado`, o outro `nao_introduzido`. Declará-los em
+# `exige_conceitos` para passar seria afirmar que este cartão os ensina,
+# e ele não ensina nenhum dos dois — seria usar o campo de declaração
+# para calar o portão.
+#
+# A ROTA DE AGORA ataca a mesma metade da premissa — a LOCALIDADE —
+# por um caminho que não precisa de recusa nenhuma: QUEM DÁ NOME AO
+# PARÂMETRO É QUEM ESCREVE A FUNÇÃO, e quem chama não sabe esse nome.
+# Se o parâmetro fosse a variável de quem chama, trocar o nome dele
+# quebraria a chamada. Não quebra.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Em vez de olhar o valor, olhe quem escolhe o NOME.
+  - codigo: |
+      void primeira(int n)
+      {
+          printf("primeira recebeu %d\n", n);
+      }
+
+      void segunda(int qualquer_outro_nome)
+      {
+          printf("segunda recebeu %d\n", qualquer_outro_nome);
+      }
+  - codigo: |
+      int x = 7;
+      primeira(x);
+      segunda(x);
+  - prosa: >
+      As duas funções foram chamadas do mesmo jeito, com o mesmo x. O
+      nome do parâmetro é diferente em cada uma, e nenhuma das duas
+      chamadas precisou saber qual era.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      primeira recebeu 7
+      segunda recebeu 7
+  - prosa: >
+      Quem dá nome ao parâmetro é quem escreve a função, não quem a
+      chama. Isso só faz sentido se o parâmetro for uma variável DELA —
+      se fosse o x de quem chamou, trocar o nome no cabeçalho quebraria
+      a chamada, e não quebrou.
