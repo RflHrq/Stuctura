@@ -1,8 +1,9 @@
 # Structura — dependências. Nenhuma faz rede em tempo de sessão (RNF05).
 #
-# Versões FIXAS, e são exatamente as que a suíte de 150 testes roda em
-# cima. Um piloto de coleta não é lugar para descobrir que uma versão
-# nova mudou comportamento no meio de uma sessão.
+# Versões FIXAS, e são exatamente as que a suíte roda em cima — 1.663
+# testes do instrumento, 1.915 com os da geração anterior. Um piloto de
+# coleta não é lugar para descobrir que uma versão nova mudou
+# comportamento no meio de uma sessão.
 #
 # Python 3.14.7 (mínimo 3.11: o código usa `X | Y` em anotação e
 # dataclass slots).
