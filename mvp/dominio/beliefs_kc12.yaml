@@ -17,6 +17,12 @@
 - id: memory_is_uniform
   negates: kc_12:B1
   provenance: E
+  sem_item: >
+    Procurado item por item no Apendice A do Sorva (2012) em
+    11/11/2026: nao ha item sobre a memoria ser regiao unica sem
+    distincao de regras de tempo de vida. O item 5, p. 359, e
+    dificuldade com tempo de vida; o item 123, p. 366, e sobre
+    objetos receberem a mesma QUANTIDADE de memoria. Nao ha item.
   label_pt: "Memória é uma região única, sem distinção de regras de vida."
   source: >
     HIPÓTESE A TESTAR. Acompanha o rebaixamento feito no kc_01 em

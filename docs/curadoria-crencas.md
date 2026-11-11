@@ -41,8 +41,8 @@ invenção sua que vai virar dado"*.
 | | |
 | --- | --- |
 | crenças distintas | **61** |
-| conferidas na obra primária nesta auditoria | **52** |
-| grades | `D` 5, `E` 3, `L` 34, `N` 3, `T` 16 |
+| conferidas na obra primária nesta auditoria | **53** |
+| grades | `D` 6, `E` 3, `L` 33, `N` 3, `T` 16 |
 | hipóteses `E` | **3**, todas fora dos quatro tópicos-piloto |
 
 ### Como cada obra foi conferida
@@ -61,7 +61,8 @@ que trazem ao lado.
 | Sorva (2012), *Visual Program Simulation in Introductory Programming Education* | 21 |  **texto integral** do repositório aberto da Aalto (handle 123456789/3534, bundle TEXT). Para cada citação, a frase em inglês entre aspas foi procurada no texto da obra. **23 frases localizadas verbatim.** |
 | FAQ comp.lang.c | 39 | **índices das seções 1, 4, 5, 6 e 7** abertos em c-faq.com. As 48 perguntas citadas nessas seções existem, e os títulos conferem com o que o catálogo cita. |
 | CERT C / CWE | 5 | fontes públicas, **não reabertas nesta auditoria** |
-| Ma (2007), Kaczmarczyk et al. (2010), du Boulay (1986), Hermans et al. (2018), K&R | 6 | **não conferidas aqui** — ACM/Springer, sem acesso verificado nesta sessão |
+| Ma (2007), Kaczmarczyk et al. (2010), du Boulay (1986), Samurçay (1989) | 5 | **citadas `apud` Sorva (2012)**, com página e item. Os artigos originais não foram abertos — a mediação está declarada no campo de fonte de cada crença, e o que foi lido é o item do Sorva que os atribui. |
+| K&R, *The C Programming Language* | 1 | citada como **refutação**, não como fonte da crença: é a obra que diz que a crença é falsa |
 
 ## As duas classes de fonte, e por que as duas valem
 
@@ -70,7 +71,7 @@ não é de qualidade: é de **que tipo de afirmação cada um sustenta**.
 Confundi-los seria o defeito; declará-los é o que torna o catálogo
 auditável.
 
-### Classe 1 — literatura de concepções errôneas (24 crenças)
+### Classe 1 — literatura de concepções errôneas (23 crenças)
 
 Estudo empírico com estudantes, ou revisão sistemática que os agrega.
 A principal é o **Apêndice A do Sorva (2012)**: um catálogo de 162
@@ -83,7 +84,7 @@ descrição e fonte. Ao lado dela, os estudos que ela mesma agrega — Ma
 **O que esta classe sustenta:** que a concepção foi *observada em
 estudantes*, por alguém que a estudou.
 
-### Classe 2 — corpus de praticante (35 crenças)
+### Classe 2 — corpus de praticante (34 crenças)
 
 O **FAQ do comp.lang.c**. Conferido na fonte: a lista *"was first
 composed in 1990, for posting to the Usenet newsgroup comp.lang.c. It
@@ -128,10 +129,26 @@ documental desse corpus.
 
 ### Por que as duas são necessárias, e isto é um achado
 
-Procurado item por item no catálogo do Sorva: ele traz **26 itens** sobre
-memória, referência, array e tempo de vida — e **nenhum** sobre NULL,
-nenhum sobre `malloc`/`free`, nenhum sobre aritmética de ponteiro,
-nenhum sobre decaimento de array.
+Procurado item por item no catálogo do Sorva: ele tem um tópico
+dedicado a referências — `Refs`, 17 dos 162 itens — e itens sobre
+memória e tempo de vida espalhados por `VarAssign`, `ObjState` e `Misc`.
+O que falta é o que importa aqui, e esta contagem é reprodutível por
+busca de termo no texto da Tabela A.1:
+
+| termo | ocorrências na Tabela A.1 |
+| --- | --- |
+| `malloc`, `free`, `deallocat`, `garbage` | **0** |
+| `heap`, `stack` | **0** |
+| `arithmetic`, `decay`, `dangling`, `sizeof` | **0** |
+| `null` | **1**, e é "Null model of recursion" (item 54), que não é ponteiro nulo |
+| `lifetime` | **1**, o item 5 |
+| `memory` | 7 |
+
+A CONTAGEM ANTERIOR DIZIA "26 itens sobre memória, referência, array e
+tempo de vida", e saiu em 11/11/2026 por não ser reprodutível: o número
+dependia da lista de palavras-chave de quem contou, e uma lista
+razoável devolve 21. O que sustenta o argumento são os ZEROS, que não
+dependem de lista.
 
 A razão é que aquele catálogo é de programação introdutória em **Java,
 Python e BASIC**, onde esses construtos não existem. A literatura de
@@ -146,7 +163,7 @@ classe desta tabela faz, linha por linha.
 
 ## O que esta auditoria achou, e que vale mais que a tabela
 
-### 1. Duas vezes o catálogo disse "não está na literatura", e as duas vezes a busca tinha errado de palavra
+### 1. Três vezes a busca errou de vocabulário ou de item, e as três vezes o certo estava lá
 
 É o achado metodológico do projeto, e ele é sobre **construir catálogo a
 partir da literatura**, não sobre C.
@@ -155,15 +172,22 @@ partir da literatura**, não sobre C.
 | --- | --- | --- |
 | `pointer_has_no_address` | *"PROCUREI no catálogo do Sorva e NÃO ESTÁ LÁ: nenhum dos 162 itens afirma que a referência não ocupa espaço"* | item 14, p. 360, **segunda frase**: *"It is not stored inside the computer"*. A busca procurou REFERÊNCIA e ESPAÇO; o item fala de VARIÁVEL. |
 | `array_confused_with_cell` | *"não tem fonte empírica, entra como `E`"* | item 151, p. 367: *"Confusion between an array and its cell"*, e item 9, p. 359: *"A variable can hold multiple values at a time"*. A busca procurou ARRAY numa fonte de C; o item 9 fala de VARIÁVEL e o 151 está no tópico `Misc`. |
+| `assignment_symmetric` | citava o item 11 **com a aproximação declarada**: *"o 11 é sobre a direção INVERTIDA, e esta crença é sobre os DOIS lados"* | item 12, p. 359, **a linha logo abaixo do 11**: *"Primitive assignment works both directions (swaps)"*. É a frase do rótulo, traduzida. |
 
-Nos dois casos a grade subiu — `E` → `T` e `E` → `D` — **porque a busca
-foi refeita com outro vocabulário**, não porque alguém decidiu confiar
-na intuição.
+Nos três casos a grade subiu — `E` → `T`, `E` → `D` e `L` → `D` —
+**porque a busca foi refeita**, não porque alguém decidiu confiar na
+intuição.
 
 É um resultado replicável e é uma recomendação de método: buscar pelo
 FENÔMENO, não pelo termo da própria linguagem. Em catálogo de
 concepções errôneas de linguagem X, o item que você procura pode estar
 escrito no vocabulário da linguagem Y.
+
+E O TERCEIRO CASO ACRESCENTA UM SEGUNDO PRINCÍPIO, que é sobre
+honestidade de citação: **foi a aproximação DECLARADA que tornou o erro
+achável.** A citação dizia em que o item 11 diferia da crença, e foi
+essa diferença que apontou para o item vizinho. Citação que esconde a
+folga não dá esse aviso — ela fica errada em silêncio.
 
 ### 2. Uma citação estava no item errado, e a crença estava certa
 
@@ -187,23 +211,39 @@ curadoria, não de leitura.
 
 ## O que fica em aberto, nomeado
 
-1. **Seis crenças citam obra sem acesso verificado nesta sessão** — Ma
-   (2007), Kaczmarczyk et al. (2010), du Boulay (1986), Hermans et al.
-   (2018) e K&R. A linha delas diz "não conferida — acesso", e **não
-   diz conferida**. Fechar isso exige o portal da biblioteca.
+1. **Cinco crenças citam estudo que só foi lido pela mediação do
+   Sorva** — Ma (2007), Kaczmarczyk et al. (2010), du Boulay (1986) e
+   Samurçay (1989). A citação delas traz `apud`, com página e item do
+   Sorva, e **diz que o original não foi aberto**. Fechar isso exige o
+   portal da biblioteca; o que não fica em aberto é o leitor saber em
+   que mão a citação está.
 2. **Cinco crenças de grade `N`** citam CERT C e CWE, que são públicos e
    não foram reabertos aqui.
 3. **A FAQ 11.24** (`voidptr_arith_ok`) não foi reaberta — a seção 11 do
    FAQ ficou fora desta passada.
-4. **`uninitialized_is_null`** cita o Sorva **sem frase entre aspas**, o
-   que torna a citação não verificável mecanicamente. É a única nessa
-   condição.
-5. **As duas `E`** — `type_is_a_hint` (kc_00) e `memoria_e_do_computador`
-   (kc_01) — seguem declaradas como hipótese. Estão fora dos
-   tópicos-piloto, e há teste proibindo `E` em piloto
-   (`test_piloto_nao_tem_crenca_estimada`). O precedente desta auditoria
-   diz o que tentar antes de aceitá-las: refazer a busca com outro
-   vocabulário.
+4. **Uma crença cita o Sorva sem frase entre aspas** —
+   `uninitialized_is_null` —, o que torna a citação não verificável
+   mecanicamente pelo gerador. Ela traz página e item. Eram duas: a
+   `assignment_symmetric` passou a trazer a frase do item 12 em
+   11/11/2026, e o caso dela está contado no achado 1.
+5. **Uma crença de grade `T` não cita obra nenhuma** —
+   `heap_dies_with_function` (kc_01). O que ela tem é a analogia,
+   declarada: em Java e Python o que a função alocou e ninguém mais
+   alcança desaparece sozinho. A busca por vocabulário do fenômeno foi
+   refeita — *lifetime*, *scope*, *deallocate*, *garbage* — e o que o
+   Apêndice A tem de mais próximo é o item 5, p. 359, *"Difficulties
+   understanding the lifetime of values"*, que é DIFICULDADE com tempo
+   de vida e não a crença. O próprio campo de fonte dela diz
+   "PRECISA DE FONTE antes da coleta, ou desce para `E`".
+6. **As três `E`** — `type_is_a_hint` (kc_00),
+   `memoria_e_do_computador` (kc_01) e `memory_is_uniform` (kc_01,
+   kc_12) — seguem declaradas como hipótese. Estão fora dos
+   tópicos-piloto, e há dois testes proibindo `E` em piloto, por
+   caminhos diferentes (`test_piloto_nao_tem_crenca_estimada` carrega o
+   domínio; `test_as_tres_hipoteses_estao_fora_do_piloto` lê o YAML). O
+   precedente desta auditoria diz o que tentar antes de aceitá-las:
+   refazer a busca com outro vocabulário — foi o que fez duas delas
+   subirem de grade, e o que confirmou que esta terceira não tem item.
 
 ## A tabela
 
@@ -218,7 +258,7 @@ curadoria, não de leitura.
 | `array_is_assignable` | kc_07 | I1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `array_is_pointer` | kc_07 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `array_passed_by_reference` | kc_07 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `assignment_symmetric` | kc_00 | I1 | **1** · concepção estudada | `L` | página/item | citada sem frase entre aspas |
+| `assignment_symmetric` | kc_00 | I1 | **1** · concepção estudada | `D` | página/item | **conferida** — texto integral do Sorva |
 | `declaration_allocates` | kc_03, kc_07 | I1 | **1** · concepção estudada | `T` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
 | `declaration_zeroes` | kc_00, kc_03 | B3 | **1** · concepção estudada | `D` | página/item, pergunta do FAQ, seção da obra | **conferida** — texto integral do Sorva |
 | `double_deref_is_data` | kc_10 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
@@ -228,7 +268,7 @@ curadoria, não de leitura.
 | `free_nullifies` | kc_09 | I1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `funcao_usa_a_variavel_do_chamador` | kc_06 | B1 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
 | `function_gets_original` | kc_06, kc_09 | I1 | **1** · concepção estudada | `T` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
-| `heap_dies_with_function` | kc_01 | I1 | — sem fonte | `T` | — | não conferida — acesso |
+| `heap_dies_with_function` | kc_01 | I1 | — sem fonte | `T` | — | sem item na literatura — busca declarada |
 | `heap_persists` | kc_09 | B4 | 2 · corpus de praticante | `L` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
 | `indice_nao_e_soma` | kc_11 | I1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `local_sobrevive` | kc_01 | B2 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
@@ -238,7 +278,7 @@ curadoria, não de leitura.
 | `malloc_initializes_zero` | kc_08 | B3 | **1** · concepção estudada | `L` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
 | `memoria_e_do_computador` | kc_01 | B1 | hipótese | `E` | página/item | sem fonte, por desenho |
 | `memory_is_by_name` | kc_02 | B1 | **1** · concepção estudada | `D` | página/item | **conferida** — texto integral do Sorva |
-| `memory_is_uniform` | kc_01, kc_12 | I2 | hipótese | `E` | página/item | sem fonte, por desenho |
+| `memory_is_uniform` | kc_01, kc_12 | I2 | hipótese | `E` | — | sem item na literatura — busca declarada |
 | `modify_pp_changes_p` | kc_06, kc_10 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `no_value_no_memory` | kc_00, kc_03 | B2 | **1** · concepção estudada | `D` | página/item | **conferida** — texto integral do Sorva |
 | `null_after_free_redundant` | kc_09 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |

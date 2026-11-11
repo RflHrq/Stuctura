@@ -65,6 +65,12 @@
 - id: heap_dies_with_function
   negates: kc_01:I1
   provenance: T
+  sem_item: >
+    Procurado no Apendice A do Sorva (2012) em 11/11/2026, pelo
+    vocabulario do fenomeno e nao pelo termo de C: lifetime, scope,
+    deallocate, garbage, destroy, persist, dynamic. O mais proximo e
+    o item 5, p. 359, que e dificuldade com tempo de vida e nao a
+    crenca de que o bloco do malloc morre com a funcao. Nao ha item.
   label_pt: "O bloco do malloc também some quando a função termina."
   source: >
     TRANSPOSIÇÃO, com a analogia declarada: em Java e Python o que a
@@ -73,9 +79,25 @@
     pilha e o monte é exatamente onde ela quebra.
     PRECISA DE FONTE antes da coleta, ou desce para E.
 
+    A BUSCA FOI REFEITA em 11/11/2026, pelo vocabulario do fenomeno e
+    nao pelo termo de C -- que e o metodo que fez duas outras crencas
+    subirem de grade neste catalogo. Procurei no Apendice A do Sorva
+    por lifetime, scope, deallocate, garbage, destroy, persist: o mais
+    proximo e o item 5, p. 359, "Difficulties understanding the
+    lifetime of values" (du Boulay 1986), que e DIFICULDADE com tempo
+    de vida, nao a crenca de que o bloco do malloc morre com a funcao.
+    Nao ha item. A analogia continua sendo toda a procedencia que esta
+    crenca tem, e e isso que a grade T afirma.
+
 - id: memory_is_uniform
   negates: kc_01:I2
   provenance: E
+  sem_item: >
+    Procurado item por item no Apendice A do Sorva (2012) em
+    11/11/2026: nao ha item sobre a memoria ser regiao unica sem
+    distincao de regras de tempo de vida. O item 5, p. 359, e
+    dificuldade com tempo de vida; o item 123, p. 366, e sobre
+    objetos receberem a mesma QUANTIDADE de memoria. Nao ha item.
   label_pt: "Memória é uma região única, sem distinção de regras de vida."
   source: >
     HIPÓTESE A TESTAR, e desceu de `T` para `E` em 11/11/2026 por falta

@@ -65,15 +65,46 @@ LOCALIZADOR = [
 ]
 
 
-def localizador(f):
+def localizador(f, sem_item=""):
+    # A pagina citada numa nota de busca que falhou e a pagina do item
+    # que NAO e a crenca. Nao e localizador de fonte: e endereco de uma
+    # ausencia.
+    if sem_item:
+        return "—"
     fora = [n for n, pat in LOCALIZADOR if re.search(pat, f, re.I)]
     return ", ".join(fora) if fora else "—"
+
+
+# O FILTRO DE FRASE INGLESA, em duas listas e nao em uma.
+#
+# A primeira versao exigia uma palavra de uma lista curta -- the, is,
+# are, of, that, not, a, an -- e RECUSOU a frase do item 12 do Sorva,
+# "Primitive assignment works both directions (swaps)", que nao tem
+# nenhuma delas. O gerador escreveu "citada sem frase entre aspas" numa
+# linha que TINHA a frase, e o documento passou a descrever o catalogo
+# pior do que ele e. Filtro de ingles que recusa ingles nao e
+# conservador: e um erro silencioso para baixo.
+#
+# E o acento nao serve de guarda contra portugues: o `beliefs_kc00.yaml`
+# e escrito sem acento do comeco ao fim, de uma era anterior do projeto.
+# Entao o que exclui portugues sao as PALAVRAS DE FUNCAO dele, e o que
+# admite ingles e uma lista larga.
+INGLES = (r"\b(the|is|are|was|were|of|that|not|an?|and|or|to|in|on|by|"
+          r"with|it|its|has|have|had|can|cannot|does|do|no|all|both|"
+          r"same|other|only|works?|holds?|stores?|creates?|receives?|"
+          r"points?|returns?|means?|allocat\w*|variabl\w*|pointer\w*|"
+          r"memory|value|values|object|array|reference|directions?)\b")
+PORTUGUES = (r"\b(de|da|do|das|dos|que|nao|não|como|em|uma|um|para|pelo|"
+             r"pela|com|por|ele|ela|isso|está|esta|são|sao|ser|tem|têm|"
+             r"já|ja|mesmo|mesma|crença|crenca|variável|variavel|"
+             r"ponteiro|memória|memoria)\b")
 
 
 def frases_inglesas(f):
     fora = []
     for q in re.findall(r'"([^"]{18,300})"', f):
-        if (re.search(r"\b(the|is|are|of|that|not|a|an)\b", q, re.I)
+        if (re.search(INGLES, q, re.I)
+                and not re.search(PORTUGUES, q, re.I)
                 and not re.search(r"[áàâãéêíóôõúçÁÉÍÓÚÇ]", q)):
             fora.append(q)
     return fora
@@ -90,9 +121,11 @@ PRATICANTE = ("FAQ", "c-faq", "CWE", "CERT", "Kernighan", "Ritchie", "K&R",
               "ISO")
 
 
-def classe(f, grade):
+def classe(f, grade, sem_item=""):
     if grade == "E":
         return "hipótese"
+    if sem_item:
+        return "— sem fonte"
     if any(k in f for k in MISCONCEPCAO):
         return "**1** · concepção estudada"
     if any(k in f for k in PRATICANTE):
@@ -100,8 +133,20 @@ def classe(f, grade):
     return "— sem fonte"
 
 
-def conferencia(cid, f, grade):
-    """Como esta crenca foi conferida, e por quem."""
+def conferencia(cid, f, grade, sem_item=""):
+    """Como esta crenca foi conferida, e por quem.
+
+    O `sem_item` VEM PRIMEIRO, antes de qualquer busca de frase, e e por
+    um defeito real: a nota de uma busca que falhou CITA, entre aspas, a
+    frase do item mais proximo -- aquele que NAO e a crenca. O
+    classificador procurava a frase no texto integral, achava, e
+    escrevia "conferida" na linha. Prosa nao serve de marcador, porque a
+    `pointer_has_no_address` tambem conta uma busca que falhou e a dela
+    achou o item na segunda tentativa. Quem declara o achado negativo e
+    o campo, nao o paragrafo.
+    """
+    if sem_item:
+        return "sem item na literatura — busca declarada"
     if grade == "E":
         return "sem fonte, por desenho"
     if "Sorva" in f:
@@ -121,6 +166,12 @@ def conferencia(cid, f, grade):
         return "parcial — seção 11 não reaberta"
     if "CWE" in f or "CERT" in f:
         return "não conferida — fonte pública, não aberta aqui"
+    # NAO HA OBRA PARA ABRIR. Dizer "nao conferida -- acesso" aqui seria
+    # culpar a biblioteca por uma crenca que nunca citou obra nenhuma. O
+    # que ela tem e a analogia, declarada no campo de fonte, e e isso
+    # que a grade `T` afirma -- nem mais, nem menos.
+    if classe(f, grade) == "— sem fonte":
+        return "sem obra citada — transposição declarada"
     return "não conferida — acesso"
 
 
@@ -132,14 +183,15 @@ for cid in sorted(cr):
     grade = b.get("provenance", "?")
     nega = str(b.get("negates", "")).split(":")[-1]
     ts = sorted(set(d["topicos"]))
-    conf = conferencia(cid, f, grade)
+    si = " ".join(str(b.get("sem_item") or "").split())
+    conf = conferencia(cid, f, grade, si)
     conta[conf.replace("**", "")] += 1
     conta["grade " + grade] += 1
-    cl = classe(f, grade)
+    cl = classe(f, grade, si)
     conta["classe " + cl.replace("**", "")] += 1
     linhas.append("| `%s` | %s | %s | %s | `%s` | %s | %s |"
-                  % (cid, ", ".join(ts), nega, cl, grade, localizador(f),
-                     conf))
+                  % (cid, ", ".join(ts), nega, cl, grade,
+                     localizador(f, si), conf))
 
 tabela = NL.join(linhas)
 n = len(cr)
@@ -208,7 +260,8 @@ que trazem ao lado.
 | Sorva (2012), *Visual Program Simulation in Introductory Programming Education* | 21 | %s **texto integral** do repositório aberto da Aalto (handle 123456789/3534, bundle TEXT). Para cada citação, a frase em inglês entre aspas foi procurada no texto da obra. **23 frases localizadas verbatim.** |
 | FAQ comp.lang.c | 39 | **índices das seções 1, 4, 5, 6 e 7** abertos em c-faq.com. As 48 perguntas citadas nessas seções existem, e os títulos conferem com o que o catálogo cita. |
 | CERT C / CWE | 5 | fontes públicas, **não reabertas nesta auditoria** |
-| Ma (2007), Kaczmarczyk et al. (2010), du Boulay (1986), Hermans et al. (2018), K&R | 6 | **não conferidas aqui** — ACM/Springer, sem acesso verificado nesta sessão |
+| Ma (2007), Kaczmarczyk et al. (2010), du Boulay (1986), Samurçay (1989) | 5 | **citadas `apud` Sorva (2012)**, com página e item. Os artigos originais não foram abertos — a mediação está declarada no campo de fonte de cada crença, e o que foi lido é o item do Sorva que os atribui. |
+| K&R, *The C Programming Language* | 1 | citada como **refutação**, não como fonte da crença: é a obra que diz que a crença é falsa |
 
 ## As duas classes de fonte, e por que as duas valem
 
@@ -217,7 +270,7 @@ não é de qualidade: é de **que tipo de afirmação cada um sustenta**.
 Confundi-los seria o defeito; declará-los é o que torna o catálogo
 auditável.
 
-### Classe 1 — literatura de concepções errôneas (24 crenças)
+### Classe 1 — literatura de concepções errôneas (%d crenças)
 
 Estudo empírico com estudantes, ou revisão sistemática que os agrega.
 A principal é o **Apêndice A do Sorva (2012)**: um catálogo de 162
@@ -230,7 +283,7 @@ descrição e fonte. Ao lado dela, os estudos que ela mesma agrega — Ma
 **O que esta classe sustenta:** que a concepção foi *observada em
 estudantes*, por alguém que a estudou.
 
-### Classe 2 — corpus de praticante (35 crenças)
+### Classe 2 — corpus de praticante (%d crenças)
 
 O **FAQ do comp.lang.c**. Conferido na fonte: a lista *"was first
 composed in 1990, for posting to the Usenet newsgroup comp.lang.c. It
@@ -275,10 +328,26 @@ documental desse corpus.
 
 ### Por que as duas são necessárias, e isto é um achado
 
-Procurado item por item no catálogo do Sorva: ele traz **26 itens** sobre
-memória, referência, array e tempo de vida — e **nenhum** sobre NULL,
-nenhum sobre `malloc`/`free`, nenhum sobre aritmética de ponteiro,
-nenhum sobre decaimento de array.
+Procurado item por item no catálogo do Sorva: ele tem um tópico
+dedicado a referências — `Refs`, 17 dos 162 itens — e itens sobre
+memória e tempo de vida espalhados por `VarAssign`, `ObjState` e `Misc`.
+O que falta é o que importa aqui, e esta contagem é reprodutível por
+busca de termo no texto da Tabela A.1:
+
+| termo | ocorrências na Tabela A.1 |
+| --- | --- |
+| `malloc`, `free`, `deallocat`, `garbage` | **0** |
+| `heap`, `stack` | **0** |
+| `arithmetic`, `decay`, `dangling`, `sizeof` | **0** |
+| `null` | **1**, e é "Null model of recursion" (item 54), que não é ponteiro nulo |
+| `lifetime` | **1**, o item 5 |
+| `memory` | 7 |
+
+A CONTAGEM ANTERIOR DIZIA "26 itens sobre memória, referência, array e
+tempo de vida", e saiu em 11/11/2026 por não ser reprodutível: o número
+dependia da lista de palavras-chave de quem contou, e uma lista
+razoável devolve 21. O que sustenta o argumento são os ZEROS, que não
+dependem de lista.
 
 A razão é que aquele catálogo é de programação introdutória em **Java,
 Python e BASIC**, onde esses construtos não existem. A literatura de
@@ -293,7 +362,7 @@ classe desta tabela faz, linha por linha.
 
 ## O que esta auditoria achou, e que vale mais que a tabela
 
-### 1. Duas vezes o catálogo disse "não está na literatura", e as duas vezes a busca tinha errado de palavra
+### 1. Três vezes a busca errou de vocabulário ou de item, e as três vezes o certo estava lá
 
 É o achado metodológico do projeto, e ele é sobre **construir catálogo a
 partir da literatura**, não sobre C.
@@ -302,15 +371,22 @@ partir da literatura**, não sobre C.
 | --- | --- | --- |
 | `pointer_has_no_address` | *"PROCUREI no catálogo do Sorva e NÃO ESTÁ LÁ: nenhum dos 162 itens afirma que a referência não ocupa espaço"* | item 14, p. 360, **segunda frase**: *"It is not stored inside the computer"*. A busca procurou REFERÊNCIA e ESPAÇO; o item fala de VARIÁVEL. |
 | `array_confused_with_cell` | *"não tem fonte empírica, entra como `E`"* | item 151, p. 367: *"Confusion between an array and its cell"*, e item 9, p. 359: *"A variable can hold multiple values at a time"*. A busca procurou ARRAY numa fonte de C; o item 9 fala de VARIÁVEL e o 151 está no tópico `Misc`. |
+| `assignment_symmetric` | citava o item 11 **com a aproximação declarada**: *"o 11 é sobre a direção INVERTIDA, e esta crença é sobre os DOIS lados"* | item 12, p. 359, **a linha logo abaixo do 11**: *"Primitive assignment works both directions (swaps)"*. É a frase do rótulo, traduzida. |
 
-Nos dois casos a grade subiu — `E` → `T` e `E` → `D` — **porque a busca
-foi refeita com outro vocabulário**, não porque alguém decidiu confiar
-na intuição.
+Nos três casos a grade subiu — `E` → `T`, `E` → `D` e `L` → `D` —
+**porque a busca foi refeita**, não porque alguém decidiu confiar na
+intuição.
 
 É um resultado replicável e é uma recomendação de método: buscar pelo
 FENÔMENO, não pelo termo da própria linguagem. Em catálogo de
 concepções errôneas de linguagem X, o item que você procura pode estar
 escrito no vocabulário da linguagem Y.
+
+E O TERCEIRO CASO ACRESCENTA UM SEGUNDO PRINCÍPIO, que é sobre
+honestidade de citação: **foi a aproximação DECLARADA que tornou o erro
+achável.** A citação dizia em que o item 11 diferia da crença, e foi
+essa diferença que apontou para o item vizinho. Citação que esconde a
+folga não dá esse aviso — ela fica errada em silêncio.
 
 ### 2. Uma citação estava no item errado, e a crença estava certa
 
@@ -334,23 +410,39 @@ curadoria, não de leitura.
 
 ## O que fica em aberto, nomeado
 
-1. **Seis crenças citam obra sem acesso verificado nesta sessão** — Ma
-   (2007), Kaczmarczyk et al. (2010), du Boulay (1986), Hermans et al.
-   (2018) e K&R. A linha delas diz "não conferida — acesso", e **não
-   diz conferida**. Fechar isso exige o portal da biblioteca.
+1. **Cinco crenças citam estudo que só foi lido pela mediação do
+   Sorva** — Ma (2007), Kaczmarczyk et al. (2010), du Boulay (1986) e
+   Samurçay (1989). A citação delas traz `apud`, com página e item do
+   Sorva, e **diz que o original não foi aberto**. Fechar isso exige o
+   portal da biblioteca; o que não fica em aberto é o leitor saber em
+   que mão a citação está.
 2. **Cinco crenças de grade `N`** citam CERT C e CWE, que são públicos e
    não foram reabertos aqui.
 3. **A FAQ 11.24** (`voidptr_arith_ok`) não foi reaberta — a seção 11 do
    FAQ ficou fora desta passada.
-4. **`uninitialized_is_null`** cita o Sorva **sem frase entre aspas**, o
-   que torna a citação não verificável mecanicamente. É a única nessa
-   condição.
-5. **As duas `E`** — `type_is_a_hint` (kc_00) e `memoria_e_do_computador`
-   (kc_01) — seguem declaradas como hipótese. Estão fora dos
-   tópicos-piloto, e há teste proibindo `E` em piloto
-   (`test_piloto_nao_tem_crenca_estimada`). O precedente desta auditoria
-   diz o que tentar antes de aceitá-las: refazer a busca com outro
-   vocabulário.
+4. **Uma crença cita o Sorva sem frase entre aspas** —
+   `uninitialized_is_null` —, o que torna a citação não verificável
+   mecanicamente pelo gerador. Ela traz página e item. Eram duas: a
+   `assignment_symmetric` passou a trazer a frase do item 12 em
+   11/11/2026, e o caso dela está contado no achado 1.
+5. **Uma crença de grade `T` não cita obra nenhuma** —
+   `heap_dies_with_function` (kc_01). O que ela tem é a analogia,
+   declarada: em Java e Python o que a função alocou e ninguém mais
+   alcança desaparece sozinho. A busca por vocabulário do fenômeno foi
+   refeita — *lifetime*, *scope*, *deallocate*, *garbage* — e o que o
+   Apêndice A tem de mais próximo é o item 5, p. 359, *"Difficulties
+   understanding the lifetime of values"*, que é DIFICULDADE com tempo
+   de vida e não a crença. O próprio campo de fonte dela diz
+   "PRECISA DE FONTE antes da coleta, ou desce para `E`".
+6. **As três `E`** — `type_is_a_hint` (kc_00),
+   `memoria_e_do_computador` (kc_01) e `memory_is_uniform` (kc_01,
+   kc_12) — seguem declaradas como hipótese. Estão fora dos
+   tópicos-piloto, e há dois testes proibindo `E` em piloto, por
+   caminhos diferentes (`test_piloto_nao_tem_crenca_estimada` carrega o
+   domínio; `test_as_tres_hipoteses_estao_fora_do_piloto` lê o YAML). O
+   precedente desta auditoria diz o que tentar antes de aceitá-las:
+   refazer a busca com outro vocabulário — foi o que fez duas delas
+   subirem de grade, e o que confirmou que esta terceira não tem item.
 
 ## A tabela
 
@@ -386,6 +478,8 @@ de outra pessoa; quem quiser reconferir baixa do handle acima.
        ("" if TEM_SORVA else
         "**NÃO CONFERIDO nesta execução** (texto da obra não foi dado). "
         "Na auditoria de 11/11/2026 foi conferido assim:"),
+       conta["classe 1 · concepção estudada"],
+       conta["classe 2 · corpus de praticante"],
        tabela)
 
 alvo = RAIZ / "docs" / "curadoria-crencas.md"

@@ -228,3 +228,212 @@ def test_toda_crenca_tem_grade_conhecida(catalogo):
     for cid, ocor in sorted(catalogo.items()):
         for topico, grade, _ in ocor:
             assert grade in ("D", "L", "T", "N", "E"), (cid, topico, grade)
+
+
+# --------------------------------------------------------------------------
+# O documento não pode dizer "conferida" sobre uma busca que falhou
+# --------------------------------------------------------------------------
+
+CURADORIA = (pathlib.Path(__file__).resolve().parent.parent
+             / "docs" / "curadoria-crencas.md")
+
+
+def _sem_item():
+    """{id: nota}, das crenças que DECLARAM que a busca não achou item.
+
+    O campo é `sem_item`, e existe porque prosa não serve de marcador. A
+    `pointer_has_no_address` e a `array_confused_with_cell` também
+    contam, no corpo da fonte, uma busca que falhou — só que a delas
+    falhou ANTES, e o item foi achado depois. Procurar por "PROCUREI" ou
+    "não está lá" no texto confundiria as duas coisas, e o gerador
+    precisa saber a diferença sem interpretar português.
+    """
+    fora = {}
+    for p in sorted(DOMINIO.glob("beliefs_kc*.yaml")):
+        for b in yaml.safe_load(p.read_text(encoding="utf-8")) or ():
+            if b.get("sem_item"):
+                fora[b["id"]] = " ".join(str(b["sem_item"]).split())
+    return fora
+
+
+def test_a_crenca_sem_item_declara_onde_procurou():
+    """O campo não é um sinalizador: ele carrega o que a busca fez.
+
+    Sem isso, `sem_item: true` seria um jeito curto de dizer "não achei"
+    e de nunca contar onde se procurou — e a próxima pessoa refaria a
+    mesma busca com o mesmo vocabulário.
+    """
+    declaradas = _sem_item()
+    assert declaradas, (
+        "nenhuma crença declara `sem_item`. Se nenhuma busca falhou, "
+        "apague este teste; se alguma falhou, declare.")
+    for cid, nota in sorted(declaradas.items()):
+        assert len(nota) >= 80, (cid, "a nota é curta demais para dizer "
+                                 "onde se procurou: %r" % nota)
+
+
+def test_o_documento_nao_diz_conferida_de_busca_que_falhou():
+    """A TRAVA, e ela nasceu de um defeito real.
+
+    A `heap_dies_with_function` não cita obra nenhuma: o que ela tem é a
+    analogia com Java e Python, declarada. Em 11/11/2026 a busca foi
+    refeita pelo vocabulário do fenômeno e registrada no campo de fonte
+    — e essa nota CITA, entre aspas, a frase do item 5 do Sorva, que é o
+    mais próximo que existe e não é a crença.
+
+    O classificador do gerador então procurou a frase no texto integral,
+    achou, e escreveu **"conferida — texto integral do Sorva"** na linha
+    dela. O documento passou a afirmar conferência de uma citação que o
+    próprio campo de fonte diz não existir.
+
+    Um gerador que não sabe distinguir uma citação de um achado negativo
+    não é auditor: é um amplificador de erro com cara de tabela.
+    """
+    doc = CURADORIA.read_text(encoding="utf-8")
+    linhas = {}
+    for ln in doc.splitlines():
+        if ln.startswith("| `") and ln.count("|") >= 7:
+            partes = [c.strip() for c in ln.strip("|").split("|")]
+            linhas[partes[0].strip("`")] = partes[-1]
+
+    fora = []
+    for cid in sorted(_sem_item()):
+        conf = linhas.get(cid)
+        assert conf is not None, (
+            "a crença %s não tem linha na tabela de %s" % (cid, CURADORIA.name))
+        if "conferida" in conf and "não conferida" not in conf:
+            fora.append((cid, conf))
+    assert not fora, (
+        "a curadoria diz 'conferida' para crença que declara `sem_item`: "
+        "%s\nA frase entre aspas na nota é o que NÃO foi achado, e o "
+        "gerador a leu como fonte." % fora)
+
+
+def test_o_sem_item_nao_fica_numa_copia_so(catalogo):
+    """Mesmo defeito da grade, numa chave nova.
+
+    O `sem_item` entrou em 11/11/2026 e a primeira versao dele ficou no
+    `beliefs_kc01.yaml` e nao no `kc_12`, que tem a mesma crenca. Como a
+    curadoria deduplica por id, o documento sairia certo e o catalogo
+    ficaria divergente — que foi exatamente como as tres grades
+    divergiram sem ninguem notar.
+    """
+    declarado = collections.defaultdict(set)
+    for p in sorted(DOMINIO.glob("beliefs_kc*.yaml")):
+        topico = "kc_" + p.stem[len("beliefs_kc"):]
+        for b in yaml.safe_load(p.read_text(encoding="utf-8")) or ():
+            declarado[b["id"]].add((topico, bool(b.get("sem_item"))))
+    fora = []
+    for cid, ocor in sorted(declarado.items()):
+        if len({tem for _, tem in ocor}) > 1:
+            fora.append((cid, sorted(ocor)))
+    assert not fora, (
+        "a crença declara `sem_item` em um tópico e não no outro: %s\n"
+        "A busca que falhou falhou para a crença, não para o tópico." % fora)
+
+
+# As crenças `D` cuja citação traz frase entre aspas do Apêndice A do
+# Sorva. Medido em 11/11/2026. Elas existem para cobrar do GERADOR que
+# reconheça a frase: a curadoria é escrita por um programa, e um
+# programa que não vê a frase escreve "citada sem frase entre aspas"
+# numa linha que tem a frase. O documento então subestima o próprio
+# rigor, que é um erro mais silencioso que superestimar.
+D_COM_FRASE = ("array_confused_with_cell", "assignment_symmetric",
+               "declaration_zeroes", "memory_is_by_name",
+               "no_value_no_memory")
+
+
+def test_a_curadoria_reconhece_a_frase_das_crencas_D():
+    """O `assignment_symmetric` foi o caso.
+
+    A citação dela passou a trazer *"Primitive assignment works both
+    directions (swaps)"* — item 12, p. 359, localizado no texto
+    integral. O gerador continuou dizendo "citada sem frase entre
+    aspas", porque o filtro de frase inglesa exigia uma palavra de uma
+    lista curta — the, is, are, of, that, not, a, an — e aquela frase
+    não tem nenhuma delas.
+
+    Um filtro de inglês que recusa inglês não é conservador: ele faz o
+    documento descrever o catálogo pior do que ele é.
+    """
+    doc = CURADORIA.read_text(encoding="utf-8")
+    linhas = {}
+    for ln in doc.splitlines():
+        if ln.startswith("| `") and ln.count("|") >= 7:
+            partes = [c.strip() for c in ln.strip("|").split("|")]
+            linhas[partes[0].strip("`")] = partes[-1]
+    fora = [(cid, linhas.get(cid)) for cid in D_COM_FRASE
+            if "conferida** — texto integral do Sorva" not in (linhas.get(cid) or "")]
+    assert not fora, (
+        "crença `D` com frase entre aspas que a curadoria não reconheceu "
+        "como conferida: %s" % fora)
+
+
+# --------------------------------------------------------------------------
+# O capítulo da monografia não pode divergir do catálogo
+# --------------------------------------------------------------------------
+
+CAPITULO = (pathlib.Path(__file__).resolve().parent.parent
+            / "docs" / "monografia" / "curadoria.md")
+
+# Os números que o capítulo afirma, e de onde cada um tem de sair. É a
+# mesma regra que o projeto aplicou ao apêndice: número digitado à mão
+# diverge do dado, e divergiu três vezes só nesta auditoria. A diferença
+# é que o apêndice é GERADO e o capítulo é escrito — então o que prende
+# o capítulo é este teste.
+AFIRMA_O_CAPITULO = {
+    "concepções distintas no catálogo | **61**": lambda c: c["total"] == 61,
+    "conferidas na obra primária | **53**": lambda c: c["conferidas"] == 53,
+    "`D` 6, `L` 33, `T` 16, `N` 3, `E` 3": lambda c: c["grades"] == {
+        "D": 6, "L": 33, "T": 16, "N": 3, "E": 3},
+    "Classe 1 — literatura de concepções errôneas (23 concepções)":
+        lambda c: c["classe1"] == 23,
+    "Classe 2 — corpus de praticante (34 concepções)":
+        lambda c: c["classe2"] == 34,
+    "hipóteses `E` | **3**": lambda c: c["grades"]["E"] == 3,
+    "Quatorze concepções aparecem em mais de um tópico": lambda c: c["em_dois_topicos"] == 14,
+}
+
+
+@pytest.fixture(scope="module")
+def contagens(catalogo):
+    doc = CURADORIA.read_text(encoding="utf-8")
+    conf = collections.Counter()
+    cls = collections.Counter()
+    for ln in doc.splitlines():
+        if ln.startswith("| `") and ln.count("|") >= 7:
+            p = [x.strip() for x in ln.strip("|").split("|")]
+            conf[p[-1].replace("**", "")] += 1
+            cls[p[3].replace("**", "")] += 1
+    grades = collections.Counter()
+    for ocor in catalogo.values():
+        grades[ocor[0][1]] += 1
+    return {
+        "total": len(catalogo),
+        "conferidas": sum(v for k, v in conf.items() if k.startswith("conferida")),
+        "grades": dict(grades),
+        "classe1": cls["1 · concepção estudada"],
+        "classe2": cls["2 · corpus de praticante"],
+        "em_dois_topicos": sum(1 for o in catalogo.values() if len(o) > 1),
+    }
+
+
+def test_o_capitulo_existe_e_afirma_o_que_o_catalogo_diz(contagens):
+    """Cada número do capítulo, conferido contra o catálogo.
+
+    A chave do dicionário é o TRECHO LITERAL do capítulo; o valor é a
+    conta que o sustenta. Se o catálogo mudar, este teste cai e aponta a
+    frase a reescrever — o que é a única defesa possível contra um
+    capítulo que envelhece sem avisar.
+    """
+    assert CAPITULO.exists(), CAPITULO
+    texto = CAPITULO.read_text(encoding="utf-8")
+    fora = []
+    for trecho, confere in AFIRMA_O_CAPITULO.items():
+        if trecho not in texto:
+            fora.append(("trecho não está mais no capítulo", trecho))
+        elif not confere(contagens):
+            fora.append(("o catálogo não sustenta mais", trecho))
+    assert not fora, (
+        "o capítulo e o catálogo divergiram: %s\nContagens de agora: %s"
+        % (fora, contagens))

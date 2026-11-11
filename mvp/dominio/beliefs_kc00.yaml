@@ -63,18 +63,26 @@
 
 - id: assignment_symmetric
   negates: kc_00:I1
-  provenance: L
+  provenance: D
   label_pt: "Atribuicao funciona dos dois lados, tipo igualdade matematica."
   source: >
-    du Boulay (1986); Ma (2007); Putnam et al. (1986), APUD Sorva
-    (2012), Apêndice A, p. 359, item 11: "Primitive assignment works in
-    opposite direction."
+    Sleeman et al. (1986), APUD Sorva (2012), Apêndice A, p. 359,
+    item 12: "Primitive assignment works both directions (swaps)."
 
-    APROXIMAÇÃO DECLARADA, e ela é o ponto fraco desta linha: o item 11
-    é sobre a atribuição funcionar na direção INVERTIDA (`a = b` fazer b
-    receber a), e esta crença é sobre ela funcionar nos DOIS lados, como
-    igualdade matemática. São da mesma família — tratar `=` como relação
-    e não como operação — mas não são a mesma frase.
+    O ITEM MUDOU DE 11 PARA 12 em 11/11/2026, e é A TERCEIRA VEZ que
+    este catálogo erra de item ou de vocabulário e acha o certo ao
+    refazer a busca. A citação anterior era o item 11, "Primitive
+    assignment works in opposite direction", e vinha com a aproximação
+    declarada: o 11 é sobre a direção INVERTIDA (`a = b` fazer b receber
+    a) e esta crença é sobre os DOIS lados. O item 12, logo abaixo dele
+    na mesma página, diz exatamente "works both directions" — que é a
+    frase do rótulo, traduzida.
 
-    Se a coleta mostrar que são confusões distintas, esta crença precisa
-    de item próprio ou desce para `E`. O artigo do Ma não foi aberto.
+    Foi a aproximação DECLARADA que tornou isso achável: a nota dizia
+    qual era a diferença entre o item e a crença, e foi essa diferença
+    que apontou para o item vizinho. Citação que esconde a folga não dá
+    esse aviso.
+
+    E A GRADE SUBIU `L` → `D`: agora há frase entre aspas, página e
+    item, e a frase foi localizada no texto integral. O artigo do
+    Sleeman et al. não foi aberto — a citação é `apud`, e diz isso.
