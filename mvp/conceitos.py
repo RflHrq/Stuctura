@@ -157,8 +157,21 @@ CONSTRUTOS = (
     (re.compile(r"\*\s*\*"), "ponteiro_de_ponteiro"),
     (re.compile(r"\w+\s*\[\s*\d"), "array"),
     (re.compile(r"&\w+\s*==\s*&?\w+"), "comparacao_de_ponteiros"),
-    (re.compile(r"^\s*[A-Za-z_][\w \*]*\w\s*\(\s*(?!void\s*\))"
-                r"[A-Za-z_]\w*\s+\**\w+", re.M), "funcao_com_parametro"),
+    # DEFINIÇÃO de função com parâmetro, e não CHAMADA de função.
+    #
+    # O padrão anterior pedia UM nome antes do parêntese, e por isso
+    # acusava `puts(sizeof p > 0 ? ...)`: `puts` casava como nome de
+    # função e `sizeof p` como "tipo seguido de nome de parâmetro". O
+    # programa não define função nenhuma, e era barrado do portão de
+    # exibição por um construto que não usa.
+    #
+    # O que separa os dois é simples e é o conserto: uma DEFINIÇÃO tem
+    # tipo de retorno E nome antes do parêntese — `int soma(` são dois
+    # nomes —, e uma CHAMADA tem um só. Daí o `\s+` obrigatório no
+    # meio.
+    (re.compile(r"^\s*[A-Za-z_]\w*[\w \*]*?\s+\**[A-Za-z_]\w*\s*\("
+                r"\s*(?!void\s*\))[A-Za-z_]\w*\s+\**\w+", re.M),
+     "funcao_com_parametro"),
 )
 
 
@@ -214,6 +227,38 @@ def faltando(descida) -> tuple[str, ...]:
 
 def liberada(descida) -> bool:
     return not faltando(descida)
+
+
+def faltando_para_exibir(codigo: str, topico: str) -> tuple[str, ...]:
+    """Os construtos deste código que nenhum cartão do tópico ensina.
+
+    MESMA REGRA DA `faltando`, outro insumo. Lá o requisito é declarado
+    por quem escreveu a cadeia, no campo `requer`; aqui ele é VARRIDO do
+    programa, porque quem escreve uma prova de premissa escreve para o
+    examinador e não repara no que está ensinado.
+
+    E O CARTÃO TEM DE SER DESTE TÓPICO. O `array` é `disponivel` e tem
+    cartão — `kc_07:B1` —, e isso não ajuda quem está no kc_02: o tópico
+    vem depois. Disponibilidade no inventário é condição necessária e
+    não suficiente, e foi aceitá-la como suficiente que deixou passar o
+    degrau de abertura reprovado em 05/11/2026.
+    """
+    fora = []
+    for cid in construtos_de(codigo):
+        if not any(str(c).startswith(topico + ":") for c in cartoes(cid)):
+            fora.append(cid)
+    return tuple(fora)
+
+
+def exibivel(codigo: str, topico: str) -> bool:
+    """Este programa pode ser mostrado a quem está neste tópico?
+
+    Não é a mesma pergunta que "esta prova é válida". A prova bloqueada
+    continua conferida pelo oráculo e continua valendo para o trabalho —
+    ela só não vai para a tela da pessoa. Validar e exibir são duas
+    perguntas, e confundi-las faria uma das duas mentir.
+    """
+    return not faltando_para_exibir(codigo, topico)
 
 
 def relatorio(dominio) -> list[str]:

@@ -53,10 +53,10 @@ from revisa_material import (CONSTRUTOS, cobrancas_sem_ensino,  # noqa: E402
 # declarada, não escondida.
 TETO = {
     "kc_00": 0, "kc_01": 0, "kc_02": 6, "kc_03": 4, "kc_04": 4,
-    "kc_05": 1, "kc_06": 24, "kc_07": 8, "kc_08": 3, "kc_09": 6,
+    "kc_05": 1, "kc_06": 24, "kc_07": 8, "kc_08": 1, "kc_09": 6,
     "kc_10": 6, "kc_11": 1, "kc_12": 4,
 }
-# Total: 67 itens, em 11 dos 13 tópicos. Sessenta e três são
+# Total: 65 itens, em 11 dos 13 tópicos. Sessenta e um são
 # `funcao_com_parametro` e quatro são `scanf`. O kc_06 sozinho tem 24 —
 # ele se chama "Passagem por referência", e cobrar função com parâmetro
 # ali é inevitável: o tópico É sobre isso. O que falta é o conceito ter
@@ -64,6 +64,23 @@ TETO = {
 #
 # A PRIMEIRA VERSÃO DESTES NÚMEROS FOI CHUTADA, e os doze testes que
 # caíram foram quem avisou. Medidos em 08/11/2026.
+#
+# O KC_08 CAIU DE 3 PARA 1 EM 11/11/2026, e NÃO porque alguém ensinou
+# alguma coisa: o padrão de `funcao_com_parametro` foi corrigido, e os
+# dois itens que saíram eram FALSOS POSITIVOS. As linhas acusadas eram
+#
+#     ciu_kc08_008   for (int i = 0; i < 5; i++) *soma += i;
+#     ciu_kc08_017   for (int i = 0; i < 1000; i++) guarda();
+#
+# O padrão antigo pedia UM nome antes do parêntese, e lia `for` como
+# nome de função e `int i` como parâmetro. Definição tem tipo E nome —
+# dois nomes; chamada e `for` têm um só. Está contado em
+# `mvp/test_construto.py`.
+#
+# BAIXAR UM TETO POR CONSERTO DO DETECTOR é a única baixa que não é
+# melhoria de material, e por isso ela vem com as duas linhas escritas
+# aqui: baixar sem dizer qual item saiu seria afrouxar a catraca com
+# cara de progresso.
 
 _INVENTARIO = yaml.safe_load(
     (pathlib.Path(__file__).resolve().parent / "dominio" / "conceitos.yaml")
