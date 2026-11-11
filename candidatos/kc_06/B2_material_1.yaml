@@ -1,0 +1,184 @@
+# Material de ensino do B2 do kc_06 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 11/11/2026, e é o par do `B1_material_1.yaml`. Os
+# dois observáveis do tópico juntos: o B1 diz que o parâmetro é uma
+# variável NOVA e LOCAL, e o B2 diz O QUE a preenche.
+#
+# DEPENDE DO B1, e isto não é formalidade. O construto
+# `funcao_com_parametro` está `nao_introduzido`, e quem o INTRODUZ é o
+# cartão do B1 — este aqui o USA. Aprovar o B2 sem o B1 deixaria o
+# tópico ensinando o que se copia para dentro de uma variável que
+# ninguém explicou de onde vem. A ordem é B1, depois B2.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FRANQUEZA QUE ELA EXIGE
+#
+# `passa_a_expressao` — "o que se passa é a expressão escrita na
+# chamada, não o valor dela". Grade `T`, e a fonte dela traz uma
+# ressalva que vale repetir aqui:
+#
+#   Sorva (2012), p. 362, item 51: "Expressions (not their values) are
+#   passed as parameters". O item 51 é marcado `local` na tabela — é
+#   adição do próprio Sorva, sem estudo citado —, e por isso vem
+#   acompanhado do 52, "Argument expressions cause changes in existing
+#   variables" (George 2000a), que tem citação. Fica declarado assim: é
+#   a de base mais fraca entre as crenças deste tópico.
+#
+# Nada neste cartão depende de a crença ser forte: ele ensina o que C
+# faz, e quem mede se alguém sustenta o contrário são os itens.
+#
+# ---------------------------------------------------------------------
+# O QUE ESTE CARTÃO SE PROÍBE, do cabeçalho do grafo
+#
+#   modificar o parâmetro e ver o argumento    -> I1
+#   passar &x, e o que a cópia do endereço faz -> I2
+#   a casa nova sumir no fim da função         -> kc_01
+#
+# Por isso nenhum trecho daqui modifica coisa alguma — nem o parâmetro,
+# nem uma variável de fora. Os itens `ciu_kc06_005` e `ciu_kc06_t06`
+# fazem exatamente isso (a função escreve em `n` ou em `x` e imprime o
+# parâmetro), e é trabalho DELES: eles medem se a pessoa entendeu que o
+# valor entrou antes. O cartão estabelece que o valor entra; eles cobram
+# a consequência.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES, e por que são duas e não uma
+#
+# Elas andam em direções opostas de propósito, e juntas fecham a frase
+# "o VALOR do argumento é copiado":
+#
+#   caso resolvido   UMA variável, TRÊS expressões, três valores
+#                    diferentes dentro de f  -> o que entra é o
+#                    resultado, não o nome `x`
+#   outra rota       TRÊS expressões, UM valor, e f não consegue
+#                    distinguir as três chamadas -> o que entra é só o
+#                    resultado; como ele foi obtido não atravessa
+#
+# A SEGUNDA É A QUE DERRUBA A CRENÇA. Se a expressão viajasse, `f(3)`,
+# `f(2 + 1)` e `f(x + 1)` seriam três coisas diferentes chegando. São
+# três linhas idênticas de saída.
+#
+# O ITEM `ciu_kc06_t04` ("Chamar f(2 + 3) passa o quê?") toca o mesmo
+# terreno, e isso é a favor: ele é de degrau 1, e um cartão que não
+# tivesse ensinado o cenário estaria cobrando o que não deu. O item
+# pergunta o que passa; o cartão mostra que três maneiras de escrever
+# produzem a mesma chegada.
+#
+# E UMA FRASE SAIU DA AMPLIAÇÃO POR ISSO. A primeira versão terminava
+# com "é por isso que f(conta()) executa conta uma vez, mesmo que f use
+# o parâmetro dez vezes" — que é, palavra por palavra, a resposta do
+# item `ciu_kc06_t05` ("Quantas vezes rodei aparece?", com `f(conta())`
+# e f usando o parâmetro duas vezes). O cartão deve ENSINAR o que o item
+# mede; entregar a resposta do caso trabalhado faz o item medir memória
+# do cartão em vez de entendimento. Ficou o princípio — a conta é feita
+# antes, e não dentro — e o caso ficou para o item.
+#
+# O EXEMPLO DO CARTÃO NÃO MUDA — `f(x + 1); /* entra o 3, ja resolvido */`
+# já é o caso, e o comentário já diz "já resolvido".
+#
+# NARRAÇÃO: não entra. Sem teste de mesa (o `mesa.py` não instrumenta
+# chamada de função), e em prosa ela repetiria a ampliação.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_06
+node: kc06:B2
+premissa: "O valor do argumento é copiado para dentro dessa variável."
+crenca_que_nega: passa_a_expressao
+
+gerado_por: Claude Opus 5, 11/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# DECLARADO PORQUE ESTE CARTÃO USA, e não porque ele introduz. Quem
+# introduz `funcao_com_parametro` é o `B1_material_1.yaml`; a aprovação
+# DELE é que move o conceito no inventário. Se o B1 for aprovado antes,
+# esta linha deixa de ser necessária e pode sair.
+exige_conceitos: [funcao_com_parametro]
+
+
+# A AMPLIAÇÃO. Três parágrafos: o que preenche o parâmetro, o que
+# exatamente atravessa, e quando a conta é feita.
+ampliacao: >
+  A casa nova não nasce cheia. Quem a preenche é a chamada: antes de f
+  começar, o que estiver escrito entre os parênteses é resolvido, e o
+  resultado é copiado para dentro do parâmetro. Em f(x + 1), com x
+  valendo 2, o que entra em n é 3.
+
+  E o que entra é um número, não a conta. Dentro de f não existe x nem
+  existe o +; existe n, valendo 3. Escrever f(3), f(2 + 1) ou f(x + 1)
+  dá na mesma para f — as três chegam como 3, e de dentro não há como
+  saber qual delas você escreveu.
+
+  A conta é feita antes, e não dentro. Não é que f receba a expressão e
+  resolva quando precisar do valor: quando f começa, a conta já
+  acabou, e o que ela deixou foi um número no parâmetro.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void f(int n);
+  int x = 2;
+  f(x + 1);     /* entra o 3, ja resolvido */
+
+
+# O CASO RESOLVIDO: uma variável, três expressões, três valores.
+# Nomeia a tentação antes de responder.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      void f(int n)
+      {
+          printf("f recebeu %d\n", n);
+      }
+  - codigo: |
+      int x = 2;
+      f(x);
+      f(x + 1);
+      f(x * 10);
+  - prosa: "Pergunta: as três chamadas falam do mesmo x. Por que n sai diferente?"
+  - prosa: >
+      A tentação é dizer que n guarda a conta — que na segunda chamada n
+      é "x mais um", e na terceira é "x vezes dez". Olhe o que f
+      imprime. São números, e são três: 2, 3 e 20. A conta foi feita
+      antes de f começar, e o que entrou foi o resultado dela.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      f recebeu 2
+      f recebeu 3
+      f recebeu 20
+  - prosa: >
+      Um x só, três contas, três números. O que varia entre as chamadas
+      não é o x: é o que cada expressão resolveu antes de entrar.
+
+
+# A OUTRA ROTA: o caminho contrário, e é ela que derruba a crença.
+# Três expressões diferentes, um valor só — e f não distingue as três.
+reexplicacao:
+  - prosa: >
+      Outro caminho, pelo avesso: em vez de variar o resultado, varie a
+      maneira de escrevê-lo.
+  - codigo: |
+      void f(int n)
+      {
+          printf("recebi %d\n", n);
+      }
+  - codigo: |
+      int x = 2;
+      f(3);
+      f(2 + 1);
+      f(x + 1);
+  - prosa: >
+      Três chamadas escritas de três maneiras: um número cru, uma conta
+      entre números, uma conta com variável.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      recebi 3
+      recebi 3
+      recebi 3
+  - prosa: >
+      Se a expressão fosse o que viaja, f teria como notar a diferença
+      entre as três — e teria de saber quem é x, que lá dentro não
+      existe. As três linhas saem iguais porque as três chegaram iguais:
+      como 3.
