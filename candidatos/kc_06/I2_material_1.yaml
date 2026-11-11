@@ -1,0 +1,188 @@
+# Material de ensino do I2 do kc_06 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 11/11/2026. Quarto do tópico, e o nó onde a METÁFORA
+# DO TÓPICO CALA — o cabeçalho do grafo declara isso, e é a restrição
+# que mandou neste arquivo:
+#
+#   "Copiar o bilhete" sugere que há cópia de coisa e cópia de
+#   endereço, e que são operações diferentes. NÃO SÃO: é a MESMA
+#   cópia, e o que muda é só o que estava escrito. Quando a metáfora
+#   empurrar para "endereço é passado de outro jeito", ela cala — é
+#   esse "outro jeito" que não existe em C, e é a conclusão do tópico.
+#
+# Então o cartão tem UMA coisa a não fazer, e ela é fácil de fazer sem
+# querer: apresentar `f(&x)` como um segundo modo de passar. Não é modo
+# nenhum. É a mesma passagem de sempre — resolve o que está entre os
+# parênteses, copia o resultado — com um resultado que por acaso é um
+# lugar.
+#
+# A CADEIA É CURTA, E ISSO É DO GRAFO: o I2 tem suporte só em `B2`, e a
+# refutação percorre B2 -> I2. Ele não precisa do B1: não importa de
+# quem é a caixa nova, importa O QUE foi copiado para dentro dela.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `ampersand_copies` — "&x entrega uma cópia de x, e é a cópia que a
+# função recebe". Sorva (2012), p. 362, item 66: "Assigning an object
+# means 'sending' an object (or a copy) to a variable" (Ma 2007). A
+# mesma crença está no catálogo do kc_04, que é PRÉ-REQUISITO deste
+# tópico.
+#
+# E A FONTE JÁ DIZ COMO ELA CAI: se `&x` entregasse uma cópia de x,
+# `*p = v` dentro de f mexeria na cópia, e x não mudaria.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES, e nenhuma delas é a comparação `a`/`b`
+#
+#   caso resolvido   O MESMO endereço copiado DUAS vezes, para dois
+#                    parâmetros. Escreve por um, lê pelo outro.
+#   outra rota       A chamada SEM `&` nenhum, passando uma variável
+#                    que guarda o endereço.
+#
+# POR QUE NÃO A COMPARAÇÃO `f(x)` CONTRA `g(&x)`. Porque ela já é o
+# item `ciu_kc06_012`, de degrau 3, e porque ela é o caminho mais curto
+# para o erro que a metáfora anuncia: posta lado a lado, a dupla
+# convida a ler "dois jeitos de passar" em vez de "um jeito, dois
+# conteúdos". O cartão prefere demonstrações em que a passagem nem
+# aparece como escolha.
+#
+# O CASO RESOLVIDO É O QUE DERRUBA A CRENÇA DIRETO. `dois(&x, &x)` põe
+# o mesmo número em dois parâmetros. Escrever por `p` e ler por `q`
+# devolve o que foi escrito — duas cópias, uma caixa. Se `&x`
+# entregasse uma cópia de x, `p` e `q` teriam duas cópias
+# independentes, e `*q` continuaria 1.
+#
+# A OUTRA ROTA TIRA O `&` DA CHAMADA, e é ela que atende a restrição da
+# metáfora de frente: `f(onde)` não tem nada de especial na cara. A
+# chamada copia o valor de `onde` para dentro de `p` exatamente como
+# copiaria o valor de `x` para dentro de `n`. Some o `&` do ponto da
+# chamada e some junto a ilusão de que existe um segundo modo.
+#
+# ---------------------------------------------------------------------
+# O QUE FICA FORA
+#
+#   atribuir a `p` dentro de f, e o ponteiro do chamador  -> I3
+#   "C não tem passagem por referência"                   -> I4
+#   a casa nova sumir no fim da função                    -> kc_01
+#
+# Por isso NENHUM trecho daqui atribui ao PARÂMETRO dentro de f — só a
+# `*p`. A distinção entre `p = ...` e `*p = ...` é o I3 inteiro, e
+# antecipá-la aqui tiraria o nó dele. (A outra rota atribui a um
+# ponteiro em `main`, ao criá-lo: isso não é o I3, que trata do que
+# acontece com o ponteiro DE QUEM CHAMOU quando f mexe no dela.)
+#
+# E UMA FRASE SAIU DA AMPLIAÇÃO pelo mesmo cuidado: ela dizia "não
+# existem dois modos de passar em C — há um só", que é a conclusão do
+# tópico dita quatro nós antes da hora. Ficou "não é um segundo modo de
+# passar — é o mesmo": afirmação sobre ESTA chamada, não sobre a
+# linguagem. Quem afirma sobre a linguagem é o I4.
+#
+# O EXEMPLO DO CARTÃO NÃO MUDA — `void f(int *p) { *p = 99; }` com
+# `/* x virou 99 */` já é o caso mínimo.
+#
+# NARRAÇÃO: não entra, pelo mesmo motivo dos três anteriores.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_06
+node: kc06:I2
+premissa: >
+  Passar &x copia o endereço, e um endereço copiado leva ao mesmo
+  lugar: por isso *p = v dentro de f altera x.
+crenca_que_nega: ampersand_copies
+
+gerado_por: Claude Opus 5, 11/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# Declarado porque este cartão USA. Quem introduz é o B1.
+exige_conceitos: [funcao_com_parametro]
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo nega que haja novidade no
+# mecanismo — é a restrição da metáfora dita antes de qualquer outra
+# coisa, porque é o erro que o resto do cartão poderia induzir.
+ampliacao: >
+  A passagem não mudou. f(&x) copia, do mesmo jeito que f(x) copiava: a
+  chamada resolve o que está entre os parênteses e copia o resultado
+  para dentro do parâmetro. Não é um segundo modo de passar — é o
+  mesmo, e o que varia é o que o resultado É.
+
+  O que &x resolve é o endereço de x: um número que diz ONDE, e não
+  quanto. Copiar esse número não copia a casa. A cópia que chegou em p
+  é um número igual ao que ficou em x, e números iguais apontam o
+  mesmo lugar.
+
+  Por isso *p = 99 muda x. O *p não mexe em p: ele vai até o lugar que
+  p indica, e escreve lá. A cópia está em p, dentro de f; a escrita
+  acontece em x, que nunca saiu do lugar.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void f(int *p) { *p = 99; }
+  int x = 1;
+  f(&x);        /* x virou 99 */
+
+
+# O CASO RESOLVIDO: o mesmo endereço em dois parâmetros. Escreve por um,
+# lê pelo outro.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      void dois(int *p, int *q)
+      {
+          *p = 50;
+          printf("depois de *p = 50, *q vale %d\n", *q);
+          *q = *q + 1;
+      }
+  - codigo: |
+      int x = 1;
+      dois(&x, &x);
+      printf("no fim, x = %d\n", x);
+  - prosa: "Pergunta: p e q receberam a mesma coisa. Quanto *q mostra na segunda linha de dois?"
+  - prosa: >
+      A tentação é dizer 1 — cada parâmetro tem a sua cópia, então
+      mexer por p não deveria aparecer em q. Tem mesmo: são duas
+      cópias, e são independentes uma da outra. Só que o que foi
+      copiado não é o valor de x: é o número da casa dele. Duas cópias
+      do mesmo número indicam a mesma casa.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      depois de *p = 50, *q vale 50
+      no fim, x = 51
+  - prosa: >
+      Escrevi por p e li por q, e veio 50. Depois somei 1 por q, e x
+      terminou 51 — as três operações caíram na mesma caixa. Se &x
+      tivesse entregado uma cópia de x, p e q guardariam dois uns
+      separados, *q mostraria 1, e x terminaria valendo 1.
+
+
+# A OUTRA ROTA: a chamada sem `&` nenhum.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Olhe uma chamada em que o & nem aparece.
+  - codigo: |
+      void f(int *p)
+      {
+          *p = 99;
+      }
+  - codigo: |
+      int x = 1;
+      int *guarda = &x;
+      f(guarda);
+      printf("x = %d\n", x);
+  - prosa: >
+      f(guarda) é uma chamada comum: resolve o que está entre os
+      parênteses — o valor de guarda — e copia para dentro de p. É a
+      mesma frase que descreveria f(x), trocando o nome da variável.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      x = 99
+  - prosa: >
+      Não houve modo especial de passar: houve uma cópia, como sempre.
+      O & tinha aparecido antes, quando guarda foi preenchido, e ali
+      ele fez o que faz — respondeu o endereço de x. Na hora da chamada
+      não havia nada de diferente a fazer.
