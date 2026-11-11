@@ -99,7 +99,8 @@
   provenance: T
   label_pt: "int *p já cria o dado apontado automaticamente."
   source: >
-    Kaczmarczyk et al. (2010), p. 109, Tabela 2, MMR4; e FAQ comp.lang.c
+    Ma (2007), APUD Sorva (2012), Apêndice A, p. 364, item 92:
+    "Declaring a variable also creates an object". E FAQ comp.lang.c
     7.10, "I'm trying to declare a pointer and allocate some space for it,
     but it's not working: char *p; *p = malloc(10);". A mesma crença está
     no catálogo do kc_03, e a curadoria registra que este nó é importado

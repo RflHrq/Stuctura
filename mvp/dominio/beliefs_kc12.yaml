@@ -16,13 +16,19 @@
 
 - id: memory_is_uniform
   negates: kc_12:B1
-  provenance: T
+  provenance: E
   label_pt: "Memória é uma região única, sem distinção de regras de vida."
   source: >
-    Kaczmarczyk et al. (2010), p. 109, Tabela 1, tema T1. A mesma crença
-    está no catálogo do kc_01. Aqui ela nega a premissa de que o retorno
-    encerra a existência das locais: se a memória não distinguisse regras
-    de vida, não haveria nada que o retorno pudesse encerrar.
+    HIPÓTESE A TESTAR. Acompanha o rebaixamento feito no kc_01 em
+    11/11/2026: a citação anterior era "Kaczmarczyk et al. (2010),
+    p. 109, Tabela 1, tema T1", o artigo não tem cópia de acesso aberto,
+    e o Apêndice A do Sorva não traz item sobre a memória ser região
+    única sem distinção de regras de tempo de vida. A razão inteira está
+    na entrada do kc_01.
+
+    Aqui ela nega a premissa de que o retorno encerra a existência das
+    locais: se a memória não distinguisse regras de vida, não haveria
+    nada que o retorno pudesse encerrar.
 
 - id: ampersand_copies
   negates: kc_12:B2

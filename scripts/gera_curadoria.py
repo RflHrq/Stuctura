@@ -190,7 +190,7 @@ invenção sua que vai virar dado"*.
 | crenças distintas | **%d** |
 | conferidas na obra primária nesta auditoria | **%d** |
 | grades | %s |
-| hipóteses `E` | **%d**, as duas fora dos quatro tópicos-piloto |
+| hipóteses `E` | **%d**, todas fora dos quatro tópicos-piloto |
 
 ### Como cada obra foi conferida
 
@@ -363,6 +363,22 @@ curadoria, não de leitura.
 *Gerado de `mvp/dominio/beliefs_kc*.yaml` em 11/11/2026. A coluna de
 conferência registra o que foi aberto NESTA auditoria; o que foi
 conferido em auditoria anterior está em `docs/revisao-crencas-kc02.md`.*
+
+### Como reproduzir, e por que o número muda
+
+    python scripts/gera_curadoria.py CAMINHO/DO/sorva2012.txt
+
+O argumento é o texto integral do Sorva (2012), baixado do repositório
+aberto da Aalto (handle `123456789/3534`, bundle TEXT). A coluna de
+conferência das crenças de classe 1 é produzida **procurando a frase em
+inglês de cada citação nesse texto** — o programa não confia no campo de
+fonte, ele confere.
+
+**Sem o argumento, o número cai de 52 para 32**, e as linhas que
+dependiam do texto passam a dizer "texto da obra não dado nesta
+execução". Isso é deliberado: o documento não afirma uma conferência que
+a execução não fez. O arquivo não entra no repositório porque é a obra
+de outra pessoa; quem quiser reconferir baixa do handle acima.
 """ % (n, n, confs, ", ".join("%s %d" % (k.replace("grade ", "`") + "`", v)
                               for k, v in sorted(conta.items())
                               if k.startswith("grade")),

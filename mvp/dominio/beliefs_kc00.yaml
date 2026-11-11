@@ -10,24 +10,71 @@
 
 - id: no_value_no_memory
   negates: kc_00:B2
-  provenance: L
+  provenance: D
   label_pt: "Se eu nao dei valor, a variavel ainda nao existe na memoria."
-  source: "Kaczmarczyk, Petrick, East & Herman, 2010, SIGCSE, 'Identifying Student Misconceptions of Programming' (PVR2)"
+  source: >
+    Kaczmarczyk, Petrick, East & Herman (2010), SIGCSE, "Identifying
+    Student Misconceptions of Programming", APUD Sorva (2012), Apêndice
+    A, p. 360, item 22: "Unassigned variables of primitive type (in
+    Java) have no memory allocated."
+
+    MEDIAÇÃO DECLARADA, 11/11/2026: o artigo original não foi aberto —
+    ele existe (DOI 10.1145/1734263.1734299, conferido no OpenAlex) e não
+    tem cópia de acesso aberto. O que foi lido é o item do Sorva que o
+    atribui, e a citação diz isso. A referência anterior trazia o código
+    "(PVR2)" do artigo, que não pode ser conferido em segunda mão e saiu.
 
 - id: declaration_zeroes
   negates: kc_00:B3
-  provenance: L
+  provenance: D
   label_pt: "Declarar ja zera a variavel, tipo em outras linguagens."
-  source: "Kernighan & Ritchie, The C Programming Language, 2a ed., secao 2.4 — contradiz diretamente esta crenca"
+  source: >
+    du Boulay (1986); Samurçay (1989), APUD Sorva (2012), Apêndice A,
+    p. 359, item 10: "Variables always receive a particular default
+    value upon creation."
+
+    MEDIAÇÃO DECLARADA, 11/11/2026: os dois estudos não foram abertos; o
+    que foi lido é o item do Sorva que os atribui.
+
+    E a REFUTAÇÃO, que é outra coisa e estava ocupando o campo da fonte:
+    Kernighan & Ritchie, The C Programming Language, 2a ed., seção 2.4,
+    contradiz a crença — mas isso é a obra técnica que diz que a crença é
+    FALSA, não a fonte que registra que alguém a tem. Os dois papéis
+    ficam separados aqui.
 
 - id: variable_remembers
   negates: kc_00:B4
   provenance: T
   label_pt: "A variavel lembra os valores antigos, nao so o ultimo."
-  source: "du Boulay, 1986; Hermans, Swidan, Aivaloglou & Smit, 2018, WiPSCE, 'Thinking out of the Box'"
+  source: >
+    du Boulay (1986); Soloway et al. (1982); Putnam et al. (1986);
+    Sleeman et al. (1986); Doukakis et al. (2007), APUD Sorva (2012),
+    Apêndice A, p. 359, item 9: "A variable can hold multiple values at a
+    time / 'remembers' old values."
+
+    CINCO estudos independentes atrás do mesmo item — é a crença mais
+    bem documentada deste tópico.
+
+    HERMANS ET AL. (2018) SAIU, 11/11/2026. A citação anterior o trazia,
+    e ele NÃO APARECE em item nenhum da Tabela A.1 do Sorva nem na
+    bibliografia dela — zero ocorrências no texto integral. Sem a obra
+    aberta e sem corroboração, a citação não se sustenta, e citação que
+    não se sustenta sai.
 
 - id: assignment_symmetric
   negates: kc_00:I1
   provenance: L
   label_pt: "Atribuicao funciona dos dois lados, tipo igualdade matematica."
-  source: "Ma, Ferguson, Roper & Wood, SIGCSE 2007, 'Investigating the Viability of Mental Models Held by Novice Programmers'"
+  source: >
+    du Boulay (1986); Ma (2007); Putnam et al. (1986), APUD Sorva
+    (2012), Apêndice A, p. 359, item 11: "Primitive assignment works in
+    opposite direction."
+
+    APROXIMAÇÃO DECLARADA, e ela é o ponto fraco desta linha: o item 11
+    é sobre a atribuição funcionar na direção INVERTIDA (`a = b` fazer b
+    receber a), e esta crença é sobre ela funcionar nos DOIS lados, como
+    igualdade matemática. São da mesma família — tratar `=` como relação
+    e não como operação — mas não são a mesma frase.
+
+    Se a coleta mostrar que são confusões distintas, esta crença precisa
+    de item próprio ou desce para `E`. O artigo do Ma não foi aberto.

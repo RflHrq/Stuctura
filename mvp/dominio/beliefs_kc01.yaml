@@ -75,6 +75,26 @@
 
 - id: memory_is_uniform
   negates: kc_01:I2
-  provenance: T
+  provenance: E
   label_pt: "Memória é uma região única, sem distinção de regras de vida."
-  source: "Kaczmarczyk et al. (2010), p. 109, Tabela 1, tema T1"
+  source: >
+    HIPÓTESE A TESTAR, e desceu de `T` para `E` em 11/11/2026 por falta
+    de fonte que se sustente.
+
+    A citação anterior era "Kaczmarczyk et al. (2010), p. 109, Tabela 1,
+    tema T1". O artigo existe — DOI 10.1145/1734263.1734299, conferido no
+    OpenAlex — e NÃO TEM cópia de acesso aberto: a afirmação sobre a
+    página 109 e o tema T1 não é verificável por quem escreveu isto.
+
+    E PROCUREI no Apêndice A do Sorva, item por item: não há item sobre a
+    memória ser região única sem distinção de regras de tempo de vida. O
+    mais próximo é o item 5, p. 359 — "Difficulties understanding the
+    lifetime of values" (du Boulay 1986) —, que é DIFICULDADE com tempo
+    de vida, não a crença de que a memória é indiferenciada. E o item
+    123, p. 366, é sobre objetos receberem a mesma QUANTIDADE de
+    memória, que é outra coisa.
+
+    Fica declarada como hipótese. Se nenhum participante a sustentar, o
+    achado é esse. Os dois tópicos em que ela aparece — kc_01 e kc_12 —
+    não são piloto, então ela não viola a regra que proíbe `E` em
+    piloto.

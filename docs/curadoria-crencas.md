@@ -41,9 +41,9 @@ invenção sua que vai virar dado"*.
 | | |
 | --- | --- |
 | crenças distintas | **61** |
-| conferidas na obra primária nesta auditoria | **49** |
-| grades | `D` 3, `E` 2, `L` 36, `N` 3, `T` 17 |
-| hipóteses `E` | **2**, as duas fora dos quatro tópicos-piloto |
+| conferidas na obra primária nesta auditoria | **52** |
+| grades | `D` 5, `E` 3, `L` 34, `N` 3, `T` 16 |
+| hipóteses `E` | **3**, todas fora dos quatro tópicos-piloto |
 
 ### Como cada obra foi conferida
 
@@ -218,9 +218,9 @@ curadoria, não de leitura.
 | `array_is_assignable` | kc_07 | I1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `array_is_pointer` | kc_07 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `array_passed_by_reference` | kc_07 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `assignment_symmetric` | kc_00 | I1 | **1** · concepção estudada | `L` | — | não conferida — acesso |
-| `declaration_allocates` | kc_03, kc_07 | I1 | **1** · concepção estudada | `T` | página/item, pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `declaration_zeroes` | kc_00, kc_03 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ, seção da obra | não conferida — acesso |
+| `assignment_symmetric` | kc_00 | I1 | **1** · concepção estudada | `L` | página/item | citada sem frase entre aspas |
+| `declaration_allocates` | kc_03, kc_07 | I1 | **1** · concepção estudada | `T` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
+| `declaration_zeroes` | kc_00, kc_03 | B3 | **1** · concepção estudada | `D` | página/item, pergunta do FAQ, seção da obra | **conferida** — texto integral do Sorva |
 | `double_deref_is_data` | kc_10 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `double_free_is_safe` | kc_09 | I4 | 2 · corpus de praticante | `N` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
 | `estrela_e_do_tipo` | kc_03 | B2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
@@ -238,9 +238,9 @@ curadoria, não de leitura.
 | `malloc_initializes_zero` | kc_08 | B3 | **1** · concepção estudada | `L` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
 | `memoria_e_do_computador` | kc_01 | B1 | hipótese | `E` | página/item | sem fonte, por desenho |
 | `memory_is_by_name` | kc_02 | B1 | **1** · concepção estudada | `D` | página/item | **conferida** — texto integral do Sorva |
-| `memory_is_uniform` | kc_01, kc_12 | I2 | **1** · concepção estudada | `T` | página/item | não conferida — acesso |
+| `memory_is_uniform` | kc_01, kc_12 | I2 | hipótese | `E` | página/item | sem fonte, por desenho |
 | `modify_pp_changes_p` | kc_06, kc_10 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `no_value_no_memory` | kc_00, kc_03 | B2 | **1** · concepção estudada | `L` | — | não conferida — acesso |
+| `no_value_no_memory` | kc_00, kc_03 | B2 | **1** · concepção estudada | `D` | página/item | **conferida** — texto integral do Sorva |
 | `null_after_free_redundant` | kc_09 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `null_is_absence` | kc_05 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `null_is_safe_to_deref` | kc_05 | I3 | 2 · corpus de praticante | `N` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
@@ -267,7 +267,7 @@ curadoria, não de leitura.
 | `system_frees_auto` | kc_01, kc_08 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `type_is_a_hint` | kc_00 | B1 | hipótese | `E` | — | sem fonte, por desenho |
 | `uninitialized_is_null` | kc_03 | I2 | **1** · concepção estudada | `D` | página/item | citada sem frase entre aspas |
-| `variable_remembers` | kc_00 | B4 | **1** · concepção estudada | `T` | — | não conferida — acesso |
+| `variable_remembers` | kc_00 | B4 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
 | `voidptr_arith_ok` | kc_11 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | parcial — seção 11 não reaberta |
 | `voidptr_is_universal` | kc_10 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 
@@ -276,3 +276,19 @@ curadoria, não de leitura.
 *Gerado de `mvp/dominio/beliefs_kc*.yaml` em 11/11/2026. A coluna de
 conferência registra o que foi aberto NESTA auditoria; o que foi
 conferido em auditoria anterior está em `docs/revisao-crencas-kc02.md`.*
+
+### Como reproduzir, e por que o número muda
+
+    python scripts/gera_curadoria.py CAMINHO/DO/sorva2012.txt
+
+O argumento é o texto integral do Sorva (2012), baixado do repositório
+aberto da Aalto (handle `123456789/3534`, bundle TEXT). A coluna de
+conferência das crenças de classe 1 é produzida **procurando a frase em
+inglês de cada citação nesse texto** — o programa não confia no campo de
+fonte, ele confere.
+
+**Sem o argumento, o número cai de 52 para 32**, e as linhas que
+dependiam do texto passam a dizer "texto da obra não dado nesta
+execução". Isso é deliberado: o documento não afirma uma conferência que
+a execução não fez. O arquivo não entra no repositório porque é a obra
+de outra pessoa; quem quiser reconferir baixa do handle acima.

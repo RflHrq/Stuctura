@@ -43,9 +43,17 @@
   provenance: T
   label_pt: "int *p já cria o dado apontado automaticamente."
   source: >
-    Kaczmarczyk et al. (2010), p. 109, Tabela 2, MMR4; e FAQ comp.lang.c
-    7.10, "I'm trying to declare a pointer and allocate some space for it,
-    but it's not working: char *p; *p = malloc(10);".
+    Ma (2007), APUD Sorva (2012), Apêndice A, p. 364, item 92:
+    "Declaring a variable also creates an object." E FAQ comp.lang.c
+    7.10, "I'm trying to declare a pointer and allocate some space for
+    it, but it's not working: char *p; *p = malloc(10);".
+
+    A ATRIBUIÇÃO MUDOU em 11/11/2026, e isso importa. A citação anterior
+    era "Kaczmarczyk et al. (2010), p. 109, Tabela 2, MMR4" — e o item do
+    Sorva que registra esta crença atribui a MA (2007), não a
+    Kaczmarczyk. O artigo do Kaczmarczyk não tem cópia aberta e não pôde
+    ser conferido; a afirmação sobre a página 109 e o código MMR4 não é
+    verificável por quem escreveu isto, e saiu.
 
 - id: uninitialized_is_null
   negates: kc_03:I2
