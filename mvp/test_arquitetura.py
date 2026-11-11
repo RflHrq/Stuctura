@@ -554,6 +554,12 @@ def test_o_requer_da_descida_fala_o_vocabulario_do_inventario():
 # O SEGUNDO TÓPICO É O QUE IMPORTA AQUI: enquanto só o kc_02 declarava,
 # "histórico individual" e "histórico de um tópico" eram a mesma coisa.
 # Com dois, a travessia passa a ter o que atravessar.
+# SOBE PARA 8 NO DIA EM QUE O `comparacao_de_ponteiros` FOR PROMOVIDO.
+# O cartão `kc_02:B1` o ensina desde 05/11/2026, e o inventário o
+# segura em `so_avaliado` porque a liberação é decisão do dono, tomada
+# depois da auditoria do conteúdo. Um conceito a mais declarado no
+# cartão é uma oportunidade a mais no log — então este número e os de
+# `TRAJETORIAS` sobem juntos, e só então.
 OPORTUNIDADES = {"kc_02": 7, "kc_07": 1}
 
 # O HISTÓRICO CONCEITUAL DE CADA PERSONA no kc_02, medido. São três
@@ -570,6 +576,11 @@ OPORTUNIDADES = {"kc_02": 7, "kc_07": 1}
 # É a diferença entre as três que torna o histórico uma medida. Se as
 # três linhas fossem iguais, o log estaria registrando o currículo e não
 # a pessoa.
+#
+# OS NÚMEROS SOBEM PARA 8 (e 16) junto com o `OPORTUNIDADES` acima,
+# quando o `comparacao_de_ponteiros` for promovido. O que este teste
+# guarda não são os números: é que as três linhas continuem DIFERENTES
+# entre si.
 TRAJETORIAS = {
     "acerta": {"conceito_apresentado": 7, "conceito_diagnosticado": 14,
                "conceito_confirmado": 7},
@@ -628,7 +639,7 @@ def test_a_oportunidade_nao_depende_de_quem_acerta():
     por_persona = {nome: sum(1 for e in percorre(d, nome)
                              if e.tipo == "conceito_apresentado")
                    for nome in PERSONAS}
-    assert set(por_persona.values()) == {7}, por_persona
+    assert set(por_persona.values()) == {OPORTUNIDADES["kc_02"]}, por_persona
 
 
 def test_as_tres_personas_deixam_tres_historicos_diferentes():

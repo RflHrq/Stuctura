@@ -130,21 +130,45 @@ def test_conceito_disponivel_nao_aprova_cadeia(tmp_path, monkeypatch):
 
 
 def test_cadeia_aprovada_sem_conceito_tambem_nao_roda(tmp_path, monkeypatch):
-    """A outra metade: aprovar a pedagogia não inventa o ensino."""
+    """A outra metade: aprovar a pedagogia não inventa o ensino.
+
+    A CADEIA DE EXEMPLO É ESCOLHIDA EM TEMPO DE EXECUÇÃO, e não está
+    escrita aqui. Era a `pointer_is_data`, e em 11/11/2026 ela passou a
+    `liberada` — o `comparacao_de_ponteiros` que lhe faltava foi
+    promovido quando o inventário parou de negar o que o cartão do B1
+    ensina. O teste caiu por uma razão que não é a dele: o nome tinha
+    virado parte do contrato sem precisar ser.
+
+    O que ele cobra é a REGRA, e a regra precisa de uma cadeia que
+    ainda não esteja liberada. Se um dia nenhuma estiver, o `skip` diz
+    isso em vez de passar calado — teste vazio que passa é pior que
+    teste que não roda.
+    """
+    d0 = carrega(topico="kc_02")
+    alvo = next((c for c, de_ in sorted(d0.descidas.items())
+                 if not de_.liberada), None)
+    if alvo is None:
+        pytest.skip("toda cadeia do kc_02 está liberada — a regra ficou "
+                    "sem caso, e é preciso escolher outro tópico")
     monkeypatch.setenv("STRUCTURA_APROVACOES", str(_arquivo(
-        tmp_path, pointer_is_data=aprovacao.APROVADA)))
+        tmp_path, **{alvo: aprovacao.APROVADA})))
     aprovacao.recarrega()
     d = carrega(topico="kc_02")
-    assert not d.descidas["pointer_is_data"].liberada
-    assert d.descida("pointer_is_data") is None
+    assert not d.descidas[alvo].liberada, alvo
+    assert d.descida(alvo) is None, alvo
 
 
 def test_APROVAR_UMA_NAO_APROVA_A_OUTRA(tmp_path, monkeypatch):
     """O item que motivou esta fatia.
 
-    As duas cadeias exigem `comparacao_de_ponteiros` e mais nada que
-    falte: liberar aquele conceito abriria AS DUAS de uma vez, e uma
+    As duas cadeias exigiam `comparacao_de_ponteiros` e mais nada que
+    faltasse: liberar aquele conceito abriria AS DUAS de uma vez, e uma
     delas reprova em três das cinco perguntas da revisão.
+
+    E FOI O QUE ACONTECEU em 11/11/2026 — o conceito foi promovido, e as
+    duas ficaram `liberada=True` no mesmo instante. Nenhuma das duas
+    roda, e quem as segura agora é só o portão pedagógico. É o caso que
+    esta fatia existia para antecipar, acontecido.
     """
     monkeypatch.setenv("STRUCTURA_CONCEITOS", str(_tudo_disponivel(tmp_path)))
     monkeypatch.setenv("STRUCTURA_APROVACOES", str(_arquivo(
