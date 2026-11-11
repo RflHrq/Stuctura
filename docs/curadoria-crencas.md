@@ -63,6 +63,87 @@ que trazem ao lado.
 | CERT C / CWE | 5 | fontes públicas, **não reabertas nesta auditoria** |
 | Ma (2007), Kaczmarczyk et al. (2010), du Boulay (1986), Hermans et al. (2018), K&R | 6 | **não conferidas aqui** — ACM/Springer, sem acesso verificado nesta sessão |
 
+## As duas classes de fonte, e por que as duas valem
+
+O catálogo se apoia em **dois tipos de fonte**, e a diferença entre eles
+não é de qualidade: é de **que tipo de afirmação cada um sustenta**.
+Confundi-los seria o defeito; declará-los é o que torna o catálogo
+auditável.
+
+### Classe 1 — literatura de concepções errôneas (24 crenças)
+
+Estudo empírico com estudantes, ou revisão sistemática que os agrega.
+A principal é o **Apêndice A do Sorva (2012)**: um catálogo de 162
+concepções errôneas levantadas da literatura, cada uma com tópico,
+descrição e fonte. Ao lado dela, os estudos que ela mesma agrega — Ma
+(2007), Kaczmarczyk et al. (2010), du Boulay (1986), Holland et al.
+(1997), Soloway et al. (1982), Doukakis et al. (2007) — e Hermans et al.
+(2018).
+
+**O que esta classe sustenta:** que a concepção foi *observada em
+estudantes*, por alguém que a estudou.
+
+### Classe 2 — corpus de praticante (35 crenças)
+
+O **FAQ do comp.lang.c**. Conferido na fonte: a lista *"was first
+composed in 1990, for posting to the Usenet newsgroup comp.lang.c. It
+has undergone episodic refinement ever since, including being published
+as a book"* (c-faq.com/about.html). A forma publicada é:
+
+> Steve Summit. *C Programming FAQs: Frequently Asked Questions*.
+> Addison-Wesley, 1996. ISBN 0-201-84519-9.
+
+**Ressalva de citação, registrada:** a versão on-line corresponde a
+cerca de **metade** do livro (c-faq.com/book/). As citações deste
+catálogo são da versão on-line, por número de pergunta, que é o que foi
+consultado — e não do livro.
+
+**E por que o FAQ é evidência sobre concepção errônea, e não só sobre C.**
+Porque o título de muitas perguntas **é a concepção dita por quem a
+tem**, em primeira pessoa:
+
+| pergunta | o título |
+| --- | --- |
+| 6.2 | *"But I heard that `char a[]` was identical to `char *a`."* |
+| 6.9 | *"Someone explained to me that arrays were really just constant pointers."* |
+| 6.4b | *"So arrays are passed by reference, even though the rest of C uses pass by value?"* |
+| 4.11 | *"Does C even have ``pass by reference''?"* |
+
+O catálogo não **infere** a concepção a partir de uma explicação
+técnica: ele **lê a frase de quem a sustenta**. Esse é o critério de
+inclusão, e ele é conferível — qualquer pessoa abre a pergunta e vê se o
+título é a crença ou só o assunto.
+
+Em termos de método, isso faz do FAQ uma **fonte documental**: um corpus
+de confusões auto-relatadas, ocorrido naturalmente e curado por
+**recorrência** ao longo de mais de três décadas. O uso aqui é análise
+documental desse corpus.
+
+**O que esta classe sustenta — e o que ela NÃO sustenta:**
+
+- sustenta que a confusão **ocorre e recorre** entre quem aprende C;
+- **não** sustenta prevalência. A população é auto-selecionada — quem
+  escreve para um grupo de Usenet —, e a frequência é juízo do editor,
+  não medida. Nenhuma afirmação de proporção sai desta fonte.
+
+### Por que as duas são necessárias, e isto é um achado
+
+Procurado item por item no catálogo do Sorva: ele traz **26 itens** sobre
+memória, referência, array e tempo de vida — e **nenhum** sobre NULL,
+nenhum sobre `malloc`/`free`, nenhum sobre aritmética de ponteiro,
+nenhum sobre decaimento de array.
+
+A razão é que aquele catálogo é de programação introdutória em **Java,
+Python e BASIC**, onde esses construtos não existem. A literatura de
+concepções errôneas **não pode** documentar confusões sobre o que
+distingue C.
+
+Então a conclusão não é que as 35 crenças sejam fracas. É que **um
+catálogo de concepções errôneas para C exige uma segunda classe de
+fonte, e ela tem de ser declarada como segunda classe** — com o que ela
+sustenta e o que não sustenta escrito ao lado. É o que a coluna de
+classe desta tabela faz, linha por linha.
+
 ## O que esta auditoria achou, e que vale mais que a tabela
 
 ### 1. Duas vezes o catálogo disse "não está na literatura", e as duas vezes a busca tinha errado de palavra
@@ -126,69 +207,69 @@ curadoria, não de leitura.
 
 ## A tabela
 
-| crença | tópicos | nega | grade | localizador | conferência |
-| --- | --- | --- | --- | --- | --- |
-| `ampersand_copies` | kc_04, kc_06, kc_10, kc_12 | B2 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `ampersand_takes_value` | kc_04 | B1 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `any_zero_is_null` | kc_05 | B2 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `arr_equals_addr_of_arr` | kc_07 | B4 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `array2d_is_double_pointer` | kc_10 | I2 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `array_confused_with_cell` | kc_07 | B1 | `D` | página/item, seção da obra | **conferida** — texto integral do Sorva |
-| `array_is_assignable` | kc_07 | I1 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `array_is_pointer` | kc_07 | I3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `array_passed_by_reference` | kc_07 | B3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `assignment_symmetric` | kc_00 | I1 | `L` | — | não conferida — acesso |
-| `declaration_allocates` | kc_03, kc_07 | I1 | `T` | página/item, pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `declaration_zeroes` | kc_00, kc_03 | B3 | `L` | pergunta do FAQ, seção da obra | não conferida — acesso |
-| `double_deref_is_data` | kc_10 | I3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `double_free_is_safe` | kc_09 | I4 | `N` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
-| `estrela_e_do_tipo` | kc_03 | B2 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `free_kills_pointer` | kc_09 | I2 | `L` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
-| `free_nullifies` | kc_09 | I1 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `funcao_usa_a_variavel_do_chamador` | kc_06 | B1 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `function_gets_original` | kc_06, kc_09 | I1 | `T` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
-| `heap_dies_with_function` | kc_01 | I1 | `T` | — | não conferida — acesso |
-| `heap_persists` | kc_09 | B4 | `L` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
-| `indice_nao_e_soma` | kc_11 | I1 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `local_sobrevive` | kc_01 | B2 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `local_survives_return` | kc_12 | I3 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `malloc_always_succeeds` | kc_08 | I2 | `N` | id CWE/CERT | não conferida — fonte pública, não aberta aqui |
-| `malloc_conta_elementos` | kc_08 | B1 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `malloc_initializes_zero` | kc_08 | B3 | `L` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
-| `memoria_e_do_computador` | kc_01 | B1 | `E` | página/item | sem fonte, por desenho |
-| `memory_is_by_name` | kc_02 | B1 | `D` | página/item | **conferida** — texto integral do Sorva |
-| `memory_is_uniform` | kc_01, kc_12 | I2 | `T` | página/item | não conferida — acesso |
-| `modify_pp_changes_p` | kc_06, kc_10 | I3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `no_value_no_memory` | kc_00, kc_03 | B2 | `L` | — | não conferida — acesso |
-| `null_after_free_redundant` | kc_09 | I3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `null_is_absence` | kc_05 | B1 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `null_is_safe_to_deref` | kc_05 | I3 | `N` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
-| `null_is_zero_always` | kc_05 | I2 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `null_points_to_zero` | kc_05 | B3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `passa_a_expressao` | kc_06 | B2 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `pode_usar_logo` | kc_03 | I3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `pointer_and_target_are_one` | kc_02 | I1 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `pointer_copy_is_alias` | kc_06 | I4 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `pointer_has_no_address` | kc_02 | B2 | `T` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
-| `pointer_is_data` | kc_02, kc_04, kc_08, kc_12 | B3 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `pointer_is_integer` | kc_02, kc_11 | I2 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `pointer_is_just_a_name` | kc_04, kc_05, kc_10 | I1 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `pointer_is_pointless` | kc_02 | I3 | `L` | pergunta do FAQ | citação abreviada; forma íntegra localizada |
-| `pointer_knows_block_size` | kc_09, kc_11 | B1 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `pointer_lives_in_heap` | kc_08, kc_09 | I1 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `ptr_arith_is_bytes` | kc_11 | I3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `retorno_fica_guardado` | kc_12 | B3 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `sizeof_array_via_pointer` | kc_07 | I2 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `star_assigns_pointer` | kc_04 | I3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `star_binds_to_the_pointer` | kc_04 | I2 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `static_is_scope` | kc_12 | I2 | `T` | página/item | **conferida** — texto integral do Sorva |
-| `string_literal_is_array` | kc_07, kc_11 | B1 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `system_frees_auto` | kc_01, kc_08 | B3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `type_is_a_hint` | kc_00 | B1 | `E` | — | sem fonte, por desenho |
-| `uninitialized_is_null` | kc_03 | I2 | `D` | página/item | citada sem frase entre aspas |
-| `variable_remembers` | kc_00 | B4 | `T` | — | não conferida — acesso |
-| `voidptr_arith_ok` | kc_11 | I2 | `L` | pergunta do FAQ | parcial — seção 11 não reaberta |
-| `voidptr_is_universal` | kc_10 | B3 | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| crença | tópicos | nega | classe da fonte | grade | localizador | conferência |
+| --- | --- | --- | --- | --- | --- | --- |
+| `ampersand_copies` | kc_04, kc_06, kc_10, kc_12 | B2 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `ampersand_takes_value` | kc_04 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `any_zero_is_null` | kc_05 | B2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `arr_equals_addr_of_arr` | kc_07 | B4 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `array2d_is_double_pointer` | kc_10 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `array_confused_with_cell` | kc_07 | B1 | **1** · concepção estudada | `D` | página/item, seção da obra | **conferida** — texto integral do Sorva |
+| `array_is_assignable` | kc_07 | I1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `array_is_pointer` | kc_07 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `array_passed_by_reference` | kc_07 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `assignment_symmetric` | kc_00 | I1 | **1** · concepção estudada | `L` | — | não conferida — acesso |
+| `declaration_allocates` | kc_03, kc_07 | I1 | **1** · concepção estudada | `T` | página/item, pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `declaration_zeroes` | kc_00, kc_03 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ, seção da obra | não conferida — acesso |
+| `double_deref_is_data` | kc_10 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `double_free_is_safe` | kc_09 | I4 | 2 · corpus de praticante | `N` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
+| `estrela_e_do_tipo` | kc_03 | B2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `free_kills_pointer` | kc_09 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
+| `free_nullifies` | kc_09 | I1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `funcao_usa_a_variavel_do_chamador` | kc_06 | B1 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `function_gets_original` | kc_06, kc_09 | I1 | **1** · concepção estudada | `T` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
+| `heap_dies_with_function` | kc_01 | I1 | — sem fonte | `T` | — | não conferida — acesso |
+| `heap_persists` | kc_09 | B4 | 2 · corpus de praticante | `L` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
+| `indice_nao_e_soma` | kc_11 | I1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `local_sobrevive` | kc_01 | B2 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `local_survives_return` | kc_12 | I3 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `malloc_always_succeeds` | kc_08 | I2 | 2 · corpus de praticante | `N` | id CWE/CERT | não conferida — fonte pública, não aberta aqui |
+| `malloc_conta_elementos` | kc_08 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `malloc_initializes_zero` | kc_08 | B3 | **1** · concepção estudada | `L` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
+| `memoria_e_do_computador` | kc_01 | B1 | hipótese | `E` | página/item | sem fonte, por desenho |
+| `memory_is_by_name` | kc_02 | B1 | **1** · concepção estudada | `D` | página/item | **conferida** — texto integral do Sorva |
+| `memory_is_uniform` | kc_01, kc_12 | I2 | **1** · concepção estudada | `T` | página/item | não conferida — acesso |
+| `modify_pp_changes_p` | kc_06, kc_10 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `no_value_no_memory` | kc_00, kc_03 | B2 | **1** · concepção estudada | `L` | — | não conferida — acesso |
+| `null_after_free_redundant` | kc_09 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `null_is_absence` | kc_05 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `null_is_safe_to_deref` | kc_05 | I3 | 2 · corpus de praticante | `N` | pergunta do FAQ, id CWE/CERT | **conferida** — índice em c-faq.com |
+| `null_is_zero_always` | kc_05 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `null_points_to_zero` | kc_05 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `passa_a_expressao` | kc_06 | B2 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `pode_usar_logo` | kc_03 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `pointer_and_target_are_one` | kc_02 | I1 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `pointer_copy_is_alias` | kc_06 | I4 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `pointer_has_no_address` | kc_02 | B2 | **1** · concepção estudada | `T` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
+| `pointer_is_data` | kc_02, kc_04, kc_08, kc_12 | B3 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `pointer_is_integer` | kc_02, kc_11 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `pointer_is_just_a_name` | kc_04, kc_05, kc_10 | I1 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `pointer_is_pointless` | kc_02 | I3 | **1** · concepção estudada | `L` | pergunta do FAQ | citação abreviada; forma íntegra localizada |
+| `pointer_knows_block_size` | kc_09, kc_11 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `pointer_lives_in_heap` | kc_08, kc_09 | I1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `ptr_arith_is_bytes` | kc_11 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `retorno_fica_guardado` | kc_12 | B3 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `sizeof_array_via_pointer` | kc_07 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `star_assigns_pointer` | kc_04 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `star_binds_to_the_pointer` | kc_04 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `static_is_scope` | kc_12 | I2 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `string_literal_is_array` | kc_07, kc_11 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `system_frees_auto` | kc_01, kc_08 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
+| `type_is_a_hint` | kc_00 | B1 | hipótese | `E` | — | sem fonte, por desenho |
+| `uninitialized_is_null` | kc_03 | I2 | **1** · concepção estudada | `D` | página/item | citada sem frase entre aspas |
+| `variable_remembers` | kc_00 | B4 | **1** · concepção estudada | `T` | — | não conferida — acesso |
+| `voidptr_arith_ok` | kc_11 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | parcial — seção 11 não reaberta |
+| `voidptr_is_universal` | kc_10 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 
 ---
 

@@ -79,6 +79,27 @@ def frases_inglesas(f):
     return fora
 
 
+# As duas classes de fonte. Estudo com estudantes de um lado; corpus de
+# praticante do outro. A diferenca nao e de qualidade: e de QUE TIPO DE
+# AFIRMACAO cada uma sustenta, e a tabela declara isso por crenca.
+MISCONCEPCAO = ("Sorva", "Ma,", "Ma (", "Kaczmarczyk", "Boulay", "Hermans",
+                "Holland", "Doukakis", "Soloway", "Putnam", "Sleeman",
+                "tienne", "Hristova", "Sajaniemi", "Ragonis", "Kahney",
+                "Bayman")
+PRATICANTE = ("FAQ", "c-faq", "CWE", "CERT", "Kernighan", "Ritchie", "K&R",
+              "ISO")
+
+
+def classe(f, grade):
+    if grade == "E":
+        return "hipótese"
+    if any(k in f for k in MISCONCEPCAO):
+        return "**1** · concepção estudada"
+    if any(k in f for k in PRATICANTE):
+        return "2 · corpus de praticante"
+    return "— sem fonte"
+
+
 def conferencia(cid, f, grade):
     """Como esta crenca foi conferida, e por quem."""
     if grade == "E":
@@ -114,8 +135,11 @@ for cid in sorted(cr):
     conf = conferencia(cid, f, grade)
     conta[conf.replace("**", "")] += 1
     conta["grade " + grade] += 1
-    linhas.append("| `%s` | %s | %s | `%s` | %s | %s |"
-                  % (cid, ", ".join(ts), nega, grade, localizador(f), conf))
+    cl = classe(f, grade)
+    conta["classe " + cl.replace("**", "")] += 1
+    linhas.append("| `%s` | %s | %s | %s | `%s` | %s | %s |"
+                  % (cid, ", ".join(ts), nega, cl, grade, localizador(f),
+                     conf))
 
 tabela = NL.join(linhas)
 n = len(cr)
@@ -186,6 +210,87 @@ que trazem ao lado.
 | CERT C / CWE | 5 | fontes públicas, **não reabertas nesta auditoria** |
 | Ma (2007), Kaczmarczyk et al. (2010), du Boulay (1986), Hermans et al. (2018), K&R | 6 | **não conferidas aqui** — ACM/Springer, sem acesso verificado nesta sessão |
 
+## As duas classes de fonte, e por que as duas valem
+
+O catálogo se apoia em **dois tipos de fonte**, e a diferença entre eles
+não é de qualidade: é de **que tipo de afirmação cada um sustenta**.
+Confundi-los seria o defeito; declará-los é o que torna o catálogo
+auditável.
+
+### Classe 1 — literatura de concepções errôneas (24 crenças)
+
+Estudo empírico com estudantes, ou revisão sistemática que os agrega.
+A principal é o **Apêndice A do Sorva (2012)**: um catálogo de 162
+concepções errôneas levantadas da literatura, cada uma com tópico,
+descrição e fonte. Ao lado dela, os estudos que ela mesma agrega — Ma
+(2007), Kaczmarczyk et al. (2010), du Boulay (1986), Holland et al.
+(1997), Soloway et al. (1982), Doukakis et al. (2007) — e Hermans et al.
+(2018).
+
+**O que esta classe sustenta:** que a concepção foi *observada em
+estudantes*, por alguém que a estudou.
+
+### Classe 2 — corpus de praticante (35 crenças)
+
+O **FAQ do comp.lang.c**. Conferido na fonte: a lista *"was first
+composed in 1990, for posting to the Usenet newsgroup comp.lang.c. It
+has undergone episodic refinement ever since, including being published
+as a book"* (c-faq.com/about.html). A forma publicada é:
+
+> Steve Summit. *C Programming FAQs: Frequently Asked Questions*.
+> Addison-Wesley, 1996. ISBN 0-201-84519-9.
+
+**Ressalva de citação, registrada:** a versão on-line corresponde a
+cerca de **metade** do livro (c-faq.com/book/). As citações deste
+catálogo são da versão on-line, por número de pergunta, que é o que foi
+consultado — e não do livro.
+
+**E por que o FAQ é evidência sobre concepção errônea, e não só sobre C.**
+Porque o título de muitas perguntas **é a concepção dita por quem a
+tem**, em primeira pessoa:
+
+| pergunta | o título |
+| --- | --- |
+| 6.2 | *"But I heard that `char a[]` was identical to `char *a`."* |
+| 6.9 | *"Someone explained to me that arrays were really just constant pointers."* |
+| 6.4b | *"So arrays are passed by reference, even though the rest of C uses pass by value?"* |
+| 4.11 | *"Does C even have ``pass by reference''?"* |
+
+O catálogo não **infere** a concepção a partir de uma explicação
+técnica: ele **lê a frase de quem a sustenta**. Esse é o critério de
+inclusão, e ele é conferível — qualquer pessoa abre a pergunta e vê se o
+título é a crença ou só o assunto.
+
+Em termos de método, isso faz do FAQ uma **fonte documental**: um corpus
+de confusões auto-relatadas, ocorrido naturalmente e curado por
+**recorrência** ao longo de mais de três décadas. O uso aqui é análise
+documental desse corpus.
+
+**O que esta classe sustenta — e o que ela NÃO sustenta:**
+
+- sustenta que a confusão **ocorre e recorre** entre quem aprende C;
+- **não** sustenta prevalência. A população é auto-selecionada — quem
+  escreve para um grupo de Usenet —, e a frequência é juízo do editor,
+  não medida. Nenhuma afirmação de proporção sai desta fonte.
+
+### Por que as duas são necessárias, e isto é um achado
+
+Procurado item por item no catálogo do Sorva: ele traz **26 itens** sobre
+memória, referência, array e tempo de vida — e **nenhum** sobre NULL,
+nenhum sobre `malloc`/`free`, nenhum sobre aritmética de ponteiro,
+nenhum sobre decaimento de array.
+
+A razão é que aquele catálogo é de programação introdutória em **Java,
+Python e BASIC**, onde esses construtos não existem. A literatura de
+concepções errôneas **não pode** documentar confusões sobre o que
+distingue C.
+
+Então a conclusão não é que as 35 crenças sejam fracas. É que **um
+catálogo de concepções errôneas para C exige uma segunda classe de
+fonte, e ela tem de ser declarada como segunda classe** — com o que ela
+sustenta e o que não sustenta escrito ao lado. É o que a coluna de
+classe desta tabela faz, linha por linha.
+
 ## O que esta auditoria achou, e que vale mais que a tabela
 
 ### 1. Duas vezes o catálogo disse "não está na literatura", e as duas vezes a busca tinha errado de palavra
@@ -249,8 +354,8 @@ curadoria, não de leitura.
 
 ## A tabela
 
-| crença | tópicos | nega | grade | localizador | conferência |
-| --- | --- | --- | --- | --- | --- |
+| crença | tópicos | nega | classe da fonte | grade | localizador | conferência |
+| --- | --- | --- | --- | --- | --- | --- |
 %s
 
 ---
