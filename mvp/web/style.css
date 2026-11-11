@@ -192,6 +192,31 @@ h2{margin:0 0 14px; font-size:20px}
               border-radius:0 8px 8px 0; padding:12px 16px; margin:0 0 18px;
               font-size:15px; color:var(--tinta2)}
 
+/* ------------------------------------- a prova da premissa, recolhida */
+/* Discreta de proposito: quem conduz a tela e a premissa e o contraste
+   com a crenca. Esta caixa e para quem DESCONFIAR da premissa, e nao
+   para quem ja aceitou — entao ela nao compete por atencao, e o
+   `summary` e a unica coisa que aparece fechada. */
+.prova{border:1px solid var(--linha); border-radius:9px; padding:0 14px;
+       margin:0 0 14px; background:var(--papel)}
+.prova > summary{cursor:pointer; padding:10px 0; font-size:13px;
+                 color:var(--tinta2)}
+.prova > summary:hover{color:var(--acento)}
+.prova > p.rotulo{margin:10px 0 6px}
+/* O que esta prova afirma: frase corrida, e nao rotulo. Com o estilo de
+   rotulo saia em caixa alta — bom para tres palavras, ilegivel para
+   trinta. */
+.prova-afirma{margin:8px 0 10px; font-size:14px; color:var(--tinta2);
+              line-height:1.55}
+/* Em que compilador a recusa foi observada. Miudo porque e ressalva, e
+   presente porque sem ela a frase afirma sobre C o que so vale ali. */
+.prova-ambiente{margin:0 0 12px; font-size:12px; color:var(--tinta2);
+                line-height:1.5; white-space:pre-line}
+.prova .codigo{margin:0 0 12px; font-size:13px}
+/* A saida fica visualmente separada do programa: sao duas coisas, e
+   lado a lado com o mesmo fundo pareceriam a continuacao do codigo. */
+.prova .codigo.saida{background:var(--cartao); color:var(--tinta2)}
+
 /* ------------------------------------------------- camada 2: a razao */
 /* A resposta fica a vista enquanto ele escolhe o porque: nao e so
    lembrete, e o aviso de que aquela escolha nao muda mais. */

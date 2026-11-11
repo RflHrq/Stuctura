@@ -144,10 +144,46 @@ class No:
     # camada 2 (`motor.razoes_de`). Esticá-la transformaria uma opção de
     # resposta num parágrafo. Este campo é lido só pela tela de ensino.
     interpretacao: str = ""
+    # A PROVA DA PREMISSA, conferida pelo compilador. Lista, e vazia
+    # para os 73 nós que ainda não têm. Ver `Demonstracao`.
+    evidencia: tuple["Demonstracao", ...] = ()
 
     @property
     def observavel(self) -> bool:
         return self.tipo == "observavel"
+
+
+@dataclass(frozen=True)
+class Demonstracao:
+    """Um programa em C que demonstra a premissa, e o que dele se espera.
+
+    A CRENÇA tem procedência — grade, obra, página, item — porque é
+    afirmação sobre o que estudantes pensam, e quem a sustenta é o
+    estudo empírico. A PREMISSA é afirmação sobre C, e quem a sustenta é
+    o compilador. Procurar premissa na literatura de concepções errôneas
+    seria a mesma confusão de categoria que procurar concepção errônea
+    no padrão da linguagem.
+
+    DUAS FORMAS, e o oráculo já provava as duas antes disto existir:
+
+        espera        o programa compila, roda, e a saída tem de ser esta
+        nao_compila   a demonstração é o compilador RECUSAR
+
+    `ambiente` é obrigatório na segunda, e não é zelo: recusa é fato
+    sobre um compilador, não sobre a linguagem. `int n = p;` é `error:`
+    no gcc 16 e AVISO no gcc 13 — o que o padrão exige de todo
+    compilador conforme é o diagnóstico, não a recusa de traduzir.
+
+    E NÃO HÁ CAMPO DIZENDO SE PODE SER EXIBIDA. Quem decide isso é
+    `conceitos.exibivel`, varrendo os construtos do código: um campo
+    escrito por quem escreveu o programa seria julgado na mesma passada
+    de quem o escreveu.
+    """
+    afirma: str                    # que metade da premissa esta prova
+    programa: str
+    espera: str = ""
+    nao_compila: bool = False
+    ambiente: str = ""
 
 
 @dataclass(frozen=True)
@@ -515,6 +551,58 @@ def _paragrafos(valor) -> str:
     return branco.join(x for x in partes if x)
 
 
+def _demonstracoes(nid, bruto, problemas) -> tuple[Demonstracao, ...]:
+    """A `evidencia` do nó, recusada na carga se estiver malformada.
+
+    RECUSAR NA CARGA, e não no teste: a prova de uma premissa vai para a
+    tela de quem está sendo refutado, e uma prova que promete saída e
+    não compila — ou que não compila e promete saída — mostraria à
+    pessoa uma demonstração que não demonstra. Domínio que carrega
+    quebrado é pior que domínio que não carrega.
+
+    O PROGRAMA NÃO PASSA POR `_texto`. Ele é código, e `_texto` colapsa
+    espaço: a indentação morreria, e a tela mostraria C sem recuo.
+    """
+    if bruto is None:
+        return ()
+    if not isinstance(bruto, list):
+        problemas.append("nó %s: `evidencia` não é lista" % nid)
+        return ()
+    fora = []
+    for i, dem in enumerate(bruto):
+        if not isinstance(dem, dict):
+            problemas.append("nó %s: evidência %d não é mapa" % (nid, i))
+            continue
+        programa = str(dem.get("programa") or "")
+        nao_compila = bool(dem.get("nao_compila"))
+        espera = str(dem.get("espera") or "")
+        ambiente = _paragrafos(dem.get("ambiente"))
+        onde = "nó %s, evidência %d" % (nid, i)
+        if not programa.strip():
+            problemas.append("%s: sem programa" % onde)
+            continue
+        if not str(dem.get("afirma") or "").strip():
+            problemas.append("%s: sem `afirma`" % onde)
+        if nao_compila:
+            if espera.strip():
+                problemas.append(
+                    "%s: prova por recusa do compilador não pode prometer "
+                    "saída" % onde)
+            if not ambiente.strip():
+                problemas.append(
+                    "%s: prova por recusa sem `ambiente` — recusa é fato "
+                    "sobre um compilador, não sobre a linguagem" % onde)
+        elif not espera.strip():
+            problemas.append(
+                "%s: programa que roda e não diz o que tem de sair não "
+                "demonstra nada" % onde)
+        fora.append(Demonstracao(
+            afirma=_paragrafos(dem.get("afirma")), programa=programa,
+            espera=espera.rstrip("\n"), nao_compila=nao_compila,
+            ambiente=ambiente))
+    return tuple(fora)
+
+
 def _corta(alvo: str, quantas: int, cru_topico, grafo,
            cru_crencas, cru_atv, cru_desc) -> None:
     """Deixa só as `quantas` primeiras premissas, no dado CRU.
@@ -645,6 +733,7 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
             suporte=tuple(bruto.get("support") or ()),
             negado_por=tuple(bruto.get("negated_by") or ()),
             interpretacao=_paragrafos(bruto.get("interpretation")),
+            evidencia=_demonstracoes(nid, bruto.get("evidencia"), problemas),
         )
 
     for nid, no in nos.items():

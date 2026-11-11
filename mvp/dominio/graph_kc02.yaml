@@ -32,6 +32,79 @@ nodes:
       endereço — não o que está guardado nele.
     negated_by:
       - memory_is_by_name
+    evidencia:
+      - afirma: >
+          O endereco identifica o lugar: lugares diferentes dao numeros
+          diferentes, e o mesmo lugar da sempre o mesmo numero.
+
+          A COMPARACAO PASSA POR UMA FUNCAO de proposito. A primeira
+          versao desta evidencia escrevia `&x == &x` direto, e o gcc
+          respondeu `warning: self-comparison always evaluates to true
+          [-Wtautological-compare]`: aquilo era verdadeiro por SINTAXE,
+          dobrado em tempo de compilacao, e nao media nada sobre
+          memoria. Dentro de `igual` o compilador nao sabe de onde vem
+          cada argumento, e a comparacao e dos dois numeros, em tempo de
+          execucao -- que e a afirmacao do no.
+
+          E nenhuma VARIAVEL ponteiro aparece: `&x` o proprio cartao
+          deste no ja usa, e `int *p` e o B2.
+        programa: |
+          #include <stdio.h>
+
+          static int igual(int *a, int *b)
+          {
+              return a == b;
+          }
+
+          int main(void)
+          {
+              int x = 10, y = 20;
+
+              puts(igual(&x, &y) == 0
+                   ? "lugares diferentes tem numeros diferentes"
+                   : "FALHOU");
+              puts(igual(&x, &x) == 1
+                   ? "o mesmo lugar tem sempre o mesmo numero"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          lugares diferentes tem numeros diferentes
+          o mesmo lugar tem sempre o mesmo numero
+      - afirma: >
+          Lugares diferentes tem numeros diferentes -- a metade que se
+          pode mostrar aqui, na forma exata que este cartao ensina.
+
+          ESTA EXISTE PARA CHEGAR A PESSOA, e e a mesma divisao que o
+          cartao ja faz. A demonstracao acima passa a comparacao por uma
+          funcao, para que o compilador nao dobre `&x == &x` em tempo de
+          compilacao -- e funcao com parametro nao tem cartao que a
+          ensine, entao o portao de exibicao a barra, com razao.
+
+          O QUE SE PERDE: a metade "mesmo lugar". Nao e descuido, e o
+          limite do que se demonstra sem ponteiro: para um lugar ter
+          dois nomes e preciso guardar o endereco em algum lugar, e isso
+          e o B2. O comentario deste no registra a mesma conclusao sobre
+          o exemplo do cartao -- ele AFIRMA o caso igual e DEMONSTRA o
+          caso diferente. A prova faz igual.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int idade = 20;
+              int outra = 7;
+              int mesmo_lugar = &idade == &outra;
+
+              printf("&idade == &outra da %d\n", mesmo_lugar);
+              puts(mesmo_lugar == 0
+                   ? "lugares diferentes tem numeros diferentes"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          &idade == &outra da 0
+          lugares diferentes tem numeros diferentes
     # AMPLIACAO EXPLICATIVA, 05/11/2026 — nao e premissa nova.
     #
     # A auditoria da cadeia liberada achou que ela exigia comparacao de
@@ -80,6 +153,63 @@ nodes:
       um endereço, que é dela.
     negated_by:
       - pointer_has_no_address
+    evidencia:
+      - afirma: >
+          O ponteiro ocupa lugar e tem endereco proprio: `&p` existe, nao
+          e `&x`, e serve para chegar de volta em `p`.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 10;
+              int *p = &x;
+              int **pp = &p;
+
+              puts(sizeof p > 0 ? "o ponteiro ocupa lugar" : "FALHOU");
+              puts((void *) &p != (void *) &x ? "a caixa p nao e a caixa x"
+                                              : "FALHOU");
+              puts(*pp == p ? "o endereco de p leva de volta a p" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o ponteiro ocupa lugar
+          a caixa p nao e a caixa x
+          o endereco de p leva de volta a p
+      - afirma: >
+          O ponteiro ocupa lugar e a caixa dele nao e a caixa de `x` --
+          as duas metades que se podem mostrar SEM construto novo.
+
+          ESTA EXISTE PARA CHEGAR A PESSOA. A demonstracao acima usa
+          `int **pp`, e `ponteiro_de_ponteiro` nao tem cartao que o
+          ensine: o portao de exibicao a barra, com razao. Mostrar
+          ponteiro de ponteiro a quem esta no kc_02 repetiria o defeito
+          que reprovou a cadeia do `pointer_and_target_are_one`, cujo
+          degrau de ABERTURA exigia construto que cartao nenhum
+          ensinava.
+
+          O QUE SE PERDE sem o `**pp`: a volta. Lá, `*pp == p` mostra que
+          o endereco de `p` SERVE para chegar de volta em `p`. Aqui fica
+          so que `&p` existe e nao e `&x`. E menos, e e o que o caminho
+          permite -- a demonstracao completa continua conferida pelo
+          oraculo, para o trabalho.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 10;
+              int *p = &x;
+              int ocupa = sizeof p > 0;
+              int separadas = (void *) &p != (void *) &x;
+
+              puts(ocupa ? "o ponteiro ocupa lugar" : "FALHOU");
+              puts(separadas ? "a caixa p nao e a caixa x" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o ponteiro ocupa lugar
+          a caixa p nao e a caixa x
 
     # AMPLIACAO EXPLICATIVA, 08/11/2026 -- nao e premissa nova.
     #
@@ -121,6 +251,30 @@ nodes:
       caixa fica.
     negated_by:
       - pointer_is_data
+    evidencia:
+      - afirma: >
+          O que esta guardado em `p` e o endereco de `x`, e escrever por
+          ali muda `x` -- que e o que faz dele endereco e nao numero
+          solto.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 10;
+              int *p = &x;
+
+              puts(p == &x ? "o que esta dentro de p e o endereco de x"
+                           : "FALHOU");
+              *p = 99;
+              printf("escrever por p mudou x: %d\n", x);
+              puts(x == 99 ? "logo o valor em p era o endereco de x" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o que esta dentro de p e o endereco de x
+          escrever por p mudou x: 99
+          logo o valor em p era o endereco de x
     # AMPLIACAO EXPLICATIVA, 05/11/2026 — nao e premissa nova.
     #
     # A auditoria do material achou que o kc_02 ensinava em tres cartoes
@@ -182,6 +336,29 @@ nodes:
       lugares diferentes.
     negated_by:
       - pointer_and_target_are_one
+    evidencia:
+      - afirma: >
+          Sao duas coisas: ficam em lugares diferentes, e REATRIBUIR o
+          ponteiro nao mexe no objeto que ele apontava.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 10, y = 20;
+              int *p = &x;
+
+              puts((void *) &p != (void *) &x ? "p e x ficam em lugares diferentes"
+                                              : "FALHOU");
+              p = &y;
+              printf("mudar p nao mexeu em x: %d\n", x);
+              printf("e p agora alcanca y: %d\n", *p);
+              return 0;
+          }
+        espera: |-
+          p e x ficam em lugares diferentes
+          mudar p nao mexeu em x: 10
+          e p agora alcanca y: 20
 
     # AMPLIACAO EXPLICATIVA, 08/11/2026 -- nao e premissa nova.
     #
@@ -220,6 +397,68 @@ nodes:
       não é só um número solto.
     negated_by:
       - pointer_is_integer
+    evidencia:
+      - afirma: >
+          TEM TIPO: somar 1 anda um tamanho diferente em cada tipo, logo
+          quem soma sabe de que tipo e o ponteiro. Em `char` anda 1 byte,
+          e isso o padrao garante (`sizeof(char) == 1`).
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              char   c[2];
+              int    i[2];
+              double d[2];
+              int passo_char   = (int) ((char *) (c + 1) - (char *) c);
+              int passo_int    = (int) ((char *) (i + 1) - (char *) i);
+              int passo_double = (int) ((char *) (d + 1) - (char *) d);
+
+              puts(passo_char < passo_int && passo_int < passo_double
+                   ? "somar 1 anda um tamanho diferente em cada tipo"
+                   : "FALHOU");
+              puts(passo_char == 1
+                   ? "em char anda 1 byte, e isso o padrao garante"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          somar 1 anda um tamanho diferente em cada tipo
+          em char anda 1 byte, e isso o padrao garante
+      - afirma: >
+          E POR ISSO NAO E UM INTEIRO QUALQUER: guardar o ponteiro num
+          `int` e violacao de restricao da linguagem, e todo compilador
+          conforme tem de DIAGNOSTICAR. Um inteiro qualquer aceitaria a
+          atribuicao calado. A demonstracao aqui e a recusa, nao a saida.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 10;
+              int *p = &x;
+              int n = p;              /* um inteiro qualquer aceitaria isto */
+
+              printf("%d\n", n);
+              return 0;
+          }
+        nao_compila: true
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64 x86_64-ucrt-posix-seh), `-std=c17 -Wall`:
+          `error: initialization of 'int' from 'int *' makes integer from
+          pointer without a cast [-Wint-conversion]`.
+
+          E A RECUSA E DESTE COMPILADOR, NAO DE C. Em gcc anterior ao 14 a
+          mesma linha e AVISO e o programa compila: o `-Wint-conversion`
+          virou erro por padrao no 14. O que o padrao garante e o
+          diagnostico, nao a recusa de traduzir -- e a primeira
+          demonstracao deste no, que roda e compara saida, nao depende de
+          compilador nenhum.
+
+          O historico deste no registra que o projeto JA AFIRMOU "o
+          compilador recusa" uma vez, no material antigo, e teve de voltar
+          atras. A clausula exata do padrao fica a citar quando o ISO/IEC
+          9899 estiver aberto; aqui ela nao entra de memoria.
 
     # REESCRITA, 08/11/2026: de 277 para 137 palavras.
     #
@@ -265,6 +504,31 @@ nodes:
       ponto do programa, sem copiar o conteúdo.
     negated_by:
       - pointer_is_pointless
+    evidencia:
+      - afirma: >
+          Guardar o endereco alcanca a mesma caixa de outro ponto do
+          programa: outra funcao escreve em `x` sem receber copia de `x`.
+        programa: |
+          #include <stdio.h>
+
+          static void poe(int *onde, int valor)
+          {
+              *onde = valor;
+          }
+
+          int main(void)
+          {
+              int x = 10;
+
+              poe(&x, 99);
+              printf("outra funcao alcancou a caixa x: %d\n", x);
+              puts(x == 99 ? "e alcancou pelo endereco, sem copiar o conteudo"
+                           : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          outra funcao alcancou a caixa x: 99
+          e alcancou pelo endereco, sem copiar o conteudo
 
     # REESCRITA, 08/11/2026: de 205 para 123 palavras.
     #

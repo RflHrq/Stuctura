@@ -38,6 +38,7 @@ import os
 from dataclasses import dataclass, field, replace
 from typing import Any, Mapping
 
+from mvp import conceitos
 from mvp.dominio import NIVEIS, Atividade, Dominio, Opcao
 
 # Parâmetros do documento. Ponto de partida, não valores validados: ajustar
@@ -1686,7 +1687,52 @@ def _tela_refutacao(d: Dominio, e: Estado) -> Tela:
         "reexplicacao": _outra_vez(d, nid, e.repeticoes),
         "repeticoes": e.repeticoes,
         "pode_repetir": e.repeticoes < LIMITE_REEXPLICACAO,
+        # A PROVA DA PREMISSA DO PASSO, e não a do alvo da refutação.
+        #
+        # Num plano de três passos a tela mostra B2, depois B3, depois
+        # I1. Repetir a prova do alvo nos três afirmaria que a premissa
+        # do passo foi demonstrada quando o que se demonstrou foi outra
+        # coisa — o mesmo erro do rótulo de apoio, noutro campo.
+        #
+        # Lista SEMPRE, vazia quando não há nada: chave que às vezes
+        # existe é armadilha para o cliente, e o projeto já pegou isso
+        # na `reexplicacao`, que carregava string numa tela e lista na
+        # outra.
+        "prova": _prova(d, nid),
     })
+
+
+def _prova(d: Dominio, nid: str) -> list[dict]:
+    """As demonstrações do nó que podem chegar a quem está neste tópico.
+
+    O PORTÃO É O MESMO do resto do sistema: só passa o programa cujos
+    construtos têm cartão que os ensine aqui. Os programas de evidência
+    foram escritos para o examinador e usam `int **pp`, função com
+    parâmetro, array — mostrá-los a quem está no kc_02 repetiria o
+    defeito que reprovou a cadeia do `pointer_and_target_are_one`, cujo
+    degrau de ABERTURA exigia construto que cartão nenhum ensinava.
+
+    E A BLOQUEADA SAI CALADA. Dizer "existe uma prova que você não pode
+    ver" seria ruído para a pessoa e não consertaria nada para quem
+    mantém. Quem precisa saber quantas estão bloqueadas, e por qual
+    construto, chama `conceitos.faltando_para_exibir` — hoje só os
+    testes chamam, e nenhuma tela mostra essa contagem.
+    """
+    fora = []
+    for dem in d.nos[nid].evidencia:
+        if not conceitos.exibivel(dem.programa, d.id):
+            continue
+        fora.append({"afirma": dem.afirma, "programa": dem.programa,
+                     "espera": dem.espera, "nao_compila": dem.nao_compila,
+                     # VIAJA SÓ NA PROVA POR RECUSA, e por isso existe:
+                     # "este programa não compila" é fato sobre UM
+                     # compilador. `int n = p;` é `error:` no gcc 16 e
+                     # AVISO no gcc 13 — o padrão exige o diagnóstico,
+                     # não a recusa de traduzir. Afirmar a recusa sem
+                     # dizer onde é a frase que o material antigo deste
+                     # tópico já afirmou e teve de retirar.
+                     "ambiente": dem.ambiente if dem.nao_compila else ""})
+    return fora
 
 
 def _segue_refutacao(d: Dominio, e: Estado, repetir: bool = False) -> Transicao:

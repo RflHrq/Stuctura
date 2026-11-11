@@ -771,6 +771,75 @@
 
   /* -------------------------------------------------------- refutação */
 
+  /* A PROVA DA PREMISSA, recolhida num `details` por demonstracao.
+   *
+   * RECOLHIDA, e nao aberta: a refutacao tem trabalho a fazer na tela —
+   * a premissa, a figura, o contraste com a crenca. A prova e apoio;
+   * ela confirma a premissa para quem desconfiar dela, e nao substitui
+   * o argumento. Aberta por padrao, empurraria o contraste para fora do
+   * primeiro olhar.
+   *
+   * DUAS FORMAS, e a diferenca aparece: programa que RODA tem saida
+   * esperada; programa que o compilador RECUSA nao tem. Sem a condicao
+   * a tela mostraria o rotulo da saida com nada embaixo, e quem lesse
+   * concluiria que o programa roda e nao imprime — o contrario do que
+   * se esta demonstrando.
+   *
+   * O texto nunca vem do cliente: `afirma`, `programa` e `espera` sao
+   * do dominio, e o cliente so decide ONDE cada um entra. */
+  function desenhaProva(alvo, prova) {
+    var itens = prova || [];
+    alvo.textContent = "";
+    alvo.hidden = itens.length === 0;
+    itens.forEach(function (p) {
+      var cx = document.createElement("details");
+      cx.className = "prova";
+      var cab = document.createElement("summary");
+      cab.textContent = p.nao_compila
+        ? "Ver por que o compilador recusa"
+        : "Ver o programa que confere isto";
+      cx.appendChild(cab);
+
+      /* O `afirma` e FRASE, e nao rotulo. Com a classe `rotulo` ele saia
+       * em caixa alta e espacado — o estilo de "VOCE PARTIU DE", que tem
+       * tres palavras — e aqui sao trinta. Visto na tela antes de
+       * entregar. */
+      var afirma = document.createElement("p");
+      afirma.className = "prova-afirma";
+      afirma.textContent = p.afirma;
+      cx.appendChild(afirma);
+
+      var cod = document.createElement("pre");
+      cod.className = "codigo";
+      cod.textContent = p.programa;
+      cx.appendChild(cod);
+
+      var rotulo = document.createElement("p");
+      rotulo.className = "rotulo";
+      if (p.nao_compila) {
+        /* "Nao compila" sem dizer ONDE e afirmacao sobre a linguagem que
+         * so vale num compilador. O `ambiente` entra junto, miudo, e sem
+         * ele a frase ficaria mais forte do que o fato. */
+        rotulo.textContent = "O compilador recusa este programa, e e isso que se mostra";
+        cx.appendChild(rotulo);
+        if (p.ambiente) {
+          var amb = document.createElement("p");
+          amb.className = "prova-ambiente";
+          amb.textContent = p.ambiente;
+          cx.appendChild(amb);
+        }
+      } else {
+        rotulo.textContent = "E o que ele imprime";
+        cx.appendChild(rotulo);
+        var saida = document.createElement("pre");
+        saida.className = "codigo saida";
+        saida.textContent = p.espera;
+        cx.appendChild(saida);
+      }
+      alvo.appendChild(cx);
+    });
+  }
+
   function telaRefutacao(t) {
     $("trilha").textContent = "Refutando · passo " + t.passo + " de " + t.total;
     $("ref-passo").textContent = "Premissa " + t.no;
@@ -818,6 +887,7 @@
     /* Mesma forma das telas de ensino: a chave `reexplicacao` carregava
      * string aqui e lista la, e chave com dois tipos e armadilha. */
     desenhaBlocos($("ref-reexplicacao"), t.reexplicacao);
+    desenhaProva($("ref-prova"), t.prova);
 
     $("btn-refutacao").onclick = function () { responde({}); };
     var naoEntendi = $("btn-refutacao-nao");
