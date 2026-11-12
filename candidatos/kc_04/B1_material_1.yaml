@@ -1,0 +1,149 @@
+# Material de ensino do B1 do kc_04 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_04 tem ampliação VAZIA nos seis nós.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `ampersand_takes_value` — "o & funciona em qualquer coisa: dá para
+# pedir o endereço de um número escrito no código". Grade `L`, FAQ
+# comp.lang.c 4.10: "How can I pass a constant by reference? A call like
+# f(&5); doesn't seem to work."
+#
+# ---------------------------------------------------------------------
+# O QUE FICA FORA, e os sete itens deste nó cercam o literal por todos
+# os lados
+#
+#   `f(&5)` não compilar        -> `ciu_kc04_002`
+#   `&cinco` contra `&5`        -> `ciu_kc04_003`, degrau 3
+#   `soma(&2, &3)`              -> `ciu_kc04_t02`
+#   `&v[1]`                     -> `ciu_kc04_t03`
+#
+# NENHUMA DAS DUAS DEMONSTRAÇÕES ESCREVE `&5`. Não é só para não
+# repetir os itens: um cartão não pode exibir recusa do compilador sem
+# pôr `compilacao` e `atribuicao_entre_tipos` em jogo, e os dois estão
+# fora do inventário. O cartão ataca a premissa pelo lado POSITIVO — o
+# que tem endereço, e por quê — e deixa a recusa para os itens, que
+# medem.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Duas variáveis com o MESMO valor e endereços
+#                    diferentes: o endereço é do lugar, não do valor.
+#   outra rota       O valor muda três vezes e o endereço continua
+#                    chegando: ele não acompanha o conteúdo.
+#
+# O CASO RESOLVIDO É O QUE DERRUBA A CRENÇA. Quem acha que `&5` faz
+# sentido está tratando o endereço como propriedade do VALOR — se fosse,
+# dois cincos teriam o mesmo endereço, e um cinco escrito no código
+# teria o endereço "do cinco". Dois cincos em duas variáveis dão dois
+# endereços; logo o que tem endereço é a variável.
+#
+# OS ENDEREÇOS ENTRAM POR UMA DECISÃO TOMADA RODANDO, e isso tem
+# história: com `&primeiro` e `&segundo` à vista numa comparação, o gcc
+# dobra o resultado em tempo de compilação e responde `-Waddress`. O
+# programa deixaria de medir — é o mesmo defeito do `&x == &x` que
+# reprovou a primeira evidência do kc_02:B1.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_04
+node: kc04:B1
+premissa: "Só o que ocupa um lugar na memória tem endereço."
+crenca_que_nega: ampersand_takes_value
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. De quem é o endereço, o que não tem endereço, e por que
+# a pergunta nem chega a ser feita.
+ampliacao: >
+  O endereço é propriedade do LUGAR, e não do valor. Toda variável
+  ocupa um lugar na memória enquanto existe, e é esse lugar que tem
+  número. Duas variáveis com o mesmo conteúdo ocupam lugares
+  diferentes, e por isso têm endereços diferentes.
+
+  Um número escrito no código não ocupa lugar nenhum. O 5 que você
+  digita numa conta não é guardado em canto algum para ser consultado
+  depois: ele é parte da instrução, e some quando ela é traduzida. Não
+  há lugar, então não há número de lugar.
+
+  Por isso o pedido nem chega a ser feito. Escrever &5 não é pedir algo
+  difícil nem incomum: é pedir o endereço de uma coisa que não tem
+  lugar, e o compilador para ali. O mesmo vale para o resultado de uma
+  conta, que existe só durante o cálculo.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x;
+  &x           /* existe: x ocupa um lugar */
+  /* &5 nao existe: 5 nao ocupa lugar nenhum */
+
+
+# O CASO RESOLVIDO: dois valores iguais, dois endereços.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int primeiro = 5;
+      int segundo = 5;
+      int *um = NULL;
+      int *outro = NULL;
+      int passos = 0;
+
+      while (passos < 3) {
+          passos = passos + 1;
+      }
+      if (passos == 3) {
+          um = &primeiro;
+          outro = &segundo;
+      }
+      printf("os dois valores sao iguais? %d\n", primeiro == segundo);
+      printf("os dois enderecos sao iguais? %d\n", um == outro);
+  - prosa: "Pergunta: as duas guardam 5. Por que os endereços não são o mesmo?"
+  - prosa: >
+      A tentação é pensar que o endereço vem do valor — que existe um
+      lugar do 5, para onde qualquer 5 aponta. Olhe as duas respostas: o
+      conteúdo é igual e o endereço não é. O que tem número é a caixa, e
+      há duas caixas.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      os dois valores sao iguais? 1
+      os dois enderecos sao iguais? 0
+  - prosa: >
+      Mesmo valor, endereços diferentes. E daí sai a resposta para o 5
+      escrito no código: ele não tem caixa nenhuma, e por isso não tem
+      número de caixa para devolver.
+
+
+# A OUTRA ROTA: o valor muda, o endereço fica.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Se o endereço fosse do valor, trocar o valor
+      trocaria o endereço.
+  - codigo: |
+      int x = 1;
+      int *onde = &x;
+
+      x = 50;
+      printf("depois de x = 50, por onde chego em %d\n", *onde);
+      x = 900;
+      printf("depois de x = 900, por onde chego em %d\n", *onde);
+  - prosa: >
+      O endereço foi perguntado uma vez, no começo, e nunca mais. Depois
+      disso o conteúdo da caixa mudou duas vezes.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      depois de x = 50, por onde chego em 50
+      depois de x = 900, por onde chego em 900
+  - prosa: >
+      O mesmo endereço continuou servindo para os três valores, porque
+      ele nunca falou sobre o valor: ele diz onde a caixa está. Um
+      número escrito no código não tem caixa que fique — e é por isso
+      que não há o que perguntar sobre ele.

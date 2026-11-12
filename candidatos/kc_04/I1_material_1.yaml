@@ -1,0 +1,135 @@
+# Material de ensino do I1 do kc_04 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Primeiro nó de inferência: suporte em
+# `B3`, e a refutação percorre B3 -> I1.
+#
+# E A DERIVAÇÃO É CURTA. O B3 disse que dentro de p há um endereço. Daí
+# sai tudo: se o que está lá é um caminho, usar o caminho é VIAJAR — ler
+# o número, ir até aquele lugar, e agir no que estiver lá. Não há regra
+# nova neste nó.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `pointer_is_just_a_name` — "p é só outro nome da variável apontada:
+# *p não vai a lugar nenhum, é o mesmo nome escrito diferente". Grade
+# `T`, Sorva (2012), p. 362, item 64: "A variable associated with an
+# object is merely a name which can be used to manipulate an object"
+# (Sorva 2008; Ma 2007). A mesma crença está no kc_10:B2 e no kc_05.
+#
+# E ELA DIZ O QUE REFUTAR: se `*p` fosse um nome fixo, ele diria sempre
+# a mesma coisa. As duas demonstrações mudam o que está em p entre duas
+# aparições do MESMO `*p`, e as duas aparições fazem coisas diferentes.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   A mesma escrita `*p = ...` duas vezes, caindo em
+#                    duas variáveis diferentes.
+#   outra rota       A mesma leitura `*p` duas vezes, trazendo dois
+#                    números diferentes.
+#
+# UMA ESCREVE E A OUTRA LÊ, e é essa a divisão: a premissa diz que *p
+# "vai até o endereço e AGE no que está lá", e agir é das duas
+# maneiras. Se o leitor só vir a escrita, pode guardar "*p é a forma de
+# escrever na outra variável" — que é verdade e é metade.
+#
+# O QUE FICA FORA
+#
+#   `*p + y` numa conta            -> `ciu_kc04_011`
+#   `p = 2` e o que ele queria     -> `ciu_kc04_012`
+#   `*p = *p + 1`                  -> `ciu_kc04_t11`
+#   `*p = *p + 1` contra `p = p+1` -> `ciu_kc04_t12`, degrau 3
+#
+# NENHUMA DAS DUAS USA `*p` DOS DOIS LADOS DE UMA ATRIBUIÇÃO: essa
+# forma é de dois itens, e é lá que ela mede.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_04
+node: kc04:I1
+premissa: "*p vai até o endereço guardado em p e age no que está lá."
+crenca_que_nega: pointer_is_just_a_name
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO do B3: não é regra
+# nova, é o que decorre de haver um endereço dentro de p.
+ampliacao: >
+  Isto não é regra nova: é o que o B3 já disse, usado. Se dentro de p
+  há um endereço, então escrever *p é mandar o programa ler aquele
+  número, ir até aquele lugar e trabalhar no que estiver lá. É uma
+  viagem, e ela acontece toda vez.
+
+  Por isso *p não é um apelido. Um apelido é fixo — aponta para a mesma
+  coisa desde que foi criado. O *p depende do que está em p NAQUELE
+  momento: troque o conteúdo de p e o mesmo *p, escrito igual, passa a
+  chegar em outro lugar.
+
+  E a viagem serve nos dois sentidos. Do lado direito de uma
+  atribuição, *p traz o que encontrou; do lado esquerdo, deixa o que
+  você mandou. O que muda é a direção, e o caminho percorrido é o
+  mesmo.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x = 42;
+  int *p = &x;
+  *p           /* vai ate o endereco em p: da 42 */
+
+
+# O CASO RESOLVIDO: a mesma escrita, dois destinos.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 0, y = 0;
+      int *p = &x;
+
+      *p = 10;
+      p = &y;
+      *p = 20;
+      printf("x = %d, y = %d\n", x, y);
+  - prosa: "Pergunta: as duas escritas são iguais, letra por letra. Por que caem em variáveis diferentes?"
+  - prosa: >
+      A tentação é ler *p como um nome, e nome não muda de dono. Olhe a
+      linha do meio: ela trocou o que está DENTRO de p. A segunda
+      escrita leu o novo conteúdo e viajou para outro lugar.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      x = 10, y = 20
+  - prosa: >
+      Dez em x e vinte em y, escritos pela mesma sequência de
+      caracteres. Se *p fosse outro nome de x, as duas teriam ido para
+      x, e y continuaria zero.
+
+
+# A OUTRA ROTA: a mesma leitura, dois números.
+reexplicacao:
+  - prosa: >
+      Outro caminho, agora sem escrever nada: só olhando o que a
+      viagem traz.
+  - codigo: |
+      int x = 3, y = 400;
+      int *p = &x;
+
+      printf("a mesma escrita *p deu %d\n", *p);
+      p = &y;
+      printf("e agora deu %d\n", *p);
+  - prosa: >
+      Os dois printf são iguais. Entre eles, p recebeu outro endereço —
+      e só isso.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a mesma escrita *p deu 3
+      e agora deu 400
+  - prosa: >
+      Três e quatrocentos, do mesmo *p. A viagem é refeita a cada vez,
+      com o número que estiver em p na hora — e é por isso que a
+      resposta pode mudar sem que uma letra do *p mude.

@@ -1,0 +1,143 @@
+# Material de ensino do I3 do kc_04 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico: suporte em `B2` e
+# `I1` — o nó que diz o que o & devolve e o nó que diz o que o * faz —,
+# e a refutação percorre os dois antes de chegar aqui.
+#
+# E É AQUI QUE A METÁFORA DO TÓPICO FECHA. A analogia é "a pergunta e a
+# viagem": & pergunta o número da casa, * faz a viagem até ele. A
+# conclusão é que uma desfaz a outra.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE É A PERGUNTA 4.2 DO FAQ
+#
+# `star_assigns_pointer` — "na expressão, *p designa o próprio ponteiro
+# — é em *p que se guarda o endereço". Grade `L`, FAQ comp.lang.c 4.2:
+#
+#   "I'm trying to declare a pointer and allocate some space for it...
+#   char *p; *p = malloc(10);"
+#
+# QUEM ESCREVE ISSO LEU A DECLARAÇÃO COMO SE ELA CRIASSE `*p`, e então
+# usa `*p` como o nome que recebe o endereço. A conclusão deste tópico
+# é o que desfaz o nó: `*` e `&` agem em lugares diferentes, e cada um
+# desfaz o outro.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES, e são os dois sentidos do mesmo par
+#
+#   caso resolvido   `*(&x)` dentro de uma conta maior: o par cancela e
+#                    o que sobra é o próprio x.
+#   outra rota       `&(*p)` guardado num ponteiro: sair de p e voltar
+#                    dá o mesmo p.
+#
+# UMA SAI DA VARIÁVEL E A OUTRA SAI DO PONTEIRO, e juntas é que fecham
+# "um desfaz o outro". Com uma só, o leitor pode guardar a regra em uma
+# direção — e é na outra que mora o erro do FAQ 4.2.
+#
+# O `*(&x)` ENTRA NUMA CONTA, e não numa comparação com x, por uma
+# razão de medida: escrever `*(&x) == x` é comparação de uma coisa
+# consigo mesma, o gcc responde `-Wtautological-compare` e dobra o
+# resultado em compilação. O programa deixaria de medir — é o mesmo
+# defeito que reprovou a primeira evidência do kc_04:I3 no grafo, e
+# está registrado lá.
+#
+# O QUE FICA FORA
+#
+#   `char *p; *p = malloc(10);`      -> `ciu_kc04_017`, que é o FAQ
+#   `*(&x) = 2` contra `&(*p) = 2`   -> `ciu_kc04_018`, degrau 3
+#   `printf("%d", *(&x))`            -> `ciu_kc04_t17`
+#   `int *p; *p = &x;`               -> `ciu_kc04_t18`
+#
+# NENHUMA DAS DUAS ESCREVE ATRAVÉS DO PAR. A forma `*(&x) = 2` é de um
+# item de degrau 3, e é lá que ela mede; aqui o par aparece só do lado
+# de onde se LÊ.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_04
+node: kc04:I3
+premissa: "* e & são inversos, e cada um age num lugar: *(&x) é o próprio x."
+crenca_que_nega: star_assigns_pointer
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que cada um faz, o que a dupla faz, e onde o nome do
+# ponteiro entra.
+ampliacao: >
+  São dois movimentos em sentidos opostos. & sobe um nível: parte de
+  uma caixa e entrega o endereço dela. * desce um nível: parte de um
+  endereço e entrega a caixa que ele nomeia. Cada um age num lugar
+  diferente, e nenhum dos dois muda nada por si.
+
+  Postos em sequência, eles se cancelam. *(&x) sobe de x para o
+  endereço de x e desce de volta: o que sobra é x, com o mesmo
+  significado que escrever x teria. E na outra ordem vale igual: &(*p)
+  desce até a caixa apontada e sobe de novo, devolvendo o próprio p.
+
+  E é isso que diz qual nome recebe um endereço. Se *p desce um nível,
+  então *p é o int — e int não guarda endereço. Quem está no nível do
+  endereço é p, e é a p que se atribui. Escrever *p = (um endereço)
+  manda o endereço para o lugar errado por um nível exato.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x = 7;
+  *(&x)        /* e a propria x */
+  /* p = &x muda p; *p = 9 muda x */
+
+
+# O CASO RESOLVIDO: o par dentro de uma conta.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 7, y = 3;
+      int soma = *(&x) + *(&y);
+
+      printf("a soma deu %d\n", soma);
+  - prosa: "Pergunta: o que a conta somou, exatamente?"
+  - prosa: >
+      A tentação é achar que *(&x) é algum outro objeto — uma cópia, ou
+      o ponteiro. Siga os dois passos: &x entrega o endereço de x, e o *
+      pega esse endereço e volta para a caixa dele. O que entrou na
+      conta foi x.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a soma deu 10
+  - prosa: >
+      Sete mais três. A dupla não acrescentou nada nem tirou nada: ela
+      subiu um nível e desceu o mesmo nível, e o que sobrou foi a
+      variável de onde ela partiu.
+
+
+# A OUTRA ROTA: o par no outro sentido.
+reexplicacao:
+  - prosa: >
+      Outro caminho, pelo lado do ponteiro: desça primeiro e suba
+      depois.
+  - codigo: |
+      int x = 7;
+      int *p = &x;
+      int *voltou = &(*p);
+
+      printf("saindo de p e voltando, chego no mesmo ponteiro? %d\n", voltou == p);
+      printf("e por ele chego em %d\n", *voltou);
+  - prosa: >
+      *p desce até a caixa de x; o & em volta sobe de novo e entrega o
+      endereço dela — que é o que estava em p desde o começo. Por isso o
+      resultado coube numa caixa de ponteiro.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      saindo de p e voltando, chego no mesmo ponteiro? 1
+      e por ele chego em 7
+  - prosa: >
+      O mesmo ponteiro de volta, e o caminho até o 7 intacto. É por aí
+      que se vê em qual nível cada nome está: p e &(*p) são do nível do
+      endereço, x e *p são do nível do int — e é a p, não a *p, que um
+      endereço se atribui.

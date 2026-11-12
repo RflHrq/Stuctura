@@ -1,0 +1,153 @@
+# Material de ensino do I2 do kc_04 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Suporte em `I1`, e a refutação percorre
+# B3 -> I1 -> I2.
+#
+# E A DERIVAÇÃO SAI DO I1 EM UMA LINHA: se *p é a viagem até o lugar
+# apontado, então escrever em *p é deixar alguma coisa NAQUELE lugar. O
+# papel com o endereço fica no bolso; quem muda é a casa visitada.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE É UMA PERGUNTA DE SINTAXE COM FUNDO DE MODELO
+#
+# `star_binds_to_the_pointer` — "mexer em *p mexe no ponteiro: *p++
+# anda com o que está dentro da casa". Grade `L`, FAQ comp.lang.c 4.3:
+# "Does *p++ increment p, or what it points to?" A resposta é que
+# `*p++` é `*(p++)` e incrementa p; para andar com o apontado é
+# `(*p)++`.
+#
+# A PERGUNTA EXISTE porque quem a faz trata as duas caixas como uma só.
+# O cartão não discute precedência de operadores — isso é sintaxe, e o
+# nó é sobre QUAIS CAIXAS existem.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   TRÊS escritas por *p seguidas, e p continua com o
+#                    mesmo endereço depois das três.
+#   outra rota       Uma função escreve por p: a variável do chamador
+#                    muda, e o ponteiro dele não.
+#
+# O CASO RESOLVIDO REPETE A ESCRITA de propósito. Com uma só, "p não
+# mudou" pode ser lido como coincidência daquele caso; com três
+# seguidas, o que se vê é que a escrita NUNCA toca o ponteiro — é uma
+# operação que não tem como mexer nele.
+#
+# A COMPARAÇÃO `p == &x` VAI PARA UMA VARIÁVEL antes de ser impressa, e
+# não é estilo: com `&x` dentro do printf o gcc responde `-Waddress` e
+# dobra o resultado em compilação. O programa deixaria de medir — é o
+# mesmo defeito do `&x == &x` que reprovou a primeira evidência do
+# kc_02:B1.
+#
+# O QUE FICA FORA
+#
+#   `*p = 5` e depois `p == &x`       -> `ciu_kc04_014`
+#   `*p = b` contra `p = &b`          -> `ciu_kc04_015`, degrau 3
+#   `(*p)++`                          -> `ciu_kc04_t14`
+#   `zera(int *p) { p = 0; }`         -> `ciu_kc04_t15`
+#
+# O `t15` É A FUNÇÃO QUE ERRA, e a outra rota é a função que ACERTA:
+# lá dentro se escreve `p = 0`, aqui `*destino = 100`. O item mostra o
+# defeito e pergunta por que x não mudou; o cartão mostra a forma certa
+# e nomeia o que ela mexe e o que ela não mexe.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_04
+node: kc04:I2
+premissa: "*p = v escreve no objeto apontado; p continua com o mesmo endereço."
+crenca_que_nega: star_binds_to_the_pointer
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. Em qual caixa a escrita cai, qual fica intacta, e como
+# se escreve quando a intenção é a outra.
+ampliacao: >
+  Em *p = 7, a escrita acontece no fim da viagem. O programa lê o
+  endereço que está em p, vai até aquela caixa, e põe o 7 lá. O
+  endereço foi LIDO para a viagem acontecer — e ler não muda nada.
+
+  Por isso p continua igual depois. São duas caixas: a do ponteiro, com
+  o número do lugar, e a do lugar, com o int. A escrita por * mexe na
+  segunda, e não tem como alcançar a primeira: ela nem é o destino da
+  viagem, é o ponto de partida.
+
+  E quando a intenção é mexer no ponteiro, a escrita é outra: p = &y
+  troca o número que está em p, e aí a caixa apontada é que fica
+  intacta. Uma linha muda o conteúdo da casa; a outra muda o endereço no
+  papel. Saber qual é qual é saber em qual das duas caixas você está
+  mexendo.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x = 1;
+  int *p = &x;
+  *p = 5;      /* x virou 5; p continua com &x */
+
+
+# O CASO RESOLVIDO: três escritas, e o ponteiro parado.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 1;
+      int *p = &x;
+      int ainda_em_x = 0;
+
+      *p = 10;
+      *p = 20;
+      *p = 30;
+      ainda_em_x = (p == &x);
+      printf("depois de tres escritas, x = %d\n", x);
+      printf("e p continua com o endereco de x? %d\n", ainda_em_x);
+  - prosa: "Pergunta: três escritas por p. Quantas delas mexeram em p?"
+  - prosa: >
+      A tentação é achar que escrever por p gasta ou move alguma coisa
+      no ponteiro — que depois de usá-lo ele não está mais igual. Olhe a
+      segunda resposta: nenhuma das três o tocou. Todas as três caíram
+      no fim da viagem, que é a caixa de x.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      depois de tres escritas, x = 30
+      e p continua com o endereco de x? 1
+  - prosa: >
+      x ficou com o último valor escrito, e p está exatamente como
+      estava. Se a escrita por * mexesse no ponteiro, a segunda e a
+      terceira teriam ido parar em outro lugar.
+
+
+# A OUTRA ROTA: a função que escreve pelo ponteiro.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Entregue o ponteiro a uma função e veja o que
+      volta mudado.
+  - codigo: |
+      void escreve_cem(int *destino)
+      {
+          *destino = 100;
+      }
+  - codigo: |
+      int x = 1;
+      int *p = &x;
+
+      escreve_cem(p);
+      printf("x virou %d\n", x);
+      printf("e p ainda leva a x? %d\n", p == &x);
+  - prosa: >
+      Dentro da função há uma escrita por *, e mais nada. Fora dela,
+      duas perguntas: o que aconteceu com a variável e o que aconteceu
+      com o ponteiro.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      x virou 100
+      e p ainda leva a x? 1
+  - prosa: >
+      A escrita atravessou a chamada e chegou em x; o ponteiro do
+      chamador ficou como estava. São duas caixas, e a função mexeu só
+      na que estava no fim da viagem.

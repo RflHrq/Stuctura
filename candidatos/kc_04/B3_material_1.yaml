@@ -1,0 +1,135 @@
+# Material de ensino do B3 do kc_04 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Terceiro observável. O B2 disse o que o
+# & devolve; este diz o que o ponteiro GUARDA — que é a mesma coisa,
+# vista de dentro da caixa.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `pointer_is_data` — "o ponteiro é o próprio dado: o que está dentro
+# dele é o valor, não o endereço". Grade `T`, Sorva (2012), p. 360,
+# item 14: "A variable is (merely) a pairing of a name to a changeable
+# value (with a type). It is not stored inside the computer" (Sorva
+# 2008; Doukakis et al. 2007).
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O conteúdo de p COPIADO para outro ponteiro: o que
+#                    foi copiado leva ao mesmo lugar.
+#   outra rota       Dois ponteiros comparados: valores diferentes
+#                    enquanto apontam para lugares diferentes, iguais
+#                    depois de uma atribuição.
+#
+# O CASO RESOLVIDO MOSTRA O CONTEÚDO SE COMPORTANDO COMO VALOR. Se o
+# que estivesse em p fosse o 42, copiá-lo para q daria a q um 42 — e
+# escrever por q mexeria no 42 de q, não em x. O que a cópia carregou
+# foi o caminho.
+#
+# A OUTRA ROTA TRATA O PONTEIRO COMO NÚMERO, que é o que ele é: dois
+# ponteiros se comparam, e o resultado muda quando um recebe o valor do
+# outro. Comparar só faz sentido se houver valor ali dentro.
+#
+# O QUE FICA FORA
+#
+#   `p == &x` depois de declarar     -> `ciu_kc04_008`
+#   `p` contra `*p`, qual vale 42    -> `ciu_kc04_009`, degrau 3
+#   `p = &y` e o que `*p` passa a dar -> `ciu_kc04_t08`
+#   `p = x;` e o compilador reclamar  -> `ciu_kc04_t09`
+#
+# O ÚLTIMO FICA DE FORA POR DOIS MOTIVOS, e o segundo vale registrar:
+# além de ser item, exibir uma recusa num cartão põe `compilacao` e
+# `atribuicao_entre_tipos` em jogo, e os dois estão fora do inventário.
+# Material que mostra o compilador reclamando é material que depende de
+# conceito não ensinado.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_04
+node: kc04:B3
+premissa: "O valor guardado num ponteiro é um endereço."
+crenca_que_nega: pointer_is_data
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que há dentro, o que isso significa para p, e o que
+# distingue p de *p.
+ampliacao: >
+  Dentro de um ponteiro há um número, e esse número é um endereço. Não
+  é o conteúdo da caixa apontada, nem uma ligação mágica com ela: é a
+  informação de onde ela está, guardada como qualquer outro valor é
+  guardado.
+
+  Por isso o ponteiro se comporta como valor. Dá para copiá-lo para
+  outra caixa de ponteiro, compará-lo com outro, passá-lo adiante. O
+  que viaja nessas operações é o endereço — e quem o recebe passa a
+  saber chegar no mesmo lugar.
+
+  E é isso que separa p de *p. p é o conteúdo da caixa do ponteiro: o
+  número do lugar. *p é o conteúdo do lugar: o int que mora lá. Os dois
+  existem ao mesmo tempo, em caixas diferentes, e confundi-los é o que
+  faz alguém escrever p onde queria *p.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x = 42;
+  int *p = &x;   /* dentro de p: o endereco de x. Nao o 42. */
+
+
+# O CASO RESOLVIDO: o conteúdo de p copiado.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 42;
+      int *p = &x;
+      int *q = p;
+
+      *q = 7;
+      printf("copiei o que estava em p, e por q cheguei em x: %d\n", x);
+  - prosa: "Pergunta: a linha int *q = p copiou o quê, exatamente?"
+  - prosa: >
+      A tentação é dizer que copiou o 42 — se o ponteiro fosse o dado,
+      seria isso. Veja onde o 7 foi parar: em x. O que q recebeu foi o
+      endereço, e por isso escrever por q chegou na caixa de x.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      copiei o que estava em p, e por q cheguei em x: 7
+  - prosa: >
+      Se o conteúdo de p fosse o 42, q teria recebido um 42 só dele, e
+      escrever 7 em q não teria como mexer em x. O que estava em p era o
+      caminho, e caminho copiado leva ao mesmo lugar.
+
+
+# A OUTRA ROTA: dois ponteiros comparados.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Se há um valor dentro do ponteiro, dá para
+      comparar dois deles.
+  - codigo: |
+      int x = 1, y = 2;
+      int *p = &x;
+      int *q = &y;
+
+      printf("dois lugares diferentes, valores diferentes em p e q: %d\n", p == q);
+      q = p;
+      printf("depois de q = p, o mesmo valor nos dois: %d\n", p == q);
+  - prosa: >
+      Primeiro cada um guarda o endereço da sua variável, e a comparação
+      diz que são diferentes. Depois q recebe o conteúdo de p, e a mesma
+      comparação muda de resposta.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dois lugares diferentes, valores diferentes em p e q: 0
+      depois de q = p, o mesmo valor nos dois: 1
+  - prosa: >
+      Comparar e atribuir são coisas que se fazem com VALORES, e os dois
+      funcionaram aqui. O que está dentro de um ponteiro é um número
+      como outro qualquer — só que o que ele diz é um lugar.

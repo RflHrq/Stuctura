@@ -1,0 +1,137 @@
+# Material de ensino do B2 do kc_04 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Segundo do tópico: o B1 disse de quem é
+# o endereço, e este diz o que o & DEVOLVE.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E ELA É A MAIS REPETIDA DO PROJETO
+#
+# `ampersand_copies` — "&x entrega uma cópia de x, e é a cópia que a
+# função recebe". Grade `T`, Sorva (2012), p. 362, item 66: "Assigning
+# an object means 'sending' an object (or a copy) to a variable" (Ma
+# 2007). Transposição declarada: o item é sobre referência em Java.
+#
+# A MESMA CRENÇA NEGA TRÊS NÓS EM TRÊS TÓPICOS — este, o `kc_06:I2` e o
+# `kc_10:B1` —, e é a única do catálogo com esse alcance. Aqui ela é
+# atacada na forma mais simples: o que o & devolve, sem função nenhuma
+# no caminho.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Uma CÓPIA e um ENDEREÇO tirados no mesmo instante,
+#                    e o que acontece com cada um quando x muda.
+#   outra rota       O & perguntado DUAS vezes: se devolvesse cópia,
+#                    seriam duas cópias independentes.
+#
+# O CASO RESOLVIDO PÕE OS DOIS LADO A LADO porque a crença é sobre a
+# diferença entre eles. A cópia congela; o endereço acompanha. Nenhum
+# dos dois é mais "forte" — eles são coisas diferentes, e é só isso que
+# o nó afirma.
+#
+# O ITEM `ciu_kc04_006` COMPARA AS MESMAS DUAS COISAS, e de propósito
+# ele não é repetido: lá a pergunta é qual das duas MUDA x, e as duas
+# linhas escrevem. Aqui ninguém escreve na cópia nem pelo endereço — x
+# muda pelo próprio nome, e o que se observa é o que cada um dos dois
+# passa a dizer. É a mesma dupla, medida por outro lado.
+#
+# A OUTRA ROTA É A QUE DERRUBA A CRENÇA DIRETO. Se `&x` entregasse uma
+# cópia, perguntar duas vezes daria duas cópias separadas, e escrever
+# por uma não apareceria na outra. Aparece.
+#
+# O QUE FICA FORA
+#
+#   `*p = 2` e o que sai em x        -> `ciu_kc04_t05`
+#   `dobra(&x)`                      -> `ciu_kc04_t06`
+#   quantas cópias de x existem      -> `ciu_kc04_t04`
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_04
+node: kc04:B2
+premissa: "&x devolve o endereço de x, e não copia x."
+crenca_que_nega: ampersand_copies
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que o & devolve, o que ele não faz, e a diferença que
+# isso cria depois.
+ampliacao: >
+  &x devolve um número: o do lugar onde x está. Nada é copiado e nada é
+  movido — a caixa de x continua onde estava, com o que estava dentro.
+  A operação é uma pergunta, e o que volta é a resposta.
+
+  Copiar é outra coisa, e se escreve de outro jeito. Em int c = x; o
+  conteúdo de x é duplicado numa caixa nova, e a partir daí são dois
+  conteúdos independentes: mexer num não mexe no outro. Em int *p = &x;
+  nada foi duplicado — p guarda o caminho até a única caixa que existe.
+
+  E a diferença aparece no tempo. A cópia é um retrato do instante em
+  que foi tirada, e envelhece: o que ela guarda é o que x valia naquele
+  momento. O endereço não envelhece, porque ele nunca falou sobre o
+  conteúdo — seguir o endereço mostra sempre o que há lá AGORA.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x = 10;
+  int *p = &x;   /* p recebeu o NUMERO do lugar de x */
+  /* x continua com 10, e nada foi copiado */
+
+
+# O CASO RESOLVIDO: a cópia e o endereço, tirados no mesmo instante.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 10;
+      int copia = x;
+      int *endereco = &x;
+
+      x = 77;
+      printf("a copia ficou em %d\n", copia);
+      printf("e pelo endereco chego em %d\n", *endereco);
+  - prosa: "Pergunta: os dois foram tirados do mesmo x, no mesmo instante. Por que respondem diferente?"
+  - prosa: >
+      A tentação é achar que os dois guardam x, um de um jeito e outro
+      de outro. Olhe o que cada um guardou: a cópia guardou o NÚMERO 10,
+      e ele continua 10 porque ninguém mexeu nele. O endereço guardou o
+      caminho até a caixa, e a caixa agora tem 77.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a copia ficou em 10
+      e pelo endereco chego em 77
+  - prosa: >
+      Dez e setenta e sete, do mesmo x. Se o & tivesse devolvido uma
+      cópia, as duas linhas diriam 10 — porque as duas seriam retratos
+      do mesmo instante.
+
+
+# A OUTRA ROTA: o & perguntado duas vezes.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Pergunte o endereço de x duas vezes, e escreva por
+      um dos dois.
+  - codigo: |
+      int x = 1;
+      int *p = &x;
+      int *q = &x;
+
+      *p = 50;
+      printf("perguntei duas vezes, e escrevi por uma: q le %d\n", *q);
+  - prosa: >
+      Duas perguntas, duas respostas, dois ponteiros. Depois uma única
+      escrita, feita por p.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      perguntei duas vezes, e escrevi por uma: q le 50
+  - prosa: >
+      Se cada pergunta devolvesse uma cópia de x, p e q guardariam dois
+      uns independentes, e a escrita por p não teria como aparecer em q.
+      Apareceu porque as duas respostas eram o mesmo número de lugar — e
+      lugar há um só.
