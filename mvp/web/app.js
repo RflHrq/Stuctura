@@ -33,8 +33,18 @@
     return Math.max(0, Math.round(performance.now() - S.inicio));
   }
 
+  /* O CAMINHO-BASE. Sozinho, o app mora na raiz e BASE e vazio — nada
+   * muda. Dentro do portal (mvp/portal.py) cada topico mora em
+   * /kc/kc_07/, e as rotas dele ficam debaixo desse caminho. Sai da URL
+   * da propria pagina, e nao de configuracao: a pagina so pode falar com
+   * o topico em que foi aberta. */
+  var BASE = (function () {
+    var p = window.location.pathname.split("/");
+    return (p[1] === "kc" && p[2]) ? "/kc/" + p[2] : "";
+  })();
+
   async function api(rota, corpo) {
-    var r = await fetch(rota, {
+    var r = await fetch(BASE + rota, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(corpo || {})
@@ -1159,7 +1169,20 @@
   /* O titulo da aba vem do dominio carregado, nao do HTML: com dois
    * topicos, um titulo fixo mente — a aba dizia "declaracao de variaveis"
    * numa sessao de ponteiros. */
-  fetch("/saude").then(function (r) { return r.json(); }).then(function (s) {
+  /* Dentro do portal, o caminho de volta para a lista de topicos. Fica
+   * fora do fluxo da unidade: e um link no canto, nao uma tela. */
+  if (BASE) {
+    var volta = document.createElement("a");
+    volta.href = "/";
+    volta.textContent = "← todos os tópicos";
+    volta.style.cssText = "position:fixed;left:12px;bottom:10px;z-index:5;" +
+      "font-size:.85rem;color:var(--tinta2);text-decoration:none;" +
+      "background:var(--cartao);border:1px solid var(--linha);" +
+      "border-radius:999px;padding:5px 12px";
+    document.body.appendChild(volta);
+  }
+
+  fetch(BASE + "/saude").then(function (r) { return r.json(); }).then(function (s) {
     if (s && s.titulo) document.title = "Structura — " + s.titulo;
     /* As figuras sao por topico: id de no se repete entre topicos. */
     if (s && s.topico) Figuras.topico(s.topico);

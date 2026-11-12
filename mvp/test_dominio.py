@@ -617,7 +617,11 @@ def test_nenhum_texto_de_tela_usa_crase(topico):
 # Cada entrada e comparada com BORDA DE PALAVRA. A primeira versao
 # comparava substring e acusou "dela." por conter "la." — criterio burro
 # da falso positivo e ensina quem vier depois a desligar o teste.
-DIVIDA_DE_ACENTO = {"kc_00": 44}
+# DE 44 PARA 43 EM 12/11/2026: o TITULO do kc_00 ganhou acento. Ele
+# passou a ser a primeira linha da pagina inicial do portal
+# (`mvp/portal.py`), que lista os treze topicos -- e "Declaracao de
+# variaveis" no topo da lista era o cartao de visita do sistema.
+DIVIDA_DE_ACENTO = {"kc_00": 43}
 
 SEM_ACENTO = ("nao", "ate", "tres", "voce", "entao", "endereco",
               "enderecos", "numero", "numeros", "conteudo", "conteudos",

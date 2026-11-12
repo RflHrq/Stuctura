@@ -23,13 +23,17 @@ from __future__ import annotations
 import collections
 import hashlib
 import json
+import os
 import statistics
 import sys
 import time
 import urllib.error
 import urllib.request
 
-BASE = "http://127.0.0.1:8010"
+# `STRUCTURA_BASE` aponta o caminhante para um topico do PORTAL:
+#   STRUCTURA_BASE=http://127.0.0.1:8010/kc/kc_11 python scripts/caminhante.py
+# Sem ela, o servidor de um topico so, na raiz, como sempre.
+BASE = os.environ.get("STRUCTURA_BASE", "http://127.0.0.1:8010").rstrip("/")
 PERSONAS = ("sabido", "aprende", "crente", "nao_sabe", "explica_mal",
             "duvida")
 
