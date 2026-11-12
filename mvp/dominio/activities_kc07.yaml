@@ -161,6 +161,164 @@ outras_rotas:
 # A pergunta é sobre a[0] DEPOIS de escrever em a[1], e não sobre caixa
 # nunca escrita: ler caixa sem valor daria número diferente em cada
 # máquina, e o portão de ambiente recusa afirmação assim.
+
+  # OS SEIS QUE FALTAVAM, dos candidatos assinados em
+  # 12/11/2026. O B1 ja estava aqui desde 09/11.
+  B2:
+    - prosa: >
+        Outro caminho. Veja o mesmo ponteiro servindo a dois conjuntos
+        diferentes.
+    - codigo: |
+        int primeiro[2] = {0, 0};
+        int segundo[2] = {0, 0};
+        int *p = primeiro;
+
+        p[0] = 10;
+        p = segundo;
+        p[0] = 20;
+        printf("primeiro[0] = %d, segundo[0] = %d\n", primeiro[0], segundo[0]);
+    - prosa: >
+        p foi declarado uma vez. As quatro casas de inteiro vieram das
+        duas primeiras linhas, e p apenas visitou uma de cada conjunto.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        primeiro[0] = 10, segundo[0] = 20
+    - prosa: >
+        Duas escritas, em dois conjuntos, por um ponteiro só. Se a
+        declaração de p tivesse criado armazenamento, haveria uma quinta
+        casa em algum lugar — e os dois valores teriam ido para ela.
+
+  B3:
+    - prosa: >
+        Outro caminho, agora com chamada: escreva o argumento das duas
+        maneiras.
+    - codigo: |
+        void primeiro_vira_sete(int v[])
+        {
+            v[0] = 7;
+        }
+    - codigo: |
+        int a[3] = {1, 1, 1};
+        int b[3] = {1, 1, 1};
+
+        primeiro_vira_sete(a);
+        primeiro_vira_sete(&b[0]);
+        printf("a[0] = %d, b[0] = %d\n", a[0], b[0]);
+    - prosa: >
+        Na primeira chamada o argumento é o nome do conjunto; na segunda,
+        o endereço da primeira casa, escrito à mão. A função é a mesma.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a[0] = 7, b[0] = 7
+    - prosa: >
+        Os dois conjuntos mudaram igual. As duas formas são
+        intercambiáveis porque as duas produzem a mesma coisa: um
+        endereço. Se passar um array fosse um mecanismo diferente do resto
+        de C, a segunda chamada não teria como funcionar.
+
+  B4:
+    - prosa: >
+        Outro caminho. O que &a devolve cabe numa caixa — e a caixa diz
+        que tipo de coisa é.
+    - codigo: |
+        int a[3] = {1, 1, 1};
+        int (*tudo)[3] = &a;
+
+        (*tudo)[1] = 9;
+        printf("por &a cheguei no conjunto, e a[1] vale %d\n", a[1]);
+    - prosa: >
+        A declaração de tudo diz "ponteiro para um conjunto de três ints",
+        e é essa a caixa que recebe &a. Depois a estrela desce até o
+        conjunto, e o colchete escolhe uma casa dentro dele.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        por &a cheguei no conjunto, e a[1] vale 9
+    - prosa: >
+        O 9 chegou na segunda casa, pelo caminho do conjunto. Se &a fosse
+        o endereço da primeira casa, ele caberia numa caixa de ponteiro
+        para int — e a escrita teria sido direta, sem o passo pelo
+        conjunto.
+
+  I1:
+    - prosa: >
+        Outro caminho. Olhe a mesma operação num ponteiro.
+    - codigo: |
+        int a[2] = {1, 1};
+        int b[2] = {2, 2};
+        int *p = a;
+
+        p = b;
+        printf("p passou a ler %d, e a[0] continua %d\n", p[0], a[0]);
+    - prosa: >
+        A linha p = b é uma atribuição comum: o endereço do segundo
+        conjunto entrou na caixa de p. Depois dela, p lê outro conjunto —
+        e nenhum dos dois conjuntos mudou de lugar nem de conteúdo.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        p passou a ler 2, e a[0] continua 1
+    - prosa: >
+        p mudou de alvo porque p é uma caixa. O nome a não tem caixa
+        nenhuma para mudar: ele é o conjunto. É essa a diferença que faz
+        uma das duas linhas ser possível e a outra não.
+
+  I2:
+    - prosa: >
+        Outro caminho. Se o parâmetro é um ponteiro, ele aceita o endereço
+        de qualquer casa — e não só o começo de um conjunto.
+    - codigo: |
+        int primeiro(int v[])
+        {
+            return v[0];
+        }
+    - codigo: |
+        int a[3] = {10, 20, 30};
+
+        printf("com a: %d\n", primeiro(a));
+        printf("com &a[1]: %d\n", primeiro(&a[1]));
+    - prosa: >
+        A segunda chamada entrega o endereço da casa do meio. A função
+        aceita, e passa a tratar aquela casa como a primeira dela.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        com a: 10
+        com &a[1]: 20
+    - prosa: >
+        Dez e vinte, da mesma função. Se o parâmetro fosse um conjunto de
+        três casas, a segunda chamada não faria sentido — não existe
+        conjunto começando no meio de outro. Ela faz, e é por isso que de
+        dentro não há tamanho a descobrir.
+
+  I3:
+    - prosa: >
+        Outro caminho. Mande o ponteiro embora de vez, e depois traga de
+        volta.
+    - codigo: |
+        int a[2] = {5, 6};
+        int *p = a;
+
+        p = NULL;
+        printf("o ponteiro foi embora: p e nulo? %d\n", p == NULL);
+        p = a;
+        printf("e voltou, e o conjunto estava la: %d %d\n", p[0], p[1]);
+    - prosa: >
+        Em nenhum momento o conjunto deixou de existir ou saiu do lugar.
+        Quem foi e voltou foi o conteúdo de uma caixa.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o ponteiro foi embora: p e nulo? 1
+        e voltou, e o conjunto estava la: 5 6
+    - prosa: >
+        Um ponteiro pode não apontar para lugar nenhum; um conjunto não
+        pode deixar de ser onde está. Se os dois fossem a mesma coisa, pôr
+        NULL em p teria feito alguma coisa com as duas casas — e elas
+        estavam lá, inteiras, quando ele voltou.
+
 casos_resolvidos:
 
   B1:
@@ -199,6 +357,181 @@ casos_resolvidos:
 # E e ela que tira o (void *) da tela: o cast fica no programa
 # instrumentado, e o aluno ve o valor.
 # ---------------------------------------------------------------------
+
+
+  # OS SEIS QUE FALTAVAM, dos candidatos assinados em
+  # 12/11/2026. O B1 ja estava aqui desde 09/11.
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int a[3] = {1, 2, 3};
+        int *p = &a[2];
+
+        *p = 99;
+        printf("a terceira casa virou %d\n", a[2]);
+        printf("e as outras duas continuam %d e %d\n", a[0], a[1]);
+    - prosa: >
+        Pergunta: quantas casas de inteiro existem neste trecho?
+    - prosa: >
+        Três, e todas vieram da primeira linha. A declaração de p não
+        acrescentou uma quarta: ela criou uma caixa de endereço, e o
+        endereço que entrou nela foi o da terceira casa, que já estava
+        construída.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a terceira casa virou 99
+        e as outras duas continuam 1 e 2
+    - prosa: >
+        O 99 foi parar numa casa que já existia, e as vizinhas ficaram
+        como estavam. Se declarar p criasse um int junto, o 99 teria ido
+        para esse int novo — e a[2] continuaria 3.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int a[3] = {1, 2, 3};
+
+        *a = 50;
+        printf("escrevi em *a, e a[0] vale %d\n", a[0]);
+    - prosa: >
+        Pergunta: não há ponteiro nenhum declarado aqui. Em que a estrela
+        trabalhou?
+    - prosa: >
+        No endereço em que o nome a se transformou. A estrela precisa de
+        um endereço para viajar, e foi a conversão que o produziu — ali
+        mesmo, no meio da expressão, sem função nenhuma envolvida.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        escrevi em *a, e a[0] vale 50
+    - prosa: >
+        O 50 foi parar na primeira casa, que é para onde o endereço
+        apontava. Se o nome a continuasse valendo pelo conjunto inteiro
+        dentro da expressão, não haveria endereço nenhum para a estrela
+        seguir.
+
+  B4:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int a[5];
+        int quantas = (int) (sizeof a / sizeof a[0]);
+
+        printf("o conjunto tem %d casas\n", quantas);
+    - prosa: >
+        Pergunta: por que esta divisão dá a quantidade de casas?
+    - prosa: >
+        Porque o de cima mediu o conjunto inteiro e o de baixo mediu uma
+        casa. Repare que o nome a aparece nos dois, e nos dois ele NÃO
+        virou endereço — foi por isso que a conta fez sentido.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o conjunto tem 5 casas
+    - prosa: >
+        Cinco, que é o número escrito na declaração. Se dentro de sizeof o
+        nome virasse o endereço da primeira casa, o de cima seria o
+        tamanho de um ponteiro, e a divisão daria um número sem relação
+        nenhuma com o conjunto.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int a[3] = {0, 0, 0};
+        int b[3] = {4, 5, 6};
+        int i = 0;
+
+        while (i < 3) {
+            a[i] = b[i];
+            i = i + 1;
+        }
+        printf("a ficou com %d %d %d\n", a[0], a[1], a[2]);
+    - prosa: >
+        Pergunta: o conteúdo de b foi parar em a. Em que linha isso
+        aconteceu?
+    - prosa: >
+        Em três execuções da mesma linha, uma por casa. Não houve momento
+        nenhum em que o conjunto a tenha sido substituído pelo conjunto b
+        — o que houve foram três atribuições comuns, cada uma com um lugar
+        de verdade do lado esquerdo.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a ficou com 4 5 6
+    - prosa: >
+        Os dois conjuntos continuam sendo dois, cada um no seu lugar, e
+        agora com o mesmo conteúdo. Copiar conteúdo é coisa que se faz
+        casa por casa; o nome do conjunto nunca entrou do lado esquerdo de
+        uma atribuição.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int soma(int v[], int n)
+        {
+            int total = 0;
+            int i = 0;
+
+            while (i < n) {
+                total = total + v[i];
+                i = i + 1;
+            }
+            return total;
+        }
+    - codigo: |
+        int tres[3] = {1, 2, 3};
+        int cinco[5] = {1, 1, 1, 1, 1};
+
+        printf("a mesma funcao somou %d e %d\n", soma(tres, 3), soma(cinco, 5));
+    - prosa: >
+        Pergunta: a função serviu a dois conjuntos de tamanhos diferentes.
+        Como ela soube onde parar?
+    - prosa: >
+        Pelo segundo argumento, e só por ele. O primeiro parâmetro trouxe
+        apenas o endereço de onde começar; se o tamanho viesse junto com
+        ele, o segundo seria desnecessário — e a mesma função não serviria
+        aos dois conjuntos.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a mesma funcao somou 6 e 5
+    - prosa: >
+        Seis e cinco, das duas chamadas. O que distinguiu uma da outra não
+        foi nada que a função tenha descoberto sozinha: foi o número que
+        quem chamou escreveu.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int a[3] = {1, 2, 3};
+        int b[3] = {7, 8, 9};
+        int *p = a;
+
+        printf("a[1] e p[1] dao %d e %d\n", a[1], p[1]);
+        p = b;
+        printf("depois de p = b, dao %d e %d\n", a[1], p[1]);
+    - prosa: >
+        Pergunta: as duas escritas davam o mesmo número. O que aconteceu
+        entre as duas linhas?
+    - prosa: >
+        Uma atribuição, e só nela. p recebeu outro endereço — coisa que só
+        é possível porque p é uma caixa. O nome a não passou por nada: ele
+        continua sendo o mesmo conjunto, no mesmo lugar.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a[1] e p[1] dao 2 e 2
+        depois de p = b, dao 2 e 8
+    - prosa: >
+        Na primeira linha a semelhança é completa, e é por isso que a
+        confusão existe. Na segunda ela some, e o que sobra é a diferença:
+        um dos dois pôde ir embora, e o outro não.
 
 testes_de_mesa:
 

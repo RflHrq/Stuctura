@@ -167,6 +167,24 @@ nodes:
         espera: |-
           escrever por p escreveu no espaco que era do array
           e nada mais apareceu: p nao trouxe espaco nenhum
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      int *p reserva uma caixa só: a de p, para guardar um endereço.
+      Nenhum int nasce junto. É a diferença de fundo entre as duas
+      declarações deste tópico — int a[5] constrói cinco casas de inteiro,
+      e int *p constrói zero.
+
+
+      As casas, quando existem, vieram de outro lugar. Podem ser as de um
+      array declarado em separado, e aí p guarda o endereço de uma delas.
+      Podem ser um bloco pedido enquanto o programa roda. O que não
+      acontece é o ponteiro trazer casa nenhuma consigo.
+
+
+      Por isso o ponteiro é um visitante. Ele pode apontar para a primeira
+      casa de um conjunto, para a terceira, ou para as casas de outro
+      conjunto depois — e em nenhum desses movimentos ele cria ou destrói
+      nada. O que muda é só o endereço guardado dentro dele.
   B3:
     type: observavel
     role: espinha
@@ -202,6 +220,27 @@ nodes:
           o nome a entregou o endereco do primeiro elemento
           e *a le o primeiro elemento: *a e a[0]
           andando um, chega no segundo
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Quando o nome de um array aparece numa expressão, ele deixa de
+      designar o conjunto e passa a valer o endereço da primeira casa. Não
+      é uma conversão da chamada de função: acontece em qualquer conta, em
+      qualquer atribuição a um ponteiro, em qualquer lugar onde o nome
+      seja usado como valor.
+
+
+      Por isso o atalho é tão invisível. Escrever int *p = a; funciona
+      porque a já virou endereço antes de a atribuição acontecer, e
+      escrever *a funciona porque o que está ali é um endereço, e a
+      estrela viaja a partir dele.
+
+
+      E é isso que explica a passagem, sem exceção nenhuma. Ao chamar
+      f(a), o nome vira endereço e esse endereço é copiado para o
+      parâmetro, do mesmo jeito que qualquer valor é copiado. O conjunto
+      não viaja; o que viaja é um número. A função mexe no array de quem
+      chamou porque tem o caminho até ele, e não porque C tenha mudado de
+      regra.
   B4:
     type: observavel
     role: espinha
@@ -252,6 +291,25 @@ nodes:
           sizeof a mede o conjunto, e nao um endereco
           e &a anda o array inteiro de uma vez
           enquanto o ponteiro anda um elemento so
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O atalho tem duas exceções, e nas duas o nome do array continua
+      valendo pelo conjunto inteiro. Em sizeof a, o que se mede são todas
+      as casas juntas — não o tamanho de um endereço. Em &a, o que se
+      pergunta é o endereço DO CONJUNTO, e não o da primeira casa.
+
+
+      Daí sai a contagem. sizeof a dividido por sizeof a[0] é o tamanho do
+      conjunto dividido pelo tamanho de uma casa, e o resultado é quantas
+      casas existem. A conta só fecha porque o de cima mediu o conjunto;
+      se o nome tivesse virado endereço, o de cima seria o tamanho de um
+      ponteiro e o resultado não significaria nada.
+
+
+      E o &a tem um tipo próprio: ponteiro para o conjunto, não para uma
+      casa. Ele marca o mesmo ponto da memória que a primeira casa — é por
+      isso que a confusão nasce —, mas o que ele diz é outra coisa, e
+      andar um passo a partir dele pula o conjunto inteiro.
   I1:
     type: inferencia
     role: espinha
@@ -284,6 +342,25 @@ nodes:
           gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. O que o padrão
           exige de todo compilador conforme é o diagnóstico; o que se
           observa aqui é a recusa deste.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O nome do array não é um lugar que receba valor. Ele designa o
+      conjunto inteiro, e numa expressão vira o endereço da primeira casa
+      — um valor calculado na hora, que não tem onde ficar guardado.
+      Atribuir precisa de um destino, e ali não há destino.
+
+
+      O que existe é mexer nas casas. Cada uma delas é um lugar comum, e
+      recebe valor como qualquer variável: a[0] = 7 funciona, e repetir
+      isso para todas as posições é como o conteúdo de um conjunto vai
+      parar noutro. É a diferença entre trocar o quarteirão de lugar e
+      trocar o que há dentro de cada casa.
+
+
+      E é nisso que um ponteiro é diferente. Ele é uma caixa, tem lugar
+      próprio, e guardar outro endereço nele é uma atribuição comum. Por
+      isso p = b funciona e a = b não: um deles é um lugar onde cabe um
+      endereço, e o outro é o conjunto.
   I2:
     type: inferencia
     role: espinha
@@ -333,6 +410,24 @@ nodes:
         espera: |-
           dentro da funcao o nome andou, e entregou o segundo
           e o array de fora nao mexeu: o que andou foi a copia do endereco
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Escrever int v[] num parâmetro não declara um conjunto: o compilador
+      reescreve aquilo como int *v. Os colchetes ficam ali como lembrete
+      do que a função espera receber, e nada mais — por dentro, v é uma
+      caixa de endereço como qualquer outra.
+
+
+      Por isso o tamanho não chega. O que foi copiado na chamada foi um
+      endereço, e endereço não carrega quantidade: ele diz onde começa, e
+      não até onde vai. De dentro da função não há como descobrir quantas
+      casas existem a partir dali.
+
+
+      Então o tamanho viaja à parte. É por isso que tantas funções de C
+      recebem um conjunto e um número — e é por isso que passar o número
+      errado é um erro que o compilador não tem como apontar. Quem sabe o
+      tamanho é quem declarou o conjunto.
   I3:
     type: inferencia
     role: conclusao
@@ -370,3 +465,22 @@ nodes:
         espera: |-
           a[i] e p[i] dao o mesmo elemento
           mas p andou e a ficou: sao tipos diferentes
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O que é igual é a escrita. a[1] e p[1] chegam no mesmo elemento
+      quando p guarda o endereço do começo de a, e as duas formas se
+      escrevem do mesmo jeito. Em muitos programas elas podem ser trocadas
+      uma pela outra do começo ao fim, e nada acontece.
+
+
+      O que é diferente é o que cada nome É. a é o conjunto: um bloco de
+      casas, num lugar fixo, que não muda de endereço enquanto existe. p é
+      uma caixa que guarda um endereço — e uma caixa aceita um endereço
+      novo a qualquer momento.
+
+
+      Por isso a semelhança tem limite, e o limite aparece quando o
+      ponteiro se mexe. Enquanto p apontar para o começo de a, as duas
+      escritas dizem a mesma coisa; depois que p recebe outro endereço, a
+      continua onde sempre esteve e p passa a falar de outro lugar. Eram
+      duas coisas o tempo todo.

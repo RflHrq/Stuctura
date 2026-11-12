@@ -50,8 +50,8 @@ premissa: "Não se atribui ao nome do array: ele não é modificável."
 crenca_que_nega: array_is_assignable
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: 4e3fc7a01f59
 
 
 # A AMPLIAÇÃO. Por que não se atribui, o que se faz no lugar, e a

@@ -58,8 +58,8 @@ premissa: "int *p reserva só o ponteiro."
 crenca_que_nega: declaration_allocates
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: ae28dba03744
 
 
 # A AMPLIAÇÃO. O que a declaração do ponteiro reserva, o que ela não
