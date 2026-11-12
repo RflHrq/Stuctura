@@ -1,0 +1,217 @@
+# Material de ensino do I4 do kc_06 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O sexto e último do tópico, e o único com
+# `role: conclusao`. Ele não acrescenta fato: ele JUNTA os cinco
+# anteriores numa regra só, e é por isso que a cadeia dele é a mais
+# longa do grafo: `_plano` devolve SEIS passos — B1 -> B2 -> I1 -> I2 ->
+# I3 -> I4 —, que é o tópico inteiro. Quem chega aqui pela refutação
+# percorreu os outros cinco nós antes.
+#
+# E É AQUI QUE A METÁFORA DO TÓPICO FECHA. O cabeçalho do grafo declarou
+# onde ela cala, e nomeou quem resolve:
+#
+#   "Copiar o bilhete" sugere que há cópia de coisa e cópia de endereço,
+#   e que são operações diferentes. NÃO SÃO: é a MESMA cópia, e o que
+#   muda é só o que estava escrito. Quando a metáfora empurrar para
+#   "endereço é passado de outro jeito", ela cala — é esse "outro jeito"
+#   que não existe em C, E É A CONCLUSÃO DO TÓPICO.
+#
+# O cartão do I2 teve uma frase retirada por isto: ela dizia "não
+# existem dois modos de passar em C — há um só", que é afirmação sobre a
+# LINGUAGEM, e lá o nó só podia afirmar sobre aquela chamada. A frase é
+# deste cartão, e ela entra aqui sem ressalva.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E AS DUAS METADES DELA
+#
+# `pointer_copy_is_alias` — "a cópia do ponteiro e o original são a
+# mesma variável". Grade `T`, e a fonte são DOIS itens, não um:
+#
+#   Sorva (2012), p. 363, item 74: "Once a variable references an
+#     object, it will always reference that object"
+#                                               (Holland et al. 1997)
+#   Sorva (2012), p. 363, item 75: "Two different variables must refer
+#     to two different objects"                 (Holland et al. 1997)
+#
+# São duas afirmações diferentes, e a demonstração escolhida derruba as
+# DUAS, no mesmo programa de seis linhas:
+#
+#   o 74 cai quando `b` para de apontar para x  (`b = &y`)
+#   o 75 cai quando `a` e `b` apontam para x    (`*b = 50` muda x)
+#
+# Se cópia e original fossem a mesma variável, C teria passagem por
+# referência — é exatamente a conclusão que esta crença nega.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES, e a ordem delas é a decisão do arquivo
+#
+#   caso resolvido   A cópia de um ponteiro SEM CHAMADA NENHUMA: dois
+#                    ponteiros no mesmo escopo, um copiado do outro.
+#   outra rota       O endereço copiado DUAS vezes, de main para meio e
+#                    de meio para fundo, e a escrita lá no fundo
+#                    aparecendo em x lá no topo.
+#
+# POR QUE O CASO RESOLVIDO NÃO TEM CHAMADA. A crença não é sobre
+# chamada: ela diz que a cópia e o original são a mesma VARIÁVEL. O
+# lugar mais limpo para derrubar isso é onde a cópia acontece sozinha,
+# sem parâmetro, sem casa nova, sem nada do maquinário que os cinco nós
+# anteriores já resolveram. `int *b = a;` é uma atribuição comum, e ela
+# faz exatamente o que a chamada faz — que é a frase inteira deste nó.
+#
+# E A OUTRA ROTA PÕE A CHAMADA DE VOLTA, duas vezes, para que a ponte
+# não fique só na prosa: o mesmo endereço é copiado em três caixas
+# diferentes (o `p` de meio, o `meu` de meio, o `p` de fundo), e as três
+# chegam em x. O item 75 da fonte cai outra vez, agora atravessando
+# chamadas.
+#
+# ---------------------------------------------------------------------
+# O QUE FICA FORA
+#
+#   `int **`, e como uma função troca o ponteiro do chamador
+#                                      -> `ciu_kc06_t13`, `ciu_kc06_015`
+#   a casa nova sumir no fim da função -> kc_01
+#
+# E OS ITENS DESTE NÓ ESTÃO TODOS DE FORA DAS DEMONSTRAÇÕES, de
+# propósito. Eles cobrem o terreno quase inteiro, e cada um deles é um
+# programa que o cartão não repete:
+#
+#   `ciu_kc06_017`  `*p = 9; p = NULL;` na mesma função, e a saída com
+#                   as duas metades — degrau 2
+#   `ciu_kc06_018`  `a(int v)` contra `b(int *v)`, a comparação valor
+#                   contra endereço — degrau 3
+#   `ciu_kc06_t17`  `p = &y` com y local, e `*q` depois
+#   `ciu_kc06_t18`  a troca de dois ponteiros dentro da função
+#
+# O `ciu_kc06_018` é o que mais dói deixar de lado: a comparação entre
+# passar `int` e passar `int *` é a maneira mais direta de dizer "é a
+# mesma operação". Mas ela é a PERGUNTA de um item de degrau 3 ("as duas
+# copiam o argumento; então por que só uma muda x?"), e escrevê-la
+# resolvida no cartão faria o item medir memória. A ampliação diz o
+# princípio; o caso trabalhado fica com o item.
+#
+# A TROCA DE PONTEIROS TAMBÉM FICA FORA por uma segunda razão, e ela é
+# regra do banco: "nenhum item usa troca de variáveis como superfície de
+# outra coisa". Vale para o material pelo mesmo motivo — quem se perde
+# no `int *t = a` erra por atenção, não por premissa.
+#
+# ---------------------------------------------------------------------
+# O EXEMPLO DO CARTÃO NÃO MUDA, e ele é o resumo do nó: `f(x);` com
+# `/* copia o valor */`, `f(&x);` com `/* copia o endereco */`, e a
+# terceira linha dizendo "a mesma copia, as duas vezes".
+#
+# NARRAÇÃO: não entra, pelo mesmo motivo dos cinco anteriores.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_06
+node: kc06:I4
+premissa: "C não tem passagem por referência: passa endereços por valor."
+crenca_que_nega: pointer_copy_is_alias
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# Declarado porque a outra rota USA. Quem introduz é o B1.
+exige_conceitos: [funcao_com_parametro]
+
+
+# A AMPLIAÇÃO. Primeiro parágrafo: a junção dos cinco nós numa regra só.
+# Segundo: o que "passagem por referência" quer dizer, e por que o nome
+# não serve para C. Terceiro: a pergunta que substitui o rótulo.
+ampliacao: >
+  Junte os cinco e sobra uma regra só. O parâmetro é uma caixa nova, a
+  chamada copia para dentro dela o valor do argumento, mexer na caixa
+  não chega no argumento, um endereço copiado chega na mesma casa, e
+  trocar o endereço copiado não sai da caixa. Não há dois mecanismos
+  esperando para ver o que você passou: a chamada copia, sempre. O que
+  varia é o que estava na caixa.
+
+  E "passagem por referência" quer dizer uma coisa precisa: que o
+  parâmetro É a variável de quem chamou, de modo que atribuir ao
+  parâmetro muda a dela. Em C isso não acontece em lugar nenhum — nem
+  com ponteiro, e foi o cartão anterior que mostrou. Passar &x é copiar
+  um endereço por valor, e é a CÓPIA que dá acesso ao original.
+
+  Então a pergunta útil não é "isto é por valor ou por referência". É:
+  o que foi copiado, e onde aquilo chega? Um número que diz quanto não
+  chega a lugar nenhum fora da caixa. Um número que diz onde chega na
+  casa que ele nomeia — e chega por qualquer cópia dele, de dentro de
+  qualquer função que a tenha.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  f(x);         /* copia o valor  */
+  f(&x);        /* copia o endereco */
+  /* a mesma copia, as duas vezes */
+
+
+# O CASO RESOLVIDO: a cópia de um ponteiro sem chamada nenhuma.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 1, y = 2;
+      int *a = &x;
+      int *b = a;
+      *b = 50;
+      printf("depois de *b = 50,  x = %d\n", x);
+      b = &y;
+      printf("depois de b = &y,   *a = %d,  *b = %d\n", *a, *b);
+  - prosa: "Pergunta: b recebeu uma cópia de a. Depois de b = &y, para onde a aponta?"
+  - prosa: >
+      A tentação é dizer que a foi junto: b era a cópia de a, e cópia e
+      original costumam ser pensados como dois nomes da mesma coisa. As
+      duas linhas da saída fecham portas diferentes, e é por isso que
+      são duas. A primeira mostra que a cópia não é um duplicado morto —
+      escrever por b chegou em x. A segunda mostra que ela também não é
+      um segundo nome de a.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      depois de *b = 50,  x = 50
+      depois de b = &y,   *a = 50,  *b = 2
+  - prosa: >
+      As duas metades estão aí. Os dois ponteiros chegavam na mesma casa
+      — por isso o 50 apareceu em x. E eram duas variáveis — por isso b
+      pôde ir para outro lugar e a ficou onde estava. Nenhuma chamada
+      aconteceu neste trecho: isso é o que uma atribuição faz, e é
+      exatamente o que a chamada faz com o que você passa.
+
+
+# A OUTRA ROTA: a chamada de volta, duas vezes, e o endereço copiado
+# em três caixas diferentes.
+reexplicacao:
+  - prosa: >
+      Outro caminho, agora com chamadas — e com mais de uma, para ver o
+      que acontece com o endereço copiado a cada degrau.
+  - codigo: |
+      void fundo(int *p)
+      {
+          *p = 90;
+      }
+
+      void meio(int *p)
+      {
+          int *meu = p;
+          fundo(meu);
+          printf("meio:   *p vale %d\n", *p);
+      }
+  - codigo: |
+      int x = 1;
+      meio(&x);
+      printf("main:   x vale %d\n", x);
+  - prosa: >
+      Conte as caixas de ponteiro: o p de meio, o meu de meio, o p de
+      fundo. São três, cada uma com o seu nome e o seu lugar, e as três
+      guardam o mesmo número — o endereço de x, copiado três vezes.
+      Quem escreveu foi fundo, pela caixa dela.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      meio:   *p vale 90
+      main:   x vale 90
+  - prosa: >
+      A escrita feita no fundo aparece em meio, que leu por outra caixa,
+      e aparece em main, que não leu por caixa nenhuma — x é a casa. Não
+      houve modo especial de passar em degrau nenhum: cada chamada
+      copiou um número, e o número diz onde x mora.
