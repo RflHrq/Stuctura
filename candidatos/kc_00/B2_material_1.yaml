@@ -1,0 +1,170 @@
+# Material de ensino do B2 do kc_00 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O `B1` disse o que uma variável é; este
+# diz QUANDO ela passa a existir.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E ELA É GRADE `D`
+#
+# `no_value_no_memory` — "se eu não dei valor, a variável ainda não
+# existe na memória". Grade `D`: Kaczmarczyk, Petrick, East & Herman
+# (2010), SIGCSE, "Identifying Student Misconceptions of Programming",
+# apud Sorva (2012), Apêndice A, p. 360, item 22 — variáveis não
+# atribuídas de tipo primitivo não têm memória alocada.
+#
+# ---------------------------------------------------------------------
+# O PROBLEMA DE DEMONSTRAÇÃO DESTE NÓ, E ELE É REAL
+#
+# A premissa afirma que o espaço existe ANTES de qualquer valor entrar.
+# Para observar diretamente esse espaço vazio seriam precisas duas
+# coisas que o tópico não tem: `sizeof`, cujo cartão está no kc_02 (que
+# vem depois), ou o operador de endereço, e o cabeçalho do grafo proíbe
+# ponteiro no primeiro tópico. E LER a variável antes de atribuir é o
+# comportamento indefinido de que o `B3` fala.
+#
+# ENTÃO A DEMONSTRAÇÃO É INDIRETA, E DECLARADA COMO TAL: uma atribuição
+# precisa de destino. Se o espaço só nascesse com o valor, não haveria
+# onde pôr o primeiro valor — a própria atribuição não teria para onde
+# ir. Que ela funcione é o que se observa; que o espaço já estava lá é o
+# que se conclui. A prosa do caso resolvido diz isso nesses termos, e não
+# finge estar olhando a caixa vazia.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Duas variáveis declaradas sem valor, cada uma
+#                    recebendo o seu depois — e mexer numa não mexe na
+#                    outra.
+#   outra rota       A mesma variável recebendo três valores, e as três
+#                    atribuições achando o lugar sem criar nada.
+#
+# O CASO RESOLVIDO TEM UMA SEGUNDA AFIRMAÇÃO que vale pelo tópico todo:
+# os dois espaços são distintos. Sem `&` não há como comparar endereços,
+# então a distinção é mostrada pelo efeito — escrever num não muda o
+# outro. É a prova disponível, e ela é suficiente para o que a premissa
+# afirma.
+#
+# O QUE FICA FORA
+#
+#   a variável não existe até eu atribuir -> `ciu_kc00_003`
+#   quantos espaços existem antes da
+#     terceira linha                       -> `ciu_kc00_t03`
+#   em que momento o espaço passou a
+#     existir                              -> `ciu_kc00_004`
+#   `sizeof(total)` sem valor              -> `ciu_kc00_t04`
+#
+# O `t04` É O ITEM QUE ESTE CARTÃO NÃO PODE IMITAR, e vale registrar por
+# quê: ele usa `sizeof`, cujo cartão está no `kc_02:B2` — tópico
+# POSTERIOR a este. É cobrança antes do ensino, e o detector não a pega
+# porque `cobrancas_sem_ensino` olha o status global do conceito, e não a
+# ordem dos tópicos. Está anotado como pendência para o Rafael decidir,
+# junto com o portão de exibição, que tem a mesma lacuna.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_00
+node: kc00:B2
+premissa: "Declarar já reserva o espaço, antes de qualquer valor entrar."
+crenca_que_nega: no_value_no_memory
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 406dab6ab544
+
+
+# A AMPLIAÇÃO. Quando o espaço nasce, de onde vem a ideia contrária, e o
+# que ela esconde.
+ampliacao: >
+  O espaço nasce na declaração. Quando você escreve o tipo e o nome, o
+  lugar passa a existir — com o tamanho que o tipo pede, e alcançável
+  pelo nome que você deu. O valor é outra coisa, e vem depois, se vier.
+
+  A ideia contrária tem de onde vir, e é a nossa maneira de falar:
+  dizemos que a variável "foi criada" quando ela recebe o primeiro
+  valor, porque é aí que ela passa a servir para algo. E há linguagens
+  em que declarar e inicializar são a mesma operação, o que reforça a
+  confusão. Em C são dois momentos, e eles podem estar longe um do
+  outro.
+
+  Separar os dois é o que deixa a próxima pergunta possível. Se o espaço
+  só existisse junto com o valor, não haveria sentido em perguntar o que
+  há dentro de uma variável declarada e não atribuída — a pergunta não
+  teria sujeito. Ela tem, e a resposta é o assunto do nó seguinte.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x;
+
+
+# O CASO RESOLVIDO: dois lugares esperando.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int total;
+      int outro;
+
+      total = 7;
+      printf("o 7 chegou num lugar que ja estava la: %d\n", total);
+      outro = 9;
+      printf("e o segundo nome tinha o seu: %d\n", outro);
+      total = 100;
+      printf("mexi no primeiro, e o segundo ficou como estava? %d\n", outro == 9);
+  - prosa: "Pergunta: a atribuição do 7 precisou de um lugar para pôr o 7. De onde veio esse lugar?"
+  - prosa: >
+      Da declaração, duas linhas antes. É o que se conclui, e vale dizer
+      que é conclusão e não observação: ninguém está olhando a caixa
+      vazia aqui. O que se vê é que a atribuição funcionou — e uma
+      atribuição precisa de destino. Se o lugar nascesse junto com o
+      valor, o primeiro valor não teria para onde ir.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o 7 chegou num lugar que ja estava la: 7
+      e o segundo nome tinha o seu: 9
+      mexi no primeiro, e o segundo ficou como estava? 1
+  - prosa: >
+      Os dois valores chegaram, cada um no seu. E a última linha mostra
+      que são dois lugares de verdade: escrever cem no primeiro não
+      encostou no segundo. Dois nomes, dois espaços, os dois criados
+      antes de qualquer valor aparecer.
+
+
+# A OUTRA ROTA: três atribuições, nenhuma criação.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Declare uma vez, atribua três vezes, e conte quantos
+      lugares foram criados.
+  - codigo: |
+      int x;
+      int acharam = 0;
+
+      x = 1;
+      if (x == 1) {
+          acharam = acharam + 1;
+      }
+      x = 2;
+      if (x == 2) {
+          acharam = acharam + 1;
+      }
+      x = 3;
+      if (x == 3) {
+          acharam = acharam + 1;
+      }
+      printf("as tres atribuicoes acharam o lugar? %d\n", acharam == 3);
+      printf("e o que ficou guardado foi a ultima: %d\n", x);
+  - prosa: >
+      Uma declaração e três atribuições. Cada uma escreveu e a leitura
+      seguinte encontrou o que ela pôs, o que é o teste de que havia
+      lugar e de que era o mesmo lugar nas três.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      as tres atribuicoes acharam o lugar? 1
+      e o que ficou guardado foi a ultima: 3
+  - prosa: >
+      Três de três, e um lugar só. Se a variável nascesse com o valor,
+      cada atribuição teria de criar a sua — e aí a segunda não acharia o
+      que a primeira escreveu, porque seriam caixas diferentes. Houve uma
+      caixa desde a declaração, e as três atribuições foram todas nela.

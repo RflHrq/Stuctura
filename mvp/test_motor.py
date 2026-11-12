@@ -220,7 +220,27 @@ def _ate_a_refutacao(d, no="B3"):
     raise AssertionError("não chegou à refutação")
 
 
+def _sem_material(d):
+    """O mesmo domínio, com o material próprio dos nós TIRADO DE PROPÓSITO.
+
+    O teste abaixo afirma o caminho de reserva — nó sem `outra_rota` nem
+    `caso_resolvido` cai no resgate da analogia — e até 12/11/2026 ele
+    se apoiava num acaso: o kc_00, que é o tópico padrão deste módulo,
+    não tinha material nenhum. Naquele dia ele ganhou, e o teste caiu
+    com o motor CERTO: o motor passou a servir o material do nó, que é o
+    que deve fazer.
+
+    Fixture que depende de conteúdo estar vazio por acaso quebra quando
+    o conteúdo melhora. Aqui o vazio é construído, e a asserção é a
+    mesma de antes, palavra por palavra. E ISTO PASSA A IMPORTAR MAIS:
+    com os treze tópicos escritos, nenhum nó do domínio real exercita o
+    caminho de reserva — este teste é o único lugar onde ele roda.
+    """
+    return replace(d, casos_resolvidos={}, outras_rotas={})
+
+
 def test_pedir_de_novo_repete_a_premissa_com_a_analogia(d):
+    d = _sem_material(d)
     t = _ate_a_refutacao(d)
     premissa = t.tela.no
     assert not t.tela.dados["reexplicacao"], "a analogia apareceu sem ser pedida"
@@ -235,6 +255,30 @@ def test_pedir_de_novo_repete_a_premissa_com_a_analogia(d):
     assert t2.tela.dados["reexplicacao"] == [{"prosa": d.resgate(premissa)}]
     assert [e.tipo for e in t2.eventos] == ["premissa_reapresentada"]
     assert t2.eventos[0].dados["vez"] == 1
+
+
+def test_com_material_proprio_pedir_de_novo_traz_a_rota_do_no(d):
+    """O par do teste acima: havendo material, é ele que aparece.
+
+    Na refutação, a primeira vez que a pessoa pede traz a `outra_rota`
+    do nó, e a segunda, o `caso_resolvido` — e nenhuma das duas é o
+    resgate. Sem este teste, o material escrito para os treze tópicos
+    podia deixar de chegar à tela de refutação sem nada acusar: o teste
+    de cima só olha o caminho de reserva.
+    """
+    t = _ate_a_refutacao(d)
+    premissa = t.tela.no
+    assert d.outra_rota(premissa) and d.caso_resolvido(premissa), (
+        "este teste precisa de um nó com material próprio: %s" % premissa)
+
+    t2 = motor.avanca(d, t.estado, Resposta(repetir=True))
+    assert t2.tela.no == premissa
+    assert t2.tela.dados["reexplicacao"] == d.outra_rota(premissa)
+
+    t3 = motor.avanca(d, t2.estado, Resposta(repetir=True))
+    assert t3.tela.no == premissa
+    assert t3.tela.dados["reexplicacao"] == d.caso_resolvido(premissa)
+    assert t3.tela.dados["reexplicacao"] != [{"prosa": d.resgate(premissa)}]
 
 
 def test_o_percurso_nao_anda_enquanto_ele_pede_de_novo(d):

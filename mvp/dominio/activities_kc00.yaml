@@ -62,9 +62,14 @@ exemplos:
     char letra;
   B2: |
     int x;
+  # O QUE ESTAVA AQUI LIA UMA VARIAVEL NAO INICIALIZADA -- `int x;` e
+  # `printf("%d", x)` -- que e o comportamento indefinido de que a
+  # premissa deste no fala, demonstrado cometendo-o, na primeira coisa
+  # que a pessoa ve. E o defeito identico ao que saiu do `kc_03:B3` em
+  # 12/11/2026. O novo contrasta as duas declaracoes e nao le nenhuma.
   B3: |
-    int x;
-    printf("%d", x);
+    int x;           /* a caixa existe, e ninguem escolheu o conteudo */
+    int y = 0;       /* aqui o zero entrou por esta linha */
   B4: |
     int x = 3;
     x = 7;
@@ -72,6 +77,334 @@ exemplos:
     int x;
     x = 7;
     7 = x;
+
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int idade;
+
+        idade = 7;
+        printf("escrevi 7 e o nome idade devolveu %d\n", idade);
+        idade = 9;
+        printf("escrevi 9 no mesmo nome e ele devolveu %d\n", idade);
+        printf("foi sempre o mesmo lugar? %d\n", idade == 9);
+    - prosa: >
+        Pergunta: duas escritas e duas leituras, e o nome é um só. O que
+        isso diz sobre o nome?
+    - prosa: >
+        Que ele leva a um lugar, e sempre ao mesmo. Não é etiqueta para
+        você se lembrar do que quis dizer: é por ele que o programa acha o
+        espaço. Se o nome fosse só lembrete, a segunda leitura não teria
+        como saber o que a segunda escrita pôs lá.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        escrevi 7 e o nome idade devolveu 7
+        escrevi 9 no mesmo nome e ele devolveu 9
+        foi sempre o mesmo lugar? 1
+    - prosa: >
+        Escreveu sete, leu sete; escreveu nove, leu nove. Uma caixa só,
+        com um nome só, e o nome é o caminho até ela. Essa é a primeira
+        metade da premissa — a segunda é o tipo, e é ela que decide o que
+        caberia nessa caixa.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int total;
+        int outro;
+
+        total = 7;
+        printf("o 7 chegou num lugar que ja estava la: %d\n", total);
+        outro = 9;
+        printf("e o segundo nome tinha o seu: %d\n", outro);
+        total = 100;
+        printf("mexi no primeiro, e o segundo ficou como estava? %d\n", outro == 9);
+    - prosa: >
+        Pergunta: a atribuição do 7 precisou de um lugar para pôr o 7. De
+        onde veio esse lugar?
+    - prosa: >
+        Da declaração, duas linhas antes. É o que se conclui, e vale dizer
+        que é conclusão e não observação: ninguém está olhando a caixa
+        vazia aqui. O que se vê é que a atribuição funcionou — e uma
+        atribuição precisa de destino. Se o lugar nascesse junto com o
+        valor, o primeiro valor não teria para onde ir.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o 7 chegou num lugar que ja estava la: 7
+        e o segundo nome tinha o seu: 9
+        mexi no primeiro, e o segundo ficou como estava? 1
+    - prosa: >
+        Os dois valores chegaram, cada um no seu. E a última linha mostra
+        que são dois lugares de verdade: escrever cem no primeiro não
+        encostou no segundo. Dois nomes, dois espaços, os dois criados
+        antes de qualquer valor aparecer.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int soma = 0;
+        int i = 1;
+
+        while (i <= 4) {
+            soma = soma + i;
+            i = i + 1;
+        }
+        printf("a soma deu %d\n", soma);
+        printf("e o zero de onde ela partiu foi escrito por uma linha? %d\n",
+               soma == 10);
+    - prosa: >
+        Pergunta: quais linhas deste trecho escreveram alguma coisa em
+        soma?
+    - prosa: >
+        Cinco: a do zero e as quatro do laço. A primeira é a que costuma
+        passar despercebida, porque parece redundante — e não é. Tire-a, e
+        a primeira soma parte do que estava na caixa, que ninguém
+        escolheu.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a soma deu 10
+        e o zero de onde ela partiu foi escrito por uma linha? 1
+    - prosa: >
+        Dez, que é um mais dois mais três mais quatro. O zero está na
+        conta, e ele entrou por uma linha escrita por alguém. Se declarar
+        já zerasse, aquela linha seria dispensável — e em C ela é o que
+        segura o resultado.
+
+  B4:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int contador = 0;
+        int voltas = 0;
+
+        while (voltas < 3) {
+            contador = contador + 1;
+            voltas = voltas + 1;
+        }
+        printf("depois de tres passos, o contador guarda %d\n", contador);
+        printf("ele guardou um valor de cada vez? %d\n", contador == 3);
+    - prosa: >
+        Pergunta: a linha do contador menciona contador duas vezes. Ela
+        guarda dois valores ao mesmo tempo?
+    - prosa: >
+        Não, e a ordem é o que explica. Primeiro o valor que está na caixa
+        é lido; depois a soma é feita com ele; por último o resultado é
+        escrito na caixa, por cima. São três momentos, e em nenhum deles a
+        caixa tem dois valores. O antigo participou da conta e foi
+        substituído pelo resultado dela.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        depois de tres passos, o contador guarda 3
+        ele guardou um valor de cada vez? 1
+    - prosa: >
+        Três, e não a lista zero, um, dois, três. Se a variável lembrasse
+        os valores antigos, eles estariam em algum lugar — e não há lugar:
+        cada passo apagou o anterior ao escrever o seu. O que sobrou da
+        história toda é o último número.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int pela_declaracao = 7;
+        int por_atribuicao;
+
+        por_atribuicao = 7;
+        printf("as duas rotas chegaram em %d e %d\n",
+               pela_declaracao, por_atribuicao);
+        printf("no mesmo lugar, para quem usa depois? %d\n",
+               pela_declaracao == por_atribuicao);
+        pela_declaracao = pela_declaracao + 1;
+        por_atribuicao = por_atribuicao + 1;
+        printf("e dai em diante as duas se comportam igual? %d\n",
+               pela_declaracao == por_atribuicao);
+    - prosa: >
+        Pergunta: por que a última comparação está aqui, se as duas já
+        tinham chegado ao mesmo valor?
+    - prosa: >
+        Porque chegar ao mesmo valor podia ser coincidência de um momento.
+        A conta no fim pergunta outra coisa: as duas variáveis se
+        comportam igual daí em diante? Se a rota escolhida deixasse alguma
+        diferença para trás, ela apareceria agora.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        as duas rotas chegaram em 7 e 7
+        no mesmo lugar, para quem usa depois? 1
+        e dai em diante as duas se comportam igual? 1
+    - prosa: >
+        Mesmo valor e mesmo comportamento. Para quem usa a variável
+        depois, não há como saber qual das duas rotas a criou — e é isso
+        que a premissa afirma. Inicializar é mais curto de escrever e
+        evita a janela em que a caixa está sem valor escolhido, que é o
+        assunto do B3; o estado final das duas é o mesmo.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Caminho DIFERENTE do caso resolvido -- ha teste no
+# projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Ponha o mesmo valor em dois tipos diferentes e veja
+        o que sai de cada um.
+    - codigo: |
+        int fonte = 300;
+        int por_int = fonte;
+        char por_char = (char) fonte;
+
+        printf("pelo int, o 300 coube inteiro: %d\n", por_int);
+        printf("e pelo char nao coube: o mesmo valor virou outro? %d\n",
+               por_char != por_int);
+    - prosa: >
+        O valor de partida é um só, e está na primeira variável. As duas
+        linhas seguintes o copiam para dois tipos diferentes, e é só isso
+        que muda entre elas.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        pelo int, o 300 coube inteiro: 300
+        e pelo char nao coube: o mesmo valor virou outro? 1
+    - prosa: >
+        No int o trezentos chegou inteiro; no char, não. Se o tipo fosse
+        só um aviso para o compilador, as duas cópias teriam o mesmo valor
+        — o valor copiado era o mesmo. O que diferiu foi o tipo do
+        destino, e ele decidiu o que cabia.
+
+  B2:
+    - prosa: >
+        Outro caminho. Declare uma vez, atribua três vezes, e conte
+        quantos lugares foram criados.
+    - codigo: |
+        int x;
+        int acharam = 0;
+
+        x = 1;
+        if (x == 1) {
+            acharam = acharam + 1;
+        }
+        x = 2;
+        if (x == 2) {
+            acharam = acharam + 1;
+        }
+        x = 3;
+        if (x == 3) {
+            acharam = acharam + 1;
+        }
+        printf("as tres atribuicoes acharam o lugar? %d\n", acharam == 3);
+        printf("e o que ficou guardado foi a ultima: %d\n", x);
+    - prosa: >
+        Uma declaração e três atribuições. Cada uma escreveu e a leitura
+        seguinte encontrou o que ela pôs, o que é o teste de que havia
+        lugar e de que era o mesmo lugar nas três.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        as tres atribuicoes acharam o lugar? 1
+        e o que ficou guardado foi a ultima: 3
+    - prosa: >
+        Três de três, e um lugar só. Se a variável nascesse com o valor,
+        cada atribuição teria de criar a sua — e aí a segunda não acharia
+        o que a primeira escreveu, porque seriam caixas diferentes. Houve
+        uma caixa desde a declaração, e as três atribuições foram todas
+        nela.
+
+  B3:
+    - prosa: >
+        Outro caminho, e este não tem saída para mostrar. Olhe a forma do
+        trecho.
+    - codigo: |
+        int soma;
+
+        soma = soma + 10;   /* invalido: ninguem escreveu em soma antes */
+    - prosa: >
+        Não há bloco de saída aqui, e a ausência é a demonstração. Para
+        mostrar o que esta linha produz seria preciso executá-la — e
+        executá-la é justamente o que a premissa diz não ter resultado
+        previsível. Um cartão que o fizesse estaria cometendo o erro que
+        ensina a não cometer.
+    - prosa: >
+        E a pergunta natural é a armadilha. "Então quanto vai dar?" já
+        aceita a crença: supõe que há um número de partida para somar dez.
+        Não há número em que se possa contar — e por isso a pergunta certa
+        não é qual é o resultado, mas quem deveria ter escrito em soma
+        antes desta linha.
+    - prosa: >
+        Quem quiser ver a máquina dizer isso tem onde: a demonstração
+        deste nó na tela de refutação compila um programa desta forma, e o
+        compilador avisa que a variável é usada sem ter recebido valor. O
+        programa não é executado nem lá — não executar é a prova, e não
+        economia.
+
+  B4:
+    - prosa: >
+        Outro caminho. Guarde de verdade o valor anterior, e veja onde ele
+        fica.
+    - codigo: |
+        int x = 10;
+        int antes = 0;
+
+        antes = x;
+        x = 20;
+        printf("x agora vale %d\n", x);
+        printf("e o 10 existe ainda, porque eu o copiei antes: %d\n", antes);
+        printf("ele esta em x? %d\n", x == 10);
+    - prosa: >
+        A cópia foi feita antes da sobrescrita, e foi para outra caixa. A
+        partir daí são dois nomes com dois valores, e cada um guarda um.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        x agora vale 20
+        e o 10 existe ainda, porque eu o copiei antes: 10
+        ele esta em x? 0
+    - prosa: >
+        O dez existe, e o zero da última linha diz onde ele não está: em
+        x. Isso é o contrário do que a crença promete. Ela diz que a
+        variável guarda o histórico; o que se vê é que o histórico só
+        existe onde alguém o escreveu, numa caixa à parte, antes de a
+        sobrescrita acontecer.
+
+  I1:
+    - prosa: >
+        Outro caminho. A crença deste nó diz que a atribuição funciona nos
+        dois sentidos, como uma troca. Vamos tentar trocar.
+    - codigo: |
+        int a = 1;
+        int b = 2;
+
+        a = b;
+        b = a;
+        printf("depois de a = b; b = a; os dois valem %d e %d\n", a, b);
+        printf("eles trocaram de valor? %d\n", a == 2 && b == 1);
+    - prosa: >
+        Duas atribuições, uma em cada direção. Se o sinal fosse simétrico,
+        a segunda desfaria a primeira, ou as duas juntas trocariam os
+        valores — é o que a palavra troca promete.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        depois de a = b; b = a; os dois valem 2 e 2
+        eles trocaram de valor? 0
+    - prosa: >
+        Dois e dois, e a troca não aconteceu. A primeira linha copiou o
+        dois para dentro de a, e com isso o um deixou de existir — pelo
+        B4, foi substituído. A segunda linha então copiou o dois de volta,
+        que era o que havia em a. Para trocar de verdade seriam precisas
+        três linhas e uma terceira caixa, que é exatamente o que a outra
+        rota do B4 mostra.
 
 activities:
 

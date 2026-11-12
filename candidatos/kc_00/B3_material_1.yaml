@@ -1,0 +1,167 @@
+# Material de ensino do B3 do kc_00 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. E É UM NÓ DA FAMÍLIA DO COMPORTAMENTO
+# INDEFINIDO — o primeiro do projeto na ordem curricular, e o mesmo
+# problema do `kc_03:B3`, do `kc_03:I2`, do `kc_03:I3`, do `kc_05:I3`, do
+# `kc_08:B3` e do `kc_09:B4`. Vale a regra daqueles:
+#
+#   NENHUMA DEMONSTRAÇÃO ESCRITA AQUI LÊ UMA VARIÁVEL NÃO INICIALIZADA.
+#
+# A evidência deste nó no grafo resolve com a TERCEIRA FORMA do contrato:
+# o compilador diagnostica que a variável é usada sem ter recebido valor,
+# e o programa NÃO É EXECUTADO. Cartão não tem essa forma, então ele
+# demonstra o que É demonstrável — que todo valor lido teve um autor — e
+# mostra o trecho inválido sem executá-lo.
+#
+# ---------------------------------------------------------------------
+# E O `exemplo` DESTE NÓ MUDA NESTE COMMIT, pela primeira vez num cartão
+# deste projeto que não seja o `kc_03:B3`. O que estava ali era
+#
+#     int x;
+#     printf("%d", x);
+#
+# e isso LÊ UMA VARIÁVEL NÃO INICIALIZADA — o comportamento indefinido de
+# que esta premissa fala, demonstrado cometendo-o, na primeira coisa que
+# a pessoa vê. É o defeito idêntico ao que saiu do `kc_03:B3` em
+# 12/11/2026, onde o exemplo lia um ponteiro não inicializado.
+#
+# O NOVO EXEMPLO CONTRASTA AS DUAS DECLARAÇÕES e não lê nenhuma das
+# duas, o que é exatamente o que o nó ensina. Trocar o exemplo muda a
+# assinatura deste cartão, e é por isso que ele é assinado junto com o
+# material.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, COM MEDIAÇÃO DECLARADA
+#
+# `declaration_zeroes` — "declarar já zera a variável, tipo em outras
+# linguagens". Grade `D`: du Boulay (1986); Samurçay (1989), apud Sorva
+# (2012), Apêndice A, p. 359, item 10 — variáveis sempre recebem um valor
+# padrão ao serem criadas.
+#
+# O CATÁLOGO REGISTRA A MEDIAÇÃO, em 11/11/2026: os dois estudos não
+# foram abertos, e a citação é de Sorva. O cartão não finge o contrário —
+# a procedência é a que o catálogo declara, e a ampliação não atribui
+# achados a quem não foi lido.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   A soma cujo zero foi escrito por uma linha sua:
+#                    todo valor lido teve um autor.
+#   outra rota       O trecho inválido, mostrado e NÃO executado.
+#
+# O `t05` É A MESMA SOMA QUEBRADA — `int soma; soma = soma + 10;` — e o
+# caso resolvido é a soma certa. Não é o mesmo: o item mostra o defeito e
+# pergunta se dá para saber o que aparece; o cartão mostra a versão que
+# funciona e nomeia o que a linha do zero comprou.
+#
+# O QUE FICA FORA
+#
+#   o que está guardado depois de int x  -> `ciu_kc00_005`
+#   `soma = soma + 10` sem inicializar   -> `ciu_kc00_t05`
+#   `printf` de um contador não iniciado -> `ciu_kc00_006`
+#   qual das duas dá para usar agora     -> `ciu_kc00_t06`
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): o programa do caso
+# resolvido compila sem um aviso, e a saída está transcrita da execução.
+# O trecho da outra rota NÃO É EXECUTADO, e por isso não traz saída.
+
+topico: kc_00
+node: kc00:B3
+premissa: "Variável local declarada sem valor tem conteúdo indeterminado, não zero."
+crenca_que_nega: declaration_zeroes
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: c78d527985fb
+
+
+# A AMPLIAÇÃO. O que a declaração faz e não faz, de onde vem a ideia
+# contrária, e o que ela custa.
+ampliacao: >
+  A declaração reserva o espaço e para aí. Ela não escreve nada dentro:
+  o que estiver naquele trecho de memória continua lá — sobra do que o
+  programa já fez, ou do que nunca usou. A linguagem não promete nada
+  sobre esse conteúdo, e não prometer nada é diferente de prometer lixo:
+  não há valor nenhum em que você possa contar.
+
+  A ideia contrária tem uma origem razoável, e ela é outra linguagem.
+  Há várias em que declarar já põe um valor padrão — zero, vazio, nulo —
+  e quem aprendeu lá traz a expectativa para cá. Em C essa garantia não
+  existe para variável local, e o programa que conta com ela funciona
+  por acaso.
+
+  Então o valor inicial é trabalho de quem declara. Escrever o valor
+  antes de ler não é zelo: é o que faz o programa ter um resultado
+  previsível. Somar a partir de uma variável que ninguém escreveu é
+  partir de um número que ninguém escolheu — e o programa pode acertar
+  hoje e errar amanhã, com o mesmo código.
+
+
+# O exemplo NOVO: as duas declarações, e nenhuma delas é lida.
+# O que estava aqui lia uma variável não inicializada — ver o cabeçalho.
+exemplo: |
+  int x;           /* a caixa existe, e ninguem escolheu o conteudo */
+  int y = 0;       /* aqui o zero entrou por esta linha */
+
+
+# O CASO RESOLVIDO: a soma com autor.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int soma = 0;
+      int i = 1;
+
+      while (i <= 4) {
+          soma = soma + i;
+          i = i + 1;
+      }
+      printf("a soma deu %d\n", soma);
+      printf("e o zero de onde ela partiu foi escrito por uma linha? %d\n",
+             soma == 10);
+  - prosa: "Pergunta: quais linhas deste trecho escreveram alguma coisa em soma?"
+  - prosa: >
+      Cinco: a do zero e as quatro do laço. A primeira é a que costuma
+      passar despercebida, porque parece redundante — e não é. Tire-a, e
+      a primeira soma parte do que estava na caixa, que ninguém
+      escolheu.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a soma deu 10
+      e o zero de onde ela partiu foi escrito por uma linha? 1
+  - prosa: >
+      Dez, que é um mais dois mais três mais quatro. O zero está na
+      conta, e ele entrou por uma linha escrita por alguém. Se declarar
+      já zerasse, aquela linha seria dispensável — e em C ela é o que
+      segura o resultado.
+
+
+# A OUTRA ROTA: o trecho inválido, e ele não roda.
+reexplicacao:
+  - prosa: >
+      Outro caminho, e este não tem saída para mostrar. Olhe a forma do
+      trecho.
+  - codigo: |
+      int soma;
+
+      soma = soma + 10;   /* invalido: ninguem escreveu em soma antes */
+  - prosa: >
+      Não há bloco de saída aqui, e a ausência é a demonstração. Para
+      mostrar o que esta linha produz seria preciso executá-la — e
+      executá-la é justamente o que a premissa diz não ter resultado
+      previsível. Um cartão que o fizesse estaria cometendo o erro que
+      ensina a não cometer.
+  - prosa: >
+      E a pergunta natural é a armadilha. "Então quanto vai dar?" já
+      aceita a crença: supõe que há um número de partida para somar dez.
+      Não há número em que se possa contar — e por isso a pergunta certa
+      não é qual é o resultado, mas quem deveria ter escrito em soma
+      antes desta linha.
+  - prosa: >
+      Quem quiser ver a máquina dizer isso tem onde: a demonstração deste
+      nó na tela de refutação compila um programa desta forma, e o
+      compilador avisa que a variável é usada sem ter recebido valor. O
+      programa não é executado nem lá — não executar é a prova, e não
+      economia.

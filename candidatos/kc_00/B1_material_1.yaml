@@ -1,0 +1,161 @@
+# Material de ensino do B1 do kc_00 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_00 tem ampliação VAZIA nos cinco
+# nós, e ele NÃO é tópico-piloto: `pilot: false`. Nenhum participante da
+# coleta o vê. Ele é a RAIZ do grafo curricular — kc_01 e kc_02 o
+# declaram como pré-requisito —, e é por isso que o material vale: é o
+# tópico de onde todo o resto parte, mesmo não estando na coleta.
+#
+# NENHUM PROGRAMA DESTE MATERIAL USA PONTEIRO, e a razão está no
+# cabeçalho do grafo: este é o PRIMEIRO tópico, e mostrar `int *p` a quem
+# está na declaração de variáveis repetiria o defeito que o portão de
+# exibição existe para evitar — só que sem ninguém para barrar, porque
+# `construtos_de` não enxerga ponteiro.
+#
+# E NENHUM USA `sizeof`, pela mesma lógica levada a sério: o cartão de
+# `sizeof` está no `kc_02:B2`, e o kc_02 vem DEPOIS deste tópico. Dizer
+# "o tamanho se pergunta com sizeof" aqui seria cobrar antes de ensinar.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E ELA É A ÚNICA GRADE `E` DO CATÁLOGO
+#
+# `type_is_a_hint` — "toda variável ocupa o mesmo espaço; o tipo é só um
+# aviso para o compilador". Grade `E`: elaborada a partir do modelo de
+# máquina, NÃO de fonte empírica, e entra declarada como HIPÓTESE A
+# TESTAR. O catálogo registra que os três distratores de B1 que não
+# tinham dono apontam para ela.
+#
+# ISSO MUDA O TOM DA AMPLIAÇÃO. Para as outras crenças do tópico há
+# estudo que diz que estudantes a têm; para esta há uma suposição nossa,
+# e o projeto a declarou como tal. O cartão então ensina a premissa e não
+# afirma nada sobre quem acredita no quê — a frase "é comum pensar que"
+# não aparece, porque ninguém mediu isso.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O NOME: duas escritas e duas leituras pelo mesmo
+#                    nome, sempre no mesmo lugar.
+#   outra rota       O TIPO: o mesmo valor entrando em dois tipos, e
+#                    saindo diferente de um deles.
+#
+# A PREMISSA TEM DUAS PARTES — nome e tipo —, e as duas demonstrações se
+# dividem exatamente nelas. O caso resolvido é a parte que quase não se
+# questiona e por isso passa batida; a outra rota é a que a crença nega.
+#
+# O `(char)` É EXPLÍCITO DE PROPÓSITO. Sem o cast, `char por_char = 300;`
+# faria o gcc responder `-Woverflow`, e o aviso invalidaria a
+# demonstração. Com o cast, o valor vem de uma variável lida em execução,
+# e a conversão é pedida — o compilador não tem o que avisar.
+#
+# O QUE FICA FORA
+#
+#   o que o computador precisa fazer    -> `ciu_kc00_001`
+#   `char a; double b;` e o espaço      -> `ciu_kc00_t01`
+#   o nome serve só para você se lembrar -> `ciu_kc00_t02`
+#   o que já existe depois de duas
+#     declarações                        -> `ciu_kc00_002`
+#
+# O `t01` PERGUNTA SOBRE ESPAÇO OCUPADO, e nenhuma das duas
+# demonstrações mede espaço: medir exigiria `sizeof`, que este tópico não
+# ensina. A outra rota mostra o tipo decidindo pelo que CABE, e não pelo
+# quanto ocupa — é a mesma premissa pelo lado observável sem ferramenta
+# nova.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_00
+node: kc00:B1
+premissa: "Uma variável é um espaço de memória com nome e tipo."
+crenca_que_nega: type_is_a_hint
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: aa9271665e00
+
+
+# A AMPLIAÇÃO. As duas coisas que a declaração decide, e o que cada uma
+# serve para fazer.
+ampliacao: >
+  Declarar uma variável cria um espaço na memória e lhe dá duas coisas:
+  um nome e um tipo. O nome é por onde você chega lá — escreva o nome e
+  você está falando daquele espaço, sempre do mesmo. O tipo é o que
+  decide que espécie de valor cabe ali, e quanto espaço é preciso para
+  guardá-lo.
+
+  O nome não é lembrete seu. Ele é o endereço pelo qual o programa
+  encontra o espaço: duas variáveis com nomes diferentes são dois
+  espaços diferentes, e mexer em uma não mexe na outra. Escrever no
+  mesmo nome duas vezes é escrever no mesmo lugar duas vezes.
+
+  E o tipo não é aviso ao compilador: é parte do que a variável é. Um
+  valor que não cabe no tipo não entra como estava — ele é convertido, e
+  pode chegar diferente do que saiu. Guardar um número com fração num
+  tipo que só guarda inteiros perde a fração, e o programa segue com o
+  que sobrou.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int idade;
+  char letra;
+
+
+# O CASO RESOLVIDO: o nome.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int idade;
+
+      idade = 7;
+      printf("escrevi 7 e o nome idade devolveu %d\n", idade);
+      idade = 9;
+      printf("escrevi 9 no mesmo nome e ele devolveu %d\n", idade);
+      printf("foi sempre o mesmo lugar? %d\n", idade == 9);
+  - prosa: "Pergunta: duas escritas e duas leituras, e o nome é um só. O que isso diz sobre o nome?"
+  - prosa: >
+      Que ele leva a um lugar, e sempre ao mesmo. Não é etiqueta para
+      você se lembrar do que quis dizer: é por ele que o programa acha o
+      espaço. Se o nome fosse só lembrete, a segunda leitura não teria
+      como saber o que a segunda escrita pôs lá.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      escrevi 7 e o nome idade devolveu 7
+      escrevi 9 no mesmo nome e ele devolveu 9
+      foi sempre o mesmo lugar? 1
+  - prosa: >
+      Escreveu sete, leu sete; escreveu nove, leu nove. Uma caixa só, com
+      um nome só, e o nome é o caminho até ela. Essa é a primeira metade
+      da premissa — a segunda é o tipo, e é ela que decide o que caberia
+      nessa caixa.
+
+
+# A OUTRA ROTA: o tipo.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Ponha o mesmo valor em dois tipos diferentes e veja
+      o que sai de cada um.
+  - codigo: |
+      int fonte = 300;
+      int por_int = fonte;
+      char por_char = (char) fonte;
+
+      printf("pelo int, o 300 coube inteiro: %d\n", por_int);
+      printf("e pelo char nao coube: o mesmo valor virou outro? %d\n",
+             por_char != por_int);
+  - prosa: >
+      O valor de partida é um só, e está na primeira variável. As duas
+      linhas seguintes o copiam para dois tipos diferentes, e é só isso
+      que muda entre elas.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      pelo int, o 300 coube inteiro: 300
+      e pelo char nao coube: o mesmo valor virou outro? 1
+  - prosa: >
+      No int o trezentos chegou inteiro; no char, não. Se o tipo fosse
+      só um aviso para o compilador, as duas cópias teriam o mesmo
+      valor — o valor copiado era o mesmo. O que diferiu foi o tipo do
+      destino, e ele decidiu o que cabia.

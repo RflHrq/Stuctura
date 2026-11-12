@@ -50,6 +50,26 @@ nodes:
           o nome n leva ao mesmo espaco: guardou 7, devolveu 7
           e o tipo decide o que cabe: 2.9 virou 2 no int
           o mesmo 2.9 no double continua com a fracao
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Declarar uma variável cria um espaço na memória e lhe dá duas
+      coisas: um nome e um tipo. O nome é por onde você chega lá — escreva
+      o nome e você está falando daquele espaço, sempre do mesmo. O tipo é
+      o que decide que espécie de valor cabe ali, e quanto espaço é
+      preciso para guardá-lo.
+
+
+      O nome não é lembrete seu. Ele é o endereço pelo qual o programa
+      encontra o espaço: duas variáveis com nomes diferentes são dois
+      espaços diferentes, e mexer em uma não mexe na outra. Escrever no
+      mesmo nome duas vezes é escrever no mesmo lugar duas vezes.
+
+
+      E o tipo não é aviso ao compilador: é parte do que a variável é. Um
+      valor que não cabe no tipo não entra como estava — ele é convertido,
+      e pode chegar diferente do que saiu. Guardar um número com fração
+      num tipo que só guarda inteiros perde a fração, e o programa segue
+      com o que sobrou.
   B2:
     type: observavel
     role: espinha
@@ -113,6 +133,27 @@ nodes:
           ainda não foi declarado é violação de restrição, e o padrão
           exige diagnóstico de todo compilador conforme; o que se
           observa aqui é a recusa deste.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O espaço nasce na declaração. Quando você escreve o tipo e o nome, o
+      lugar passa a existir — com o tamanho que o tipo pede, e alcançável
+      pelo nome que você deu. O valor é outra coisa, e vem depois, se
+      vier.
+
+
+      A ideia contrária tem de onde vir, e é a nossa maneira de falar:
+      dizemos que a variável "foi criada" quando ela recebe o primeiro
+      valor, porque é aí que ela passa a servir para algo. E há linguagens
+      em que declarar e inicializar são a mesma operação, o que reforça a
+      confusão. Em C são dois momentos, e eles podem estar longe um do
+      outro.
+
+
+      Separar os dois é o que deixa a próxima pergunta possível. Se o
+      espaço só existisse junto com o valor, não haveria sentido em
+      perguntar o que há dentro de uma variável declarada e não atribuída
+      — a pergunta não teria sujeito. Ela tem, e a resposta é o assunto do
+      nó seguinte.
   B3:
     type: observavel
     role: espinha
@@ -157,6 +198,27 @@ nodes:
           COMPILA — o padrão não exige recusa, exige diagnóstico — e não
           é executado aqui: executá-lo seria justamente o comportamento
           que a premissa diz não ter resultado previsível.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      A declaração reserva o espaço e para aí. Ela não escreve nada
+      dentro: o que estiver naquele trecho de memória continua lá — sobra
+      do que o programa já fez, ou do que nunca usou. A linguagem não
+      promete nada sobre esse conteúdo, e não prometer nada é diferente de
+      prometer lixo: não há valor nenhum em que você possa contar.
+
+
+      A ideia contrária tem uma origem razoável, e ela é outra linguagem.
+      Há várias em que declarar já põe um valor padrão — zero, vazio, nulo
+      — e quem aprendeu lá traz a expectativa para cá. Em C essa garantia
+      não existe para variável local, e o programa que conta com ela
+      funciona por acaso.
+
+
+      Então o valor inicial é trabalho de quem declara. Escrever o valor
+      antes de ler não é zelo: é o que faz o programa ter um resultado
+      previsível. Somar a partir de uma variável que ninguém escreveu é
+      partir de um número que ninguém escolheu — e o programa pode acertar
+      hoje e errar amanhã, com o mesmo código.
   B4:
     type: observavel
     role: espinha
@@ -189,6 +251,29 @@ nodes:
         espera: |-
           o valor novo entrou: x responde 2
           e o anterior nao esta mais la: cabe um de cada vez
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Atribuir é escrever por cima. O espaço da variável guarda um valor,
+      e quando o próximo entra o anterior deixa de estar lá — não vai para
+      outro lugar, não fica numa lista, não é recuperável. A caixa tem
+      lugar para um, e sempre o mais recente.
+
+
+      A ideia contrária tem de onde vir, e a linha que mais a alimenta é a
+      mais comum de todas: contador igual a contador mais um. Ela parece
+      usar dois valores ao mesmo tempo, o antigo e o novo, e de fato os
+      dois aparecem na mesma linha. O que acontece em ordem é outra coisa:
+      o valor atual é lido, a conta é feita, e o resultado é escrito por
+      cima. Entre a leitura e a escrita não há momento em que a caixa
+      guarde os dois.
+
+
+      Quando você precisa do valor antigo, a resposta é uma segunda caixa.
+      Copie antes de sobrescrever, e o que você terá são duas variáveis
+      com dois valores — não uma variável com memória. Essa distinção é
+      pequena de dizer e grande de usar: é a diferença entre um programa
+      que você consegue acompanhar linha por linha e um em que você não
+      sabe mais o que há onde.
   I1:
     type: inferencia
     role: conclusao
@@ -226,3 +311,27 @@ nodes:
         espera: |-
           inicializar e atribuir depois chegam ao mesmo valor
           e dai em diante as duas andam juntas: mesmo espaco
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto é o fecho dos quatro nós anteriores. A variável é um espaço com
+      nome e tipo, o espaço nasce na declaração, o conteúdo dele é
+      indeterminado até alguém escrever, e escrever substitui o que havia.
+      Então dar o valor na linha da declaração ou dar o valor três linhas
+      depois leva ao mesmo estado: um espaço reservado, com um valor que
+      você escolheu. A diferença entre as duas rotas é quando, e não o
+      quê.
+
+
+      E a atribuição tem uma direção. Ela não é uma afirmação de que os
+      dois lados são iguais: é uma ordem para copiar o que está à direita
+      para o lugar que está à esquerda. Por isso o lado esquerdo precisa
+      ser um lugar — um nome de variável, algo que receba. Um número não é
+      lugar, e não há como pôr nada dentro dele.
+
+
+      A ideia da troca vem do sinal. Em matemática, o igual é simétrico:
+      trocar os dois lados de lugar não muda o que a frase diz. Em C o
+      mesmo símbolo quer dizer outra coisa, e a assimetria é inteira —
+      quem lê e quem é escrito são papéis diferentes, e duas atribuições
+      em direções opostas não desfazem uma à outra. Elas fazem as duas
+      variáveis terminarem com o mesmo valor.

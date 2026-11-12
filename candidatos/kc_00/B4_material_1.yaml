@@ -1,0 +1,157 @@
+# Material de ensino do B4 do kc_00 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Último observável do tópico: o `B1` disse
+# o que a variável é, o `B2` quando ela nasce, o `B3` o que há dentro
+# dela antes de você escrever, e este diz o que acontece quando você
+# escreve de novo.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE TEM CINCO ESTUDOS
+#
+# `variable_remembers` — "a variável lembra os valores antigos, não só o
+# último". Grade `T`: du Boulay (1986); Soloway et al. (1982); Putnam et
+# al. (1986); Sleeman et al. (1986); Doukakis et al. (2007), apud Sorva
+# (2012), Apêndice A, p. 359, item 9 — uma variável pode guardar vários
+# valores ao mesmo tempo, ou lembra os antigos.
+#
+# CINCO ESTUDOS NO MESMO ITEM é a crença mais atestada deste tópico, e
+# vale levar a sério: não é descuido de quem começa, é um modelo mental
+# que aparece repetidamente. A ampliação trata assim.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Um contador subindo três vezes: cada passo lê o
+#                    valor atual e escreve o novo, um de cada vez.
+#   outra rota       Como guardar o valor anterior de verdade: uma
+#                    SEGUNDA caixa, copiada antes.
+#
+# O CASO RESOLVIDO ESCOLHEU O CONTADOR porque ele é o caso em que a
+# crença chega mais perto de parecer verdade: `contador = contador + 1`
+# usa o valor antigo e o novo na mesma linha, e quem acha que a variável
+# guarda os dois tem aqui a sua melhor evidência aparente. O que a linha
+# faz é ler o atual, somar, e escrever o resultado por cima — e nunca há
+# dois valores ali ao mesmo tempo.
+#
+# A OUTRA ROTA É A RESPOSTA PRÁTICA, e ela é o que o `t08` pergunta: um
+# colega quer o valor anterior depois da sobrescrita. O item pergunta se
+# dá; o cartão mostra o que seria preciso ter feito antes — e deixa claro
+# que a cópia é outra caixa, e não uma memória da primeira.
+#
+# O QUE FICA FORA
+#
+#   depois de x = 5 e x = 8, o que x
+#     guarda                            -> `ciu_kc00_007`
+#   `x = x + 3` e o que aparece         -> `ciu_kc00_t07`
+#   o colega que quer o valor anterior  -> `ciu_kc00_t08`
+#   `pontos` 10, 20, 30                 -> `ciu_kc00_008`
+#
+# O `008` SOBRESCREVE TRÊS VEZES COM CONSTANTES e pergunta o que sai; o
+# caso resolvido sobrescreve três vezes com uma conta que USA o valor
+# anterior. É a diferença entre ver que só o último fica e ver COMO o
+# último é formado a partir do que havia.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_00
+node: kc00:B4
+premissa: "Atribuir um valor novo substitui o anterior; cabe um valor de cada vez."
+crenca_que_nega: variable_remembers
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 6c9c6e280293
+
+
+# A AMPLIAÇÃO. O que a atribuição faz, de onde vem a ideia contrária, e
+# o que fazer quando você precisa do valor antigo.
+ampliacao: >
+  Atribuir é escrever por cima. O espaço da variável guarda um valor, e
+  quando o próximo entra o anterior deixa de estar lá — não vai para
+  outro lugar, não fica numa lista, não é recuperável. A caixa tem lugar
+  para um, e sempre o mais recente.
+
+  A ideia contrária tem de onde vir, e a linha que mais a alimenta é a
+  mais comum de todas: contador igual a contador mais um. Ela parece
+  usar dois valores ao mesmo tempo, o antigo e o novo, e de fato os dois
+  aparecem na mesma linha. O que acontece em ordem é outra coisa: o
+  valor atual é lido, a conta é feita, e o resultado é escrito por cima.
+  Entre a leitura e a escrita não há momento em que a caixa guarde os
+  dois.
+
+  Quando você precisa do valor antigo, a resposta é uma segunda caixa.
+  Copie antes de sobrescrever, e o que você terá são duas variáveis com
+  dois valores — não uma variável com memória. Essa distinção é pequena
+  de dizer e grande de usar: é a diferença entre um programa que você
+  consegue acompanhar linha por linha e um em que você não sabe mais o
+  que há onde.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x = 3;
+  x = 7;
+
+
+# O CASO RESOLVIDO: o contador.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int contador = 0;
+      int voltas = 0;
+
+      while (voltas < 3) {
+          contador = contador + 1;
+          voltas = voltas + 1;
+      }
+      printf("depois de tres passos, o contador guarda %d\n", contador);
+      printf("ele guardou um valor de cada vez? %d\n", contador == 3);
+  - prosa: "Pergunta: a linha do contador menciona contador duas vezes. Ela guarda dois valores ao mesmo tempo?"
+  - prosa: >
+      Não, e a ordem é o que explica. Primeiro o valor que está na caixa
+      é lido; depois a soma é feita com ele; por último o resultado é
+      escrito na caixa, por cima. São três momentos, e em nenhum deles a
+      caixa tem dois valores. O antigo participou da conta e foi
+      substituído pelo resultado dela.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      depois de tres passos, o contador guarda 3
+      ele guardou um valor de cada vez? 1
+  - prosa: >
+      Três, e não a lista zero, um, dois, três. Se a variável lembrasse
+      os valores antigos, eles estariam em algum lugar — e não há lugar:
+      cada passo apagou o anterior ao escrever o seu. O que sobrou da
+      história toda é o último número.
+
+
+# A OUTRA ROTA: quando você precisa do antigo.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Guarde de verdade o valor anterior, e veja onde ele
+      fica.
+  - codigo: |
+      int x = 10;
+      int antes = 0;
+
+      antes = x;
+      x = 20;
+      printf("x agora vale %d\n", x);
+      printf("e o 10 existe ainda, porque eu o copiei antes: %d\n", antes);
+      printf("ele esta em x? %d\n", x == 10);
+  - prosa: >
+      A cópia foi feita antes da sobrescrita, e foi para outra caixa. A
+      partir daí são dois nomes com dois valores, e cada um guarda um.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      x agora vale 20
+      e o 10 existe ainda, porque eu o copiei antes: 10
+      ele esta em x? 0
+  - prosa: >
+      O dez existe, e o zero da última linha diz onde ele não está: em x.
+      Isso é o contrário do que a crença promete. Ela diz que a variável
+      guarda o histórico; o que se vê é que o histórico só existe onde
+      alguém o escreveu, numa caixa à parte, antes de a sobrescrita
+      acontecer.

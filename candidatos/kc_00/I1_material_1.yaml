@@ -1,0 +1,176 @@
+# Material de ensino do I1 do kc_00 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico: suporte em `B1`,
+# `B2`, `B3` e `B4`, e a refutação percorre os quatro antes de chegar
+# aqui.
+#
+# E A DERIVAÇÃO VEM DOS QUATRO: a variável é um espaço com nome e tipo
+# (B1), o espaço nasce na declaração (B2), o conteúdo é indeterminado até
+# alguém escrever (B3), e escrever substitui (B4). Junte: dar o valor na
+# declaração e dar o valor depois chegam ao mesmo estado — espaço
+# reservado, valor conhecido, um só. Não é regra nova; é a soma.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE DIZ A PALAVRA
+#
+# `assignment_symmetric` — "atribuição funciona dos dois lados, tipo
+# igualdade matemática". Grade `D`: Sleeman et al. (1986), apud Sorva
+# (2012), Apêndice A, p. 359, item 12 — atribuição primitiva funciona nas
+# duas direções, e a fonte põe entre parênteses a palavra que diz tudo:
+# TROCA.
+#
+# O CATÁLOGO REGISTRA QUE O ITEM MUDOU DE 11 PARA 12 em 11/11/2026, e
+# que é a terceira vez que este catálogo erra de item ou de página. O
+# cartão cita o que está registrado hoje, e não corrige nem reinterpreta
+# a numeração.
+#
+# E ESSA PALAVRA DECIDE A OUTRA ROTA. Se a crença é que a atribuição
+# troca, então a demonstração é tentar trocar com duas atribuições e
+# mostrar que não troca — os dois ficam com o mesmo valor. É a refutação
+# mais direta que a fonte permite, e nenhum item deste nó a faz.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   As duas rotas da premissa: inicializar na
+#                    declaração e declarar para atribuir depois.
+#   outra rota       A TROCA que a crença promete, tentada de verdade:
+#                    `a = b; b = a;` deixa os dois com o mesmo valor.
+#
+# O CASO RESOLVIDO É A PREMISSA, e ele vai além do valor igual: depois de
+# as duas chegarem a sete, as duas são incrementadas e continuam iguais.
+# Isso responde à pergunta que fica — "chegaram ao mesmo valor, mas são
+# a mesma coisa daí em diante?" — e a resposta é sim.
+#
+# A OUTRA ROTA É A CRENÇA EXECUTADA. Ela não fala de direção em
+# abstrato: escreve as duas linhas que trocariam os valores se a
+# atribuição fosse simétrica, e mostra o que sai. Sai dois e dois.
+#
+# O QUE FICA FORA
+#
+#   `x = 7` e `7 = x` são a mesma coisa? -> `ciu_kc00_009`
+#   `a = b; b = 9;` e quanto vale a      -> `ciu_kc00_t09`
+#   em `y = x`, qual das duas muda       -> `ciu_kc00_t10`
+#   `3 = x` compila?                     -> `ciu_kc00_010`
+#
+# O `t09` É O MAIS PRÓXIMO, e a diferença é o que cada um mede: lá, uma
+# cópia seguida de uma mudança no ORIGEM, e a pergunta é se a cópia
+# acompanha. Aqui, duas cópias em direções opostas, e a pergunta é se os
+# valores trocam de lugar. O primeiro mede independência; o segundo mede
+# simetria, que é a crença deste nó.
+#
+# NENHUMA DAS DUAS MOSTRA O COMPILADOR RECUSANDO. O `009` e o `010`
+# tratam de `7 = x` e `3 = x`, que não compilam — e cartão que exibisse a
+# recusa arrastaria `compilacao`, que não tem cartão em tópico nenhum. O
+# exemplo do nó, que já está no domínio, mostra a linha; o cartão não a
+# executa nem promete o que o compilador diz.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_00
+node: kc00:I1
+premissa: "Inicializar e declarar-depois-atribuir chegam ao mesmo lugar: uma variável com espaço reservado e valor conhecido."
+crenca_que_nega: assignment_symmetric
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: cb30622ed838
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo junta os quatro nós; o segundo diz o
+# que a atribuição é; o terceiro, de onde vem a ideia da troca.
+ampliacao: >
+  Isto é o fecho dos quatro nós anteriores. A variável é um espaço com
+  nome e tipo, o espaço nasce na declaração, o conteúdo dele é
+  indeterminado até alguém escrever, e escrever substitui o que havia.
+  Então dar o valor na linha da declaração ou dar o valor três linhas
+  depois leva ao mesmo estado: um espaço reservado, com um valor que
+  você escolheu. A diferença entre as duas rotas é quando, e não o quê.
+
+  E a atribuição tem uma direção. Ela não é uma afirmação de que os dois
+  lados são iguais: é uma ordem para copiar o que está à direita para o
+  lugar que está à esquerda. Por isso o lado esquerdo precisa ser um
+  lugar — um nome de variável, algo que receba. Um número não é lugar, e
+  não há como pôr nada dentro dele.
+
+  A ideia da troca vem do sinal. Em matemática, o igual é simétrico:
+  trocar os dois lados de lugar não muda o que a frase diz. Em C o mesmo
+  símbolo quer dizer outra coisa, e a assimetria é inteira — quem lê e
+  quem é escrito são papéis diferentes, e duas atribuições em direções
+  opostas não desfazem uma à outra. Elas fazem as duas variáveis
+  terminarem com o mesmo valor.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x;
+  x = 7;
+  7 = x;
+
+
+# O CASO RESOLVIDO: as duas rotas.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int pela_declaracao = 7;
+      int por_atribuicao;
+
+      por_atribuicao = 7;
+      printf("as duas rotas chegaram em %d e %d\n",
+             pela_declaracao, por_atribuicao);
+      printf("no mesmo lugar, para quem usa depois? %d\n",
+             pela_declaracao == por_atribuicao);
+      pela_declaracao = pela_declaracao + 1;
+      por_atribuicao = por_atribuicao + 1;
+      printf("e dai em diante as duas se comportam igual? %d\n",
+             pela_declaracao == por_atribuicao);
+  - prosa: "Pergunta: por que a última comparação está aqui, se as duas já tinham chegado ao mesmo valor?"
+  - prosa: >
+      Porque chegar ao mesmo valor podia ser coincidência de um momento.
+      A conta no fim pergunta outra coisa: as duas variáveis se comportam
+      igual daí em diante? Se a rota escolhida deixasse alguma diferença
+      para trás, ela apareceria agora.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      as duas rotas chegaram em 7 e 7
+      no mesmo lugar, para quem usa depois? 1
+      e dai em diante as duas se comportam igual? 1
+  - prosa: >
+      Mesmo valor e mesmo comportamento. Para quem usa a variável depois,
+      não há como saber qual das duas rotas a criou — e é isso que a
+      premissa afirma. Inicializar é mais curto de escrever e evita a
+      janela em que a caixa está sem valor escolhido, que é o assunto do
+      B3; o estado final das duas é o mesmo.
+
+
+# A OUTRA ROTA: a troca que não troca.
+reexplicacao:
+  - prosa: >
+      Outro caminho. A crença deste nó diz que a atribuição funciona nos
+      dois sentidos, como uma troca. Vamos tentar trocar.
+  - codigo: |
+      int a = 1;
+      int b = 2;
+
+      a = b;
+      b = a;
+      printf("depois de a = b; b = a; os dois valem %d e %d\n", a, b);
+      printf("eles trocaram de valor? %d\n", a == 2 && b == 1);
+  - prosa: >
+      Duas atribuições, uma em cada direção. Se o sinal fosse simétrico,
+      a segunda desfaria a primeira, ou as duas juntas trocariam os
+      valores — é o que a palavra troca promete.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      depois de a = b; b = a; os dois valem 2 e 2
+      eles trocaram de valor? 0
+  - prosa: >
+      Dois e dois, e a troca não aconteceu. A primeira linha copiou o
+      dois para dentro de a, e com isso o um deixou de existir — pelo B4,
+      foi substituído. A segunda linha então copiou o dois de volta, que
+      era o que havia em a. Para trocar de verdade seriam precisas três
+      linhas e uma terceira caixa, que é exatamente o que a outra rota do
+      B4 mostra.
