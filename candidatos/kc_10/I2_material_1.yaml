@@ -1,0 +1,150 @@
+# Material de ensino do I2 do kc_10 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Suporte em `B2` e `B3`, e a refutação
+# percorre B2 -> B3 -> I2.
+#
+# E É O NÓ ONDE A METÁFORA DO TÓPICO CALA. O cabeçalho do grafo declara
+# isso, e é a restrição que mandou neste arquivo:
+#
+#   A metáfora não diz nada sobre `int a[3][4]`: aquilo não é gaveta
+#   dentro de gaveta, é um quarteirão de doze casas grudadas. Quando ela
+#   empurrar para "matriz é gaveta de gavetas", ela cala — e esse é o
+#   nó I2.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `array2d_is_double_pointer` — "int a[N][M] pode ser passado onde se
+# espera int **". Grade `L`, FAQ comp.lang.c 6.18: "My compiler
+# complained when I passed a two-dimensional array to a function
+# expecting a pointer to a pointer." A resposta dá a premissa com todas
+# as letras: "The rule by which arrays decay into pointers is not
+# applied recursively."
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES, e nenhuma delas passa array para função
+#
+#   caso resolvido   Escrever na sexta casa da FILA aparece em a[1][1]:
+#                    é um bloco só.
+#   outra rota       A distância entre o começo de uma fileira e o da
+#                    seguinte: exatamente o tamanho de uma fileira.
+#
+# O CASO RESOLVIDO É O QUE DERRUBA A CRENÇA. Se as três fileiras fossem
+# caixas apontando para lugares separados, não haveria "sexta casa da
+# fila" — a sexta de quê? Andar seis a partir do começo e cair no meio
+# da segunda fileira só faz sentido se as doze estiverem em fila.
+#
+# O QUE FICA FORA, e é quase tudo o que os itens fazem:
+#
+#   passar `a` para `f(int **)`     -> `ciu_kc10_014`, `ciu_kc10_015`
+#   `int **pp = a`                  -> `ciu_kc10_t15`
+#   `sizeof a` contra `sizeof a[0]` -> `ciu_kc10_t14`
+#   a regra do nome que vira
+#     endereço aplicada duas vezes  -> `ciu_kc10_t13`
+#
+# POR ISSO A MEDIDA É POR SUBTRAÇÃO DE ENDEREÇOS, e não por `sizeof`. A
+# subtração responde EM ELEMENTOS, o que torna a resposta — 4 — a mesma
+# em qualquer máquina. `sizeof` responderia em bytes, e aí o número
+# dependeria do tamanho do int, que é fato sobre a máquina e não sobre a
+# linguagem.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_10
+node: kc10:I2
+premissa: "int a[N][M] é bloco contíguo, e não vetor de ponteiros."
+crenca_que_nega: array2d_is_double_pointer
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# Declarado porque este cartão USA. Quem introduz é o B1.
+exige_conceitos: [ponteiro_de_ponteiro]
+
+
+# A AMPLIAÇÃO. O que a[3][4] é, o que seria um vetor de ponteiros, e
+# por que a regra não se aplica duas vezes.
+ampliacao: >
+  int a[3][4] são doze caixas grudadas, numa fila só. A escrita com dois
+  colchetes organiza a leitura — três fileiras de quatro —, e não muda o
+  que está na memória: as quatro da primeira fileira, depois as quatro
+  da segunda, depois as quatro da terceira, sem nada no meio.
+
+  Um vetor de ponteiros é outra coisa, e se escreve assim: int
+  *linhas[3]. Ali existem três caixas de endereço, cada uma apontando
+  para uma fileira que pode estar em qualquer lugar. São quinze caixas
+  no total, e para chegar num número você segue um endereço. Em a[3][4]
+  não há endereço nenhum guardado: só os doze números.
+
+  Por isso a regra do nome que vira endereço não se aplica duas vezes. O
+  nome a vira o endereço da primeira FILEIRA, e ali ela para — o
+  resultado já é um ponteiro, e ponteiro não vira ponteiro de novo. É o
+  que separa um bloco de doze de uma caixa de caixas.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int a[3][4];     /* doze caixas grudadas */
+  /* nao e int ** */
+
+
+# O CASO RESOLVIDO: a sexta casa da fila.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int a[3][4];
+      int i = 0, j = 0;
+
+      while (i < 3) {
+          j = 0;
+          while (j < 4) {
+              a[i][j] = 0;
+              j = j + 1;
+          }
+          i = i + 1;
+      }
+      *(&a[0][0] + 5) = 99;
+      printf("escrevi na sexta casa da fila, e a[1][1] vale %d\n", a[1][1]);
+  - prosa: "Pergunta: eu nunca escrevi em a[1][1]. Por que ele mudou?"
+  - prosa: >
+      A tentação é dizer que andar a partir de a[0][0] não sai da
+      primeira fileira — que cada fileira é uma coisa separada. Conte:
+      quatro passos chegam ao fim da primeira, o quinto entra na
+      segunda, o sexto é a casa seguinte. Que é a[1][1].
+  - prosa: "A máquina confirma:"
+  - saida: |
+      escrevi na sexta casa da fila, e a[1][1] vale 99
+  - prosa: >
+      Se as três fileiras fossem caixas apontando para lugares
+      separados, a "sexta casa da fila" não existiria — não haveria fila
+      para contar, e andar cinco a partir da primeira cairia fora de
+      tudo. Caiu em a[1][1] porque as doze estão em fila.
+
+
+# A OUTRA ROTA: a distância entre duas fileiras.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Em vez de escrever, meça.
+  - codigo: |
+      int a[3][4];
+
+      printf("da primeira casa da fileira 0 ate a da fileira 1: %d int\n",
+             (int) (&a[1][0] - &a[0][0]));
+      printf("e a fileira tem %d casas\n",
+             (int) (&a[0][3] - &a[0][0]) + 1);
+  - prosa: >
+      A subtração de dois endereços responde em ELEMENTOS, e não em
+      bytes — por isso este número é o mesmo em qualquer máquina.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      da primeira casa da fileira 0 ate a da fileira 1: 4 int
+      e a fileira tem 4 casas
+  - prosa: >
+      A fileira seguinte começa exatamente uma fileira adiante: quatro
+      casas, nem uma a mais. Num vetor de ponteiros essa distância não
+      teria por que ser quatro, nem por que ser sempre a mesma — as
+      fileiras morariam onde cada ponteiro apontasse.

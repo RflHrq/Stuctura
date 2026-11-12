@@ -82,7 +82,20 @@ FALA_DO_COMPILADOR = re.compile(
 POR_FALA = ("atribuicao_entre_tipos", "compilacao")
 
 # Assinatura de função, para separar escopo de arquivo de statements.
-ASSINATURA = re.compile(r"^\s*[A-Za-z_][\w \*]*\w\s*\([^;]*\)\s*\{")
+#
+# EXIGE DOIS NOMES ANTES DO PARÊNTESE — tipo E nome —, e é a mesma
+# distinção que consertou o detector de `funcao_com_parametro` em
+# 11/11/2026. O padrão antigo pedia um só, e lia `while (n < 3) {` como
+# definição de função: o laço e o corpo dele subiam para o escopo de
+# arquivo, e o gcc respondia `expected identifier or '(' before
+# 'while'`. Um cartão correto era REPROVADO por isso — visto no caso
+# resolvido do `kc_10:I2`, que zera uma matriz com dois laços.
+#
+# `else` e `do` ficam de fora pelo mesmo motivo: `else if (x) {` tem
+# dois nomes e não é definição nenhuma.
+ASSINATURA = re.compile(r"^\s*(?!else\b|do\b)"
+                        r"[A-Za-z_]\w*[\w \*]*?\s+\**[A-Za-z_]\w*"
+                        r"\s*\([^;]*\)\s*\{")
 
 
 def _recusa_obrigatoria(codigo: str | None) -> bool:

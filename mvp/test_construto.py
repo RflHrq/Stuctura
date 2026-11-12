@@ -69,6 +69,47 @@ def test_chamada_de_funcao_nao_e_definicao(codigo):
     assert "funcao_com_parametro" not in construtos_de(codigo), codigo
 
 
+def test_o_montador_do_validador_nao_le_while_como_funcao():
+    """O MESMO falso positivo, do outro lado do projeto.
+
+    `revisa_material._monta` separa escopo de arquivo de statements
+    para montar o programa que o oráculo compila, e usa `ASSINATURA`
+    para isso. O padrão pedia UM nome antes do parêntese — e
+    `while (n < 3) {` tem um nome antes do parêntese.
+
+    O resultado era um cartão correto sendo REPROVADO: o `while` e o
+    corpo dele subiam para o escopo de arquivo, e o gcc respondia
+    `expected identifier or '(' before 'while'`. Visto no caso
+    resolvido do `kc_10:I2`, que zera uma matriz com dois laços.
+
+    Definição de função tem tipo E nome — dois nomes; `while`, `if` e
+    `switch` têm um só. É a mesma distinção que consertou o detector de
+    construtos em 11/11/2026, e ela estava corrigida num lado e não no
+    outro.
+    """
+    import sys
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve()
+                           .parent.parent / "scripts"))
+    from revisa_material import _monta
+
+    prog = _monta(["int n = 0;\nwhile (n < 3) {\n    n = n + 1;\n}\n"])
+    antes_do_main = prog.split("int main(void)")[0]
+    assert "while" not in antes_do_main, prog
+    assert "n = n + 1" not in antes_do_main, prog
+
+
+def test_o_montador_poe_definicao_de_funcao_no_escopo_de_arquivo():
+    """O verdadeiro positivo, para que a correção não vire 'nunca separe'."""
+    import sys
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve()
+                           .parent.parent / "scripts"))
+    from revisa_material import _monta
+
+    prog = _monta(["void f(int n) {\n    (void) n;\n}\n", "f(1);\n"])
+    antes_do_main = prog.split("int main(void)")[0]
+    assert "void f(int n)" in antes_do_main, prog
+
+
 def test_main_sem_parametro_nunca_conta():
     """`int main(void)` aparece em todo programa, e não ensina nada."""
     for codigo in ("int main(void)\n{\n    return 0;\n}\n",

@@ -1,0 +1,138 @@
+# Material de ensino do B3 do kc_10 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Terceiro observável, e o que fecha os
+# três: o B1 diz que a caixa tem endereço, o B2 diz o que a estrela faz,
+# e este diz QUEM decide quantas estrelas existem.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE É A CRENÇA ESCRITA POR QUEM A TEM
+#
+# `voidptr_is_universal` — "void * aceita qualquer coisa, e void **
+# serve a qualquer nível". Grade `L`. FAQ comp.lang.c 4.9:
+#
+#   "Suppose I want to write a function that takes a generic pointer as
+#   an argument and I want to simulate passing it by reference. Can I
+#   give the formal parameter type void **, and do something like this?
+#   void f(void **); double *dp; f((void **)&dp);"
+#
+# A resposta é "Not portably", e o FAQ 4.13 e 4.6 trazem a forma geral.
+# O item `ciu_kc10_008` é esse código literal.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Um void * carrega o endereço e NÃO carrega o nível:
+#                    dito o tipo de novo, os dois passos voltam.
+#   outra rota       O MESMO void * aceita p (um nível) e &p (dois).
+#
+# A OUTRA ROTA É A QUE DERRUBA A CRENÇA, e é a mais curta das duas. Se
+# `void *` carregasse o nível, ele não poderia aceitar os dois: um
+# ponteiro de um nível e um de dois entrariam em caixas diferentes.
+# Entram na mesma. Logo o nível não está nele — está no nome que você
+# usa para trazê-lo de volta.
+#
+# NENHUM DOS DOIS USA CAST, e isso separa este cartão do
+# `ciu_kc10_t09`, que pergunta por que o cast é necessário para
+# desreferenciar um `void *` de UM nível. Converter `void *` para
+# `int **` é implícito e legal em C; o cartão fica nessa forma, e a
+# pergunta do cast continua inteira para o item.
+#
+# E O `void **` NÃO APARECE AQUI. Ele é o código do `ciu_kc10_008`, que
+# é o FAQ literal, e a resposta dele — "not portably" — é afirmação
+# sobre representação de ponteiros, não sobre o que um programa mostra
+# rodando. Demonstrar portabilidade numa máquina só seria afirmar o que
+# a execução não prova.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_10
+node: kc10:B3
+premissa: "O tipo diz quantos níveis existem; não é opcional."
+crenca_que_nega: voidptr_is_universal
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# Declarado porque este cartão USA. Quem introduz é o B1.
+exige_conceitos: [ponteiro_de_ponteiro]
+
+
+# A AMPLIAÇÃO. Onde está escrito o número de níveis, o que o void * faz
+# e não faz, e por que não existe o genérico de dois níveis.
+ampliacao: >
+  Quantos passos existem entre uma caixa e o número está escrito no
+  tipo dela, antes de o programa rodar. int *p diz um; int **pp diz
+  dois. Não é informação que se descubra abrindo caixas: é o compilador
+  que lê a declaração e sabe, de antemão, quantas vezes pode seguir.
+
+  void * é o endereço sem essa informação. Ele aceita o endereço de
+  qualquer coisa — e aceita justamente porque não promete nada sobre o
+  que há do outro lado. Guardar ali não é perder o endereço; é ficar sem
+  o número de passos, e sem ele não há como seguir.
+
+  Por isso não existe um ponteiro genérico de dois níveis. void **
+  parece ser isso e não é: ele é um tipo concreto, o de "endereço de uma
+  caixa que guarda void *" — e uma caixa que guarda int * não é uma
+  caixa que guarda void *. O genérico vale para um nível, e só.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int **pp;        /* dois niveis, escritos aqui */
+  /* nao existe ponteiro-para-ponteiro generico */
+
+
+# O CASO RESOLVIDO: o void * carrega o endereço, não o nível.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 1;
+      int *p = &x;
+      void *guardado = &p;
+      int **de_volta = guardado;
+
+      printf("o void * levou o endereco, e nao levou o nivel\n");
+      printf("dito o tipo de novo, os dois passos voltam: %d\n", **de_volta);
+  - prosa: "Pergunta: o que foi preciso escrever para poder seguir de novo?"
+  - prosa: >
+      A tentação é dizer que nada se perdeu — o endereço está lá, é o
+      mesmo número. É mesmo. O que não está lá é quantas vezes seguir, e
+      foi isso que a declaração int ** devolveu ao programa.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o void * levou o endereco, e nao levou o nivel
+      dito o tipo de novo, os dois passos voltam: 1
+  - prosa: >
+      O número atravessou o void * intacto. O nível não atravessou:
+      ele voltou porque alguém o escreveu outra vez, no tipo de
+      de_volta.
+
+
+# A OUTRA ROTA: o mesmo void * aceita os dois níveis.
+reexplicacao:
+  - prosa: >
+      Outro caminho, e mais curto. Olhe o que o void * aceita.
+  - codigo: |
+      int x = 1;
+      int *p = &x;
+      void *um_nivel = p;
+      void *dois_niveis = &p;
+
+      printf("o mesmo void * aceitou p, de um nivel\n");
+      printf("e aceitou &p, de dois: %d\n", um_nivel != dois_niveis);
+  - prosa: >
+      p tem um nível; &p tem dois. As duas caixas que os recebem são do
+      mesmo tipo, e as duas atribuições passam sem reclamação nenhuma.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o mesmo void * aceitou p, de um nivel
+      e aceitou &p, de dois: 1
+  - prosa: >
+      Se o void * carregasse o nível, ele não poderia aceitar os dois —
+      um de um nível e um de dois teriam de ir para caixas diferentes.
+      Foram para a mesma, e por isso o nível não pode estar lá. A última
+      linha confirma que são endereços diferentes: são duas caixas.

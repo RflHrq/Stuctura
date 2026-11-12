@@ -1,0 +1,159 @@
+# Material de ensino do I3 do kc_10 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O sexto e último, e o único com
+# `role: conclusao`. Suporte em `B1`, `B2`, `I1` e `I2` — quatro —, e a
+# refutação percorre o tópico inteiro antes de chegar nele.
+#
+# E É AQUI QUE A PRIMEIRA QUEBRA DA METÁFORA FECHA. O cabeçalho do grafo
+# declara:
+#
+#   "Abrir gaveta" sugere que dá para continuar abrindo quantas vezes
+#   você quiser. Não dá: quantos níveis existem está escrito no TIPO, e
+#   pôr uma estrela a mais não cria um nível. Quando a metáfora empurrar
+#   para "mais uma estrela resolve", ela cala — é o
+#   `double_deref_is_data`, que a conclusão refuta.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `double_deref_is_data` — "**pp acessa o dado final diretamente; um
+# nível a mais resolve sozinho". Grade `L`, FAQ comp.lang.c 4.9, a
+# metade que trata de níveis: a tentativa de usar `void **` como
+# ponteiro genérico de nível dois existe porque quem a faz trata o
+# número de estrelas como algo ajustável, e não como o que o tipo fixa.
+#
+# E ELA DIZ O QUE REFUTAR: se `**pp` fosse acesso direto ao dado, `*pp`
+# e `**pp` dariam no mesmo, e pp e p não seriam caixas distintas.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O que cada profundidade ENTREGA, guardado em caixa
+#                    do tipo certo: um ponteiro e um número, e cada um
+#                    fazendo o que a sua espécie faz.
+#   outra rota       O mesmo 7 alcançado por três nomes, com três
+#                    contagens de passos diferentes.
+#
+# O CASO RESOLVIDO SEPARA AS DUAS ESPÉCIES PELO QUE ELAS FAZEM, e não
+# por uma afirmação. O que saiu de uma estrela é seguido de novo; o que
+# saiu de duas é somado. Se as duas profundidades dessem no mesmo, uma
+# das duas linhas não teria sentido.
+#
+# A OUTRA ROTA É A CONTAGEM, e ela fecha o tópico: x, *p e **pp chegam
+# todos no mesmo 7, com zero, um e dois passos. O número de passos não é
+# escolha de quem escreve — é o que o tipo de cada nome já fixou.
+#
+# O QUE FICA FORA
+#
+#   `**pp = 9` e o que muda      -> `ciu_kc10_t17`
+#   `*pp = &y` contra `**pp = 0` -> `ciu_kc10_t18`, degrau 3
+#   `printf("%d", *pp)` avisar   -> `ciu_kc10_018`
+#   `*pp == p` e `**pp` juntos   -> `ciu_kc10_017`
+#
+# NENHUM TRECHO DESTE CARTÃO ESCREVE por pp. Os itens deste nó cobrem a
+# escrita nos dois níveis, e é lá que ela mede; o cartão fica na
+# LEITURA, que é onde a distinção entre as duas espécies aparece sem
+# precisar de "qual caixa mudou".
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_10
+node: kc10:I3
+premissa: >
+  *pp é o ponteiro p e **pp é o int: pp e p são caixas distintas, em
+  níveis distintos.
+crenca_que_nega: double_deref_is_data
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# Declarado porque este cartão USA. Quem introduz é o B1.
+exige_conceitos: [ponteiro_de_ponteiro]
+
+
+# A AMPLIAÇÃO. Primeiro parágrafo: a junção dos quatro nós de suporte.
+# Segundo: o que cada profundidade entrega. Terceiro: o limite da
+# metáfora, dito de frente.
+ampliacao: >
+  Junte os quatro e sobra uma coisa só. p é uma caixa com endereço
+  próprio, cada estrela é um passo, o tipo diz quantos passos existem, e
+  um bloco de números não é uma caixa de caixas. Daí: pp e p são duas
+  caixas, em dois níveis, e o caminho entre elas tem um passo de
+  comprimento.
+
+  Então *pp e **pp não são a mesma coisa nem parecidas. *pp para na
+  caixa de p, e o que ele entrega é um ponteiro — um endereço, que se
+  pode seguir. **pp dá o passo seguinte e entrega o int, que é um número
+  e não leva a lugar nenhum.
+
+  E a estrela a mais não inventa nível. Quantos existem foi escrito na
+  declaração, e escrever uma estrela a mais não cria uma caixa que
+  ninguém criou — pede ao compilador um passo que o tipo não tem. Para
+  haver três passos é preciso declarar três níveis, antes, no tipo.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  *pp  == p        /* verdadeiro */
+  **pp == x        /* verdadeiro */
+
+
+# O CASO RESOLVIDO: o que cada profundidade entrega, e o que ela faz.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 7;
+      int *p = &x;
+      int **pp = &p;
+      int *como_ponteiro = *pp;
+      int como_numero = **pp;
+
+      printf("uma estrela deu um ponteiro, e ele leva a %d\n", *como_ponteiro);
+      printf("duas estrelas deram um numero, e ele mais 1 da %d\n",
+             como_numero + 1);
+  - prosa: "Pergunta: por que o primeiro precisou de mais uma estrela para mostrar o 7, e o segundo não?"
+  - prosa: >
+      A tentação é tratar as duas profundidades como o mesmo acesso,
+      uma mais curta e outra mais longa. Olhe as caixas que receberam
+      cada uma: a primeira é int *, e por isso ainda dá para seguir. A
+      segunda é int, e seguir não faz sentido — mas somar faz.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      uma estrela deu um ponteiro, e ele leva a 7
+      duas estrelas deram um numero, e ele mais 1 da 8
+  - prosa: >
+      Duas espécies diferentes, e cada uma fazendo o que a sua espécie
+      faz. Se **pp fosse um acesso direto ao dado, *pp teria de dar no
+      mesmo — e o que ele deu não cabe num int nem se soma a 1.
+
+
+# A OUTRA ROTA: três nomes, três contagens, um valor.
+reexplicacao:
+  - prosa: >
+      Outro caminho. O mesmo 7, alcançado de três lugares diferentes.
+  - codigo: |
+      int x = 7;
+      int *p = &x;
+      int **pp = &p;
+
+      printf("nenhum passo, pelo nome x:   %d\n", x);
+      printf("um passo, por p:             %d\n", *p);
+      printf("dois passos, por pp:         %d\n", **pp);
+  - prosa: >
+      Três nomes, três distâncias até o mesmo número. E nenhuma delas
+      foi escolhida na hora de escrever o printf: cada uma já estava
+      fixada no tipo do nome.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      nenhum passo, pelo nome x:   7
+      um passo, por p:             7
+      dois passos, por pp:         7
+  - prosa: >
+      É a mesma casa vista de três distâncias. Por isso uma estrela a
+      mais não resolve nada sozinha: ela não encurta nem alonga o
+      caminho — ela pede um passo, e o passo só existe se o tipo o tiver
+      declarado.

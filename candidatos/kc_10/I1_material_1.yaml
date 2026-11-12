@@ -1,0 +1,158 @@
+# Material de ensino do I1 do kc_10 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Primeiro nó de inferência do tópico:
+# suporte em `B1`, e a refutação percorre B1 -> I1.
+#
+# E A DERIVAÇÃO É CURTA, o que decide a ampliação: o B1 estabeleceu que
+# p é uma caixa com endereço próprio. Daí sai tudo — para alguém mexer
+# no que está DENTRO da sua caixa, essa pessoa precisa saber onde a
+# caixa está, e é isso que `&p` entrega. Não há regra nova neste nó.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE É A CRENÇA EM PRIMEIRA PESSOA
+#
+# `modify_pp_changes_p` — "trocar o parâmetro ponteiro dentro da função
+# altera o ponteiro de quem chamou". Grade `L`, FAQ comp.lang.c 4.8:
+#
+#   "I have a function which accepts, and is supposed to initialize, a
+#   pointer: void f(int *ip) { static int dummy = 5; ip = &dummy; } But
+#   when I call it like this: int *ip; f(ip); the pointer in the caller
+#   remains unchanged."
+#
+# A pergunta é a premissa negada, escrita por quem a tem. O item
+# `ciu_kc10_011` é esse código LITERAL, e a mesma crença é a do I3 do
+# kc_06.
+#
+# ---------------------------------------------------------------------
+# O QUE FICA FORA, e a lista é longa porque os itens cobrem muito
+#
+#   `a(int *p)` contra `b(int **p)`   -> `ciu_kc10_012`, degrau 3
+#   o código do FAQ 4.8               -> `ciu_kc10_011`
+#   `aloca` com malloc, nas duas
+#     formas                          -> `ciu_kc10_t11`, `ciu_kc10_t12`
+#   por que a cópia não serve         -> kc_06:I3, que é outro tópico e
+#                                        já ensina isso
+#
+# POR ISSO NENHUMA DAS DUAS DEMONSTRAÇÕES MOSTRA A FORMA QUE FALHA. O
+# cartão mostra a que funciona, e o que ela dá de acesso; a comparação
+# entre as duas é item de degrau 3, e escrevê-la aqui faria o item medir
+# memória do cartão.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   UMA função e DOIS ponteiros do chamador: cada um
+#                    redirecionado quando entrega o próprio endereço.
+#   outra rota       O que `&p` dá além de escrever: a função LÊ o que o
+#                    seu ponteiro alcança, antes de trocar.
+#
+# O CASO RESOLVIDO USA DOIS PONTEIROS de propósito. Com um só, "p mudou"
+# tem a leitura preguiçosa de que a função sabe qual é o ponteiro —
+# alguma ligação especial com quem chamou. Com dois, e a mesma função, o
+# que decide qual muda é o endereço que foi entregue, e mais nada.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_10
+node: kc10:I1
+premissa: "Para uma função alterar o p do chamador, ela precisa receber &p."
+crenca_que_nega: modify_pp_changes_p
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# Declarado porque este cartão USA. Quem introduz é o B1.
+exige_conceitos: [ponteiro_de_ponteiro]
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO do B1: não é regra
+# nova, é o que decorre de p ser uma caixa com endereço.
+ampliacao: >
+  Isto não é regra nova: é o B1 aplicado a quem chama. Se p é uma caixa
+  com endereço próprio, então mexer no que está dentro dela é um
+  trabalho que precisa do endereço dela — do mesmo jeito que mexer em x
+  precisou do endereço de x.
+
+  Então o que a função tem de receber é &p, e não p. Receber p é receber
+  o conteúdo da sua caixa: uma cópia do endereço de x, com a qual dá
+  para chegar em x e mexer no 1 que está lá. O que não dá é voltar até a
+  sua caixa, porque o endereço dela não veio junto.
+
+  E com &p ela chega. O parâmetro passa a guardar o endereço da sua
+  caixa, e uma estrela em cima dele vai até lá — para ler o que você
+  guardou ou para escrever outra coisa no lugar. É o mesmo passo de
+  sempre, dado um nível acima.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void f(int **pp) { *pp = NULL; }
+  f(&p);           /* &p, e nao p */
+
+
+# O CASO RESOLVIDO: uma função, dois ponteiros do chamador.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      void aponta_para(int **destino, int *novo)
+      {
+          *destino = novo;
+      }
+  - codigo: |
+      int x = 1, y = 2, z = 3;
+      int *p = &x;
+      int *q = &y;
+
+      aponta_para(&p, &z);
+      aponta_para(&q, &z);
+      printf("p agora leva a %d\n", *p);
+      printf("q agora leva a %d\n", *q);
+  - prosa: "Pergunta: a função é a mesma nas duas chamadas. Como ela soube qual trocar?"
+  - prosa: >
+      A tentação é dizer que ela mexe "no ponteiro", como se houvesse um
+      só, ou que ela conhece quem a chamou. Não conhece nada: ela recebeu
+      um endereço e escreveu no lugar indicado por ele. Na primeira
+      chamada o endereço era o da caixa p; na segunda, o da caixa q.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      p agora leva a 3
+      q agora leva a 3
+  - prosa: >
+      Os dois passaram a levar ao mesmo z, e cada um por ter entregado o
+      próprio endereço. Quem decide qual caixa muda é o argumento, e o
+      argumento é um endereço como outro qualquer.
+
+
+# A OUTRA ROTA: &p também dá leitura.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Entregar o endereço da sua caixa não serve só para
+      a função escrever nela.
+  - codigo: |
+      void olha_e_troca(int **pp, int *novo)
+      {
+          printf("dentro da funcao, o seu ponteiro leva a %d\n", **pp);
+          *pp = novo;
+      }
+  - codigo: |
+      int x = 1, y = 2;
+      int *p = &x;
+
+      olha_e_troca(&p, &y);
+      printf("e depois leva a %d\n", *p);
+  - prosa: >
+      A primeira linha de dentro não escreve nada: ela segue duas vezes.
+      Um passo de pp até a sua caixa p, outro de p até x — e lê o 1 que
+      estava lá.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dentro da funcao, o seu ponteiro leva a 1
+      e depois leva a 2
+  - prosa: >
+      O endereço da caixa dá acesso à caixa, e acesso serve nos dois
+      sentidos. Com p em vez de &p, a função teria chegado no 1 do mesmo
+      jeito — e não teria como voltar para trocar o que você guardou.

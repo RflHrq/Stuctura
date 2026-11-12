@@ -1,0 +1,151 @@
+# Material de ensino do B1 do kc_10 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_10 inteiro tem ampliação VAZIA nos
+# seis nós, e é o último tópico do projeto com dívida de construto: os
+# SEIS cartões dele usam `ponteiro_de_ponteiro` no exemplo, e cartão
+# nenhum o explica. O inventário registra assim:
+#
+#   ponteiro_de_ponteiro: status so_avaliado, cartoes: []
+#
+# Este cartão é o que o INTRODUZ. Os outros cinco o usam.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `ampersand_copies` — "&x entrega uma cópia de x, e é a cópia que a
+# função recebe". Sorva (2012), p. 362, item 66 (Ma 2007). A mesma
+# crença está nos catálogos do kc_04 e do kc_06. Aqui ela nega que `&p`
+# produza o ENDEREÇO da caixa p: se entregasse uma cópia do ponteiro,
+# não haveria endereço de ponteiro para guardar, e o segundo nível não
+# existiria.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   UM pp e DOIS ponteiros: pp aponta para p, depois
+#                    para q, e o que chega pela ponta muda junto.
+#   outra rota       O terceiro nível: `&pp` também existe.
+#
+# O CASO RESOLVIDO MOSTRA QUE O ENDEREÇO É DE UMA CAIXA ESPECÍFICA. Se
+# `&p` devolvesse uma cópia do ponteiro, trocar pp de alvo não mudaria
+# nada do que se alcança por ele — a cópia seria a mesma coisa. Trocar
+# muda, e é por isso que a demonstração reatribui `pp` em vez de
+# escrever por ele.
+#
+# E ESCREVER POR ELE É ITEM, não cartão: `ciu_kc10_t06` faz
+# `*pp = &y` e pergunta o que sai, e `ciu_kc10_t18` compara `*pp = &y`
+# com `**pp = 0`. O cartão não toca nessa forma.
+#
+# A OUTRA ROTA LEVA A REGRA ATÉ O TERCEIRO NÍVEL, de propósito. A
+# premissa diz "um ponteiro é variável", e a prova mais limpa disso é
+# que a regra não para em p: pp também é variável, também tem endereço,
+# e guardar esse endereço também custa mais um nível. Nenhum item deste
+# tópico passa de dois níveis.
+#
+# ATENÇÃO AO LIMITE DA METÁFORA, que o cabeçalho do grafo declara: "pôr
+# uma estrela a mais não cria um nível". A outra rota não contradiz
+# isso — ela DECLARA um nível a mais, com `int ***ppp`, e é justamente a
+# diferença entre declarar e inventar. Quem afirma sobre inventar é o
+# I3, e o cartão dele.
+#
+# NARRAÇÃO: não entra. O `mesa.py` não instrumenta este exemplo.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_10
+node: kc10:B1
+premissa: "Um ponteiro é variável: tem endereço próprio, e &p o produz."
+crenca_que_nega: ampersand_copies
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# O construto que este cartão INTRODUZ. Hoje `so_avaliado`, e a
+# aprovação deste material é o que o move — como o `funcao_com_parametro`
+# foi movido com o kc_06:B1, e o `array` com o kc_07:B1.
+exige_conceitos: [ponteiro_de_ponteiro]
+
+
+# A AMPLIAÇÃO. Três parágrafos: o que p é, o que &p devolve, e o que é
+# preciso para guardar isso.
+ampliacao: >
+  p é uma caixa como qualquer outra. O que está dentro dela é um
+  endereço, e isso muda o que ela GUARDA — não muda o que ela É. Como
+  toda caixa, ela ocupa um lugar na memória, e esse lugar tem número.
+
+  &p devolve o número DESSE lugar. Não é o mesmo que &x: são duas caixas
+  diferentes, em lugares diferentes, e cada uma tem o seu. É por isso
+  que &p faz sentido mesmo p já sendo um ponteiro — a pergunta "onde
+  você mora" não depende do que você guarda.
+
+  E guardar o que &p devolve pede uma caixa de mais um nível. int *p diz
+  "guardo o endereço de um int"; int **pp diz "guardo o endereço de uma
+  caixa que guarda o endereço de um int". A segunda estrela não é
+  enfeite: ela está contando quantas caixas existem entre pp e o número.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int  x = 1;
+  int *p = &x;
+  int **pp = &p;   /* &p: endereco da caixa p */
+
+
+# O CASO RESOLVIDO: um pp, dois ponteiros, e a troca de alvo.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 1, y = 2;
+      int *p = &x;
+      int *q = &y;
+      int **pp = &p;
+
+      printf("pp aponta para p, e por ele chego em %d\n", **pp);
+      pp = &q;
+      printf("pp passou a apontar para q, e agora chego em %d\n", **pp);
+      printf("e p continua levando a %d\n", *p);
+  - prosa: "Pergunta: o que foi que mudou quando escrevi pp = &q?"
+  - prosa: >
+      A tentação é dizer que mudou o ponteiro — que agora "o ponteiro
+      aponta para y". Repare na última linha: p não mudou nada, continua
+      levando ao 1. Quem mudou foi pp, e o que entrou nele foi o
+      endereço de OUTRA caixa.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      pp aponta para p, e por ele chego em 1
+      pp passou a apontar para q, e agora chego em 2
+      e p continua levando a 1
+  - prosa: >
+      &p e &q são dois números diferentes, porque p e q são duas caixas
+      em dois lugares. Se o & devolvesse uma cópia do ponteiro, as duas
+      cópias levariam cada uma ao seu alvo e trocar de uma para a outra
+      não teria por que mexer no que chega pela ponta — e mexeu.
+
+
+# A OUTRA ROTA: o terceiro nível.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Se um ponteiro é uma caixa como as outras, a regra
+      não para em p.
+  - codigo: |
+      int x = 1;
+      int *p = &x;
+      int **pp = &p;
+      int ***ppp = &pp;
+
+      printf("pp tambem tem endereco proprio, e por ele chego em %d\n", ***ppp);
+      printf("o do meio e o proprio p? %d\n", **ppp == p);
+  - prosa: >
+      pp é uma caixa, então pp tem endereço, então &pp existe — e
+      guardá-lo custou mais uma estrela. A regra é a mesma três vezes.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      pp tambem tem endereco proprio, e por ele chego em 1
+      o do meio e o proprio p? 1
+  - prosa: >
+      Repare que cada estrela a mais foi DECLARADA no tipo. Não dá para
+      acrescentar uma na hora de usar e ganhar um nível que a caixa não
+      tem — quantos existem está escrito na declaração, e é o que o
+      compilador segue.

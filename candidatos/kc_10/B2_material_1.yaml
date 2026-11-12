@@ -1,0 +1,142 @@
+# Material de ensino do B2 do kc_10 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Segundo do tópico. O B1 diz que p é uma
+# caixa com endereço próprio; este diz o que cada `*` FAZ com isso.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `pointer_is_just_a_name` — "p é só outro nome da variável apontada: o
+# * não é um passo". Sorva (2012), p. 362, item 64: "A variable
+# associated with an object is merely a name which can be used to
+# manipulate an object" (Sorva 2008; Ma 2007). A mesma crença está nos
+# catálogos do kc_04 e do kc_05.
+#
+# E ELA DIZ EXATAMENTE O QUE REFUTAR: se p fosse apenas um nome, não
+# haveria de onde sair nem para onde ir, e contar níveis não faria
+# sentido. A demonstração tem de mostrar o passo ACONTECENDO.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O que UMA estrela entrega, guardado numa variável:
+#                    um ponteiro, que cabe num `int *`.
+#   outra rota       O mesmo caminho em dois passos separados, comparado
+#                    com `**pp` de uma vez.
+#
+# O CASO RESOLVIDO GUARDA O RESULTADO INTERMEDIÁRIO, e é isso que o
+# separa dos itens. O `ciu_kc10_006` compara as expressões `*pp` e
+# `**pp` e pergunta o que cada uma devolve; o `ciu_kc10_005` conta os
+# passos de `**pp`. Nenhum dos dois PARA no meio do caminho e dá um nome
+# ao que achou — e é parando ali que se vê que uma estrela não chegou ao
+# número: chegou a um ponteiro.
+#
+# A OUTRA ROTA DESMONTA O `**` EM DUAS LINHAS. Se cada estrela é um
+# passo, fazer os dois passos separados tem de dar o mesmo que fazer os
+# dois juntos. Dá — e isso é a definição de "um passo por estrela, nem
+# mais nem menos".
+#
+# O QUE FICA FORA
+#
+#   `*pp = 9` não compilar            -> `ciu_kc10_t05`
+#   `*pp = &y` e o que acontece com p -> `ciu_kc10_t06`, `ciu_kc10_t18`
+#   pp e p serem caixas distintas     -> I3, a conclusão
+#
+# NENHUM TRECHO DESTE CARTÃO ESCREVE por pp, e isso é deliberado: este
+# nó é sobre o que a estrela ALCANÇA, e escrever traz junto a pergunta
+# "mexeu em qual caixa?", que é do I3.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_10
+node: kc10:B2
+premissa: "Cada aplicação de * desfaz exatamente um nível."
+crenca_que_nega: pointer_is_just_a_name
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# Declarado porque este cartão USA. Quem introduz é o B1.
+exige_conceitos: [ponteiro_de_ponteiro]
+
+
+# A AMPLIAÇÃO. O que a estrela faz, o que ela entrega, e por que o
+# número de estrelas não é livre.
+ampliacao: >
+  Uma estrela é um passo, e um passo vai de uma caixa até a caixa cujo
+  endereço ela guarda. Em *pp, o passo sai de pp e para na caixa de p. É
+  isso e só isso: ler o endereço que está em pp e ir até lá.
+
+  E o que se acha ao parar ali é um PONTEIRO, não um número. *pp é p —
+  cabe num int *, e dá para seguir de novo. O número só aparece no passo
+  seguinte, quando a segunda estrela sai de p e chega em x.
+
+  Por isso o número de estrelas não é uma escolha de estilo. Cada uma
+  gasta um nível dos que existem, e existem tantos quantos o tipo
+  declarou. Duas estrelas num int ** chegam ao int; uma para antes; três
+  pediriam um nível que ninguém criou.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  *pp     /* um passo: chega em p   */
+  **pp    /* dois passos: chega em x */
+
+
+# O CASO RESOLVIDO: o resultado do primeiro passo, guardado.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 7;
+      int *p = &x;
+      int **pp = &p;
+      int *meio = *pp;
+
+      printf("uma estrela entregou um ponteiro, e ele cabe num int *\n");
+      printf("esse ponteiro leva a %d\n", *meio);
+  - prosa: "Pergunta: por que *pp coube num int *, e não num int?"
+  - prosa: >
+      A tentação é pensar que a estrela "vai buscar o valor", e que o
+      valor é o 7. Olhe onde ele foi guardado: numa caixa declarada int
+      *, que é caixa de endereço. O primeiro passo parou numa caixa de
+      ponteiro, porque era ali que o endereço guardado em pp levava.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      uma estrela entregou um ponteiro, e ele cabe num int *
+      esse ponteiro leva a 7
+  - prosa: >
+      E foi preciso mais uma estrela para chegar no 7, agora saindo de
+      meio. Dois passos, dois endereços lidos, duas caixas atravessadas.
+
+
+# A OUTRA ROTA: o mesmo caminho, desmontado.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Se são dois passos, dá para dá-los em duas linhas e
+      chegar no mesmo lugar.
+  - codigo: |
+      int x = 7;
+      int *p = &x;
+      int **pp = &p;
+      int primeiro_passo_depois_segundo;
+      int *parada = *pp;
+
+      primeiro_passo_depois_segundo = *parada;
+      printf("dois passos separados dao %d\n", primeiro_passo_depois_segundo);
+      printf("e as duas estrelas de uma vez dao %d\n", **pp);
+  - prosa: >
+      A primeira linha faz o passo de pp até p e para. A segunda faz o
+      passo de p até x. Depois o programa refaz o caminho inteiro de uma
+      vez, com as duas estrelas.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dois passos separados dao 7
+      e as duas estrelas de uma vez dao 7
+  - prosa: >
+      O mesmo número pelos dois caminhos, porque é o mesmo caminho. Se a
+      estrela não fosse um passo — se p fosse só outro nome de x — não
+      haveria como parar no meio, porque não haveria meio.
