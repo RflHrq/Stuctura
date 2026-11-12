@@ -52,11 +52,35 @@ from revisa_material import (CONSTRUTOS, cobrancas_sem_ensino,  # noqa: E402
 # chega a quem declara lacuna, e os itens cobram de todos. Dívida
 # declarada, não escondida.
 TETO = {
-    "kc_00": 0, "kc_01": 0, "kc_02": 0, "kc_03": 2, "kc_04": 0,
-    "kc_05": 0, "kc_06": 1, "kc_07": 0, "kc_08": 0, "kc_09": 0,
+    "kc_00": 0, "kc_01": 0, "kc_02": 0, "kc_03": 0, "kc_04": 0,
+    "kc_05": 0, "kc_06": 0, "kc_07": 0, "kc_08": 0, "kc_09": 0,
     "kc_10": 0, "kc_11": 0, "kc_12": 0,
 }
-# Total: 3 itens, e os três são `scanf`.
+# Total: ZERO. A catraca fechou em 12/11/2026.
+#
+# OS TRÊS ÚLTIMOS ERAM `scanf`, e saíram sem que ninguém ensinasse
+# `scanf`: ele era VEÍCULO nos três. A pergunta era sobre o ponteiro
+# (`ciu_kc03_017`, `ciu_kc03_t17`) ou sobre o parâmetro
+# (`ciu_kc06_t09`), e o scanf só era quem escrevia. Dar cartão a ele
+# seria pior: nenhum dos 79 nós tem premissa sobre leitura de entrada,
+# e cartão sem premissa é cartão sem o que ensinar.
+#
+# O que cada um passou a usar, com a crença de cada distrator intacta:
+#
+#     ciu_kc03_017   duas letras escritas por um ponteiro sem endereço
+#     ciu_kc03_t17   uma LEITURA por um ponteiro sem endereço
+#     ciu_kc06_t09   o endereço do PARÂMETRO, tomado e escrito
+#
+# E O `t17` NÃO PODE SER `*p = 7`: esse é o cenário da opção A do
+# `ciu_kc03_018`, degrau 3 do mesmo nó. A escada passaria a medir a
+# mesma coisa nas duas pontas, que é o defeito de medida que a skill
+# `revisar-material` guarda no portão 1. Por isso ele lê, e não
+# escreve — nenhum dos sete irmãos do nó lê por ponteiro sem endereço.
+#
+# O `&destino` do `t09` FICOU DE PROPÓSITO: é dele que vive o distrator
+# "&destino é o endereço de n", que diagnostica `function_gets_original`.
+# Trocar o scanf por uma atribuição direta ao parâmetro apagaria o `&` e
+# com ele o diagnóstico — e ainda repetiria o `ciu_kc06_008`.
 #
 # ERAM 65, EM 11 DOS 13 TÓPICOS, até 12/11/2026. Sessenta e dois eram
 # `funcao_com_parametro`, e todos saíram de uma vez — não por item

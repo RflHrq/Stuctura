@@ -879,13 +879,13 @@ activities:
     formato: achar_o_erro
     tipo: codigo
     codigo: |
-      void ler(int destino) { scanf("%d", &destino); }
-      int n;
+      void ler(int destino) { int *q = &destino; *q = 7; }
+      int n = 0;
       ler(n);
       printf("%d\n", n);
-    enunciado: "Por que n não recebe o que foi digitado?"
+    enunciado: "Por que n não recebe o 7?"
     alternativas:
-      a: "O scanf escreveu em destino"
+      a: "A escrita foi em destino"
       b: "&destino é o endereço de n"
       c: "O valor volta quando ler sai"
     gabarito: a

@@ -1153,7 +1153,8 @@ activities:
     tipo: codigo
     codigo: |
       char *resposta;
-      scanf("%s", resposta);
+      resposta[0] = 'o';
+      resposta[1] = 'i';
     enunciado: "Por que isso não funciona?"
     alternativas:
       a: "resposta não aponta para espaço nenhum ainda"
@@ -1206,12 +1207,12 @@ activities:
     tipo: codigo
     codigo: |
       int *p;
-      scanf("%d", p);
+      printf("%d\n", *p);
     enunciado: "O que falta?"
     alternativas:
       a: "Dar a p o endereço de um int que exista"
-      b: "Nada: scanf escreve onde p aponta"
-      c: "Zerar p antes, para o scanf ter onde escrever"
+      b: "Nada: o printf lê onde p aponta"
+      c: "Zerar p antes, para o printf ter de onde ler"
     gabarito: a
     crencas:
       b: pode_usar_logo
