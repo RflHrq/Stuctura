@@ -391,18 +391,22 @@ def test_a_reexecucao_nao_depende_de_nenhum_dos_quatro(tmp_path):
     assert log.reconstroi(d, "P91", destino=sem).estado == com.estado
 
 
-COM_DECLARACAO = ("kc_02", "kc_07")
+COM_DECLARACAO = ("kc_02", "kc_06", "kc_07")
 
 
 @pytest.mark.parametrize("topico", [t for t in topicos()
                                     if t not in COM_DECLARACAO])
-def test_os_onze_topicos_sem_declaracao_continuam_calados(topico):
+def test_os_dez_topicos_sem_declaracao_continuam_calados(topico):
     """Zero eventos conceituais, e isso é verdade medida.
 
     ERAM DOZE, e caiu em 09/11/2026 — exatamente como estava escrito
     aqui: "quando material novo for auditado, este teste cai, e cair
     aqui é o currículo crescendo". O B1 do kc_07 ganhou material de
     ensino profundo e o `array` foi promovido a `disponivel`.
+
+    E CAIU DE NOVO EM 12/11/2026, pelo mesmo motivo e maior: os SEIS
+    nós do kc_06 ganharam material, foram assinados, e o
+    `funcao_com_parametro` foi liberado com `kc_06:B1` como evidência.
 
     Cada tópico que ganhar material derruba este teste de novo, e é
     assim que o placar não envelhece calado.

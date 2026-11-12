@@ -265,15 +265,31 @@ conceitos:
 
   funcao_com_parametro:
     nome: "função que recebe parâmetro, e passagem por valor"
-    status: nao_introduzido
-    introduzido_em: ""
+    status: disponivel
+    introduzido_em: kc_06
     evidencia:
-      onde: "kc_01, cartões B2 e B3"
+      cartoes: ["kc_06:B1"]
+      onde: "kc_06, cartão de ensino B1, campo `interpretation`"
       texto: >
-        Funções aparecem, e PARÂMETRO NENHUM: as duas assinaturas dos
-        cartões são `int conta(void)` e `int *faz(void)`. Passagem por
-        valor não é tratada em cartão nenhum dos três tópicos.
-      tipo: nao_encontrado
+        "O que está entre os parênteses de void f(int n) é uma
+        declaração. int n ali dentro cria uma variável, do mesmo jeito
+        que int n; criaria em qualquer outro lugar. O que muda é quem a
+        preenche: não é você escrevendo um valor, é a chamada."
+      exemplo: 'void f(int n) { /* n e caixa nova, de f */ }  int x = 1;  f(x);'
+      tipo: explicacao_com_exemplo
+      aprovacao: >
+        Liberado em 12/11/2026, com a assinatura dos seis cartões do
+        kc_06. O B1 é nó OBSERVÁVEL, então `_cartoes()` o põe na
+        abertura do tópico: todo mundo que entra no kc_06 vê esta
+        explicação, e não só quem declara lacuna.
+      # ---------------------------------------------------------------
+      # O QUE ESTA ENTRADA ESPEROU, e o registro fica porque ele explica
+      # por que a espera foi certa. A decisao de 08/11/2026 era NAO
+      # promover com base na ampliacao do I3 do kc_02, e ela continua
+      # valendo: aquilo era passagem por valor explicada DENTRO de outro
+      # topico, de passagem. O que liberou agora e um cartao que ENSINA
+      # o construto, no topico que o tem por assunto.
+      #
       # 08/11/2026 -- NAO FOI PROMOVIDO, e o motivo e fino.
       #
       # A ampliacao do I3 do kc_02 agora EXPLICA passagem por valor, com

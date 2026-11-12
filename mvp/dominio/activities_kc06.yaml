@@ -94,6 +94,400 @@ exemplos:
     f(&x);        /* copia o endereco */
     /* a mesma copia, as duas vezes */
 
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        void f(int n)
+        {
+            printf("dentro de f, n vale %d\n", n);
+        }
+    - codigo: |
+        int n = 1;
+        f(2);
+        printf("no main, n vale %d\n", n);
+    - prosa: >
+        Pergunta: as duas linhas falam do mesmo n?
+    - prosa: >
+        A tentação é dizer que sim — o nome é o mesmo, e nome igual
+        costuma querer dizer coisa igual. Siga as declarações em vez do
+        nome. Há DUAS: uma no cabeçalho de f, outra dentro do main. Duas
+        declarações criam duas variáveis, e o fato de terem o mesmo nome
+        não as junta.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dentro de f, n vale 2
+        no main, n vale 1
+    - prosa: >
+        Dois valores diferentes, ao mesmo tempo, sob o mesmo nome. Se
+        fosse uma variável só, os dois printf diriam o mesmo número.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        void f(int n)
+        {
+            printf("f recebeu %d\n", n);
+        }
+    - codigo: |
+        int x = 2;
+        f(x);
+        f(x + 1);
+        f(x * 10);
+    - prosa: >
+        Pergunta: as três chamadas falam do mesmo x. Por que n sai
+        diferente?
+    - prosa: >
+        A tentação é dizer que n guarda a conta — que na segunda chamada n
+        é "x mais um", e na terceira é "x vezes dez". Olhe o que f
+        imprime. São números, e são três: 2, 3 e 20. A conta foi feita
+        antes de f começar, e o que entrou foi o resultado dela.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        f recebeu 2
+        f recebeu 3
+        f recebeu 20
+    - prosa: >
+        Um x só, três contas, três números. O que varia entre as chamadas
+        não é o x: é o que cada expressão resolveu antes de entrar.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        void ajusta(int a, int b)
+        {
+            a = a + 10;
+            printf("dentro:  a=%d  b=%d\n", a, b);
+        }
+    - codigo: |
+        int x = 1, y = 2;
+        ajusta(x, y);
+        printf("fora:    x=%d  y=%d\n", x, y);
+    - prosa: >
+        Pergunta: depois da chamada, quanto vale x?
+    - prosa: >
+        A tentação é escolher entre duas respostas, e as duas erram. Uma
+        diz 11 — "a função somou dez". A outra diz que a soma não
+        aconteceu, já que x não mudou. Olhe as duas linhas da saída: a
+        soma aconteceu, e aconteceu em a.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dentro:  a=11  b=2
+        fora:    x=1  y=2
+    - prosa: >
+        a virou 11 e x continua 1, ao mesmo tempo. Não é que a atribuição
+        tenha falhado: ela escreveu na caixa de a, que é a caixa que ela
+        nomeia. E b, que ninguém tocou, continua com a cópia que recebeu.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        void dois(int *p, int *q)
+        {
+            *p = 50;
+            printf("depois de *p = 50, *q vale %d\n", *q);
+            *q = *q + 1;
+        }
+    - codigo: |
+        int x = 1;
+        dois(&x, &x);
+        printf("no fim, x = %d\n", x);
+    - prosa: >
+        Pergunta: p e q receberam a mesma coisa. Quanto *q mostra na
+        segunda linha de dois?
+    - prosa: >
+        A tentação é dizer 1 — cada parâmetro tem a sua cópia, então mexer
+        por p não deveria aparecer em q. Tem mesmo: são duas cópias, e são
+        independentes uma da outra. Só que o que foi copiado não é o valor
+        de x: é o número da casa dele. Duas cópias do mesmo número indicam
+        a mesma casa.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        depois de *p = 50, *q vale 50
+        no fim, x = 51
+    - prosa: >
+        Escrevi por p e li por q, e veio 50. Depois somei 1 por q, e x
+        terminou 51 — as três operações caíram na mesma caixa. Se &x
+        tivesse entregado uma cópia de x, p e q guardariam dois uns
+        separados, *q mostraria 1, e x terminaria valendo 1.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        void redireciona(int *p)
+        {
+            int reserva = 0;
+            *p = 50;
+            p = &reserva;
+            *p = 70;
+            printf("dentro:  *p vale %d\n", *p);
+        }
+    - codigo: |
+        int x = 1;
+        int *q = &x;
+        redireciona(q);
+        printf("fora:    x = %d,  *q = %d\n", x, *q);
+    - prosa: >
+        Pergunta: redireciona escreveu 50 e depois 70. Qual dos dois
+        chegou em x?
+    - prosa: >
+        A tentação é dizer o 70 — foi a última escrita, e as duas usaram o
+        mesmo *p. Repare na linha do meio. Entre uma escrita e a outra, o
+        p deixou de ter o endereço de x e passou a ter o de reserva. O *p
+        da primeira linha e o *p da terceira não vão para o mesmo lugar.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dentro:  *p vale 70
+        fora:    x = 50,  *q = 50
+    - prosa: >
+        O 50 chegou em x; o 70 ficou em reserva. E repare nos dois números
+        de fora: x e *q respondem o mesmo, o que só acontece se q
+        continuar com o endereço de x. A troca mexeu no p de redireciona,
+        e em nada mais.
+
+  I4:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 1, y = 2;
+        int *a = &x;
+        int *b = a;
+        *b = 50;
+        printf("depois de *b = 50,  x = %d\n", x);
+        b = &y;
+        printf("depois de b = &y,   *a = %d,  *b = %d\n", *a, *b);
+    - prosa: >
+        Pergunta: b recebeu uma cópia de a. Depois de b = &y, para onde a
+        aponta?
+    - prosa: >
+        A tentação é dizer que a foi junto: b era a cópia de a, e cópia e
+        original costumam ser pensados como dois nomes da mesma coisa. As
+        duas linhas da saída fecham portas diferentes, e é por isso que
+        são duas. A primeira mostra que a cópia não é um duplicado morto —
+        escrever por b chegou em x. A segunda mostra que ela também não é
+        um segundo nome de a.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        depois de *b = 50,  x = 50
+        depois de b = &y,   *a = 50,  *b = 2
+    - prosa: >
+        As duas metades estão aí. Os dois ponteiros chegavam na mesma casa
+        — por isso o 50 apareceu em x. E eram duas variáveis — por isso b
+        pôde ir para outro lugar e a ficou onde estava. Nenhuma chamada
+        aconteceu neste trecho: isso é o que uma atribuição faz, e é
+        exatamente o que a chamada faz com o que você passa.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Tem de ser caminho DIFERENTE do caso resolvido -- ha teste
+# no projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Em vez de olhar o valor, olhe quem escolhe o NOME.
+    - codigo: |
+        void primeira(int n)
+        {
+            printf("primeira recebeu %d\n", n);
+        }
+
+        void segunda(int qualquer_outro_nome)
+        {
+            printf("segunda recebeu %d\n", qualquer_outro_nome);
+        }
+    - codigo: |
+        int x = 7;
+        primeira(x);
+        segunda(x);
+    - prosa: >
+        As duas funções foram chamadas do mesmo jeito, com o mesmo x. O
+        nome do parâmetro é diferente em cada uma, e nenhuma das duas
+        chamadas precisou saber qual era.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        primeira recebeu 7
+        segunda recebeu 7
+    - prosa: >
+        Quem dá nome ao parâmetro é quem escreve a função, não quem a
+        chama. Isso só faz sentido se o parâmetro for uma variável DELA —
+        se fosse o x de quem chamou, trocar o nome no cabeçalho quebraria
+        a chamada, e não quebrou.
+
+  B2:
+    - prosa: >
+        Outro caminho, pelo avesso: em vez de variar o resultado, varie a
+        maneira de escrevê-lo.
+    - codigo: |
+        void f(int n)
+        {
+            printf("recebi %d\n", n);
+        }
+    - codigo: |
+        int x = 2;
+        f(3);
+        f(2 + 1);
+        f(x + 1);
+    - prosa: >
+        Três chamadas escritas de três maneiras: um número cru, uma conta
+        entre números, uma conta com variável.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        recebi 3
+        recebi 3
+        recebi 3
+    - prosa: >
+        Se a expressão fosse o que viaja, f teria como notar a diferença
+        entre as três — e teria de saber quem é x, que lá dentro não
+        existe. As três linhas saem iguais porque as três chegaram iguais:
+        como 3.
+
+  I1:
+    - prosa: >
+        Outro caminho, e ele começa onde o cartão do parâmetro parou: dois
+        nomes iguais.
+    - codigo: |
+        void f(int n)
+        {
+            n = 99;
+            printf("dentro de f, n vale %d\n", n);
+        }
+    - codigo: |
+        int n = 1;
+        f(n);
+        printf("no main, n vale %d\n", n);
+    - prosa: >
+        Já foi aceito que esses dois n são duas variáveis: elas
+        responderam números diferentes sem ninguém modificar nada. A
+        pergunta agora é outra — modificar um mexe no outro?
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dentro de f, n vale 99
+        no main, n vale 1
+    - prosa: >
+        Não mexe. E repare que o nome igual não ajudou em nada: se
+        bastasse ter o mesmo nome para ser a mesma caixa, o segundo printf
+        diria 99. Quem decide são as duas declarações, como antes.
+
+  I2:
+    - prosa: >
+        Outro caminho. Olhe uma chamada em que o & nem aparece.
+    - codigo: |
+        void f(int *p)
+        {
+            *p = 99;
+        }
+    - codigo: |
+        int x = 1;
+        int *guarda = &x;
+        f(guarda);
+        printf("x = %d\n", x);
+    - prosa: >
+        f(guarda) é uma chamada comum: resolve o que está entre os
+        parênteses — o valor de guarda — e copia para dentro de p. É a
+        mesma frase que descreveria f(x), trocando o nome da variável.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        x = 99
+    - prosa: >
+        Não houve modo especial de passar: houve uma cópia, como sempre. O
+        & tinha aparecido antes, quando guarda foi preenchido, e ali ele
+        fez o que faz — respondeu o endereço de x. Na hora da chamada não
+        havia nada de diferente a fazer.
+
+  I3:
+    - prosa: >
+        Outro caminho. Em vez de olhar uma função por dentro, entregue o
+        mesmo ponteiro a duas.
+    - codigo: |
+        void f(int *p)
+        {
+            int local = 10;
+            p = &local;
+            printf("f:      *p vale %d\n", *p);
+        }
+
+        void g(int *p)
+        {
+            int local = 20;
+            p = &local;
+            printf("g:      *p vale %d\n", *p);
+        }
+    - codigo: |
+        int x = 1;
+        int *q = &x;
+        f(q);
+        g(q);
+        printf("no fim, *q vale %d\n", *q);
+    - prosa: >
+        As duas foram chamadas com o mesmo q, e as duas fizeram a mesma
+        coisa: trocaram o endereço que receberam pelo de uma variável
+        própria. Cada uma respondeu o número da variável dela.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        f:      *p vale 10
+        g:      *p vale 20
+        no fim, *q vale 1
+    - prosa: >
+        Duas trocas, e o q de quem chamou atravessou as duas intacto. Se a
+        troca feita por f tivesse alcançado o q, a chamada de g não teria
+        recebido o endereço de x — e a última linha não diria 1.
+
+  I4:
+    - prosa: >
+        Outro caminho, agora com chamadas — e com mais de uma, para ver o
+        que acontece com o endereço copiado a cada degrau.
+    - codigo: |
+        void fundo(int *p)
+        {
+            *p = 90;
+        }
+
+        void meio(int *p)
+        {
+            int *meu = p;
+            fundo(meu);
+            printf("meio:   *p vale %d\n", *p);
+        }
+    - codigo: |
+        int x = 1;
+        meio(&x);
+        printf("main:   x vale %d\n", x);
+    - prosa: >
+        Conte as caixas de ponteiro: o p de meio, o meu de meio, o p de
+        fundo. São três, cada uma com o seu nome e o seu lugar, e as três
+        guardam o mesmo número — o endereço de x, copiado três vezes. Quem
+        escreveu foi fundo, pela caixa dela.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        meio:   *p vale 90
+        main:   x vale 90
+    - prosa: >
+        A escrita feita no fundo aparece em meio, que leu por outra caixa,
+        e aparece em main, que não leu por caixa nenhuma — x é a casa. Não
+        houve modo especial de passar em degrau nenhum: cada chamada
+        copiou um número, e o número diz onde x mora.
+
 activities:
 
   # ------------------------------------------------------------------

@@ -211,11 +211,20 @@ def test_o_material_do_b1_existe_e_a_decisao_de_liberar_e_que_nao():
 # fizemos" de "ninguém reparou". Baixá-lo exige ensinar o construto num
 # cartão — não mexer no detector.
 #
-# CAI PARA 17 no dia em que o `comparacao_de_ponteiros` for promovido:
-# o cartão do `kc_02:B1` já o ensina, e o que segura é a decisão, não o
-# material. Esse é o único dos dezoito que está a uma assinatura de
-# distância; os outros dezessete precisam de material que não existe.
-USA_SEM_ENSINAR = 18
+# CAIU DE 18 PARA 8 EM 12/11/2026, e a baixa é a prevista: os dez
+# cartões que usavam `funcao_com_parametro` no exemplo saíram de uma vez
+# quando o kc_06 ganhou material e o construto foi liberado, com
+# `kc_06:B1` como evidência. Foi material novo, e não detector mexido.
+#
+# OS OITO QUE SOBRAM, nomeados:
+#
+#   kc_02:B1  comparacao_de_ponteiros  — o cartão já o ensina desde
+#             05/11; o que segura é a decisão, não o material. É o único
+#             dos oito a uma assinatura de distância.
+#   kc_03:B3  printf_ponteiro          — nem entrada tem
+#   kc_10:*   ponteiro_de_ponteiro     — os seis cartões do tópico,
+#             `so_avaliado`, e é o construto que dá nome a ele
+USA_SEM_ENSINAR = 8
 
 
 def test_quantos_cartoes_usam_construto_que_ninguem_ensina():

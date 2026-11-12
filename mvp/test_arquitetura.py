@@ -554,13 +554,19 @@ def test_o_requer_da_descida_fala_o_vocabulario_do_inventario():
 # O SEGUNDO TÓPICO É O QUE IMPORTA AQUI: enquanto só o kc_02 declarava,
 # "histórico individual" e "histórico de um tópico" eram a mesma coisa.
 # Com dois, a travessia passa a ter o que atravessar.
-# SOBE PARA 8 NO DIA EM QUE O `comparacao_de_ponteiros` FOR PROMOVIDO.
-# O cartão `kc_02:B1` o ensina desde 05/11/2026, e o inventário o
-# segura em `so_avaliado` porque a liberação é decisão do dono, tomada
-# depois da auditoria do conteúdo. Um conceito a mais declarado no
-# cartão é uma oportunidade a mais no log — então este número e os de
-# `TRAJETORIAS` sobem juntos, e só então.
-OPORTUNIDADES = {"kc_02": 7, "kc_07": 1}
+# SOBE PARA 8 NO KC_02 NO DIA EM QUE O `comparacao_de_ponteiros` FOR
+# PROMOVIDO. O cartão `kc_02:B1` o ensina desde 05/11/2026, e o
+# inventário o segura em `so_avaliado` porque a liberação é decisão do
+# dono, tomada depois da auditoria do conteúdo. Um conceito a mais
+# declarado no cartão é uma oportunidade a mais no log — então este
+# número e os de `TRAJETORIAS` sobem juntos, e só então.
+#
+# O KC_06 ENTROU EM 12/11/2026, com UMA: a do `funcao_com_parametro` no
+# B1, com a assinatura dos seis materiais do tópico. É o TERCEIRO
+# tópico a aparecer aqui, e o primeiro cujo cartão declarado fica na
+# ABERTURA — o B1 é nó observável, então a oportunidade é de quem entra
+# no tópico, e não só de quem declara lacuna.
+OPORTUNIDADES = {"kc_02": 7, "kc_06": 1, "kc_07": 1}
 
 # O HISTÓRICO CONCEITUAL DE CADA PERSONA no kc_02, medido. São três
 # trajetórias de aprendizagem diferentes, e o log passou a contá-las por

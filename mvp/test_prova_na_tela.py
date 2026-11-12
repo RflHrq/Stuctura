@@ -210,11 +210,12 @@ def test_a_refutacao_do_kc06_mostra_prova_nos_seis_passos(d6):
     O número só tem sentido ao lado do kc_02, onde o I3 continua sem
     nada a mostrar: o teste acima é o que mede isso.
 
-    E NÃO SAIU DE GRAÇA. As seis que chegam são as que se demonstram sem
-    chamada nenhuma, e o `afirma` de cada uma termina dizendo isso — ler
-    nelas a premissa inteira seria ler mais do que elas mostram. A
-    premissa inteira está nas barradas, e quantas são é o teste
-    seguinte.
+    ERA UMA POR TELA ATÉ 12/11/2026, e eram as seis que se demonstram
+    sem chamada nenhuma: as outras sete usavam `funcao_com_parametro`,
+    que o portão barrava. Com os seis materiais do tópico assinados e o
+    construto liberado, TODAS as treze chegam — e cada tela passa a
+    mostrar a premissa inteira ao lado da metade que a atribuição já
+    mostrava.
     """
     e = motor._inicia_refutacao(
         d6, motor.inicia(d6, semente="P01").estado.com(
@@ -224,20 +225,24 @@ def test_a_refutacao_do_kc06_mostra_prova_nos_seis_passos(d6):
     for passo in range(len(e.plano)):
         tela = motor._tela_refutacao(d6, motor.replace(e, passo=passo))
         por_passo.append(len(tela.dados["prova"]))
-    assert por_passo == [1, 1, 1, 1, 1, 1], por_passo
+    # O B1 tem TRÊS: a saída, a recusa do compilador e a redução sem
+    # chamada. Os outros cinco têm duas cada.
+    assert por_passo == [3, 2, 2, 2, 2, 2], por_passo
 
 
-def test_o_portao_do_kc06_barra_sete_provas_por_um_construto_so(d6):
-    """Sete demonstrações barradas, e o construto é um único.
+def test_o_portao_do_kc06_nao_barra_mais_nada(d6):
+    """Eram sete barradas, e todas pelo mesmo construto.
 
-    `funcao_com_parametro` está `nao_introduzido`, e quem o ensina é o
-    candidato `candidatos/kc_06/B1_material_1.yaml`. Aprovar aquele
-    cartão — e pôr `kc_06:B1` em `cartoes` — libera as sete de uma vez,
-    e com elas a premissa inteira de cada nó.
+    `funcao_com_parametro` estava `nao_introduzido`, e quem o ensina é o
+    `kc_06:B1`. Em 12/11/2026 os seis materiais do tópico foram
+    assinados, o construto foi liberado com aquele cartão como
+    evidência, e as sete passaram de uma vez.
 
-    O NÚMERO FICA PINADO para que a liberação seja visível: no dia da
-    assinatura este teste cai, e cobra a atualização. O que não pode é
-    a dívida mudar em silêncio, nos dois sentidos.
+    O NÚMERO CONTINUA PINADO, agora em zero: o kc_06 é o primeiro
+    tópico em que nenhuma demonstração fica retida, e se alguma voltar
+    a ficar é porque entrou construto sem cartão. A dívida não muda em
+    silêncio, nos dois sentidos — foi assim que este teste caiu no dia
+    da assinatura, como estava escrito que cairia.
     """
     barradas = []
     for nid, no in d6.nos.items():
@@ -245,9 +250,8 @@ def test_o_portao_do_kc06_barra_sete_provas_por_um_construto_so(d6):
             falta = conceitos.faltando_para_exibir(dem.programa, "kc_06")
             if falta:
                 barradas.append(("%s[%d]" % (nid, i), falta))
-    assert len(barradas) == 7, barradas
-    assert {c for _, falta in barradas for c in falta} == {
-        "funcao_com_parametro"}, barradas
+    assert barradas == [], barradas
+    assert sum(len(no.evidencia) for no in d6.nos.values()) == 13
 
 
 def test_a_prova_nao_promete_saida_de_programa_que_nao_compila(d):

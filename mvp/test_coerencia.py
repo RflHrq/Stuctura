@@ -52,15 +52,29 @@ from revisa_material import (CONSTRUTOS, cobrancas_sem_ensino,  # noqa: E402
 # chega a quem declara lacuna, e os itens cobram de todos. Dívida
 # declarada, não escondida.
 TETO = {
-    "kc_00": 0, "kc_01": 0, "kc_02": 6, "kc_03": 4, "kc_04": 4,
-    "kc_05": 1, "kc_06": 24, "kc_07": 8, "kc_08": 1, "kc_09": 6,
-    "kc_10": 6, "kc_11": 1, "kc_12": 4,
+    "kc_00": 0, "kc_01": 0, "kc_02": 0, "kc_03": 2, "kc_04": 0,
+    "kc_05": 0, "kc_06": 1, "kc_07": 0, "kc_08": 0, "kc_09": 0,
+    "kc_10": 0, "kc_11": 0, "kc_12": 0,
 }
-# Total: 65 itens, em 11 dos 13 tópicos. Sessenta e um são
-# `funcao_com_parametro` e quatro são `scanf`. O kc_06 sozinho tem 24 —
-# ele se chama "Passagem por referência", e cobrar função com parâmetro
-# ali é inevitável: o tópico É sobre isso. O que falta é o conceito ter
-# sido ensinado antes, e é a mesma decisão parada no kc_02.
+# Total: 3 itens, e os três são `scanf`.
+#
+# ERAM 65, EM 11 DOS 13 TÓPICOS, até 12/11/2026. Sessenta e dois eram
+# `funcao_com_parametro`, e todos saíram de uma vez — não por item
+# movido nem por detector consertado, mas porque o construto passou a
+# ter CARTÃO: a assinatura dos seis materiais do kc_06 liberou
+# `funcao_com_parametro`, com `kc_06:B1` como evidência. É a baixa mais
+# funda que esta catraca já registrou, e a única que veio de material
+# novo.
+#
+# O que sobra é de outra natureza: `scanf` não tem cartão em tópico
+# nenhum, e os três itens que o cobram continuam cobrando o que o
+# sistema não apresentou.
+#
+# A LEITURA ANTIGA FICA, porque ela explicava por que o número do kc_06
+# era 24: "ele se chama Passagem por referência, e cobrar função com
+# parâmetro ali é inevitável — o tópico É sobre isso. O que falta é o
+# conceito ter sido ensinado antes." Era isso mesmo, e foi isso que o
+# cartão do B1 resolveu.
 #
 # A PRIMEIRA VERSÃO DESTES NÚMEROS FOI CHUTADA, e os doze testes que
 # caíram foram quem avisou. Medidos em 08/11/2026.

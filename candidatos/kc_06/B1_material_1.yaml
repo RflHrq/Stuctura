@@ -77,8 +77,8 @@ premissa: "Ao chamar f(x), o parâmetro é uma variável nova, local a f."
 crenca_que_nega: funcao_usa_a_variavel_do_chamador
 
 gerado_por: Claude Opus 5, 11/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: 7ef87a55c6c7
 
 # O construto que este cartão introduz. Hoje `nao_introduzido`, e a
 # aprovação deste material é o que o move — como o `sizeof` foi movido

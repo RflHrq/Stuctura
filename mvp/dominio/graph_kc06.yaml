@@ -144,6 +144,25 @@ nodes:
           a segunda declaracao criou outra variavel
           e a primeira ficou com o valor dela
 
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O que está entre os parênteses de void f(int n) é uma declaração.
+      int n ali dentro cria uma variável, do mesmo jeito que int n;
+      criaria em qualquer outro lugar. O que muda é quem a preenche: não é
+      você escrevendo um valor, é a chamada.
+
+
+      Ela é de f, e o nome só vale lá dentro. Escreva n no main e o
+      compilador reclama: naquele trecho ninguém declarou n. O nome de uma
+      variável vale onde ela foi declarada, e o parâmetro foi declarado no
+      cabeçalho de f.
+
+
+      E ela é OUTRA variável, não a sua com outro nome. Dá para ter um n
+      no main e um n dentro de f ao mesmo tempo, cada um com o seu valor,
+      e o compilador aceita os dois sem reclamar de nada. Dois nomes
+      iguais, e mesmo assim duas variáveis: é a declaração que separa, não
+      o nome.
   B2:
     type: observavel
     role: espinha
@@ -223,6 +242,23 @@ nodes:
           a copia recebeu o resultado da conta, 3
           e o 3 nao segue o x: a conta ja tinha acabado
 
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      A casa nova não nasce cheia. Quem a preenche é a chamada: antes de f
+      começar, o que estiver escrito entre os parênteses é resolvido, e o
+      resultado é copiado para dentro do parâmetro. Em f(x + 1), com x
+      valendo 2, o que entra em n é 3.
+
+
+      E o que entra é um número, não a conta. Dentro de f não existe x nem
+      existe o +; existe n, valendo 3. Escrever f(3), f(2 + 1) ou f(x + 1)
+      dá na mesma para f — as três chegam como 3, e de dentro não há como
+      saber qual delas você escreveu.
+
+
+      A conta é feita antes, e não dentro. Não é que f receba a expressão
+      e resolva quando precisar do valor: quando f começa, a conta já
+      acabou, e o que ela deixou foi um número no parâmetro.
   I1:
     type: inferencia
     role: espinha
@@ -292,6 +328,24 @@ nodes:
           a escrita na copia aconteceu: n virou 99
           e a origem da copia nao mudou: x continua 1
 
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o que sobra das duas anteriores. O
+      parâmetro é outra variável, e o que entrou nele foi uma cópia do
+      valor. Some as duas e não há como escrever no parâmetro e atingir o
+      argumento — escrever em n escreve em n.
+
+
+      O que confunde é que a modificação ACONTECE. Se f faz n = 99, o n de
+      f passa a valer 99 de verdade, e dá para imprimir lá dentro e ver.
+      Não é que a atribuição tenha sido ignorada: ela foi feita, na caixa
+      em que ela manda.
+
+
+      E nada volta no fim. Quando f termina, ninguém copia o valor do
+      parâmetro de volta para o argumento — a cópia foi de mão única, na
+      entrada. Uma função que só atribui ao próprio parâmetro não deixa
+      marca nenhuma do lado de fora.
   I2:
     type: inferencia
     role: espinha
@@ -365,6 +419,23 @@ nodes:
           a copia do endereco escreveu na casa de x: x virou 9
           e quem le pelo ponteiro copiado ve o mesmo 9
 
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      A passagem não mudou. f(&x) copia, do mesmo jeito que f(x) copiava:
+      a chamada resolve o que está entre os parênteses e copia o resultado
+      para dentro do parâmetro. Não é um segundo modo de passar — é o
+      mesmo, e o que varia é o que o resultado É.
+
+
+      O que &x resolve é o endereço de x: um número que diz ONDE, e não
+      quanto. Copiar esse número não copia a casa. A cópia que chegou em p
+      é um número igual ao que ficou em x, e números iguais apontam o
+      mesmo lugar.
+
+
+      Por isso *p = 99 muda x. O *p não mexe em p: ele vai até o lugar que
+      p indica, e escreve lá. A cópia está em p, dentro de f; a escrita
+      acontece em x, que nunca saiu do lugar.
   I3:
     type: inferencia
     role: espinha
@@ -449,6 +520,26 @@ nodes:
           ela chegou em y, para onde a copia passou a levar
           e a origem continua levando a x
 
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o encontro das duas anteriores. Um
+      parâmetro é variável de f, e escrever nele não chega no argumento.
+      Um endereço copiado leva à mesma casa, e quem segue o endereço chega
+      lá. O p tem as duas coisas ao mesmo tempo: ele É um parâmetro, e o
+      que está dentro dele é um endereço.
+
+
+      Daí os dois destinos. Em *p = 50, o p é lido: ninguém mexe nele, o
+      endereço que está lá é seguido, e a escrita acontece na outra ponta.
+      Em p = outro_endereco, o p é escrito: o endereço que estava lá é
+      substituído, e nada é seguido. A primeira linha sai de f pelo
+      endereço; a segunda não sai de f.
+
+
+      E o chamador deu o número uma vez só. Na chamada, o valor do
+      ponteiro dele foi copiado para dentro de p — e foi tudo. Daí em
+      diante são dois números em duas caixas, e trocar o que está numa não
+      encosta na outra.
   I4:
     type: inferencia
     role: conclusao
@@ -531,3 +622,25 @@ nodes:
         espera: |-
           a copia alcanca o original: x virou 50
           e nao e a mesma variavel: b saiu de la e a ficou
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Junte os cinco e sobra uma regra só. O parâmetro é uma caixa nova, a
+      chamada copia para dentro dela o valor do argumento, mexer na caixa
+      não chega no argumento, um endereço copiado chega na mesma casa, e
+      trocar o endereço copiado não sai da caixa. Não há dois mecanismos
+      esperando para ver o que você passou: a chamada copia, sempre. O que
+      varia é o que estava na caixa.
+
+
+      E "passagem por referência" quer dizer uma coisa precisa: que o
+      parâmetro É a variável de quem chamou, de modo que atribuir ao
+      parâmetro muda a dela. Em C isso não acontece em lugar nenhum — nem
+      com ponteiro, e foi o cartão anterior que mostrou. Passar &x é
+      copiar um endereço por valor, e é a CÓPIA que dá acesso ao original.
+
+
+      Então a pergunta útil não é "isto é por valor ou por referência". É:
+      o que foi copiado, e onde aquilo chega? Um número que diz quanto não
+      chega a lugar nenhum fora da caixa. Um número que diz onde chega na
+      casa que ele nomeia — e chega por qualquer cópia dele, de dentro de
+      qualquer função que a tenha.

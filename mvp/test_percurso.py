@@ -276,7 +276,13 @@ def test_a_verificacao_lista_o_que_o_topico_cobra_sem_oportunidade(coleta):
     """A pergunta que o dono fez: começar pelo kc_06 cobra o quê?
 
     `funcao_com_parametro` aparece em 23 itens do kc_06 e não está no
-    percurso de ninguém — nem poderia, porque cartão nenhum o ensina.
+    percurso do P20.
+
+    E DESDE 12/11/2026 ELE ESTÁ `disponivel`: o cartão do `kc_06:B1` o
+    ensina. A linha continua na lista mesmo assim, e é isso que este
+    teste guarda — a lista mede a PESSOA, não o inventário. P20 fez o
+    kc_02 e nunca entrou no kc_06; o conceito existir no currículo não
+    põe a explicação na frente dele.
     """
     p = historico.percurso("P20", [coleta])
     faltam = historico.sem_oportunidade(p, carrega(topico="kc_06"))
@@ -284,7 +290,7 @@ def test_a_verificacao_lista_o_que_o_topico_cobra_sem_oportunidade(coleta):
     assert "funcao_com_parametro" in por_conceito
     achado = por_conceito["funcao_com_parametro"]
     assert achado.itens == 23, achado
-    assert achado.status == "nao_introduzido", achado
+    assert achado.status == "disponivel", achado
     assert achado.oportunidade is False
 
 

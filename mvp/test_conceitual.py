@@ -49,6 +49,12 @@ _CRU = yaml.safe_load(
 # O `array` entrou em 09/11/2026, com o material de ensino profundo do
 # B1 do kc_07 — e é o PRIMEIRO cartão declarado fora do kc_02, que é o
 # que faz o histórico individual ganhar um segundo tópico.
+#
+# O `funcao_com_parametro` entrou em 12/11/2026, com os seis materiais
+# do kc_06 assinados, e é o TERCEIRO tópico a declarar cartão. Ele é o
+# que mais mexe no resto: 62 itens, em 11 tópicos, cobravam o construto
+# sem que cartão nenhum o ensinasse, e o `test_coerencia` registra a
+# baixa.
 CARTOES_ESPERADOS = {
     "endereco": ("kc_02:B1",),
     "ponteiro": ("kc_02:B2",),
@@ -56,6 +62,7 @@ CARTOES_ESPERADOS = {
     "derreferencia": ("kc_02:B3",),
     "sizeof": ("kc_02:B2",),
     "array": ("kc_07:B1",),
+    "funcao_com_parametro": ("kc_06:B1",),
 }
 
 # O mapa inverso, que é o que o evento vai consultar.

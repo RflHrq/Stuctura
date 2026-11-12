@@ -94,8 +94,8 @@ premissa: >
 crenca_que_nega: ampersand_copies
 
 gerado_por: Claude Opus 5, 11/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: 42ee82affb69
 
 # Declarado porque este cartão USA. Quem introduz é o B1.
 exige_conceitos: [funcao_com_parametro]
