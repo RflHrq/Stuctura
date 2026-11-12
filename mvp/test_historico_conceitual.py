@@ -53,7 +53,12 @@ OS_QUATRO = ("conceito_apresentado", "conceito_diagnosticado",
              "conceito_confirmado", "conceito_revisitado")
 
 # O que o kc_02 declara: os três nós observáveis, e nenhum de inferência.
-COM_CONCEITO = {"B1": 2, "B2": 3, "B3": 2}
+#
+# O B1 PASSOU DE 2 PARA 3 em 12/11/2026, com a promoção do
+# `comparacao_de_ponteiros` — a ampliação que o ensina está nele desde
+# 05/11. Cinco testes deste arquivo derivam deste mapa, e todos subiram
+# juntos: apresentado, diagnosticado, confirmado e as duas revisitas.
+COM_CONCEITO = {"B1": 3, "B2": 3, "B3": 2}
 SEM_CONCEITO = ("I1", "I2", "I3")
 
 

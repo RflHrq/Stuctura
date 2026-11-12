@@ -167,19 +167,54 @@ def test_o_exemplo_do_b1_compila_SEM_AVISO_e_sai_o_prometido(d):
 # E NÃO libera cadeia nenhuma
 # --------------------------------------------------------------------------
 
-def test_ampliar_o_b1_nao_mexe_no_inventario():
+def test_liberar_o_b1_foi_decisao_separada_de_escrever_o_cartao():
     """A liberação é decisão à parte, depois da auditoria do conteúdo
-    final. Escrever o cartão não é auditá-lo — foi assim no B3 e é assim
-    aqui."""
-    assert conceitos.status("comparacao_de_ponteiros") == conceitos.SO_AVALIADO
+    final. Escrever o cartão não é auditá-lo — foi assim no B3 e foi
+    assim aqui.
+
+    ESTE TESTE AFIRMAVA `so_avaliado` ATÉ 12/11/2026, e mudar hoje é o
+    trabalho dele. O material estava escrito desde 05/11; o que faltava
+    era a decisão, e o dono a tomou.
+
+    O QUE ELE GUARDA AGORA é que a decisão foi tomada INTEIRA. Os três
+    campos andam juntos — `status`, `evidencia.cartoes` e
+    `evidencia.tipo` —, e a entrada registra a aprovação com data. Em
+    11/11/2026 eu mexi só no `status`, sem autoridade e sem os outros
+    dois, e dezesseis testes caíram dizendo isso de dezesseis maneiras.
+    """
+    cru = conceitos.carrega()["comparacao_de_ponteiros"]
+    assert conceitos.status("comparacao_de_ponteiros") == conceitos.DISPONIVEL
+    assert conceitos.cartoes("comparacao_de_ponteiros") == ("kc_02:B1",)
+    assert cru["evidencia"]["tipo"] == "explicacao_com_exemplo"
+    assert "12/11/2026" in cru["evidencia"].get("aprovacao", ""), (
+        "promoção sem registro de aprovação: a data é o que separa "
+        "decisão de acidente")
+    assert "pendente" not in cru["evidencia"], (
+        "a decisão foi tomada e o campo que a chamava de pendente ficou")
 
 
-def test_nenhuma_cadeia_esta_liberada(d):
-    """Afirmava o contrario ate a auditoria do degrau 3.
+def test_as_duas_cadeias_liberadas_continuam_sem_rodar(d):
+    """O inventário abriu duas cadeias, e o portão pedagógico as segura.
 
-    A `pointer_and_target_are_one` estava liberada porque declarava
-    menos do que exigia. Com o requisito declarado, o portao a fechou —
-    e e isso que um portao faz quando a declaracao melhora.
+    AFIRMAVA QUE NENHUMA ESTAVA LIBERADA, e deixou de valer em
+    12/11/2026, quando `comparacao_de_ponteiros` foi promovido: as duas
+    cadeias que o exigiam passaram a ter todos os conceitos ensinados.
+
+    E NENHUMA DAS DUAS RODA, que é o que importa para quem usa o
+    sistema. São DUAS autorizações independentes, e `Dominio.descida`
+    exige as duas: `liberada` diz que o currículo ensinou o que a cadeia
+    precisa, `aprovada` diz que ALGUÉM revisou aquela sequência. A
+    `pointer_and_target_are_one` está reprovada e a `pointer_is_data`
+    está em revisão.
+
+    O comentário de `Dominio.descida` previu este dia com todas as
+    letras: "liberar `comparacao_de_ponteiros` abriria duas cadeias de
+    uma vez, e uma delas reprova em três das cinco perguntas da
+    revisão".
     """
     liberadas = sorted(c for c, de in d.descidas.items() if de.liberada)
-    assert liberadas == [], liberadas
+    assert liberadas == ["pointer_and_target_are_one", "pointer_is_data"],         liberadas
+    for c in liberadas:
+        assert d.descida(c) is None, (
+            "a cadeia %s passou os dois portões e vai RODAR para o "
+            "participante — se é isso que se quer, é outra decisão" % c)

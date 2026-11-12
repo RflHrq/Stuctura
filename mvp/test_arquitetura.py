@@ -554,19 +554,19 @@ def test_o_requer_da_descida_fala_o_vocabulario_do_inventario():
 # O SEGUNDO TÓPICO É O QUE IMPORTA AQUI: enquanto só o kc_02 declarava,
 # "histórico individual" e "histórico de um tópico" eram a mesma coisa.
 # Com dois, a travessia passa a ter o que atravessar.
-# SOBE PARA 8 NO KC_02 NO DIA EM QUE O `comparacao_de_ponteiros` FOR
-# PROMOVIDO. O cartão `kc_02:B1` o ensina desde 05/11/2026, e o
-# inventário o segura em `so_avaliado` porque a liberação é decisão do
-# dono, tomada depois da auditoria do conteúdo. Um conceito a mais
-# declarado no cartão é uma oportunidade a mais no log — então este
-# número e os de `TRAJETORIAS` sobem juntos, e só então.
+# SUBIU PARA 8 NO KC_02 EM 12/11/2026, com a promoção do
+# `comparacao_de_ponteiros`. O cartão `kc_02:B1` o ensinava desde
+# 05/11, e o que segurava era a decisão do dono — tomada hoje. Um
+# conceito a mais declarado no cartão é uma oportunidade a mais no log,
+# e por isso este número e os de `TRAJETORIAS` subiram juntos, como
+# estava escrito aqui que subiriam.
 #
 # O KC_06 ENTROU EM 12/11/2026, com UMA: a do `funcao_com_parametro` no
 # B1, com a assinatura dos seis materiais do tópico. É o TERCEIRO
 # tópico a aparecer aqui, e o primeiro cujo cartão declarado fica na
 # ABERTURA — o B1 é nó observável, então a oportunidade é de quem entra
 # no tópico, e não só de quem declara lacuna.
-OPORTUNIDADES = {"kc_02": 7, "kc_06": 1, "kc_07": 1}
+OPORTUNIDADES = {"kc_02": 8, "kc_06": 1, "kc_07": 1}
 
 # O HISTÓRICO CONCEITUAL DE CADA PERSONA no kc_02, medido. São três
 # trajetórias de aprendizagem diferentes, e o log passou a contá-las por
@@ -583,17 +583,17 @@ OPORTUNIDADES = {"kc_02": 7, "kc_06": 1, "kc_07": 1}
 # três linhas fossem iguais, o log estaria registrando o currículo e não
 # a pessoa.
 #
-# OS NÚMEROS SOBEM PARA 8 (e 16) junto com o `OPORTUNIDADES` acima,
-# quando o `comparacao_de_ponteiros` for promovido. O que este teste
-# guarda não são os números: é que as três linhas continuem DIFERENTES
-# entre si.
+# SUBIRAM PARA 8 (e 16) EM 12/11/2026, junto com o `OPORTUNIDADES`
+# acima e pelo mesmo motivo — e era isto que esta nota previa, nestas
+# palavras. O que este teste guarda não são os números: é que as três
+# linhas continuem DIFERENTES entre si, e continuam.
 TRAJETORIAS = {
-    "acerta": {"conceito_apresentado": 7, "conceito_diagnosticado": 14,
-               "conceito_confirmado": 7},
-    "crente": {"conceito_apresentado": 7, "conceito_diagnosticado": 7,
-               "conceito_revisitado": 7, "conceito_confirmado": 7},
-    "nao_sabe": {"conceito_apresentado": 7, "conceito_diagnosticado": 14,
-                 "conceito_revisitado": 7},
+    "acerta": {"conceito_apresentado": 8, "conceito_diagnosticado": 16,
+               "conceito_confirmado": 8},
+    "crente": {"conceito_apresentado": 8, "conceito_diagnosticado": 8,
+               "conceito_revisitado": 8, "conceito_confirmado": 8},
+    "nao_sabe": {"conceito_apresentado": 8, "conceito_diagnosticado": 16,
+                 "conceito_revisitado": 8},
 }
 
 

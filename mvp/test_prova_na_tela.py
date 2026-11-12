@@ -87,18 +87,18 @@ def test_a_evidencia_do_i2_tem_as_duas_metades(d):
 def test_o_portao_recusa_programa_com_construto_nao_ensinado(d):
     """A trava, e ela tem de recusar casos reais — não só existir.
 
-    Em 11/11/2026, cinco das oito demonstrações do kc_02 usam construto
-    sem cartão que o ensine neste tópico: `funcao_com_parametro` (B1, I3),
-    `ponteiro_de_ponteiro` (B2), `array` (I2, ensinado em kc_07:B1, um
-    tópico POSTERIOR) e `comparacao_de_ponteiros` (a segunda do B1).
+    Em 11/11/2026, cinco das nove demonstrações do kc_02 usavam
+    construto sem cartão que o ensinasse neste tópico:
+    `funcao_com_parametro` (B1, I3), `ponteiro_de_ponteiro` (B2),
+    `array` (I2, ensinado em kc_07:B1, um tópico POSTERIOR) e
+    `comparacao_de_ponteiros` (a segunda do B1).
 
-    A ÚLTIMA É A QUE ESTÁ A UMA ASSINATURA DE DISTÂNCIA, e é por isso
-    que ela está nomeada aqui: o cartão do `kc_02:B1` ENSINA comparação
-    de endereços desde 05/11, e o que a barra não é falta de material —
-    é o inventário segurar o conceito em `so_avaliado` até o dono
-    auditar. Escrevi aquela demonstração contando com uma promoção que
-    eu mesmo tinha feito sem autoridade para fazer; ela fica, conferida
-    pelo oráculo, esperando a decisão.
+    SÃO QUATRO DESDE 12/11/2026. A última estava a uma assinatura de
+    distância — o cartão do `kc_02:B1` ENSINA comparação de endereços
+    desde 05/11, e o que a barrava era o inventário segurar o conceito
+    até o dono auditar. O dono auditou, e `B1[1]` saiu desta lista e foi
+    para a tela. Era a única das cinco nessa situação; as outras quatro
+    precisam de material que não existe.
 
     Se este teste parar de recusar, ou alguém ensinou o construto — e aí
     o número desce declarado — ou o portão quebrou.
@@ -111,8 +111,7 @@ def test_o_portao_recusa_programa_com_construto_nao_ensinado(d):
     assert bloqueadas, (
         "o portão não recusou nenhuma demonstração. Ou todo construto "
         "passou a ser ensinado, ou `exibivel` parou de olhar.")
-    assert bloqueadas == ["B1[0]", "B1[1]", "B2[0]", "I2[0]", "I3[0]"], (
-        bloqueadas)
+    assert bloqueadas == ["B1[0]", "B2[0]", "I2[0]", "I3[0]"], bloqueadas
 
 
 def test_o_portao_aceita_programa_sem_construto_novo(d):

@@ -47,8 +47,12 @@ from mvp.motor import Resposta
 DOMINIO = pathlib.Path(__file__).resolve().parent / "dominio"
 
 # O que o kc_02 declara, medido em `conceitos.yaml`.
+#
+# O B1 ganhou um TERCEIRO em 12/11/2026: o `comparacao_de_ponteiros`
+# foi promovido, e a ampliação que o ensina está nesse cartão desde
+# 05/11.
 NA_ABERTURA = {
-    "kc_02:B1": ("endereco", "operador_endereco"),
+    "kc_02:B1": ("comparacao_de_ponteiros", "endereco", "operador_endereco"),
     "kc_02:B2": ("operador_endereco", "ponteiro", "sizeof"),
     "kc_02:B3": ("derreferencia", "operador_endereco"),
 }
@@ -291,14 +295,16 @@ def test_sem_declaracao_o_primeiro_contato_fica_calado():
 # A sessão inteira
 # --------------------------------------------------------------------------
 
-def test_a_sessao_do_kc02_grava_as_sete_oportunidades(d):
-    """Sete eventos na abertura: dois no B1, três no B2, dois no B3.
+def test_a_sessao_do_kc02_grava_as_oito_oportunidades(d):
+    """Oito eventos na abertura: TRÊS no B1, três no B2, dois no B3.
 
     O número é o que a auditoria liberou, e cai quando o inventário
     mudar — promover conceito novo é promover oportunidade registrada.
+    Eram sete até 12/11/2026, e o oitavo é o `comparacao_de_ponteiros`
+    no B1: cair aqui foi o teste fazendo o que esta frase prometia.
     """
     eventos, _ = _abre(d)
-    assert len(_conceituais(eventos)) == 7
+    assert len(_conceituais(eventos)) == 8
 
 
 def test_pedir_de_novo_nao_grava_oportunidade_nova(d):
@@ -313,7 +319,9 @@ def test_pedir_de_novo_nao_grava_oportunidade_nova(d):
     t = motor.inicia(d)
     t = motor.avanca(d, t.estado, Resposta(texto="uma frase"))
     primeira = len(_conceituais(list(t.eventos)))
-    assert primeira == 2, [e.dados for e in _conceituais(list(t.eventos))]
+    # TRÊS desde 12/11/2026: o B1 passou a apresentar também o
+    # `comparacao_de_ponteiros`.
+    assert primeira == 3, [e.dados for e in _conceituais(list(t.eventos))]
     # Mesmo cartão, pedido de novo duas vezes.
     for _ in range(2):
         t = motor.avanca(d, t.estado, Resposta(repetir=True))
@@ -412,7 +420,7 @@ def test_a_linha_do_conceito_e_gravada_no_log(tmp_path, monkeypatch):
     linhas = [json.loads(x) for x in
               destino.read_text(encoding="utf-8").splitlines() if x.strip()]
     conceituais = [x for x in linhas if x.get("tipo") == "conceito_apresentado"]
-    assert len(conceituais) == 7, [x.get("tipo") for x in linhas]
+    assert len(conceituais) == 8, [x.get("tipo") for x in linhas]
     # `_linha` ACHATA o payload na linha, com os campos da casa
     # protegidos por sufixo. Nenhum campo deste evento colide — se algum
     # passar a colidir, ele sai como `conceito_dado` e este teste cai,

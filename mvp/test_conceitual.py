@@ -63,11 +63,16 @@ CARTOES_ESPERADOS = {
     "sizeof": ("kc_02:B2",),
     "array": ("kc_07:B1",),
     "funcao_com_parametro": ("kc_06:B1",),
+    "comparacao_de_ponteiros": ("kc_02:B1",),
 }
 
 # O mapa inverso, que é o que o evento vai consultar.
 CONCEITOS_POR_CARTAO = {
-    ("kc_02", "B1"): ("endereco", "operador_endereco"),
+    # O B1 passou a apresentar TRÊS em 12/11/2026: o
+    # `comparacao_de_ponteiros` foi promovido, e a ampliação que o ensina
+    # está nesse cartão desde 05/11.
+    ("kc_02", "B1"): ("comparacao_de_ponteiros", "endereco",
+                      "operador_endereco"),
     ("kc_02", "B2"): ("operador_endereco", "ponteiro", "sizeof"),
     ("kc_02", "B3"): ("derreferencia", "operador_endereco"),
     ("kc_07", "B1"): ("array",),

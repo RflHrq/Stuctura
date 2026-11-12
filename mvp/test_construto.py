@@ -168,9 +168,12 @@ def test_o_material_do_b1_existe_e_a_decisao_de_liberar_e_que_nao():
     esquecido; o `status` era uma decisão em aberto, segurada de
     propósito — e as duas coisas moravam na mesma entrada.
 
-    Este teste guarda a separação: o MATERIAL tem de existir, e o
-    `status` tem de continuar segurado enquanto ninguém auditar. Se o
-    dono promover, a segunda metade cai e aponta para si mesma.
+    O DONO PROMOVEU EM 12/11/2026, e a segunda metade deste teste caiu
+    apontando para si mesma, como estava escrito que cairia. O que ela
+    guarda agora é o outro lado da mesma separação: com a decisão
+    tomada, a entrada tem de DECLARAR o cartão — porque é `cartoes` que
+    o motor lê, e registro que fica para trás foi o defeito original
+    desta entrada.
     """
     d = carrega(topico="kc_02")
     exemplo = d.exemplo("B1") or ""
@@ -183,16 +186,18 @@ def test_o_material_do_b1_existe_e_a_decisao_de_liberar_e_que_nao():
 
     e = INVENTARIO["comparacao_de_ponteiros"]
     ev = e["evidencia"]
-    assert e["status"] == "so_avaliado", (
-        "o `comparacao_de_ponteiros` saiu de `so_avaliado`. Se foi o dono "
-        "promovendo depois de auditar, atualize este teste, o "
-        "`test_ampliar_o_b1_nao_mexe_no_inventario`, e os números de "
-        "OPORTUNIDADES e TRAJETORIAS em test_arquitetura.py — a lista está "
-        "no campo `pendente` da entrada.")
-    assert not ev.get("cartoes"), (
-        "entrada segurada não declara cartão: é `cartoes` que libera")
-    assert ev.get("pendente"), (
-        "a entrada segura o conceito e não diz o que falta para soltá-lo")
+    assert e["status"] == "disponivel", (
+        "o `comparacao_de_ponteiros` voltou a ficar segurado. Se a "
+        "liberação foi desfeita, desfaça junto o `cartoes`, o `tipo` e os "
+        "números de OPORTUNIDADES e TRAJETORIAS em test_arquitetura.py — "
+        "os cinco andam juntos.")
+    assert ev.get("cartoes") == ["kc_02:B1"], (
+        "entrada liberada sem declarar o cartão: é `cartoes` que o motor "
+        "lê, e foi registro ficando para trás que estragou esta entrada "
+        "da primeira vez")
+    assert "05/11/2026" in ev.get("aprovacao", "") or            "12/11/2026" in ev.get("aprovacao", ""), (
+        "liberação sem registro de quando: a data é o que separa decisão "
+        "de acidente")
 
 
 # Pares (cartão, construto) em que o EXEMPLO do cartão usa um construto
@@ -216,15 +221,16 @@ def test_o_material_do_b1_existe_e_a_decisao_de_liberar_e_que_nao():
 # quando o kc_06 ganhou material e o construto foi liberado, com
 # `kc_06:B1` como evidência. Foi material novo, e não detector mexido.
 #
-# OS OITO QUE SOBRAM, nomeados:
+# E DE 8 PARA 7 NO MESMO DIA, com a assinatura do
+# `comparacao_de_ponteiros`: aquele era o único dos oito a uma decisão
+# de distância, e o cartão do `kc_02:B1` já o ensinava desde 05/11.
 #
-#   kc_02:B1  comparacao_de_ponteiros  — o cartão já o ensina desde
-#             05/11; o que segura é a decisão, não o material. É o único
-#             dos oito a uma assinatura de distância.
-#   kc_03:B3  printf_ponteiro          — nem entrada tem
-#   kc_10:*   ponteiro_de_ponteiro     — os seis cartões do tópico,
+# OS SETE QUE SOBRAM precisam de material que não existe:
+#
+#   kc_03:B3  printf_ponteiro       — nem entrada no inventário tem
+#   kc_10:*   ponteiro_de_ponteiro  — os seis cartões do tópico,
 #             `so_avaliado`, e é o construto que dá nome a ele
-USA_SEM_ENSINAR = 8
+USA_SEM_ENSINAR = 7
 
 
 def test_quantos_cartoes_usam_construto_que_ninguem_ensina():

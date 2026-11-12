@@ -175,13 +175,13 @@ conceitos:
     # que a entrada inteira estava esquecida — mas só o TEXTO estava. O
     # `status` era uma decisão em aberto, e dezesseis testes caíram
     # dizendo isso de dezesseis maneiras.
-    status: so_avaliado
-    introduzido_em: ""
-    # `cartoes` FICA DE FORA enquanto o status estiver segurado: é essa
-    # chave que `conceitos.cartoes()` lê, e preenchê-la libera o
-    # conceito por outro caminho. Declarar o cartão aqui embaixo, em
-    # prosa, registra o fato sem tomar a decisão.
+    # PROMOVIDO EM 12/11/2026, por decisão do dono. O material estava
+    # pronto desde 05/11 e a espera era pela auditoria, não por falta de
+    # conteúdo — o que segurava era a decisão, e ela foi tomada.
+    status: disponivel
+    introduzido_em: kc_02
     evidencia:
+      cartoes: ["kc_02:B1"]
       onde: "kc_02, cartão de ensino B1, campo `interpretation` e exemplo"
       texto: >
         "O endereço serve para identificar: dois endereços iguais são o
@@ -193,27 +193,16 @@ conceitos:
         int idade = 20;
         int outra = 7;
         printf("%d\n", &idade == &outra); /* 0: lugares diferentes */
-      # `tipo` FICA `so_em_avaliacao` PELA MESMA RAZÃO do `cartoes`:
-      # `test_so_quem_tem_explicacao_declara_cartao` exige que os dois
-      # andem juntos — declarar que há explicação com exemplo É declarar
-      # o cartão, e declarar o cartão é liberar. O texto e o exemplo
-      # acima registram o material que existe; o `tipo` registra a
-      # decisão, que não é minha.
-      tipo: so_em_avaliacao
-      pendente: >
-        DECISÃO EM ABERTO, para o dono: promover a `disponivel`, com
-        `cartoes: [kc_02:B1]` e `tipo: explicacao_com_exemplo`, ou
-        manter segurado.
+      # `tipo` E `cartoes` ANDAM JUNTOS, e é isso que
+      # `test_so_quem_tem_explicacao_declara_cartao` guarda: declarar
+      # que há explicação com exemplo É declarar o cartão, e declarar o
+      # cartão é liberar. Os três campos mudaram na mesma decisão.
+      tipo: explicacao_com_exemplo
+      aprovacao: >
+        Liberado em 12/11/2026, por decisão do dono, com o material que
+        já estava escrito desde 05/11/2026.
 
-        O TEXTO ANTERIOR DESTA ENTRADA ERA FALSO, e é só isso que mudou
-        em 11/11/2026. Ele dizia "nenhum cartão de ensino compara
-        ponteiros", e isso foi verdade até 05/11 — quando a auditoria da
-        cadeia liberada achou que a descida exigia comparação de
-        endereços sem ninguém ensinar, e o cartão do B1 ganhou a
-        ampliação que a ensina. O registro ficou para trás; a decisão
-        não, e as duas coisas estavam no mesmo campo.
-
-        O QUE A PROMOÇÃO DESTRAVA, medido em 11/11/2026:
+        O QUE A PROMOÇÃO DESTRAVOU, medido:
 
           duas cadeias de descida passam a `liberada` — a
             `pointer_is_data` e a `pointer_and_target_are_one`. NENHUMA
@@ -221,14 +210,12 @@ conceitos:
             segunda `reprovada`, e quem as segura passa a ser só o
             portão pedagógico;
           a segunda demonstração do `kc_02:B1` chega à tela de
-            refutação — hoje o portão de exibição a barra, e o nó fica
-            só com a demonstração que usa função com parâmetro, que
-            também está barrada;
+            refutação — o portão de exibição a barrava;
           o kc_02 passa de 7 para 8 conceitos apresentados, e os
             números de `OPORTUNIDADES` e `TRAJETORIAS` em
             `test_arquitetura.py` sobem junto.
 
-        O ALCANCE SERIA O DO CARTÃO, e não mais: a varredura exige `&` à
+        O ALCANCE É O DO CARTÃO, e não mais: a varredura exige `&` à
         esquerda — pega `&x == &y`, não pega `p == &x`. É exatamente o
         que o B1 ensina, e o comentário dele registra que `p == &x`
         "fica fora" porque `p` é do B2. Liberar mais que isso seria

@@ -294,22 +294,32 @@ def test_com_o_inventario_real_a_descida_nao_e_acionada(monkeypatch):
     monkeypatch.setattr(motor, "DESCIDA_LIGADA", True)
     d = carrega(topico="kc_02")
 
-    # O CONJUNTO LIBERADO, e hoje ele e VAZIO de novo.
+    # O CONJUNTO LIBERADO PELO INVENTARIO, que nao e o conjunto que roda.
     #
-    # Era {pointer_and_target_are_one} ate a auditoria achar que o
-    # degrau 3 dela dependia de comparacao de enderecos sem declarar —
-    # e que a comparacao que ele escrevia, `&p == &x`, nem compila
-    # limpo em C. Declarar o requisito real fechou a cadeia pelo
-    # proprio portao, sem ninguem tocar no inventario.
+    # Era vazio ate 12/11/2026, quando `comparacao_de_ponteiros` foi
+    # promovido e as duas cadeias que o exigiam passaram a ter todos os
+    # conceitos ensinados.
     #
-    # Voltar a zero nao e regressao: e a primeira vez que o conjunto
-    # vazio significa "nenhuma cadeia passou por auditoria COMPLETA",
-    # em vez de "o inventario esta vazio".
-    auditadas = set()
+    # E NENHUMA DAS DUAS RODA, que e o que o nome deste teste afirma.
+    # `liberada` e so a primeira das duas autorizacoes; a segunda e
+    # `aprovada`, da revisao pedagogica, e `Dominio.descida` exige as
+    # duas. A `pointer_and_target_are_one` esta reprovada e a
+    # `pointer_is_data` esta em revisao.
+    #
+    # A QUARTA FORMA DESTE TESTE, entao: o conjunto liberado e o medido,
+    # E nenhuma cadeia liberada atravessa o segundo portao. A terceira
+    # forma comparava liberado contra auditado como se fossem a mesma
+    # pergunta, e hoje elas se separaram.
+    liberadas_pelo_inventario = {"pointer_is_data",
+                                 "pointer_and_target_are_one"}
     liberadas = {c for c, de in d.descidas.items() if de.liberada}
-    assert liberadas == auditadas, (
-        "liberadas a mais: %s · bloqueadas que deveriam rodar: %s"
-        % (sorted(liberadas - auditadas), sorted(auditadas - liberadas)))
+    assert liberadas == liberadas_pelo_inventario, (
+        "liberadas a mais: %s · fechadas que deveriam abrir: %s"
+        % (sorted(liberadas - liberadas_pelo_inventario),
+           sorted(liberadas_pelo_inventario - liberadas)))
+    for c in liberadas:
+        assert d.descida(c) is None, (
+            "a cadeia %s atravessou os DOIS portoes: ela vai rodar" % c)
 
     def politica(tela, estado):
         if tela.tipo == "frase":

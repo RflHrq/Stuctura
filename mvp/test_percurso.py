@@ -178,11 +178,16 @@ def test_codigo_que_nao_existe_devolve_percurso_vazio(coleta):
 # --------------------------------------------------------------------------
 
 def test_o_percurso_diz_que_conceitos_a_pessoa_teve_oportunidade(coleta):
-    """As cinco liberações do inventário, todas do kc_02."""
+    """As seis liberações do kc_02.
+
+    Eram cinco até 12/11/2026, quando o `comparacao_de_ponteiros` foi
+    promovido: o cartão do B1 o ensina, e quem abre o tópico passa a ter
+    oportunidade dele também.
+    """
     p = historico.percurso("P20", [coleta])
     assert set(p.apresentados()) == {"endereco", "ponteiro",
                                      "operador_endereco", "derreferencia",
-                                     "sizeof"}
+                                     "sizeof", "comparacao_de_ponteiros"}
 
 
 def test_a_oportunidade_vem_com_o_cartao_e_a_versao_do_material(coleta):
@@ -222,13 +227,13 @@ def test_o_percurso_separa_apresentado_de_confirmado(coleta):
 def test_quem_declara_lacuna_tem_oportunidade_e_nao_tem_confirmacao(coleta):
     """O caso que mais importa para a tese, legível por conceito.
 
-    O P22 recebeu as CINCO oportunidades do kc_02, foi diagnosticado,
+    O P22 recebeu as SEIS oportunidades do kc_02, foi diagnosticado,
     revisitou na construção — e não confirmou nenhuma. Antes disto o log
     dizia isso por NÓ, e saber qual CONCEITO ficou sem confirmação
     exigia reler o `conceitos.yaml` e cruzar à mão.
     """
     q = historico.percurso("P22", [coleta])
-    assert len(q.apresentados()) == 5, sorted(q.apresentados())
+    assert len(q.apresentados()) == 6, sorted(q.apresentados())
     assert q.diagnosticados(), "não foi diagnosticado em nada"
     assert q.revisitados(), "declarou lacuna e não revisitou nada"
     assert q.confirmados() == {}, sorted(q.confirmados())
