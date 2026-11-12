@@ -1,0 +1,156 @@
+# Material de ensino do I1 do kc_08 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Primeiro nó de inferência: suporte em
+# `B2`, e a refutação percorre B2 -> I1.
+#
+# E A DERIVAÇÃO VEM DO B2 EM UMA LINHA: se o que malloc devolve é um
+# endereço, então existem duas coisas — a caixa que guarda o endereço e
+# o bloco que ele nomeia. Não é regra nova; é a contagem do que o B2
+# já descreveu.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE COMEÇA PELA PREMISSA
+#
+# `pointer_lives_in_heap` — "o ponteiro mora no heap porque aponta para
+# lá". Grade `L`, FAQ comp.lang.c 7.22, cuja resposta começa com a
+# premissa dita em cinco palavras:
+#
+#   "Remember that a pointer is different from what it points to."
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O endereço DA CAIXA de p comparado com o endereço
+#                    que está DENTRO dela: dois lugares distintos.
+#   outra rota       O ponteiro mudando de lote enquanto o primeiro
+#                    bloco continua lá, alcançado por outro ponteiro.
+#
+# O CASO RESOLVIDO É O QUE DERRUBA A CRENÇA DIRETO. Se o ponteiro
+# morasse no bloco, o lugar dele e o lugar apontado seriam o mesmo — e
+# a comparação diria que sim. Ela diz que não, e com isso a frase "ele
+# mora lá porque aponta para lá" não se sustenta.
+#
+# O QUE FICA FORA
+#
+#   quantas coisas existem depois do malloc -> `ciu_kc08_010`
+#   o que deixa de existir no fim de f      -> `ciu_kc08_011`
+#   retornar local contra retornar bloco    -> `ciu_kc08_012`, grau 3
+#   o que se perde depois de f              -> `ciu_kc08_t11`
+#   `int *q = p; p == q`                    -> `ciu_kc08_t12`
+#
+# O `t12` COPIA O PONTEIRO e pergunta quantos blocos existem; a outra
+# rota TROCA o ponteiro de lote e guarda o primeiro endereço em
+# separado. A diferença é o que se observa: lá, que dois ponteiros
+# iguais indicam um bloco; aqui, que mexer no ponteiro não mexe no
+# bloco.
+#
+# E NENHUMA DAS DUAS DEIXA BLOCO SEM DEVOLVER: os dois lotes da outra
+# rota são liberados, e o cartão que ensina a diferença entre as duas
+# coisas não pode ensinar pela forma que uma delas se esquece.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_08
+node: kc08:I1
+premissa: "O ponteiro é uma variável; o bloco é outra coisa."
+crenca_que_nega: pointer_lives_in_heap
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO do B2.
+ampliacao: >
+  Isto não é regra nova: é a contagem do que o B2 descreveu. Se o que
+  volta de malloc é um endereço, então ele precisa de uma caixa para
+  ficar guardado — e o bloco que ele nomeia é outra coisa, em outro
+  lugar. Duas coisas, sempre.
+
+  A caixa do ponteiro é uma variável comum. Se você a declarou dentro
+  de uma função, ela vive o que a função viver, como qualquer local: no
+  fim da chamada ela some. O bloco não — ele foi pedido ao alocador, e
+  a vida dele segue outra regra.
+
+  Por isso as duas podem se separar. O ponteiro pode receber outro
+  endereço e passar a indicar outro bloco; pode receber NULL e não
+  indicar nada. Em nenhum desses movimentos o bloco original se mexe —
+  e se mais ninguém guardou o endereço dele, ele continua existindo
+  sem que ninguém saiba chegar lá.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p = malloc(4);   /* a caixa de p: na pilha */
+  /* o bloco: no monte */
+
+
+# O CASO RESOLVIDO: o lugar da caixa e o lugar do lote.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *p = malloc(sizeof(int));
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 5;
+      printf("a caixa de p e o lote dela sao lugares diferentes? %d\n",
+             (void *) &p != (void *) p);
+      printf("e pelo lote chego em %d\n", *p);
+      free(p);
+  - prosa: "Pergunta: a comparação põe lado a lado duas coisas. Quais?"
+  - prosa: >
+      O endereço da caixa de p — onde p mora — e o endereço que está
+      dentro dela — onde o bloco mora. São duas perguntas diferentes
+      sobre o mesmo ponteiro, e as respostas não são o mesmo número.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a caixa de p e o lote dela sao lugares diferentes? 1
+      e pelo lote chego em 5
+  - prosa: >
+      Lugares diferentes. Se o ponteiro morasse no bloco que ele indica,
+      as duas perguntas teriam a mesma resposta — e a comparação diria
+      zero.
+
+
+# A OUTRA ROTA: o ponteiro muda de lote, o lote fica.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Mande o ponteiro para outro lote e veja o que
+      acontece com o primeiro.
+  - codigo: |
+      int *p = malloc(sizeof(int));
+      int *guarda = NULL;
+      int *segundo = NULL;
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 1;
+      guarda = p;
+      segundo = malloc(sizeof(int));
+      if (segundo == NULL) {
+          free(p);
+          return 1;
+      }
+      *segundo = 2;
+      p = segundo;
+      printf("p passou a indicar o segundo lote: %d\n", *p);
+      printf("e o primeiro continua la, pelo guarda: %d\n", *guarda);
+      free(guarda);
+      free(segundo);
+  - prosa: >
+      A linha p = segundo mexe numa caixa de ponteiro, e em mais nada.
+      O endereço do primeiro lote tinha sido copiado para guarda antes
+      disso.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      p passou a indicar o segundo lote: 2
+      e o primeiro continua la, pelo guarda: 1
+  - prosa: >
+      O um continua onde estava. Mexer no ponteiro não mexe no bloco —
+      são duas coisas, e a atribuição alcançou só uma delas.

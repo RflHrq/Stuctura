@@ -1,0 +1,162 @@
+# Material de ensino do B1 do kc_08 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_08 tem ampliação VAZIA nos seis
+# nós.
+#
+# E ELE SÓ PÔDE SER ESCRITO DEPOIS DE UM CONSERTO NA FERRAMENTA:
+# `revisa_material._monta` montava o programa de conferência com
+# `#include <stdio.h>` e mais nada, e o oráculo respondia `implicit
+# declaration of function 'malloc'` a qualquer cartão que demonstrasse
+# alocação. Um tópico inteiro sobre alocação não tinha como ter
+# material. O montador passou a dar `stdlib.h` também, e há teste
+# guardando isso.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE É A PERGUNTA COM O ERRO DENTRO
+#
+# `malloc_conta_elementos` — "malloc(n) reserva n elementos do tipo, e
+# não n bytes". Grade `L`, FAQ comp.lang.c 7.19b:
+#
+#   "I'm dynamically allocating an array, like this: int *iarray =
+#   (int *)malloc(nints); malloc isn't returning NULL, but the code
+#   isn't working."
+#
+# O "malloc isn't returning NULL" é a parte cruel: o pedido dá certo, e
+# o bloco é pequeno demais. O erro não aparece na linha que o causou.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Quatro ints pedidos com a multiplicação, escritos
+#                    e lidos de volta: a conta é o que compra o espaço.
+#   outra rota       O MESMO número de elementos em dois tipos, e os
+#                    dois pedidos saindo de tamanhos diferentes.
+#
+# POR QUE NENHUMA DAS DUAS MOSTRA O PEDIDO PEQUENO DEMAIS. Escrever
+# além do bloco é comportamento indefinido, e um cartão não demonstra
+# erro cometendo-o — o `ciu_kc08_002` mostra esse código e pergunta por
+# que não funciona, que é o que um item pode fazer: ele não executa.
+#
+# E NENHUMA AFIRMA QUANTOS BYTES UM INT TEM. A outra rota compara os
+# dois pedidos entre si — o de ints é maior que o de chars —, e
+# comparação entre tamanhos vale em qualquer máquina. Dizer "quatro"
+# seria fato sobre esta.
+#
+# O QUE FICA FORA
+#
+#   `malloc(nints)` e o acesso que falha -> `ciu_kc08_002`
+#   `malloc(n)` contra `malloc(n * sizeof(int))` -> `ciu_kc08_003`
+#   `malloc(strlen(t) + 1)` e o sizeof(char) -> `ciu_kc08_t02`
+#   quantos ints cabem em cada um        -> `ciu_kc08_t03`
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_08
+node: kc08:B1
+premissa: "malloc(n) pede n bytes ao alocador."
+crenca_que_nega: malloc_conta_elementos
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que o número significa, o que o alocador não sabe, e
+# de quem é a conta.
+ampliacao: >
+  O número que você passa a malloc é uma quantidade de bytes. Não de
+  elementos, não de posições: bytes. malloc(10) reserva dez bytes, e o
+  que você vai guardar neles é assunto seu.
+
+  O alocador não sabe o tipo. Ele recebe um número e devolve um bloco
+  daquele tamanho — a mesma chamada serve para dez letras, para dois
+  números grandes ou para qualquer outra coisa que caiba em dez bytes.
+  Não há no pedido nenhuma informação sobre o que vai morar ali.
+
+  Por isso a conta é sua. Para guardar n elementos de um tipo, o que se
+  pede é n vezes o tamanho daquele tipo — e sizeof é quem responde esse
+  tamanho. Esquecer a multiplicação não dá erro no pedido: o bloco vem,
+  menor do que você precisa, e o problema aparece longe dali.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  malloc(10);                /* dez BYTES */
+  malloc(10 * sizeof(int));  /* dez ints */
+
+
+# O CASO RESOLVIDO: a multiplicação comprando o espaço.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *v = malloc(4 * sizeof(int));
+      int i = 0;
+      int soma = 0;
+
+      if (v == NULL) {
+          return 1;
+      }
+      while (i < 4) {
+          v[i] = i + 1;
+          i = i + 1;
+      }
+      i = 0;
+      while (i < 4) {
+          soma = soma + v[i];
+          i = i + 1;
+      }
+      printf("os quatro ints couberam, e somam %d\n", soma);
+      free(v);
+  - prosa: "Pergunta: por que o pedido tem uma multiplicação, se eu quero quatro números?"
+  - prosa: >
+      Porque o pedido é em bytes, e quatro números não são quatro
+      bytes. A multiplicação é a tradução entre o que você quer —
+      quatro elementos — e o que malloc entende: uma quantidade de
+      bytes. Quem faz essa tradução é você.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      os quatro ints couberam, e somam 10
+  - prosa: >
+      Um mais dois mais três mais quatro. As quatro posições existiram
+      porque o pedido levou em conta o tamanho de cada uma — sem a
+      multiplicação, o bloco teria vindo do mesmo jeito, e menor.
+
+
+# A OUTRA ROTA: o mesmo número de elementos, dois tipos.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Peça a mesma QUANTIDADE de elementos para dois
+      tipos diferentes.
+  - codigo: |
+      int quantos = 3;
+      char *letras = malloc(quantos * sizeof(char));
+      int *numeros = malloc(quantos * sizeof(int));
+
+      if (letras == NULL || numeros == NULL) {
+          return 1;
+      }
+      letras[2] = 'c';
+      numeros[2] = 300;
+      printf("tres letras cabem, e a ultima e %c\n", letras[2]);
+      printf("tres ints cabem, e o ultimo e %d\n", numeros[2]);
+      printf("e o pedido maior foi o dos ints? %d\n",
+             quantos * (int) sizeof(int) > quantos * (int) sizeof(char));
+      free(letras);
+      free(numeros);
+  - prosa: >
+      Os dois pedidos guardam três elementos. O número que vai dentro
+      dos parênteses não é o mesmo nos dois, e a última linha compara
+      os dois pedidos entre si.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      tres letras cabem, e a ultima e c
+      tres ints cabem, e o ultimo e 300
+      e o pedido maior foi o dos ints? 1
+  - prosa: >
+      Mesma quantidade de elementos, pedidos de tamanhos diferentes. Se
+      o número passado a malloc fosse a quantidade de elementos, os dois
+      pedidos seriam idênticos — e um dos dois blocos não teria onde
+      guardar o que guardou.

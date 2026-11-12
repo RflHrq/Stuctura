@@ -110,6 +110,30 @@ def test_o_montador_poe_definicao_de_funcao_no_escopo_de_arquivo():
     assert "void f(int n)" in antes_do_main, prog
 
 
+def test_o_montador_da_ao_fragmento_os_cabecalhos_que_ele_precisa():
+    """Material nenhum podia demonstrar alocacao ate 12/11/2026.
+
+    `_monta` montava o programa de conferencia com `#include <stdio.h>`
+    e mais nada, e o oraculo respondia `implicit declaration of
+    function 'malloc'` a qualquer cartao que a usasse. O kc_08 inteiro
+    e sobre alocacao, e o `kc_03:I3` teve de trocar uma das origens de
+    endereco por causa disto -- esta registrado no cabecalho dele.
+
+    O FRAGMENTO NAO E UM PROGRAMA. Ele e um trecho que, num programa de
+    verdade, viria depois dos cabecalhos; quem monta o programa de
+    conferencia e que tem de fornece-los. Dar `stdlib.h` nao afrouxa
+    nada: nenhum erro de material fica escondido por um cabecalho a
+    mais.
+    """
+    import sys
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve()
+                           .parent.parent / "scripts"))
+    from revisa_material import _monta
+
+    prog = _monta(["char *b = malloc(1);\nfree(b);\n"])
+    assert "stdlib.h" in prog, prog
+
+
 def test_main_sem_parametro_nunca_conta():
     """`int main(void)` aparece em todo programa, e não ensina nada."""
     for codigo in ("int main(void)\n{\n    return 0;\n}\n",

@@ -1,0 +1,176 @@
+# Material de ensino do I2 do kc_08 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Suporte em `B2`, e a refutação percorre
+# B2 -> I2.
+#
+# E A DERIVAÇÃO VEM DAQUELE "OU": o B2 diz que malloc devolve o
+# endereço do bloco OU NULL. Se há duas respostas possíveis, saber qual
+# delas chegou é condição para usar o que chegou. Não é regra nova; é a
+# segunda metade do B2, levada a sério.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A PROCEDÊNCIA DELA É `N`
+#
+# `malloc_always_succeeds` — "verificar NULL após malloc é
+# desnecessário, porque malloc sempre funciona". Grade `N`: CERT C
+# MEM52-C, "Detect and handle memory allocation errors"; CWE-252,
+# "Unchecked Return Value".
+#
+# A NORMA CATALOGOU O ERRO, E NÃO A CRENÇA, e é por isso que a
+# procedência é `N` e não `D`. O que as duas fontes atestam é que o
+# erro é frequente o bastante para ter nome e número — não o que passa
+# pela cabeça de quem o comete. A frase da crença é transposição nossa,
+# e o catálogo a declara assim. É a mesma situação do `kc_05:I3`.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Uma função que pede e devolve NULL quando não dá,
+#                    chamada duas vezes: uma com pedido comum e outra
+#                    com pedido grande demais.
+#   outra rota       O guarda no lugar: o pedido falha, a escrita não
+#                    acontece, e o programa segue para contar.
+#
+# O PEDIDO IMPOSSÍVEL É CALCULADO RODANDO, nas duas, e isso não é
+# estilo: com a constante enorme à vista o gcc responde
+# `-Walloc-size-larger-than` e o aviso invalidaria a demonstração.
+# Calculado em execução, o pedido é o mesmo e o compilador não tem o
+# que avisar. A mesma decisão está na evidência deste nó, no grafo.
+#
+# E A FALHA É REAL, NÃO SIMULADA. Nenhuma das duas finge um retorno
+# NULL: as duas pedem mais memória do que existe e recebem a segunda
+# resposta de verdade. Era a única maneira de a demonstração ser sobre
+# o que acontece, e não sobre o que diríamos que acontece.
+#
+# O QUE FICA FORA
+#
+#   `malloc(1000000000)` e o acesso em seguida -> `ciu_kc08_014`
+#   com guarda contra sem guarda               -> `ciu_kc08_015`, grau 3
+#   para que serve o if                        -> `ciu_kc08_t14`
+#   o que falta na funcao `copia`              -> `ciu_kc08_t15`
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_08
+node: kc08:I2
+premissa: "Verificar NULL é necessário: falhar é resultado possível."
+crenca_que_nega: malloc_always_succeeds
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. Por que a falha existe, o que o teste compra, e por que
+# "nunca vi falhar" não é argumento.
+ampliacao: >
+  Pedir memória é pedir, e quem pede pode ouvir não. O alocador
+  trabalha com o que o sistema tem para dar, e isso não é infinito nem
+  igual todo dia. Quando não há como atender, ele responde NULL — e
+  essa é uma resposta regular, prevista, e não um defeito.
+
+  Por isso o teste não é precaução: é a leitura da resposta. Entre
+  pedir e usar há uma pergunta a fazer, e quem não a faz está tratando
+  as duas respostas possíveis como se fossem uma. Com NULL em p,
+  escrever em p[0] é mandar escrever onde não há lote.
+
+  E "nunca vi falhar" não diz nada sobre o programa. Pedidos pequenos,
+  numa máquina com memória sobrando, quase sempre são atendidos — e é
+  por isso que o erro atravessa testes inteiros sem aparecer. Ele
+  aparece quando o pedido cresce, ou quando a máquina está apertada,
+  que é justamente quando o programa precisava funcionar.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p = malloc(n);
+  if (p == NULL) return;   /* a outra resposta */
+
+
+# O CASO RESOLVIDO: as duas respostas, da mesma função.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *pede(size_t quanto)
+      {
+          int *bloco = malloc(quanto);
+
+          if (bloco == NULL) {
+              return NULL;
+          }
+          *bloco = 1;
+          return bloco;
+      }
+  - codigo: |
+      size_t enorme = 1;
+      int voltas = 0;
+      int *possivel = NULL;
+      int *impossivel = NULL;
+
+      while (voltas < 6) {
+          enorme = enorme * 1000;
+          voltas = voltas + 1;
+      }
+      possivel = pede(sizeof(int));
+      impossivel = pede(enorme);
+      printf("o pedido comum voltou utilizavel? %d\n", possivel != NULL);
+      printf("e o pedido grande demais voltou dizendo que nao deu? %d\n",
+             impossivel == NULL);
+      free(possivel);
+      free(impossivel);
+  - prosa: "Pergunta: a mesma função foi chamada duas vezes. Por que uma respondeu diferente da outra?"
+  - prosa: >
+      Porque o alocador respondeu diferente nas duas. A função não
+      escolheu nada: ela leu a resposta que recebeu e repassou. O
+      segundo pedido não é um erro de escrita — é um pedido que não
+      pode ser atendido, e o não chegou como NULL.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o pedido comum voltou utilizavel? 1
+      e o pedido grande demais voltou dizendo que nao deu? 1
+  - prosa: >
+      As duas respostas aconteceram no mesmo programa, na mesma
+      execução. Se malloc sempre funcionasse, a segunda linha não teria
+      como ser verdadeira — e ela é.
+
+
+# A OUTRA ROTA: o guarda no lugar.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Olhe o que o teste faz quando a resposta é a
+      segunda.
+  - codigo: |
+      size_t enorme = 1;
+      int voltas = 0;
+      int *bloco = NULL;
+      int escreveu = 0;
+      int seguiu = 0;
+
+      while (voltas < 6) {
+          enorme = enorme * 1000;
+          voltas = voltas + 1;
+      }
+      bloco = malloc(enorme);
+      if (bloco != NULL) {
+          bloco[0] = 1;
+          escreveu = 1;
+      }
+      seguiu = 1;
+      printf("o pedido falhou, e a escrita nao aconteceu? %d\n", escreveu == 0);
+      printf("e o programa seguiu depois disso? %d\n", seguiu);
+      free(bloco);
+  - prosa: >
+      O pedido falhou de verdade. A escrita estava escrita ali, dentro
+      do if, e não foi executada — e o programa continuou até as duas
+      linhas de saída.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o pedido falhou, e a escrita nao aconteceu? 1
+      e o programa seguiu depois disso? 1
+  - prosa: >
+      Sem aquele if, a mesma escrita teria sido executada com bloco
+      valendo NULL — mandar o 1 para um lote que não existe. O teste
+      não conserta a falha: ele faz o programa saber dela a tempo.

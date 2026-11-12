@@ -1,0 +1,153 @@
+# Material de ensino do B3 do kc_08 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. E É UM CARTÃO DE CONTEÚDO
+# INDETERMINADO, da mesma família do `kc_00:B3`, do `kc_03:B3` e do
+# `kc_03:I2`. Vale a regra daqueles:
+#
+#   NENHUMA DEMONSTRAÇÃO ESCRITA AQUI LÊ UM BLOCO RECÉM-PEDIDO.
+#
+# Ler para mostrar o que há dentro é exatamente o que o nó ensina a não
+# fazer. A evidência do nó no grafo resolve isso com a TERCEIRA FORMA
+# do contrato — o compilador diagnostica `'*b' may be used
+# uninitialized` e o programa não roda. Um cartão não tem essa forma,
+# então ele demonstra o que É demonstrável: que todo valor lido teve um
+# autor.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `malloc_initializes_zero` — "malloc inicializa a memória com zero".
+# Grade `L`, FAQ comp.lang.c 7.31: "What's the difference between
+# calloc and malloc? ... Is it safe to take advantage of calloc's
+# zero-filling?"
+#
+# A PERGUNTA DA FONTE É SOBRE calloc, e é dela que vem a forma da
+# crença: existe uma função que zera, e a existência dela é a prova de
+# que a outra não zera. O cartão diz isso na ampliação sem mostrar
+# calloc em código — o `ciu_kc08_009` compara as duas, e é lá que a
+# escolha se mede.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Uma soma dentro do bloco em que a primeira linha
+#                    escreve o zero: todo valor com autor.
+#   outra rota       Uma função que preenche o bloco antes de qualquer
+#                    leitura — a disciplina de quem pede.
+#
+# O `ciu_kc08_008` É A MESMA SOMA QUEBRADA, e o caso resolvido é a soma
+# certa. Não é o mesmo: o item mostra o defeito e pergunta por que a
+# conta pode sair errada; o cartão mostra a versão correta e nomeia o
+# que a linha `*soma = 0;` comprou.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_08
+node: kc08:B3
+premissa: "O bloco devolvido não tem conteúdo definido."
+crenca_que_nega: malloc_initializes_zero
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que o alocador faz e não faz, de onde vem a confusão,
+# e o que isso custa.
+ampliacao: >
+  O alocador reserva o espaço e para por aí. Ele não escreve nada
+  dentro: o que estiver naquele trecho de memória continua lá — sobra
+  do que o programa já fez, ou do que nunca usou. O padrão não promete
+  nada sobre esse conteúdo.
+
+  A confusão tem uma origem razoável, e ela é a própria biblioteca.
+  Existe uma função que zera o bloco ao entregá-lo, e justamente por
+  isso ela é outra função, com outro nome: se malloc já zerasse, não
+  haveria por que ter as duas.
+
+  Então o valor inicial é trabalho de quem pediu. Escrever em todas as
+  posições antes de ler qualquer uma não é zelo: é o que faz o
+  programa ter um resultado previsível. Somar dentro de um bloco
+  recém-pedido, sem pôr o zero antes, é partir de um número que
+  ninguém escolheu — e o programa pode acertar hoje e errar amanhã,
+  com o mesmo código.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p = malloc(sizeof(int));
+  *p;      /* sobra: ninguem limpou */
+
+
+# O CASO RESOLVIDO: a soma com autor.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *soma = malloc(sizeof(int));
+      int i = 0;
+
+      if (soma == NULL) {
+          return 1;
+      }
+      *soma = 0;
+      while (i < 5) {
+          *soma = *soma + i;
+          i = i + 1;
+      }
+      printf("a soma deu %d\n", *soma);
+      free(soma);
+  - prosa: "Pergunta: quais linhas deste trecho escreveram alguma coisa no bloco?"
+  - prosa: >
+      Seis: a do zero e as cinco do laço. A primeira é a que costuma
+      passar despercebida, porque parece redundante — e não é. Tire-a, e
+      a primeira soma parte do que estava no bloco, que ninguém
+      escolheu.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a soma deu 10
+  - prosa: >
+      Dez, que é zero mais um mais dois mais três mais quatro. O zero
+      está na conta, e ele entrou por uma linha escrita por alguém. Se
+      malloc zerasse o bloco, aquela linha seria dispensável — e em C
+      ela é o que segura o resultado.
+
+
+# A OUTRA ROTA: preencher antes de ler.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Olhe a ordem entre pedir, escrever e ler.
+  - codigo: |
+      void preenche(int *bloco, int n)
+      {
+          int i = 0;
+
+          while (i < n) {
+              bloco[i] = 7;
+              i = i + 1;
+          }
+      }
+  - codigo: |
+      int *v = malloc(3 * sizeof(int));
+
+      if (v == NULL) {
+          return 1;
+      }
+      preenche(v, 3);
+      printf("as tres posicoes foram escritas antes de lidas: %d %d %d\n",
+             v[0], v[1], v[2]);
+      free(v);
+  - prosa: >
+      Entre o pedido e a primeira leitura há uma passagem que escreve
+      em todas as posições. Nenhuma linha deste trecho lê o bloco antes
+      de ele ter sido preenchido.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      as tres posicoes foram escritas antes de lidas: 7 7 7
+  - prosa: >
+      Três setes, e os três vieram do laço. É essa a disciplina que um
+      bloco recém-pedido exige: o que você lê de lá é o que você
+      escreveu, e nada mais — porque sobre o que estava lá antes a
+      linguagem não diz nada.

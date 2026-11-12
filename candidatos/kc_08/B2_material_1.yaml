@@ -1,0 +1,140 @@
+# Material de ensino do B2 do kc_08 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O B1 disse o que se pede; este diz o que
+# volta.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `pointer_is_data` — "o ponteiro é o próprio dado: o que malloc
+# devolve é o bloco, não o endereço". Grade `T`, Sorva (2012), p. 360,
+# item 14: "A variable is (merely) a pairing of a name to a changeable
+# value (with a type). It is not stored inside the computer" (Sorva
+# 2008; Doukakis et al. 2007). A mesma crença nega o `kc_04:B3`.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   DOIS pedidos, dois lotes distintos: o que volta é
+#                    um endereço, e dois endereços diferentes são dois
+#                    lugares.
+#   outra rota       O que voltou COPIADO para outro ponteiro, e a
+#                    cópia chegando no mesmo bloco.
+#
+# O CASO RESOLVIDO COMPARA OS DOIS RETORNOS, e é isso que o distingue
+# dos itens: comparar só faz sentido entre valores. Se o que voltasse
+# fosse o bloco, não haveria dois números a comparar — haveria dois
+# blocos, e a pergunta "são diferentes?" não teria como ser escrita.
+#
+# O QUE FICA FORA
+#
+#   `*p = malloc(...)`                 -> `ciu_kc08_005`, e é o nó I3
+#                                         do kc_04 dito aqui
+#   `printf("%d", *p)` contra `%p`     -> `ciu_kc08_006`, degrau 3
+#   `*p = 7` e o 7 saindo              -> `ciu_kc08_t05`
+#   `printf("%d", p)`                  -> `ciu_kc08_t06`
+#
+# E NENHUMA DAS DUAS IMPRIME O ENDEREÇO. Três itens deste nó giram em
+# torno de `%p` e `%d`, e além disso `printf_ponteiro` é o construto
+# que o projeto acabou de tirar do último exemplo — ele não tem entrada
+# no inventário, e material que o usasse traria a dívida de volta.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_08
+node: kc08:B2
+premissa: "malloc devolve o endereço do bloco, ou NULL."
+crenca_que_nega: pointer_is_data
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que volta, onde isso fica guardado, e qual é a outra
+# resposta possível.
+ampliacao: >
+  O que malloc devolve é um endereço: o número do lote que ele
+  reservou. O bloco em si fica onde está — ele não é entregue, não é
+  copiado para dentro do seu ponteiro, não cabe ali. O que cabe é o
+  caminho até ele.
+
+  Por isso o ponteiro e o bloco são duas coisas. Em int *p =
+  malloc(4), a caixa de p guarda um endereço, e o bloco de quatro
+  bytes está em outro lugar. Para chegar ao conteúdo é preciso
+  viajar — e é isso que a estrela faz.
+
+  E há uma segunda resposta possível. Quando o pedido não pode ser
+  atendido, o que volta é NULL — um valor de ponteiro como o outro, e
+  que significa "não tem lote". As duas respostas chegam pelo mesmo
+  caminho e cabem na mesma caixa, e distinguir uma da outra é assunto
+  de outro nó deste tópico.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p = malloc(4);   /* em p: o endereco. Ou NULL. */
+
+
+# O CASO RESOLVIDO: dois pedidos, dois lotes.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *um = malloc(sizeof(int));
+      int *outro = malloc(sizeof(int));
+
+      if (um == NULL || outro == NULL) {
+          return 1;
+      }
+      *um = 10;
+      *outro = 20;
+      printf("dois pedidos, dois lotes diferentes? %d\n", um != outro);
+      printf("e cada um guarda o seu: %d e %d\n", *um, *outro);
+      free(um);
+      free(outro);
+  - prosa: "Pergunta: a terceira linha compara os dois. O que exatamente está sendo comparado?"
+  - prosa: >
+      Os dois números que vieram de malloc, guardados nas duas caixas de
+      ponteiro. Comparar é coisa que se faz com valores — se o que
+      tivesse voltado fosse o bloco, não haveria dois números para pôr
+      lado a lado.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dois pedidos, dois lotes diferentes? 1
+      e cada um guarda o seu: 10 e 20
+  - prosa: >
+      Dois endereços distintos, e cada um levando ao seu bloco. O que
+      voltou de cada pedido foi um número de lote; o conteúdo, o 10 e o
+      20, só apareceu depois, quando alguém escreveu lá.
+
+
+# A OUTRA ROTA: o endereço copiado.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Copie para outra caixa o que malloc devolveu.
+  - codigo: |
+      int *p = malloc(sizeof(int));
+      int *copia = NULL;
+
+      if (p == NULL) {
+          return 1;
+      }
+      copia = p;
+      *p = 42;
+      printf("escrevi por p, e li pela copia: %d\n", *copia);
+      free(p);
+  - prosa: >
+      Houve um pedido só, e portanto um bloco só. A linha do meio
+      duplicou o que estava em p — e o 42 foi escrito depois, por um
+      dos dois caminhos.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      escrevi por p, e li pela copia: 42
+  - prosa: >
+      A cópia chegou no mesmo lugar. Se o que malloc tivesse devolvido
+      fosse o bloco, copiá-lo daria dois blocos independentes, e o 42
+      escrito num não apareceria no outro. O que foi copiado era o
+      caminho.

@@ -81,6 +81,19 @@ FALA_DO_COMPILADOR = re.compile(
     r"compilador|error:|warning:|reclama|incompatible|conversion", re.I)
 POR_FALA = ("atribuicao_entre_tipos", "compilacao")
 
+# OS CABECALHOS QUE O PROGRAMA DE CONFERENCIA DA AO FRAGMENTO.
+#
+# O trecho de um cartao NAO E UM PROGRAMA: ele e o que, num programa de
+# verdade, viria depois dos includes. Quem monta a conferencia e que
+# tem de fornece-los.
+#
+# ERA SO `stdio.h` ATE 12/11/2026, e isso bloqueava material correto:
+# qualquer cartao que demonstrasse alocacao levava `implicit
+# declaration of function 'malloc'`. O kc_08 inteiro e sobre alocacao,
+# e o kc_03:I3 teve de trocar uma das origens de endereco por causa
+# disso. Dar `stdlib.h` nao esconde erro nenhum de material.
+CABECALHOS = "#include <stdio.h>" + NL + "#include <stdlib.h>"
+
 # Assinatura de função, para separar escopo de arquivo de statements.
 #
 # EXIGE DOIS NOMES ANTES DO PARÊNTESE — tipo E nome —, e é a mesma
@@ -120,7 +133,7 @@ def _recusa_obrigatoria(codigo: str | None) -> bool:
     for linha in codigo.splitlines():
         (arquivo if ASSINATURA.match(linha) else dentro).append(
             linha if ASSINATURA.match(linha) else "    " + linha)
-    prog = ("#include <stdio.h>" + NL + NL.join(arquivo) + NL
+    prog = (CABECALHOS + NL + NL.join(arquivo) + NL
             + "int main(void)" + NL + "{" + NL + NL.join(dentro) + NL
             + "    return 0;" + NL + "}" + NL)
     with tempfile.TemporaryDirectory() as tmp:
@@ -375,7 +388,7 @@ def _monta(fragmentos: list[str]) -> str:
             elif linha.strip():
                 dentro.append("    " + linha)
             k += 1
-    return ("#include <stdio.h>" + NL
+    return (CABECALHOS + NL
             + NL.join(arquivo) + NL
             + "int main(void)" + NL + "{" + NL
             + NL.join(dentro) + NL
