@@ -1,0 +1,185 @@
+# Material de ensino do I3 do kc_09 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Suporte em `I2`, e a refutação percorre
+# B3 -> I1 -> I2 -> I3.
+#
+# E A DERIVAÇÃO VEM DO I2: se p continua existindo com o mesmo valor,
+# então existe um estado que ninguém registrou — o lote foi devolvido e
+# o papel não diz isso. A anotação não acrescenta informação nova ao
+# programa: ela escreve, no único lugar possível, um fato que já é
+# verdade.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `null_after_free_redundant` — "atribuir NULL após free() é redundante,
+# porque free já cuida disso". Grade `L`, FAQ comp.lang.c 7.21
+# (resposta). A crença é o corolário de `free_nullifies`: quem acha que o
+# free zera o ponteiro acha que a linha seguinte não serve para nada.
+#
+# ISSO MUDA O QUE O CARTÃO TEM DE FAZER. A crença não é sobre o que o
+# free faz — é sobre a linha ser dispensável. Então a demonstração não é
+# "o free não zerou" (isso é o I1): é "esta linha compra alguma coisa".
+#
+# ---------------------------------------------------------------------
+# O LIMITE DA METÁFORA, E ELE É DECLARADO NO CABEÇALHO DESTE GRAFO
+#
+# A metáfora deste tópico é devolver o terreno, e onde ela quebra está
+# escrito: "a prefeitura anota que está livre" sugere que existe um aviso
+# que você pode consultar. Não existe — nada no programa avisa que o
+# papel ficou ruim. O cabeçalho do grafo diz, com estas palavras, que é
+# por isso que escrever NULL é VOCÊ mesmo anotando, e que isso é este nó.
+#
+# A AMPLIAÇÃO NÃO PODE FURAR ISSO. Em nenhum lugar ela diz que algo
+# avisa, que algo detecta, ou que o sistema sabe. O que ela diz é o
+# contrário: não há aviso, e é por isso que a anotação é sua.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   A guarda de sempre BARRANDO o uso, porque a
+#                    anotação tinha sido feita.
+#   outra rota       DOIS papéis para um lote: os dois precisam ser
+#                    anotados, e o free só soube de um.
+#
+# O CASO RESOLVIDO MOSTRA A LINHA COMPRANDO ALGO: o teste `p != NULL`,
+# que é o teste que todo mundo já escreve, passa a dizer a verdade — e
+# por isso impede o uso. Sem a anotação ele diria que p está bom. É a
+# compra que a crença nega.
+#
+# A OUTRA ROTA É A QUE NENHUM ITEM COBRE, e ela é a razão prática mais
+# forte do nó: um lote pode ter mais de um papel. O free recebeu um
+# endereço e devolveu um lote; ele não tem lista de quem mais guardou
+# aquele número. Quem anota os dois é quem sabe que os dois existem.
+#
+# E ELA NÃO LÊ NEM p NEM q DEPOIS DO free. Atribuir é legítimo; ler o
+# valor indeterminado não é. As duas atribuições de NULL vêm antes de
+# qualquer leitura, e a única leitura acontece depois delas.
+#
+# O QUE FICA FORA
+#
+#   para que serve p = NULL             -> `ciu_kc09_019`
+#   escrever NULL é redundante?         -> `ciu_kc09_t19`
+#   depois de qual das duas o teste
+#     diz a verdade                     -> `ciu_kc09_020`
+#   por que o teste funciona aqui       -> `ciu_kc09_t20`
+#   `n = NULL` dentro da função         -> `ciu_kc09_021`, degrau 3
+#   o campo de struct liberado          -> `ciu_kc09_t21`, degrau 3
+#
+# O `020` COMPARA AS DUAS SEQUÊNCIAS e pergunta depois de qual o teste
+# diz a verdade. O caso resolvido não compara: ele escreve a sequência
+# certa e mostra o teste CUMPRINDO o papel dele — barrando um uso que,
+# sem a anotação, teria sido liberado.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_09
+node: kc09:I3
+premissa: "Atribuir NULL a p é o que registra o estado."
+crenca_que_nega: null_after_free_redundant
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: aeeaf569390c
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO do I2; o segundo diz o
+# que a linha compra; o terceiro, de onde vem a ideia de que ela é
+# dispensável.
+ampliacao: >
+  Isto não é regra nova: é o I2 levado adiante. Se p continua existindo
+  com o número de um lote que já não é seu, então há um fato verdadeiro
+  que o programa não registrou em lugar nenhum. E não há nada no
+  programa que avise: nenhuma função pergunta, nenhum teste descobre,
+  nada acende. O estado existe e não está escrito.
+
+  A linha que escreve NULL é onde ele passa a estar escrito. Ela não
+  muda o lote nem desfaz a devolução — o que ela faz é pôr, na sua
+  variável, um valor que significa não aponto para lugar nenhum. Com
+  isso o teste que todo mundo já escreve passa a dizer a verdade, e um
+  uso indevido é barrado pela mesma guarda que você usaria de qualquer
+  jeito.
+
+  A ideia de que a linha é dispensável vem direto de achar que o free a
+  escreveu. Quem acredita que o free zera o ponteiro conclui, com
+  coerência, que escrever NULL depois é repetir trabalho feito. Desfeita
+  aquela crença, esta cai sozinha: não há trabalho feito para repetir, e
+  a linha é a única coisa no programa que registra o que aconteceu.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  free(p);
+  p = NULL;       /* a anotacao e sua */
+
+
+# O CASO RESOLVIDO: a guarda barrando o uso.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *p = malloc(sizeof(int));
+      int usou = 0;
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      free(p);
+      p = NULL;
+      if (p != NULL) {
+          usou = 1;
+      }
+      printf("com a anotacao feita, o teste barrou o uso? %d\n", usou == 0);
+      printf("e p esta em NULL porque uma linha sua o pos la? %d\n", p == NULL);
+  - prosa: "Pergunta: o que o teste da penúltima linha teria respondido se a anotação não estivesse ali?"
+  - prosa: >
+      Que p está bom. O teste olha o que há dentro de p, e sem a anotação
+      haveria o número do lote devolvido — um número de aparência
+      perfeitamente normal. A guarda deixaria passar, e o uso
+      aconteceria.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      com a anotacao feita, o teste barrou o uso? 1
+      e p esta em NULL porque uma linha sua o pos la? 1
+  - prosa: >
+      O uso não aconteceu. É isso que a linha compra: não proteção
+      mágica, e sim um valor que faz o teste de sempre dizer a verdade.
+      Sem ela o programa não fica sem guarda — fica com uma guarda que
+      responde errado, que é pior.
+
+
+# A OUTRA ROTA: dois papéis, duas anotações.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Quando um lote tem mais de um papel, conte quantas
+      anotações são necessárias.
+  - codigo: |
+      int *p = malloc(sizeof(int));
+      int *q = NULL;
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      q = p;
+      free(p);
+      p = NULL;
+      q = NULL;
+      printf("havia dois papeis para um lote, e os dois foram anotados? %d\n",
+             p == NULL && q == NULL);
+  - prosa: >
+      Houve um pedido, um lote e uma devolução. Mas duas variáveis
+      guardavam aquele endereço, e a devolução só passou por uma delas. A
+      outra ficou com o mesmo número, sem que nada a avisasse.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      havia dois papeis para um lote, e os dois foram anotados? 1
+  - prosa: >
+      Duas anotações para uma devolução. O free recebeu um endereço e
+      agiu sobre o lote; ele não tem como saber quantas variáveis do seu
+      programa guardavam aquele número, e não existe lista disso em
+      lugar nenhum. Quem sabe que há dois papéis é quem os escreveu — e é
+      por isso que a anotação não pode ser trabalho de outro.

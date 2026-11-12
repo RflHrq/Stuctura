@@ -3,11 +3,14 @@ topic: kc_09
 # TÓPICO-PILOTO, o terceiro a ficar pronto dos quatro que a coleta usa
 # (kc_02, kc_07, kc_11, kc_09).
 #
-# UMA PENDÊNCIA DE ORDEM, declarada: os pré-requisitos curados deste
-# tópico são [kc_08, kc_06], e o kc_08 (alocação dinâmica) ainda NÃO
-# existe. O motor carrega um tópico por processo, então isto não impede
-# nada tecnicamente — mas a ordem de ensino tem um buraco, e quem montar
-# a sessão da coleta precisa saber. Está em perguntas em aberto.
+# A PENDÊNCIA DE ORDEM QUE ESTAVA AQUI CAIU EM 12/11/2026. Ela dizia que
+# os pré-requisitos curados deste tópico são [kc_08, kc_06] e que o
+# kc_08 (alocação dinâmica) ainda NÃO existia. Ele existe, com os seis
+# nós, evidência nos seis e os seis cartões de ensino assinados — então
+# a ordem de ensino não tem mais buraco aqui. O kc_06 também está
+# completo. O que fica da observação antiga é o fato técnico: o motor
+# carrega um tópico por processo, e por isso a ordem é decisão de quem
+# monta a sessão, não do carregador.
 #
 # A METÁFORA DESTE TÓPICO: devolver o terreno, e o papel que fica na sua
 # mão.
@@ -103,6 +106,26 @@ nodes:
         espera: |-
           a copia carrega o mesmo endereco do bloco
           e devolver por ela bastou: free so precisava do endereco
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      A chamada de devolução leva um endereço, e nada mais. Você escreve
+      free e o número do lote; não há segundo argumento, não há tamanho,
+      não há contagem de elementos. A forma da chamada é a mesma para um
+      lote de um byte e para um de mil.
+
+
+      O tamanho existe, e quem o guarda é o alocador. Quando ele atendeu o
+      seu pedido, anotou nas contas dele quanto havia entregado naquele
+      endereço — e é dessas contas que ele lê na hora de receber o lote de
+      volta. Essas anotações não são suas, não estão no seu ponteiro, e
+      não há como consultá-las pelo programa.
+
+
+      Por isso a conta do tamanho continua sendo sua. Se o seu programa
+      precisa saber quantos elementos há num bloco, essa informação tem de
+      ser guardada por você, numa variável ao lado. O ponteiro traz o
+      endereço e o tipo de um elemento; quantos elementos cabem lá é coisa
+      que ele nunca carregou, e quem conta com isso descobre tarde.
   B2:
     type: observavel
     role: espinha
@@ -151,6 +174,27 @@ nodes:
         espera: |-
           dentro, o parametro passou a levar a outro lugar
           e fora, p continua levando ao mesmo: foi uma copia que viajou
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Em C, chamar uma função é copiar os argumentos. O que o parâmetro
+      recebe é o valor que você passou, numa caixa nova, que nasce na
+      chamada e morre no fim dela. Isso vale para número, vale para
+      ponteiro, e vale para a devolução de memória: free não é construção
+      especial da linguagem, é uma função como as suas.
+
+
+      A cópia carrega o valor, e no caso de um ponteiro o valor é o
+      endereço. É por isso que a função alcança o lote: ela tem o caminho
+      até ele, e escrever no destino é escrever no lote de quem chamou. O
+      endereço copiado leva ao mesmo lugar que o original — não é cópia do
+      lote, é cópia do caminho.
+
+
+      O que a cópia não faz é voltar. Se a função atribui algo ao próprio
+      parâmetro, mexe na caixa dela, que vai acabar — e a variável de quem
+      chamou não fica sabendo. Quem precisa que a variável de fora mude
+      tem de passar o endereço DELA, e não o valor dela. É a mesma regra,
+      lida do outro lado.
   B3:
     type: observavel
     role: espinha
@@ -192,6 +236,26 @@ nodes:
         espera: |-
           o lugar onde p esta guardado nao e o lugar que p indica
           e p e variavel de quem chamou: aceita outro valor quando se quer
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O ponteiro e o bloco são duas coisas, e ficam em dois lugares. A
+      caixa que guarda o endereço é uma variável comum, declarada por
+      você, no escopo em que você a escreveu; o bloco foi pedido ao
+      alocador e está onde ele o pôs. Devolver um não encosta no outro.
+
+
+      A confusão tem uma origem clara: o ponteiro só serve por causa do
+      bloco, e falamos dos dois como se fossem um — dizemos que o ponteiro
+      é o lote. Na prática, a caixa dele está na sua função, e vai acabar
+      quando a função acabar, como qualquer local; o bloco não acaba aí, e
+      é isso que o free existe para resolver.
+
+
+      Neste tópico a distinção decide tudo. A variável p é de quem chamou,
+      e nada que aconteça do lado do bloco a alcança. É daqui que sai a
+      resposta à pergunta mais feita sobre o free: ele recebeu o endereço
+      do bloco, pode agir no bloco, e não tem caminho nenhum até a sua
+      caixa.
   B4:
     type: observavel
     role: espinha
@@ -240,6 +304,29 @@ nodes:
           COMPILA — o padrão não exige recusa, exige diagnóstico — e não
           é executado aqui: executá-lo seria justamente o comportamento
           que a premissa diz não ter resultado previsível.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Devolver o bloco encerra o seu direito a ele. A partir daquela linha
+      o lote está à disposição do alocador, que pode entregá-lo ao próximo
+      pedido — com o conteúdo do próximo dono dentro. Não é que o bloco
+      desapareça: é que ele não é mais seu, e isso basta.
+
+
+      A ideia contrária tem uma origem documentada, e não é descuido:
+      documentação antiga de malloc dizia que o conteúdo da memória
+      liberada ficava intocado, e disso se concluiu que dava para
+      continuar lendo. O que aquela frase descrevia era o comportamento de
+      uma implementação, não uma garantia da linguagem — e é a garantia
+      que decide o que o seu programa pode fazer.
+
+
+      Por isso o estrago costuma vir calado. A linguagem não diz nada
+      sobre o que há no lote depois da devolução, e não dizer nada inclui
+      não impedir que pareça certo: um programa que lê dali pode rodar sem
+      reclamar hoje e falhar amanhã, com outra entrada, em outra máquina,
+      no dia em que aquele espaço tiver sido entregue a outro pedido. Erro
+      que às vezes funciona é mais difícil de achar que erro que nunca
+      funciona.
   I1:
     type: inferencia
     role: espinha
@@ -277,6 +364,27 @@ nodes:
         espera: |-
           dentro, o parametro virou NULL
           e fora, p nao virou: a troca ficou na copia
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o B2 e o B3 somados. O free recebeu uma
+      cópia do valor de p, e a caixa de p é uma variável de quem chamou.
+      Para escrever naquela caixa seria preciso ter o endereço dela — e
+      esse endereço nunca foi passado. O que viajou foi o número do lote,
+      não o lugar onde você o guarda.
+
+
+      A diferença entre não querer e não poder é toda a questão. Não há
+      decisão de projeto aqui: mesmo que o free quisesse limpar o seu
+      ponteiro, ele não teria por onde. Ele conhece o lote, pode
+      devolvê-lo, e não tem caminho nenhum até a sua variável. Qualquer
+      função em C está nessa situação com os argumentos que recebe por
+      valor.
+
+
+      Por isso o registro é obrigação de quem chamou. Depois da devolução,
+      a sua variável continua com o número de um lote que não é mais seu,
+      e nada no programa a corrige sozinha. Quem pode escrever ali é você,
+      na linha seguinte — e é esse o assunto do nó que vem depois.
   I2:
     type: inferencia
     role: espinha
@@ -315,6 +423,27 @@ nodes:
           }
         espera: |-
           depois do free, a variavel p aceitou um valor novo e respondeu
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o B3 e o I1 levados ao fim. A caixa de p é
+      sua, o free não tem caminho até ela, e então nada acontece com ela.
+      Depois da devolução, p é a mesma variável que era, no mesmo lugar,
+      com o conteúdo que tinha. O que mudou foi do outro lado: o lote.
+
+
+      A ideia contrária vem de confundir as duas coisas numa. Falamos
+      "liberei o ponteiro" quando liberamos o bloco, e a frase sugere que
+      a variável também foi embora — que ela deixou de existir, ou que foi
+      zerada, ou que usá-la daria erro na hora. Nada disso: o que o free
+      recebeu foi o número do lote, e é sobre o lote que ele agiu.
+
+
+      E é justamente a variável continuar viva que torna isto perigoso. Se
+      ela deixasse de existir, o compilador reclamaria no uso seguinte e o
+      erro apareceria cedo. Em vez disso ela está lá, com aparência boa, e
+      o programa que a usa compila e muitas vezes roda. O ponteiro que
+      continua apontando para um lote que não é mais seu tem nome, e é o
+      assunto da conclusão deste tópico.
   I3:
     type: inferencia
     role: espinha
@@ -364,6 +493,29 @@ nodes:
           }
         espera: |-
           o teste de sempre separou o devolvido do valido: sobrou um
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o I2 levado adiante. Se p continua
+      existindo com o número de um lote que já não é seu, então há um fato
+      verdadeiro que o programa não registrou em lugar nenhum. E não há
+      nada no programa que avise: nenhuma função pergunta, nenhum teste
+      descobre, nada acende. O estado existe e não está escrito.
+
+
+      A linha que escreve NULL é onde ele passa a estar escrito. Ela não
+      muda o lote nem desfaz a devolução — o que ela faz é pôr, na sua
+      variável, um valor que significa não aponto para lugar nenhum. Com
+      isso o teste que todo mundo já escreve passa a dizer a verdade, e um
+      uso indevido é barrado pela mesma guarda que você usaria de qualquer
+      jeito.
+
+
+      A ideia de que a linha é dispensável vem direto de achar que o free
+      a escreveu. Quem acredita que o free zera o ponteiro conclui, com
+      coerência, que escrever NULL depois é repetir trabalho feito.
+      Desfeita aquela crença, esta cai sozinha: não há trabalho feito para
+      repetir, e a linha é a única coisa no programa que registra o que
+      aconteceu.
   I4:
     type: inferencia
     role: conclusao
@@ -414,3 +566,27 @@ nodes:
           COMPILA — o padrão não exige recusa, exige diagnóstico — e não
           é executado aqui: executá-lo seria justamente o comportamento
           que a premissa diz não ter resultado previsível.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto é o fecho dos sete nós anteriores. A devolução levou só o
+      endereço, o lote deixou de ser seu, a sua variável continuou lá com
+      o número dele, e nada no programa registrou isso a não ser a linha
+      que você escreveu. Um ponteiro nessa situação tem nome: ele está
+      pendente. Não é um ponteiro ruim porque o número está errado — o
+      número está certo, e é justamente isso que o torna perigoso.
+
+
+      E usar quer dizer mais do que você espera. Não é só escrever ou ler
+      pelo ponteiro: copiá-lo para outra variável já é território sem
+      garantia, comparar o valor dele também, e devolvê-lo outra vez
+      também. A regra não fala do que você vai encontrar no lote — ela
+      fala do ponteiro: o valor que ele guarda deixou de designar objeto
+      válido, e mexer nesse valor é que está fora.
+
+
+      Por isso a disciplina é curta e vale sempre. Devolveu, anote na
+      mesma hora, em todos os papéis que guardavam aquele endereço; e
+      teste antes de usar. Com a anotação feita, a guarda de sempre dá
+      conta: ela barra o uso, barra a segunda devolução, e o programa
+      segue. Sem ela não há teste que ajude, porque o que há na variável
+      tem aparência de bom.

@@ -1,0 +1,189 @@
+# Material de ensino do I1 do kc_09 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Primeiro nó de inferência: suporte em
+# `B2` e `B3`, e a refutação percorre os dois antes de chegar aqui.
+#
+# E A DERIVAÇÃO É UMA SUBTRAÇÃO DE DOIS FATOS: o free recebeu uma CÓPIA
+# do valor de p (B2), e a caixa de p é de quem chamou (B3). Para alterar
+# p seria preciso o endereço DELA, e esse endereço não está entre os
+# argumentos. Não é regra nova sobre o free: é o que sobra dos dois nós
+# anteriores. A própria FAQ 7.21 responde assim.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `free_nullifies` — "p vira NULL depois de free()". Grade `L`, FAQ
+# comp.lang.c 7.21, cuja pergunta é a crença: por que o ponteiro não é
+# nulo depois de chamar free? A resposta dá a razão exata que este nó
+# afirma — o valor do ponteiro no chamador provavelmente permanece
+# inalterado, porque a semântica de passagem por valor de C faz com que
+# funções chamadas nunca mudem permanentemente o valor dos argumentos.
+#
+# "NEM SE QUISESSE" É A PARTE QUE O CARTÃO PRECISA CARREGAR. Não é que o
+# free deixe de limpar por opção de projeto: ele não tem caminho até a
+# sua variável. A diferença entre não querer e não poder é o que a
+# ampliação tem de deixar de pé.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Uma função que manda o parâmetro para OUTRO lugar
+#                    real, e a variável de fora continua onde estava.
+#   outra rota       A função que devolve E anula o parâmetro, com a
+#                    linha do chamador fazendo o que ela não pôde.
+#
+# O CASO RESOLVIDO NÃO USA NULL, de propósito. Mandar o parâmetro para
+# outro endereço de verdade mostra mais que anulá-lo: mostra que a caixa
+# do parâmetro é independente, e não só anulável. E ele não chama free
+# nenhum — a premissa é sobre a passagem, e a evidência deste nó no grafo
+# também a demonstra sem liberar nada.
+#
+# A OUTRA ROTA É O FORMATO EM QUE O ERRO APARECE NA VIDA REAL, e ela se
+# distingue do `t05` pelo que acrescenta: o `t05` mostra essa função e
+# pergunta por que sai zero — pergunta que ele pode fazer porque item não
+# executa. Aqui a sequência está COMPLETA: a devolução acontece (e se
+# observa pelo pedido seguinte ser atendido), e o NULL chega em p porque
+# existe uma linha do chamador que o põe lá.
+#
+# E ENTRE O free E ESSA LINHA NADA LÊ p. Atribuir a p é legítimo; ler o
+# valor que ele guarda depois do free não é. A sequência obedece a isso,
+# e é por isso que a terceira pergunta é sobre QUEM pôs o NULL, e não
+# sobre o que havia em p antes.
+#
+# O `int **` NÃO APARECE. O `t15` deste nó o usa, e é o construto
+# `ponteiro_de_ponteiro`, com cartão no `kc_10:B1`. O cartão não precisa
+# dele: a premissa é sobre o que o free NÃO alcança, e isso se mostra com
+# parâmetro comum.
+#
+# O QUE FICA FORA
+#
+#   por que free não põe NULL em p    -> `ciu_kc09_013`
+#   quem põe NULL em p                -> `ciu_kc09_t13`
+#   `p == NULL` depois do free        -> `ciu_kc09_014`
+#   o teste que não serve de aviso    -> `ciu_kc09_t14`
+#   free(p) contra free(p); p = NULL  -> `ciu_kc09_015`, degrau 3
+#   `libera(int **pp)`                -> `ciu_kc09_t15`, degrau 3
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_09
+node: kc09:I1
+premissa: "free não pode alterar p, nem se quisesse."
+crenca_que_nega: free_nullifies
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 00a8d7fbc99f
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO; o segundo separa não
+# querer de não poder; o terceiro diz o que isso obriga.
+ampliacao: >
+  Isto não é regra nova: é o B2 e o B3 somados. O free recebeu uma cópia
+  do valor de p, e a caixa de p é uma variável de quem chamou. Para
+  escrever naquela caixa seria preciso ter o endereço dela — e esse
+  endereço nunca foi passado. O que viajou foi o número do lote, não o
+  lugar onde você o guarda.
+
+  A diferença entre não querer e não poder é toda a questão. Não há
+  decisão de projeto aqui: mesmo que o free quisesse limpar o seu
+  ponteiro, ele não teria por onde. Ele conhece o lote, pode devolvê-lo,
+  e não tem caminho nenhum até a sua variável. Qualquer função em C está
+  nessa situação com os argumentos que recebe por valor.
+
+  Por isso o registro é obrigação de quem chamou. Depois da devolução, a
+  sua variável continua com o número de um lote que não é mais seu, e
+  nada no programa a corrige sozinha. Quem pode escrever ali é você, na
+  linha seguinte — e é esse o assunto do nó que vem depois.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  free(p);
+  p == NULL       /* falso: free nao mexeu em p */
+
+
+# O CASO RESOLVIDO: o parâmetro vai para outro lugar.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      void tenta_trocar(int *x)
+      {
+          int outro = 1;
+
+          x = &outro;
+          printf("dentro, o parametro passou a levar a outro lugar: %d\n", *x);
+      }
+  - codigo: |
+      int dado = 7;
+      int *p = &dado;
+
+      tenta_trocar(p);
+      printf("e fora, p continua levando ao mesmo: %d\n", *p);
+      printf("a troca ficou na copia? %d\n", p == &dado);
+  - prosa: "Pergunta: a função conseguiu mudar para onde o parâmetro aponta. Por que isso não chegou em p?"
+  - prosa: >
+      Porque o parâmetro e p são duas caixas. A função escreveu na dela,
+      que nasceu na chamada e acabou com a chamada. A caixa de p ficou
+      onde estava, com o que estava — e nada na chamada deu à função o
+      caminho até ela.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dentro, o parametro passou a levar a outro lugar: 1
+      e fora, p continua levando ao mesmo: 7
+      a troca ficou na copia? 1
+  - prosa: >
+      Dentro, um; fora, sete. A troca foi real e ficou contida na cópia.
+      Agora troque mentalmente essa função pelo free: ele recebeu a mesma
+      espécie de cópia, e não é que ele se recuse a mexer em p — ele está
+      nessa mesma situação.
+
+
+# A OUTRA ROTA: a sequência completa.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Escreva a função que devolve o lote e tenta anular o
+      ponteiro, e complete a sequência.
+  - codigo: |
+      void devolve(int *x)
+      {
+          free(x);
+          x = NULL;
+          printf("dentro, o parametro foi para NULL? %d\n", x == NULL);
+      }
+  - codigo: |
+      int *p = malloc(sizeof(int));
+      int *novo = NULL;
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      devolve(p);
+      p = NULL;
+      novo = malloc(sizeof(int));
+      if (novo == NULL) {
+          return 1;
+      }
+      printf("o lote foi devolvido: o alocador deu outro? %d\n", novo != NULL);
+      printf("e p esta em NULL por causa da linha que eu escrevi? %d\n",
+             p == NULL);
+      free(novo);
+  - prosa: >
+      Duas coisas aconteceram, e é bom separá-las. A devolução funcionou:
+      o lote voltou, e o pedido seguinte foi atendido. O NULL em p veio
+      de outro lugar — da linha que está logo depois da chamada, escrita
+      por quem chamou.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dentro, o parametro foi para NULL? 1
+      o lote foi devolvido: o alocador deu outro? 1
+      e p esta em NULL por causa da linha que eu escrevi? 1
+  - prosa: >
+      O NULL de dentro e o NULL de fora são dois NULLs, em duas caixas.
+      Tire a linha do chamador e o primeiro continua acontecendo, sem
+      efeito nenhum do lado de cá. É essa a leitura certa da sequência:
+      a função devolveu o lote, e o registro continuou sendo seu.

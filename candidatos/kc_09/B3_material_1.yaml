@@ -1,0 +1,160 @@
+# Material de ensino do B3 do kc_09 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Terceiro observável: o `B1` disse o que a
+# chamada leva, o `B2` disse como ela leva, e este diz de onde ela leva —
+# de uma variável que é de quem chamou.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `pointer_lives_in_heap` — "o ponteiro mora no heap porque aponta para
+# lá". Grade `L`, FAQ comp.lang.c 7.22, cuja resposta é o que este nó
+# afirma: um ponteiro é diferente do que ele aponta, e variáveis locais
+# são desalocadas quando a função retorna. A mesma crença está no
+# catálogo do kc_02, e a curadoria registra que este nó é importado de
+# lá — `kc_02:I2`. Ela também nega o `kc_08:I1`.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O endereço DA CAIXA de p comparado com o endereço
+#                    que está DENTRO dela: dois lugares distintos.
+#   outra rota       DOIS papéis para UM lote: duas caixas diferentes,
+#                    um bloco só.
+#
+# O CASO RESOLVIDO É O MESMO PROGRAMA DO `kc_08:I1`, e dizer isso é
+# obrigação. A crença é a mesma nos dois nós, e a comparação entre o
+# lugar da caixa e o lugar apontado é a demonstração mais direta que
+# existe para ela — não há versão melhor que seja diferente só por ser
+# diferente. O que muda é o que a prosa conclui: lá, que são duas coisas;
+# aqui, que a de cá é de quem chamou, e é por isso que o free não a
+# alcança.
+#
+# A OUTRA ROTA É A QUE NÃO SE REPETE EM TÓPICO NENHUM: dois ponteiros
+# para o mesmo lote, com as duas caixas em lugares diferentes. Se o
+# ponteiro morasse no bloco, dois ponteiros para um bloco teriam de morar
+# no mesmo lugar — e eles não moram. Ela também monta o `I3`, onde a
+# anotação tem de ser feita nos dois papéis.
+#
+# NENHUMA DAS DUAS CHAMA free ANTES DE MEDIR. O `t09` e o `017` comparam
+# `p == q` DEPOIS do free, que é leitura de valor indeterminado — num
+# item isso é pergunta, porque item não executa; num cartão seria o erro
+# demonstrado cometendo-se. As duas comparações daqui acontecem com o
+# lote ainda vivo.
+#
+# O QUE FICA FORA
+#
+#   onde fica a variável p                -> `ciu_kc09_007`
+#   free devolve o bloco; e a caixa de p? -> `ciu_kc09_t07`
+#   quando a caixa de p deixa de existir  -> `ciu_kc09_008`
+#   retornar p de uma função              -> `ciu_kc09_t08`
+#   o que ainda existe depois de f        -> `ciu_kc09_009`, degrau 3
+#   `p == q` depois do free               -> `ciu_kc09_t09`, degrau 3
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_09
+node: kc09:B3
+premissa: "p é variável de quem chamou, e não mora junto com o bloco."
+crenca_que_nega: pointer_lives_in_heap
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: cd23b3977f6d
+
+
+# A AMPLIAÇÃO. Duas coisas em dois lugares, de onde vem a confusão, e o
+# que ela custa neste tópico.
+ampliacao: >
+  O ponteiro e o bloco são duas coisas, e ficam em dois lugares. A caixa
+  que guarda o endereço é uma variável comum, declarada por você, no
+  escopo em que você a escreveu; o bloco foi pedido ao alocador e está
+  onde ele o pôs. Devolver um não encosta no outro.
+
+  A confusão tem uma origem clara: o ponteiro só serve por causa do
+  bloco, e falamos dos dois como se fossem um — dizemos que o ponteiro é
+  o lote. Na prática, a caixa dele está na sua função, e vai acabar
+  quando a função acabar, como qualquer local; o bloco não acaba aí, e é
+  isso que o free existe para resolver.
+
+  Neste tópico a distinção decide tudo. A variável p é de quem chamou,
+  e nada que aconteça do lado do bloco a alcança. É daqui que sai a
+  resposta à pergunta mais feita sobre o free: ele recebeu o endereço do
+  bloco, pode agir no bloco, e não tem caminho nenhum até a sua caixa.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void f(void) {
+      int *p = malloc(4);   /* p na pilha, bloco no monte */
+  }
+
+
+# O CASO RESOLVIDO: o lugar da caixa e o lugar do lote.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *p = malloc(sizeof(int));
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      printf("a caixa de p e o lote dela sao lugares diferentes? %d\n",
+             (void *) &p != (void *) p);
+      printf("e pelo lote chego em %d\n", *p);
+      free(p);
+  - prosa: "Pergunta: a comparação põe lado a lado dois endereços. De que são?"
+  - prosa: >
+      Um é o endereço da caixa de p — onde p mora, no seu escopo. O outro
+      é o endereço que está guardado dentro dela — onde o lote mora. São
+      duas perguntas diferentes sobre o mesmo ponteiro, e as respostas
+      não são o mesmo número.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a caixa de p e o lote dela sao lugares diferentes? 1
+      e pelo lote chego em 7
+  - prosa: >
+      Lugares diferentes. Se o ponteiro morasse no bloco que ele indica,
+      as duas perguntas teriam a mesma resposta — e a comparação diria
+      zero. A caixa está do seu lado, e é por isso que ninguém de fora a
+      alcança.
+
+
+# A OUTRA ROTA: dois papéis, um lote.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Faça duas variáveis apontarem para o mesmo lote e
+      olhe onde cada uma mora.
+  - codigo: |
+      int *p = malloc(sizeof(int));
+      int *q = NULL;
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      q = p;
+      printf("dois papeis, e um lote so? %d\n", p == q);
+      printf("e as duas caixas de papel sao lugares diferentes? %d\n",
+             (void *) &p != (void *) &q);
+      printf("pelo segundo papel chego no mesmo dado: %d\n", *q);
+      free(p);
+  - prosa: >
+      Houve um pedido só, e portanto um lote só. As duas variáveis
+      guardam o mesmo endereço — a primeira linha confere — e moram em
+      lugares diferentes, que é o que a segunda confere.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dois papeis, e um lote so? 1
+      e as duas caixas de papel sao lugares diferentes? 1
+      pelo segundo papel chego no mesmo dado: 7
+  - prosa: >
+      Um lote, duas caixas, em dois lugares. Se o ponteiro morasse no
+      bloco, dois ponteiros para o mesmo bloco teriam de morar no mesmo
+      lugar — e não moram. Guarde isso para o fim do tópico: quando o
+      lote for devolvido, há DOIS papéis a anotar, e nenhum dos dois está
+      dentro do lote.

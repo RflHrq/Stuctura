@@ -1,0 +1,175 @@
+# Material de ensino do B4 do kc_09 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. E É UM NÓ DA FAMÍLIA DO COMPORTAMENTO
+# INDEFINIDO, como o `kc_00:B3`, o `kc_03:B3`, o `kc_03:I2`, o `kc_03:I3`,
+# o `kc_05:I3` e o `kc_08:B3`. Vale a regra daqueles, e aqui ela é
+# apertada:
+#
+#   NENHUMA DEMONSTRAÇÃO ESCRITA AQUI USA O PONTEIRO DEPOIS DO free.
+#
+# A evidência deste nó no grafo resolve isso com a TERCEIRA FORMA do
+# contrato: o compilador diagnostica `used after 'free'` e o programa NÃO
+# É EXECUTADO. Um cartão não tem essa forma — `caso_resolvido` e
+# `outra_rota` não têm campo `avisa` —, então ele demonstra o que É
+# demonstrável e diz o resto em prosa.
+#
+# O QUE SOBRA PARA DEMONSTRAR: que o lote volta para o alocador e pode
+# ser entregue outra vez. Isso se observa de fora, sem tocar no ponteiro
+# antigo, e é a metade da premissa que tem como ser vista.
+#
+# A OUTRA ROTA NÃO RODA, E ISSO É A PROVA. Ela mostra a linha inválida
+# com comentário e SEM bloco de saída, e a prosa diz por que não há saída
+# a mostrar: prever o que sairia seria afirmar o que a linguagem se
+# recusa a garantir. Foi o padrão fixado no `kc_03:I3` e repetido no
+# `kc_05:I3`.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE DÁ A ORIGEM HISTÓRICA DELA
+#
+# `heap_persists` — "o bloco ainda é válido depois de free()". Grade `L`,
+# FAQ comp.lang.c 7.20, cujo título é a crença dita como pergunta — não
+# se pode usar memória alocada dinamicamente depois de liberá-la, pode?
+# A resposta começa com um "No." e explica de onde a ideia vem:
+# documentação antiga de malloc dizia que o conteúdo da memória liberada
+# ficava intocado.
+#
+# ISSO IMPORTA PARA A AMPLIAÇÃO: a crença não é tolice, é uma leitura de
+# documentação que já existiu. O segundo parágrafo diz isso, porque
+# crença com origem se desmonta melhor que crença tratada como descuido.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Devolver e pedir de novo: o alocador tinha o lote
+#                    para dar, e o lote novo funciona.
+#   outra rota       A linha inválida, mostrada e NÃO executada.
+#
+# O `011` E O `t12` JÁ MOSTRAM O ACESSO DEPOIS DO free e perguntam por
+# que é inválido. A outra rota não pergunta: ela mostra a mesma forma de
+# linha e nomeia o que a premissa decidiu — o lote deixou de ser seu, e
+# não é o conteúdo dele que está em questão.
+#
+# O QUE FICA FORA
+#
+#   depois de free(p), o bloco é o quê   -> `ciu_kc09_010`
+#   devolver o bloco faz o quê com ele   -> `ciu_kc09_t10`
+#   `*p` depois do free                  -> `ciu_kc09_011`
+#   o segundo malloc e o que sai         -> `ciu_kc09_t11`
+#   `*p = 1` contra um malloc novo       -> `ciu_kc09_012`, degrau 3
+#   `n->prox = NULL` depois do free      -> `ciu_kc09_t12`, degrau 3
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): o programa do caso
+# resolvido compila sem um aviso, e a saída está transcrita da execução.
+# O trecho da outra rota NÃO É EXECUTADO, e por isso não traz saída.
+
+topico: kc_09
+node: kc09:B4
+premissa: "Devolver o bloco o marca como não mais válido."
+crenca_que_nega: heap_persists
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 92a683111b61
+
+
+# A AMPLIAÇÃO. O que a devolução decide, de onde vem a ideia contrária,
+# e por que ela é pior que um erro que quebra.
+ampliacao: >
+  Devolver o bloco encerra o seu direito a ele. A partir daquela linha o
+  lote está à disposição do alocador, que pode entregá-lo ao próximo
+  pedido — com o conteúdo do próximo dono dentro. Não é que o bloco
+  desapareça: é que ele não é mais seu, e isso basta.
+
+  A ideia contrária tem uma origem documentada, e não é descuido:
+  documentação antiga de malloc dizia que o conteúdo da memória liberada
+  ficava intocado, e disso se concluiu que dava para continuar lendo. O
+  que aquela frase descrevia era o comportamento de uma implementação,
+  não uma garantia da linguagem — e é a garantia que decide o que o seu
+  programa pode fazer.
+
+  Por isso o estrago costuma vir calado. A linguagem não diz nada sobre
+  o que há no lote depois da devolução, e não dizer nada inclui não
+  impedir que pareça certo: um programa que lê dali pode rodar sem
+  reclamar hoje e falhar amanhã, com outra entrada, em outra máquina, no
+  dia em que aquele espaço tiver sido entregue a outro pedido. Erro que
+  às vezes funciona é mais difícil de achar que erro que nunca funciona.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  free(p);
+  int *q = malloc(4);   /* q pode receber o mesmo lugar */
+
+
+# O CASO RESOLVIDO: o lote volta para o alocador.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      char *primeiro = malloc(1);
+      char *segundo = NULL;
+
+      if (primeiro == NULL) {
+          return 1;
+      }
+      *primeiro = 'a';
+      free(primeiro);
+      segundo = malloc(1);
+      if (segundo == NULL) {
+          return 1;
+      }
+      *segundo = 'b';
+      printf("depois de devolver, o alocador tinha lote para dar de novo? %d\n",
+             segundo != NULL);
+      printf("e o lote novo guarda o que eu escrevi nele: %c\n", *segundo);
+      free(segundo);
+  - prosa: "Pergunta: o que este trecho mostra sobre o lote que foi devolvido?"
+  - prosa: >
+      Que ele voltou para quem o entregou. O pedido seguinte foi atendido,
+      e o espaço disponível para atendê-lo veio de algum lugar — o lote
+      devolvido está entre os que o alocador pode usar. E repare no que o
+      trecho não faz: ele não olha o primeiro ponteiro depois do free,
+      nem uma vez.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      depois de devolver, o alocador tinha lote para dar de novo? 1
+      e o lote novo guarda o que eu escrevi nele: b
+  - prosa: >
+      O lote novo é utilizável e guarda o que você escreveu. Isso é o que
+      se pode ver de fora: a devolução entregou o espaço de volta. Se o
+      bloco continuasse seu depois do free, devolvê-lo não teria efeito
+      nenhum — e teria sido um pedido de memória que ninguém nunca
+      recupera.
+
+
+# A OUTRA ROTA: a linha inválida, e ela não roda.
+reexplicacao:
+  - prosa: >
+      Outro caminho, e este não tem saída para mostrar. Olhe a forma da
+      linha.
+  - codigo: |
+      int *p = malloc(sizeof(int));
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      free(p);
+      *p = 8;      /* invalido: o lote nao e mais seu */
+  - prosa: >
+      Não há bloco de saída aqui, e a ausência é a demonstração. Para
+      mostrar o que esta linha imprime seria preciso executá-la — e
+      executá-la é justamente o que a premissa diz não ter resultado
+      previsível. Um cartão que o fizesse estaria cometendo o erro que
+      ensina a não cometer.
+  - prosa: >
+      E o ponto não é o conteúdo. A pergunta natural é "o que estaria no
+      lote?", e ela já aceita a crença: supõe que há um lote seu para
+      olhar. Não há. A linha é inválida porque o lote deixou de ser seu
+      na linha anterior, independentemente do que haja lá.
+  - prosa: >
+      Quem quiser ver a máquina dizer isso tem onde: a demonstração deste
+      nó na tela de refutação compila um programa desta forma, e o
+      compilador avisa que o ponteiro é usado depois do free. O programa
+      não é executado nem lá — não executar é a prova, e não economia.

@@ -1,0 +1,191 @@
+# Material de ensino do B1 do kc_09 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_09 tem ampliação VAZIA nos oito nós,
+# e é o QUARTO e último tópico-piloto: `pilot: true`, último da sequência
+# de coleta (kc_02, kc_07, kc_11, kc_09). Com ele, os quatro tópicos que
+# a coleta usa ficam com material completo.
+#
+# UMA PENDÊNCIA DO CABEÇALHO DESTE GRAFO JÁ CAIU: ele diz que "o kc_08
+# (alocação dinâmica) ainda NÃO existe". Existe desde 12/11/2026, com os
+# seis cartões assinados. O comentário está velho e é consertado no mesmo
+# commit que este material.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `pointer_knows_block_size` — "o ponteiro carrega o tamanho do bloco
+# que ele aponta". Grade `L`, FAQ comp.lang.c 7.26, que pergunta como o
+# free sabe quantos bytes devolver, e responde que a implementação de
+# malloc guarda o tamanho de cada bloco ao alocá-lo, e por isso não é
+# preciso lembrá-la do tamanho ao liberar.
+#
+# A PERGUNTA EXISTIR É A EVIDÊNCIA: quem a faz supõe que o tamanho viaja
+# com o ponteiro. A resposta diz onde ele viaja de verdade — nas contas
+# do alocador, que são dele e não suas.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Dois lotes de tamanhos muito diferentes, devolvidos
+#                    por chamadas de forma IDÊNTICA, e o alocador segue
+#                    inteiro depois.
+#   outra rota       A devolução feita pela CÓPIA do ponteiro: o que o
+#                    free precisava era o endereço, e a cópia o tem.
+#
+# O CASO RESOLVIDO MOSTRA A SUFICIÊNCIA DO ENDEREÇO. Um lote de um byte
+# e um de mil, e as duas linhas de devolução são da mesma forma — nenhuma
+# diz tamanho. Se faltasse informação, faltaria justamente no lote grande,
+# e o que se vê é o alocador atendendo um pedido novo depois dos dois.
+#
+# E ELE NÃO AFIRMA COMO O free DESCOBRE O TAMANHO. Isso é implementação,
+# e a premissa não fala disso: ela fala do que a CHAMADA carrega. Afirmar
+# o mecanismo interno seria dizer sobre esta biblioteca o que o padrão
+# não garante.
+#
+# A OUTRA ROTA É A PROVA PELA CÓPIA, e ela prepara o `B2`: se o que basta
+# é o endereço, qualquer ponteiro que o guarde serve para devolver. É
+# legítimo e é uma só devolução — o lote é devolvido uma vez, pela cópia,
+# e o original não é devolvido depois.
+#
+# NENHUMA DAS DUAS LÊ PONTEIRO DEPOIS DO free. Neste tópico essa é a
+# regra que manda: depois do free, o valor de p é indeterminado, e lê-lo
+# é o comportamento indefinido que o tópico ensina a não cometer. Todo
+# material do kc_09 obedece, e os nós em que isso é mais apertado —
+# `B4`, `I2` e `I4` — dizem no cabeçalho como contornaram.
+#
+# O QUE FICA FORA
+#
+#   o que free(p) recebe                  -> `ciu_kc09_001`
+#   como free sabe quantos bytes devolver -> `ciu_kc09_t01`
+#   `sizeof p` e os dez ints pedidos      -> `ciu_kc09_002`
+#   `sizeof p / sizeof p[0]` numa função  -> `ciu_kc09_t02`
+#   `sizeof v` contra `sizeof p`          -> `ciu_kc09_003`, degrau 3
+#   o que free soube e você não disse     -> `ciu_kc09_t03`
+#
+# QUATRO DOS SEIS GIRAM EM TORNO DE `sizeof`, e nenhuma das duas
+# demonstrações o usa: elas comparam TAMANHOS DE PEDIDO entre si — um
+# byte contra mil — e observam o alocador continuar funcionando. É a
+# mesma matéria por um caminho que os itens não usam.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_09
+node: kc09:B1
+premissa: "free recebe o endereço do bloco, e só isso."
+crenca_que_nega: pointer_knows_block_size
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: a9877e789055
+
+
+# A AMPLIAÇÃO. O que a chamada carrega, onde o tamanho está, e o que a
+# ideia contrária custa.
+ampliacao: >
+  A chamada de devolução leva um endereço, e nada mais. Você escreve
+  free e o número do lote; não há segundo argumento, não há tamanho, não
+  há contagem de elementos. A forma da chamada é a mesma para um lote de
+  um byte e para um de mil.
+
+  O tamanho existe, e quem o guarda é o alocador. Quando ele atendeu o
+  seu pedido, anotou nas contas dele quanto havia entregado naquele
+  endereço — e é dessas contas que ele lê na hora de receber o lote de
+  volta. Essas anotações não são suas, não estão no seu ponteiro, e não
+  há como consultá-las pelo programa.
+
+  Por isso a conta do tamanho continua sendo sua. Se o seu programa
+  precisa saber quantos elementos há num bloco, essa informação tem de
+  ser guardada por você, numa variável ao lado. O ponteiro traz o
+  endereço e o tipo de um elemento; quantos elementos cabem lá é coisa
+  que ele nunca carregou, e quem conta com isso descobre tarde.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p = malloc(100);
+  free(p);        /* nao se diz o tamanho de novo */
+
+
+# O CASO RESOLVIDO: dois tamanhos, uma forma de chamada.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      char *pequeno = malloc(1);
+      char *grande = malloc(1000);
+      char *depois = NULL;
+
+      if (pequeno == NULL || grande == NULL) {
+          return 1;
+      }
+      *pequeno = 'a';
+      grande[999] = 'z';
+      free(pequeno);
+      free(grande);
+      depois = malloc(1);
+      if (depois == NULL) {
+          return 1;
+      }
+      *depois = 'd';
+      printf("as duas devolucoes disseram so o endereco, e o alocador seguiu bem? %d\n",
+             depois != NULL);
+      printf("e o lote novo funciona: %c\n", *depois);
+      free(depois);
+  - prosa: "Pergunta: um lote tem mil vezes o tamanho do outro. Como as duas devoluções podem ser escritas igual?"
+  - prosa: >
+      Porque o que elas dizem é o endereço, e endereço não tem tamanho.
+      Cada uma aponta o lote que está voltando, e quem sabe o tamanho
+      daquele lote é quem o entregou. Se faltasse informação na chamada,
+      faltaria no lote grande — e o pedido seguinte foi atendido sem
+      tropeço.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      as duas devolucoes disseram so o endereco, e o alocador seguiu bem? 1
+      e o lote novo funciona: d
+  - prosa: >
+      O alocador continuou de pé e entregou mais um lote, utilizável. É
+      o que se pode observar de fora: as duas devoluções bastaram. Como
+      ele descobre o tamanho por dentro é assunto dele, e não é o que a
+      premissa afirma.
+
+
+# A OUTRA ROTA: devolver pela cópia.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Guarde o endereço numa segunda variável e devolva o
+      lote por ela.
+  - codigo: |
+      int *p = malloc(sizeof(int));
+      int *copia = NULL;
+      int *novo = NULL;
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      copia = p;
+      free(copia);
+      novo = malloc(sizeof(int));
+      if (novo == NULL) {
+          return 1;
+      }
+      *novo = 1;
+      printf("devolvi pela copia, e o alocador aceitou: o lote seguinte veio? %d\n",
+             novo != NULL);
+      printf("e ele e utilizavel: %d\n", *novo);
+      free(novo);
+  - prosa: >
+      A devolução foi feita pela segunda variável, e foi uma só. O lote
+      saiu do seu nome do mesmo jeito, porque o que a chamada levou foi o
+      endereço — e o endereço estava nas duas.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      devolvi pela copia, e o alocador aceitou: o lote seguinte veio? 1
+      e ele e utilizavel: 1
+  - prosa: >
+      Deu no mesmo. Se a devolução precisasse de algo que só o primeiro
+      ponteiro tivesse, essa linha não funcionaria — e funcionou, porque
+      não há nada no primeiro que o segundo não tenha. O que atravessa é
+      o endereço, e é só isso que o free pede.

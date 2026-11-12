@@ -1,0 +1,179 @@
+# Material de ensino do B2 do kc_09 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O `B1` disse que a chamada leva o
+# endereço; este diz COMO ela o leva — por cópia, como qualquer chamada.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `function_gets_original` — "a função recebe a variável original, não
+# uma cópia". Grade `T`, Sorva (2012), p. 363, item 67 (Ma 2007); e FAQ
+# comp.lang.c 4.11. A mesma crença está no catálogo do kc_06, e a
+# curadoria registra que este nó é importado de lá — `kc_06:I1`.
+#
+# É A PREMISSA QUE A RESPOSTA DA 7.21 USA PARA EXPLICAR TUDO O RESTO: a
+# razão de o ponteiro não virar NULL depois do free é a semântica de
+# passagem por valor de C. Quem não tem esta premissa não tem como
+# receber a explicação do `I1`.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O que a cópia LEVA: o endereço, e por isso a função
+#                    alcança o lote de quem chamou. Duas chamadas, dois
+#                    lotes.
+#   outra rota       O que a cópia NÃO traz de volta, e com um int: a
+#                    regra é de toda chamada, não do free.
+#
+# O CASO RESOLVIDO É O LADO POSITIVO, e é ele que falta nos itens: os
+# seis giram em torno do que a função NÃO consegue mudar. Antes disso há
+# o que ela consegue, e é o que explica por que o free funciona — a cópia
+# traz o endereço, e com o endereço se alcança o lote.
+#
+# A OUTRA ROTA USA UM INT, DE PROPÓSITO. A premissa diz "como qualquer
+# chamada", e demonstrar a regra com um tipo que não é ponteiro é o que
+# mostra que ela não é regra do free nem de ponteiro: é de chamada. Os
+# seis itens deste nó usam ponteiro em todos os casos.
+#
+# E NENHUMA DAS DUAS CHAMA free, nem lê ponteiro depois de um. A premissa
+# é sobre a passagem, e a passagem se demonstra sem liberar nada —
+# exatamente como a evidência deste nó no grafo faz, com um ponteiro para
+# a pilha. Depois do free o valor de p é indeterminado, e material deste
+# tópico não o lê.
+#
+# O QUE FICA FORA
+#
+#   o que entra na função em free(p)   -> `ciu_kc09_004`
+#   free(p) é chamada como as outras?  -> `ciu_kc09_t04`
+#   `void f(int *x) { x = NULL; }`     -> `ciu_kc09_005`
+#   `libera` com free e x = NULL       -> `ciu_kc09_t05`
+#   `zera(int **pp)` contra free       -> `ciu_kc09_006`, degrau 3
+#   `int *x` contra `int **x`          -> `ciu_kc09_t06`, degrau 3
+#
+# E O `int **` NÃO APARECE AQUI. Três itens deste nó o usam, e ele é o
+# construto `ponteiro_de_ponteiro`, com cartão no `kc_10:B1`. O cartão
+# não precisa dele: a premissa é sobre a cópia, e a cópia se mostra com
+# um parâmetro comum.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_09
+node: kc09:B2
+premissa: "free(p) recebe uma cópia de p, como qualquer chamada."
+crenca_que_nega: function_gets_original
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: c10c77fc58eb
+
+
+# A AMPLIAÇÃO. O que a chamada faz, o que a cópia carrega, e o que ela
+# não devolve.
+ampliacao: >
+  Em C, chamar uma função é copiar os argumentos. O que o parâmetro
+  recebe é o valor que você passou, numa caixa nova, que nasce na
+  chamada e morre no fim dela. Isso vale para número, vale para ponteiro,
+  e vale para a devolução de memória: free não é construção especial da
+  linguagem, é uma função como as suas.
+
+  A cópia carrega o valor, e no caso de um ponteiro o valor é o endereço.
+  É por isso que a função alcança o lote: ela tem o caminho até ele, e
+  escrever no destino é escrever no lote de quem chamou. O endereço
+  copiado leva ao mesmo lugar que o original — não é cópia do lote, é
+  cópia do caminho.
+
+  O que a cópia não faz é voltar. Se a função atribui algo ao próprio
+  parâmetro, mexe na caixa dela, que vai acabar — e a variável de quem
+  chamou não fica sabendo. Quem precisa que a variável de fora mude tem
+  de passar o endereço DELA, e não o valor dela. É a mesma regra, lida
+  do outro lado.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  free(p);        /* entra uma copia do valor de p */
+
+
+# O CASO RESOLVIDO: o que a cópia leva.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      void escreve(int *x)
+      {
+          *x = 9;
+      }
+  - codigo: |
+      int *um = malloc(sizeof(int));
+      int *outro = malloc(sizeof(int));
+
+      if (um == NULL || outro == NULL) {
+          return 1;
+      }
+      *um = 0;
+      *outro = 0;
+      escreve(um);
+      escreve(outro);
+      printf("a copia chegou no lote de um: %d\n", *um);
+      printf("e na chamada seguinte, no lote de outro: %d\n", *outro);
+      printf("cada chamada levou o endereco que recebeu? %d\n",
+             *um == 9 && *outro == 9);
+      free(um);
+      free(outro);
+  - prosa: "Pergunta: a função recebeu uma cópia. Como então ela escreveu num lote que não é dela?"
+  - prosa: >
+      Porque a cópia é do endereço, e não do lote. Com o endereço na mão,
+      a estrela vai até lá — e lá é o mesmo lugar para quem chamou e para
+      quem foi chamado. Houve duas chamadas, cada uma com um endereço
+      diferente, e cada uma chegou ao seu.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a copia chegou no lote de um: 9
+      e na chamada seguinte, no lote de outro: 9
+      cada chamada levou o endereco que recebeu? 1
+  - prosa: >
+      Os dois noves. É isso que a cópia compra, e é por isso que o free
+      funciona: ele recebe o endereço do lote e devolve aquele lote. O
+      que ele não recebe é a sua variável — e isso é assunto do nó que
+      fecha esta linha de raciocínio.
+
+
+# A OUTRA ROTA: a regra é de chamada, não de ponteiro.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Veja a mesma regra sem ponteiro nenhum, e depois com
+      um.
+  - codigo: |
+      void tenta_dobrar(int n)
+      {
+          n = n * 2;
+          printf("dentro, o parametro virou %d\n", n);
+      }
+
+      void escreve_dobro(int *n)
+      {
+          *n = *n * 2;
+      }
+  - codigo: |
+      int valor = 5;
+
+      tenta_dobrar(valor);
+      printf("e fora, passando o valor, mudou? %d\n", valor != 5);
+      escreve_dobro(&valor);
+      printf("passando o endereco, mudou? %d\n", valor == 10);
+  - prosa: >
+      A primeira função mudou o parâmetro dela, e disse em quanto ficou.
+      A segunda recebeu o endereço do valor e escreveu lá. As duas
+      chamadas foram feitas sobre a mesma variável de fora.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dentro, o parametro virou 10
+      e fora, passando o valor, mudou? 0
+      passando o endereco, mudou? 1
+  - prosa: >
+      Dentro virou dez, fora não mudou, e o zero do meio é a regra. Com o
+      endereço, mudou. Nada disso é sobre ponteiro ou sobre memória
+      dinâmica: é sobre o que uma chamada leva e o que ela não traz de
+      volta. O free obedece à mesma regra, porque é uma chamada.

@@ -114,6 +114,624 @@ exemplos:
     free(p);
     int *q = p;     /* ja e indefinido: so copiar */
 
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        char *pequeno = malloc(1);
+        char *grande = malloc(1000);
+        char *depois = NULL;
+
+        if (pequeno == NULL || grande == NULL) {
+            return 1;
+        }
+        *pequeno = 'a';
+        grande[999] = 'z';
+        free(pequeno);
+        free(grande);
+        depois = malloc(1);
+        if (depois == NULL) {
+            return 1;
+        }
+        *depois = 'd';
+        printf("as duas devolucoes disseram so o endereco, e o alocador seguiu bem? %d\n",
+               depois != NULL);
+        printf("e o lote novo funciona: %c\n", *depois);
+        free(depois);
+    - prosa: >
+        Pergunta: um lote tem mil vezes o tamanho do outro. Como as duas
+        devoluções podem ser escritas igual?
+    - prosa: >
+        Porque o que elas dizem é o endereço, e endereço não tem tamanho.
+        Cada uma aponta o lote que está voltando, e quem sabe o tamanho
+        daquele lote é quem o entregou. Se faltasse informação na chamada,
+        faltaria no lote grande — e o pedido seguinte foi atendido sem
+        tropeço.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        as duas devolucoes disseram so o endereco, e o alocador seguiu bem? 1
+        e o lote novo funciona: d
+    - prosa: >
+        O alocador continuou de pé e entregou mais um lote, utilizável. É
+        o que se pode observar de fora: as duas devoluções bastaram. Como
+        ele descobre o tamanho por dentro é assunto dele, e não é o que a
+        premissa afirma.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        void escreve(int *x)
+        {
+            *x = 9;
+        }
+    - codigo: |
+        int *um = malloc(sizeof(int));
+        int *outro = malloc(sizeof(int));
+
+        if (um == NULL || outro == NULL) {
+            return 1;
+        }
+        *um = 0;
+        *outro = 0;
+        escreve(um);
+        escreve(outro);
+        printf("a copia chegou no lote de um: %d\n", *um);
+        printf("e na chamada seguinte, no lote de outro: %d\n", *outro);
+        printf("cada chamada levou o endereco que recebeu? %d\n",
+               *um == 9 && *outro == 9);
+        free(um);
+        free(outro);
+    - prosa: >
+        Pergunta: a função recebeu uma cópia. Como então ela escreveu num
+        lote que não é dela?
+    - prosa: >
+        Porque a cópia é do endereço, e não do lote. Com o endereço na
+        mão, a estrela vai até lá — e lá é o mesmo lugar para quem chamou
+        e para quem foi chamado. Houve duas chamadas, cada uma com um
+        endereço diferente, e cada uma chegou ao seu.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a copia chegou no lote de um: 9
+        e na chamada seguinte, no lote de outro: 9
+        cada chamada levou o endereco que recebeu? 1
+    - prosa: >
+        Os dois noves. É isso que a cópia compra, e é por isso que o free
+        funciona: ele recebe o endereço do lote e devolve aquele lote. O
+        que ele não recebe é a sua variável — e isso é assunto do nó que
+        fecha esta linha de raciocínio.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        printf("a caixa de p e o lote dela sao lugares diferentes? %d\n",
+               (void *) &p != (void *) p);
+        printf("e pelo lote chego em %d\n", *p);
+        free(p);
+    - prosa: >
+        Pergunta: a comparação põe lado a lado dois endereços. De que são?
+    - prosa: >
+        Um é o endereço da caixa de p — onde p mora, no seu escopo. O
+        outro é o endereço que está guardado dentro dela — onde o lote
+        mora. São duas perguntas diferentes sobre o mesmo ponteiro, e as
+        respostas não são o mesmo número.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a caixa de p e o lote dela sao lugares diferentes? 1
+        e pelo lote chego em 7
+    - prosa: >
+        Lugares diferentes. Se o ponteiro morasse no bloco que ele indica,
+        as duas perguntas teriam a mesma resposta — e a comparação diria
+        zero. A caixa está do seu lado, e é por isso que ninguém de fora a
+        alcança.
+
+  B4:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        char *primeiro = malloc(1);
+        char *segundo = NULL;
+
+        if (primeiro == NULL) {
+            return 1;
+        }
+        *primeiro = 'a';
+        free(primeiro);
+        segundo = malloc(1);
+        if (segundo == NULL) {
+            return 1;
+        }
+        *segundo = 'b';
+        printf("depois de devolver, o alocador tinha lote para dar de novo? %d\n",
+               segundo != NULL);
+        printf("e o lote novo guarda o que eu escrevi nele: %c\n", *segundo);
+        free(segundo);
+    - prosa: >
+        Pergunta: o que este trecho mostra sobre o lote que foi devolvido?
+    - prosa: >
+        Que ele voltou para quem o entregou. O pedido seguinte foi
+        atendido, e o espaço disponível para atendê-lo veio de algum lugar
+        — o lote devolvido está entre os que o alocador pode usar. E
+        repare no que o trecho não faz: ele não olha o primeiro ponteiro
+        depois do free, nem uma vez.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        depois de devolver, o alocador tinha lote para dar de novo? 1
+        e o lote novo guarda o que eu escrevi nele: b
+    - prosa: >
+        O lote novo é utilizável e guarda o que você escreveu. Isso é o
+        que se pode ver de fora: a devolução entregou o espaço de volta.
+        Se o bloco continuasse seu depois do free, devolvê-lo não teria
+        efeito nenhum — e teria sido um pedido de memória que ninguém
+        nunca recupera.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        void tenta_trocar(int *x)
+        {
+            int outro = 1;
+
+            x = &outro;
+            printf("dentro, o parametro passou a levar a outro lugar: %d\n", *x);
+        }
+    - codigo: |
+        int dado = 7;
+        int *p = &dado;
+
+        tenta_trocar(p);
+        printf("e fora, p continua levando ao mesmo: %d\n", *p);
+        printf("a troca ficou na copia? %d\n", p == &dado);
+    - prosa: >
+        Pergunta: a função conseguiu mudar para onde o parâmetro aponta.
+        Por que isso não chegou em p?
+    - prosa: >
+        Porque o parâmetro e p são duas caixas. A função escreveu na dela,
+        que nasceu na chamada e acabou com a chamada. A caixa de p ficou
+        onde estava, com o que estava — e nada na chamada deu à função o
+        caminho até ela.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dentro, o parametro passou a levar a outro lugar: 1
+        e fora, p continua levando ao mesmo: 7
+        a troca ficou na copia? 1
+    - prosa: >
+        Dentro, um; fora, sete. A troca foi real e ficou contida na cópia.
+        Agora troque mentalmente essa função pelo free: ele recebeu a
+        mesma espécie de cópia, e não é que ele se recuse a mexer em p —
+        ele está nessa mesma situação.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+        int outro = 42;
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        free(p);
+        p = &outro;
+        printf("depois do free, p aceitou um endereco novo e levou a ele: %d\n", *p);
+        printf("a variavel p nunca deixou de existir? %d\n", p == &outro);
+    - prosa: >
+        Pergunta: a linha depois do free escreve em p. Se o free tivesse
+        apagado p, o que aconteceria aqui?
+    - prosa: >
+        Não haveria onde escrever. Uma variável apagada não recebe valor,
+        e a linha seguinte não teria sentido nenhum. Ela tem: p recebeu o
+        endereço de um int comum e passou a levar até ele, como qualquer
+        ponteiro.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        depois do free, p aceitou um endereco novo e levou a ele: 42
+        a variavel p nunca deixou de existir? 1
+    - prosa: >
+        O 42 é a prova de que a caixa está de pé. E repare no que este
+        trecho NÃO faz: ele não lê o que havia em p entre o free e a
+        atribuição. Escrever em p é legítimo; ler o valor que ele guardava
+        não é — e o porquê está na outra rota.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+        int usou = 0;
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        free(p);
+        p = NULL;
+        if (p != NULL) {
+            usou = 1;
+        }
+        printf("com a anotacao feita, o teste barrou o uso? %d\n", usou == 0);
+        printf("e p esta em NULL porque uma linha sua o pos la? %d\n", p == NULL);
+    - prosa: >
+        Pergunta: o que o teste da penúltima linha teria respondido se a
+        anotação não estivesse ali?
+    - prosa: >
+        Que p está bom. O teste olha o que há dentro de p, e sem a
+        anotação haveria o número do lote devolvido — um número de
+        aparência perfeitamente normal. A guarda deixaria passar, e o uso
+        aconteceria.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        com a anotacao feita, o teste barrou o uso? 1
+        e p esta em NULL porque uma linha sua o pos la? 1
+    - prosa: >
+        O uso não aconteceu. É isso que a linha compra: não proteção
+        mágica, e sim um valor que faz o teste de sempre dizer a verdade.
+        Sem ela o programa não fica sem guarda — fica com uma guarda que
+        responde errado, que é pior.
+
+  I4:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+        int tentou_de_novo = 0;
+        int *depois = NULL;
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        free(p);
+        p = NULL;
+        if (p != NULL) {
+            free(p);
+            tentou_de_novo = 1;
+        }
+        depois = malloc(sizeof(int));
+        if (depois == NULL) {
+            return 1;
+        }
+        *depois = 1;
+        printf("a segunda devolucao nem foi tentada? %d\n", tentou_de_novo == 0);
+        printf("e o programa seguiu inteiro: o lote seguinte veio e vale %d\n",
+               *depois);
+        free(depois);
+    - prosa: >
+        Pergunta: a segunda devolução está escrita no código. Por que ela
+        não aconteceu?
+    - prosa: >
+        Porque a guarda a impediu, e a guarda só pôde impedir porque a
+        anotação tinha sido feita. Tire a linha do NULL e o teste diria
+        que p está bom; a chamada aconteceria, e seria a segunda devolução
+        do mesmo lote. A proteção está na anotação, e não no teste.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a segunda devolucao nem foi tentada? 1
+        e o programa seguiu inteiro: o lote seguinte veio e vale 1
+    - prosa: >
+        Nenhuma segunda devolução, e o programa inteiro depois — o pedido
+        seguinte foi atendido e é utilizável. É a sequência completa do
+        tópico em sete linhas: pedir, conferir, usar, devolver, anotar,
+        testar. Nenhuma delas é zelo: cada uma fecha uma porta que os sete
+        nós anteriores mostraram aberta.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Caminho DIFERENTE do caso resolvido -- ha teste no
+# projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Guarde o endereço numa segunda variável e devolva o
+        lote por ela.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+        int *copia = NULL;
+        int *novo = NULL;
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        copia = p;
+        free(copia);
+        novo = malloc(sizeof(int));
+        if (novo == NULL) {
+            return 1;
+        }
+        *novo = 1;
+        printf("devolvi pela copia, e o alocador aceitou: o lote seguinte veio? %d\n",
+               novo != NULL);
+        printf("e ele e utilizavel: %d\n", *novo);
+        free(novo);
+    - prosa: >
+        A devolução foi feita pela segunda variável, e foi uma só. O lote
+        saiu do seu nome do mesmo jeito, porque o que a chamada levou foi
+        o endereço — e o endereço estava nas duas.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        devolvi pela copia, e o alocador aceitou: o lote seguinte veio? 1
+        e ele e utilizavel: 1
+    - prosa: >
+        Deu no mesmo. Se a devolução precisasse de algo que só o primeiro
+        ponteiro tivesse, essa linha não funcionaria — e funcionou, porque
+        não há nada no primeiro que o segundo não tenha. O que atravessa é
+        o endereço, e é só isso que o free pede.
+
+  B2:
+    - prosa: >
+        Outro caminho. Veja a mesma regra sem ponteiro nenhum, e depois
+        com um.
+    - codigo: |
+        void tenta_dobrar(int n)
+        {
+            n = n * 2;
+            printf("dentro, o parametro virou %d\n", n);
+        }
+
+        void escreve_dobro(int *n)
+        {
+            *n = *n * 2;
+        }
+    - codigo: |
+        int valor = 5;
+
+        tenta_dobrar(valor);
+        printf("e fora, passando o valor, mudou? %d\n", valor != 5);
+        escreve_dobro(&valor);
+        printf("passando o endereco, mudou? %d\n", valor == 10);
+    - prosa: >
+        A primeira função mudou o parâmetro dela, e disse em quanto ficou.
+        A segunda recebeu o endereço do valor e escreveu lá. As duas
+        chamadas foram feitas sobre a mesma variável de fora.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dentro, o parametro virou 10
+        e fora, passando o valor, mudou? 0
+        passando o endereco, mudou? 1
+    - prosa: >
+        Dentro virou dez, fora não mudou, e o zero do meio é a regra. Com
+        o endereço, mudou. Nada disso é sobre ponteiro ou sobre memória
+        dinâmica: é sobre o que uma chamada leva e o que ela não traz de
+        volta. O free obedece à mesma regra, porque é uma chamada.
+
+  B3:
+    - prosa: >
+        Outro caminho. Faça duas variáveis apontarem para o mesmo lote e
+        olhe onde cada uma mora.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+        int *q = NULL;
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        q = p;
+        printf("dois papeis, e um lote so? %d\n", p == q);
+        printf("e as duas caixas de papel sao lugares diferentes? %d\n",
+               (void *) &p != (void *) &q);
+        printf("pelo segundo papel chego no mesmo dado: %d\n", *q);
+        free(p);
+    - prosa: >
+        Houve um pedido só, e portanto um lote só. As duas variáveis
+        guardam o mesmo endereço — a primeira linha confere — e moram em
+        lugares diferentes, que é o que a segunda confere.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dois papeis, e um lote so? 1
+        e as duas caixas de papel sao lugares diferentes? 1
+        pelo segundo papel chego no mesmo dado: 7
+    - prosa: >
+        Um lote, duas caixas, em dois lugares. Se o ponteiro morasse no
+        bloco, dois ponteiros para o mesmo bloco teriam de morar no mesmo
+        lugar — e não moram. Guarde isso para o fim do tópico: quando o
+        lote for devolvido, há DOIS papéis a anotar, e nenhum dos dois
+        está dentro do lote.
+
+  B4:
+    - prosa: >
+        Outro caminho, e este não tem saída para mostrar. Olhe a forma da
+        linha.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        free(p);
+        *p = 8;      /* invalido: o lote nao e mais seu */
+    - prosa: >
+        Não há bloco de saída aqui, e a ausência é a demonstração. Para
+        mostrar o que esta linha imprime seria preciso executá-la — e
+        executá-la é justamente o que a premissa diz não ter resultado
+        previsível. Um cartão que o fizesse estaria cometendo o erro que
+        ensina a não cometer.
+    - prosa: >
+        E o ponto não é o conteúdo. A pergunta natural é "o que estaria no
+        lote?", e ela já aceita a crença: supõe que há um lote seu para
+        olhar. Não há. A linha é inválida porque o lote deixou de ser seu
+        na linha anterior, independentemente do que haja lá.
+    - prosa: >
+        Quem quiser ver a máquina dizer isso tem onde: a demonstração
+        deste nó na tela de refutação compila um programa desta forma, e o
+        compilador avisa que o ponteiro é usado depois do free. O programa
+        não é executado nem lá — não executar é a prova, e não economia.
+
+  I1:
+    - prosa: >
+        Outro caminho. Escreva a função que devolve o lote e tenta anular
+        o ponteiro, e complete a sequência.
+    - codigo: |
+        void devolve(int *x)
+        {
+            free(x);
+            x = NULL;
+            printf("dentro, o parametro foi para NULL? %d\n", x == NULL);
+        }
+    - codigo: |
+        int *p = malloc(sizeof(int));
+        int *novo = NULL;
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        devolve(p);
+        p = NULL;
+        novo = malloc(sizeof(int));
+        if (novo == NULL) {
+            return 1;
+        }
+        printf("o lote foi devolvido: o alocador deu outro? %d\n", novo != NULL);
+        printf("e p esta em NULL por causa da linha que eu escrevi? %d\n",
+               p == NULL);
+        free(novo);
+    - prosa: >
+        Duas coisas aconteceram, e é bom separá-las. A devolução
+        funcionou: o lote voltou, e o pedido seguinte foi atendido. O NULL
+        em p veio de outro lugar — da linha que está logo depois da
+        chamada, escrita por quem chamou.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dentro, o parametro foi para NULL? 1
+        o lote foi devolvido: o alocador deu outro? 1
+        e p esta em NULL por causa da linha que eu escrevi? 1
+    - prosa: >
+        O NULL de dentro e o NULL de fora são dois NULLs, em duas caixas.
+        Tire a linha do chamador e o primeiro continua acontecendo, sem
+        efeito nenhum do lado de cá. É essa a leitura certa da sequência:
+        a função devolveu o lote, e o registro continuou sendo seu.
+
+  I2:
+    - prosa: >
+        Outro caminho, e este é sobre o que um programa não tem como
+        mostrar. A premissa diz duas coisas, e a segunda é esta:
+    - codigo: |
+        int *p = malloc(sizeof(int));
+        int *guardado = NULL;
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        guardado = p;
+        free(p);
+        p == guardado;   /* o padrao diz que sim -- e ler p aqui ja e invalido */
+    - prosa: >
+        Não há bloco de saída, e a falta é a questão. Para imprimir que p
+        tem o mesmo valor seria preciso LER p depois do free — e o padrão
+        diz que, a partir daquela linha, o valor de p é indeterminado.
+        Lê-lo é comportamento indefinido, mesmo para comparar, mesmo para
+        copiar.
+    - prosa: >
+        Então esta metade da premissa é afirmação sobre a linguagem, e não
+        sobre uma execução. Ela diz que o free não mexeu em p, e isso se
+        conclui dos nós anteriores: a caixa é sua, e nada chegou até ela.
+        O que nenhum programa pode fazer é imprimir essa conclusão, porque
+        imprimi-la exige o acesso que ela mesma proíbe.
+    - prosa: >
+        E essa é a diferença entre as duas metades. Que a variável existe
+        se vê, e o caso resolvido viu. Que ela guarda o mesmo número se
+        sabe, e saber não é o mesmo que olhar.
+
+  I3:
+    - prosa: >
+        Outro caminho. Quando um lote tem mais de um papel, conte quantas
+        anotações são necessárias.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+        int *q = NULL;
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        q = p;
+        free(p);
+        p = NULL;
+        q = NULL;
+        printf("havia dois papeis para um lote, e os dois foram anotados? %d\n",
+               p == NULL && q == NULL);
+    - prosa: >
+        Houve um pedido, um lote e uma devolução. Mas duas variáveis
+        guardavam aquele endereço, e a devolução só passou por uma delas.
+        A outra ficou com o mesmo número, sem que nada a avisasse.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        havia dois papeis para um lote, e os dois foram anotados? 1
+    - prosa: >
+        Duas anotações para uma devolução. O free recebeu um endereço e
+        agiu sobre o lote; ele não tem como saber quantas variáveis do seu
+        programa guardavam aquele número, e não existe lista disso em
+        lugar nenhum. Quem sabe que há dois papéis é quem os escreveu — e
+        é por isso que a anotação não pode ser trabalho de outro.
+
+  I4:
+    - prosa: >
+        Outro caminho, e este não tem saída para mostrar. A premissa diz
+        "de qualquer maneira", e aqui estão quatro maneiras.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 7;
+        free(p);
+
+        *p = 8;          /* invalido: escrever pelo papel */
+        printf("%d", *p);   /* invalido: ler pelo papel */
+        int *q = p;      /* invalido: so copiar o papel */
+        free(p);         /* invalido: devolver de novo */
+    - prosa: >
+        Não há bloco de saída, e é isso que a lista demonstra. Qualquer
+        uma dessas linhas precisaria ser executada para se ver o que ela
+        faz — e executá-las é o que a premissa diz não ter resultado
+        previsível. Um cartão que as rodasse estaria cometendo o erro que
+        ensina a não cometer.
+    - prosa: >
+        E as quatro estão aqui por uma razão: mostrar uma só sugeriria que
+        as outras passam. A terceira é a que mais surpreende — ela não vai
+        ao lote, não lê nada de lá, só copia um número de uma variável
+        para outra. Já é inválida, porque o que saiu de validade foi o
+        VALOR, e não o lote.
+    - prosa: >
+        A quarta é a crença deste nó, dita em uma linha. Devolver duas
+        vezes não é operação inofensiva que o alocador ignora: é a mesma
+        categoria das outras três. Quem quiser ver a máquina dizê-lo tem
+        onde — a demonstração deste nó na tela de refutação compila dois
+        free seguidos, e o compilador avisa que o ponteiro é usado depois
+        do free. Nem lá o programa é executado.
+
 activities:
 
   # ------------------------------------------------------------------

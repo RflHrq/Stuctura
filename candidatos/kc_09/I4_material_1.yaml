@@ -1,0 +1,194 @@
+# Material de ensino do I4 do kc_09 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico: suporte em `B1`,
+# `B4`, `I2` e `I3`, e a refutação percorre os sete nós anteriores antes
+# de chegar aqui.
+#
+# E É UM NÓ DA FAMÍLIA DO COMPORTAMENTO INDEFINIDO, como o `B4`. A
+# evidência dele no grafo usa a TERCEIRA FORMA do contrato — dois free
+# seguidos, e o compilador avisa `used after 'free'` sem que o programa
+# seja executado. Cartão não tem essa forma, então vale a regra:
+#
+#   NENHUMA DEMONSTRAÇÃO ESCRITA AQUI USA O PONTEIRO DEPOIS DO free.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A PROCEDÊNCIA É `N`
+#
+# `double_free_is_safe` — "chamar free() duas vezes no mesmo ponteiro é
+# seguro". Grade `N`: CWE-415, "Double Free"; CERT C MEM31-C.
+#
+# A NORMA CATALOGOU O ERRO, E NÃO A CRENÇA, e é por isso que a
+# procedência é `N` e não `D`. O que as duas fontes atestam é que o erro
+# é frequente o bastante para ter nome e número — não o que passa pela
+# cabeça de quem o comete. A frase da crença é transposição nossa, e o
+# catálogo a declara assim. É a mesma situação do `kc_05:I3` e do
+# `kc_08:I2`.
+#
+# ---------------------------------------------------------------------
+# A PREMISSA É LARGA DE PROPÓSITO, e a largura é o conteúdo
+#
+# "usar p depois, de qualquer maneira, é inválido" — e de qualquer
+# maneira quer dizer: desreferenciar, copiar, comparar, passar adiante,
+# devolver outra vez. O catálogo deste tópico registra que até copiar o
+# papel já é território sem garantia, e o `t23` pergunta exatamente isso.
+#
+# POR ISSO A OUTRA ROTA É UMA LISTA, e não um programa. Quatro formas de
+# usar, as quatro inválidas, nenhuma executada. Mostrar uma só sugeriria
+# que as outras passam.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   A disciplina inteira, e a segunda devolução nem
+#                    chega a ser tentada.
+#   outra rota       As quatro formas inválidas, mostradas e NÃO
+#                    executadas.
+#
+# O CASO RESOLVIDO É A SEQUÊNCIA CERTA DE PONTA A PONTA: pedir, usar,
+# devolver, anotar, e a guarda impedindo a segunda devolução. E ele
+# termina com o programa inteiro: um pedido novo atendido, mostrando que
+# nada ficou estragado. É o fecho que o tópico merece.
+#
+# O `t24` É O MAIS PRÓXIMO, e pergunta se `free(p)` depois de `p = NULL`
+# é válido — é, porque `free(NULL)` é definido e não faz nada. O caso
+# resolvido não depende disso: a guarda impede a chamada de acontecer, e
+# a prosa não entra no mérito de `free(NULL)`, que é outro assunto.
+#
+# O QUE FICA FORA
+#
+#   depois do free, o que p é          -> `ciu_kc09_022`
+#   free duas vezes é o quê            -> `ciu_kc09_t22`
+#   quantas das duas linhas são
+#     inválidas                        -> `ciu_kc09_023`
+#   copiar p depois do free            -> `ciu_kc09_t23`
+#   `*p = 1` contra `printf("ok")`     -> `ciu_kc09_024`, degrau 3
+#   free(p) depois de p = NULL         -> `ciu_kc09_t24`, degrau 3
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): o programa do caso
+# resolvido compila sem um aviso, e a saída está transcrita da execução.
+# A outra rota não traz programa executado.
+
+topico: kc_09
+node: kc09:I4
+premissa: "p guarda um endereço que não designa objeto válido — e usar p depois, de qualquer maneira, é inválido."
+crenca_que_nega: double_free_is_safe
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: e11b4099d8c2
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo junta os nós; o segundo diz o que
+# "de qualquer maneira" quer dizer; o terceiro, a disciplina que resta.
+ampliacao: >
+  Isto é o fecho dos sete nós anteriores. A devolução levou só o
+  endereço, o lote deixou de ser seu, a sua variável continuou lá com o
+  número dele, e nada no programa registrou isso a não ser a linha que
+  você escreveu. Um ponteiro nessa situação tem nome: ele está pendente.
+  Não é um ponteiro ruim porque o número está errado — o número está
+  certo, e é justamente isso que o torna perigoso.
+
+  E usar quer dizer mais do que você espera. Não é só escrever ou ler
+  pelo ponteiro: copiá-lo para outra variável já é território sem
+  garantia, comparar o valor dele também, e devolvê-lo outra vez também.
+  A regra não fala do que você vai encontrar no lote — ela fala do
+  ponteiro: o valor que ele guarda deixou de designar objeto válido, e
+  mexer nesse valor é que está fora.
+
+  Por isso a disciplina é curta e vale sempre. Devolveu, anote na mesma
+  hora, em todos os papéis que guardavam aquele endereço; e teste antes
+  de usar. Com a anotação feita, a guarda de sempre dá conta: ela barra
+  o uso, barra a segunda devolução, e o programa segue. Sem ela não há
+  teste que ajude, porque o que há na variável tem aparência de bom.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  free(p);
+  int *q = p;     /* ja e indefinido: so copiar */
+
+
+# O CASO RESOLVIDO: a disciplina inteira.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *p = malloc(sizeof(int));
+      int tentou_de_novo = 0;
+      int *depois = NULL;
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      free(p);
+      p = NULL;
+      if (p != NULL) {
+          free(p);
+          tentou_de_novo = 1;
+      }
+      depois = malloc(sizeof(int));
+      if (depois == NULL) {
+          return 1;
+      }
+      *depois = 1;
+      printf("a segunda devolucao nem foi tentada? %d\n", tentou_de_novo == 0);
+      printf("e o programa seguiu inteiro: o lote seguinte veio e vale %d\n",
+             *depois);
+      free(depois);
+  - prosa: "Pergunta: a segunda devolução está escrita no código. Por que ela não aconteceu?"
+  - prosa: >
+      Porque a guarda a impediu, e a guarda só pôde impedir porque a
+      anotação tinha sido feita. Tire a linha do NULL e o teste diria que
+      p está bom; a chamada aconteceria, e seria a segunda devolução do
+      mesmo lote. A proteção está na anotação, e não no teste.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a segunda devolucao nem foi tentada? 1
+      e o programa seguiu inteiro: o lote seguinte veio e vale 1
+  - prosa: >
+      Nenhuma segunda devolução, e o programa inteiro depois — o pedido
+      seguinte foi atendido e é utilizável. É a sequência completa do
+      tópico em sete linhas: pedir, conferir, usar, devolver, anotar,
+      testar. Nenhuma delas é zelo: cada uma fecha uma porta que os sete
+      nós anteriores mostraram aberta.
+
+
+# A OUTRA ROTA: as quatro formas, e nenhuma roda.
+reexplicacao:
+  - prosa: >
+      Outro caminho, e este não tem saída para mostrar. A premissa diz
+      "de qualquer maneira", e aqui estão quatro maneiras.
+  - codigo: |
+      int *p = malloc(sizeof(int));
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      free(p);
+
+      *p = 8;          /* invalido: escrever pelo papel */
+      printf("%d", *p);   /* invalido: ler pelo papel */
+      int *q = p;      /* invalido: so copiar o papel */
+      free(p);         /* invalido: devolver de novo */
+  - prosa: >
+      Não há bloco de saída, e é isso que a lista demonstra. Qualquer uma
+      dessas linhas precisaria ser executada para se ver o que ela faz —
+      e executá-las é o que a premissa diz não ter resultado previsível.
+      Um cartão que as rodasse estaria cometendo o erro que ensina a não
+      cometer.
+  - prosa: >
+      E as quatro estão aqui por uma razão: mostrar uma só sugeriria que
+      as outras passam. A terceira é a que mais surpreende — ela não vai
+      ao lote, não lê nada de lá, só copia um número de uma variável para
+      outra. Já é inválida, porque o que saiu de validade foi o VALOR, e
+      não o lote.
+  - prosa: >
+      A quarta é a crença deste nó, dita em uma linha. Devolver duas
+      vezes não é operação inofensiva que o alocador ignora: é a mesma
+      categoria das outras três. Quem quiser ver a máquina dizê-lo tem
+      onde — a demonstração deste nó na tela de refutação compila dois
+      free seguidos, e o compilador avisa que o ponteiro é usado depois
+      do free. Nem lá o programa é executado.

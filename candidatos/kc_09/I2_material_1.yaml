@@ -1,0 +1,175 @@
+# Material de ensino do I2 do kc_09 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Suporte em `B3` e `I1`, e a refutação
+# percorre os dois antes de chegar aqui.
+#
+# E A DERIVAÇÃO VEM DOS DOIS: a caixa de p é sua (B3) e o free não a
+# alcança (I1). Então ela continua lá, do jeito que estava. Não é regra
+# nova; é a conclusão óbvia que a crença impede de tirar.
+#
+# ---------------------------------------------------------------------
+# A PREMISSA TEM DUAS METADES, E SÓ UMA É DEMONSTRÁVEL RODANDO
+#
+# "p continua existindo, com o mesmo valor."
+#
+#   p continua existindo       -> demonstrável, e o caso resolvido o faz
+#   com o mesmo valor          -> NÃO demonstrável por execução
+#
+# POR QUE A SEGUNDA NÃO É. Depois do free, o valor de p é indeterminado
+# segundo o padrão, e LER esse valor é comportamento indefinido — mesmo
+# para comparar, mesmo para copiar. Um programa que imprimisse "p tem o
+# mesmo valor" teria de ler p para dizê-lo, e estaria cometendo o que
+# este tópico ensina a não cometer. A premissa afirma o que a linguagem
+# diz do estado da variável, e não algo que um programa possa exibir.
+#
+# A EVIDÊNCIA DESTE NÓ NO GRAFO TOMOU A MESMA DECISÃO: ela demonstra que
+# p aceita um valor novo e responde — a primeira metade —, e não lê o
+# valor antigo. O cartão segue, e a outra rota diz em prosa por que a
+# segunda metade não tem saída a mostrar.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `free_kills_pointer` — "free(p) apaga a variável p". Grade `L`, FAQ
+# comp.lang.c 7.21 (resposta): o que é liberado é a memória apontada
+# pelo ponteiro passado, e não a variável. Ver também CERT C MEM30-C e a
+# FAQ 7.22, que insiste na mesma distinção — o ponteiro é uma coisa, o
+# apontado é outra.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Depois do free, p recebe o endereço de um int da
+#                    pilha e leva até ele. A variável está viva.
+#   outra rota       A metade que não se demonstra, dita em prosa, sem
+#                    bloco de saída.
+#
+# O CASO RESOLVIDO USA UM int DA PILHA, e não um segundo malloc, por
+# duas razões: o `018` já compara reatribuição com redeclaração, e usar
+# a pilha deixa claro que p é uma variável comum — ela aceita qualquer
+# endereço, não só endereços de lote.
+#
+# O QUE FICA FORA
+#
+#   o que há dentro de p depois do free -> `ciu_kc09_016`
+#   free(p) apaga a variável p?         -> `ciu_kc09_t16`
+#   `p == guardado` depois do free      -> `ciu_kc09_017`
+#   free(p) duas vezes                  -> `ciu_kc09_t17`
+#   `p = malloc` contra `int *p = malloc` -> `ciu_kc09_018`, degrau 3
+#   `p != NULL` antes e depois          -> `ciu_kc09_t18`, degrau 3
+#
+# O `017` E O `t18` SÃO EXATAMENTE A LEITURA QUE O CARTÃO NÃO FAZ, e a
+# diferença é de formato, não de rigor: item não executa, então ele pode
+# mostrar a comparação e perguntar o que sai. Cartão mostra saída, e por
+# isso não pode fazer a comparação. É a mesma matéria com instrumentos
+# diferentes.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): o programa do caso
+# resolvido compila sem um aviso, e a saída está transcrita da execução.
+# A outra rota não traz programa executado.
+
+topico: kc_09
+node: kc09:I2
+premissa: "p continua existindo, com o mesmo valor."
+crenca_que_nega: free_kills_pointer
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 4ef602741421
+
+
+# A AMPLIAÇÃO. O que o free alcança, de onde vem a ideia contrária, e
+# por que a variável viva é o problema.
+ampliacao: >
+  Isto não é regra nova: é o B3 e o I1 levados ao fim. A caixa de p é
+  sua, o free não tem caminho até ela, e então nada acontece com ela.
+  Depois da devolução, p é a mesma variável que era, no mesmo lugar, com
+  o conteúdo que tinha. O que mudou foi do outro lado: o lote.
+
+  A ideia contrária vem de confundir as duas coisas numa. Falamos "liberei
+  o ponteiro" quando liberamos o bloco, e a frase sugere que a variável
+  também foi embora — que ela deixou de existir, ou que foi zerada, ou
+  que usá-la daria erro na hora. Nada disso: o que o free recebeu foi o
+  número do lote, e é sobre o lote que ele agiu.
+
+  E é justamente a variável continuar viva que torna isto perigoso. Se
+  ela deixasse de existir, o compilador reclamaria no uso seguinte e o
+  erro apareceria cedo. Em vez disso ela está lá, com aparência boa, e o
+  programa que a usa compila e muitas vezes roda. O ponteiro que
+  continua apontando para um lote que não é mais seu tem nome, e é o
+  assunto da conclusão deste tópico.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *g = p;
+  free(p);
+  p == g          /* verdadeiro: p nao mudou */
+
+
+# O CASO RESOLVIDO: a variável está viva.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *p = malloc(sizeof(int));
+      int outro = 42;
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      free(p);
+      p = &outro;
+      printf("depois do free, p aceitou um endereco novo e levou a ele: %d\n", *p);
+      printf("a variavel p nunca deixou de existir? %d\n", p == &outro);
+  - prosa: "Pergunta: a linha depois do free escreve em p. Se o free tivesse apagado p, o que aconteceria aqui?"
+  - prosa: >
+      Não haveria onde escrever. Uma variável apagada não recebe valor, e
+      a linha seguinte não teria sentido nenhum. Ela tem: p recebeu o
+      endereço de um int comum e passou a levar até ele, como qualquer
+      ponteiro.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      depois do free, p aceitou um endereco novo e levou a ele: 42
+      a variavel p nunca deixou de existir? 1
+  - prosa: >
+      O 42 é a prova de que a caixa está de pé. E repare no que este
+      trecho NÃO faz: ele não lê o que havia em p entre o free e a
+      atribuição. Escrever em p é legítimo; ler o valor que ele guardava
+      não é — e o porquê está na outra rota.
+
+
+# A OUTRA ROTA: a metade que não se demonstra.
+reexplicacao:
+  - prosa: >
+      Outro caminho, e este é sobre o que um programa não tem como
+      mostrar. A premissa diz duas coisas, e a segunda é esta:
+  - codigo: |
+      int *p = malloc(sizeof(int));
+      int *guardado = NULL;
+
+      if (p == NULL) {
+          return 1;
+      }
+      *p = 7;
+      guardado = p;
+      free(p);
+      p == guardado;   /* o padrao diz que sim -- e ler p aqui ja e invalido */
+  - prosa: >
+      Não há bloco de saída, e a falta é a questão. Para imprimir que p
+      tem o mesmo valor seria preciso LER p depois do free — e o padrão
+      diz que, a partir daquela linha, o valor de p é indeterminado.
+      Lê-lo é comportamento indefinido, mesmo para comparar, mesmo para
+      copiar.
+  - prosa: >
+      Então esta metade da premissa é afirmação sobre a linguagem, e não
+      sobre uma execução. Ela diz que o free não mexeu em p, e isso se
+      conclui dos nós anteriores: a caixa é sua, e nada chegou até ela. O
+      que nenhum programa pode fazer é imprimir essa conclusão, porque
+      imprimi-la exige o acesso que ela mesma proíbe.
+  - prosa: >
+      E essa é a diferença entre as duas metades. Que a variável existe
+      se vê, e o caso resolvido viu. Que ela guarda o mesmo número se
+      sabe, e saber não é o mesmo que olhar.
