@@ -1724,6 +1724,12 @@ def _prova(d: Dominio, nid: str) -> list[dict]:
             continue
         fora.append({"afirma": dem.afirma, "programa": dem.programa,
                      "espera": dem.espera, "nao_compila": dem.nao_compila,
+                     # A TERCEIRA FORMA, e ela não traz saída NENHUMA: o
+                     # programa dela existe porque executá-lo é o
+                     # comportamento indefinido que a premissa descreve.
+                     # O que a tela mostra no lugar da saída é o que o
+                     # compilador DIZ sobre o programa.
+                     "avisa": dem.avisa,
                      # VIAJA SÓ NA PROVA POR RECUSA, e por isso existe:
                      # "este programa não compila" é fato sobre UM
                      # compilador. `int n = p;` é `error:` no gcc 16 e
@@ -1731,7 +1737,8 @@ def _prova(d: Dominio, nid: str) -> list[dict]:
                      # não a recusa de traduzir. Afirmar a recusa sem
                      # dizer onde é a frase que o material antigo deste
                      # tópico já afirmou e teve de retirar.
-                     "ambiente": dem.ambiente if dem.nao_compila else ""})
+                     "ambiente": (dem.ambiente
+                                  if dem.nao_compila or dem.avisa else "")})
     return fora
 
 

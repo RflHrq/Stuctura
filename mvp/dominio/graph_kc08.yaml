@@ -162,6 +162,44 @@ nodes:
     negated_by:
       - malloc_initializes_zero
 
+    # A TERCEIRA FORMA DO CONTRATO, 12/11/2026, e este no foi um dos nove
+    # que a pediram. A premissa fala de valor indeterminado ou de
+    # comportamento indefinido, e as duas formas antigas nao a alcancam:
+    # rodar o programa exibiria o proprio UB como prova, e o compilador
+    # nao RECUSA, porque o padrao nao exige recusa -- exige diagnostico.
+    #
+    # Entao a demonstracao e o diagnostico: o programa compila, o
+    # compilador avisa, e o programa NAO E EXECUTADO. Nao executar e a
+    # premissa, e nao economia -- `_demonstracoes` recusa na carga uma
+    # prova por aviso que prometa saida.
+    evidencia:
+      - afirma: >
+          O bloco devolvido não tem conteúdo definido: ler o que veio
+          nele faz o compilador avisar, e por isso este programa não é
+          executado.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              char *b = malloc(1);
+              char lido;
+
+              if (b == NULL) {
+                  return 1;
+              }
+              lido = *b;
+              free(b);
+              return lido;
+          }
+        avisa: >
+          may be used uninitialized
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall -c. O programa
+          COMPILA — o padrão não exige recusa, exige diagnóstico — e não
+          é executado aqui: executá-lo seria justamente o comportamento
+          que a premissa diz não ter resultado previsível.
   I1:
     type: inferencia
     role: espinha

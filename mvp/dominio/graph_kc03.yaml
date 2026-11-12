@@ -99,6 +99,38 @@ nodes:
     negated_by:
       - declaration_zeroes
 
+    # A TERCEIRA FORMA DO CONTRATO, 12/11/2026, e este no foi um dos nove
+    # que a pediram. A premissa fala de valor indeterminado ou de
+    # comportamento indefinido, e as duas formas antigas nao a alcancam:
+    # rodar o programa exibiria o proprio UB como prova, e o compilador
+    # nao RECUSA, porque o padrao nao exige recusa -- exige diagnostico.
+    #
+    # Entao a demonstracao e o diagnostico: o programa compila, o
+    # compilador avisa, e o programa NAO E EXECUTADO. Nao executar e a
+    # premissa, e nao economia -- `_demonstracoes` recusa na carga uma
+    # prova por aviso que prometa saida.
+    evidencia:
+      - afirma: >
+          C não zera a variável automática ao declará-la: copiar o que
+          está nela logo depois da declaração faz o compilador avisar
+          que ela foi usada sem valor.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int *p;
+              int *q = p;
+
+              return q == NULL;
+          }
+        avisa: >
+          is used uninitialized
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall -c. O programa
+          COMPILA — o padrão não exige recusa, exige diagnóstico — e não
+          é executado aqui: executá-lo seria justamente o comportamento
+          que a premissa diz não ter resultado previsível.
   I1:
     type: inferencia
     role: espinha
@@ -151,6 +183,40 @@ nodes:
     negated_by:
       - uninitialized_is_null
 
+    # A TERCEIRA FORMA DO CONTRATO, 12/11/2026, e este no foi um dos nove
+    # que a pediram. A premissa fala de valor indeterminado ou de
+    # comportamento indefinido, e as duas formas antigas nao a alcancam:
+    # rodar o programa exibiria o proprio UB como prova, e o compilador
+    # nao RECUSA, porque o padrao nao exige recusa -- exige diagnostico.
+    #
+    # Entao a demonstracao e o diagnostico: o programa compila, o
+    # compilador avisa, e o programa NAO E EXECUTADO. Nao executar e a
+    # premissa, e nao economia -- `_demonstracoes` recusa na carga uma
+    # prova por aviso que prometa saida.
+    evidencia:
+      - afirma: >
+          Logo depois da declaração p contém lixo, e não NULL: até
+          perguntar se p é NULL já é usar o que está lá — e é disso que
+          o compilador avisa.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int *p;
+
+              if (p == NULL) {
+                  return 1;
+              }
+              return 0;
+          }
+        avisa: >
+          is used uninitialized
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall -c. O programa
+          COMPILA — o padrão não exige recusa, exige diagnóstico — e não
+          é executado aqui: executá-lo seria justamente o comportamento
+          que a premissa diz não ter resultado previsível.
   I3:
     type: inferencia
     role: conclusao
@@ -161,3 +227,35 @@ nodes:
       ninguém escolheu.
     negated_by:
       - pode_usar_logo
+    # A TERCEIRA FORMA DO CONTRATO, 12/11/2026, e este no foi um dos nove
+    # que a pediram. A premissa fala de valor indeterminado ou de
+    # comportamento indefinido, e as duas formas antigas nao a alcancam:
+    # rodar o programa exibiria o proprio UB como prova, e o compilador
+    # nao RECUSA, porque o padrao nao exige recusa -- exige diagnostico.
+    #
+    # Entao a demonstracao e o diagnostico: o programa compila, o
+    # compilador avisa, e o programa NAO E EXECUTADO. Nao executar e a
+    # premissa, e nao economia -- `_demonstracoes` recusa na carga uma
+    # prova por aviso que prometa saida.
+    evidencia:
+      - afirma: >
+          Usar *p antes de dar um endereço a p é inválido: o compilador
+          avisa que p está sendo usado sem valor, e o programa não é
+          executado — escrever ali é escrever em lugar nenhum conhecido.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int *p;
+
+              *p = 5;
+              return 0;
+          }
+        avisa: >
+          is used uninitialized
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall -c. O programa
+          COMPILA — o padrão não exige recusa, exige diagnóstico — e não
+          é executado aqui: executá-lo seria justamente o comportamento
+          que a premissa diz não ter resultado previsível.

@@ -816,7 +816,30 @@
 
       var rotulo = document.createElement("p");
       rotulo.className = "rotulo";
-      if (p.nao_compila) {
+      if (p.avisa) {
+        /* A TERCEIRA FORMA: o compilador aceita o programa e DIZ alguma
+         * coisa sobre ele. Nao ha saida a mostrar, e a falta nao e
+         * descuido -- o programa nao e executado porque executa-lo e o
+         * comportamento indefinido que a premissa descreve. O
+         * `ambiente` entra pelo mesmo motivo da recusa: diagnostico e
+         * fato sobre UM compilador. */
+        rotulo.textContent = "O compilador aceita, e avisa";
+        cx.appendChild(rotulo);
+        var aviso = document.createElement("pre");
+        aviso.className = "codigo saida";
+        aviso.textContent = p.avisa;
+        cx.appendChild(aviso);
+        /* A FRASE "nao e executado" VEM DO `ambiente`, e nao daqui. A
+         * primeira versao a escrevia aqui TAMBEM, e na tela ela saiu
+         * duas vezes seguidas, uma sem acento e outra com. Visto
+         * rodando, no B3 do kc_00. */
+        if (p.ambiente) {
+          var naoRoda = document.createElement("p");
+          naoRoda.className = "prova-ambiente";
+          naoRoda.textContent = p.ambiente;
+          cx.appendChild(naoRoda);
+        }
+      } else if (p.nao_compila) {
         /* "Nao compila" sem dizer ONDE e afirmacao sobre a linguagem que
          * so vale num compilador. O `ambiente` entra junto, miudo, e sem
          * ele a frase ficaria mais forte do que o fato. */

@@ -58,12 +58,18 @@ sys.path.insert(0, str(RAIZ / "scripts"))
 # barrados pelo portão de exibição — todos pelo mesmo construto,
 # `funcao_com_parametro` — e seis exibíveis, um por nó.
 #
-# E NO MESMO DIA OS OUTROS ONZE TÓPICOS. São 85 demonstrações em 70 dos
-# 79 nós. Sete tópicos ficam COMPLETOS e entram aqui; os outros seis têm
-# nó sem evidência e ficam de fora — é esta lista que impede "ainda não
-# chegou neste" de se confundir com "este não precisa".
-COM_EVIDENCIA = ("kc_01", "kc_02", "kc_04", "kc_06", "kc_07", "kc_10",
-                 "kc_11")
+# E NO MESMO DIA OS OUTROS ONZE TÓPICOS, e depois a terceira forma do
+# contrato — a do compilador que DIAGNOSTICA sem recusar, que destravou
+# oito nós de comportamento indefinido. São 93 demonstrações em 78 dos
+# 79 nós, e doze dos treze tópicos ficam COMPLETOS.
+#
+# O ÚNICO DE FORA É O kc_05, pelo I3 dele: `*p` com p nulo. O gcc não
+# diagnostica isso com -std=c17 -Wall -c (`-Wnull-dereference` pede
+# otimização), e as outras duas formas não alcançam a premissa. Esta
+# lista é o que impede "ainda não chegou neste" de se confundir com
+# "este não precisa".
+COM_EVIDENCIA = ("kc_00", "kc_01", "kc_02", "kc_03", "kc_04", "kc_06",
+                 "kc_07", "kc_08", "kc_09", "kc_10", "kc_11", "kc_12")
 
 
 def _nos(topico):
@@ -113,6 +119,13 @@ def test_a_premissa_tem_evidencia(topico, nid):
             "demonstração sem `afirma`: qual metade da premissa ela prova? "
             "Sem isso, duas demonstrações do mesmo nó ficam indistinguíveis "
             "para quem lê.")
+        if dem.get("avisa"):
+            # A TERCEIRA FORMA tem travas próprias, logo abaixo:
+            # `test_a_terceira_forma_...` compila e confere o
+            # diagnóstico, e `test_a_demonstracao_por_aviso_nunca_...`
+            # cobra `ambiente` e proíbe `espera`. Exigir saída aqui
+            # seria exigir que ela rodasse, que é o que ela não pode.
+            continue
         if dem.get("nao_compila"):
             assert not dem.get("espera"), (
                 topico, nid, i,
@@ -132,7 +145,15 @@ def test_o_compilador_confirma_a_premissa(topico, nid, i, dem):
     Se o compilador contradisser a premissa, este teste cai — e é o
     único jeito de descobrir que uma premissa do grafo é falsa sem que
     um participante descubra primeiro.
+
+    A TERCEIRA FORMA NÃO PASSA POR AQUI, e não por conveniência: o
+    oráculo RODA o programa, e o programa dela existe porque executá-lo
+    é o comportamento indefinido que a premissa descreve. Quem a confere
+    é `test_a_terceira_forma_o_compilador_diagnostica_sem_recusar`, que
+    compila e lê o diagnóstico sem executar nada.
     """
+    if dem.get("avisa"):
+        pytest.skip("prova por aviso: conferida sem executar, logo abaixo")
     import oraculo
 
     try:
@@ -160,13 +181,103 @@ def test_a_saida_esperada_afirma_a_premissa_e_nao_falha(topico, nid, i, dem):
     espera = dem.get("espera") or ""
     assert "FALHOU" not in espera, (
         topico, nid, i, "a saída esperada contém FALHOU: %r" % espera)
-    if not dem.get("nao_compila"):
+    if not dem.get("nao_compila") and not dem.get("avisa"):
         assert "FALHOU" in dem["programa"], (
             topico, nid, i,
             "o programa não tem ramo FALHOU. Sem ele, uma premissa falsa "
             "sairia como saída diferente — e a nota do oráculo diria "
             "'saiu X, e o molde promete Y' em vez de dizer que a premissa "
             "não se sustenta.")
+
+
+def _avisos():
+    for t, nid, i, dem in _demonstracoes():
+        if dem.get("avisa"):
+            yield t, nid, i, dem
+
+
+@pytest.mark.parametrize("topico,nid,i,dem", list(_avisos()) or [(None,) * 4])
+def test_a_terceira_forma_o_compilador_diagnostica_sem_recusar(topico, nid, i, dem):
+    """A forma que os nove nós de comportamento indefinido pediram.
+
+    NOVE PREMISSAS DO PROJETO não se demonstram por nenhuma das duas
+    formas antigas — kc_00:B3, kc_03:B3/I2/I3, kc_05:I3, kc_08:B3,
+    kc_09:B4/I4, kc_12:I1. Todas falam de valor indeterminado ou de
+    comportamento indefinido: "contém lixo", "usar p depois do free",
+    "retornar &local". Rodar o programa exibiria o próprio UB como
+    prova, que é o contrário de ensinar; e o compilador não RECUSA,
+    porque o padrão não exige recusa — exige diagnóstico.
+
+    ENTÃO A TERCEIRA FORMA É O DIAGNÓSTICO: o programa compila, o
+    compilador avisa, e o programa NÃO É EXECUTADO. Não executar não é
+    economia: é a premissa. Este teste compila e confere a mensagem; se
+    algum dia ele rodasse o programa, estaria fazendo o que o nó ensina
+    a não fazer.
+    """
+    if topico is None:
+        pytest.skip("nenhuma demonstração por aviso ainda")
+    import subprocess
+    import tempfile
+
+    import oraculo
+
+    if not oraculo.GCC.exists():
+        pytest.skip("sem compilador")
+    with tempfile.TemporaryDirectory() as tmp:
+        p = pathlib.Path(tmp)
+        (p / "o.c").write_text(dem["programa"], encoding="utf-8")
+        r = subprocess.run(
+            [str(oraculo.GCC), "-std=c17", "-Wall", "-c", "-o", "o.obj", "o.c"],
+            capture_output=True, text=True, timeout=oraculo.TEMPO, cwd=str(p))
+    assert r.returncode == 0, (
+        "a demonstração por aviso de %s:%s[%d] NÃO COMPILA — e aí ela é "
+        "prova por recusa, que é a outra forma:\n%s"
+        % (topico, nid, i, r.stderr[-400:]))
+    # O YAML lido CRU traz o bloco `>` com quebra no fim; a carga
+    # normaliza, este teste não passa pela carga.
+    promete = " ".join(str(dem["avisa"]).split())
+    assert promete.lower() in r.stderr.lower(), (
+        "o compilador NÃO disse o que %s:%s[%d] promete.\n"
+        "  promete: %s\n  disse:   %s"
+        % (topico, nid, i, promete, r.stderr.strip()[-400:] or "(nada)"))
+
+
+def test_a_demonstracao_por_aviso_nunca_promete_saida():
+    """Prometer saída seria dizer que o programa pode rodar.
+
+    É a trava que separa a terceira forma da primeira: o programa da
+    terceira existe porque executá-lo é comportamento indefinido.
+    """
+    for topico, nid, i, dem in _avisos():
+        assert not dem.get("espera"), (topico, nid, i)
+        assert not dem.get("nao_compila"), (topico, nid, i)
+        assert dem.get("ambiente"), (
+            topico, nid, i,
+            "aviso sem `ambiente`: diagnóstico é fato sobre um compilador")
+
+
+def test_a_carga_recusa_aviso_malformado():
+    """A carga é onde isto falha, e não o teste.
+
+    Mesma razão do resto da `evidencia`: a prova vai para a tela de quem
+    está sendo refutado, e uma prova que promete saída de um programa
+    que não pode rodar mostraria à pessoa uma demonstração que não
+    demonstra.
+    """
+    from mvp import dominio
+
+    def problemas_de(dem):
+        p = []
+        dominio._demonstracoes("X", [dict(afirma="a", programa="int main(void){}",
+                                          **dem)], p)
+        return " ".join(p)
+
+    assert "ambiente" in problemas_de({"avisa": "uninitialized"})
+    assert "saída" in problemas_de({"avisa": "uninitialized", "ambiente": "gcc",
+                                    "espera": "oi"})
+    assert "recusa" in problemas_de({"avisa": "uninitialized", "ambiente": "gcc",
+                                     "nao_compila": True})
+    assert not problemas_de({"avisa": "uninitialized", "ambiente": "gcc 16"})
 
 
 def test_demonstracao_por_recusa_declara_o_ambiente():
@@ -203,23 +314,23 @@ def test_demonstracao_por_recusa_declara_o_ambiente():
 # impossível: quem acrescentar um tópico baixa o número, e quem tirar
 # uma evidência faz o teste cair. Sem ele, "nenhum nó tem evidência" e
 # "todos têm" passariam igual.
-SEM_EVIDENCIA = 9
+SEM_EVIDENCIA = 1
 
 
 def test_quantos_nos_ainda_nao_tem_evidencia():
     """A lacuna, contada — e é ela que define o escopo defensável.
 
-    ERA "UM TÓPICO DE TREZE" ATÉ 12/11/2026, e deixou de ser: 70 dos 79
-    nós têm demonstração que o compilador confere, nos treze tópicos.
+    ERA "UM TÓPICO DE TREZE" ATÉ 12/11/2026, e deixou de ser duas vezes
+    no mesmo dia: primeiro com as demonstrações dos onze tópicos que
+    faltavam, depois com a TERCEIRA FORMA do contrato. São 78 dos 79
+    nós.
 
-    E OS NOVE QUE FALTAM SÃO UMA FAMÍLIA SÓ, o que vale mais que o
-    número: kc_00:B3, kc_03:B3, kc_03:I2, kc_03:I3, kc_05:I3, kc_08:B3,
-    kc_09:B4, kc_09:I4 e kc_12:I1 falam de valor indeterminado e de
-    comportamento indefinido. Nenhum se demonstra rodando — o programa
-    que o fizesse exibiria o próprio UB como prova — nem por recusa,
-    porque o compilador aceita e no máximo AVISA. Falta ao contrato de
-    `Demonstracao` a terceira forma, a do compilador que DIAGNOSTICA sem
-    recusar; enquanto ela não existe, o número não baixa de nove.
+    SOBRA UM, e ele diz o limite do método: o I3 do kc_05, `*p` com p
+    nulo. Rodar é o próprio comportamento indefinido; o compilador não
+    recusa; e não diagnostica com `-std=c17 -Wall -c`, porque
+    `-Wnull-dereference` precisa de otimização ligada. Mudar os flags
+    do oráculo para alcançá-lo mudaria o que TODAS as outras
+    demonstrações significam, e isso custa mais do que o nó vale.
     """
     todos = sem = 0
     for p in sorted(DOMINIO.glob("graph_kc*.yaml")):
@@ -263,7 +374,12 @@ def test_o_programa_de_evidencia_compila_sem_aviso():
         pytest.skip("sem compilador")
     fora = []
     for topico, nid, i, dem in _demonstracoes():
-        if dem.get("nao_compila"):
+        # A PROVA POR AVISO FICA DE FORA PORQUE O AVISO É A PROVA. As
+        # duas outras formas não podem avisar — aviso ali costuma
+        # significar que o programa não mede o que diz medir —, e a
+        # terceira existe justamente para os nós em que o diagnóstico
+        # do compilador é a única demonstração possível.
+        if dem.get("nao_compila") or dem.get("avisa"):
             continue
         with tempfile.TemporaryDirectory() as tmp:
             p = pathlib.Path(tmp)

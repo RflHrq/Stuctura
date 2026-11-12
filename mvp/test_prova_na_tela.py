@@ -389,3 +389,41 @@ def test_a_prova_por_recusa_leva_o_ambiente_para_a_tela(d):
 def test_o_cliente_mostra_o_ambiente():
     js = _web("app.js")
     assert ".ambiente" in js, "o cliente não lê `prova.ambiente`"
+
+
+# --------------------------------------------------------------------------
+# A terceira forma: o compilador diagnostica, e o programa NÃO roda
+# --------------------------------------------------------------------------
+
+def test_a_prova_por_aviso_leva_o_diagnostico_e_o_ambiente():
+    """Oito nós do projeto só têm prova nesta forma.
+
+    São os de valor indeterminado e comportamento indefinido — kc_00:B3,
+    kc_03:B3/I2/I3, kc_08:B3, kc_09:B4/I4, kc_12:I1. A tela deles mostra
+    o programa e o que o compilador DIZ sobre ele, e não uma saída: o
+    programa não é executado, porque executá-lo é o que a premissa
+    descreve como sem resultado previsível.
+    """
+    achou = 0
+    for topico in ("kc_00", "kc_03", "kc_08", "kc_09", "kc_12"):
+        dd = carrega(topico=topico)
+        for nid in dd.ordem:
+            tela = motor._tela_refutacao(dd, _refutando(dd, nid))
+            for p in tela.dados["prova"]:
+                if not p.get("avisa"):
+                    continue
+                achou += 1
+                assert not p["espera"], (
+                    topico, nid, "prova por aviso prometendo saída")
+                assert p["ambiente"] and "gcc" in p["ambiente"].lower(), (
+                    topico, nid,
+                    "o diagnóstico chegou à tela sem dizer em que compilador")
+    assert achou >= 8, (
+        "a tela deveria trazer ao menos as oito provas por aviso, e trouxe "
+        "%d" % achou)
+
+
+def test_o_cliente_mostra_o_aviso():
+    """Campo novo no servidor que o cliente não lê é tela igual à de antes."""
+    js = _web("app.js")
+    assert ".avisa" in js, "o cliente não lê `prova.avisa`"

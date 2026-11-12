@@ -164,15 +164,28 @@ class Demonstracao:
     seria a mesma confusão de categoria que procurar concepção errônea
     no padrão da linguagem.
 
-    DUAS FORMAS, e o oráculo já provava as duas antes disto existir:
+    TRÊS FORMAS, e o oráculo já provava as duas primeiras antes disto
+    existir:
 
         espera        o programa compila, roda, e a saída tem de ser esta
         nao_compila   a demonstração é o compilador RECUSAR
+        avisa         a demonstração é o compilador DIAGNOSTICAR sem
+                      recusar, e o programa NÃO É EXECUTADO
 
-    `ambiente` é obrigatório na segunda, e não é zelo: recusa é fato
-    sobre um compilador, não sobre a linguagem. `int n = p;` é `error:`
-    no gcc 16 e AVISO no gcc 13 — o que o padrão exige de todo
-    compilador conforme é o diagnóstico, não a recusa de traduzir.
+    `ambiente` é obrigatório nas duas últimas, e não é zelo: recusa e
+    diagnóstico são fatos sobre um compilador, não sobre a linguagem.
+    `int n = p;` é `error:` no gcc 16 e AVISO no gcc 13 — o que o padrão
+    exige de todo compilador conforme é o diagnóstico, não a recusa de
+    traduzir.
+
+    A TERCEIRA NASCEU DE NOVE NÓS, em 12/11/2026, e o desenho dela é
+    ditado pelas premissas que ela serve: kc_00:B3, kc_03:B3/I2/I3,
+    kc_05:I3, kc_08:B3, kc_09:B4/I4 e kc_12:I1 falam de valor
+    indeterminado e de comportamento indefinido. Rodar o programa
+    exibiria o próprio UB como prova — o contrário de ensinar —, e o
+    compilador não recusa, porque o padrão não exige recusa. Por isso
+    `avisa` não convive com `espera`: não executar é a premissa, e não
+    economia.
 
     E NÃO HÁ CAMPO DIZENDO SE PODE SER EXIBIDA. Quem decide isso é
     `conceitos.exibivel`, varrendo os construtos do código: um campo
@@ -184,6 +197,7 @@ class Demonstracao:
     espera: str = ""
     nao_compila: bool = False
     ambiente: str = ""
+    avisa: str = ""                # trecho que o diagnóstico tem de trazer
 
 
 @dataclass(frozen=True)
@@ -576,6 +590,7 @@ def _demonstracoes(nid, bruto, problemas) -> tuple[Demonstracao, ...]:
         programa = str(dem.get("programa") or "")
         nao_compila = bool(dem.get("nao_compila"))
         espera = str(dem.get("espera") or "")
+        avisa = " ".join(str(dem.get("avisa") or "").split())
         ambiente = _paragrafos(dem.get("ambiente"))
         onde = "nó %s, evidência %d" % (nid, i)
         if not programa.strip():
@@ -583,7 +598,26 @@ def _demonstracoes(nid, bruto, problemas) -> tuple[Demonstracao, ...]:
             continue
         if not str(dem.get("afirma") or "").strip():
             problemas.append("%s: sem `afirma`" % onde)
-        if nao_compila:
+        if avisa:
+            # A TERCEIRA FORMA. O programa COMPILA e não é executado:
+            # executá-lo seria exibir o comportamento indefinido que a
+            # premissa descreve. Por isso ela exclui as outras duas.
+            if espera.strip():
+                problemas.append(
+                    "%s: prova por aviso não pode prometer saída — o "
+                    "programa dela existe porque executá-lo é "
+                    "comportamento indefinido" % onde)
+            if nao_compila:
+                problemas.append(
+                    "%s: `avisa` e `nao_compila` são formas diferentes — a "
+                    "primeira é o compilador que DIAGNOSTICA e traduz, a "
+                    "segunda é a recusa" % onde)
+            if not ambiente.strip():
+                problemas.append(
+                    "%s: prova por aviso sem `ambiente` — diagnóstico é "
+                    "fato sobre um compilador, não sobre a linguagem"
+                    % onde)
+        elif nao_compila:
             if espera.strip():
                 problemas.append(
                     "%s: prova por recusa do compilador não pode prometer "
@@ -599,7 +633,7 @@ def _demonstracoes(nid, bruto, problemas) -> tuple[Demonstracao, ...]:
         fora.append(Demonstracao(
             afirma=_paragrafos(dem.get("afirma")), programa=programa,
             espera=espera.rstrip("\n"), nao_compila=nao_compila,
-            ambiente=ambiente))
+            ambiente=ambiente, avisa=avisa))
     return tuple(fora)
 
 

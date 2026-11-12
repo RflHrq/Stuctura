@@ -203,6 +203,43 @@ nodes:
     negated_by:
       - heap_persists
 
+    # A TERCEIRA FORMA DO CONTRATO, 12/11/2026, e este no foi um dos nove
+    # que a pediram. A premissa fala de valor indeterminado ou de
+    # comportamento indefinido, e as duas formas antigas nao a alcancam:
+    # rodar o programa exibiria o proprio UB como prova, e o compilador
+    # nao RECUSA, porque o padrao nao exige recusa -- exige diagnostico.
+    #
+    # Entao a demonstracao e o diagnostico: o programa compila, o
+    # compilador avisa, e o programa NAO E EXECUTADO. Nao executar e a
+    # premissa, e nao economia -- `_demonstracoes` recusa na carga uma
+    # prova por aviso que prometa saida.
+    evidencia:
+      - afirma: >
+          Devolver o bloco o marca como não mais válido: escrever nele
+          depois do free faz o compilador avisar que o ponteiro foi
+          usado depois de devolvido.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              char *p = malloc(1);
+
+              if (p == NULL) {
+                  return 1;
+              }
+              free(p);
+              *p = 'x';
+              return 0;
+          }
+        avisa: >
+          used after 'free'
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall -c. O programa
+          COMPILA — o padrão não exige recusa, exige diagnóstico — e não
+          é executado aqui: executá-lo seria justamente o comportamento
+          que a premissa diz não ter resultado previsível.
   I1:
     type: inferencia
     role: espinha
@@ -340,3 +377,40 @@ nodes:
       já é território sem garantia.
     negated_by:
       - double_free_is_safe
+    # A TERCEIRA FORMA DO CONTRATO, 12/11/2026, e este no foi um dos nove
+    # que a pediram. A premissa fala de valor indeterminado ou de
+    # comportamento indefinido, e as duas formas antigas nao a alcancam:
+    # rodar o programa exibiria o proprio UB como prova, e o compilador
+    # nao RECUSA, porque o padrao nao exige recusa -- exige diagnostico.
+    #
+    # Entao a demonstracao e o diagnostico: o programa compila, o
+    # compilador avisa, e o programa NAO E EXECUTADO. Nao executar e a
+    # premissa, e nao economia -- `_demonstracoes` recusa na carga uma
+    # prova por aviso que prometa saida.
+    evidencia:
+      - afirma: >
+          Usar p depois do free é indefinido mesmo sem desreferenciar:
+          aqui p só é entregue de novo ao free, sem nenhum asterisco, e
+          o compilador já avisa.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              char *p = malloc(1);
+
+              if (p == NULL) {
+                  return 1;
+              }
+              free(p);
+              free(p);
+              return 0;
+          }
+        avisa: >
+          used after 'free'
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall -c. O programa
+          COMPILA — o padrão não exige recusa, exige diagnóstico — e não
+          é executado aqui: executá-lo seria justamente o comportamento
+          que a premissa diz não ter resultado previsível.

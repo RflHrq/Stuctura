@@ -124,6 +124,39 @@ nodes:
     negated_by:
       - declaration_zeroes
 
+    # A TERCEIRA FORMA DO CONTRATO, 12/11/2026, e este no foi um dos nove
+    # que a pediram. A premissa fala de valor indeterminado ou de
+    # comportamento indefinido, e as duas formas antigas nao a alcancam:
+    # rodar o programa exibiria o proprio UB como prova, e o compilador
+    # nao RECUSA, porque o padrao nao exige recusa -- exige diagnostico.
+    #
+    # Entao a demonstracao e o diagnostico: o programa compila, o
+    # compilador avisa, e o programa NAO E EXECUTADO. Nao executar e a
+    # premissa, e nao economia -- `_demonstracoes` recusa na carga uma
+    # prova por aviso que prometa saida.
+    evidencia:
+      - afirma: >
+          O conteúdo não é zero, e o compilador não deixa passar calado:
+          ele avisa que a variável está sendo usada sem ter recebido
+          valor. Este programa não é executado — o que ele leria é
+          justamente o que não se pode prever.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x;
+              int copia = x;
+
+              return copia;
+          }
+        avisa: >
+          is used uninitialized
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall -c. O programa
+          COMPILA — o padrão não exige recusa, exige diagnóstico — e não
+          é executado aqui: executá-lo seria justamente o comportamento
+          que a premissa diz não ter resultado previsível.
   B4:
     type: observavel
     role: espinha
