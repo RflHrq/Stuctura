@@ -88,6 +88,441 @@ exemplos:
     int *p = malloc(40);
     free(p);     /* quem devolve e voce */
 
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *v = malloc(4 * sizeof(int));
+        int i = 0;
+        int soma = 0;
+
+        if (v == NULL) {
+            return 1;
+        }
+        while (i < 4) {
+            v[i] = i + 1;
+            i = i + 1;
+        }
+        i = 0;
+        while (i < 4) {
+            soma = soma + v[i];
+            i = i + 1;
+        }
+        printf("os quatro ints couberam, e somam %d\n", soma);
+        free(v);
+    - prosa: >
+        Pergunta: por que o pedido tem uma multiplicação, se eu quero
+        quatro números?
+    - prosa: >
+        Porque o pedido é em bytes, e quatro números não são quatro bytes.
+        A multiplicação é a tradução entre o que você quer — quatro
+        elementos — e o que malloc entende: uma quantidade de bytes. Quem
+        faz essa tradução é você.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        os quatro ints couberam, e somam 10
+    - prosa: >
+        Um mais dois mais três mais quatro. As quatro posições existiram
+        porque o pedido levou em conta o tamanho de cada uma — sem a
+        multiplicação, o bloco teria vindo do mesmo jeito, e menor.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *um = malloc(sizeof(int));
+        int *outro = malloc(sizeof(int));
+
+        if (um == NULL || outro == NULL) {
+            return 1;
+        }
+        *um = 10;
+        *outro = 20;
+        printf("dois pedidos, dois lotes diferentes? %d\n", um != outro);
+        printf("e cada um guarda o seu: %d e %d\n", *um, *outro);
+        free(um);
+        free(outro);
+    - prosa: >
+        Pergunta: a terceira linha compara os dois. O que exatamente está
+        sendo comparado?
+    - prosa: >
+        Os dois números que vieram de malloc, guardados nas duas caixas de
+        ponteiro. Comparar é coisa que se faz com valores — se o que
+        tivesse voltado fosse o bloco, não haveria dois números para pôr
+        lado a lado.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dois pedidos, dois lotes diferentes? 1
+        e cada um guarda o seu: 10 e 20
+    - prosa: >
+        Dois endereços distintos, e cada um levando ao seu bloco. O que
+        voltou de cada pedido foi um número de lote; o conteúdo, o 10 e o
+        20, só apareceu depois, quando alguém escreveu lá.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *soma = malloc(sizeof(int));
+        int i = 0;
+
+        if (soma == NULL) {
+            return 1;
+        }
+        *soma = 0;
+        while (i < 5) {
+            *soma = *soma + i;
+            i = i + 1;
+        }
+        printf("a soma deu %d\n", *soma);
+        free(soma);
+    - prosa: >
+        Pergunta: quais linhas deste trecho escreveram alguma coisa no
+        bloco?
+    - prosa: >
+        Seis: a do zero e as cinco do laço. A primeira é a que costuma
+        passar despercebida, porque parece redundante — e não é. Tire-a, e
+        a primeira soma parte do que estava no bloco, que ninguém
+        escolheu.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a soma deu 10
+    - prosa: >
+        Dez, que é zero mais um mais dois mais três mais quatro. O zero
+        está na conta, e ele entrou por uma linha escrita por alguém. Se
+        malloc zerasse o bloco, aquela linha seria dispensável — e em C
+        ela é o que segura o resultado.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 5;
+        printf("a caixa de p e o lote dela sao lugares diferentes? %d\n",
+               (void *) &p != (void *) p);
+        printf("e pelo lote chego em %d\n", *p);
+        free(p);
+    - prosa: >
+        Pergunta: a comparação põe lado a lado duas coisas. Quais?
+    - prosa: >
+        O endereço da caixa de p — onde p mora — e o endereço que está
+        dentro dela — onde o bloco mora. São duas perguntas diferentes
+        sobre o mesmo ponteiro, e as respostas não são o mesmo número.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a caixa de p e o lote dela sao lugares diferentes? 1
+        e pelo lote chego em 5
+    - prosa: >
+        Lugares diferentes. Se o ponteiro morasse no bloco que ele indica,
+        as duas perguntas teriam a mesma resposta — e a comparação diria
+        zero.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *pede(size_t quanto)
+        {
+            int *bloco = malloc(quanto);
+
+            if (bloco == NULL) {
+                return NULL;
+            }
+            *bloco = 1;
+            return bloco;
+        }
+    - codigo: |
+        size_t enorme = 1;
+        int voltas = 0;
+        int *possivel = NULL;
+        int *impossivel = NULL;
+
+        while (voltas < 6) {
+            enorme = enorme * 1000;
+            voltas = voltas + 1;
+        }
+        possivel = pede(sizeof(int));
+        impossivel = pede(enorme);
+        printf("o pedido comum voltou utilizavel? %d\n", possivel != NULL);
+        printf("e o pedido grande demais voltou dizendo que nao deu? %d\n",
+               impossivel == NULL);
+        free(possivel);
+    - prosa: >
+        Pergunta: a mesma função foi chamada duas vezes. Por que uma
+        respondeu diferente da outra?
+    - prosa: >
+        Porque o alocador respondeu diferente nas duas. A função não
+        escolheu nada: ela leu a resposta que recebeu e repassou. O
+        segundo pedido não é um erro de escrita — é um pedido que não pode
+        ser atendido, e o não chegou como NULL.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o pedido comum voltou utilizavel? 1
+        e o pedido grande demais voltou dizendo que nao deu? 1
+    - prosa: >
+        As duas respostas aconteceram no mesmo programa, na mesma
+        execução. Se malloc sempre funcionasse, a segunda linha não teria
+        como ser verdadeira — e ela é.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *fora = NULL;
+
+        {
+            int *dentro = malloc(sizeof(int));
+
+            if (dentro == NULL) {
+                return 1;
+            }
+            *dentro = 77;
+            fora = dentro;
+        }
+        printf("o bloco atravessou o fim do bloco de codigo: %d\n", *fora);
+        free(fora);
+    - prosa: >
+        Pergunta: a variável dentro não existe mais depois da chave. E o
+        lote que ela indicava?
+    - prosa: >
+        Continua lá. O que a chave encerrou foi a caixa de ponteiro — uma
+        variável local, como qualquer outra. O bloco foi pedido ao
+        alocador, e o alocador não ficou sabendo de chave nenhuma.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o bloco atravessou o fim do bloco de codigo: 77
+    - prosa: >
+        O 77 estava lá para ser lido. O endereço tinha sido copiado para
+        uma variável de fora antes do fim do escopo — e sem essa cópia o
+        bloco continuaria existindo do mesmo jeito, só que sem ninguém
+        sabendo chegar nele.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Caminho DIFERENTE do caso resolvido -- ha teste no
+# projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Peça a mesma QUANTIDADE de elementos para dois
+        tipos diferentes.
+    - codigo: |
+        int quantos = 3;
+        char *letras = malloc(quantos * sizeof(char));
+        int *numeros = malloc(quantos * sizeof(int));
+
+        if (letras == NULL || numeros == NULL) {
+            return 1;
+        }
+        letras[2] = 'c';
+        numeros[2] = 300;
+        printf("tres letras cabem, e a ultima e %c\n", letras[2]);
+        printf("tres ints cabem, e o ultimo e %d\n", numeros[2]);
+        printf("e o pedido maior foi o dos ints? %d\n",
+               quantos * (int) sizeof(int) > quantos * (int) sizeof(char));
+        free(letras);
+        free(numeros);
+    - prosa: >
+        Os dois pedidos guardam três elementos. O número que vai dentro
+        dos parênteses não é o mesmo nos dois, e a última linha compara os
+        dois pedidos entre si.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        tres letras cabem, e a ultima e c
+        tres ints cabem, e o ultimo e 300
+        e o pedido maior foi o dos ints? 1
+    - prosa: >
+        Mesma quantidade de elementos, pedidos de tamanhos diferentes. Se
+        o número passado a malloc fosse a quantidade de elementos, os dois
+        pedidos seriam idênticos — e um dos dois blocos não teria onde
+        guardar o que guardou.
+
+  B2:
+    - prosa: >
+        Outro caminho. Copie para outra caixa o que malloc devolveu.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+        int *copia = NULL;
+
+        if (p == NULL) {
+            return 1;
+        }
+        copia = p;
+        *p = 42;
+        printf("escrevi por p, e li pela copia: %d\n", *copia);
+        free(p);
+    - prosa: >
+        Houve um pedido só, e portanto um bloco só. A linha do meio
+        duplicou o que estava em p — e o 42 foi escrito depois, por um dos
+        dois caminhos.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        escrevi por p, e li pela copia: 42
+    - prosa: >
+        A cópia chegou no mesmo lugar. Se o que malloc tivesse devolvido
+        fosse o bloco, copiá-lo daria dois blocos independentes, e o 42
+        escrito num não apareceria no outro. O que foi copiado era o
+        caminho.
+
+  B3:
+    - prosa: >
+        Outro caminho. Olhe a ordem entre pedir, escrever e ler.
+    - codigo: |
+        void preenche(int *bloco, int n)
+        {
+            int i = 0;
+
+            while (i < n) {
+                bloco[i] = 7;
+                i = i + 1;
+            }
+        }
+    - codigo: |
+        int *v = malloc(3 * sizeof(int));
+
+        if (v == NULL) {
+            return 1;
+        }
+        preenche(v, 3);
+        printf("as tres posicoes foram escritas antes de lidas: %d %d %d\n",
+               v[0], v[1], v[2]);
+        free(v);
+    - prosa: >
+        Entre o pedido e a primeira leitura há uma passagem que escreve em
+        todas as posições. Nenhuma linha deste trecho lê o bloco antes de
+        ele ter sido preenchido.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        as tres posicoes foram escritas antes de lidas: 7 7 7
+    - prosa: >
+        Três setes, e os três vieram do laço. É essa a disciplina que um
+        bloco recém-pedido exige: o que você lê de lá é o que você
+        escreveu, e nada mais — porque sobre o que estava lá antes a
+        linguagem não diz nada.
+
+  I1:
+    - prosa: >
+        Outro caminho. Mande o ponteiro para outro lote e veja o que
+        acontece com o primeiro.
+    - codigo: |
+        int *p = malloc(sizeof(int));
+        int *guarda = NULL;
+        int *segundo = NULL;
+
+        if (p == NULL) {
+            return 1;
+        }
+        *p = 1;
+        guarda = p;
+        segundo = malloc(sizeof(int));
+        if (segundo == NULL) {
+            free(p);
+            return 1;
+        }
+        *segundo = 2;
+        p = segundo;
+        printf("p passou a indicar o segundo lote: %d\n", *p);
+        printf("e o primeiro continua la, pelo guarda: %d\n", *guarda);
+        free(guarda);
+        free(segundo);
+    - prosa: >
+        A linha p = segundo mexe numa caixa de ponteiro, e em mais nada. O
+        endereço do primeiro lote tinha sido copiado para guarda antes
+        disso.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        p passou a indicar o segundo lote: 2
+        e o primeiro continua la, pelo guarda: 1
+    - prosa: >
+        O um continua onde estava. Mexer no ponteiro não mexe no bloco —
+        são duas coisas, e a atribuição alcançou só uma delas.
+
+  I2:
+    - prosa: >
+        Outro caminho. Olhe o que o teste faz quando a resposta é a
+        segunda.
+    - codigo: |
+        size_t enorme = 1;
+        int voltas = 0;
+        int *bloco = NULL;
+        int escreveu = 0;
+        int seguiu = 0;
+
+        while (voltas < 6) {
+            enorme = enorme * 1000;
+            voltas = voltas + 1;
+        }
+        bloco = malloc(enorme);
+        if (bloco != NULL) {
+            bloco[0] = 1;
+            escreveu = 1;
+            free(bloco);
+        }
+        seguiu = 1;
+        printf("o pedido falhou, e a escrita nao aconteceu? %d\n", escreveu == 0);
+        printf("e o programa seguiu depois disso? %d\n", seguiu);
+    - prosa: >
+        O pedido falhou de verdade. A escrita estava escrita ali, dentro
+        do if, e não foi executada — e o programa continuou até as duas
+        linhas de saída.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o pedido falhou, e a escrita nao aconteceu? 1
+        e o programa seguiu depois disso? 1
+    - prosa: >
+        Sem aquele if, a mesma escrita teria sido executada com bloco
+        valendo NULL — mandar o 1 para um lote que não existe. O teste não
+        conserta a falha: ele faz o programa saber dela a tempo.
+
+  I3:
+    - prosa: >
+        Outro caminho. Devolva um lote e veja o que acontece com o
+        vizinho.
+    - codigo: |
+        int *um = malloc(sizeof(int));
+        int *outro = malloc(sizeof(int));
+
+        if (um == NULL || outro == NULL) {
+            return 1;
+        }
+        *um = 1;
+        *outro = 2;
+        free(um);
+        printf("devolvi um lote, e o outro continua meu: %d\n", *outro);
+        free(outro);
+    - prosa: >
+        O free recebeu o endereço de um bloco, e foi sobre ele que agiu. O
+        segundo lote não foi mencionado naquela linha.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        devolvi um lote, e o outro continua meu: 2
+    - prosa: >
+        O dois continua acessível. A devolução é por bloco, e é sempre uma
+        linha que alguém escreveu — não há nada no programa nem no sistema
+        varrendo o que sobrou enquanto ele roda.
+
 activities:
 
   # ------------------------------------------------------------------

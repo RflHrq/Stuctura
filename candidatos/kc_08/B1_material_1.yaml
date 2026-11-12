@@ -60,8 +60,8 @@ premissa: "malloc(n) pede n bytes ao alocador."
 crenca_que_nega: malloc_conta_elementos
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: 9a37778c0a12
 
 
 # A AMPLIAÇÃO. O que o número significa, o que o alocador não sabe, e

@@ -50,8 +50,8 @@ premissa: "malloc devolve o endereço do bloco, ou NULL."
 crenca_que_nega: pointer_is_data
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: a564606ad21a
 
 
 # A AMPLIAÇÃO. O que volta, onde isso fica guardado, e qual é a outra

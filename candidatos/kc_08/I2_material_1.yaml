@@ -37,6 +37,13 @@
 # Calculado em execução, o pedido é o mesmo e o compilador não tem o
 # que avisar. A mesma decisão está na evidência deste nó, no grafo.
 #
+# E NENHUM DOS DOIS DEVOLVE LOTE QUE NÃO EXISTE. O pedido que falhou
+# não trouxe lote, então não há free para ele; na outra rota o free
+# está DENTRO da guarda, onde o lote existe. `free(NULL)` seria
+# definido e inofensivo, mas é neste cartão que a pessoa está mais
+# pronta para ler isso como contradição — e os outros onze blocos do
+# tópico voltam cedo e devolvem só lote que existe.
+#
 # E A FALHA É REAL, NÃO SIMULADA. Nenhuma das duas finge um retorno
 # NULL: as duas pedem mais memória do que existe e recebem a segunda
 # resposta de verdade. Era a única maneira de a demonstração ser sobre
@@ -60,8 +67,8 @@ premissa: "Verificar NULL é necessário: falhar é resultado possível."
 crenca_que_nega: malloc_always_succeeds
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: 471e752e8ff6
 
 
 # A AMPLIAÇÃO. Por que a falha existe, o que o teste compra, e por que
@@ -120,7 +127,6 @@ caso_resolvido:
       printf("e o pedido grande demais voltou dizendo que nao deu? %d\n",
              impossivel == NULL);
       free(possivel);
-      free(impossivel);
   - prosa: "Pergunta: a mesma função foi chamada duas vezes. Por que uma respondeu diferente da outra?"
   - prosa: >
       Porque o alocador respondeu diferente nas duas. A função não
@@ -157,11 +163,11 @@ reexplicacao:
       if (bloco != NULL) {
           bloco[0] = 1;
           escreveu = 1;
+          free(bloco);
       }
       seguiu = 1;
       printf("o pedido falhou, e a escrita nao aconteceu? %d\n", escreveu == 0);
       printf("e o programa seguiu depois disso? %d\n", seguiu);
-      free(bloco);
   - prosa: >
       O pedido falhou de verdade. A escrita estava escrita ali, dentro
       do if, e não foi executada — e o programa continuou até as duas

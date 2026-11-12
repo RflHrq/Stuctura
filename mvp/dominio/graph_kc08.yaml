@@ -98,6 +98,24 @@ nodes:
           }
         espera: |-
           os seis bytes pedidos aceitaram escrita e leitura
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O número que você passa a malloc é uma quantidade de bytes. Não de
+      elementos, não de posições: bytes. malloc(10) reserva dez bytes, e o
+      que você vai guardar neles é assunto seu.
+
+
+      O alocador não sabe o tipo. Ele recebe um número e devolve um bloco
+      daquele tamanho — a mesma chamada serve para dez letras, para dois
+      números grandes ou para qualquer outra coisa que caiba em dez bytes.
+      Não há no pedido nenhuma informação sobre o que vai morar ali.
+
+
+      Por isso a conta é sua. Para guardar n elementos de um tipo, o que
+      se pede é n vezes o tamanho daquele tipo — e sizeof é quem responde
+      esse tamanho. Esquecer a multiplicação não dá erro no pedido: o
+      bloco vem, menor do que você precisa, e o problema aparece longe
+      dali.
   B2:
     type: observavel
     role: espinha
@@ -151,6 +169,25 @@ nodes:
         espera: |-
           o pedido comum voltou com um endereco que funciona
           e o pedido grande demais voltou NULL: a outra saida existe
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O que malloc devolve é um endereço: o número do lote que ele
+      reservou. O bloco em si fica onde está — ele não é entregue, não é
+      copiado para dentro do seu ponteiro, não cabe ali. O que cabe é o
+      caminho até ele.
+
+
+      Por isso o ponteiro e o bloco são duas coisas. Em int *p =
+      malloc(4), a caixa de p guarda um endereço, e o bloco de quatro
+      bytes está em outro lugar. Para chegar ao conteúdo é preciso viajar
+      — e é isso que a estrela faz.
+
+
+      E há uma segunda resposta possível. Quando o pedido não pode ser
+      atendido, o que volta é NULL — um valor de ponteiro como o outro, e
+      que significa "não tem lote". As duas respostas chegam pelo mesmo
+      caminho e cabem na mesma caixa, e distinguir uma da outra é assunto
+      de outro nó deste tópico.
   B3:
     type: observavel
     role: espinha
@@ -200,6 +237,26 @@ nodes:
           COMPILA — o padrão não exige recusa, exige diagnóstico — e não
           é executado aqui: executá-lo seria justamente o comportamento
           que a premissa diz não ter resultado previsível.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O alocador reserva o espaço e para por aí. Ele não escreve nada
+      dentro: o que estiver naquele trecho de memória continua lá — sobra
+      do que o programa já fez, ou do que nunca usou. O padrão não promete
+      nada sobre esse conteúdo.
+
+
+      A confusão tem uma origem razoável, e ela é a própria biblioteca.
+      Existe uma função que zera o bloco ao entregá-lo, e justamente por
+      isso ela é outra função, com outro nome: se malloc já zerasse, não
+      haveria por que ter as duas.
+
+
+      Então o valor inicial é trabalho de quem pediu. Escrever em todas as
+      posições antes de ler qualquer uma não é zelo: é o que faz o
+      programa ter um resultado previsível. Somar dentro de um bloco
+      recém-pedido, sem pôr o zero antes, é partir de um número que
+      ninguém escolheu — e o programa pode acertar hoje e errar amanhã,
+      com o mesmo código.
   I1:
     type: inferencia
     role: espinha
@@ -242,6 +299,25 @@ nodes:
         espera: |-
           o ponteiro foi apagado
           e o bloco continua la, alcancavel pelo outro ponteiro
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é a contagem do que o B2 descreveu. Se o que
+      volta de malloc é um endereço, então ele precisa de uma caixa para
+      ficar guardado — e o bloco que ele nomeia é outra coisa, em outro
+      lugar. Duas coisas, sempre.
+
+
+      A caixa do ponteiro é uma variável comum. Se você a declarou dentro
+      de uma função, ela vive o que a função viver, como qualquer local:
+      no fim da chamada ela some. O bloco não — ele foi pedido ao
+      alocador, e a vida dele segue outra regra.
+
+
+      Por isso as duas podem se separar. O ponteiro pode receber outro
+      endereço e passar a indicar outro bloco; pode receber NULL e não
+      indicar nada. Em nenhum desses movimentos o bloco original se mexe —
+      e se mais ninguém guardou o endereço dele, ele continua existindo
+      sem que ninguém saiba chegar lá.
   I2:
     type: inferencia
     role: espinha
@@ -289,6 +365,25 @@ nodes:
         espera: |-
           o pedido falhou, e o teste pegou a falha
           sem o teste, a escrita teria ido para o nada
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Pedir memória é pedir, e quem pede pode ouvir não. O alocador
+      trabalha com o que o sistema tem para dar, e isso não é infinito nem
+      igual todo dia. Quando não há como atender, ele responde NULL — e
+      essa é uma resposta regular, prevista, e não um defeito.
+
+
+      Por isso o teste não é precaução: é a leitura da resposta. Entre
+      pedir e usar há uma pergunta a fazer, e quem não a faz está tratando
+      as duas respostas possíveis como se fossem uma. Com NULL em p,
+      escrever em p[0] é mandar escrever onde não há lote.
+
+
+      E "nunca vi falhar" não diz nada sobre o programa. Pedidos pequenos,
+      numa máquina com memória sobrando, quase sempre são atendidos — e é
+      por isso que o erro atravessa testes inteiros sem aparecer. Ele
+      aparece quando o pedido cresce, ou quando a máquina está apertada,
+      que é justamente quando o programa precisava funcionar.
   I3:
     type: inferencia
     role: conclusao
@@ -336,3 +431,23 @@ nodes:
           }
         espera: |-
           duas funcoes rodaram inteiras, e o bloco continua com o q
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o I1 levado adiante. O ponteiro e o bloco
+      são duas coisas, e cada uma acaba do seu jeito. A variável que
+      guarda o endereço some quando o escopo dela fecha — e o bloco, que
+      não é ela, continua reservado até alguém devolvê-lo.
+
+
+      A ideia contrária tem de onde vir. Variáveis comuns somem sozinhas
+      no fim da função, e isso funciona tão bem que passa despercebido;
+      quando o programa termina, o sistema operacional recolhe tudo mesmo.
+      Entre um e outro, porém, está o tempo em que o programa roda — e é
+      nesse tempo que o bloco não recolhido fica.
+
+
+      Por isso o free é seu. Enquanto o programa vive, cada bloco pedido e
+      não devolvido continua ocupado, e o alocador não tem como saber que
+      você não precisa mais dele. Num programa que pede muitas vezes, o
+      que se acumula não é um erro visível: é memória que some aos poucos,
+      sem nada quebrar na hora.

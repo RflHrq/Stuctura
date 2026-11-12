@@ -1,7 +1,8 @@
 # Material de ensino do I3 do kc_08 — candidato, NÃO é domínio.
 #
-# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico: suporte em `I1`,
-# e a refutação percorre B2 -> I1 -> I3.
+# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico: suporte em `B1`,
+# `B3`, `I1` e `I2`, e a refutação percorre os cinco nós anteriores
+# antes de chegar aqui.
 #
 # E A DERIVAÇÃO VEM DO I1: se o ponteiro é uma variável e o bloco é
 # outra coisa, então o fim da variável não é o fim do bloco. Quem
@@ -30,7 +31,7 @@
 #                    acerta um bloco, e não todos.
 #
 # O CASO RESOLVIDO USA UM BLOCO DE CÓDIGO, e não uma função, de
-# propósito. Três itens deste nó já usam funções — `ciu_kc08_011`,
+# propósito. Três itens deste nó já usam funções — `ciu_kc08_017`,
 # `t17` e `t18` —, e o bloco entre chaves mostra a mesma coisa com
 # menos peças: não há chamada, não há retorno, e mesmo assim a variável
 # de dentro acaba e o lote não.
@@ -62,8 +63,8 @@ premissa: "O bloco vive até o free: ninguém o libera por você."
 crenca_que_nega: system_frees_auto
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: ea053951b9fe
 
 
 # A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO do I1; o segundo diz
