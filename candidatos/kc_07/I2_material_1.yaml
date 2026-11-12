@@ -1,0 +1,145 @@
+# Material de ensino do I2 do kc_07 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Suporte em `B3` e `B4`: o nó que diz que
+# o nome vira endereço, e o nó que diz onde isso não acontece. Daí sai
+# a consequência prática do tópico inteiro.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE É A PERGUNTA 6.21
+#
+# `sizeof_array_via_pointer` — "dentro da função, sizeof ainda mede o
+# array inteiro". Grade `L`, FAQ comp.lang.c 6.21:
+#
+#   "Why doesn't sizeof properly report the size of an array when the
+#   array is a parameter to a function?"
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES, e nenhuma usa `sizeof` dentro da função
+#
+#   caso resolvido   A MESMA função somando dois conjuntos de tamanhos
+#                    diferentes: o tamanho veio por fora.
+#   outra rota       A mesma função chamada com `&a[1]`: o parâmetro
+#                    aceita qualquer endereço, porque é um ponteiro.
+#
+# POR QUE O `sizeof` LÁ DENTRO FICA DE FORA. Três itens deste nó o
+# usam: `ciu_kc07_017` imprime `sizeof a` com parâmetro `char a[10]`,
+# o `018` põe a divisão num laço que não zera o array todo, e o `t18`
+# compara os dois números. É lá que a perda se mede, e é um caso em que
+# o cartão não tem como mostrar o defeito sem dar a resposta de três
+# itens de uma vez.
+#
+# ENTÃO O CARTÃO ENSINA O QUE FUNCIONA, e a outra rota mostra POR QUE
+# funciona: se o parâmetro é um ponteiro, ele aceita o endereço de
+# qualquer casa — e um conjunto que começa no meio de outro não tem
+# como ter tamanho conhecido de dentro. É a mesma conclusão, alcançada
+# sem exibir a forma quebrada.
+#
+# O `ciu_kc07_t17` PERGUNTA O QUE FALTA NA CHAMADA, e a resposta é o
+# tamanho. O caso resolvido mostra a função com o segundo parâmetro
+# funcionando — o que o resgate e o exemplo deste nó já dizem em prosa,
+# e o item continua medindo se a pessoa aplica.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_07
+node: kc07:I2
+premissa: >
+  Como parâmetro, int a[] é reescrito como int *a, e o tamanho se
+  perde.
+crenca_que_nega: sizeof_array_via_pointer
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que o parâmetro é, o que isso custa, e o que se faz a
+# respeito.
+ampliacao: >
+  Escrever int v[] num parâmetro não declara um conjunto: o compilador
+  reescreve aquilo como int *v. Os colchetes ficam ali como lembrete do
+  que a função espera receber, e nada mais — por dentro, v é uma caixa
+  de endereço como qualquer outra.
+
+  Por isso o tamanho não chega. O que foi copiado na chamada foi um
+  endereço, e endereço não carrega quantidade: ele diz onde começa, e
+  não até onde vai. De dentro da função não há como descobrir quantas
+  casas existem a partir dali.
+
+  Então o tamanho viaja à parte. É por isso que tantas funções de C
+  recebem um conjunto e um número — e é por isso que passar o número
+  errado é um erro que o compilador não tem como apontar. Quem sabe o
+  tamanho é quem declarou o conjunto.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void f(int v[]) { sizeof v; }   /* mede o ponteiro */
+  /* o tamanho vai num segundo argumento */
+
+
+# O CASO RESOLVIDO: a mesma função, dois tamanhos.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int soma(int v[], int n)
+      {
+          int total = 0;
+          int i = 0;
+
+          while (i < n) {
+              total = total + v[i];
+              i = i + 1;
+          }
+          return total;
+      }
+  - codigo: |
+      int tres[3] = {1, 2, 3};
+      int cinco[5] = {1, 1, 1, 1, 1};
+
+      printf("a mesma funcao somou %d e %d\n", soma(tres, 3), soma(cinco, 5));
+  - prosa: "Pergunta: a função serviu a dois conjuntos de tamanhos diferentes. Como ela soube onde parar?"
+  - prosa: >
+      Pelo segundo argumento, e só por ele. O primeiro parâmetro trouxe
+      apenas o endereço de onde começar; se o tamanho viesse junto com
+      ele, o segundo seria desnecessário — e a mesma função não serviria
+      aos dois conjuntos.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a mesma funcao somou 6 e 5
+  - prosa: >
+      Seis e cinco, das duas chamadas. O que distinguiu uma da outra
+      não foi nada que a função tenha descoberto sozinha: foi o número
+      que quem chamou escreveu.
+
+
+# A OUTRA ROTA: o parâmetro aceita qualquer endereço.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Se o parâmetro é um ponteiro, ele aceita o
+      endereço de qualquer casa — e não só o começo de um conjunto.
+  - codigo: |
+      int primeiro(int v[])
+      {
+          return v[0];
+      }
+  - codigo: |
+      int a[3] = {10, 20, 30};
+
+      printf("com a: %d\n", primeiro(a));
+      printf("com &a[1]: %d\n", primeiro(&a[1]));
+  - prosa: >
+      A segunda chamada entrega o endereço da casa do meio. A função
+      aceita, e passa a tratar aquela casa como a primeira dela.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      com a: 10
+      com &a[1]: 20
+  - prosa: >
+      Dez e vinte, da mesma função. Se o parâmetro fosse um conjunto de
+      três casas, a segunda chamada não faria sentido — não existe
+      conjunto começando no meio de outro. Ela faz, e é por isso que de
+      dentro não há tamanho a descobrir.

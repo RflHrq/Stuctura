@@ -1,0 +1,132 @@
+# Material de ensino do B4 do kc_07 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O B3 disse que o nome do conjunto vira
+# endereço numa expressão; este diz ONDE isso não acontece.
+#
+# E É O NÓ EM QUE A METÁFORA DO TÓPICO É AFINADA. O cabeçalho do grafo
+# declara o atalho e os dois lugares em que ele não vale: ao medir o
+# quarteirão, e ao perguntar o endereço DELE.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE É A PERGUNTA
+#
+# `arr_equals_addr_of_arr` — "arr e &arr são a mesma coisa". Grade `L`,
+# FAQ comp.lang.c 6.12: "Since array references decay into pointers, if
+# arr is an array, what's the difference between arr and &arr?"
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES, e nenhuma compara `a` com `&a`
+#
+#   caso resolvido   `sizeof a / sizeof a[0]` dá a CONTAGEM de casas:
+#                    a divisão só fecha porque a conversão não
+#                    aconteceu.
+#   outra rota       `&a` guardado numa caixa do tipo dele —
+#                    `int (*tudo)[3]` — e a escrita por ali chegando
+#                    numa casa do conjunto.
+#
+# POR QUE NENHUMA DAS DUAS COMPARA `a` COM `&a`. Três itens deste nó
+# fazem isso por três caminhos — `sizeof a` contra `sizeof &a`
+# (`ciu_kc07_011`), `a + 1` contra `&a + 1` (`ciu_kc07_012`), e a
+# comparação direta com os dois (`ciu_kc07_t12`) —, e é lá que a
+# diferença se mede. O cartão mostra cada uma das duas exceções
+# funcionando, e deixa o confronto para os itens.
+#
+# O CASO RESOLVIDO ESCOLHE A DIVISÃO, e não o número em bytes, por uma
+# razão de medida: `sizeof a` sozinho responde um número que depende do
+# tamanho do int nesta máquina. A divisão por `sizeof a[0]` responde
+# CONTAGEM — cinco —, e cinco é cinco em qualquer lugar. O projeto já
+# tem essa regra, e foi ela que trocou "não compila" por "reclama".
+#
+# E O `ciu_kc07_018` USA A MESMA DIVISÃO DENTRO DE UMA FUNÇÃO, onde ela
+# não funciona, e pergunta por quê. Isso é a favor: o item cobra o que
+# o cartão deu, e o que ele acrescenta — o parâmetro ser ponteiro — é
+# do I2.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_07
+node: kc07:B4
+premissa: "Em sizeof e em & a conversão não acontece."
+crenca_que_nega: arr_equals_addr_of_arr
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. As duas exceções, o que cada uma responde, e o que isso
+# diz sobre o nome do conjunto.
+ampliacao: >
+  O atalho tem duas exceções, e nas duas o nome do array continua
+  valendo pelo conjunto inteiro. Em sizeof a, o que se mede são todas
+  as casas juntas — não o tamanho de um endereço. Em &a, o que se
+  pergunta é o endereço DO CONJUNTO, e não o da primeira casa.
+
+  Daí sai a contagem. sizeof a dividido por sizeof a[0] é o tamanho do
+  conjunto dividido pelo tamanho de uma casa, e o resultado é quantas
+  casas existem. A conta só fecha porque o de cima mediu o conjunto; se
+  o nome tivesse virado endereço, o de cima seria o tamanho de um
+  ponteiro e o resultado não significaria nada.
+
+  E o &a tem um tipo próprio: ponteiro para o conjunto, não para uma
+  casa. Ele marca o mesmo ponto da memória que a primeira casa — é por
+  isso que a confusão nasce —, mas o que ele diz é outra coisa, e andar
+  um passo a partir dele pula o conjunto inteiro.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int a[5];
+  sizeof a     /* as cinco caixas */
+  &a           /* endereco DO CONJUNTO */
+
+
+# O CASO RESOLVIDO: a contagem.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int a[5];
+      int quantas = (int) (sizeof a / sizeof a[0]);
+
+      printf("o conjunto tem %d casas\n", quantas);
+  - prosa: "Pergunta: por que esta divisão dá a quantidade de casas?"
+  - prosa: >
+      Porque o de cima mediu o conjunto inteiro e o de baixo mediu uma
+      casa. Repare que o nome a aparece nos dois, e nos dois ele NÃO
+      virou endereço — foi por isso que a conta fez sentido.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o conjunto tem 5 casas
+  - prosa: >
+      Cinco, que é o número escrito na declaração. Se dentro de sizeof
+      o nome virasse o endereço da primeira casa, o de cima seria o
+      tamanho de um ponteiro, e a divisão daria um número sem relação
+      nenhuma com o conjunto.
+
+
+# A OUTRA ROTA: o &a guardado na caixa do tipo dele.
+reexplicacao:
+  - prosa: >
+      Outro caminho. O que &a devolve cabe numa caixa — e a caixa diz
+      que tipo de coisa é.
+  - codigo: |
+      int a[3] = {1, 1, 1};
+      int (*tudo)[3] = &a;
+
+      (*tudo)[1] = 9;
+      printf("por &a cheguei no conjunto, e a[1] vale %d\n", a[1]);
+  - prosa: >
+      A declaração de tudo diz "ponteiro para um conjunto de três
+      ints", e é essa a caixa que recebe &a. Depois a estrela desce até
+      o conjunto, e o colchete escolhe uma casa dentro dele.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      por &a cheguei no conjunto, e a[1] vale 9
+  - prosa: >
+      O 9 chegou na segunda casa, pelo caminho do conjunto. Se &a fosse
+      o endereço da primeira casa, ele caberia numa caixa de ponteiro
+      para int — e a escrita teria sido direta, sem o passo pelo
+      conjunto.

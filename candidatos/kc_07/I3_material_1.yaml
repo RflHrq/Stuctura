@@ -1,0 +1,143 @@
+# Material de ensino do I3 do kc_07 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico, e o nó com a
+# crença mais citada do FAQ: três perguntas diferentes dizem a mesma
+# coisa.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE SÃO TRÊS PERGUNTAS
+#
+# `array_is_pointer` — "array e ponteiro são a mesma coisa". Grade `L`,
+# FAQ comp.lang.c 6.2 ("But I heard that char a[] was identical to
+# char *a."), 6.9 ("Someone explained to me that arrays were really
+# just constant pointers.") e 6.10.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   `a[1]` e `p[1]` dando o MESMO elemento, e logo
+#                    depois dando elementos diferentes — porque um dos
+#                    dois pôde ir embora.
+#   outra rota       O ponteiro indo para NULL e voltando, com o
+#                    conjunto intacto o tempo todo.
+#
+# O CASO RESOLVIDO MOSTRA A SEMELHANÇA ANTES DA DIFERENÇA, e nessa
+# ordem de propósito. A crença não é um descuido: `a[1]` e `p[1]` são
+# iguais em muitos programas inteiros, e quem nunca viu os dois
+# divergirem tem boa razão para achar que são a mesma coisa. A
+# demonstração dá razão à pessoa na primeira linha e tira na segunda.
+#
+# O ITEM `ciu_kc07_021` PERGUNTA EXATAMENTE ISSO — "as duas dão 2; isso
+# quer dizer que a e p são iguais?" — e é de degrau 3. Ele mede se a
+# pessoa resiste à conclusão; o cartão mostra o caso em que a conclusão
+# falha. Não é a mesma pergunta: o item para na semelhança, e o cartão
+# continua.
+#
+# O QUE FICA FORA
+#
+#   `sizeof a` contra `sizeof p`   -> `ciu_kc07_t20`, e também o
+#                                     exemplo deste nó, que fica
+#   o `extern char *a` de outro
+#     arquivo                      -> `ciu_kc07_020`
+#   `int **q = &a; f(*q);`         -> `ciu_kc07_t21`
+#
+# O `sizeof` FICA DE FORA DAS DEMONSTRAÇÕES e permanece no exemplo, que
+# não muda: o exemplo é a forma curta da diferença, e o item `t20` a
+# mede. As duas rotas atacam pela mobilidade, que nenhum item usa.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_07
+node: kc07:I3
+premissa: >
+  Array e ponteiro são tipos distintos, ainda que a[i] e p[i] se
+  pareçam.
+crenca_que_nega: array_is_pointer
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que é igual, o que é diferente, e por que a confusão
+# é razoável.
+ampliacao: >
+  O que é igual é a escrita. a[1] e p[1] chegam no mesmo elemento
+  quando p guarda o endereço do começo de a, e as duas formas se
+  escrevem do mesmo jeito. Em muitos programas elas podem ser trocadas
+  uma pela outra do começo ao fim, e nada acontece.
+
+  O que é diferente é o que cada nome É. a é o conjunto: um bloco de
+  casas, num lugar fixo, que não muda de endereço enquanto existe. p é
+  uma caixa que guarda um endereço — e uma caixa aceita um endereço
+  novo a qualquer momento.
+
+  Por isso a semelhança tem limite, e o limite aparece quando o
+  ponteiro se mexe. Enquanto p apontar para o começo de a, as duas
+  escritas dizem a mesma coisa; depois que p recebe outro endereço, a
+  continua onde sempre esteve e p passa a falar de outro lugar. Eram
+  duas coisas o tempo todo.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int a[4];
+  int *p = a;
+  sizeof a     /* quatro ints */
+  sizeof p     /* um ponteiro */
+
+
+# O CASO RESOLVIDO: iguais, e depois não.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int a[3] = {1, 2, 3};
+      int b[3] = {7, 8, 9};
+      int *p = a;
+
+      printf("a[1] e p[1] dao %d e %d\n", a[1], p[1]);
+      p = b;
+      printf("depois de p = b, dao %d e %d\n", a[1], p[1]);
+  - prosa: "Pergunta: as duas escritas davam o mesmo número. O que aconteceu entre as duas linhas?"
+  - prosa: >
+      Uma atribuição, e só nela. p recebeu outro endereço — coisa que
+      só é possível porque p é uma caixa. O nome a não passou por nada:
+      ele continua sendo o mesmo conjunto, no mesmo lugar.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a[1] e p[1] dao 2 e 2
+      depois de p = b, dao 2 e 8
+  - prosa: >
+      Na primeira linha a semelhança é completa, e é por isso que a
+      confusão existe. Na segunda ela some, e o que sobra é a
+      diferença: um dos dois pôde ir embora, e o outro não.
+
+
+# A OUTRA ROTA: o ponteiro vai e volta.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Mande o ponteiro embora de vez, e depois traga de
+      volta.
+  - codigo: |
+      int a[2] = {5, 6};
+      int *p = a;
+
+      p = NULL;
+      printf("o ponteiro foi embora: p e nulo? %d\n", p == NULL);
+      p = a;
+      printf("e voltou, e o conjunto estava la: %d %d\n", p[0], p[1]);
+  - prosa: >
+      Em nenhum momento o conjunto deixou de existir ou saiu do lugar.
+      Quem foi e voltou foi o conteúdo de uma caixa.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o ponteiro foi embora: p e nulo? 1
+      e voltou, e o conjunto estava la: 5 6
+  - prosa: >
+      Um ponteiro pode não apontar para lugar nenhum; um conjunto não
+      pode deixar de ser onde está. Se os dois fossem a mesma coisa,
+      pôr NULL em p teria feito alguma coisa com as duas casas — e elas
+      estavam lá, inteiras, quando ele voltou.

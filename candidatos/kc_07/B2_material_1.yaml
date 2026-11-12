@@ -1,0 +1,139 @@
+# Material de ensino do B2 do kc_07 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_07 já tem material no B1, aprovado
+# em 09/11 — foi ele que liberou o `array`. Os outros SEIS nós têm
+# ampliação vazia, e estes são eles.
+#
+# O B1 diz o que `int a[5]` constrói; este diz o que `int *p` NÃO
+# constrói.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E ELA JÁ FOI REFUTADA NOUTRO TÓPICO
+#
+# `declaration_allocates` — "int *p já cria o dado apontado
+# automaticamente". Grade `T`: Ma (2007), APUD Sorva (2012), Apêndice
+# A, p. 364, item 92: "Declaring a variable also creates an object"; e
+# FAQ comp.lang.c 7.10. A procedência é `apud` — o item foi lido no
+# Sorva, o Ma (2007) não.
+#
+# É A MESMA CRENÇA DO `kc_03:I1`, e os dois cartões a atacam por lados
+# diferentes: lá, contando caixas de ponteiro e de int; aqui, pelo
+# CONTRASTE com o array, que é o que este tópico tem e o kc_03 não. O
+# `int a[5]` ao lado do `int *p` mostra de onde vêm as caixas quando
+# elas vêm.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O ponteiro aponta para a TERCEIRA casa de um
+#                    array e escreve lá: a casa já existia, e as outras
+#                    duas ficam intactas.
+#   outra rota       Um ponteiro visitando DOIS arrays: ele escreve nos
+#                    dois e não traz casa nenhuma para nenhum.
+#
+# O CASO RESOLVIDO APONTA PARA O MEIO DO CONJUNTO de propósito. Com
+# `int *p = a;` a escrita cai na primeira casa, e isso convida a ler
+# "o ponteiro é o array". Apontando para `&a[2]`, fica claro que ele
+# escolheu uma casa entre as que já havia.
+#
+# O QUE FICA FORA
+#
+#   quantas caixas cada linha reserva   -> `ciu_kc07_005`
+#   `a[0] = 1` contra `p[0] = 1`        -> `ciu_kc07_006`, degrau 3
+#   `a[1]` e `p[1]` lidos lado a lado   -> `ciu_kc07_t05`
+#   `q[0] = 1` com q não apontado       -> `ciu_kc07_t06`
+#
+# E NENHUMA DAS DUAS MOSTRA O PONTEIRO SEM DESTINO sendo usado: isso é
+# comportamento indefinido, e o cartão não demonstra erro cometendo-o.
+# Quem mede essa forma é o `ciu_kc07_t06`.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_07
+node: kc07:B2
+premissa: "int *p reserva só o ponteiro."
+crenca_que_nega: declaration_allocates
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que a declaração do ponteiro reserva, o que ela não
+# reserva, e de onde as casas vêm quando vêm.
+ampliacao: >
+  int *p reserva uma caixa só: a de p, para guardar um endereço. Nenhum
+  int nasce junto. É a diferença de fundo entre as duas declarações
+  deste tópico — int a[5] constrói cinco casas de inteiro, e int *p
+  constrói zero.
+
+  As casas, quando existem, vieram de outro lugar. Podem ser as de um
+  array declarado em separado, e aí p guarda o endereço de uma delas.
+  Podem ser um bloco pedido enquanto o programa roda. O que não
+  acontece é o ponteiro trazer casa nenhuma consigo.
+
+  Por isso o ponteiro é um visitante. Ele pode apontar para a primeira
+  casa de um conjunto, para a terceira, ou para as casas de outro
+  conjunto depois — e em nenhum desses movimentos ele cria ou destrói
+  nada. O que muda é só o endereço guardado dentro dele.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p;      /* uma caixa: a de p */
+  /* nenhuma caixa de int nasceu */
+
+
+# O CASO RESOLVIDO: o ponteiro aponta para o meio do conjunto.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int a[3] = {1, 2, 3};
+      int *p = &a[2];
+
+      *p = 99;
+      printf("a terceira casa virou %d\n", a[2]);
+      printf("e as outras duas continuam %d e %d\n", a[0], a[1]);
+  - prosa: "Pergunta: quantas casas de inteiro existem neste trecho?"
+  - prosa: >
+      Três, e todas vieram da primeira linha. A declaração de p não
+      acrescentou uma quarta: ela criou uma caixa de endereço, e o
+      endereço que entrou nela foi o da terceira casa, que já estava
+      construída.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a terceira casa virou 99
+      e as outras duas continuam 1 e 2
+  - prosa: >
+      O 99 foi parar numa casa que já existia, e as vizinhas ficaram
+      como estavam. Se declarar p criasse um int junto, o 99 teria ido
+      para esse int novo — e a[2] continuaria 3.
+
+
+# A OUTRA ROTA: um ponteiro, dois conjuntos.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Veja o mesmo ponteiro servindo a dois conjuntos
+      diferentes.
+  - codigo: |
+      int primeiro[2] = {0, 0};
+      int segundo[2] = {0, 0};
+      int *p = primeiro;
+
+      p[0] = 10;
+      p = segundo;
+      p[0] = 20;
+      printf("primeiro[0] = %d, segundo[0] = %d\n", primeiro[0], segundo[0]);
+  - prosa: >
+      p foi declarado uma vez. As quatro casas de inteiro vieram das
+      duas primeiras linhas, e p apenas visitou uma de cada conjunto.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      primeiro[0] = 10, segundo[0] = 20
+  - prosa: >
+      Duas escritas, em dois conjuntos, por um ponteiro só. Se a
+      declaração de p tivesse criado armazenamento, haveria uma quinta
+      casa em algum lugar — e os dois valores teriam ido para ela.

@@ -1,0 +1,134 @@
+# Material de ensino do I1 do kc_07 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Primeiro nó de inferência do tópico.
+#
+# E A DERIVAÇÃO VEM DO B3: se o nome do array vira um endereço assim
+# que aparece numa expressão, então ele não é um lugar onde se possa
+# guardar coisa alguma. Atribuir pede um destino que fique; o que o
+# nome produz é um valor que some na expressão.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE SÃO DUAS PERGUNTAS DO FAQ
+#
+# `array_is_assignable` — "dá para atribuir ao nome de um array, como
+# em str = f()". Grade `L`, FAQ comp.lang.c 6.5:
+#
+#   "Why can't I do something like this? extern char *getpass();
+#   char str[10]; str = getpass("Enter password: ");"
+#
+# e a 6.6, "If you can't assign to arrays, how can...".
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES, e nenhuma delas exibe o compilador recusando
+#
+#   caso resolvido   O conteúdo copiado CASA POR CASA: é assim que um
+#                    array recebe o conteúdo de outro.
+#   outra rota       O que um ponteiro pode fazer e o nome não: receber
+#                    outro endereço e passar a ler outro conjunto.
+#
+# POR QUE NENHUM DOS DOIS MOSTRA `a = b` SENDO RECUSADO. Três itens
+# deste nó fazem isso — `s = "oi"` (`ciu_kc07_014`), `a = b` contra
+# `strcpy` (`ciu_kc07_015`) e `b = a` (`ciu_kc07_t15`) —, e é lá que a
+# recusa mede. E há uma razão de ferramenta: material que exibe o
+# compilador reclamando põe `compilacao` e `atribuicao_entre_tipos` em
+# jogo, e os dois estão fora do inventário. O cartão ensina o que FAZER
+# no lugar.
+#
+# O LAÇO EXPLÍCITO, E NÃO `strcpy`, é escolha de propósito: o `015`
+# pergunta qual das duas copia, com `strcpy` como resposta certa, e
+# escrevê-la aqui faria o item medir memória. O laço mostra a mesma
+# ideia por dentro — casa por casa —, que é o que o nó afirma.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_07
+node: kc07:I1
+premissa: "Não se atribui ao nome do array: ele não é modificável."
+crenca_que_nega: array_is_assignable
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. Por que não se atribui, o que se faz no lugar, e a
+# diferença para um ponteiro.
+ampliacao: >
+  O nome do array não é um lugar que receba valor. Ele designa o
+  conjunto inteiro, e numa expressão vira o endereço da primeira casa —
+  um valor calculado na hora, que não tem onde ficar guardado. Atribuir
+  precisa de um destino, e ali não há destino.
+
+  O que existe é mexer nas casas. Cada uma delas é um lugar comum, e
+  recebe valor como qualquer variável: a[0] = 7 funciona, e repetir
+  isso para todas as posições é como o conteúdo de um conjunto vai
+  parar noutro. É a diferença entre trocar o quarteirão de lugar e
+  trocar o que há dentro de cada casa.
+
+  E é nisso que um ponteiro é diferente. Ele é uma caixa, tem lugar
+  próprio, e guardar outro endereço nele é uma atribuição comum. Por
+  isso p = b funciona e a = b não: um deles é um lugar onde cabe um
+  endereço, e o outro é o conjunto.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  char s[10];
+  s = "oi";        /* nao compila */
+  strcpy(s, "oi"); /* este sim */
+
+
+# O CASO RESOLVIDO: casa por casa.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int a[3] = {0, 0, 0};
+      int b[3] = {4, 5, 6};
+      int i = 0;
+
+      while (i < 3) {
+          a[i] = b[i];
+          i = i + 1;
+      }
+      printf("a ficou com %d %d %d\n", a[0], a[1], a[2]);
+  - prosa: "Pergunta: o conteúdo de b foi parar em a. Em que linha isso aconteceu?"
+  - prosa: >
+      Em três execuções da mesma linha, uma por casa. Não houve momento
+      nenhum em que o conjunto a tenha sido substituído pelo conjunto b
+      — o que houve foram três atribuições comuns, cada uma com um lugar
+      de verdade do lado esquerdo.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a ficou com 4 5 6
+  - prosa: >
+      Os dois conjuntos continuam sendo dois, cada um no seu lugar, e
+      agora com o mesmo conteúdo. Copiar conteúdo é coisa que se faz
+      casa por casa; o nome do conjunto nunca entrou do lado esquerdo de
+      uma atribuição.
+
+
+# A OUTRA ROTA: o que o ponteiro faz e o nome não.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Olhe a mesma operação num ponteiro.
+  - codigo: |
+      int a[2] = {1, 1};
+      int b[2] = {2, 2};
+      int *p = a;
+
+      p = b;
+      printf("p passou a ler %d, e a[0] continua %d\n", p[0], a[0]);
+  - prosa: >
+      A linha p = b é uma atribuição comum: o endereço do segundo
+      conjunto entrou na caixa de p. Depois dela, p lê outro conjunto —
+      e nenhum dos dois conjuntos mudou de lugar nem de conteúdo.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      p passou a ler 2, e a[0] continua 1
+  - prosa: >
+      p mudou de alvo porque p é uma caixa. O nome a não tem caixa
+      nenhuma para mudar: ele é o conjunto. É essa a diferença que faz
+      uma das duas linhas ser possível e a outra não.

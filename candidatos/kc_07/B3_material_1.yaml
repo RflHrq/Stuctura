@@ -1,0 +1,146 @@
+# Material de ensino do B3 do kc_07 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Terceiro observável: o B1 construiu o
+# conjunto, o B2 disse que o ponteiro não constrói nada, e este diz o
+# que o NOME do conjunto vira quando aparece numa conta.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE É O TÍTULO DA PERGUNTA
+#
+# `array_passed_by_reference` — "arrays são passados por referência,
+# diferente do resto de C". Grade `L`, FAQ comp.lang.c 6.4b, cujo
+# título é a crença dita por quem a tem:
+#
+#   "So arrays are passed by reference, even though the rest of C uses
+#   pass by value?"
+#
+# E A REFUTAÇÃO ESTÁ NA PREMISSA: nada de especial acontece na chamada.
+# O nome do array vira um endereço ANTES, como vira em qualquer outra
+# expressão, e esse endereço é copiado como qualquer valor. A regra de
+# C não tem exceção aqui; o que há é uma conversão que acontece antes.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   A conversão FORA de qualquer chamada: escrever em
+#                    *a escreve em a[0].
+#   outra rota       A mesma função chamada com `a` e com `&a[0]`, e
+#                    fazendo a mesma coisa nas duas.
+#
+# O CASO RESOLVIDO TIRA A FUNÇÃO DO CAMINHO de propósito. A crença fala
+# de passagem, e por isso a tentação é demonstrar com uma chamada — mas
+# aí fica a dúvida de se a conversão é coisa da chamada. Fora dela, com
+# `*a`, vê-se que o nome já virou endereço numa expressão qualquer.
+#
+# A OUTRA ROTA PÕE A CHAMADA DE VOLTA e mostra que o argumento pode ser
+# escrito das duas maneiras, com o mesmo efeito. Se a passagem de array
+# fosse um mecanismo à parte, `a` e `&a[0]` não poderiam ser
+# intercambiáveis — um seria "o array" e o outro, um endereço.
+#
+# O QUE FICA FORA
+#
+#   `f(int v[]) { v[0] = 9; }` e o que viajou -> `ciu_kc07_008`
+#   `int *p = a` contra `int *q = &a[0]`      -> `ciu_kc07_009`, grau 3
+#   `*a` sendo LIDO                           -> `ciu_kc07_t08`
+#   a chamada sem o tamanho                   -> `ciu_kc07_t09`
+#
+# O `t08` IMPRIME `*a`; o caso resolvido ESCREVE em `*a`. E o `009`
+# pergunta se as duas formas de obter o endereço são a mesma; a outra
+# rota não as compara entre si — ela usa cada uma numa chamada e olha o
+# resultado no array.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_07
+node: kc07:B3
+premissa: >
+  Em expressão, o nome do array converte-se no endereço do primeiro
+  elemento.
+crenca_que_nega: array_passed_by_reference
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que o nome vira, onde isso acontece, e por que a
+# passagem não é exceção nenhuma.
+ampliacao: >
+  Quando o nome de um array aparece numa expressão, ele deixa de
+  designar o conjunto e passa a valer o endereço da primeira casa. Não
+  é uma conversão da chamada de função: acontece em qualquer conta, em
+  qualquer atribuição a um ponteiro, em qualquer lugar onde o nome seja
+  usado como valor.
+
+  Por isso o atalho é tão invisível. Escrever int *p = a; funciona
+  porque a já virou endereço antes de a atribuição acontecer, e
+  escrever *a funciona porque o que está ali é um endereço, e a estrela
+  viaja a partir dele.
+
+  E é isso que explica a passagem, sem exceção nenhuma. Ao chamar f(a),
+  o nome vira endereço e esse endereço é copiado para o parâmetro, do
+  mesmo jeito que qualquer valor é copiado. O conjunto não viaja; o que
+  viaja é um número. A função mexe no array de quem chamou porque tem o
+  caminho até ele, e não porque C tenha mudado de regra.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int a[3];
+  int *p = a;   /* a virou o endereco de a[0] */
+
+
+# O CASO RESOLVIDO: a conversão fora de qualquer chamada.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int a[3] = {1, 2, 3};
+
+      *a = 50;
+      printf("escrevi em *a, e a[0] vale %d\n", a[0]);
+  - prosa: "Pergunta: não há ponteiro nenhum declarado aqui. Em que a estrela trabalhou?"
+  - prosa: >
+      No endereço em que o nome a se transformou. A estrela precisa de
+      um endereço para viajar, e foi a conversão que o produziu — ali
+      mesmo, no meio da expressão, sem função nenhuma envolvida.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      escrevi em *a, e a[0] vale 50
+  - prosa: >
+      O 50 foi parar na primeira casa, que é para onde o endereço
+      apontava. Se o nome a continuasse valendo pelo conjunto inteiro
+      dentro da expressão, não haveria endereço nenhum para a estrela
+      seguir.
+
+
+# A OUTRA ROTA: as duas maneiras de escrever o mesmo argumento.
+reexplicacao:
+  - prosa: >
+      Outro caminho, agora com chamada: escreva o argumento das duas
+      maneiras.
+  - codigo: |
+      void primeiro_vira_sete(int v[])
+      {
+          v[0] = 7;
+      }
+  - codigo: |
+      int a[3] = {1, 1, 1};
+      int b[3] = {1, 1, 1};
+
+      primeiro_vira_sete(a);
+      primeiro_vira_sete(&b[0]);
+      printf("a[0] = %d, b[0] = %d\n", a[0], b[0]);
+  - prosa: >
+      Na primeira chamada o argumento é o nome do conjunto; na segunda,
+      o endereço da primeira casa, escrito à mão. A função é a mesma.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a[0] = 7, b[0] = 7
+  - prosa: >
+      Os dois conjuntos mudaram igual. As duas formas são
+      intercambiáveis porque as duas produzem a mesma coisa: um
+      endereço. Se passar um array fosse um mecanismo diferente do
+      resto de C, a segunda chamada não teria como funcionar.
