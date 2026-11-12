@@ -1,0 +1,177 @@
+# Material de ensino do B3 do kc_01 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Terceiro observável, e o contraponto do
+# `B2`: lá a caixa acaba com a função; aqui o bloco não.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E ELA É A MESMA DO `kc_08:I3`
+#
+# `system_frees_auto` — "o sistema libera a memória do heap
+# automaticamente". Grade `L`, FAQ comp.lang.c 7.22: a pergunta é se um
+# bloco pedido para um ponteiro LOCAL a uma função precisa ser liberado
+# explicitamente, e a resposta é que sim.
+#
+# A PERGUNTA DA FONTE JÁ TRAZ A CONFUSÃO MONTADA: ela liga a vida do
+# bloco ao fato de o ponteiro ser local. É a mesma crença que nega o
+# `kc_08:I3`, e lá o cartão a desmonta pelo lado do ponteiro. Aqui o
+# ângulo é o tempo de vida: o bloco atravessa a função, e quem o encerra
+# é uma chamada que você escreve.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O bloco atravessa DUAS funções: nasce numa, é
+#                    escrito em outra, e é lido e devolvido no main.
+#   outra rota       O bloco atravessa um bloco de código entre chaves,
+#                    sem função nenhuma no caminho.
+#
+# O CASO RESOLVIDO ATRAVESSA DUAS, e o `008` atravessa uma. A diferença
+# não é quantidade por quantidade: com duas, fica claro que o bloco não
+# está preso a nenhuma das funções — ele é alcançável por quem tiver o
+# endereço, e as duas funções apenas passaram por ele.
+#
+# A OUTRA ROTA TIRA A FUNÇÃO DO CAMINHO, de propósito. A crença liga a
+# vida do bloco à função; mostrar o bloco sobrevivendo a um simples par
+# de chaves separa as duas coisas com menos peças ainda — não há
+# chamada, não há retorno, e mesmo assim a variável de dentro acaba e o
+# lote não. É a mesma figura que o `kc_08:I3` usa, e aqui ela serve a
+# outra premissa: lá para falar das duas coisas, aqui do tempo de vida.
+#
+# NENHUMA DAS DUAS DEIXA LOTE SEM DEVOLVER. Um cartão que ensina que
+# ninguém libera por você não pode ensinar pela forma que ele mesmo
+# esquece.
+#
+# O QUE FICA FORA
+#
+#   quem decide quando o bloco deixa de
+#     valer                              -> `ciu_kc01_007`
+#   o que free faz                       -> `ciu_kc01_t07`
+#   `faz()` devolvendo o bloco           -> `ciu_kc01_008`
+#   array local contra malloc            -> `ciu_kc01_t08`
+#   mil chamadas de um malloc sem free   -> `ciu_kc01_009`, degrau 3
+#   `*p` depois do free                  -> `ciu_kc01_t09`, degrau 3
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_01
+node: kc01:B3
+premissa: "Um bloco pedido com malloc não acaba quando a função termina."
+crenca_que_nega: system_frees_auto
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 69f801b506fd
+
+
+# A AMPLIAÇÃO. O que decide a vida do bloco, de onde vem a ideia
+# contrária, e o que ela custa.
+ampliacao: >
+  O bloco pedido ao alocador não segue a regra da função que o pediu. A
+  caixa do ponteiro, sim: ela é local e acaba no fim da chamada, como
+  qualquer local. O bloco é outra coisa, em outra área, e continua
+  reservado até alguém devolvê-lo com uma chamada escrita de propósito.
+
+  A ideia contrária tem de onde vir. Variáveis comuns somem sozinhas no
+  fim da função, e isso funciona tão bem que passa despercebido; e
+  quando o programa inteiro termina, o sistema recolhe tudo mesmo. Entre
+  um e outro está o tempo em que o programa roda — e é nesse tempo que o
+  bloco não devolvido fica ocupado.
+
+  Por isso a devolução é sua. Enquanto o programa vive, cada bloco
+  pedido e não devolvido continua ocupado, e o alocador não tem como
+  saber que você não precisa mais dele. Num programa que pede muitas
+  vezes, o que se acumula não é um erro visível: é memória que some aos
+  poucos, sem nada quebrar na hora.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *faz(void) {
+      int *p = malloc(sizeof(int));
+      *p = 7;
+      return p;        /* o bloco continua valido */
+  }
+
+
+# O CASO RESOLVIDO: o bloco atravessa duas funções.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *pede(void)
+      {
+          int *bloco = malloc(sizeof(int));
+
+          if (bloco == NULL) {
+              return NULL;
+          }
+          *bloco = 0;
+          return bloco;
+      }
+
+      void enche(int *bloco)
+      {
+          *bloco = 7;
+      }
+  - codigo: |
+      int *meu = pede();
+
+      if (meu == NULL) {
+          return 1;
+      }
+      enche(meu);
+      printf("o bloco nasceu numa funcao, foi escrito em outra, e aqui vale %d\n",
+             *meu);
+      printf("ele atravessou as duas sem acabar? %d\n", *meu == 7);
+      free(meu);
+  - prosa: "Pergunta: duas funções terminaram entre o pedido e a leitura. Por que o bloco ainda está lá?"
+  - prosa: >
+      Porque nenhuma das duas o devolveu. O fim de uma função encerra as
+      caixas dela — e as caixas de ponteiro das duas acabaram mesmo. O
+      bloco não era caixa de nenhuma delas: ele foi pedido ao alocador, e
+      só sai de lá quando a devolução acontece.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o bloco nasceu numa funcao, foi escrito em outra, e aqui vale 7
+      ele atravessou as duas sem acabar? 1
+  - prosa: >
+      O sete está lá, escrito por uma função que já terminou, e lido por
+      quem nunca o escreveu. Se o sistema liberasse o bloco no fim da
+      função que o pediu, não haveria o que ler aqui — e a última linha
+      do trecho, a devolução, não teria sentido nenhum.
+
+
+# A OUTRA ROTA: sem função nenhuma no caminho.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Tire a função da história e veja se muda algo.
+  - codigo: |
+      int *fora = NULL;
+
+      {
+          int *dentro = malloc(sizeof(int));
+
+          if (dentro == NULL) {
+              return 1;
+          }
+          *dentro = 5;
+          fora = dentro;
+      }
+      printf("a chave fechou e o bloco continua: %d\n", *fora);
+      printf("quem acabou foi a caixa de dentro, e nao o bloco? %d\n", *fora == 5);
+      free(fora);
+  - prosa: >
+      Não há chamada e não há retorno. A variável dentro acabou na chave
+      de fechar, como qualquer local acaba no fim do seu escopo, e o
+      endereço tinha sido copiado para uma variável de fora antes disso.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a chave fechou e o bloco continua: 5
+      quem acabou foi a caixa de dentro, e nao o bloco? 1
+  - prosa: >
+      O cinco atravessou. Isso separa as duas coisas de um jeito que não
+      deixa espaço para dúvida: a vida do bloco não tem nada a ver com a
+      vida da variável que guardava o endereço dele. Uma acaba por regra
+      automática; a outra, por uma linha que alguém escreve.

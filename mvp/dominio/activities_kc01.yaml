@@ -56,10 +56,16 @@ resgates:
 
 exemplos:
 
+  # O QUE ESTAVA AQUI LIA UMA VARIAVEL NAO INICIALIZADA -- `int x;` e
+  # `printf` desse x -- para dizer que nao ha garantia entre duas
+  # execucoes. E o mesmo defeito que saiu do `kc_03:B3` e do `kc_00:B3`
+  # em 12/11/2026, e aqui com um agravante: quem chega ao kc_01 vem do
+  # kc_00, onde o B3 acabou de ensinar a nao fazer isso. O novo mostra
+  # dois programas com uma variavel de mesmo nome, cada um no seu
+  # espaco, e nao le nada indefinido.
   B1: |
-    /* duas execucoes do mesmo programa */
-    int x;
-    printf("%d\n", x);   /* nao ha garantia entre uma e outra */
+    /* no programa A */  int x = 42;   /* no espaco do A */
+    /* no programa B */  int x = 7;    /* outro x, outro espaco */
 
   B2: |
     int conta(void) {
@@ -84,6 +90,446 @@ exemplos:
         int *b = malloc(sizeof(int));     /* monte */
         free(b);
     }
+
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        char *bloco = malloc(1000);
+        int iguais = 0;
+        int i = 0;
+
+        if (bloco == NULL) {
+            return 1;
+        }
+        while (i < 1000) {
+            bloco[i] = (char) (i % 100);
+            i = i + 1;
+        }
+        i = 0;
+        while (i < 1000) {
+            if (bloco[i] == (char) (i % 100)) {
+                iguais = iguais + 1;
+            }
+            i = i + 1;
+        }
+        printf("quantas das mil posicoes devolveram o que eu escrevi: %d\n", iguais);
+        printf("todas as mil? %d\n", iguais == 1000);
+        free(bloco);
+    - prosa: >
+        Pergunta: o programa escreve mil posições e só depois começa a
+        ler. Por que nessa ordem?
+    - prosa: >
+        Porque ler antes de escrever seria perguntar o que havia lá, e
+        sobre isso não há garantia. A demonstração é outra: o que o
+        programa escreveu, ele lê de volta igual — mil vezes, sem exceção.
+        Enquanto ele roda, aquele espaço é dele.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        quantas das mil posicoes devolveram o que eu escrevi: 1000
+        todas as mil? 1
+    - prosa: >
+        Mil de mil. Se a memória fosse um lugar comum onde qualquer um
+        escreve, alguma dessas posições poderia ter mudado entre a escrita
+        e a leitura — e nenhuma mudou. O espaço responde ao programa, e só
+        a ele, pelo tempo em que ele existe.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int conta(void)
+        {
+            int n = 0;
+
+            n = n + 1;
+            return n;
+        }
+    - codigo: |
+        int a = conta();
+        int b = conta();
+        int c = conta();
+
+        printf("tres chamadas, e cada uma devolveu %d %d %d\n", a, b, c);
+        printf("nenhuma comecou de onde a anterior parou? %d\n",
+               a == 1 && b == 1 && c == 1);
+    - prosa: >
+        Pergunta: se a variável n continuasse existindo depois da primeira
+        chamada, o que a segunda devolveria?
+    - prosa: >
+        Dois. Ela encontraria o um que a primeira deixou e somaria mais
+        um. A terceira devolveria três. O que sai é outra coisa, e é essa
+        diferença que mede a premissa: cada chamada teve o seu n,
+        começando do zero que a declaração escreve.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        tres chamadas, e cada uma devolveu 1 1 1
+        nenhuma comecou de onde a anterior parou? 1
+    - prosa: >
+        Um, um e um. A caixa de n da primeira chamada não estava mais lá
+        quando a segunda começou — e por isso a segunda não teve como
+        continuar de onde a primeira parou. É isso que significa a
+        variável existir enquanto a função executa.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *pede(void)
+        {
+            int *bloco = malloc(sizeof(int));
+
+            if (bloco == NULL) {
+                return NULL;
+            }
+            *bloco = 0;
+            return bloco;
+        }
+
+        void enche(int *bloco)
+        {
+            *bloco = 7;
+        }
+    - codigo: |
+        int *meu = pede();
+
+        if (meu == NULL) {
+            return 1;
+        }
+        enche(meu);
+        printf("o bloco nasceu numa funcao, foi escrito em outra, e aqui vale %d\n",
+               *meu);
+        printf("ele atravessou as duas sem acabar? %d\n", *meu == 7);
+        free(meu);
+    - prosa: >
+        Pergunta: duas funções terminaram entre o pedido e a leitura. Por
+        que o bloco ainda está lá?
+    - prosa: >
+        Porque nenhuma das duas o devolveu. O fim de uma função encerra as
+        caixas dela — e as caixas de ponteiro das duas acabaram mesmo. O
+        bloco não era caixa de nenhuma delas: ele foi pedido ao alocador,
+        e só sai de lá quando a devolução acontece.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o bloco nasceu numa funcao, foi escrito em outra, e aqui vale 7
+        ele atravessou as duas sem acabar? 1
+    - prosa: >
+        O sete está lá, escrito por uma função que já terminou, e lido por
+        quem nunca o escreveu. Se o sistema liberasse o bloco no fim da
+        função que o pediu, não haveria o que ler aqui — e a última linha
+        do trecho, a devolução, não teria sentido nenhum.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *escolhe(void)
+        {
+            int *fica = malloc(sizeof(int));
+            int *sai = malloc(sizeof(int));
+
+            if (fica == NULL || sai == NULL) {
+                return NULL;
+            }
+            *fica = 1;
+            *sai = 2;
+            free(sai);
+            return fica;
+        }
+    - codigo: |
+        int *recebido = escolhe();
+
+        if (recebido == NULL) {
+            return 1;
+        }
+        printf("dos dois blocos da funcao, sobrou o que eu escolhi: %d\n",
+               *recebido);
+        printf("quem decidiu qual sobrava foi uma linha minha? %d\n",
+               *recebido == 1);
+        free(recebido);
+    - prosa: >
+        Pergunta: os dois blocos nasceram na mesma função e no mesmo
+        instante. Por que um acabou e o outro não?
+    - prosa: >
+        Porque uma linha devolveu um deles, e nenhuma linha devolveu o
+        outro. Não foi o fim da função que decidiu: ele teria tratado os
+        dois igual. O que separou os destinos foi a chamada de devolução
+        escrita para um e não para o outro.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dos dois blocos da funcao, sobrou o que eu escolhi: 1
+        quem decidiu qual sobrava foi uma linha minha? 1
+    - prosa: >
+        O um chegou aqui. Se o bloco sumisse com a função, os dois teriam
+        sumido — e a função não teria o que devolver. O fato de haver
+        escolha é a prova de que esta disciplina está na sua mão: duas
+        coisas idênticas, dois fins diferentes, decididos por você.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        void so_local(void)
+        {
+            int a = 0;
+
+            a = a + 1;
+        }
+
+        int com_bloco(void)
+        {
+            int *p = malloc(sizeof(int));
+
+            if (p == NULL) {
+                return 0;
+            }
+            *p = 1;
+            free(p);
+            return 1;
+        }
+    - codigo: |
+        char *teste = NULL;
+        int arrumacoes = 0;
+        int i = 0;
+
+        while (i < 1000) {
+            so_local();
+            i = i + 1;
+        }
+        i = 0;
+        while (i < 1000) {
+            arrumacoes = arrumacoes + com_bloco();
+            i = i + 1;
+        }
+        teste = malloc(1);
+        printf("mil chamadas de cada uma, e ainda ha memoria para pedir? %d\n",
+               teste != NULL);
+        printf("a de bloco precisou de %d arrumacoes, uma por chamada\n",
+               arrumacoes);
+        printf("e a de local precisou de quantas linhas suas? %d\n", 0);
+        free(teste);
+    - prosa: >
+        Pergunta: as duas funções foram chamadas mil vezes. O que foi
+        diferente entre elas?
+    - prosa: >
+        O que cada uma exigiu de você. A primeira usou uma variável local
+        mil vezes e você não escreveu uma linha de arrumação — a área dela
+        se arruma sozinha. A segunda pediu um bloco mil vezes, e cada
+        pedido teve de ter a sua devolução escrita. Mesmo programa, mesmo
+        espaço, duas regras.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        mil chamadas de cada uma, e ainda ha memoria para pedir? 1
+        a de bloco precisou de 1000 arrumacoes, uma por chamada
+        e a de local precisou de quantas linhas suas? 0
+    - prosa: >
+        Mil contra zero. Se a memória fosse uma região só, com uma regra
+        só, esses dois números teriam de ser iguais — ou as duas se
+        arrumariam sozinhas, ou as duas pediriam devolução. A diferença
+        entre eles é a premissa deste nó, contada em linhas de código.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Caminho DIFERENTE do caso resolvido -- ha teste no
+# projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Faça a mesma coisa duas vezes dentro da mesma
+        execução e compare.
+    - codigo: |
+        int soma_ate_dez(void)
+        {
+            int s = 0;
+            int i = 1;
+
+            while (i <= 10) {
+                s = s + i;
+                i = i + 1;
+            }
+            return s;
+        }
+    - codigo: |
+        int primeira = soma_ate_dez();
+        int segunda = soma_ate_dez();
+
+        printf("a mesma conta, duas vezes no mesmo espaco: %d e %d\n",
+               primeira, segunda);
+        printf("deu igual? %d\n", primeira == segunda);
+    - prosa: >
+        A função parte de um zero que ela mesma escreve e soma até dez. As
+        duas chamadas acontecem no mesmo espaço, uma depois da outra, e
+        nada entre elas vem de fora.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a mesma conta, duas vezes no mesmo espaco: 55 e 55
+        deu igual? 1
+    - prosa: >
+        Cinquenta e cinco nas duas. Dentro de uma execução o espaço é
+        previsível porque é do programa: o que ele faz duas vezes dá duas
+        vezes o mesmo. O que não se pode esperar é essa previsibilidade
+        ENTRE execuções, para uma variável que ninguém escreveu — e isso
+        não é o que este trecho mostra, nem teria como mostrar.
+
+  B2:
+    - prosa: >
+        Outro caminho. Veja o que atravessa o fim da função e onde esse
+        algo fica.
+    - codigo: |
+        int mede(void)
+        {
+            int dentro = 42;
+
+            return dentro;
+        }
+    - codigo: |
+        int guardado = mede();
+
+        printf("a funcao acabou, e o 42 esta aqui: %d\n", guardado);
+        printf("ele sobreviveu porque foi copiado para uma caixa minha? %d\n",
+               guardado == 42);
+    - prosa: >
+        O que atravessou foi o VALOR, e ele está numa caixa nova — a de
+        quem chamou. A caixa de dentro acabou junto com a função; o
+        quarenta e dois não acabou, porque foi copiado antes.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a funcao acabou, e o 42 esta aqui: 42
+        ele sobreviveu porque foi copiado para uma caixa minha? 1
+    - prosa: >
+        O valor está aqui, e a caixa que o guardava não. São duas coisas
+        diferentes, e confundi-las é o caminho para o erro de devolver o
+        endereço de um local — o endereço levaria a onde a caixa esteve, e
+        ela não está mais lá. Copiar o valor funciona; apontar para a
+        caixa que acabou, não.
+
+  B3:
+    - prosa: >
+        Outro caminho. Tire a função da história e veja se muda algo.
+    - codigo: |
+        int *fora = NULL;
+
+        {
+            int *dentro = malloc(sizeof(int));
+
+            if (dentro == NULL) {
+                return 1;
+            }
+            *dentro = 5;
+            fora = dentro;
+        }
+        printf("a chave fechou e o bloco continua: %d\n", *fora);
+        printf("quem acabou foi a caixa de dentro, e nao o bloco? %d\n", *fora == 5);
+        free(fora);
+    - prosa: >
+        Não há chamada e não há retorno. A variável dentro acabou na chave
+        de fechar, como qualquer local acaba no fim do seu escopo, e o
+        endereço tinha sido copiado para uma variável de fora antes disso.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a chave fechou e o bloco continua: 5
+        quem acabou foi a caixa de dentro, e nao o bloco? 1
+    - prosa: >
+        O cinco atravessou. Isso separa as duas coisas de um jeito que não
+        deixa espaço para dúvida: a vida do bloco não tem nada a ver com a
+        vida da variável que guardava o endereço dele. Uma acaba por regra
+        automática; a outra, por uma linha que alguém escreve.
+
+  I1:
+    - prosa: >
+        Outro caminho. Encadeie três funções, cada uma com a sua variável
+        local, e passe um bloco por todas.
+    - codigo: |
+        void terceira(int *bloco)
+        {
+            int local = 3;
+
+            *bloco = *bloco + local;
+        }
+
+        void segunda(int *bloco)
+        {
+            int local = 2;
+
+            *bloco = *bloco + local;
+            terceira(bloco);
+        }
+
+        void primeira(int *bloco)
+        {
+            int local = 1;
+
+            *bloco = *bloco + local;
+            segunda(bloco);
+        }
+    - codigo: |
+        int *bloco = malloc(sizeof(int));
+
+        if (bloco == NULL) {
+            return 1;
+        }
+        *bloco = 0;
+        primeira(bloco);
+        printf("tres funcoes entraram e sairam, e o bloco acumulou %d\n", *bloco);
+        printf("os tres locais sumiram sozinhos e o bloco ficou? %d\n", *bloco == 6);
+        free(bloco);
+    - prosa: >
+        Três variáveis locais, uma em cada função, cada uma existindo só
+        durante a sua chamada. E um bloco só, que nenhuma das três
+        devolveu, atravessando as três e guardando a soma do que cada uma
+        escreveu nele.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        tres funcoes entraram e sairam, e o bloco acumulou 6
+        os tres locais sumiram sozinhos e o bloco ficou? 1
+    - prosa: >
+        Seis, que é um mais dois mais três. Conte as linhas de arrumação
+        que você escreveu: zero para as três variáveis locais, que foram e
+        vieram sozinhas, e uma só para o bloco, no fim. São as duas
+        disciplinas em funcionamento, no mesmo programa, e a diferença
+        entre elas é visível em quantas linhas cada uma custou.
+
+  I2:
+    - prosa: >
+        Outro caminho, e este não tem saída para mostrar. Olhe o que
+        acontece quando se trata uma área pela regra da outra.
+    - codigo: |
+        int a;
+        int *b = malloc(sizeof(int));
+
+        free(&a);   /* invalido: esse endereco nao veio do alocador */
+        free(b);
+    - prosa: >
+        Não há bloco de saída, e a ausência é a demonstração. A terceira
+        linha entrega ao alocador um endereço que ele nunca entregou — e o
+        que acontece a partir daí a linguagem não define, então executar
+        não mostraria nada que se possa afirmar.
+    - prosa: >
+        E o erro é exatamente a crença deste nó. Quem pensa a memória como
+        região única não tem por que distinguir os dois endereços: os dois
+        são endereços, os dois apontam para espaço do programa, e devolver
+        um devolveria o outro. São áreas diferentes, com regras
+        diferentes, e a devolução é operação de uma só delas.
+    - prosa: >
+        A quarta linha, essa sim, está certa — e é a única das duas
+        devoluções que tem o que devolver. Repare que o programa mostrado
+        aqui não é meio errado: ele tem uma linha inválida e uma válida,
+        lado a lado, e distinguir qual é qual é tudo o que este tópico
+        pediu desde o primeiro nó.
 
 activities:
 

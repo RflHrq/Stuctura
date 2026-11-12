@@ -1,0 +1,172 @@
+# Material de ensino do B2 do kc_01 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Segundo observável: o `B1` disse de quem
+# é o espaço, e este diz por quanto tempo uma variável local dura dentro
+# dele.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, COM A RESSALVA QUE O CATÁLOGO FAZ
+#
+# `local_sobrevive` — "a variável que a função criou continua lá depois
+# que a função termina". Grade `T`: Sorva (2012), p. 359, item 5 —
+# dificuldades em entender o tempo de vida dos valores (du Boulay 1986).
+#
+# O CATÁLOGO AVISA QUE É DIFICULDADE, E NÃO CRENÇA ENUNCIADA, e que o
+# próprio apêndice de Sorva alerta para isso em alguns itens. A
+# ampliação respeita a ressalva: ela não põe na boca de ninguém a frase
+# "a variável continua lá", e trata o assunto como o que a fonte
+# sustenta — uma dificuldade com tempo de vida.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Três chamadas da mesma função, e cada uma devolve o
+#                    mesmo: nenhuma começa de onde a anterior parou.
+#   outra rota       O jeito de o valor sobreviver: ser copiado para uma
+#                    caixa de quem chamou.
+#
+# O CASO RESOLVIDO É A DEMONSTRAÇÃO DISPONÍVEL, e vale dizer por que não
+# há outra mais direta: para ver que a variável local ACABOU seria
+# preciso olhar onde ela estava, e isso exige ou o endereço de um local
+# depois do retorno — que é o `006` e é inválido usar — ou o nome dela
+# fora do escopo, que o compilador recusa. O que se observa é a
+# consequência: cada chamada começa do valor que o código escreve, e
+# nunca do que a chamada anterior deixou.
+#
+# A OUTRA ROTA É A RESPOSTA PRÁTICA, e ela é o contraste com o `006`:
+# devolver o VALOR funciona, porque ele é copiado para uma caixa de
+# quem chamou; devolver o ENDEREÇO do local não funciona, e o item
+# pergunta por quê. O cartão mostra o que dá certo e não executa o que
+# dá errado.
+#
+# O QUE FICA FORA
+#
+#   até quando existe uma variável de
+#     dentro de uma função               -> `ciu_kc01_004`
+#   duas chamadas, uma depois da outra   -> `ciu_kc01_t04`
+#   `conta()` três vezes num printf      -> `ciu_kc01_005`
+#   quanto vale o a da segunda chamada   -> `ciu_kc01_t05`
+#   `return &n` de um local              -> `ciu_kc01_006`, degrau 3
+#   local contra variável de fora        -> `ciu_kc01_t06`, degrau 3
+#
+# O `005` CHAMA A FUNÇÃO TRÊS VEZES DENTRO DE UM `printf`, e isso tem um
+# problema que o item assume e o cartão evita: a ordem de avaliação dos
+# argumentos de uma chamada não é especificada. Ali não importa, porque
+# as três devolvem o mesmo; no cartão as três chamadas são feitas em
+# linhas separadas, guardadas em três variáveis, e só depois impressas.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_01
+node: kc01:B2
+premissa: "Uma variável local existe enquanto a função dela está executando."
+crenca_que_nega: local_sobrevive
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: cf348550fe71
+
+
+# A AMPLIAÇÃO. Quando o local nasce e acaba, por que isso é automático,
+# e o que fazer quando você precisa que o valor dure mais.
+ampliacao: >
+  Uma variável declarada dentro de uma função nasce quando a execução
+  chega à declaração e acaba quando a função termina. Não é uma regra
+  sobre o nome ser invisível de fora: o espaço dela deixa de ser dela.
+  Cada chamada da função tem o seu, novo, e o da chamada anterior já não
+  existe.
+
+  Isso é automático, e ninguém escreve nada para que aconteça. É a
+  diferença que dá nome às duas áreas deste tópico: do lado da pilha, as
+  caixas são montadas ao entrar na função e desmontadas ao sair, sem
+  pedido e sem aviso. Entender o tempo de vida é o que torna previsível
+  um programa com muitas funções, e é também onde ele costuma ser mal
+  entendido.
+
+  Quando você precisa que o valor dure além da chamada, o caminho é
+  copiá-lo para fora. Uma função devolve um valor, e quem chamou o
+  guarda numa caixa sua — aí o valor sobrevive, na caixa de quem chamou,
+  e não na que acabou. Devolver o ENDEREÇO de uma variável local é outra
+  coisa, e não funciona: o endereço continua apontando para um lugar que
+  deixou de ser daquela variável.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int conta(void) {
+      int n = 0;       /* nasce aqui */
+      return n + 1;
+  }                    /* e acaba aqui */
+
+
+# O CASO RESOLVIDO: três chamadas, três vezes do começo.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int conta(void)
+      {
+          int n = 0;
+
+          n = n + 1;
+          return n;
+      }
+  - codigo: |
+      int a = conta();
+      int b = conta();
+      int c = conta();
+
+      printf("tres chamadas, e cada uma devolveu %d %d %d\n", a, b, c);
+      printf("nenhuma comecou de onde a anterior parou? %d\n",
+             a == 1 && b == 1 && c == 1);
+  - prosa: "Pergunta: se a variável n continuasse existindo depois da primeira chamada, o que a segunda devolveria?"
+  - prosa: >
+      Dois. Ela encontraria o um que a primeira deixou e somaria mais um.
+      A terceira devolveria três. O que sai é outra coisa, e é essa
+      diferença que mede a premissa: cada chamada teve o seu n, começando
+      do zero que a declaração escreve.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      tres chamadas, e cada uma devolveu 1 1 1
+      nenhuma comecou de onde a anterior parou? 1
+  - prosa: >
+      Um, um e um. A caixa de n da primeira chamada não estava mais lá
+      quando a segunda começou — e por isso a segunda não teve como
+      continuar de onde a primeira parou. É isso que significa a
+      variável existir enquanto a função executa.
+
+
+# A OUTRA ROTA: como o valor sobrevive.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Veja o que atravessa o fim da função e onde esse
+      algo fica.
+  - codigo: |
+      int mede(void)
+      {
+          int dentro = 42;
+
+          return dentro;
+      }
+  - codigo: |
+      int guardado = mede();
+
+      printf("a funcao acabou, e o 42 esta aqui: %d\n", guardado);
+      printf("ele sobreviveu porque foi copiado para uma caixa minha? %d\n",
+             guardado == 42);
+  - prosa: >
+      O que atravessou foi o VALOR, e ele está numa caixa nova — a de
+      quem chamou. A caixa de dentro acabou junto com a função; o
+      quarenta e dois não acabou, porque foi copiado antes.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a funcao acabou, e o 42 esta aqui: 42
+      ele sobreviveu porque foi copiado para uma caixa minha? 1
+  - prosa: >
+      O valor está aqui, e a caixa que o guardava não. São duas coisas
+      diferentes, e confundi-las é o caminho para o erro de devolver o
+      endereço de um local — o endereço levaria a onde a caixa esteve, e
+      ela não está mais lá. Copiar o valor funciona; apontar para a caixa
+      que acabou, não.

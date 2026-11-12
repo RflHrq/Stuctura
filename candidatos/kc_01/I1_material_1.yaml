@@ -1,0 +1,204 @@
+# Material de ensino do I1 do kc_01 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Nó de inferência: suporte em `B2` e `B3`,
+# e a refutação percorre os dois antes de chegar aqui.
+#
+# E A DERIVAÇÃO É A COMPARAÇÃO DOS DOIS: o `B2` disse que a variável
+# local acaba com a função, sem ninguém pedir; o `B3` disse que o bloco
+# não acaba, e que quem o encerra é uma chamada escrita. São duas regras
+# diferentes para duas coisas, e nomeá-las é tudo o que este nó faz. Não
+# é regra nova; é a contagem.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, COM A ANALOGIA DECLARADA
+#
+# `heap_dies_with_function` — "o bloco do malloc também some quando a
+# função termina". Grade `T`: TRANSPOSIÇÃO, e o catálogo declara a
+# analogia — em Java e Python, o que a função alocou e não é mais
+# alcançado desaparece sozinho, e a regra que a pessoa traz é "saiu da
+# função, foi-se".
+#
+# ISSO MUDA O QUE A AMPLIAÇÃO DEVE DIZER. A crença não é um erro de
+# raciocínio: é uma regra verdadeira em outra linguagem, aplicada aqui. O
+# segundo parágrafo diz isso — e diz também o que muda de uma linguagem
+# para a outra, que é QUEM decide.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Uma função pede DOIS blocos, devolve um e entrega o
+#                    outro: quem escolheu qual sobrava foi uma linha.
+#   outra rota       Três funções encadeadas, cada uma com o seu local, e
+#                    um bloco atravessando as três.
+#
+# O CASO RESOLVIDO É O QUE MOSTRA A ESCOLHA, e é essa a palavra que
+# importa aqui: os dois blocos nasceram na mesma função, no mesmo
+# instante, e tiveram destinos diferentes porque o código decidiu. Se a
+# vida do bloco fosse amarrada à função, os dois teriam acabado juntos —
+# e não haveria o que entregar.
+#
+# A OUTRA ROTA PÕE AS DUAS DISCIPLINAS NO MESMO RUN: três locais nascem
+# e somem sozinhos, em três escopos diferentes, enquanto um bloco só
+# atravessa os três acumulando o que cada um escreveu nele. Uma regra
+# agindo sem que ninguém a chame, a outra esperando a chamada.
+#
+# O `t12` É O MAIS PRÓXIMO, e a diferença é a direção: lá, uma função
+# copia o valor de um LOCAL para dentro do bloco e devolve o bloco, e a
+# pergunta é o que sai. Aqui os locais de três funções diferentes
+# contribuem para o mesmo bloco, e o que se observa é quantas vezes a
+# regra automática agiu enquanto a outra não agiu nenhuma.
+#
+# O QUE FICA FORA
+#
+#   um local e um bloco na mesma função  -> `ciu_kc01_010`
+#   quem desmonta uma variável local     -> `ciu_kc01_t10`
+#   o que ainda é válido depois do fim   -> `ciu_kc01_011`
+#   array de dez contra malloc de dez    -> `ciu_kc01_t11`
+#   qual dos dois retornos não vale      -> `ciu_kc01_012`, degrau 3
+#   `*b = a; return b;`                  -> `ciu_kc01_t12`, degrau 3
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_01
+node: kc01:I1
+premissa: "Há duas disciplinas de vida: uma automática, outra na sua mão."
+crenca_que_nega: heap_dies_with_function
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 551be1306c95
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO; o segundo diz de onde
+# vem a regra trazida de fora; o terceiro, o que ela cobra aqui.
+ampliacao: >
+  Isto não é regra nova: é o B2 e o B3 postos lado a lado. A variável
+  local nasce quando a execução chega à declaração e acaba no fim da
+  função, sem que ninguém escreva nada para isso. O bloco pedido ao
+  alocador nasce no pedido e acaba na devolução, e a devolução é uma
+  linha que alguém escreve. Duas coisas, duas regras — e é só isso que
+  esta premissa afirma.
+
+  A ideia de que o bloco também some com a função não é confusão: é uma
+  regra de outra linguagem. Em várias delas, o que a função alocou e não
+  é mais alcançado desaparece sozinho, e quem aprendeu assim traz a
+  regra pronta. A diferença não está em o espaço acabar ou não — está em
+  QUEM decide quando. Lá, quem decide é a linguagem; aqui, numa das duas
+  áreas, é você.
+
+  E saber de qual das duas se está falando é o que torna o programa
+  previsível. Quando você precisa que um valor dure além da chamada, o
+  caminho é a área cuja vida você controla; quando o valor só serve
+  durante a chamada, a área automática resolve sem custo nenhum de
+  código. Escolher errado dá dois tipos de erro de lados opostos: usar
+  o que já acabou, ou nunca devolver o que continua.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int  na_pilha;                      /* some com a funcao   */
+  int *no_monte = malloc(sizeof(int)); /* fica ate o free     */
+
+
+# O CASO RESOLVIDO: dois blocos, dois destinos.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *escolhe(void)
+      {
+          int *fica = malloc(sizeof(int));
+          int *sai = malloc(sizeof(int));
+
+          if (fica == NULL || sai == NULL) {
+              return NULL;
+          }
+          *fica = 1;
+          *sai = 2;
+          free(sai);
+          return fica;
+      }
+  - codigo: |
+      int *recebido = escolhe();
+
+      if (recebido == NULL) {
+          return 1;
+      }
+      printf("dos dois blocos da funcao, sobrou o que eu escolhi: %d\n",
+             *recebido);
+      printf("quem decidiu qual sobrava foi uma linha minha? %d\n",
+             *recebido == 1);
+      free(recebido);
+  - prosa: "Pergunta: os dois blocos nasceram na mesma função e no mesmo instante. Por que um acabou e o outro não?"
+  - prosa: >
+      Porque uma linha devolveu um deles, e nenhuma linha devolveu o
+      outro. Não foi o fim da função que decidiu: ele teria tratado os
+      dois igual. O que separou os destinos foi a chamada de devolução
+      escrita para um e não para o outro.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dos dois blocos da funcao, sobrou o que eu escolhi: 1
+      quem decidiu qual sobrava foi uma linha minha? 1
+  - prosa: >
+      O um chegou aqui. Se o bloco sumisse com a função, os dois teriam
+      sumido — e a função não teria o que devolver. O fato de haver
+      escolha é a prova de que esta disciplina está na sua mão: duas
+      coisas idênticas, dois fins diferentes, decididos por você.
+
+
+# A OUTRA ROTA: as duas disciplinas no mesmo run.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Encadeie três funções, cada uma com a sua variável
+      local, e passe um bloco por todas.
+  - codigo: |
+      void terceira(int *bloco)
+      {
+          int local = 3;
+
+          *bloco = *bloco + local;
+      }
+
+      void segunda(int *bloco)
+      {
+          int local = 2;
+
+          *bloco = *bloco + local;
+          terceira(bloco);
+      }
+
+      void primeira(int *bloco)
+      {
+          int local = 1;
+
+          *bloco = *bloco + local;
+          segunda(bloco);
+      }
+  - codigo: |
+      int *bloco = malloc(sizeof(int));
+
+      if (bloco == NULL) {
+          return 1;
+      }
+      *bloco = 0;
+      primeira(bloco);
+      printf("tres funcoes entraram e sairam, e o bloco acumulou %d\n", *bloco);
+      printf("os tres locais sumiram sozinhos e o bloco ficou? %d\n", *bloco == 6);
+      free(bloco);
+  - prosa: >
+      Três variáveis locais, uma em cada função, cada uma existindo só
+      durante a sua chamada. E um bloco só, que nenhuma das três
+      devolveu, atravessando as três e guardando a soma do que cada uma
+      escreveu nele.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      tres funcoes entraram e sairam, e o bloco acumulou 6
+      os tres locais sumiram sozinhos e o bloco ficou? 1
+  - prosa: >
+      Seis, que é um mais dois mais três. Conte as linhas de arrumação
+      que você escreveu: zero para as três variáveis locais, que foram e
+      vieram sozinhas, e uma só para o bloco, no fim. São as duas
+      disciplinas em funcionamento, no mesmo programa, e a diferença
+      entre elas é visível em quantas linhas cada uma custou.

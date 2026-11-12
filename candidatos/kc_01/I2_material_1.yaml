@@ -1,0 +1,205 @@
+# Material de ensino do I2 do kc_01 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico: suporte em `B1` e
+# `I1`, e a refutação percorre B1 -> B2 -> B3 -> I1 -> I2.
+#
+# E A DERIVAÇÃO VEM DOS DOIS: o `B1` disse que o espaço é do programa, e
+# o `I1` disse que há duas disciplinas de vida dentro dele. Se são duas
+# regras, então são duas áreas — porque uma área é definida pela regra
+# que vale nela. Não é regra nova; é dar nome ao que o `I1` já separou.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E ELA DESCEU DE GRADE
+#
+# `memory_is_uniform` — "memória é uma região única, sem distinção de
+# regras de vida". Grade `E`: HIPÓTESE A TESTAR, e o catálogo registra
+# que ela DESCEU de `T` para `E` em 11/11/2026 por falta de fonte que se
+# sustente — a citação anterior era de um artigo cuja página não
+# confirmou o tema.
+#
+# ENTÃO A AMPLIAÇÃO NÃO ATRIBUI ESTA CRENÇA A NINGUÉM. Para ela não há
+# estudo; há uma suposição nossa, declarada como tal. É a segunda crença
+# grade `E` deste tópico, junto com a do `B1`, e isso é informação sobre
+# o instrumento: duas das cinco crenças do kc_01 esperam o primeiro dado
+# que as confirme ou derrube.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Mil chamadas de cada tipo, e a CONTAGEM do que cada
+#                    disciplina cobrou em linhas de arrumação.
+#   outra rota       O erro de misturar as regras, mostrado e NÃO
+#                    executado.
+#
+# O CASO RESOLVIDO MEDE O QUE DISTINGUE AS DUAS ÁREAS pelo lado que um
+# programa consegue observar: quantas linhas de arrumação cada uma
+# exigiu. Mil chamadas de uma função só com local pedem zero; mil
+# chamadas de uma função com bloco pedem mil. Se a memória fosse uma
+# região única com uma regra só, esse número seria o mesmo nas duas.
+#
+# POR QUE NÃO SE MEDE O ENDEREÇO. A maneira mais direta de mostrar duas
+# áreas seria comparar os endereços de um local e de um bloco, e ela
+# está fora: subtrair ponteiros que não apontam para o mesmo objeto é
+# comportamento indefinido, e comparar com `<` também. O `014` pergunta
+# isso e pode fazê-lo, porque item não executa.
+#
+# A OUTRA ROTA NÃO RODA, E ISSO É A PROVA. `free` de um endereço que não
+# veio do alocador é a confusão entre as duas regras na forma mais pura,
+# e é o `015`. O trecho aparece com comentário e sem bloco de saída.
+#
+# O QUE FICA FORA
+#
+#   o que distingue a pilha do monte     -> `ciu_kc01_013`
+#   onde fica uma variável de dentro de
+#     uma função                          -> `ciu_kc01_t13`
+#   `a` e o bloco na mesma área?         -> `ciu_kc01_014`
+#   mil chamadas com local, e mil malloc -> `ciu_kc01_t14`
+#   `free(&a)`                           -> `ciu_kc01_015`, degrau 3
+#   qual dos dois tem mais chance de não
+#     caber                               -> `ciu_kc01_t15`, degrau 3
+#
+# O `t14` É O MAIS PRÓXIMO E A DIFERENÇA É O QUE SE CONTA: ele pergunta
+# por que mil chamadas com local não acabam com a memória e mil malloc
+# acabam. O caso resolvido não pergunta nem afirma sobre esgotar
+# memória — ele conta LINHAS DE ARRUMAÇÃO, que é observável e não
+# depende de quanta memória a máquina tem.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): o programa do caso
+# resolvido compila sem um aviso, e a saída está transcrita da execução.
+# O trecho da outra rota NÃO É EXECUTADO.
+
+topico: kc_01
+node: kc01:I2
+premissa: "A memória do programa tem duas áreas com regras diferentes: a pilha e o monte."
+crenca_que_nega: memory_is_uniform
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: f725eed0881d
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO; o segundo nomeia as
+# duas áreas; o terceiro diz o que a distinção decide na prática.
+ampliacao: >
+  Isto é o fecho do tópico. O espaço é do programa enquanto ele roda, e
+  dentro desse espaço há duas regras de vida: uma que age sozinha no fim
+  de cada função, e outra que espera uma chamada sua. Duas regras
+  querem dizer duas áreas, porque é a regra que define a área — e é por
+  isso que a conclusão não acrescenta fato novo, e sim um nome.
+
+  As duas áreas têm nome, e os nomes dizem como cada uma se arruma. A
+  pilha é onde ficam as variáveis locais: as caixas são montadas ao
+  entrar na função e desmontadas ao sair, em ordem, e o espaço usado por
+  uma chamada volta a ficar livre para a próxima. O monte é de onde vêm
+  os blocos pedidos: cada pedido reserva um pedaço, que fica reservado
+  até a devolução, em qualquer ordem.
+
+  E saber em qual área algo está decide o que você pode fazer com ele. O
+  que está na pilha não precisa de devolução, e entregá-lo ao alocador é
+  inválido; o que está no monte precisa, e esquecer é a falha do outro
+  lado. As duas coisas
+  convivem no mesmo programa, muitas vezes na mesma função, e distinguir
+  uma da outra é o que esta unidade inteira vem construindo.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void f(void) {
+      int a;                            /* pilha */
+      int *b = malloc(sizeof(int));     /* monte */
+      free(b);
+  }
+
+
+# O CASO RESOLVIDO: a contagem.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      void so_local(void)
+      {
+          int a = 0;
+
+          a = a + 1;
+      }
+
+      int com_bloco(void)
+      {
+          int *p = malloc(sizeof(int));
+
+          if (p == NULL) {
+              return 0;
+          }
+          *p = 1;
+          free(p);
+          return 1;
+      }
+  - codigo: |
+      char *teste = NULL;
+      int arrumacoes = 0;
+      int i = 0;
+
+      while (i < 1000) {
+          so_local();
+          i = i + 1;
+      }
+      i = 0;
+      while (i < 1000) {
+          arrumacoes = arrumacoes + com_bloco();
+          i = i + 1;
+      }
+      teste = malloc(1);
+      printf("mil chamadas de cada uma, e ainda ha memoria para pedir? %d\n",
+             teste != NULL);
+      printf("a de bloco precisou de %d arrumacoes, uma por chamada\n",
+             arrumacoes);
+      printf("e a de local precisou de quantas linhas suas? %d\n", 0);
+      free(teste);
+  - prosa: "Pergunta: as duas funções foram chamadas mil vezes. O que foi diferente entre elas?"
+  - prosa: >
+      O que cada uma exigiu de você. A primeira usou uma variável local
+      mil vezes e você não escreveu uma linha de arrumação — a área dela
+      se arruma sozinha. A segunda pediu um bloco mil vezes, e cada
+      pedido teve de ter a sua devolução escrita. Mesmo programa, mesmo
+      espaço, duas regras.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      mil chamadas de cada uma, e ainda ha memoria para pedir? 1
+      a de bloco precisou de 1000 arrumacoes, uma por chamada
+      e a de local precisou de quantas linhas suas? 0
+  - prosa: >
+      Mil contra zero. Se a memória fosse uma região só, com uma regra
+      só, esses dois números teriam de ser iguais — ou as duas se
+      arrumariam sozinhas, ou as duas pediriam devolução. A diferença
+      entre eles é a premissa deste nó, contada em linhas de código.
+
+
+# A OUTRA ROTA: misturar as regras, e isto não roda.
+reexplicacao:
+  - prosa: >
+      Outro caminho, e este não tem saída para mostrar. Olhe o que
+      acontece quando se trata uma área pela regra da outra.
+  - codigo: |
+      int a;
+      int *b = malloc(sizeof(int));
+
+      free(&a);   /* invalido: esse endereco nao veio do alocador */
+      free(b);
+  - prosa: >
+      Não há bloco de saída, e a ausência é a demonstração. A terceira
+      linha entrega ao alocador um endereço que ele nunca entregou — e o
+      que acontece a partir daí a linguagem não define, então executar
+      não mostraria nada que se possa afirmar.
+  - prosa: >
+      E o erro é exatamente a crença deste nó. Quem pensa a memória como
+      região única não tem por que distinguir os dois endereços: os dois
+      são endereços, os dois apontam para espaço do programa, e devolver
+      um devolveria o outro. São áreas diferentes, com regras diferentes,
+      e a devolução é operação de uma só delas.
+  - prosa: >
+      A quarta linha, essa sim, está certa — e é a única das duas
+      devoluções que tem o que devolver. Repare que o programa mostrado
+      aqui não é meio errado: ele tem uma linha inválida e uma válida,
+      lado a lado, e distinguir qual é qual é tudo o que este tópico
+      pediu desde o primeiro nó.

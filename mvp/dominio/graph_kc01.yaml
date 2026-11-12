@@ -74,6 +74,29 @@ nodes:
         espera: |-
           cem mil passos depois, os tres lugares respondem o mesmo
           e sao lugares distintos: cada um guarda o seu ao mesmo tempo
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Enquanto está executando, o programa tem um espaço de memória que é
+      dele. O que ele escreve lá continua como ele escreveu, e nenhum
+      outro programa alcança aquele espaço para ler ou mexer. É por isso
+      que você pode contar com o que o seu código guardou: a caixa
+      responde a você.
+
+
+      E é por isso que dois programas não se falam pela memória. Mesmo que
+      os dois declarem uma variável com o mesmo nome, e mesmo que os dois
+      acabem usando o mesmo número de endereço, são dois espaços separados
+      — o número vale dentro de cada um, e não entre eles. Trocar
+      informação entre programas é outro assunto, e exige que alguém a
+      passe de propósito.
+
+
+      Quando o programa termina, o espaço volta para o sistema. O próximo
+      programa recebe um espaço seu, e nada do que estava lá é promessa
+      para ele: não há garantia nenhuma do que ele vai encontrar numa
+      variável que ninguém escreveu. Essa é a ponte para o nó que fala do
+      conteúdo indeterminado, e é também por isso que o exemplo deste
+      cartão não tenta olhar.
   B2:
     type: observavel
     role: espinha
@@ -115,6 +138,29 @@ nodes:
         espera: |-
           a primeira chamada devolveu 1
           e a segunda tambem: a variavel da chamada anterior nao ficou
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Uma variável declarada dentro de uma função nasce quando a execução
+      chega à declaração e acaba quando a função termina. Não é uma regra
+      sobre o nome ser invisível de fora: o espaço dela deixa de ser dela.
+      Cada chamada da função tem o seu, novo, e o da chamada anterior já
+      não existe.
+
+
+      Isso é automático, e ninguém escreve nada para que aconteça. É a
+      diferença que dá nome às duas áreas deste tópico: do lado da pilha,
+      as caixas são montadas ao entrar na função e desmontadas ao sair,
+      sem pedido e sem aviso. Entender o tempo de vida é o que torna
+      previsível um programa com muitas funções, e é também onde ele
+      costuma ser mal entendido.
+
+
+      Quando você precisa que o valor dure além da chamada, o caminho é
+      copiá-lo para fora. Uma função devolve um valor, e quem chamou o
+      guarda numa caixa sua — aí o valor sobrevive, na caixa de quem
+      chamou, e não na que acabou. Devolver o ENDEREÇO de uma variável
+      local é outra coisa, e não funciona: o endereço continua apontando
+      para um lugar que deixou de ser daquela variável.
   B3:
     type: observavel
     role: espinha
@@ -173,6 +219,27 @@ nodes:
         espera: |-
           a funcao terminou, e o A escrito dentro dela continua la
           e o bloco continua meu: da para escrever de novo
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O bloco pedido ao alocador não segue a regra da função que o pediu.
+      A caixa do ponteiro, sim: ela é local e acaba no fim da chamada,
+      como qualquer local. O bloco é outra coisa, em outra área, e
+      continua reservado até alguém devolvê-lo com uma chamada escrita de
+      propósito.
+
+
+      A ideia contrária tem de onde vir. Variáveis comuns somem sozinhas
+      no fim da função, e isso funciona tão bem que passa despercebido; e
+      quando o programa inteiro termina, o sistema recolhe tudo mesmo.
+      Entre um e outro está o tempo em que o programa roda — e é nesse
+      tempo que o bloco não devolvido fica ocupado.
+
+
+      Por isso a devolução é sua. Enquanto o programa vive, cada bloco
+      pedido e não devolvido continua ocupado, e o alocador não tem como
+      saber que você não precisa mais dele. Num programa que pede muitas
+      vezes, o que se acumula não é um erro visível: é memória que some
+      aos poucos, sem nada quebrar na hora.
   I1:
     type: inferencia
     role: espinha
@@ -235,6 +302,30 @@ nodes:
         espera: |-
           a local recomeca do zero toda chamada, sem ninguem pedir
           e o bloco pedido guardou as duas somas: ele fica ate voce devolver
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o B2 e o B3 postos lado a lado. A variável
+      local nasce quando a execução chega à declaração e acaba no fim da
+      função, sem que ninguém escreva nada para isso. O bloco pedido ao
+      alocador nasce no pedido e acaba na devolução, e a devolução é uma
+      linha que alguém escreve. Duas coisas, duas regras — e é só isso que
+      esta premissa afirma.
+
+
+      A ideia de que o bloco também some com a função não é confusão: é
+      uma regra de outra linguagem. Em várias delas, o que a função alocou
+      e não é mais alcançado desaparece sozinho, e quem aprendeu assim
+      traz a regra pronta. A diferença não está em o espaço acabar ou não
+      — está em QUEM decide quando. Lá, quem decide é a linguagem; aqui,
+      numa das duas áreas, é você.
+
+
+      E saber de qual das duas se está falando é o que torna o programa
+      previsível. Quando você precisa que um valor dure além da chamada, o
+      caminho é a área cuja vida você controla; quando o valor só serve
+      durante a chamada, a área automática resolve sem custo nenhum de
+      código. Escolher errado dá dois tipos de erro de lados opostos: usar
+      o que já acabou, ou nunca devolver o que continua.
   I2:
     type: inferencia
     role: conclusao
@@ -287,3 +378,26 @@ nodes:
         espera: |-
           o tamanho do pedido veio de uma conta feita rodando: 7
           e o bloco desse tamanho aceitou a escrita
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto é o fecho do tópico. O espaço é do programa enquanto ele roda,
+      e dentro desse espaço há duas regras de vida: uma que age sozinha no
+      fim de cada função, e outra que espera uma chamada sua. Duas regras
+      querem dizer duas áreas, porque é a regra que define a área — e é
+      por isso que a conclusão não acrescenta fato novo, e sim um nome.
+
+
+      As duas áreas têm nome, e os nomes dizem como cada uma se arruma. A
+      pilha é onde ficam as variáveis locais: as caixas são montadas ao
+      entrar na função e desmontadas ao sair, em ordem, e o espaço usado
+      por uma chamada volta a ficar livre para a próxima. O monte é de
+      onde vêm os blocos pedidos: cada pedido reserva um pedaço, que fica
+      reservado até a devolução, em qualquer ordem.
+
+
+      E saber em qual área algo está decide o que você pode fazer com ele.
+      O que está na pilha não precisa de devolução, e entregá-lo ao
+      alocador é inválido; o que está no monte precisa, e esquecer é a
+      falha do outro lado. As duas coisas convivem no mesmo programa,
+      muitas vezes na mesma função, e distinguir uma da outra é o que esta
+      unidade inteira vem construindo.

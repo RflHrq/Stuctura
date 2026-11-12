@@ -1,0 +1,190 @@
+# Material de ensino do B1 do kc_01 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_01 tem ampliação VAZIA nos cinco
+# nós, e ele NÃO é tópico-piloto: `pilot: false`. O grafo curricular o
+# põe depois do kc_00 e antes do kc_08 e do kc_12, que o declaram como
+# pré-requisito.
+#
+# ---------------------------------------------------------------------
+# E O `exemplo` DESTE NÓ MUDA NESTE COMMIT. O que estava ali era
+#
+#     /* duas execucoes do mesmo programa */
+#     int x;
+#     printf("%d\n", x);   /* nao ha garantia entre uma e outra */
+#
+# e isso LÊ UMA VARIÁVEL NÃO INICIALIZADA para fazer o seu ponto. É o
+# mesmo defeito que saiu do `kc_03:B3` e do `kc_00:B3` em 12/11/2026 —
+# e aqui ele é pior de um jeito particular: quem chega ao kc_01 vem do
+# kc_00, onde o `B3` acabou de ensinar a não fazer isso. A primeira coisa
+# que a pessoa vê contradiria o que ela aprendeu no tópico anterior.
+#
+# O NOVO EXEMPLO mostra dois programas com uma variável de mesmo nome,
+# cada um no seu espaço, e não lê nada indefinido. Trocar o exemplo muda
+# a assinatura, e é por isso que ele é assinado junto com o material.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E ELA É GRADE `E`
+#
+# `memoria_e_do_computador` — "a memória é do computador, não do
+# programa: o que está lá é o que o último programa deixou". Grade `E`:
+# ELABORADA, e entra declarada como HIPÓTESE A TESTAR. O catálogo
+# registra a busca: não há item no Sorva (2012) sobre o programa ter
+# espaço próprio, e o mais próximo é outro assunto.
+#
+# ENTÃO A AMPLIAÇÃO NÃO DIZ QUE ALGUÉM PENSA ASSIM. Para esta crença não
+# há estudo; há uma suposição nossa, declarada. O cartão ensina a
+# premissa e deixa a atribuição de crença para quem medir.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Mil posições escritas e lidas de volta: durante a
+#                    execução, ninguém de fora mexe no espaço.
+#   outra rota       A mesma conta duas vezes, no mesmo espaço, com o
+#                    mesmo resultado.
+#
+# NENHUMA DAS DUAS COMPARA DUAS EXECUÇÕES, e não teria como: um programa
+# não vê o espaço de outro, nem o seu próprio de uma execução anterior —
+# é o que a premissa afirma. Os itens `001`, `t02` e `003` tratam disso
+# por perguntas, que é o que um item pode fazer. O cartão demonstra o
+# lado de dentro: enquanto roda, o espaço responde só ao programa.
+#
+# E NENHUMA LÊ POSIÇÃO NÃO ESCRITA. O caso resolvido escreve as mil
+# antes de ler qualquer uma — a ordem é parte da demonstração, e não
+# detalhe.
+#
+# O QUE FICA FORA
+#
+#   rodar o mesmo programa duas vezes   -> `ciu_kc01_001`
+#   o que acontece quando o programa
+#     termina                            -> `ciu_kc01_t01`
+#   B pode ler o x de A?                 -> `ciu_kc01_002`
+#   dois programas no mesmo endereço     -> `ciu_kc01_t02`
+#   passar valor de um programa a outro  -> `ciu_kc01_t03`, degrau 3
+#   na execução 2, x começa valendo 7?   -> `ciu_kc01_003`, degrau 3
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_01
+node: kc01:B1
+premissa: "Enquanto executa, o programa tem um espaço de memória só dele."
+crenca_que_nega: memoria_e_do_computador
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: a8edd6a6fda5
+
+
+# A AMPLIAÇÃO. O que o programa tem enquanto roda, o que isso implica
+# entre programas, e o que acontece quando ele termina.
+ampliacao: >
+  Enquanto está executando, o programa tem um espaço de memória que é
+  dele. O que ele escreve lá continua como ele escreveu, e nenhum outro
+  programa alcança aquele espaço para ler ou mexer. É por isso que você
+  pode contar com o que o seu código guardou: a caixa responde a você.
+
+  E é por isso que dois programas não se falam pela memória. Mesmo que
+  os dois declarem uma variável com o mesmo nome, e mesmo que os dois
+  acabem usando o mesmo número de endereço, são dois espaços separados —
+  o número vale dentro de cada um, e não entre eles. Trocar informação
+  entre programas é outro assunto, e exige que alguém a passe de
+  propósito.
+
+  Quando o programa termina, o espaço volta para o sistema. O próximo
+  programa recebe um espaço seu, e nada do que estava lá é promessa para
+  ele: não há garantia nenhuma do que ele vai encontrar numa variável
+  que ninguém escreveu. Essa é a ponte para o nó que fala do conteúdo
+  indeterminado, e é também por isso que o exemplo deste cartão não
+  tenta olhar.
+
+
+# O exemplo NOVO: dois programas, duas variáveis de mesmo nome.
+# O que estava aqui lia uma variável não inicializada — ver o cabeçalho.
+exemplo: |
+  /* no programa A */  int x = 42;   /* no espaco do A */
+  /* no programa B */  int x = 7;    /* outro x, outro espaco */
+
+
+# O CASO RESOLVIDO: mil posições, e elas respondem.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      char *bloco = malloc(1000);
+      int iguais = 0;
+      int i = 0;
+
+      if (bloco == NULL) {
+          return 1;
+      }
+      while (i < 1000) {
+          bloco[i] = (char) (i % 100);
+          i = i + 1;
+      }
+      i = 0;
+      while (i < 1000) {
+          if (bloco[i] == (char) (i % 100)) {
+              iguais = iguais + 1;
+          }
+          i = i + 1;
+      }
+      printf("quantas das mil posicoes devolveram o que eu escrevi: %d\n", iguais);
+      printf("todas as mil? %d\n", iguais == 1000);
+      free(bloco);
+  - prosa: "Pergunta: o programa escreve mil posições e só depois começa a ler. Por que nessa ordem?"
+  - prosa: >
+      Porque ler antes de escrever seria perguntar o que havia lá, e
+      sobre isso não há garantia. A demonstração é outra: o que o
+      programa escreveu, ele lê de volta igual — mil vezes, sem exceção.
+      Enquanto ele roda, aquele espaço é dele.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      quantas das mil posicoes devolveram o que eu escrevi: 1000
+      todas as mil? 1
+  - prosa: >
+      Mil de mil. Se a memória fosse um lugar comum onde qualquer um
+      escreve, alguma dessas posições poderia ter mudado entre a escrita
+      e a leitura — e nenhuma mudou. O espaço responde ao programa, e
+      só a ele, pelo tempo em que ele existe.
+
+
+# A OUTRA ROTA: a mesma conta, duas vezes.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Faça a mesma coisa duas vezes dentro da mesma
+      execução e compare.
+  - codigo: |
+      int soma_ate_dez(void)
+      {
+          int s = 0;
+          int i = 1;
+
+          while (i <= 10) {
+              s = s + i;
+              i = i + 1;
+          }
+          return s;
+      }
+  - codigo: |
+      int primeira = soma_ate_dez();
+      int segunda = soma_ate_dez();
+
+      printf("a mesma conta, duas vezes no mesmo espaco: %d e %d\n",
+             primeira, segunda);
+      printf("deu igual? %d\n", primeira == segunda);
+  - prosa: >
+      A função parte de um zero que ela mesma escreve e soma até dez. As
+      duas chamadas acontecem no mesmo espaço, uma depois da outra, e
+      nada entre elas vem de fora.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a mesma conta, duas vezes no mesmo espaco: 55 e 55
+      deu igual? 1
+  - prosa: >
+      Cinquenta e cinco nas duas. Dentro de uma execução o espaço é
+      previsível porque é do programa: o que ele faz duas vezes dá duas
+      vezes o mesmo. O que não se pode esperar é essa previsibilidade
+      ENTRE execuções, para uma variável que ninguém escreveu — e isso
+      não é o que este trecho mostra, nem teria como mostrar.
