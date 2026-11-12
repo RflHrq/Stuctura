@@ -27,6 +27,7 @@ ensinado — a rastreabilidade é o que separa isto de uma lista de desejos.
 """
 from __future__ import annotations
 
+import functools
 import os
 import pathlib
 import re
@@ -229,6 +230,49 @@ def liberada(descida) -> bool:
     return not faltando(descida)
 
 
+@functools.lru_cache(maxsize=None)
+def _prerequisitos(topico: str) -> tuple[str, ...]:
+    """O que o `topic_kcXX.yaml` daquele tópico declara em `prerequisites`.
+
+    Lido direto do arquivo do tópico, e não do `Dominio`: o carregador
+    do domínio descarta essa chave, e há teste fixando isso
+    (`test_arquitetura`). Quem precisa do grafo curricular é este
+    módulo, que é onde mora a pergunta "isto já foi ensinado?".
+
+    Tópico sem arquivo, ou sem a chave, não tem pré-requisito — e a
+    consequência é o portão barrar mais, que é o lado seguro do erro.
+    """
+    arquivo = RAIZ / ("topic_%s.yaml" % topico.replace("_", ""))
+    try:
+        cru = yaml.safe_load(arquivo.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        return ()
+    return tuple(str(t) for t in (cru.get("prerequisites") or ()))
+
+
+def anteriores(topico: str) -> frozenset[str]:
+    """O fecho dos pré-requisitos: tudo o que o currículo põe ANTES dele.
+
+    Transitivo — o kc_09 declara [kc_08, kc_06], e o kc_02 chega por
+    dois níveis. O próprio tópico nunca entra, e um ciclo no grafo não
+    pendura a conta: este fecho roda em toda tela de refutação.
+
+    O QUE ISTO NÃO SABE: por onde uma pessoa passou. É o currículo
+    DECLARADO. Uma coleta que roda um subconjunto dos tópicos assume os
+    pré-requisitos que pula, e `test_exibicao_por_prerequisito` fixa
+    quais evidências do piloto se apoiam nessa suposição.
+    """
+    vistos: set[str] = set()
+    fila = list(_prerequisitos(topico))
+    while fila:
+        t = fila.pop()
+        if t == topico or t in vistos:
+            continue
+        vistos.add(t)
+        fila.extend(_prerequisitos(t))
+    return frozenset(vistos)
+
+
 def faltando_para_exibir(codigo: str, topico: str) -> tuple[str, ...]:
     """Os construtos deste código que nenhum cartão do tópico ensina.
 
@@ -237,15 +281,25 @@ def faltando_para_exibir(codigo: str, topico: str) -> tuple[str, ...]:
     programa, porque quem escreve uma prova de premissa escreve para o
     examinador e não repara no que está ensinado.
 
-    E O CARTÃO TEM DE SER DESTE TÓPICO. O `array` é `disponivel` e tem
-    cartão — `kc_07:B1` —, e isso não ajuda quem está no kc_02: o tópico
-    vem depois. Disponibilidade no inventário é condição necessária e
-    não suficiente, e foi aceitá-la como suficiente que deixou passar o
-    degrau de abertura reprovado em 05/11/2026.
+    E O CARTÃO TEM DE SER DESTE TÓPICO OU DE UM ANTERIOR A ELE. O `array`
+    é `disponivel` e tem cartão — `kc_07:B1` —, e isso não ajuda quem
+    está no kc_02: o tópico vem depois. Disponibilidade no inventário é
+    condição necessária e não suficiente, e foi aceitá-la como
+    suficiente que deixou passar o degrau de abertura reprovado em
+    05/11/2026.
+
+    "ANTERIOR" É O FECHO DOS PRÉ-REQUISITOS DECLARADOS, desde 12/11/2026.
+    Até ali a regra exigia cartão do PRÓPRIO tópico, e era mais severa
+    que a justificativa acima: barrava também o que foi ensinado ANTES.
+    Medido: 15 de 93 evidências barradas, 10 delas por construto com
+    cartão em tópico pré-requisito — o `sizeof` do kc_02 barrando o
+    kc_11, que o declara como anterior. As cinco que continuam barradas
+    são as do caso que a justificativa descreve.
     """
+    ensinados = {topico} | anteriores(topico)
     fora = []
     for cid in construtos_de(codigo):
-        if not any(str(c).startswith(topico + ":") for c in cartoes(cid)):
+        if not any(str(c).split(":")[0] in ensinados for c in cartoes(cid)):
             fora.append(cid)
     return tuple(fora)
 

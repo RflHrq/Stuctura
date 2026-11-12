@@ -1323,7 +1323,7 @@
       s.appendChild(el("text", { x: 262, y: 122, "class": "fig-nota" },
                        "passo grande"));
       legenda(s, 164, "a planta do tipo diz o tamanho da casa");
-      legenda(s, 184, "e e dela que sai o passo");
+      legenda(s, 184, "e é dela que sai o passo");
       return s;
     },
 

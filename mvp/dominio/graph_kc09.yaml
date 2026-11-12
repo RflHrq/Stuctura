@@ -137,6 +137,14 @@ nodes:
     negated_by:
       - function_gets_original
 
+    # LIBERADA EM 12/11/2026. O comentario abaixo descreve o estado
+    # ANTERIOR e fica como historia: o portao de exibicao passou a
+    # aceitar cartao de topico ANTERIOR, pelo fecho dos pre-requisitos
+    # declarados (`conceitos.anteriores`), e o kc_06 e
+    # pre-requisito declarado deste topico.
+    # Esta demonstracao agora chega a tela. Ver
+    # `mvp/test_exibicao_por_prerequisito.py`.
+    #
     # BARRADA por `funcao_com_parametro`, e a demonstracao e por
     # SUBSTITUICAO: nao da para olhar free por dentro, entao o que se
     # mostra e a REGRA de chamada que vale para ela -- e que o kc_06

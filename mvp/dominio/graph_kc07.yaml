@@ -252,6 +252,14 @@ nodes:
     negated_by:
       - arr_equals_addr_of_arr
 
+    # LIBERADA EM 12/11/2026. O comentario abaixo descreve o estado
+    # ANTERIOR e fica como historia: o portao de exibicao passou a
+    # aceitar cartao de topico ANTERIOR, pelo fecho dos pre-requisitos
+    # declarados (`conceitos.anteriores`), e o kc_02 antecede
+    # este topico.
+    # Esta demonstracao agora chega a tela. Ver
+    # `mvp/test_exibicao_por_prerequisito.py`.
+    #
     # BARRADA PELO `sizeof`, que tem cartao no kc_02 e nao aqui. E a
     # premissa PEDE sizeof: ela fala dele. A demonstracao continua valendo
     # como evidencia; so nao vai para a tela de quem esta neste topico.

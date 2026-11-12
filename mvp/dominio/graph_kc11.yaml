@@ -182,6 +182,14 @@ nodes:
     negated_by:
       - string_literal_is_array
 
+    # LIBERADA EM 12/11/2026. O comentario abaixo descreve o estado
+    # ANTERIOR e fica como historia: o portao de exibicao passou a
+    # aceitar cartao de topico ANTERIOR, pelo fecho dos pre-requisitos
+    # declarados (`conceitos.anteriores`), e o kc_07 antecede
+    # este topico.
+    # Esta demonstracao agora chega a tela. Ver
+    # `mvp/test_exibicao_por_prerequisito.py`.
+    #
     # BARRADA por `array`, que so tem cartao no kc_07. A premissa e sobre
     # array, entao nao ha versao sem ele; a evidencia vale, e nao vai a
     # tela enquanto este topico nao tiver cartao que ensine o construto.

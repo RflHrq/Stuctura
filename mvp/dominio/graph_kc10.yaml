@@ -45,6 +45,14 @@ nodes:
     negated_by:
       - ampersand_copies
 
+    # ESTE COMENTARIO FICOU VELHO DUAS VEZES NO MESMO DIA, 12/11/2026.
+    # Primeiro quando `ponteiro_de_ponteiro` ganhou cartao, o
+    # `kc_10:B1`, com os seis materiais do topico assinados. Depois
+    # quando o portao de exibicao passou a aceitar cartao de topico
+    # ANTERIOR: `array` (kc_07) e `funcao_com_parametro` (kc_06) sao
+    # pre-requisitos declarados daqui. Hoje NENHUMA evidencia do
+    # kc_10 esta barrada. O texto abaixo fica como historia.
+    #
     # A EVIDENCIA DO kc_10, 12/11/2026. QUASE TUDO AQUI FICA BARRADO, e
     # pelo construto que da nome ao topico: `ponteiro_de_ponteiro` esta
     # `so_avaliado` no inventario e nao tem cartao em lugar nenhum. A

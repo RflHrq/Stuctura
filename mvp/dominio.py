@@ -378,7 +378,9 @@ class Dominio:
         """A ampliação explicativa daquele cartão, se houver.
 
         Opcional: nó sem ampliação devolve vazio, e a tela não desenha a
-        seção. Doze dos treze tópicos não têm nenhuma.
+        seção. Desde 12/11/2026 os 79 nós dos treze tópicos têm uma; o
+        caminho do vazio continua valendo para tópico novo, e é exercitado
+        de propósito em `test_construcao`.
         """
         n = self.nos.get(no)
         return n.interpretacao if n else ""

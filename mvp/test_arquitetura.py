@@ -679,10 +679,16 @@ def test_as_tres_personas_deixam_tres_historicos_diferentes():
 # --------------------------------------------------------------------------
 #
 # O grafo curricular existe, declarado nos treze YAMLs de tópico — e o
-# carregador o DESCARTA. É o que torna o princípio "nada é cobrado sem
-# oportunidade anterior" uma declaração sem dente ENTRE tópicos: dentro
-# de um, o `PRIMEIRO_CONTATO` o garante e há teste; entre tópicos, nada
-# lê a dependência.
+# carregador o DESCARTA. Era o que tornava o princípio "nada é cobrado
+# sem oportunidade anterior" uma declaração sem dente ENTRE tópicos:
+# dentro de um, o `PRIMEIRO_CONTATO` o garante e há teste; entre tópicos,
+# nada lia a dependência.
+#
+# DESDE 12/11/2026 UM LUGAR LÊ: o portão de exibição, em `conceitos.py`,
+# aceita cartão de tópico anterior pelo fecho dos pré-requisitos. O dente
+# é parcial, e fica dito o que continua sem ele: a COBRANÇA dos itens.
+# `cobrancas_sem_ensino` olha o status global do conceito, e não a ordem
+# — o `ciu_kc00_t04` cobra `sizeof` no kc_00, e o cartão é do kc_02.
 
 PREREQUISITOS = {
     "kc_00": [], "kc_01": ["kc_00"], "kc_02": ["kc_00"],
@@ -746,8 +752,24 @@ def test_o_carregador_le_quatro_das_sete_chaves_do_topico():
     assert "prerequisites" not in lidas
 
 
-def test_nenhum_modulo_do_mvp_le_o_prerequisito():
-    """Nem o carregador, nem o motor, nem o painel, nem o exportador.
+def test_so_o_portao_de_exibicao_le_o_prerequisito():
+    """Um módulo lê o grafo curricular, e é o `conceitos.py`.
+
+    ESTE TESTE SE CHAMAVA `test_nenhum_modulo_do_mvp_le_o_prerequisito`
+    e afirmava lista vazia, com a instrução na própria mensagem: "isso é
+    a mudança especificada chegando: confira se o motor a LÊ ou se é só
+    comentário, e atualize este teste". A mudança chegou em 12/11/2026,
+    e ela LÊ: `conceitos.anteriores` calcula o fecho dos pré-requisitos,
+    e o portão de exibição aceita cartão de tópico anterior. O que isso
+    mudou está medido em `test_exibicao_por_prerequisito` — de 15 para 5
+    evidências barradas.
+
+    O RESTO CONTINUA COMO ESTAVA, e os testes vizinhos seguem afirmando:
+    o carregador descarta a chave, e o domínio carregado não tem onde
+    guardá-la. O grafo ganhou dente num lugar só. Se um segundo módulo
+    passar a citar o campo — o motor, o painel, o exportador —, este
+    teste acusa de novo, e a pergunta volta a ser a mesma: lê, ou é só
+    comentário?
 
     Testes ficam de fora da varredura de propósito — este arquivo cita o
     nome do campo em cada linha.
@@ -756,10 +778,10 @@ def test_nenhum_modulo_do_mvp_le_o_prerequisito():
     acharam = [p.name for p in sorted(RAIZ.glob("*.py"))
                if not p.name.startswith("test_")
                and chave in p.read_text(encoding="utf-8")]
-    assert not acharam, (
-        "%s passou a citar `%s`. Isso é a mudança especificada chegando: "
-        "confira se o motor a LÊ ou se é só comentário, e atualize este "
-        "teste." % (acharam, chave))
+    assert acharam == ["conceitos.py"], (
+        "%s cita(m) `%s`, e o esperado é só o conceitos.py. Confira se o "
+        "módulo novo a LÊ ou se é só comentário, e atualize este teste."
+        % (acharam, chave))
 
 
 def test_o_dominio_carregado_nao_tem_onde_guardar_o_prerequisito():
