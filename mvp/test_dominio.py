@@ -539,6 +539,16 @@ def textos_de_tela(d):
     for nid, no in d.nos.items():
         yield "nos/%s/texto" % nid, no.texto
         yield "nos/%s/simples" % nid, no.simples
+        # O MATERIAL PROFUNDO TAMBÉM VAI PARA A TELA, e ficou de fora
+        # desta varredura até 12/11/2026 — ver
+        # `test_textos_de_tela_cobre_o_material_de_ensino`. Só a PROSA:
+        # bloco de código é código, e comentário em C se escreve sem
+        # acento neste projeto, por convenção.
+        yield "nos/%s/ampliacao" % nid, no.interpretacao
+        for i, b in enumerate(d.caso_resolvido(nid)):
+            yield "caso_resolvido/%s/%d" % (nid, i), b.get("prosa") or ""
+        for i, b in enumerate(d.outra_rota(nid)):
+            yield "outra_rota/%s/%d" % (nid, i), b.get("prosa") or ""
     for cid, c in d.crencas.items():
         yield "crencas/%s/afirma" % cid, c.afirma
     for a in d.atividades:
@@ -558,6 +568,27 @@ def textos_de_tela(d):
         for campo in ("fonte", "comando", "afirmacao", "garantia",
                       "saida", "onde"):
             yield "descida/%s/evidencia/%s" % (cid, campo), getattr(ev, campo)
+
+
+def test_textos_de_tela_cobre_o_material_de_ensino():
+    """A brecha que deixou passar crase em material novo.
+
+    A ampliação, o caso resolvido e a outra rota vão para a tela, e o
+    cliente os escreve com `textContent` — crase ali sai como crase na
+    cara da pessoa, igual ao defeito que criou o teste abaixo. Mas a
+    varredura parava em `resgates` e `exemplos`, e os três campos de
+    material profundo ficavam de fora.
+
+    EM 12/11/2026 QUATRO BLOCOS DE PROSA DO kc_03 FORAM ESCRITOS COM
+    CRASE — para marcar trecho de código dentro da frase — e nada
+    acusou. Foram achados por leitura, antes de entrarem; não há
+    garantia de que a próxima vez tenha leitor.
+    """
+    d = carrega(topico="kc_02")
+    caminhos = {onde for onde, _ in textos_de_tela(d)}
+    assert "nos/B1/ampliacao" in caminhos, sorted(caminhos)[:12]
+    assert any(c.startswith("caso_resolvido/B1/") for c in caminhos),         sorted(caminhos)[:12]
+    assert any(c.startswith("outra_rota/B1/") for c in caminhos),         sorted(caminhos)[:12]
 
 
 @pytest.mark.parametrize("topico", topicos())

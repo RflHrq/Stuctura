@@ -54,6 +54,24 @@ nodes:
         espera: |-
           p recebeu um endereco e levou ate o 1 de x
           e continua levando: o espaco de p estava la desde a declaracao
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Declarar é o ato que cria a variável. A partir daquela linha existe
+      um lugar na memória que é dela, com um número de porta — e isso
+      acontece antes de qualquer valor entrar, e acontece mesmo que nenhum
+      entre nunca.
+
+
+      O tipo decide a forma desse lugar. int x reserva espaço com o
+      formato de um inteiro; double y reserva outro, com formato de número
+      fracionário. Não é a mesma caixa com um rótulo diferente: é o tipo
+      que diz quantos bytes e como o que estiver lá dentro deve ser lido.
+
+
+      Por isso o espaço já está pronto para receber, e já está pronto para
+      recusar o que não cabe. Escrever 0.5 numa caixa de int não aumenta a
+      caixa — o 0.5 é cortado para caber. A caixa veio antes do valor, e
+      foi ela que mandou.
   B2:
     type: observavel
     role: espinha
@@ -88,6 +106,23 @@ nodes:
         espera: |-
           q aceitou um inteiro: ele saiu int, nao ponteiro
           e p aceitou o endereco de q: o asterisco ficou com p
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      A declaração int *p; cria um nome, e o nome é p. Não existe no
+      programa nenhuma variável chamada *p — essa escrita é uma operação
+      que você faz COM p depois, e não um nome que alguém possa declarar.
+
+
+      O asterisco pertence a p, e não ao int. Onde você põe o espaço em
+      branco não muda nada: int *p, int* p e int * p são a mesma
+      declaração, e o compilador lê as três igual. A estrela está grudada
+      no declarador, não no tipo.
+
+
+      E a maneira de ler é de dentro para fora: p é o nome; *p diz que p é
+      um ponteiro; int diz que o que está do outro lado é um inteiro. Lida
+      assim, a declaração diz "p é um ponteiro para int" — que é
+      exatamente o que ela faz.
   B3:
     type: observavel
     role: espinha
@@ -131,6 +166,25 @@ nodes:
           COMPILA — o padrão não exige recusa, exige diagnóstico — e não
           é executado aqui: executá-lo seria justamente o comportamento
           que a premissa diz não ter resultado previsível.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      A declaração reserva o espaço e para por aí. Ela não escreve nada
+      dentro, e o que estava naquele lugar antes continua lá — restos de
+      alguma coisa que o programa já fez, ou nunca usou. C não promete
+      nada sobre esse conteúdo.
+
+
+      A ideia de que a variável começa em zero não é invenção de ninguém:
+      outras linguagens fazem isso mesmo, e C faz para uma parte da
+      memória — a das variáveis que vivem o programa inteiro. Para as
+      locais, as que nascem e morrem dentro de uma função, não há promessa
+      alguma.
+
+
+      Por isso o valor inicial é trabalho seu. Escrever int total = 0; não
+      é formalidade: é a linha que põe o zero lá. Sem ela, a primeira soma
+      parte de um número que ninguém escolheu — e o programa pode acertar
+      hoje e errar amanhã, com o mesmo código.
   I1:
     type: inferencia
     role: espinha
@@ -172,6 +226,25 @@ nodes:
         espera: |-
           p passou a levar a um objeto que ja existia
           e onde nao havia objeto, foi preciso pedir um
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é a soma das duas anteriores. A declaração
+      reserva espaço para a variável declarada, e a variável declarada em
+      int *p; é p. Então ela reservou espaço para p — uma caixa de guardar
+      endereço — e para mais nada.
+
+
+      O objeto apontado é outra variável, e ele tem de vir de outro lugar.
+      Pode ser um int declarado em separado, e aí você escreve p = &x.
+      Pode ser um bloco que você pede enquanto o programa roda. O que não
+      existe é a terceira possibilidade: declarar p e achar que o int
+      apareceu junto.
+
+
+      Por isso contar caixas ajuda. Depois de int *p; existe UMA caixa
+      nova. Depois de int x; int *p; existem duas, e elas ainda não têm
+      relação nenhuma entre si — quem as liga é a linha que escreve o
+      endereço de uma dentro da outra.
   I2:
     type: inferencia
     role: espinha
@@ -217,6 +290,25 @@ nodes:
           COMPILA — o padrão não exige recusa, exige diagnóstico — e não
           é executado aqui: executá-lo seria justamente o comportamento
           que a premissa diz não ter resultado previsível.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      NULL é um valor, e valores entram nas caixas porque alguém os
+      escreve. Ele quer dizer "não aponto para lugar nenhum" — uma
+      informação útil, e que só está lá se uma linha do seu programa a
+      tiver colocado.
+
+
+      Um ponteiro recém-declarado não tem esse valor nem nenhum outro que
+      alguém tenha escolhido. Ele tem o que estava naquele espaço antes, e
+      isso pode se parecer com qualquer coisa. Dizer que ele "está vazio"
+      ou que "vale NULL" é dizer algo que o padrão não promete.
+
+
+      E é isso que estraga o teste. if (p == NULL) é uma pergunta honesta
+      quando NULL foi escrito ali de propósito; feita num ponteiro que
+      ninguém inicializou, ela compara com um valor que não significa nada
+      — e pode responder "não é NULL" sobre um endereço que não leva a
+      lugar nenhum.
   I3:
     type: inferencia
     role: conclusao
@@ -259,3 +351,22 @@ nodes:
           COMPILA — o padrão não exige recusa, exige diagnóstico — e não
           é executado aqui: executá-lo seria justamente o comportamento
           que a premissa diz não ter resultado previsível.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Escrever em *p é uma ordem com destino: vá até o endereço que está
+      em p e escreva lá. Ela só faz sentido se o que está em p for um
+      endereço que alguém escolheu — e logo depois de int *p; ninguém
+      escolheu nada.
+
+
+      Então falta um passo, e ele é sempre o mesmo: dar um endereço a p.
+      De uma variável que já existe, com p = &x. De um bloco pedido
+      enquanto o programa roda. De outro ponteiro que já tenha um.
+      Qualquer um serve; nenhum pode faltar.
+
+
+      E o compilador aceitar não é sinal de nada. Ele confere a FORMA: *p
+      = 10 é uma escrita bem escrita, e ele traduz. Quem decide se aquilo
+      tem significado é o que está em p na hora de rodar — e sobre isso o
+      padrão não promete coisa alguma. Programa que parece funcionar nesta
+      máquina pode não funcionar na próxima execução.

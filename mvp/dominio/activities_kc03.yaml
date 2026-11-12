@@ -79,6 +79,361 @@ exemplos:
     int *p;
     *p = 10;      /* invalido: p nao recebeu endereco */
 
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int inteiro;
+        double fracionario;
+
+        inteiro = 0.5;
+        fracionario = 0.5;
+        printf("no espaco de int cabe %d\n", inteiro);
+        printf("no de double cabe %.1f\n", fracionario);
+    - prosa: >
+        Pergunta: o mesmo 0.5 foi para os dois. Por que saiu diferente?
+    - prosa: >
+        A tentação é pensar que a variável se adapta ao que você põe nela
+        — que ela "vira" o que recebeu. Olhe a ordem: as duas declarações
+        vieram primeiro, e cada uma já tinha reservado um espaço com a
+        forma do seu tipo. O 0.5 chegou depois, e teve de caber no que já
+        estava lá.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        no espaco de int cabe 0
+        no de double cabe 0.5
+    - prosa: >
+        O mesmo valor, dois destinos, dois resultados. Se o espaço só
+        nascesse quando o valor chegasse, ele nasceria do tamanho do valor
+        — e o 0.5 teria cabido inteiro nos dois.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 1;
+        int *a = &x;
+        int* b = &x;
+        int * c = &x;
+
+        printf("as tres grafias deram ponteiros: %d %d %d\n", *a, *b, *c);
+    - prosa: >
+        Pergunta: int* b parece dizer que o tipo é int-estrela. Dá outra
+        coisa?
+    - prosa: >
+        A tentação é ler int* como um tipo só, e é daí que vem a confusão
+        inteira. Olhe as três linhas: o que muda entre elas é onde está o
+        espaço em branco, e espaço em branco não é parte de nome nenhum. O
+        compilador junta a estrela ao declarador nas três.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        as tres grafias deram ponteiros: 1 1 1
+    - prosa: >
+        Três grafias, um resultado. Se a estrela fosse do tipo, int* b
+        seria diferente de int *a — e as três linhas não poderiam fazer a
+        mesma coisa.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int total = 0;
+
+        total = total + 10;
+        total = total + 7;
+        printf("total = %d\n", total);
+    - prosa: >
+        Pergunta: quais linhas deste trecho escreveram alguma coisa em
+        total?
+    - prosa: >
+        São três, e a primeira é a que costuma passar despercebida. A
+        declaração que termina em igual a zero não só criou o espaço: ela
+        escreveu. Tire aquele pedaço e a conta continua existindo — mas um
+        dos dois números dela não teria autor.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        total = 17
+    - prosa: >
+        17 porque 0 + 10 + 7. O zero está na conta, e ele entrou por uma
+        linha escrita por alguém. Se a declaração zerasse sozinha, aquele
+        zero escrito seria redundante — e em C ele é o que segura o
+        resultado.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 1;
+        int *p = &x;
+        int *q = &x;
+
+        *p = 50;
+        printf("escrevi por p, e q ve %d\n", *q);
+    - prosa: >
+        Pergunta: há duas declarações de ponteiro aqui. Quantos inteiros
+        existem?
+    - prosa: >
+        A tentação é contar um inteiro para cada ponteiro — se declarar p
+        trouxesse o dado junto, seriam dois. Conte as declarações de int:
+        há uma só, a de x. As outras duas declaram caixas de endereço, e
+        as duas receberam o endereço da MESMA caixa.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        escrevi por p, e q ve 50
+    - prosa: >
+        Um único 50, visto pelos dois. Se cada declaração de ponteiro
+        criasse o seu próprio inteiro, escrever por p não teria como
+        aparecer em q — seriam dois objetos separados, e o de q
+        continuaria 1.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 1;
+        int *p = NULL;
+
+        printf("comecei em NULL? %d\n", p == NULL);
+        p = &x;
+        printf("agora aponto para algo? %d\n", p != NULL);
+        p = NULL;
+        printf("voltei para NULL? %d\n", p == NULL);
+    - prosa: >
+        Pergunta: p passou por três estados. Quem escreveu cada um deles?
+    - prosa: >
+        Você, nas três vezes — e a primeira é a que costuma passar
+        despercebida. O NULL que aparece na declaração é uma escrita como
+        as outras duas. Tire aquele pedaço e a primeira pergunta deixa de
+        ter resposta: ninguém terá escrito nada ali.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        comecei em NULL? 1
+        agora aponto para algo? 1
+        voltei para NULL? 1
+    - prosa: >
+        Três respostas certas, e três linhas que as produziram. NULL não é
+        o estado natural de um ponteiro: é um valor que se escreve, e que
+        se pode escrever de novo quando o ponteiro deixa de servir.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 1;
+        int *p;
+        int *copia;
+
+        p = &x;
+        *p = 20;
+        printf("endereco vindo de uma variavel: %d\n", *p);
+        copia = p;
+        *copia = 30;
+        printf("endereco vindo de outro ponteiro: %d\n", x);
+    - prosa: >
+        Pergunta: os dois ponteiros foram usados com *. O que os dois
+        tiveram antes?
+    - prosa: >
+        Uma linha que lhes deu um endereço. No primeiro veio de uma
+        variável que já existia; no segundo, de um ponteiro que já tinha
+        um. As origens são diferentes, e o que elas têm em comum é o que
+        importa: em ambos os casos, alguém escolheu para onde o ponteiro
+        aponta antes de escrever lá.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        endereco vindo de uma variavel: 20
+        endereco vindo de outro ponteiro: 30
+    - prosa: >
+        Duas escritas por *, as duas válidas, e as duas precedidas de uma
+        linha que preencheu o ponteiro. Essa linha é o que falta quando se
+        escreve em *p logo depois de declarar. Há uma terceira origem —
+        pedir um bloco enquanto o programa roda —, e ela é assunto do
+        kc_08.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Caminho DIFERENTE do caso resolvido -- ha teste no
+# projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Se o espaço já existe logo depois da declaração,
+        ele tem endereço — e endereço é coisa que se entrega.
+    - codigo: |
+        void preenche(int *onde)
+        {
+            *onde = 42;
+        }
+    - codigo: |
+        int x;
+
+        preenche(&x);
+        printf("alguem escreveu no espaco de x: %d\n", x);
+    - prosa: >
+        Entre a declaração de x e a chamada não houve atribuição nenhuma.
+        Mesmo assim deu para falar sobre onde x mora, e entregar isso a
+        quem escreveu lá.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        alguem escreveu no espaco de x: 42
+    - prosa: >
+        Se a variável só passasse a existir ao receber um valor, não
+        haveria &x para entregar antes de ela receber — e a função não
+        teria onde escrever. Havia, e ela escreveu.
+
+  B2:
+    - prosa: >
+        Outro caminho, sem falar de tipo nenhum: olhe qual NOME a
+        declaração criou.
+    - codigo: |
+        int p = 5;
+
+        {
+            int x = 1;
+            int *p = &x;
+
+            printf("dentro, p leva a %d\n", *p);
+        }
+        printf("fora, p vale %d\n", p);
+    - prosa: >
+        Há um p inteiro do lado de fora e um p ponteiro dentro do bloco.
+        Enquanto o bloco dura, quem responde pelo nome p é o de dentro; no
+        fim dele, o de fora volta.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dentro, p leva a 1
+        fora, p vale 5
+    - prosa: >
+        Esconder um nome é coisa que só acontece entre nomes IGUAIS. Se a
+        segunda declaração tivesse criado algo chamado *p, não haveria
+        colisão nenhuma — os dois conviveriam, cada um com o seu nome. O
+        nome criado foi p.
+
+  B3:
+    - prosa: >
+        Outro caminho. Repare em QUANDO o primeiro valor seu chega.
+    - codigo: |
+        int total;
+        int quantos = 0;
+
+        while (quantos < 3) {
+            quantos = quantos + 1;
+        }
+        total = 0;
+        total = total + quantos;
+        printf("quantos = %d, total = %d\n", quantos, total);
+    - prosa: >
+        A caixa de total existe desde a primeira linha. O primeiro valor
+        que você põe nela só chega depois do laço inteiro — e nesse
+        intervalo ela tem alguma coisa dentro, porque espaço de memória
+        sempre tem.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        quantos = 3, total = 3
+    - prosa: >
+        O programa está certo porque a linha que zera total veio antes de
+        qualquer leitura. Nada aqui olha o que havia na caixa durante o
+        laço — e olhar seria justamente o erro que este nó descreve: o que
+        está lá não foi escolhido por ninguém, e o padrão não diz o que é.
+
+  I1:
+    - prosa: >
+        Outro caminho, pelo avesso: um ponteiro só, e dois objetos.
+    - codigo: |
+        int a = 1, b = 2;
+        int *p;
+
+        p = &a;
+        printf("p aponta para a: %d\n", *p);
+        p = &b;
+        printf("p aponta para b: %d\n", *p);
+    - prosa: >
+        p foi declarado uma vez. Os dois inteiros foram declarados na
+        linha de cima, antes de p existir, e nenhum deles apareceu por
+        causa dele.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        p aponta para a: 1
+        p aponta para b: 2
+    - prosa: >
+        O mesmo ponteiro alcançou dois objetos diferentes, em dois
+        momentos. Ele não criou nenhum dos dois: ele guardou, de cada vez,
+        o endereço de um que já estava lá.
+
+  I2:
+    - prosa: >
+        Outro caminho. Olhe um teste de NULL que de fato protege.
+    - codigo: |
+        int x = 7;
+        int *escolhido = NULL;
+        int quero = 1;
+
+        if (quero == 1) {
+            escolhido = &x;
+        }
+        if (escolhido != NULL) {
+            printf("o teste significou alguma coisa: %d\n", *escolhido);
+        }
+    - prosa: >
+        A ordem é o que faz o teste valer: NULL entra primeiro, o endereço
+        pode entrar depois, e só então se pergunta. O NULL inicial é o que
+        dá sentido à pergunta — ele quer dizer "ainda não escolhi".
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o teste significou alguma coisa: 7
+    - prosa: >
+        Sem a primeira linha, o segundo if compararia com o que estivesse
+        no espaço, e a resposta não diria nada sobre o programa ter
+        escolhido ou não. O teste não cria a informação: ele lê a que você
+        escreveu.
+
+  I3:
+    - prosa: >
+        Outro caminho. São duas linhas, e o que decide tudo é qual vem
+        primeiro.
+    - codigo: |
+        int x = 0;
+        int *p;
+
+        p = &x;
+        *p = 9;
+        printf("nesta ordem, x = %d\n", x);
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        nesta ordem, x = 9
+    - prosa: >
+        Agora troque as duas de lugar. O trecho abaixo o compilador
+        aceita, e nós não o executamos — porque o que ele faz não tem
+        resultado previsível, e mostrar uma saída aqui ensinaria que dá
+        para olhar:
+    - codigo: |
+        int outro = 0;
+        int *q;
+
+        *q = 9;        /* invalido: q ainda nao recebeu endereco */
+        q = &outro;
+    - prosa: >
+        As mesmas duas linhas, na ordem trocada. Na primeira versão, o 9
+        foi para a caixa de x porque p já sabia o caminho. Na segunda, o 9
+        é mandado para o endereço que estiver em q — e ninguém escolheu
+        esse endereço. A linha que o escolheria vem tarde demais.
+
 activities:
 
   # ------------------------------------------------------------------

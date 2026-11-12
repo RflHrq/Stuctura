@@ -68,8 +68,8 @@ premissa: "Usar *p antes de dar um endereço a p é inválido."
 crenca_que_nega: pode_usar_logo
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: f970d1810b60
 
 
 # A AMPLIAÇÃO. O que *p pede, o que falta antes, e por que o compilador

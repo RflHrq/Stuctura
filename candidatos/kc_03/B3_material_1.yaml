@@ -83,8 +83,8 @@ premissa: "C não zera uma variável automática ao declará-la."
 crenca_que_nega: declaration_zeroes
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: 098d9f2a470c
 
 
 # A AMPLIAÇÃO. O que a declaração NÃO faz, de onde vem a ideia contrária,
@@ -124,8 +124,8 @@ caso_resolvido:
   - prosa: "Pergunta: quais linhas deste trecho escreveram alguma coisa em total?"
   - prosa: >
       São três, e a primeira é a que costuma passar despercebida. A
-      declaração com `= 0` não só criou o espaço: ela escreveu. Tire
-      aquele `= 0` e a conta `total + 10` continua existindo — mas um
+      declaração que termina em igual a zero não só criou o espaço: ela
+      escreveu. Tire aquele pedaço e a conta continua existindo — mas um
       dos dois números dela não teria autor.
   - prosa: "A máquina confirma:"
   - saida: |
@@ -133,7 +133,8 @@ caso_resolvido:
   - prosa: >
       17 porque 0 + 10 + 7. O zero está na conta, e ele entrou por uma
       linha escrita por alguém. Se a declaração zerasse sozinha, aquele
-      `= 0` seria redundante — e em C ele é o que segura o resultado.
+      zero escrito seria redundante — e em C ele é o que segura o
+      resultado.
 
 
 # A OUTRA ROTA: a distância entre declarar e escrever.
@@ -159,7 +160,7 @@ reexplicacao:
   - saida: |
       quantos = 3, total = 3
   - prosa: >
-      O programa está certo porque a linha `total = 0;` veio antes de
+      O programa está certo porque a linha que zera total veio antes de
       qualquer leitura. Nada aqui olha o que havia na caixa durante o
       laço — e olhar seria justamente o erro que este nó descreve: o que
       está lá não foi escolhido por ninguém, e o padrão não diz o que é.

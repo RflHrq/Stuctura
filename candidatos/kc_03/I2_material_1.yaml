@@ -53,8 +53,8 @@ premissa: "Logo depois da declaração, p contém lixo, e não NULL."
 crenca_que_nega: uninitialized_is_null
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: d32aef211617
 
 
 # A AMPLIAÇÃO. O que NULL é, por que ele não aparece sozinho, e o que
@@ -97,7 +97,7 @@ caso_resolvido:
   - prosa: "Pergunta: p passou por três estados. Quem escreveu cada um deles?"
   - prosa: >
       Você, nas três vezes — e a primeira é a que costuma passar
-      despercebida. O `= NULL` da declaração é uma escrita como as
+      despercebida. O NULL que aparece na declaração é uma escrita como as
       outras duas. Tire aquele pedaço e a primeira pergunta deixa de
       ter resposta: ninguém terá escrito nada ali.
   - prosa: "A máquina confirma:"

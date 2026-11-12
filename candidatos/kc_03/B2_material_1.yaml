@@ -54,8 +54,8 @@ premissa: "Em int *p, quem é declarado é p, e não *p."
 crenca_que_nega: estrela_e_do_tipo
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: 0bb9ef8c6faa
 
 
 # A AMPLIAÇÃO. Que nome foi criado, a quem o asterisco pertence, e como
