@@ -29,6 +29,31 @@ nodes:
     negated_by:
       - no_value_no_memory
 
+    # A EVIDENCIA DO kc_03, 12/11/2026. O `afirma` e TEXTO DE TELA, entao
+    # e curto; o resto fica nestes comentarios.
+    evidencia:
+      - afirma: >
+          A declaração já reserva o espaço de p: logo na linha seguinte
+          p aceita um endereço e passa a levar até lá, sem que nada
+          precise criá-lo antes.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int *p;
+
+              p = &x;
+              puts(*p == 1 ? "p recebeu um endereco e levou ate o 1 de x" : "FALHOU");
+              x = 2;
+              puts(*p == 2 ? "e continua levando: o espaco de p estava la desde a declaracao"
+                           : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          p recebeu um endereco e levou ate o 1 de x
+          e continua levando: o espaco de p estava la desde a declaracao
   B2:
     type: observavel
     role: espinha
@@ -40,6 +65,29 @@ nodes:
     negated_by:
       - estrela_e_do_tipo
 
+    evidencia:
+      - afirma: >
+          Em int *p, quem é declarado é p: na mesma linha, int *p, q
+          declara um ponteiro e um int, e o q sai int — o asterisco
+          ficou com p, não com o tipo.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int *p, q;
+
+              q = 5;
+              p = &q;
+              puts(q == 5 ? "q aceitou um inteiro: ele saiu int, nao ponteiro"
+                          : "FALHOU");
+              puts(*p == 5 ? "e p aceitou o endereco de q: o asterisco ficou com p"
+                           : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          q aceitou um inteiro: ele saiu int, nao ponteiro
+          e p aceitou o endereco de q: o asterisco ficou com p
   B3:
     type: observavel
     role: espinha
@@ -62,6 +110,36 @@ nodes:
     negated_by:
       - declaration_allocates
 
+    evidencia:
+      - afirma: >
+          Declarar p cria p, e mais nada: para p levar a algum lugar foi
+          preciso um objeto que já existia, ou um bloco pedido na hora.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              char dado = 'z';
+              char *p;
+              char *pedido;
+
+              p = &dado;
+              puts(*p == 'z' ? "p passou a levar a um objeto que ja existia" : "FALHOU");
+              pedido = malloc(1);
+              if (pedido == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              *pedido = 'k';
+              puts(*pedido == 'k' ? "e onde nao havia objeto, foi preciso pedir um"
+                                  : "FALHOU");
+              free(pedido);
+              return 0;
+          }
+        espera: |-
+          p passou a levar a um objeto que ja existia
+          e onde nao havia objeto, foi preciso pedir um
   I2:
     type: inferencia
     role: espinha

@@ -54,6 +54,30 @@ nodes:
     negated_by:
       - null_is_absence
 
+    # A EVIDENCIA DO kc_05, 12/11/2026. O `afirma` e TEXTO DE TELA.
+    evidencia:
+      - afirma: >
+          NULL é um valor de ponteiro que diz não apontar para lugar
+          nenhum: p começa valendo NULL, e depois de receber um endereço
+          deixa de valer.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int *p = NULL;
+
+              puts(p == NULL ? "p comecou dizendo: nao aponto para lugar nenhum"
+                             : "FALHOU");
+              p = &x;
+              puts(p != NULL ? "e depois de receber um endereco, deixou de dizer isso"
+                             : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          p comecou dizendo: nao aponto para lugar nenhum
+          e depois de receber um endereco, deixou de dizer isso
   B2:
     type: observavel
     role: espinha
@@ -65,6 +89,50 @@ nodes:
     negated_by:
       - any_zero_is_null
 
+    # A SEGUNDA E POR RECUSA, e e o caso que o projeto ja conhece do I2 do
+    # kc_02: `p = zero;` e violacao de restricao, `error:` no gcc 16 e
+    # AVISO antes do 14. Por isso `ambiente` nomeia o compilador em vez de
+    # a prosa afirmar severidade.
+    evidencia:
+      - afirma: >
+          O 0 escrito no código vira o ponteiro nulo: atribuir 0 a um
+          ponteiro dá o mesmo que atribuir NULL.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int *p = 0;
+              int *q = NULL;
+
+              puts(p == NULL ? "o 0 escrito no codigo virou o ponteiro nulo" : "FALHOU");
+              puts(p == q ? "e deu no mesmo que escrever NULL" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o 0 escrito no codigo virou o ponteiro nulo
+          e deu no mesmo que escrever NULL
+      - afirma: >
+          E é só a constante escrita no código: um 0 que chega dentro de
+          uma variável inteira não serve, e o compilador reclama da
+          atribuição.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int zero = 0;
+              int *p;
+
+              p = zero;
+              puts(p == NULL ? "ok" : "FALHOU");
+              return 0;
+          }
+        nao_compila: true
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. O que o padrão
+          exige de todo compilador conforme é o diagnóstico; o que se
+          observa aqui é a recusa deste.
   B3:
     type: observavel
     role: espinha
@@ -76,6 +144,36 @@ nodes:
     negated_by:
       - null_points_to_zero
 
+    # POR QUE O ENDERECO PASSA POR UMA DECISAO DE TEMPO DE EXECUCAO. A primeira versao comparava `&x != NULL` direto, e o gcc respondeu: warning: the comparison will always evaluate as true for the address of 'x' will never be NULL [-Waddress]. O aviso esta certo, e e curioso -- o compilador dobra a comparacao PORQUE a premissa vale. So que entao o programa nao media nada: era verdadeiro por sintaxe, o mesmo defeito do `&x == &x` que reprovou a primeira evidencia do B1 do kc_02. Com o endereco entrando por uma decisao tomada rodando, a comparacao passa a ser de dois valores, em execucao.
+    evidencia:
+      - afirma: >
+          Nenhum objeto tem o endereço do ponteiro nulo: o endereço de
+          uma variável é sempre diferente de NULL.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              char c = 'k';
+              int *p = NULL;
+              char *q = NULL;
+              int passos = 0;
+
+              while (passos < 3) {
+                  passos = passos + 1;
+              }
+              if (passos == 3) {
+                  p = &x;
+                  q = &c;
+              }
+              puts(p != NULL ? "o endereco de x nao e o ponteiro nulo" : "FALHOU");
+              puts(q != NULL ? "nem o de c: objeto nenhum mora ali" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o endereco de x nao e o ponteiro nulo
+          nem o de c: objeto nenhum mora ali
   I1:
     type: inferencia
     role: espinha
@@ -87,6 +185,35 @@ nodes:
     negated_by:
       - pointer_is_just_a_name
 
+    evidencia:
+      - afirma: >
+          p == NULL olha o que está dentro de p e não vai a lugar
+          nenhum: a comparação responde com p valendo NULL, e o programa
+          segue.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int *p = NULL;
+              int respostas = 0;
+
+              if (p == NULL) {
+                  respostas = respostas + 1;
+              }
+              p = &x;
+              if (p == NULL) {
+                  respostas = respostas + 10;
+              }
+              puts(respostas == 1 ? "a comparacao respondeu nas duas vezes, e sem parar"
+                                  : "FALHOU");
+              puts(x == 1 ? "e nao foi a lugar nenhum: nada em x mudou" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a comparacao respondeu nas duas vezes, e sem parar
+          e nao foi a lugar nenhum: nada em x mudou
   I2:
     type: inferencia
     role: espinha
@@ -98,6 +225,33 @@ nodes:
     negated_by:
       - null_is_zero_always
 
+    # O QUE ESTE PROGRAMA NAO FAZ: converter o ponteiro nulo para inteiro
+    # para mostrar que "da zero". Nao da garantia nenhuma, e a premissa
+    # diz exatamente isso. O que se demonstra e a metade que E da
+    # linguagem: no codigo, 0 e NULL dizem o mesmo para um ponteiro.
+    evidencia:
+      - afirma: >
+          NULL igual a 0 vale na linguagem que você escreve: no código,
+          0 e NULL dizem a mesma coisa para um ponteiro — e isso é uma
+          regra de escrita, não uma afirmação sobre os bits.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int *p = NULL;
+              int inteiro = 0;
+
+              puts(p == 0 ? "comparar com 0 escrito no codigo responde igual a NULL"
+                          : "FALHOU");
+              inteiro = inteiro + 1;
+              puts(inteiro == 1 ? "e o 0 de um inteiro e so um numero: somou e virou 1"
+                                : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          comparar com 0 escrito no codigo responde igual a NULL
+          e o 0 de um inteiro e so um numero: somou e virou 1
   I3:
     type: inferencia
     role: conclusao

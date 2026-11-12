@@ -50,6 +50,48 @@ nodes:
     negated_by:
       - ampersand_takes_value
 
+    # A EVIDENCIA DO kc_04, 12/11/2026. Duas demonstracoes neste no, e a
+    # segunda e por RECUSA: a premissa diz "so o que ocupa um lugar", e
+    # a metade do SO se mostra pedindo o endereco de algo que nao e lugar.
+    # A recusa traz `ambiente` porque recusa e fato sobre um compilador.
+    evidencia:
+      - afirma: >
+          O que ocupa um lugar tem endereço, e o endereço leva de volta
+          ao mesmo lugar: escrever por ele muda a variável.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int *onde = &x;
+
+              *onde = 9;
+              puts(x == 9 ? "o endereco de x levou de volta a x: x virou 9" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o endereco de x levou de volta a x: x virou 9
+      - afirma: >
+          E o que não ocupa lugar não tem endereço: o compilador não
+          aceita pedir o endereço de uma conta, que é um valor e não um
+          lugar.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int *onde = &(x + 1);
+
+              puts(onde != NULL ? "ok" : "FALHOU");
+              return 0;
+          }
+        nao_compila: true
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. O que o padrão
+          exige de todo compilador conforme é o diagnóstico; o que se
+          observa aqui é a recusa deste.
   B2:
     type: observavel
     role: espinha
@@ -61,6 +103,30 @@ nodes:
     negated_by:
       - ampersand_copies
 
+    evidencia:
+      - afirma: >
+          &x devolve o endereço de x e não copia x: escrever pelo que
+          ele devolveu muda o próprio x, o que uma cópia não faria.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int copia = x;
+              int *endereco = &x;
+
+              *endereco = 50;
+              copia = 99;
+              puts(x == 50 ? "pelo endereco, a escrita chegou em x" : "FALHOU");
+              puts(copia == 99 && x == 50
+                   ? "e a escrita na copia ficou na copia: &x nao copiou x"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          pelo endereco, a escrita chegou em x
+          e a escrita na copia ficou na copia: &x nao copiou x
   B3:
     type: observavel
     role: espinha
@@ -71,6 +137,29 @@ nodes:
     negated_by:
       - pointer_is_data
 
+    evidencia:
+      - afirma: >
+          O que está guardado num ponteiro é um endereço: copiado para
+          outro ponteiro, ele leva ao mesmo lugar — é um valor que diz
+          onde, e não o conteúdo.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int *p = &x;
+              int *q = p;
+
+              *q = 7;
+              puts(x == 7 ? "o valor copiado de p levou q ao mesmo lugar" : "FALHOU");
+              puts(*p == 7 ? "e os dois leem o mesmo: o que esta neles e um endereco"
+                           : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o valor copiado de p levou q ao mesmo lugar
+          e os dois leem o mesmo: o que esta neles e um endereco
   I1:
     type: inferencia
     role: espinha
@@ -82,6 +171,29 @@ nodes:
     negated_by:
       - pointer_is_just_a_name
 
+    evidencia:
+      - afirma: >
+          *p vai até o endereço que está em p e age no que está lá:
+          troque o endereço em p e a mesma escrita cai em outra
+          variável.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1, y = 2;
+              int *p = &x;
+
+              *p = 10;
+              p = &y;
+              *p = 20;
+              puts(x == 10 ? "a primeira escrita caiu em x" : "FALHOU");
+              puts(y == 20 ? "e a segunda, igualzinha, caiu em y" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a primeira escrita caiu em x
+          e a segunda, igualzinha, caiu em y
   I2:
     type: inferencia
     role: espinha
@@ -93,6 +205,33 @@ nodes:
     negated_by:
       - star_binds_to_the_pointer
 
+    # O `p != &y` NAO E DECORACAO: sem ele, "x mudou duas vezes" nao
+    # distingue "p ficou parado" de "p andou e voltou". Com y declarado
+    # e nunca escrito, a comparacao diz que p continua no lugar de x.
+    evidencia:
+      - afirma: >
+          *p = v escreve no objeto apontado e não mexe em p: depois de
+          duas escritas, p continua levando ao mesmo lugar de antes.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1, y = 2;
+              int *p = &x;
+
+              *p = 10;
+              *p = 11;
+              puts(x == 11 ? "as duas escritas cairam em x" : "FALHOU");
+              puts(p != &y ? "e p nao mudou de lugar: continua no de x" : "FALHOU");
+              *p = 12;
+              puts(x == 12 ? "tanto que a terceira escrita cai em x de novo" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          as duas escritas cairam em x
+          e p nao mudou de lugar: continua no de x
+          tanto que a terceira escrita cai em x de novo
   I3:
     type: inferencia
     role: conclusao
@@ -103,3 +242,23 @@ nodes:
       própria x.
     negated_by:
       - star_assigns_pointer
+    evidencia:
+      - afirma: >
+          * e & são inversos: *(&x) é o próprio x — lê o mesmo valor, e
+          escrever ali escreve em x.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 4;
+              int lido = *(&x);
+
+              puts(lido == 4 ? "*(&x) leu o que estava em x" : "FALHOU");
+              *(&x) = 8;
+              puts(x == 8 ? "e escrever em *(&x) escreveu em x" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          *(&x) leu o que estava em x
+          e escrever em *(&x) escreveu em x

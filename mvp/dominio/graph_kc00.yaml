@@ -13,6 +13,43 @@ nodes:
     negated_by:
       - type_is_a_hint
 
+    # A EVIDENCIA DO kc_00, 12/11/2026. O `afirma` e TEXTO DE TELA:
+    # `_prova` o manda inteiro ao cliente, que o escreve com textContent.
+    # Por isso ele e curto e diz uma coisa so -- o que aquele programa
+    # prova. O resto fica nestes comentarios.
+    #
+    # NENHUM PROGRAMA DESTE TOPICO USA PONTEIRO, e nao e por causa do
+    # portao: `conceitos.construtos_de` nao enxerga ponteiro. E porque
+    # este e o PRIMEIRO topico, e mostrar `int *p` a quem esta na
+    # declaracao de variaveis repetiria o defeito que o portao existe
+    # para evitar -- so que sem ninguem para barrar.
+    evidencia:
+      - afirma: >
+          O nome chega sempre ao mesmo espaço, e o tipo decide o que
+          cabe nele: o mesmo 2.9 vira 2 num int e continua 2.9 num
+          double.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int n;
+              int cortado = 2.9;
+              double inteiro = 2.9;
+
+              n = 7;
+              puts(n == 7 ? "o nome n leva ao mesmo espaco: guardou 7, devolveu 7"
+                          : "FALHOU");
+              puts(cortado == 2 ? "e o tipo decide o que cabe: 2.9 virou 2 no int"
+                                : "FALHOU");
+              puts(inteiro > 2.8 ? "o mesmo 2.9 no double continua com a fracao"
+                                 : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o nome n leva ao mesmo espaco: guardou 7, devolveu 7
+          e o tipo decide o que cabe: 2.9 virou 2 no int
+          o mesmo 2.9 no double continua com a fracao
   B2:
     type: observavel
     role: espinha
@@ -24,6 +61,58 @@ nodes:
     negated_by:
       - no_value_no_memory
 
+    # DUAS DEMONSTRACOES, e a primeira esta BARRADA pelo portao: `sizeof`
+    # tem cartao, mas no kc_02, e disponibilidade no inventario e condicao
+    # necessaria, nao suficiente. Ela continua valendo como evidencia.
+    #
+    # `sizeof x` NAO LE A VARIAVEL: o operando nao e avaliado, entao nao
+    # ha leitura de valor indeterminado aqui.
+    #
+    # A SEGUNDA CHEGA A TELA, e ataca a mesma premissa pela recusa: se a
+    # variavel so passasse a existir quando um valor entra, usar o nome
+    # antes da declaracao seria aceito.
+    evidencia:
+      - afirma: >
+          O espaço já existe antes de qualquer valor entrar: logo depois
+          da declaração a variável já tem tamanho, e o valor que chega
+          depois entra no espaço que já estava lá.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x;
+
+              puts(sizeof x > 0 ? "logo apos a declaracao o espaco ja tem tamanho"
+                                : "FALHOU");
+              x = 7;
+              puts(x == 7 ? "e o valor entrou depois, no espaco que ja estava la"
+                          : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          logo apos a declaracao o espaco ja tem tamanho
+          e o valor entrou depois, no espaco que ja estava la
+      - afirma: >
+          Quem põe a variável no mundo é a declaração: antes da linha
+          que declara, o nome não existe para o compilador.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              x = 7;
+              int x;
+
+              puts(x == 7 ? "ok" : "FALHOU");
+              return 0;
+          }
+        nao_compila: true
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. Usar um nome que
+          ainda não foi declarado é violação de restrição, e o padrão
+          exige diagnóstico de todo compilador conforme; o que se
+          observa aqui é a recusa deste.
   B3:
     type: observavel
     role: espinha
@@ -46,6 +135,27 @@ nodes:
     negated_by:
       - variable_remembers
 
+    evidencia:
+      - afirma: >
+          Atribuir um valor novo substitui o anterior: depois de x = 2 o
+          espaço responde 2, e o 1 que estava lá não está em lugar
+          nenhum.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+
+              x = 2;
+              puts(x == 2 ? "o valor novo entrou: x responde 2" : "FALHOU");
+              puts(x != 1 ? "e o anterior nao esta mais la: cabe um de cada vez"
+                          : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o valor novo entrou: x responde 2
+          e o anterior nao esta mais la: cabe um de cada vez
   I1:
     type: inferencia
     role: conclusao
@@ -58,3 +168,28 @@ nodes:
       so depois atribuir chegam no mesmo lugar: uma variavel pronta.
     negated_by:
       - assignment_symmetric
+    evidencia:
+      - afirma: >
+          As duas rotas chegam ao mesmo lugar: inicializar na declaração
+          e declarar para atribuir depois dão o mesmo valor, e daí em
+          diante as duas variáveis se comportam igual.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a = 5;
+              int b;
+
+              b = 5;
+              puts(a == b ? "inicializar e atribuir depois chegam ao mesmo valor"
+                          : "FALHOU");
+              a = a + 1;
+              b = b + 1;
+              puts(a == b ? "e dai em diante as duas andam juntas: mesmo espaco"
+                          : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          inicializar e atribuir depois chegam ao mesmo valor
+          e dai em diante as duas andam juntas: mesmo espaco

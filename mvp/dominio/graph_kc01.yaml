@@ -35,6 +35,45 @@ nodes:
     negated_by:
       - memoria_e_do_computador
 
+    # A EVIDENCIA DO kc_01, 12/11/2026. O `afirma` e TEXTO DE TELA --
+    # `_prova` o manda inteiro ao cliente --, entao e curto e diz uma
+    # coisa so. O resto fica nestes comentarios.
+    #
+    # A PREMISSA DIZ "espaco so dele", E UM PROGRAMA NAO VE DE FORA.
+    # Isolamento entre processos nao se observa de dentro de um deles: o
+    # que se observa e a CONSEQUENCIA dele, que esta no `afirma` com
+    # todas as letras -- o que foi escrito continua la, e lugares
+    # diferentes guardam coisas diferentes ao mesmo tempo. Prometer mais
+    # que isso seria afirmar o que o programa nao mostra.
+    evidencia:
+      - afirma: >
+          O que se pode mostrar de dentro: enquanto o programa roda, os
+          lugares são dele — o que ele escreveu continua lá no fim, e
+          lugares diferentes guardam coisas diferentes ao mesmo tempo.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int primeiro = 11;
+              int segundo = 22;
+              int terceiro = 33;
+              int volta = 0;
+
+              while (volta < 100000) {
+                  volta = volta + 1;
+              }
+              puts(primeiro == 11 && segundo == 22 && terceiro == 33
+                   ? "cem mil passos depois, os tres lugares respondem o mesmo"
+                   : "FALHOU");
+              puts(primeiro != segundo && segundo != terceiro
+                   ? "e sao lugares distintos: cada um guarda o seu ao mesmo tempo"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          cem mil passos depois, os tres lugares respondem o mesmo
+          e sao lugares distintos: cada um guarda o seu ao mesmo tempo
   B2:
     type: observavel
     role: espinha
@@ -46,6 +85,36 @@ nodes:
     negated_by:
       - local_sobrevive
 
+    evidencia:
+      - afirma: >
+          A variável local existe enquanto a função dela está
+          executando: cada chamada começa com uma variável nova, e o
+          valor da chamada anterior não está lá.
+        programa: |
+          #include <stdio.h>
+
+          static int conta(void)
+          {
+              int n = 0;
+
+              n = n + 1;
+              return n;
+          }
+
+          int main(void)
+          {
+              int primeira = conta();
+              int segunda = conta();
+
+              puts(primeira == 1 ? "a primeira chamada devolveu 1" : "FALHOU");
+              puts(segunda == 1
+                   ? "e a segunda tambem: a variavel da chamada anterior nao ficou"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a primeira chamada devolveu 1
+          e a segunda tambem: a variavel da chamada anterior nao ficou
   B3:
     type: observavel
     role: espinha
@@ -57,6 +126,53 @@ nodes:
     negated_by:
       - system_frees_auto
 
+    # MALLOC SEM ARRAY e de proposito: `conceitos.construtos_de` barraria
+    # `array`, que so tem cartao no kc_07. Um bloco de um int basta para a
+    # premissa, que e sobre QUANDO o bloco acaba, e nao sobre quantos
+    # cabem.
+    #
+    # O `free` ESTA LA porque a premissa e "nao acaba quando a funcao
+    # termina" -- e nao "nunca acaba". Programa de evidencia que vaza
+    # ensina pela forma o contrario do que diz na prosa.
+    evidencia:
+      - afirma: >
+          O bloco pedido com malloc não acaba quando a função termina: o
+          que foi escrito dentro dela continua lá depois que ela voltou,
+          e só sai quando você devolve o bloco.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          static char *faz(void)
+          {
+              char *bloco = malloc(1);
+
+              if (bloco != NULL) {
+                  *bloco = 'A';
+              }
+              return bloco;
+          }
+
+          int main(void)
+          {
+              char *meu = faz();
+
+              if (meu == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              puts(*meu == 'A'
+                   ? "a funcao terminou, e o A escrito dentro dela continua la"
+                   : "FALHOU");
+              *meu = 'B';
+              puts(*meu == 'B' ? "e o bloco continua meu: da para escrever de novo"
+                              : "FALHOU");
+              free(meu);
+              return 0;
+          }
+        espera: |-
+          a funcao terminou, e o A escrito dentro dela continua la
+          e o bloco continua meu: da para escrever de novo
   I1:
     type: inferencia
     role: espinha
@@ -68,6 +184,57 @@ nodes:
     negated_by:
       - heap_dies_with_function
 
+    evidencia:
+      - afirma: >
+          São duas disciplinas de vida no mesmo programa: a da variável
+          local, que recomeça a cada chamada sem ninguém pedir, e a do
+          bloco pedido, que fica até você devolver.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          static int automatica(void)
+          {
+              int n = 0;
+
+              n = n + 1;
+              return n;
+          }
+
+          static char *pedida(void)
+          {
+              char *bloco = malloc(1);
+
+              if (bloco != NULL) {
+                  *bloco = 0;
+              }
+              return bloco;
+          }
+
+          int main(void)
+          {
+              char *b = pedida();
+
+              if (b == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              automatica();
+              *b = *b + 1;
+              automatica();
+              *b = *b + 1;
+              puts(automatica() == 1
+                   ? "a local recomeca do zero toda chamada, sem ninguem pedir"
+                   : "FALHOU");
+              puts(*b == 2
+                   ? "e o bloco pedido guardou as duas somas: ele fica ate voce devolver"
+                   : "FALHOU");
+              free(b);
+              return 0;
+          }
+        espera: |-
+          a local recomeca do zero toda chamada, sem ninguem pedir
+          e o bloco pedido guardou as duas somas: ele fica ate voce devolver
   I2:
     type: inferencia
     role: conclusao
@@ -79,3 +246,44 @@ nodes:
       Logo a rua tem duas quadras, com regras de arrumação diferentes.
     negated_by:
       - memory_is_uniform
+    # O QUE ESTE PROGRAMA NAO FAZ: comparar enderecos do automatico e do
+    # pedido para mostrar que ficam "longe". Distancia entre areas e
+    # fato sobre ESTA maquina, e o projeto ja tem regra para isso -- a
+    # mesma que trocou "nao compila" por "reclama". O que se demonstra
+    # aqui e uma regra da LINGUAGEM: o tamanho de um e fixado no codigo,
+    # o do outro e decidido rodando.
+    evidencia:
+      - afirma: >
+          As duas áreas seguem regras diferentes, e uma delas aparece no
+          tamanho: o da variável local é fixado no código, e o do bloco
+          pedido é decidido enquanto o programa roda.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              int quantos = 0;
+              char *bloco = NULL;
+
+              while (quantos < 7) {
+                  quantos = quantos + 1;
+              }
+              bloco = malloc(quantos);
+              if (bloco == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              *bloco = 5;
+              puts(quantos == 7
+                   ? "o tamanho do pedido veio de uma conta feita rodando: 7"
+                   : "FALHOU");
+              puts(*bloco == 5
+                   ? "e o bloco desse tamanho aceitou a escrita"
+                   : "FALHOU");
+              free(bloco);
+              return 0;
+          }
+        espera: |-
+          o tamanho do pedido veio de uma conta feita rodando: 7
+          e o bloco desse tamanho aceitou a escrita
