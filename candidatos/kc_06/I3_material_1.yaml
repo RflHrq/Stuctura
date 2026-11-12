@@ -1,0 +1,211 @@
+# Material de ensino do I3 do kc_06 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Quinto do tópico, e o mais sutil dos seis:
+# tudo nele se decide por UM caractere. `*p = v` e `p = v` estão na mesma
+# função, na mesma linha de raciocínio, e vão para lugares diferentes.
+#
+# A CADEIA É A MAIS LONGA ATÉ AQUI, e isto é medido: `_plano` devolve
+# CINCO passos para este nó — B1 -> B2 -> I1 -> I2 -> I3 —, contra três
+# do I1 e dois do I2. O suporte é `I1` e `I2`, os dois de inferência: é a
+# primeira vez neste tópico que o suporte DIRETO de um nó não tem
+# observável nenhum.
+#
+# E ISSO DECIDE A AMPLIAÇÃO. O primeiro parágrafo tem de ser a DERIVAÇÃO
+# dos dois, e ela é curta de verdade: o I1 disse que escrever no parâmetro
+# não chega no argumento; o I2 disse que um endereço copiado chega na
+# mesma casa. O `*p` usa o endereço — e chega. O `p =` escreve no
+# parâmetro — e para ali. Não há regra nova nenhuma neste nó.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE DELA É A MELHOR DO TÓPICO
+#
+# `modify_pp_changes_p` — "trocar o parâmetro ponteiro dentro da função
+# altera o ponteiro de quem chamou". Grade `L`, e a fonte é o FAQ
+# comp.lang.c 4.8, que é a crença ESCRITA POR QUEM A TEM:
+#
+#   "I have a function which accepts, and is supposed to initialize, a
+#   pointer: void f(int *ip) { static int dummy = 5; ip = &dummy; } But
+#   when I call it like this: int *ip; f(ip); the pointer in the caller
+#   remains unchanged."
+#
+# A pergunta é a premissa negada, em primeira pessoa. A mesma crença está
+# no catálogo do kc_10.
+#
+# O PROGRAMA DO FAQ NÃO ENTRA AQUI, por dois motivos: o item
+# `ciu_kc06_t15` já é a versão dele com `malloc`, e o programa como o FAQ
+# o escreve passa um ponteiro não inicializado — rodar aquilo seria exibir
+# comportamento indefinido como evidência.
+#
+# ---------------------------------------------------------------------
+# O QUE FICA FORA, e aqui a lista importa mais que de costume
+#
+#   "C não tem passagem por referência"            -> I4, a conclusão
+#   o que a função PRECISA para trocar o ponteiro  -> `ciu_kc06_t13`
+#   `int **` e `b(&q)`                             -> `ciu_kc06_015`
+#   a casa nova sumir no fim da função             -> kc_01
+#
+# A SEGUNDA LINHA É A QUE CUSTA. A pergunta seguinte à deste nó é óbvia —
+# "então como é que uma função troca o meu ponteiro?" — e a resposta tem
+# dono: `ciu_kc06_t13` é item de degrau 1 e cobra exatamente ela, e o
+# `ciu_kc06_015` a cobra de degrau 3, comparando `a(int *p)` com
+# `b(int **p)`. Escrever a resposta no cartão faria os dois medirem
+# memória do cartão. O cartão para na premissa: atribuir a `p` não sai de
+# `f`. Por onde sai é trabalho deles.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   UMA função que escreve por `p`, TROCA `p`, e escreve
+#                    de novo. Dois valores escritos, e só o primeiro
+#                    chega em x.
+#   outra rota       DUAS funções, o MESMO ponteiro de quem chama, e cada
+#                    uma redirecionando a cópia dela.
+#
+# O CASO RESOLVIDO ESCREVE ANTES E DEPOIS DA TROCA de propósito. Com uma
+# escrita só, "x não recebeu o 70" tem duas leituras: "a troca cortou o
+# acesso" e "a escrita não aconteceu". Com as duas, a conta fecha: o 50
+# chegou em x porque `p` ainda tinha o endereço dele, e o 70 não chegou
+# porque `p` passou a ter outro. A escrita aconteceu as duas vezes, em
+# duas casas diferentes, e a linha do meio é a única diferença.
+#
+# É A MESMA FORMA DO CARTÃO DO I1, e também de propósito: lá a
+# modificação ACONTECIA, e aparecia lá dentro. Aqui a segunda escrita
+# acontece, e aparece lá dentro. Um nó de inferência que muda a forma da
+# demonstração esconde que a conclusão vem do que já foi aceito.
+#
+# A OUTRA ROTA É A QUE SEPARA O `q`. No caso resolvido o `*q` aparece
+# junto do x, e os dois dizem 50; alguém ainda pode suspeitar de sorte —
+# que `q` foi redirecionado para algo que valia 50. A outra rota passa o
+# MESMO `q` para duas funções que o redirecionam para lugares diferentes,
+# e `*q` continua respondendo 1 depois das duas. Dois redirecionamentos,
+# nenhum efeito: não é sorte.
+#
+# POR QUE NENHUMA DAS DUAS IMPRIME SÓ `*q` DEPOIS DE UMA TROCA. O item
+# `ciu_kc06_014` é exatamente isso — `aponta(q, &y)` com `p = alvo`, e a
+# pergunta "por que *q continua 1?". O caso resolvido imprime x e `*q`
+# JUNTOS, e o que se lê neles é o 50; a outra rota imprime `*q` depois de
+# duas chamadas, não de uma.
+#
+# ---------------------------------------------------------------------
+# O EXEMPLO DO CARTÃO NÃO MUDA — `void f(int *p) { p = NULL; }` com
+# `/* q continua &x */` já é o caso mínimo.
+#
+# NARRAÇÃO: não entra, pelo mesmo motivo dos quatro anteriores.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_06
+node: kc06:I3
+premissa: "Atribuir a p dentro de f não altera o ponteiro do chamador."
+crenca_que_nega: modify_pp_changes_p
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+# Declarado porque este cartão USA. Quem introduz é o B1.
+exige_conceitos: [funcao_com_parametro]
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO dos dois nós de
+# suporte; o segundo separa os dois destinos; o terceiro diz o que o
+# chamador deu, e quando.
+ampliacao: >
+  Isto não é regra nova: é o encontro das duas anteriores. Um parâmetro é
+  variável de f, e escrever nele não chega no argumento. Um endereço
+  copiado leva à mesma casa, e quem segue o endereço chega lá. O p tem as
+  duas coisas ao mesmo tempo: ele É um parâmetro, e o que está dentro
+  dele é um endereço.
+
+  Daí os dois destinos. Em *p = 50, o p é lido: ninguém mexe nele, o
+  endereço que está lá é seguido, e a escrita acontece na outra ponta. Em
+  p = outro_endereco, o p é escrito: o endereço que estava lá é
+  substituído, e nada é seguido. A primeira linha sai de f pelo endereço;
+  a segunda não sai de f.
+
+  E o chamador deu o número uma vez só. Na chamada, o valor do ponteiro
+  dele foi copiado para dentro de p — e foi tudo. Daí em diante são dois
+  números em duas caixas, e trocar o que está numa não encosta na outra.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void f(int *p) { p = NULL; }
+  int x = 1;
+  int *q = &x;
+  f(q);         /* q continua &x */
+
+
+# O CASO RESOLVIDO: escreve por p, troca p, escreve de novo.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      void redireciona(int *p)
+      {
+          int reserva = 0;
+          *p = 50;
+          p = &reserva;
+          *p = 70;
+          printf("dentro:  *p vale %d\n", *p);
+      }
+  - codigo: |
+      int x = 1;
+      int *q = &x;
+      redireciona(q);
+      printf("fora:    x = %d,  *q = %d\n", x, *q);
+  - prosa: "Pergunta: redireciona escreveu 50 e depois 70. Qual dos dois chegou em x?"
+  - prosa: >
+      A tentação é dizer o 70 — foi a última escrita, e as duas usaram o
+      mesmo *p. Repare na linha do meio. Entre uma escrita e a outra, o p
+      deixou de ter o endereço de x e passou a ter o de reserva. O *p da
+      primeira linha e o *p da terceira não vão para o mesmo lugar.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dentro:  *p vale 70
+      fora:    x = 50,  *q = 50
+  - prosa: >
+      O 50 chegou em x; o 70 ficou em reserva. E repare nos dois números
+      de fora: x e *q respondem o mesmo, o que só acontece se q continuar
+      com o endereço de x. A troca mexeu no p de redireciona, e em nada
+      mais.
+
+
+# A OUTRA ROTA: o mesmo ponteiro, duas funções, dois redirecionamentos.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Em vez de olhar uma função por dentro, entregue o
+      mesmo ponteiro a duas.
+  - codigo: |
+      void f(int *p)
+      {
+          int local = 10;
+          p = &local;
+          printf("f:      *p vale %d\n", *p);
+      }
+
+      void g(int *p)
+      {
+          int local = 20;
+          p = &local;
+          printf("g:      *p vale %d\n", *p);
+      }
+  - codigo: |
+      int x = 1;
+      int *q = &x;
+      f(q);
+      g(q);
+      printf("no fim, *q vale %d\n", *q);
+  - prosa: >
+      As duas foram chamadas com o mesmo q, e as duas fizeram a mesma
+      coisa: trocaram o endereço que receberam pelo de uma variável
+      própria. Cada uma respondeu o número da variável dela.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      f:      *p vale 10
+      g:      *p vale 20
+      no fim, *q vale 1
+  - prosa: >
+      Duas trocas, e o q de quem chamou atravessou as duas intacto. Se a
+      troca feita por f tivesse alcançado o q, a chamada de g não teria
+      recebido o endereço de x — e a última linha não diria 1.
