@@ -1,0 +1,151 @@
+# Material de ensino do I2 do kc_05 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Suporte em `B2`, e a refutação percorre
+# B2 -> I2.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E O TÍTULO DA FONTE É ELA MESMA
+#
+# `null_is_zero_always` — "NULL é o inteiro 0 em todos os contextos,
+# inclusive no que está guardado na memória". Grade `L`, FAQ
+# comp.lang.c 5.13, cujo título é a crença dita por quem a tem:
+#
+#   "This is strange. NULL is guaranteed to be 0, but the null pointer
+#   is not?"
+#
+# e a 5.16.
+#
+# ---------------------------------------------------------------------
+# A RESTRIÇÃO QUE MANDOU NESTE ARQUIVO
+#
+# NENHUMA DEMONSTRAÇÃO OLHA OS BITS. Copiar os bytes de um ponteiro
+# nulo e imprimi-los mostraria o que ESTA máquina faz, e a premissa diz
+# exatamente que isso não é o que a linguagem garante. Exibir aquilo
+# como demonstração seria ensinar o contrário da premissa usando a
+# máquina como prova — e três itens deste nó já cobrem o lado dos bits,
+# perguntando o que se PODE AFIRMAR, que é pergunta sobre garantia.
+#
+# Então as duas rotas ficam do lado que a linguagem garante: o que
+# acontece no CÓDIGO que você escreve.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   TRÊS maneiras de perguntar a mesma coisa no
+#                    código — `p == NULL`, `p == 0` e `!p` — e as três
+#                    concordando.
+#   outra rota       O MESMO caractere 0 escrito duas vezes, lido como
+#                    número num lugar e como "nenhuma casa" no outro.
+#
+# A OUTRA ROTA É A QUE SEPARA OS DOIS MUNDOS. A crença confunde "o
+# texto que escrevo" com "o que fica guardado", e o par de linhas
+# mostra que nem o texto tem significado fixo: o mesmo 0 vale como
+# número ou como ponteiro nulo conforme o tipo do destino. Se o
+# significado do 0 já depende do contexto no código, a ideia de que
+# ele é "o mesmo zero em todo lugar" cai antes de chegar nos bits.
+#
+# O QUE FICA FORA
+#
+#   os bytes copiados com memcpy     -> `ciu_kc05_014`
+#   memset zerado contra NULL        -> `ciu_kc05_015`, degrau 3
+#   memcmp com quatro zeros          -> `ciu_kc05_t14`
+#   `p == 0` e `p == NULL` juntos    -> `ciu_kc05_t15`
+#
+# O `t15` IMPRIME AS DUAS COMPARAÇÕES e pergunta o que sai; o caso
+# resolvido acrescenta a terceira forma — o `!p` — e a pergunta é
+# outra: por que as três concordam. Uma mede a saída, a outra o motivo.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_05
+node: kc05:I2
+premissa: >
+  NULL igual a 0 vale na linguagem que você escreve, não no padrão de
+  bits.
+crenca_que_nega: null_is_zero_always
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. Onde a igualdade vale, por que ela vale, e o que não
+# decorre dela.
+ampliacao: >
+  No código que você escreve, 0 e NULL dizem a mesma coisa para um
+  ponteiro. Pode comparar com 0, atribuir 0, escrever NULL — o
+  compilador entende os três como o valor nulo daquele tipo. Essa parte
+  é acordo da linguagem, e é garantida.
+
+  O acordo é sobre tradução, e não sobre conteúdo. Quando você escreve
+  0 num lugar onde vai um ponteiro, o compilador troca aquilo pelo
+  valor nulo — que pode ser feito de bits zerados, ou não. O padrão não
+  promete nada sobre a aparência interna, e máquinas existiram onde ela
+  era outra.
+
+  Por isso a igualdade não se transporta para a memória. Zerar os bytes
+  de um ponteiro à mão não é a mesma coisa que lhe atribuir NULL, e
+  comparar os bytes dele com zeros não é a mesma coisa que compará-lo
+  com NULL. O caminho garantido é sempre o mesmo: escrever a
+  comparação, e deixar o compilador fazer a conversão que ele promete.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p = NULL;
+  p == 0       /* verdadeiro: acordo da linguagem */
+  /* os bits dentro de p: assunto da maquina */
+
+
+# O CASO RESOLVIDO: três maneiras de perguntar.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *p = NULL;
+
+      printf("p == NULL da %d\n", p == NULL);
+      printf("p == 0    da %d\n", p == 0);
+      printf("!p        da %d\n", !p);
+  - prosa: "Pergunta: as três perguntas são escritas diferente. Por que respondem igual?"
+  - prosa: >
+      Porque as três são traduzidas para a mesma comparação: o
+      compilador sabe que p é um ponteiro, e converte o 0 — e a ausência
+      dele, no terceiro caso — para o valor nulo daquele tipo. O acordo
+      está na tradução.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      p == NULL da 1
+      p == 0    da 1
+      !p        da 1
+  - prosa: >
+      Três formas, uma resposta, e nenhuma delas olhou o que está
+      guardado dentro de p. O que elas usaram foi a regra de conversão —
+      e é só isso que a igualdade entre NULL e 0 quer dizer.
+
+
+# A OUTRA ROTA: o mesmo caractere, dois significados.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Escreva o mesmo 0 duas vezes, em dois destinos
+      diferentes.
+  - codigo: |
+      int n = 0;
+      int *p = 0;
+
+      printf("o 0 que foi para um int vale como numero? %d\n", n == 0);
+      printf("e o 0 que foi para um ponteiro diz 'nenhum'? %d\n", p == NULL);
+  - prosa: >
+      O caractere é o mesmo nas duas linhas. O que muda é o tipo do que
+      está do lado esquerdo — e é ele que decide o que aquele 0 vira.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o 0 que foi para um int vale como numero? 1
+      e o 0 que foi para um ponteiro diz 'nenhum'? 1
+  - prosa: >
+      Um virou o número zero; o outro virou o valor que significa
+      "nenhum lugar". Se o mesmo 0 já significa duas coisas diferentes
+      no código, conforme o destino, não há por que esperar que ele
+      signifique uma coisa só dentro da memória.

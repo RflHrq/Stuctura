@@ -1,0 +1,152 @@
+# Material de ensino do B2 do kc_05 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O B1 disse o que o nulo é; este diz de
+# onde ele vem.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE RESPONDE COM UMA PALAVRA
+#
+# `any_zero_is_null` — "qualquer zero vira ponteiro nulo, inclusive um
+# que chegue em tempo de execução". Grade `L`, FAQ comp.lang.c 5.18:
+#
+#   "Is a run-time integral value of 0, cast to a pointer, guaranteed
+#   to be a null pointer? No. Only constant integral expressions with
+#   value 0 are guaranteed [...]"
+#
+# ---------------------------------------------------------------------
+# A RESTRIÇÃO QUE MANDOU NESTE ARQUIVO
+#
+# O LADO ERRADO DA PREMISSA NÃO SE DEMONSTRA, e isso não é falta de
+# imaginação: converter um zero de execução para ponteiro dá um
+# resultado NÃO ESPECIFICADO pelo padrão. Nesta máquina ele
+# provavelmente daria o nulo — e mostrar isso ensinaria o contrário do
+# que o nó afirma. O projeto já tem a regra: o que vale numa máquina
+# não é o que a linguagem garante, e foi ela que trocou "não compila"
+# por "reclama".
+#
+# Então as duas demonstrações ficam do lado GARANTIDO: o que a
+# constante escrita no código produz, e onde ela produz. Os itens
+# cobrem o outro lado, e podem — eles perguntam se dá para contar com
+# aquilo, que é pergunta sobre garantia, e não sobre saída.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   TRÊS maneiras de escrever a constante — NULL, 0 e
+#                    uma conta entre constantes — e as três dando o
+#                    nulo.
+#   outra rota       A mesma constante em TRÊS contextos: atribuída,
+#                    comparada e passada como argumento.
+#
+# O `5 - 5` É O QUE AMARRA O NÓ. "Constante escrita no código" não quer
+# dizer "o caractere zero": quer dizer uma expressão que o compilador
+# resolve antes de rodar. Sem esse terceiro caso, a regra pareceria ser
+# sobre a aparência do texto.
+#
+# O QUE FICA FORA
+#
+#   `(int *)n` com n de execução     -> `ciu_kc05_005`, `t05`
+#   `int *p = 0` contra `(int *)n`   -> `ciu_kc05_006`, degrau 3
+#   `if (p == 0)` depois de malloc   -> `ciu_kc05_t06`
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_05
+node: kc05:B2
+premissa: "Só a constante 0 escrita no código vira o ponteiro nulo."
+crenca_que_nega: any_zero_is_null
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. Quem faz a conversão, quando, e o que acontece com um
+# zero que chega tarde.
+ampliacao: >
+  Quem transforma o zero em ponteiro nulo é o compilador, e ele faz
+  isso enquanto traduz. Ao ver um 0 onde se espera um ponteiro, ele
+  troca aquilo pelo valor nulo daquele tipo — que não precisa ser
+  feito de bits zerados, e isso é assunto de outro nó deste tópico.
+
+  Por isso a conversão depende de o zero estar visível na tradução.
+  Escrever 0, escrever NULL, ou escrever uma conta entre constantes que
+  dê zero: nos três casos o compilador resolve a expressão antes de o
+  programa rodar, e faz a troca.
+
+  Um zero que só aparece com o programa rodando é outra coisa. Ele é um
+  inteiro, e convertê-lo para ponteiro é uma conversão de número para
+  endereço — o padrão não promete que o resultado seja o nulo. Pode ser
+  nesta máquina e não ser na próxima, e um teste construído sobre isso
+  não está testando o que pensa.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p = 0;        /* o 0 constante: da o nulo */
+  int n = 0;
+  int *q = (int *)n; /* zero de execucao: sem garantia */
+
+
+# O CASO RESOLVIDO: três maneiras de escrever a constante.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *pela_palavra = NULL;
+      int *pelo_zero = 0;
+      int *por_uma_conta = 5 - 5;
+
+      printf("NULL da o nulo? %d\n", pela_palavra == NULL);
+      printf("o 0 escrito da o nulo? %d\n", pelo_zero == NULL);
+      printf("e uma conta de constantes tambem? %d\n", por_uma_conta == NULL);
+  - prosa: "Pergunta: a terceira linha não tem um zero escrito. Por que ela também dá o nulo?"
+  - prosa: >
+      Porque o compilador faz a conta antes de o programa existir. O que
+      ele vê, na hora de traduzir, é uma expressão de valor zero — e é
+      disso que a regra fala. Não é a aparência do texto que decide: é
+      o momento em que o valor fica conhecido.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      NULL da o nulo? 1
+      o 0 escrito da o nulo? 1
+      e uma conta de constantes tambem? 1
+  - prosa: >
+      Três maneiras de escrever, um mesmo resultado, e as três resolvidas
+      na tradução. Um zero que só aparecesse depois, com o programa
+      rodando, não teria como ser traduzido junto — e é aí que a
+      garantia acaba.
+
+
+# A OUTRA ROTA: a mesma constante em três contextos.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Veja onde a constante conta como ponteiro nulo.
+  - codigo: |
+      int recebeu_nulo(int *q)
+      {
+          return q == NULL;
+      }
+  - codigo: |
+      int *p = 0;
+
+      printf("atribuido: %d\n", p == NULL);
+      printf("comparado: %d\n", p == 0);
+      printf("passado:   %d\n", recebeu_nulo(0));
+  - prosa: >
+      Na primeira linha o zero é atribuído a um ponteiro; na segunda,
+      comparado com um; na terceira, entregue a uma função que espera
+      um. Nos três o compilador sabe, na tradução, que ali vai um
+      ponteiro.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      atribuido: 1
+      comparado: 1
+      passado:   1
+  - prosa: >
+      O que esses três lugares têm em comum é o compilador saber que o
+      destino é um ponteiro, e ver o zero ali mesmo. É essa dupla
+      condição que a regra descreve — e um zero guardado numa variável
+      inteira não cumpre a segunda metade.

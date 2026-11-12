@@ -1,0 +1,162 @@
+# Material de ensino do I3 do kc_05 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico: suporte em `B3` e
+# `I1`, e a refutação percorre os dois antes de chegar aqui.
+#
+# E É O ÚNICO NÓ DO PROJETO SEM EVIDÊNCIA NO GRAFO, com motivo
+# registrado em `test_premissa`: rodar é o próprio comportamento
+# indefinido, o compilador não recusa, e não diagnostica com
+# `-std=c17 -Wall -c` porque `-Wnull-dereference` precisa de otimização
+# ligada. Mudar os flags do oráculo para alcançar um nó mudaria o que
+# todas as outras 93 demonstrações significam.
+#
+# O CARTÃO TEM A MESMA RESTRIÇÃO, e resolve como o `kc_03:I3`:
+#
+#   O TRECHO INVÁLIDO APARECE, E NÃO É EXECUTADO. Ele entra como código
+#   com comentário — do mesmo jeito que o exemplo deste nó já faz no
+#   domínio — e sem bloco de saída. Não há "a máquina confirma" ali,
+#   porque não há o que ela confirme: o padrão não diz o que acontece, e
+#   inventar uma saída seria ensinar que dá para olhar.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A PROCEDÊNCIA DELA É `N`
+#
+# `null_is_safe_to_deref` — "acessar *p com p igual a NULL devolve 0,
+# como se fosse um lugar vazio". Grade `N`: CERT C EXP34-C, "Do not
+# dereference null pointers"; CWE-476, "NULL Pointer Dereference".
+#
+# A NORMA CATALOGOU O ERRO, E NÃO A CRENÇA, e é por isso que a
+# procedência é `N` e não `D`. O que as duas fontes atestam é que o
+# erro é frequente o bastante para ter nome e número — não o que passa
+# pela cabeça de quem o comete. A frase da crença é transposição nossa,
+# e o catálogo a declara assim.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O guarda funcionando: o MESMO trecho com p nulo e
+#                    com p apontando, e a escrita acontecendo só na
+#                    segunda vez.
+#   outra rota       O trecho inválido, mostrado e não executado.
+#
+# O CASO RESOLVIDO NÃO É UM DESVIO. Ele é a única maneira honesta de
+# demonstrar alguma coisa sobre este nó rodando: o que se observa é o
+# teste decidindo, e a escrita existindo ou não existindo conforme a
+# decisão. O que está do outro lado do guarda não é mostrado porque
+# não pode ser mostrado.
+#
+# O QUE FICA FORA
+#
+#   `malloc` sem teste e depois `*p`   -> `ciu_kc05_017`
+#   `if (p)` contra `if (p == NULL)`   -> `ciu_kc05_018`, degrau 3
+#   `printf("%d", *p)` com p nulo      -> `ciu_kc05_t17`
+#   `printf("%s", nome)` com nome nulo -> `ciu_kc05_t18`
+#
+# O `018` COMPARA DOIS GUARDAS, um deles invertido, e pergunta qual
+# escreve com p nulo. O caso resolvido usa o guarda CERTO duas vezes,
+# com dois valores de p — mostra a forma correta trabalhando, e não
+# pede para achar o erro. É a divisão entre ensinar e medir.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): a saída do caso
+# resolvido está transcrita da execução. O trecho da outra rota compila
+# — ele é inválido em execução, e não na tradução.
+
+topico: kc_05
+node: kc05:I3
+premissa: "*p com p nulo não acessa objeto algum: é comportamento indefinido."
+crenca_que_nega: null_is_safe_to_deref
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que a viagem pede, o que não há no fim dela, e por que
+# "deu certo uma vez" não quer dizer nada.
+ampliacao: >
+  A estrela manda ir até o lugar que o ponteiro indica. Com p nulo, não
+  há lugar nenhum indicado — o B3 garantiu que aquele valor não é o
+  endereço de objeto algum —, e a ordem fica sem destino. Não é que ela
+  chegue num lugar vazio: é que não há lugar.
+
+  Por isso o padrão não diz o que acontece. Comportamento indefinido
+  não quer dizer "dá erro": quer dizer que a linguagem não promete nada
+  — nem que pare, nem que continue, nem que o valor lido seja zero.
+  Qualquer coisa que aconteça está dentro do que foi permitido não
+  prometer.
+
+  E é isso que torna o teste obrigatório. Se o programa for seguir um
+  ponteiro que pode ser nulo, perguntar antes é o que separa um caminho
+  definido de um sem definição — e perguntar, como o nó anterior
+  mostrou, não custa viagem nenhuma.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p = NULL;
+  *p = 1;      /* indefinido: nao ha objeto la */
+
+
+# O CASO RESOLVIDO: o guarda decidindo, duas vezes.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 1;
+      int *p = NULL;
+      int escreveu = 0;
+
+      if (p != NULL) {
+          *p = 50;
+          escreveu = 1;
+      }
+      printf("com p nulo, a escrita aconteceu? %d\n", escreveu);
+      p = &x;
+      if (p != NULL) {
+          *p = 50;
+          escreveu = 1;
+      }
+      printf("com p apontando, aconteceu? %d, e x vale %d\n", escreveu, x);
+  - prosa: "Pergunta: os dois blocos são iguais. Por que só o segundo escreveu?"
+  - prosa: >
+      Porque o teste olhou o que havia em p, e nas duas vezes a resposta
+      foi diferente. Na primeira, a estrela nem chegou a ser executada —
+      e é isso que o guarda compra: ele não torna seguro seguir um
+      ponteiro nulo, ele impede que se siga.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      com p nulo, a escrita aconteceu? 0
+      com p apontando, aconteceu? 1, e x vale 50
+  - prosa: >
+      Zero e um, do mesmo trecho escrito duas vezes. O que mudou entre
+      eles foi o conteúdo de p — e a decisão de entrar ou não no bloco
+      saiu de uma leitura dessa caixa, e de mais nada.
+
+
+# A OUTRA ROTA: o trecho inválido, mostrado e não executado.
+reexplicacao:
+  - prosa: >
+      Outro caminho: tire o guarda e olhe o que sobra. O trecho abaixo
+      o compilador aceita, e nós não o executamos — porque o que ele
+      faz não tem resultado previsível, e mostrar uma saída aqui
+      ensinaria que dá para olhar.
+  - codigo: |
+      int *p = NULL;
+
+      *p = 1;        /* indefinido: nao ha objeto nenhum la */
+  - prosa: >
+      Duas linhas, e nenhuma delas é um erro de escrita: a primeira dá
+      a p um valor legítimo, e a segunda é uma escrita bem formada. O
+      compilador traduz as duas sem reclamar.
+  - prosa: >
+      O problema não está na forma, está no destino. A segunda linha
+      manda escrever no lugar indicado por p, e o valor que está em p é
+      justamente o que significa "nenhum lugar". Não há onde o 1 possa
+      ser posto.
+  - prosa: >
+      E é por isso que não há saída para mostrar. O que um programa
+      assim faz depende da máquina, do compilador e do dia — pode
+      parar, pode seguir, pode parecer funcionar. Nenhuma dessas
+      respostas é a resposta: a resposta é que a linguagem não promete
+      nenhuma delas.

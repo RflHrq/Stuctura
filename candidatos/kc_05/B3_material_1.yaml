@@ -1,0 +1,165 @@
+# Material de ensino do B3 do kc_05 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O B1 disse que o nulo é um valor, o B2
+# de onde ele vem, e este diz o que a linguagem GARANTE sobre ele: que
+# nenhum objeto mora lá.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `null_points_to_zero` — "o ponteiro nulo aponta para o endereço 0, e
+# lá há memória como em qualquer outro lugar". Grade `L`, FAQ
+# comp.lang.c 5.1: "a null pointer points definitively nowhere; it is
+# not the address of any object or function"; e a 5.19, sobre acessar
+# posições fixas de memória.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   TRÊS variáveis de tipos diferentes, três endereços
+#                    distintos, e nenhum deles é o nulo.
+#   outra rota       Dois lugares que a intuição trata como especiais —
+#                    uma variável dentro de um bloco e uma casa no meio
+#                    de um conjunto —, e nenhum deles é o nulo.
+#
+# A OUTRA ROTA EXISTE POR CAUSA DA FORMA DA CRENÇA. Quem acha que o
+# nulo é um endereço como os outros costuma imaginar que em algum
+# canto da memória ele é o endereço de alguma coisa — talvez num lugar
+# incomum. As duas variáveis escolhidas são incomuns de propósito, e o
+# resultado é o mesmo.
+#
+# OS ENDEREÇOS ENTRAM POR UMA DECISÃO TOMADA RODANDO, nas duas, e isso
+# tem história: com `&x` à vista numa comparação com NULL, o gcc
+# responde `-Waddress` — "the comparison will always evaluate as true
+# for the address of 'x' will never be NULL" — e dobra o resultado em
+# tempo de compilação. O aviso está CERTO, e é curioso: o compilador
+# dobra a comparação porque esta premissa vale. Só que aí o programa
+# deixa de medir, que é o defeito do `&x == &x` registrado no kc_02:B1.
+#
+# O QUE FICA FORA
+#
+#   `if (&x == p)` com p nulo       -> `ciu_kc05_008`
+#   `p = &x;` e depois `p == NULL`  -> `ciu_kc05_t08`
+#   `p[0]` com p nulo               -> `ciu_kc05_t09`, que é I3
+#   malloc podendo devolver nulo    -> `ciu_kc05_009`, degrau 3
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_05
+node: kc05:B3
+premissa: "Nenhum objeto tem o endereço do ponteiro nulo."
+crenca_que_nega: null_points_to_zero
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que a garantia diz, de onde ela vem, e o que ela
+# compra.
+ampliacao: >
+  A linguagem reserva o valor nulo para significar "nenhum objeto", e
+  junto com a reserva vem a garantia: nenhum objeto do seu programa vai
+  ter esse valor como endereço. Não é coincidência nem sorte da
+  máquina — é regra, e vale para variáveis, para casas de um conjunto e
+  para blocos que você pediu.
+
+  Por isso o teste significa alguma coisa. Se algum objeto pudesse
+  calhar de ter o endereço nulo, comparar um ponteiro com NULL não
+  separaria "não aponta" de "aponta para aquele objeto", e a resposta
+  seria ambígua justamente quando mais importa.
+
+  E a garantia é sobre o VALOR, não sobre um lugar da memória. "O
+  endereço zero" não é um lugar onde o seu programa possa espiar: o
+  número que o nulo guarda pode nem ser zero por dentro, e o que o
+  padrão promete é só isto — que ele não vai bater com o endereço de
+  nada seu.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x;
+  &x != NULL   /* sempre verdadeiro: & nunca da nulo */
+
+
+# O CASO RESOLVIDO: três tipos, três endereços, nenhum nulo.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int inteiro = 1;
+      char letra = 'k';
+      double fracao = 0.5;
+      void *um = NULL;
+      void *dois = NULL;
+      void *tres = NULL;
+      int passos = 0;
+
+      while (passos < 3) {
+          passos = passos + 1;
+      }
+      if (passos == 3) {
+          um = &inteiro;
+          dois = &letra;
+          tres = &fracao;
+      }
+      printf("nenhum dos tres e nulo? %d\n",
+             um != NULL && dois != NULL && tres != NULL);
+      printf("e os tres sao lugares distintos? %d\n",
+             um != dois && dois != tres && um != tres);
+  - prosa: "Pergunta: três variáveis de tamanhos diferentes. Alguma poderia calhar de morar no endereço nulo?"
+  - prosa: >
+      Nenhuma, e não por sorte. A segunda resposta mostra que os três
+      lugares são distintos entre si — a memória tem endereços de
+      sobra. E o valor nulo está fora dessa distribuição por regra: ele
+      foi reservado para não ser de ninguém.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      nenhum dos tres e nulo? 1
+      e os tres sao lugares distintos? 1
+  - prosa: >
+      Três objetos, três endereços, e o nulo diferente dos três. Se o
+      nulo fosse um endereço comum, alguma variável poderia cair nele —
+      e aí um ponteiro legítimo responderia "sou nulo".
+
+
+# A OUTRA ROTA: os lugares incomuns.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Se o nulo fosse endereço de alguém, o candidato
+      seria algum canto fora do comum.
+  - codigo: |
+      int a[3] = {1, 2, 3};
+      void *de_dentro = NULL;
+      void *do_meio = NULL;
+      int passos = 0;
+
+      while (passos < 3) {
+          passos = passos + 1;
+      }
+      {
+          int escondido = 9;
+
+          if (passos == 3) {
+              de_dentro = &escondido;
+              do_meio = &a[1];
+          }
+          printf("a variavel de bloco tem endereco, e nao e o nulo? %d\n",
+                 de_dentro != NULL);
+      }
+      printf("e a casa do meio do conjunto tambem nao e? %d\n", do_meio != NULL);
+  - prosa: >
+      Uma variável que só existe dentro de um bloco, e uma casa no meio
+      de um conjunto — dois lugares que a intuição trata como
+      diferentes dos outros.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a variavel de bloco tem endereco, e nao e o nulo? 1
+      e a casa do meio do conjunto tambem nao e? 1
+  - prosa: >
+      Nenhum dos dois. A garantia não tem exceção para cantos
+      especiais: enquanto o objeto existe, o endereço dele é diferente
+      do nulo — e é isso que faz a comparação com NULL valer sempre a
+      mesma coisa.

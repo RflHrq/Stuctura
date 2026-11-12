@@ -1,0 +1,137 @@
+# Material de ensino do B1 do kc_05 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_05 tem ampliação VAZIA nos seis
+# nós, e é o tópico do único nó do projeto SEM evidência: o I3, porque
+# `*p` com p nulo não se demonstra rodando nem o gcc o diagnostica. O
+# cabeçalho daquele cartão diz como ele resolve.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `null_is_absence` — "NULL quer dizer que o ponteiro está vazio, sem
+# valor dentro". Grade `L`, FAQ comp.lang.c 5.1: "for each pointer
+# type, there is a special value — the 'null pointer' — which is
+# distinguishable from all other pointer values".
+#
+# A PALAVRA DA FONTE É `distinguishable`, e é dela que sai a
+# demonstração: o que se distingue de outros valores É um valor. Caixa
+# vazia não se compara nem se copia.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O nulo COPIADO para outro ponteiro, e distinguido
+#                    de um que aponta: as duas coisas que só se fazem
+#                    com valor.
+#   outra rota       O nulo atravessando uma troca, por uma variável
+#                    temporária, como qualquer valor atravessaria.
+#
+# O QUE FICA FORA
+#
+#   `sizeof p` com p nulo              -> `ciu_kc05_002`
+#   `int *p;` contra `int *q = NULL;`  -> `ciu_kc05_003`, degrau 3
+#   `if (p)` depois de uma função      -> `ciu_kc05_t02`
+#   dois nulos comparados entre si     -> `ciu_kc05_t03`
+#
+# O `t03` COMPARA DOIS NULOS que nasceram nulos; o caso resolvido
+# compara um nulo com uma CÓPIA dele, e depois com um ponteiro que
+# aponta. A diferença é o que se mede: lá, que dois nulos são iguais;
+# aqui, que o nulo viaja e se distingue.
+#
+# E O `003` FICA DE FORA COM CUIDADO EXTRA: ele contrasta o ponteiro
+# não inicializado com o que recebeu NULL, e o não inicializado é
+# assunto do kc_03 — ler o que há nele é comportamento indefinido.
+# Nenhuma demonstração deste tópico declara ponteiro sem valor.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_05
+node: kc05:B1
+premissa: "NULL é um valor de ponteiro que diz: não aponto para lugar nenhum."
+crenca_que_nega: null_is_absence
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que NULL é, o que ele não é, e para que serve.
+ampliacao: >
+  NULL é um valor, e não a falta de um. O ponteiro que o recebeu tem
+  alguma coisa escrita dentro — tanto quanto o que recebeu um endereço
+  —, e o que está escrito significa uma informação precisa: este
+  ponteiro não aponta para objeto nenhum.
+
+  Por isso ele se comporta como valor. Dá para copiá-lo de um ponteiro
+  para outro, compará-lo, passá-lo para uma função e recebê-lo de
+  volta. Nada disso faria sentido com uma caixa vazia, e caixa de
+  ponteiro vazia não existe: espaço de memória sempre tem alguma coisa.
+
+  E é essa informação que o torna útil. Uma função que procura pode
+  devolver NULL para dizer "não achei", e quem chamou sabe a diferença
+  entre isso e um endereço de verdade. O nulo não é o silêncio do
+  ponteiro: é uma resposta.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p = NULL;   /* p tem um valor: o nulo */
+  /* nao e "p esta vazio" */
+
+
+# O CASO RESOLVIDO: copiado e distinguido.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 1;
+      int *nenhum = NULL;
+      int *copia = nenhum;
+      int *algum = &x;
+
+      printf("a copia diz a mesma coisa? %d\n", copia == nenhum);
+      printf("e e diferente de um que aponta? %d\n", algum != nenhum);
+  - prosa: "Pergunta: a linha int *copia = nenhum; copiou o quê?"
+  - prosa: >
+      A tentação é dizer que não copiou nada — se o primeiro estivesse
+      vazio, não haveria o que copiar, e a comparação seguinte não teria
+      com o que comparar. As duas respostas mostram que havia algo ali:
+      algo que foi duplicado, e que se distingue de um endereço.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a copia diz a mesma coisa? 1
+      e e diferente de um que aponta? 1
+  - prosa: >
+      Copiar e distinguir são operações que se fazem com valores. Se
+      NULL fosse ausência, as duas linhas não teriam o que responder.
+
+
+# A OUTRA ROTA: o nulo atravessando uma troca.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Troque o conteúdo de dois ponteiros, do jeito que
+      se troca o de duas variáveis quaisquer.
+  - codigo: |
+      int x = 1;
+      int *a = NULL;
+      int *b = &x;
+      int *guardado = a;
+
+      a = b;
+      b = guardado;
+      printf("depois da troca, a aponta para algo? %d\n", a != NULL);
+      printf("e b passou a dizer 'nenhum'? %d\n", b == NULL);
+  - prosa: >
+      O nulo saiu de a, passou por uma variável temporária e chegou em
+      b. O endereço fez o caminho contrário.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      depois da troca, a aponta para algo? 1
+      e b passou a dizer 'nenhum'? 1
+  - prosa: >
+      A troca funcionou nos dois sentidos, e ela é a mesma que se faria
+      com dois números. Para o nulo atravessar uma variável temporária,
+      ele precisa ser alguma coisa — e é: é o valor que significa
+      "nenhum lugar".
