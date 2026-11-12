@@ -1,0 +1,179 @@
+# Material de ensino do I3 do kc_11 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico: suporte em `B1`,
+# `B2`, `I1` e `I2`, e a refutação percorre os cinco nós anteriores
+# antes de chegar aqui.
+#
+# E A DERIVAÇÃO É A SOMA DOS QUATRO: o ponteiro traz o tipo (B1), do
+# tipo vem um tamanho fixo e sabido na compilação (B2), o índice é a
+# própria soma (I1), e sem tipo não há escala (I2). Junte: quando há
+# tipo, há escala, e quem a aplica é quem conhece o tamanho — o
+# compilador. Não é regra nova; é o fecho.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `ptr_arith_is_bytes` — "a aritmética de ponteiro conta bytes; é
+# preciso multiplicar por sizeof na mão". Grade `L`, FAQ comp.lang.c
+# 4.4, onde o código do questionador É a crença escrita: ele soma
+# `3 * sizeof(int)` ao ponteiro, esperava 3, e saiu lixo. A resposta diz
+# a premissa com todas as letras — a aritmética de ponteiro em C é
+# sempre escalada automaticamente pelo tamanho dos objetos apontados.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   OITO contas conferidas de uma vez, nas duas
+#                    unidades: p + n anda n elementos, e isso dá n vezes
+#                    um elemento em bytes.
+#   outra rota       A escala dobrada, medida: a conta certa chega em
+#                    &a[2]; a multiplicada na mão passa longe.
+#
+# O CASO RESOLVIDO CONFERE OITO, e não uma. A premissa é sobre QUALQUER
+# n, e uma conta só não distingue "andou o que eu pedi" de "andou por
+# coincidência". Os dois contadores são separados de propósito: um mede
+# em elementos, o outro em bytes, e a premissa precisa dos dois — se só
+# o primeiro fechasse, a escala poderia não ter sido aplicada.
+#
+# E A PALAVRA `sizeof` NÃO APARECE NO CASO RESOLVIDO. Um elemento é
+# medido ali mesmo, com a distância de `a + 1` a `a`, e a conta em bytes
+# é comparada com n vezes essa medida. É o jeito de afirmar a
+# proporcionalidade sem afirmar número nenhum — o cabeçalho do grafo
+# deste tópico proíbe dizer quantos bytes tem um int.
+#
+# O `a[64]` DA OUTRA ROTA É GRANDE PELO MESMO MOTIVO QUE O DA EVIDÊNCIA,
+# e o comentário de lá já explica: a demonstração precisa calcular
+# `a + 2 * sizeof(int)`, e esse endereço tem de continuar DENTRO do
+# array. Passar de um além do fim é comportamento indefinido, e a
+# demonstração estaria provando uma coisa cometendo outra.
+#
+# O QUE FICA FORA
+#
+#   p + 1 anda o quê                      -> `ciu_kc11_016`
+#   quem multiplica por sizeof            -> `ciu_kc11_t16`
+#   o código da FAQ 4.4, e o que corrigir -> `ciu_kc11_017`
+#   `*(p + 2)` e o que sai                -> `ciu_kc11_t17`
+#   `p + 2` contra `p + 2 * sizeof(int)`  -> `ciu_kc11_018`, degrau 3
+#   para onde p foi, com double           -> `ciu_kc11_t18`
+#
+# O `018` PÕE AS DUAS CONTAS COMO OPÇÕES e pergunta qual chega; o `t18`
+# pergunta para onde o ponteiro foi. A outra rota deste cartão MEDE as
+# duas no mesmo programa e nomeia o que separa uma da outra — é a versão
+# resolvida do que os itens perguntam, que é o desenho declarado destes
+# cartões desde o `kc_08:B3`.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_11
+node: kc11:I3
+premissa: "p + n avança n elementos do tipo apontado, não n bytes: a escala vem do tipo e o compilador a aplica sozinho."
+crenca_que_nega: ptr_arith_is_bytes
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 4bf5bc843ed1
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo junta os quatro nós; o segundo diz
+# de onde vem a ideia contrária; o terceiro, o que ela custa.
+ampliacao: >
+  Isto não é regra nova: é o fecho dos quatro nós anteriores. O ponteiro
+  traz o tipo do destino, do tipo vem um tamanho fixo que o compilador
+  já conhece, o índice é essa mesma soma, e sem tipo não haveria escala
+  nenhuma. Junte as quatro coisas e sobra uma só: quando você escreve
+  p + n, quem multiplica pelo tamanho do elemento é o compilador, porque
+  é ele que sabe o tamanho.
+
+  A ideia contrária é quase razoável, e vem de um fato verdadeiro:
+  endereço é contado em bytes, e andar de um lugar a outro na memória é
+  andar um número de bytes. Daí vem a conclusão de que a conversão é
+  trabalho de quem escreve o programa. Só que a conversão já aconteceu:
+  ela está embutida na soma, desde que o ponteiro tem tipo.
+
+  Por isso fazer a conta na mão anda duas vezes. Você multiplica por
+  sizeof, e o compilador multiplica de novo pelo tamanho do elemento —
+  o ponteiro vai parar muito depois de onde você queria. E o erro não
+  reclama na linha que o causou: o programa segue, lê um lugar que não
+  é o que você pensava, e o resultado estranho aparece longe dali.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p = v;
+  p + 1           /* anda uma caixa de int */
+  p + 1 * sizeof(int)   /* anda longe demais */
+
+
+# O CASO RESOLVIDO: oito contas, duas unidades.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int a[8];
+      long um = (char *) (a + 1) - (char *) a;
+      int n = 0;
+      int em_elementos = 0;
+      int em_bytes = 0;
+
+      while (n < 8) {
+          if ((a + n) - a == n) {
+              em_elementos = em_elementos + 1;
+          }
+          if ((char *) (a + n) - (char *) a == n * um) {
+              em_bytes = em_bytes + 1;
+          }
+          n = n + 1;
+      }
+      printf("nas oito contas, p + n andou n elementos? %d\n",
+             em_elementos == 8);
+      printf("e a mesma distancia em bytes deu n vezes um elemento? %d\n",
+             em_bytes == 8);
+  - prosa: "Pergunta: por que conferir a mesma coisa em duas unidades?"
+  - prosa: >
+      Porque são duas afirmações diferentes. A primeira diz que a conta
+      chega ao elemento que você pediu. A segunda diz ONDE esse elemento
+      fica: a n vezes a distância de um, contada do começo. Se só a
+      primeira fechasse, a escala poderia não ter sido aplicada; com as
+      duas, está aplicada e está aplicada uma vez.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      nas oito contas, p + n andou n elementos? 1
+      e a mesma distancia em bytes deu n vezes um elemento? 1
+  - prosa: >
+      Oito de oito nas duas. E vale olhar o que não está escrito no
+      código: não há multiplicação nenhuma na linha da conta. Quem
+      multiplicou foi o compilador, nas oito vezes, e a medida de um
+      elemento serviu só para conferir o que ele fez.
+
+
+# A OUTRA ROTA: a escala dobrada.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Escreva a conta certa e a conta com a multiplicação
+      na mão, lado a lado, e veja onde cada uma para.
+  - codigo: |
+      int a[64];
+      long escala_dobrada = (a + 2 * (long) sizeof(int)) - a;
+
+      printf("a conta certa anda dois elementos? %d\n", (a + 2) - a == 2);
+      printf("e ela chega onde se queria, em &a[2]? %d\n", a + 2 == &a[2]);
+      printf("multiplicando por sizeof na mao, andou mais que dois? %d\n",
+             escala_dobrada > 2);
+  - prosa: >
+      As duas primeiras linhas são a conta certa, e a segunda diz o que
+      se queria dela: chegar na caixa de índice dois. A terceira mede
+      para onde a outra versão foi, contando em elementos — que é a
+      unidade em que a conta anda.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a conta certa anda dois elementos? 1
+      e ela chega onde se queria, em &a[2]? 1
+      multiplicando por sizeof na mao, andou mais que dois? 1
+  - prosa: >
+      A certa chega em dois, e a outra passa de dois. O array foi
+      declarado grande para que o endereço calculado errado continuasse
+      dentro dele — fora disso, nem medir seria legítimo. E é esse o
+      estrago da crença: ela não quebra o programa na hora, ela só o
+      manda ler o lugar errado.

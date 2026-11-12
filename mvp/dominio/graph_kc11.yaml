@@ -90,6 +90,27 @@ nodes:
         espera: |-
           pelo ponteiro de int, o 300 coube inteiro
           pelo de char, nao coube: o tipo decide o que cabe
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Um ponteiro carrega duas coisas, e só uma delas é o endereço. A
+      outra é o tipo do que está naquele endereço, e ela não fica guardada
+      na memória: está na declaração. Quando você escreve int *p, o p que
+      nasce ali é um ponteiro para int, e vai ser isso pelo resto do
+      programa.
+
+
+      A ideia de que ponteiro é só um número tem de onde vir. Endereço é
+      número, isso é verdade, e a máquina de fato trabalha com números.
+      Mas o programa não é a máquina: na linguagem, o papel traz a planta
+      do destino, e é dela que sai tudo o que se pode fazer com o
+      ponteiro.
+
+
+      Por isso trocar um pelo outro não funciona. Sem o tipo não há quanto
+      ler no destino, e não há de quanto é um passo — e é aí que a conta
+      mais usada deste tópico se apoia. Dois ponteiros com o mesmo
+      endereço e tipos diferentes não são o mesmo ponteiro, e o programa
+      trata os dois de maneiras diferentes.
   B2:
     type: observavel
     role: espinha
@@ -126,6 +147,30 @@ nodes:
         espera: |-
           dois ponteiros de int andam a mesma distancia
           e o passo tem tamanho fixo, decidido pelo tipo
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O tamanho de um tipo não muda durante o programa. Todo int ocupa o
+      mesmo tanto, todo char ocupa o mesmo tanto, e esse tanto está
+      decidido antes de a primeira linha rodar — ele vem do tipo, que está
+      escrito na declaração. Não é informação que alguém descobre em
+      execução.
+
+
+      Quem pergunta esse tamanho é sizeof. Escreva sizeof(int) e você
+      recebe quantos bytes um int ocupa; escreva sizeof *p e você recebe
+      quantos bytes ocupa aquilo que p aponta. Ele aceita um tipo entre
+      parênteses ou uma expressão, e no segundo caso olha apenas o TIPO da
+      expressão: quem responde é o compilador, durante a compilação, e por
+      isso a expressão nem chega a ser executada. É o que faz sizeof *p
+      funcionar mesmo quando p ainda não recebeu endereço nenhum.
+
+
+      A ideia contrária é razoável, e vem de uma observação verdadeira:
+      alguém sabe o tamanho do bloco, porque o free devolve a quantidade
+      certa. Só que esse alguém é o alocador, nas contas dele — não o
+      ponteiro. O ponteiro traz o tipo do destino, e com isso o tamanho de
+      UM elemento; quantos elementos há lá é informação que ele nunca
+      carregou, e quem a perde não tem como recuperá-la depois.
   B3:
     type: observavel
     role: espinha
@@ -164,6 +209,29 @@ nodes:
         espera: |-
           do primeiro ao segundo, um elemento
           e do primeiro ao ultimo, tres
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Os elementos de um array ficam um logo depois do outro, sem buraco
+      entre eles. Não é coincidência de como a máquina arrumou: é o que a
+      linguagem garante, e é a garantia em que toda a aritmética deste
+      tópico se apoia.
+
+
+      E um array é isto: uma declaração que reserva várias caixas do mesmo
+      tipo, de uma vez, lado a lado. Quando você escreve int v[4], nascem
+      quatro caixas de int, numeradas de zero a três, e v[2] é a terceira
+      delas. O nome do array usado numa expressão entrega o endereço da
+      primeira caixa — é por isso que dá para somar a ele, e é por isso
+      que a soma anda de caixa em caixa.
+
+
+      A ideia contrária tem de onde vir, e é a semelhança entre duas
+      escritas. A forma com colchetes declara as caixas e elas são suas:
+      dá para escrever em cada uma. A forma com ponteiro declara uma caixa
+      só, a do ponteiro, e a aponta para um texto que você não declarou —
+      e o que se pode fazer com esse texto a linguagem não garante. São
+      duas coisas diferentes com cara parecida, e quem as confunde perde o
+      modelo das caixas grudadas.
   I1:
     type: inferencia
     role: espinha
@@ -208,6 +276,27 @@ nodes:
         espera: |-
           nas quatro posicoes, a[i] e *(a + i) leem o mesmo
           e escrever por uma forma aparece na outra
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o B3 levado adiante. As caixas estão
+      grudadas e o nome do array entrega o endereço da primeira. Então
+      pedir a caixa de índice i e andar i caixas a partir do começo chegam
+      ao mesmo lugar — e a linguagem não só concorda com isso: ela DEFINE
+      o índice como essa soma seguida da estrela.
+
+
+      A ideia contrária vem da aparência. O colchete parece sintaxe
+      especial de array, uma operação à parte, com regra própria. Não é: o
+      colchete é escrita abreviada, e o que está por baixo dele é a soma
+      de um ponteiro com um número, exatamente a conta que este tópico
+      estuda.
+
+
+      Por isso o colchete não pertence ao nome do array. Ele se aplica a
+      qualquer expressão que seja um ponteiro para elemento, venha de onde
+      vier — de um array, de um ponteiro que você declarou, de uma soma
+      que você acabou de escrever. E vale nas duas direções: o que a
+      identidade diz dos valores, ela diz também dos endereços.
   I2:
     type: inferencia
     role: espinha
@@ -252,6 +341,28 @@ nodes:
         espera: |-
           com tipo, o ponteiro anda e escreve posicao a posicao
           e o sem tipo guarda o mesmo endereco: o que falta nele e a escala
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o B1 e o B2 com uma peça retirada. O
+      ponteiro traz o tipo do destino, e do tipo vem o tamanho de um
+      elemento — é esse tamanho que a soma usa. Um void * não diz qual é o
+      tipo do destino, então não há tamanho de elemento, e sem ele a
+      pergunta de quanto andar não tem resposta. Não é conta proibida: é
+      conta que não existe.
+
+
+      E o void * serve justamente por não dizer. Ele guarda o endereço de
+      qualquer objeto, de qualquer tipo, e é por isso que é com ele que o
+      alocador responde: quem pede memória sabe o que vai pôr lá, e o
+      alocador não precisa saber. Guardar endereço ele faz sem perder nada
+      — inclusive endereço que uma soma acabou de produzir.
+
+
+      Por isso andar exige dar um tipo antes. Você escolhe o tipo, e com
+      essa escolha escolhe a escala: o mesmo endereço, lido como ponteiro
+      para char ou como ponteiro para int, anda distâncias diferentes a
+      cada passo. A escala nunca esteve no endereço — ela vem do tipo que
+      você deu.
   I3:
     type: inferencia
     role: conclusao
@@ -299,3 +410,25 @@ nodes:
           p + 2 andou dois elementos, como a conta pedia
           e em bytes isso deu dois tamanhos do tipo: a escala foi aplicada
           multiplicando por sizeof na mao, andou muito mais que dois
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o fecho dos quatro nós anteriores. O
+      ponteiro traz o tipo do destino, do tipo vem um tamanho fixo que o
+      compilador já conhece, o índice é essa mesma soma, e sem tipo não
+      haveria escala nenhuma. Junte as quatro coisas e sobra uma só:
+      quando você escreve p + n, quem multiplica pelo tamanho do elemento
+      é o compilador, porque é ele que sabe o tamanho.
+
+
+      A ideia contrária é quase razoável, e vem de um fato verdadeiro:
+      endereço é contado em bytes, e andar de um lugar a outro na memória
+      é andar um número de bytes. Daí vem a conclusão de que a conversão é
+      trabalho de quem escreve o programa. Só que a conversão já
+      aconteceu: ela está embutida na soma, desde que o ponteiro tem tipo.
+
+
+      Por isso fazer a conta na mão anda duas vezes. Você multiplica por
+      sizeof, e o compilador multiplica de novo pelo tamanho do elemento —
+      o ponteiro vai parar muito depois de onde você queria. E o erro não
+      reclama na linha que o causou: o programa segue, lê um lugar que não
+      é o que você pensava, e o resultado estranho aparece longe dali.

@@ -92,6 +92,424 @@ exemplos:
     p + 1           /* anda uma caixa de int */
     p + 1 * sizeof(int)   /* anda longe demais */
 
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int valor = 7;
+        int *pi = &valor;
+        char *pc = (char *) &valor;
+        long passo_int = (char *) (pi + 1) - (char *) pi;
+        long passo_char = (pc + 1) - pc;
+
+        printf("os dois guardam o mesmo endereco? %d\n",
+               (void *) pi == (void *) pc);
+        printf("e um passo adiante anda a mesma distancia? %d\n",
+               passo_int == passo_char);
+        printf("o passo do int e maior que o do char? %d\n",
+               passo_int > passo_char);
+    - prosa: >
+        Pergunta: os dois ponteiros guardam o mesmo número. Então o que os
+        diferencia?
+    - prosa: >
+        A planta. Um diz int, o outro diz char, e é isso que decide de
+        quanto é um passo. O endereço de partida é igual nos dois — a
+        primeira linha confere isso — e o que acontece quando você soma um
+        não é igual.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        os dois guardam o mesmo endereco? 1
+        e um passo adiante anda a mesma distancia? 0
+        o passo do int e maior que o do char? 1
+    - prosa: >
+        O zero do meio é a resposta. Se o ponteiro fosse só o número que
+        ele guarda, dois ponteiros com o mesmo número teriam de andar a
+        mesma distância — e não andam. Um número não tem de quanto é o seu
+        passo; um ponteiro tem, e ele vem do tipo.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int um = 0;
+        int muitos[10];
+        int *p = &um;
+        int *q = muitos;
+        long passo = (char *) (p + 1) - (char *) p;
+
+        printf("o passo de p + 1 e o que sizeof *p responde? %d\n",
+               passo == (long) sizeof *p);
+        printf("e sizeof *q responde o mesmo, apontando para dez? %d\n",
+               sizeof *q == sizeof *p);
+        printf("o array inteiro e maior que um elemento dele? %d\n",
+               sizeof muitos > sizeof *q);
+    - prosa: >
+        Pergunta: a primeira linha compara duas coisas medidas em momentos
+        diferentes. Quais?
+    - prosa: >
+        Uma é a distância que o ponteiro andou, medida com o programa
+        rodando. A outra é a resposta que o compilador já tinha dado,
+        antes de o programa existir como programa. As duas batem — e é
+        isso que a premissa afirma.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o passo de p + 1 e o que sizeof *p responde? 1
+        e sizeof *q responde o mesmo, apontando para dez? 1
+        o array inteiro e maior que um elemento dele? 1
+    - prosa: >
+        Três sins. O segundo é o que vale a pena olhar duas vezes: p
+        aponta para um int sozinho e q para o começo de dez, e sizeof
+        respondeu o mesmo para os dois. O que ele mede é o tipo do
+        destino, e os dois têm o mesmo tipo.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int v[4];
+        long g1 = (char *) &v[1] - (char *) &v[0];
+        long g2 = (char *) &v[2] - (char *) &v[1];
+        long g3 = (char *) &v[3] - (char *) &v[2];
+
+        printf("os tres vaos entre vizinhos sao iguais? %d\n",
+               g1 == g2 && g2 == g3);
+        printf("e cada vao e exatamente um elemento? %d\n",
+               g1 == (long) sizeof v[0]);
+        printf("do primeiro ao ultimo, tres elementos? %d\n",
+               &v[3] - &v[0] == 3);
+    - prosa: >
+        Pergunta: por que medir os três vãos, e não um só?
+    - prosa: >
+        Porque contíguo é afirmação sobre a sequência inteira. Um par só
+        mostraria que dois vizinhos estão perto; os três iguais mostram
+        que o espaçamento é o mesmo do começo ao fim. E a segunda linha
+        fecha: esse espaçamento é exatamente um elemento, o que significa
+        que não sobra nada entre eles.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        os tres vaos entre vizinhos sao iguais? 1
+        e cada vao e exatamente um elemento? 1
+        do primeiro ao ultimo, tres elementos? 1
+    - prosa: >
+        Vãos iguais, cada um de um elemento, e do primeiro ao último
+        exatamente três. É essa regularidade que permite chegar a qualquer
+        elemento por conta — se houvesse buraco de tamanho variável entre
+        eles, nenhuma soma acertaria.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int a[5];
+        int i = 0;
+
+        while (i < 5) {
+            a[i] = i * 3;
+            i = i + 1;
+        }
+        i = 1;
+        printf("a[i + 1] e *(a + i + 1) leem o mesmo? %d\n",
+               a[i + 1] == *(a + i + 1));
+        printf("e (a + i)[1], indexando a soma, tambem? %d\n",
+               (a + i)[1] == a[i + 1]);
+        printf("os tres leem o elemento de indice %d, que vale %d\n",
+               i + 1, a[i + 1]);
+    - prosa: >
+        Pergunta: a segunda linha põe um colchete depois de uma soma. Isso
+        é permitido por quê?
+    - prosa: >
+        Porque o colchete não é do array: é do ponteiro. A soma a + i já é
+        um ponteiro para um elemento, e indexar esse ponteiro com 1 pede o
+        elemento seguinte. Se o índice fosse operação exclusiva do nome do
+        array, essa linha não teria sentido.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a[i + 1] e *(a + i + 1) leem o mesmo? 1
+        e (a + i)[1], indexando a soma, tambem? 1
+        os tres leem o elemento de indice 2, que vale 6
+    - prosa: >
+        As três escritas chegam na mesma caixa, a de índice dois, que
+        guarda seis. São três maneiras de dizer a mesma conta, e não três
+        operações diferentes que por sorte coincidem.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int lote[4] = {0, 0, 0, 0};
+        void *sem_tipo = lote;
+        int *como_int = sem_tipo;
+        char *como_char = sem_tipo;
+
+        *(como_int + 1) = 5;
+        *(como_char + 1) = 'x';
+        printf("dando tipo int, uma casa adiante caiu no segundo elemento? %d\n",
+               lote[1] == 5);
+        printf("dando tipo char, uma casa adiante caiu dentro do primeiro? %d\n",
+               lote[0] != 0);
+        printf("e o endereco de partida era o mesmo nos dois? %d\n",
+               (void *) como_int == (void *) como_char);
+    - prosa: >
+        Pergunta: os dois andaram uma casa a partir do mesmo endereço. Por
+        que não chegaram no mesmo lugar?
+    - prosa: >
+        Porque uma casa não é uma distância: é uma unidade, e cada tipo
+        traz a sua. Para o ponteiro de int, uma casa é um elemento inteiro
+        — o passo caiu no segundo. Para o de char, uma casa é um byte — o
+        passo nem saiu do primeiro elemento.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dando tipo int, uma casa adiante caiu no segundo elemento? 1
+        dando tipo char, uma casa adiante caiu dentro do primeiro? 1
+        e o endereco de partida era o mesmo nos dois? 1
+    - prosa: >
+        Mesmo ponto de partida, dois destinos. É isso que mostra onde a
+        escala mora: não no endereço, que era igual nos dois, e sim no
+        tipo, que era diferente. O void * tinha o endereço e não tinha o
+        tipo — e por isso não tinha como andar.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int a[8];
+        long um = (char *) (a + 1) - (char *) a;
+        int n = 0;
+        int em_elementos = 0;
+        int em_bytes = 0;
+
+        while (n < 8) {
+            if ((a + n) - a == n) {
+                em_elementos = em_elementos + 1;
+            }
+            if ((char *) (a + n) - (char *) a == n * um) {
+                em_bytes = em_bytes + 1;
+            }
+            n = n + 1;
+        }
+        printf("nas oito contas, p + n andou n elementos? %d\n",
+               em_elementos == 8);
+        printf("e a mesma distancia em bytes deu n vezes um elemento? %d\n",
+               em_bytes == 8);
+    - prosa: >
+        Pergunta: por que conferir a mesma coisa em duas unidades?
+    - prosa: >
+        Porque são duas afirmações diferentes. A primeira diz que a conta
+        chega ao elemento que você pediu. A segunda diz ONDE esse elemento
+        fica: a n vezes a distância de um, contada do começo. Se só a
+        primeira fechasse, a escala poderia não ter sido aplicada; com as
+        duas, está aplicada e está aplicada uma vez.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        nas oito contas, p + n andou n elementos? 1
+        e a mesma distancia em bytes deu n vezes um elemento? 1
+    - prosa: >
+        Oito de oito nas duas. E vale olhar o que não está escrito no
+        código: não há multiplicação nenhuma na linha da conta. Quem
+        multiplicou foi o compilador, nas oito vezes, e a medida de um
+        elemento serviu só para conferir o que ele fez.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Caminho DIFERENTE do caso resolvido -- ha teste no
+# projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Guarde um número num lugar e leia esse mesmo lugar
+        por dois papéis diferentes.
+    - codigo: |
+        int grande = 0;
+        char *byte = (char *) &grande;
+        int lido_como_char = 0;
+
+        grande = 300;
+        lido_como_char = *byte;
+        printf("pelo papel de int, o lugar responde %d\n", grande);
+        printf("e pelo de char, o mesmo lugar nao responde 300? %d\n",
+               lido_como_char != 300);
+    - prosa: >
+        O endereço é um só, e as duas leituras partem dele. O que muda é
+        quanto cada papel manda ler: o de int lê o número inteiro, o de
+        char lê um pedaço do tamanho de um char.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        pelo papel de int, o lugar responde 300
+        e pelo de char, o mesmo lugar nao responde 300? 1
+    - prosa: >
+        Mesmo lugar, respostas diferentes. Não é que uma esteja errada: é
+        que a pergunta não é a mesma. O papel não aponta só para onde —
+        ele diz o que há lá, e sem isso não haveria o que ler nem quanto.
+
+  B2:
+    - prosa: >
+        Outro caminho. Pergunte o tamanho ao array e depois ao ponteiro
+        que aponta para ele.
+    - codigo: |
+        int muitos[10];
+        int *r = muitos;
+
+        printf("o array dividido por um elemento da dez? %d\n",
+               sizeof muitos / sizeof muitos[0] == 10);
+        printf("e pelo ponteiro, o que se tem e um elemento? %d\n",
+               sizeof *r == sizeof muitos[0]);
+        printf("o ponteiro sabe que ha dez la? %d\n",
+               sizeof *r == sizeof muitos);
+    - prosa: >
+        O array e o ponteiro apontam para o mesmo lugar. A diferença é o
+        que cada um é: o array tem tipo de array de dez ints, e o ponteiro
+        tem tipo de ponteiro para int.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o array dividido por um elemento da dez? 1
+        e pelo ponteiro, o que se tem e um elemento? 1
+        o ponteiro sabe que ha dez la? 0
+    - prosa: >
+        O zero da última linha é a crença caindo. A informação dos dez
+        existe, e está na declaração do array — é de lá que vem a primeira
+        conta. Passar o endereço para um ponteiro não leva essa informação
+        junto: o que atravessa é o endereço e o tipo de um elemento.
+
+  B3:
+    - prosa: >
+        Outro caminho. Declare um texto com colchetes e olhe as caixas que
+        nasceram.
+    - codigo: |
+        char s[] = "casa";
+        long vao = &s[1] - &s[0];
+
+        s[0] = 'C';
+        printf("o array conta as quatro letras e o terminador? %d\n",
+               sizeof s == 5);
+        printf("os vizinhos estao a um elemento de distancia? %d\n", vao == 1);
+        printf("e as caixas sao do array: escrevi na primeira e saiu %c\n", s[0]);
+    - prosa: >
+        Cinco caixas para quatro letras: a quinta é o terminador, e ele
+        conta. As caixas são do array, e a terceira linha mostra isso do
+        jeito mais direto que existe — escrevendo numa delas.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o array conta as quatro letras e o terminador? 1
+        os vizinhos estao a um elemento de distancia? 1
+        e as caixas sao do array: escrevi na primeira e saiu C
+    - prosa: >
+        O C maiúsculo saiu porque a caixa é sua. Essa é a forma com
+        colchetes: as caixas foram declaradas aqui, estão grudadas, e você
+        manda nelas. A forma com ponteiro, que se parece tanto com esta,
+        declara uma caixa só — e sobre o texto para onde ela aponta a
+        linguagem não dá a mesma garantia.
+
+  I1:
+    - prosa: >
+        Outro caminho. Em vez de comparar o que se lê, compare de onde se
+        lê.
+    - codigo: |
+        int a[4];
+        int i = 0;
+        int iguais = 0;
+
+        while (i < 4) {
+            if (&a[i] == a + i) {
+                iguais = iguais + 1;
+            }
+            i = i + 1;
+        }
+        printf("nas quatro posicoes, &a[i] e a + i sao o mesmo endereco? %d\n",
+               iguais == 4);
+        printf("e o nome do array e o endereco do primeiro elemento? %d\n",
+               a == &a[0]);
+    - prosa: >
+        Se a[i] é *(a + i), então tirar a estrela dos dois lados mantém a
+        igualdade: o endereço da caixa de índice i é a soma do começo com
+        i. A segunda linha é o caso i igual a zero, dito à parte porque é
+        ele que começa tudo.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        nas quatro posicoes, &a[i] e a + i sao o mesmo endereco? 1
+        e o nome do array e o endereco do primeiro elemento? 1
+    - prosa: >
+        Mesmo endereço nas quatro. Isso é mais forte que ler o mesmo
+        valor: dois caminhos podem dar o mesmo número por coincidência,
+        mas aqui eles partem do mesmo lugar e terminam no mesmo lugar. O
+        índice não é um atalho para a soma — ele é a soma.
+
+  I2:
+    - prosa: >
+        Outro caminho. Veja o que o void * faz bem, para ver com precisão
+        o que falta nele.
+    - codigo: |
+        int lote[4] = {1, 2, 3, 4};
+        void *sem_tipo = lote;
+        int *volta = sem_tipo;
+        void *depois = volta + 2;
+
+        printf("o void * e a volta chegam no mesmo lugar? %d\n", volta == lote);
+        printf("pelo que voltou, o terceiro elemento e %d\n", *(volta + 2));
+        printf("e o void * guarda bem o endereco de depois da conta? %d\n",
+               depois != sem_tipo);
+    - prosa: >
+        O endereço foi para o void * e voltou intacto. Depois a conta
+        andou duas casas, e o endereço de chegada também cabe num void *
+        sem problema nenhum — a terceira linha confirma que é outro
+        endereço, e não o de partida.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o void * e a volta chegam no mesmo lugar? 1
+        pelo que voltou, o terceiro elemento e 3
+        e o void * guarda bem o endereco de depois da conta? 1
+    - prosa: >
+        Então o que falta ao void * não é guardar endereço, e nem é força:
+        é a escala. Ele carrega qualquer endereço, inclusive os que a
+        aritmética produz — só não produz nenhum, porque para isso
+        precisaria saber de quanto é um passo, e essa é a única informação
+        que ele não tem.
+
+  I3:
+    - prosa: >
+        Outro caminho. Escreva a conta certa e a conta com a multiplicação
+        na mão, lado a lado, e veja onde cada uma para.
+    - codigo: |
+        int a[64];
+        long escala_dobrada = (a + 2 * (long) sizeof(int)) - a;
+
+        printf("a conta certa anda dois elementos? %d\n", (a + 2) - a == 2);
+        printf("e ela chega onde se queria, em &a[2]? %d\n", a + 2 == &a[2]);
+        printf("multiplicando por sizeof na mao, andou mais que dois? %d\n",
+               escala_dobrada > 2);
+    - prosa: >
+        As duas primeiras linhas são a conta certa, e a segunda diz o que
+        se queria dela: chegar na caixa de índice dois. A terceira mede
+        para onde a outra versão foi, contando em elementos — que é a
+        unidade em que a conta anda.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a conta certa anda dois elementos? 1
+        e ela chega onde se queria, em &a[2]? 1
+        multiplicando por sizeof na mao, andou mais que dois? 1
+    - prosa: >
+        A certa chega em dois, e a outra passa de dois. O array foi
+        declarado grande para que o endereço calculado errado continuasse
+        dentro dele — fora disso, nem medir seria legítimo. E é esse o
+        estrago da crença: ela não quebra o programa na hora, ela só o
+        manda ler o lugar errado.
+
 activities:
 
   # ------------------------------------------------------------------

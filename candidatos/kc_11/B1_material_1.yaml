@@ -1,0 +1,165 @@
+# Material de ensino do B1 do kc_11 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_11 tem ampliação VAZIA nos seis nós,
+# e é TÓPICO-PILOTO: `pilot: true`, terceiro da sequência de coleta
+# (kc_02, kc_07, kc_11, kc_09). Material deste tópico chega a
+# participante; material do kc_00 não.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `pointer_is_integer` — "ponteiro é só um número inteiro; dá para
+# trocar um pelo outro". Grade `L`, FAQ comp.lang.c 4.14 ("How are
+# integers converted to and from pointers? Can I temporarily stuff an
+# integer into a pointer, or vice versa?") e 4.15 ("How do I convert an
+# int to a char *? I tried a cast, but it's not working.").
+#
+# A SEGUNDA PERGUNTA É A CRENÇA EM AÇÃO: quem a faz já tentou o cast, e
+# o cast não resolveu. Não resolveu porque o que falta não é a forma do
+# número — é o tipo do destino.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O MESMO endereço em dois papéis, int e char: um
+#                    passo adiante não anda a mesma distância.
+#   outra rota       O MESMO lugar lido por dois papéis: as respostas
+#                    não são a mesma.
+#
+# O CASO RESOLVIDO É O QUE DERRUBA A CRENÇA DIRETO. Se o ponteiro fosse
+# só o número, dois ponteiros com o MESMO número andariam igual. A
+# primeira linha mostra que o número é o mesmo; a segunda, que o passo
+# não é. Um número não tem "de quanto é o meu passo".
+#
+# E NENHUMA DAS DUAS DIZ QUANTOS BYTES TEM UM INT. A comparação é entre
+# os dois passos — o do int é maior que o do char —, e isso vale em
+# qualquer máquina: char é 1 por definição da linguagem e int tem pelo
+# menos 16 bits. Dizer "quatro" seria fato sobre esta máquina, e o
+# cabeçalho do grafo deste tópico proíbe.
+#
+# POR QUE O `(char *)` APARECE. Para MEDIR distância em bytes não há
+# outro caminho: subtrair dois ponteiros de int dá a conta em elementos,
+# que é justamente a escala que este tópico estuda. Converter para
+# char * é pedir a mesma distância na menor unidade que existe.
+#
+# O QUE FICA FORA
+#
+#   o que um ponteiro sabe além do endereço -> `ciu_kc11_001`
+#   de onde vem o tamanho do passo          -> `ciu_kc11_t01`
+#   `int *p = 1000;` e a reclamação         -> `ciu_kc11_002`
+#   `c + 1` contra `i + 1`, ponteiros soltos -> `ciu_kc11_003`, degrau 3
+#   `p = v + 1` com `void *`                -> `ciu_kc11_t03`
+#
+# O `003` COMPARA DOIS PONTEIROS SEM RELAÇÃO, cada um para o seu
+# destino, e pergunta se as somas andam o mesmo tanto. O caso resolvido
+# põe os dois no MESMO endereço — e é essa coincidência que faz a
+# pergunta virar outra: não "andam igual?", mas "se o número é o mesmo,
+# o que mais há no ponteiro?".
+#
+# NÃO MOSTRA O COMPILADOR RECUSANDO. `int *p = 1000;` é a reclamação que
+# o `002` pede, e cartão que exibisse a recusa arrastaria `compilacao` e
+# `atribuicao_entre_tipos`, os dois fora do inventário.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_11
+node: kc11:B1
+premissa: "p aponta para um objeto de um tipo definido."
+crenca_que_nega: pointer_is_integer
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 72dfe81ebdb6
+
+
+# A AMPLIAÇÃO. O que vem junto com o endereço, de onde vem a ideia
+# contrária, e o que ela custa.
+ampliacao: >
+  Um ponteiro carrega duas coisas, e só uma delas é o endereço. A outra
+  é o tipo do que está naquele endereço, e ela não fica guardada na
+  memória: está na declaração. Quando você escreve int *p, o p que
+  nasce ali é um ponteiro para int, e vai ser isso pelo resto do
+  programa.
+
+  A ideia de que ponteiro é só um número tem de onde vir. Endereço é
+  número, isso é verdade, e a máquina de fato trabalha com números. Mas
+  o programa não é a máquina: na linguagem, o papel traz a planta do
+  destino, e é dela que sai tudo o que se pode fazer com o ponteiro.
+
+  Por isso trocar um pelo outro não funciona. Sem o tipo não há quanto
+  ler no destino, e não há de quanto é um passo — e é aí que a conta
+  mais usada deste tópico se apoia. Dois ponteiros com o mesmo endereço
+  e tipos diferentes não são o mesmo ponteiro, e o programa trata os
+  dois de maneiras diferentes.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int  *p;     /* a planta diz: int  */
+  char *c;     /* a planta diz: char */
+
+
+# O CASO RESOLVIDO: o mesmo endereço, dois passos.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int valor = 7;
+      int *pi = &valor;
+      char *pc = (char *) &valor;
+      long passo_int = (char *) (pi + 1) - (char *) pi;
+      long passo_char = (pc + 1) - pc;
+
+      printf("os dois guardam o mesmo endereco? %d\n",
+             (void *) pi == (void *) pc);
+      printf("e um passo adiante anda a mesma distancia? %d\n",
+             passo_int == passo_char);
+      printf("o passo do int e maior que o do char? %d\n",
+             passo_int > passo_char);
+  - prosa: "Pergunta: os dois ponteiros guardam o mesmo número. Então o que os diferencia?"
+  - prosa: >
+      A planta. Um diz int, o outro diz char, e é isso que decide de
+      quanto é um passo. O endereço de partida é igual nos dois — a
+      primeira linha confere isso — e o que acontece quando você soma um
+      não é igual.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      os dois guardam o mesmo endereco? 1
+      e um passo adiante anda a mesma distancia? 0
+      o passo do int e maior que o do char? 1
+  - prosa: >
+      O zero do meio é a resposta. Se o ponteiro fosse só o número que
+      ele guarda, dois ponteiros com o mesmo número teriam de andar a
+      mesma distância — e não andam. Um número não tem de quanto é o seu
+      passo; um ponteiro tem, e ele vem do tipo.
+
+
+# A OUTRA ROTA: o mesmo lugar, duas respostas.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Guarde um número num lugar e leia esse mesmo lugar
+      por dois papéis diferentes.
+  - codigo: |
+      int grande = 0;
+      char *byte = (char *) &grande;
+      int lido_como_char = 0;
+
+      grande = 300;
+      lido_como_char = *byte;
+      printf("pelo papel de int, o lugar responde %d\n", grande);
+      printf("e pelo de char, o mesmo lugar nao responde 300? %d\n",
+             lido_como_char != 300);
+  - prosa: >
+      O endereço é um só, e as duas leituras partem dele. O que muda é
+      quanto cada papel manda ler: o de int lê o número inteiro, o de
+      char lê um pedaço do tamanho de um char.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      pelo papel de int, o lugar responde 300
+      e pelo de char, o mesmo lugar nao responde 300? 1
+  - prosa: >
+      Mesmo lugar, respostas diferentes. Não é que uma esteja errada: é
+      que a pergunta não é a mesma. O papel não aponta só para onde — ele
+      diz o que há lá, e sem isso não haveria o que ler nem quanto.

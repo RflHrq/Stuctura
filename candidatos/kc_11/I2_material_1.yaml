@@ -1,0 +1,176 @@
+# Material de ensino do I2 do kc_11 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Nó de inferência: suporte em `B1` e `B2`,
+# e a refutação percorre os dois antes de chegar aqui.
+#
+# E A DERIVAÇÃO É UMA SUBTRAÇÃO: o `B1` diz que o ponteiro traz o tipo
+# do destino; o `B2` diz que o tamanho vem do tipo. Tire o tipo e os
+# dois somem juntos — sem tipo não há tamanho, e sem tamanho não há de
+# quanto é um passo. Não é regra nova sobre `void *`: é o que sobra
+# quando se apaga a premissa dos dois nós anteriores.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `voidptr_arith_ok` — "dá para fazer aritmética em void * como em
+# qualquer ponteiro". Grade `L`, FAQ comp.lang.c 4.6 (por que não se
+# pode fazer aritmética num void *), cuja resposta inteira é remeter à
+# 11.24 — e a 11.24 dá a razão: o compilador não conhece o tamanho dos
+# objetos apontados.
+#
+# A RESPOSTA DA FONTE É A PREMISSA DESTE NÓ, e ela não fala de proibição
+# arbitrária: fala de informação que falta. É essa distinção que o cartão
+# precisa carregar — não é que a conta seja proibida, é que não há conta.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O MESMO endereço recebendo dois tipos, e cada tipo
+#                    levando um passo a um lugar diferente do bloco.
+#   outra rota       A ida e volta pelo void *: o endereço nunca se
+#                    perde, nem o que a aritmética produziu.
+#
+# O CASO RESOLVIDO MOSTRA AS DUAS ESCALAS PELO EFEITO, e não por medida:
+# um passo como int cai no segundo elemento; um passo como char cai
+# DENTRO do primeiro. O mesmo endereço de partida, duas escalas, dois
+# destinos. Se a escala viesse do endereço, os dois passos chegariam no
+# mesmo lugar.
+#
+# A OUTRA ROTA FECHA O QUE FALTA, e é a parte que o item não cobre: o
+# void * guarda endereço perfeitamente — inclusive endereço que a
+# aritmética acabou de produzir. O que falta nele não é capacidade de
+# guardar: é a escala. Dizer isso importa porque a crença erra o alvo, e
+# quem a corrige errando também fica com um modelo torto.
+#
+# NÃO MOSTRA O COMPILADOR RECUSANDO, e aqui a tentação é grande: os
+# itens `014` e `t15` são exatamente sobre a recusa. Cartão que a
+# exibisse arrastaria `compilacao`, que não tem cartão em tópico nenhum.
+# O cartão demonstra o positivo — dar tipo dá passo — e a prosa diz o
+# resto.
+#
+# O QUE FICA FORA
+#
+#   por que não há aritmética em void *   -> `ciu_kc11_013`
+#   o que falta a um void *               -> `ciu_kc11_t13`
+#   `v = v + 1` e o que o padrão não
+#     permite                              -> `ciu_kc11_014`
+#   o cast para `char *` dentro da conta  -> `ciu_kc11_t14`
+#   `v + 1` contra `(char *) v + 1`       -> `ciu_kc11_015`, degrau 3
+#   `void *fim = base + n`                -> `ciu_kc11_t15`
+#
+# O `t14` E O `015` JÁ USAM O CAST PARA `char *` como parte da pergunta.
+# O caso resolvido não converte nada no meio da conta: ele declara dois
+# ponteiros de tipos diferentes a partir do mesmo void * e deixa cada um
+# andar o seu passo. É a mesma matéria por um caminho que os itens não
+# usam.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_11
+node: kc11:I2
+premissa: "void * não tem aritmética: sem tipo, não há escala."
+crenca_que_nega: voidptr_arith_ok
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: a777c9f24f6c
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO do B1 e do B2; o
+# segundo diz para que o void * serve; o terceiro, o que ele cobra.
+ampliacao: >
+  Isto não é regra nova: é o B1 e o B2 com uma peça retirada. O ponteiro
+  traz o tipo do destino, e do tipo vem o tamanho de um elemento — é
+  esse tamanho que a soma usa. Um void * não diz qual é o tipo do
+  destino, então não há tamanho de elemento, e sem ele a pergunta de
+  quanto andar não tem resposta. Não é conta proibida: é conta que não
+  existe.
+
+  E o void * serve justamente por não dizer. Ele guarda o endereço de
+  qualquer objeto, de qualquer tipo, e é por isso que é com ele que o
+  alocador responde: quem pede memória sabe o que vai pôr lá, e o
+  alocador não precisa saber. Guardar endereço ele faz sem perder nada —
+  inclusive endereço que uma soma acabou de produzir.
+
+  Por isso andar exige dar um tipo antes. Você escolhe o tipo, e com
+  essa escolha escolhe a escala: o mesmo endereço, lido como ponteiro
+  para char ou como ponteiro para int, anda distâncias diferentes a cada
+  passo. A escala nunca esteve no endereço — ela vem do tipo que você
+  deu.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void *q;
+  q + 1           /* nao: sem tipo, sem escala */
+
+
+# O CASO RESOLVIDO: um endereço, duas escalas, dois destinos.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int lote[4] = {0, 0, 0, 0};
+      void *sem_tipo = lote;
+      int *como_int = sem_tipo;
+      char *como_char = sem_tipo;
+
+      *(como_int + 1) = 5;
+      *(como_char + 1) = 'x';
+      printf("dando tipo int, uma casa adiante caiu no segundo elemento? %d\n",
+             lote[1] == 5);
+      printf("dando tipo char, uma casa adiante caiu dentro do primeiro? %d\n",
+             lote[0] != 0);
+      printf("e o endereco de partida era o mesmo nos dois? %d\n",
+             (void *) como_int == (void *) como_char);
+  - prosa: "Pergunta: os dois andaram uma casa a partir do mesmo endereço. Por que não chegaram no mesmo lugar?"
+  - prosa: >
+      Porque uma casa não é uma distância: é uma unidade, e cada tipo
+      traz a sua. Para o ponteiro de int, uma casa é um elemento inteiro
+      — o passo caiu no segundo. Para o de char, uma casa é um byte — o
+      passo nem saiu do primeiro elemento.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dando tipo int, uma casa adiante caiu no segundo elemento? 1
+      dando tipo char, uma casa adiante caiu dentro do primeiro? 1
+      e o endereco de partida era o mesmo nos dois? 1
+  - prosa: >
+      Mesmo ponto de partida, dois destinos. É isso que mostra onde a
+      escala mora: não no endereço, que era igual nos dois, e sim no
+      tipo, que era diferente. O void * tinha o endereço e não tinha o
+      tipo — e por isso não tinha como andar.
+
+
+# A OUTRA ROTA: a ida e a volta.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Veja o que o void * faz bem, para ver com precisão o
+      que falta nele.
+  - codigo: |
+      int lote[4] = {1, 2, 3, 4};
+      void *sem_tipo = lote;
+      int *volta = sem_tipo;
+      void *depois = volta + 2;
+
+      printf("o void * e a volta chegam no mesmo lugar? %d\n", volta == lote);
+      printf("pelo que voltou, o terceiro elemento e %d\n", *(volta + 2));
+      printf("e o void * guarda bem o endereco de depois da conta? %d\n",
+             depois != sem_tipo);
+  - prosa: >
+      O endereço foi para o void * e voltou intacto. Depois a conta
+      andou duas casas, e o endereço de chegada também cabe num void *
+      sem problema nenhum — a terceira linha confirma que é outro
+      endereço, e não o de partida.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o void * e a volta chegam no mesmo lugar? 1
+      pelo que voltou, o terceiro elemento e 3
+      e o void * guarda bem o endereco de depois da conta? 1
+  - prosa: >
+      Então o que falta ao void * não é guardar endereço, e nem é força:
+      é a escala. Ele carrega qualquer endereço, inclusive os que a
+      aritmética produz — só não produz nenhum, porque para isso
+      precisaria saber de quanto é um passo, e essa é a única informação
+      que ele não tem.

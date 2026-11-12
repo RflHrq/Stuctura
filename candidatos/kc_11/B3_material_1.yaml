@@ -1,0 +1,172 @@
+# Material de ensino do B3 do kc_11 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. E ESTE CARTÃO É O QUE ENSINA `array`
+# neste tópico — a segunda metade do desbloqueio que o `B2` começou.
+#
+# O COMENTÁRIO DESTE NÓ NO GRAFO JÁ PEDIA ISSO, escrito quando a
+# evidência foi feita: "BARRADA por `array`, que só tem cartão no
+# kc_07. A premissa é sobre array, então não há versão sem ele; a
+# evidência vale, e não vai à tela enquanto este tópico não tiver cartão
+# que ensine o construto." Com este cartão e o do `B2`, as três
+# evidências barradas do kc_11 — B3, I1 e I3 — passam a chegar à tela.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `string_literal_is_array` — "char *s = "abc" e char s[] = "abc"
+# guardam do mesmo jeito". Grade `L`, FAQ comp.lang.c 1.32. A mesma
+# crença está no catálogo do kc_07, e a curadoria registra que este nó é
+# importado de lá, do `kc_07:B1`.
+#
+# POR QUE ELA NEGA A CONTIGUIDADE: quem não distingue as duas formas não
+# tem o modelo das caixas grudadas — e é esse modelo que faz a conta de
+# andar funcionar. É o que o catálogo deste tópico já diz.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Os TRÊS vãos entre vizinhos de um array de quatro,
+#                    medidos em bytes: iguais, e cada um de um elemento.
+#   outra rota       A forma com colchetes de um texto: cinco caixas
+#                    para quatro letras, vizinhas, e escrevíveis.
+#
+# O CASO RESOLVIDO MEDE TODOS OS VÃOS, e não um. "Contíguos" é uma
+# afirmação sobre a sequência inteira: vãos iguais entre si E iguais ao
+# tamanho de um elemento é o que significa não haver buraco. Medir um
+# par só mostraria que dois vizinhos estão perto.
+#
+# A OUTRA ROTA NÃO TOCA EM LITERAL. A crença compara as duas formas, e a
+# tentação é escrever na forma de ponteiro para mostrar a diferença —
+# isso é comportamento indefinido, e cartão não demonstra erro
+# cometendo-o. O que ela faz é mostrar a forma COM colchetes por inteiro:
+# o tamanho conta o terminador, os vizinhos estão a um elemento, e a
+# primeira caixa aceita escrita. Sobre a outra forma, a prosa diz o que
+# se sabe e para.
+#
+# E O `sizeof s == 5` NÃO É FATO SOBRE ESTA MÁQUINA: char é 1 por
+# definição da linguagem, e "casa" tem quatro letras mais o terminador.
+# Vale em qualquer compilador conforme.
+#
+# O QUE FICA FORA
+#
+#   como ficam os elementos na memória    -> `ciu_kc11_007`
+#   por que a aritmética funciona em array -> `ciu_kc11_t07`
+#   `&v[1] - &v[0] == 1`                  -> `ciu_kc11_008`
+#   duas variáveis soltas e `*(p + 1)`    -> `ciu_kc11_t08`
+#   `v[2]` e `*(p + 2)` dando o mesmo     -> `ciu_kc11_009`, degrau 3
+#   `s[1] == *(s + 1)` num char array     -> `ciu_kc11_t09`
+#
+# O `008` AFIRMA UM PAR, em elementos; o caso resolvido mede os três
+# vãos, em bytes, e os amarra ao tamanho do elemento. O `t09` usa
+# `char s[] = "abc"` e pergunta sobre índice contra soma, que é assunto
+# do `I1`; a outra rota usa a forma com colchetes para falar de
+# contiguidade e de tamanho, e não de índice.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_11
+node: kc11:B3
+premissa: "Os elementos de um array são contíguos."
+crenca_que_nega: string_literal_is_array
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 4c71282a4047
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a premissa; o SEGUNDO ensina
+# array; o terceiro diz de onde vem a ideia contrária e o que ela custa.
+ampliacao: >
+  Os elementos de um array ficam um logo depois do outro, sem buraco
+  entre eles. Não é coincidência de como a máquina arrumou: é o que a
+  linguagem garante, e é a garantia em que toda a aritmética deste
+  tópico se apoia.
+
+  E um array é isto: uma declaração que reserva várias caixas do mesmo
+  tipo, de uma vez, lado a lado. Quando você escreve int v[4], nascem
+  quatro caixas de int, numeradas de zero a três, e v[2] é a terceira
+  delas. O nome do array usado numa expressão entrega o endereço da
+  primeira caixa — é por isso que dá para somar a ele, e é por isso que
+  a soma anda de caixa em caixa.
+
+  A ideia contrária tem de onde vir, e é a semelhança entre duas
+  escritas. A forma com colchetes declara as caixas e elas são suas: dá
+  para escrever em cada uma. A forma com ponteiro declara uma caixa só,
+  a do ponteiro, e a aponta para um texto que você não declarou — e o
+  que se pode fazer com esse texto a linguagem não garante. São duas
+  coisas diferentes com cara parecida, e quem as confunde perde o
+  modelo das caixas grudadas.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int v[3];
+  &v[1] - &v[0]   /* 1: sao vizinhas */
+
+
+# O CASO RESOLVIDO: os três vãos.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int v[4];
+      long g1 = (char *) &v[1] - (char *) &v[0];
+      long g2 = (char *) &v[2] - (char *) &v[1];
+      long g3 = (char *) &v[3] - (char *) &v[2];
+
+      printf("os tres vaos entre vizinhos sao iguais? %d\n",
+             g1 == g2 && g2 == g3);
+      printf("e cada vao e exatamente um elemento? %d\n",
+             g1 == (long) sizeof v[0]);
+      printf("do primeiro ao ultimo, tres elementos? %d\n",
+             &v[3] - &v[0] == 3);
+  - prosa: "Pergunta: por que medir os três vãos, e não um só?"
+  - prosa: >
+      Porque contíguo é afirmação sobre a sequência inteira. Um par só
+      mostraria que dois vizinhos estão perto; os três iguais mostram que
+      o espaçamento é o mesmo do começo ao fim. E a segunda linha fecha:
+      esse espaçamento é exatamente um elemento, o que significa que não
+      sobra nada entre eles.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      os tres vaos entre vizinhos sao iguais? 1
+      e cada vao e exatamente um elemento? 1
+      do primeiro ao ultimo, tres elementos? 1
+  - prosa: >
+      Vãos iguais, cada um de um elemento, e do primeiro ao último
+      exatamente três. É essa regularidade que permite chegar a qualquer
+      elemento por conta — se houvesse buraco de tamanho variável entre
+      eles, nenhuma soma acertaria.
+
+
+# A OUTRA ROTA: a forma com colchetes, por inteiro.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Declare um texto com colchetes e olhe as caixas que
+      nasceram.
+  - codigo: |
+      char s[] = "casa";
+      long vao = &s[1] - &s[0];
+
+      s[0] = 'C';
+      printf("o array conta as quatro letras e o terminador? %d\n",
+             sizeof s == 5);
+      printf("os vizinhos estao a um elemento de distancia? %d\n", vao == 1);
+      printf("e as caixas sao do array: escrevi na primeira e saiu %c\n", s[0]);
+  - prosa: >
+      Cinco caixas para quatro letras: a quinta é o terminador, e ele
+      conta. As caixas são do array, e a terceira linha mostra isso do
+      jeito mais direto que existe — escrevendo numa delas.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o array conta as quatro letras e o terminador? 1
+      os vizinhos estao a um elemento de distancia? 1
+      e as caixas sao do array: escrevi na primeira e saiu C
+  - prosa: >
+      O C maiúsculo saiu porque a caixa é sua. Essa é a forma com
+      colchetes: as caixas foram declaradas aqui, estão grudadas, e você
+      manda nelas. A forma com ponteiro, que se parece tanto com esta,
+      declara uma caixa só — e sobre o texto para onde ela aponta a
+      linguagem não dá a mesma garantia.

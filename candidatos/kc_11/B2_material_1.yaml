@@ -1,0 +1,181 @@
+# Material de ensino do B2 do kc_11 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. E ESTE CARTÃO TEM UMA SEGUNDA TAREFA:
+# ele é o que ENSINA `sizeof` neste tópico.
+#
+# POR QUE ISSO IMPORTA, com o número medido: três das seis evidências do
+# kc_11 estão BARRADAS na tela de refutação — B3 e I1 por `array`, I3 por
+# `array` e `sizeof`. O portão `conceitos.exibivel` exige cartão DO
+# TÓPICO, e hoje `sizeof` só tem `kc_02:B2` e `array` só tem `kc_07:B1`.
+# A premissa deste nó é "o tamanho de um tipo é fixo, e o compilador o
+# conhece antes de rodar" — que é o que `sizeof` responde. Então o
+# construto não entra aqui de carona: ele é o assunto.
+#
+# A AMPLIAÇÃO TEM DE EXPLICAR, E NÃO CITAR. A skill `revisar-material`
+# guarda esse portão com um caso real: um arquivo dizia "usa sizeof e o
+# EXPLICA", e o sizeof aparecia só como rótulo de número já medido — que
+# é a definição de `mencionado_sem_explicacao`. O segundo parágrafo
+# abaixo diz o que o operador é, o que ele aceita, e quando responde.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `pointer_knows_block_size` — "o tamanho vem com o ponteiro, e não da
+# declaração". Grade `L`, FAQ comp.lang.c 7.26 (como o free sabe quantos
+# bytes devolver) e 7.28 (por que sizeof não diz o tamanho do bloco
+# apontado por um ponteiro).
+#
+# A 7.26 É DE ONDE A CRENÇA VEM, e a 7.28 é a pergunta de quem já a tem.
+# Se o free sabe quanto devolver, alguém guardou o tamanho — e o
+# candidato óbvio é o ponteiro. A resposta é que quem guarda é o
+# alocador, nas suas próprias contas, e não o ponteiro.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O passo de p + 1, MEDIDO rodando, é o mesmo número
+#                    que sizeof *p responde na compilação.
+#   outra rota       O array dividido por um elemento dá dez; o ponteiro
+#                    para o mesmo lugar responde um elemento, e não dez.
+#
+# O CASO RESOLVIDO LIGA AS DUAS METADES DA PREMISSA: o tamanho é fixo
+# (medido, e igual ao que o compilador já dizia) e é sabido antes de
+# rodar (o compilador respondeu sem executar nada). É também o que
+# sustenta o tópico inteiro: o passo da aritmética É esse número.
+#
+# A OUTRA ROTA É A REFUTAÇÃO, e ela termina em ZERO de propósito. A
+# terceira linha pergunta se o ponteiro sabe que há dez elementos lá. A
+# resposta é não, e é o único lugar deste material em que a saída
+# esperada é zero.
+#
+# E NENHUMA DAS DUAS IMPRIME TAMANHO NENHUM. Todas as linhas são
+# comparações, e o cabeçalho do grafo deste tópico diz por quê: "o que
+# este tópico não afirma em lugar nenhum: que int tem 4 bytes". O dez da
+# outra rota é contagem de elementos que o próprio código declarou, e
+# não medida da máquina.
+#
+# O QUE FICA FORA
+#
+#   quando o compilador descobre o tamanho   -> `ciu_kc11_004`
+#   o tamanho muda de variável para variável -> `ciu_kc11_t04`
+#   `sizeof *p` com p sem valor              -> `ciu_kc11_005`
+#   `sizeof *p` num bloco de malloc          -> `ciu_kc11_t05`
+#   o compilador precisa rodar?              -> `ciu_kc11_006`, degrau 3
+#   `sizeof *p` de uma struct                -> `ciu_kc11_t06`
+#
+# O `t05` É O MAIS PRÓXIMO, e a diferença é o que se observa: lá um
+# bloco de `malloc` de dez ints, e a pergunta é por que `sizeof *p` não
+# diz o tamanho dos dez. Aqui um ARRAY de dez, declarado, e as duas
+# contas lado a lado: o array inteiro dividido por um elemento (dá dez,
+# porque o tipo do array traz essa informação) contra o ponteiro (dá um
+# elemento). O item pergunta por que não dá; o cartão mostra onde a
+# informação está — na declaração do array — e onde não está.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_11
+node: kc11:B2
+premissa: "O tamanho de um tipo é fixo, e o compilador o conhece antes de rodar."
+crenca_que_nega: pointer_knows_block_size
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: eaf85c0c1871
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a premissa; o SEGUNDO ensina
+# sizeof; o terceiro diz de onde vem a ideia contrária e o que ela custa.
+ampliacao: >
+  O tamanho de um tipo não muda durante o programa. Todo int ocupa o
+  mesmo tanto, todo char ocupa o mesmo tanto, e esse tanto está decidido
+  antes de a primeira linha rodar — ele vem do tipo, que está escrito na
+  declaração. Não é informação que alguém descobre em execução.
+
+  Quem pergunta esse tamanho é sizeof. Escreva sizeof(int) e você recebe
+  quantos bytes um int ocupa; escreva sizeof *p e você recebe quantos
+  bytes ocupa aquilo que p aponta. Ele aceita um tipo entre parênteses
+  ou uma expressão, e no segundo caso olha apenas o TIPO da expressão:
+  quem responde é o compilador, durante a compilação, e por isso a
+  expressão nem chega a ser executada. É o que faz sizeof *p funcionar
+  mesmo quando p ainda não recebeu endereço nenhum.
+
+  A ideia contrária é razoável, e vem de uma observação verdadeira:
+  alguém sabe o tamanho do bloco, porque o free devolve a quantidade
+  certa. Só que esse alguém é o alocador, nas contas dele — não o
+  ponteiro. O ponteiro traz o tipo do destino, e com isso o tamanho de
+  UM elemento; quantos elementos há lá é informação que ele nunca
+  carregou, e quem a perde não tem como recuperá-la depois.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  sizeof(int)     /* fixo, e sabido na compilacao */
+  sizeof *p       /* funciona sem p ter valor */
+
+
+# O CASO RESOLVIDO: o que o compilador disse, medido rodando.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int um = 0;
+      int muitos[10];
+      int *p = &um;
+      int *q = muitos;
+      long passo = (char *) (p + 1) - (char *) p;
+
+      printf("o passo de p + 1 e o que sizeof *p responde? %d\n",
+             passo == (long) sizeof *p);
+      printf("e sizeof *q responde o mesmo, apontando para dez? %d\n",
+             sizeof *q == sizeof *p);
+      printf("o array inteiro e maior que um elemento dele? %d\n",
+             sizeof muitos > sizeof *q);
+  - prosa: "Pergunta: a primeira linha compara duas coisas medidas em momentos diferentes. Quais?"
+  - prosa: >
+      Uma é a distância que o ponteiro andou, medida com o programa
+      rodando. A outra é a resposta que o compilador já tinha dado, antes
+      de o programa existir como programa. As duas batem — e é isso que
+      a premissa afirma.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o passo de p + 1 e o que sizeof *p responde? 1
+      e sizeof *q responde o mesmo, apontando para dez? 1
+      o array inteiro e maior que um elemento dele? 1
+  - prosa: >
+      Três sins. O segundo é o que vale a pena olhar duas vezes: p
+      aponta para um int sozinho e q para o começo de dez, e sizeof
+      respondeu o mesmo para os dois. O que ele mede é o tipo do
+      destino, e os dois têm o mesmo tipo.
+
+
+# A OUTRA ROTA: onde a informação está, e onde não está.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Pergunte o tamanho ao array e depois ao ponteiro
+      que aponta para ele.
+  - codigo: |
+      int muitos[10];
+      int *r = muitos;
+
+      printf("o array dividido por um elemento da dez? %d\n",
+             sizeof muitos / sizeof muitos[0] == 10);
+      printf("e pelo ponteiro, o que se tem e um elemento? %d\n",
+             sizeof *r == sizeof muitos[0]);
+      printf("o ponteiro sabe que ha dez la? %d\n",
+             sizeof *r == sizeof muitos);
+  - prosa: >
+      O array e o ponteiro apontam para o mesmo lugar. A diferença é o
+      que cada um é: o array tem tipo de array de dez ints, e o ponteiro
+      tem tipo de ponteiro para int.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o array dividido por um elemento da dez? 1
+      e pelo ponteiro, o que se tem e um elemento? 1
+      o ponteiro sabe que ha dez la? 0
+  - prosa: >
+      O zero da última linha é a crença caindo. A informação dos dez
+      existe, e está na declaração do array — é de lá que vem a primeira
+      conta. Passar o endereço para um ponteiro não leva essa informação
+      junto: o que atravessa é o endereço e o tipo de um elemento.

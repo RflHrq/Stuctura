@@ -1,0 +1,162 @@
+# Material de ensino do I1 do kc_11 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Nó de inferência: suporte em `B3`, e a
+# refutação percorre B3 -> I1.
+#
+# E A DERIVAÇÃO VEM DO B3 EM UMA LINHA: se as caixas estão grudadas e o
+# nome do array entrega o endereço da primeira, então "a caixa de índice
+# i" e "ande i caixas a partir do começo" são o mesmo lugar. Não é regra
+# nova; é o que a contiguidade já tinha garantido.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `indice_nao_e_soma` — "a[i] é uma operação própria do array, e não a
+# soma a + i". Grade `L`, FAQ comp.lang.c 6.11, a pergunta sobre o
+# código de brincadeira que usa o índice do lado trocado. A pergunta é a
+# crença: quem a faz não acredita que o índice seja a soma.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Três escritas diferentes chegando na mesma caixa, e
+#                    uma delas INDEXA uma soma.
+#   outra rota       Os endereços: &a[i] e a + i, nas quatro posições.
+#
+# O CASO RESOLVIDO TEM UMA PEÇA QUE NENHUM ITEM TEM: o `(a + i)[1]`.
+# Indexar uma expressão que já é uma soma só faz sentido se o índice for
+# a soma — é a identidade aplicada a si mesma, e é a forma mais curta de
+# mostrar que o colchete não é privilégio do nome do array.
+#
+# A OUTRA ROTA SOBE UM NÍVEL: se a[i] é *(a + i), então &a[i] é a + i,
+# porque tirar a estrela dos dois lados mantém a igualdade. Ela compara
+# ENDEREÇOS, e não valores — nenhum item deste nó faz isso.
+#
+# O QUE FICA DE FORA, E UMA COISA FICA DE FORA DA PROSA TAMBÉM
+#
+#   a[i] é o quê, por definição        -> `ciu_kc11_010`
+#   por que o código de brincadeira
+#     compila                          -> `ciu_kc11_t10`
+#   `v[2]` e `2[v]` lado a lado        -> `ciu_kc11_011`
+#   `s[2]` e `*(s + 2)` num texto      -> `ciu_kc11_t11`
+#   índice contra soma, num ponteiro   -> `ciu_kc11_012`, degrau 3
+#   `p[-1]` com p apontando para v + 1 -> `ciu_kc11_t12`
+#
+# A AMPLIAÇÃO NÃO EXPLICA POR QUE O ÍNDICE PODE TROCAR DE LADO, e a
+# omissão é deliberada: é a resposta do `t10` e do `011`. O cabeçalho das
+# atividades do kc_00 já fixou esse cuidado para o resumo da analogia —
+# "entregaria a resposta das atividades que ainda não foram feitas" —, e
+# vale aqui. A identidade é ensinada; a consequência curiosa dela fica
+# para o item medir.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_11
+node: kc11:I1
+premissa: "a[i] é exatamente *(a + i)."
+crenca_que_nega: indice_nao_e_soma
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 9185b99fd75a
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO do B3; o segundo diz
+# de onde vem a ideia contrária; o terceiro, o que a identidade entrega.
+ampliacao: >
+  Isto não é regra nova: é o B3 levado adiante. As caixas estão grudadas
+  e o nome do array entrega o endereço da primeira. Então pedir a caixa
+  de índice i e andar i caixas a partir do começo chegam ao mesmo lugar
+  — e a linguagem não só concorda com isso: ela DEFINE o índice como
+  essa soma seguida da estrela.
+
+  A ideia contrária vem da aparência. O colchete parece sintaxe especial
+  de array, uma operação à parte, com regra própria. Não é: o colchete é
+  escrita abreviada, e o que está por baixo dele é a soma de um ponteiro
+  com um número, exatamente a conta que este tópico estuda.
+
+  Por isso o colchete não pertence ao nome do array. Ele se aplica a
+  qualquer expressão que seja um ponteiro para elemento, venha de onde
+  vier — de um array, de um ponteiro que você declarou, de uma soma que
+  você acabou de escrever. E vale nas duas direções: o que a identidade
+  diz dos valores, ela diz também dos endereços.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  v[2]            /* e */
+  *(v + 2)        /* sao a mesma coisa */
+
+
+# O CASO RESOLVIDO: três escritas, uma caixa.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int a[5];
+      int i = 0;
+
+      while (i < 5) {
+          a[i] = i * 3;
+          i = i + 1;
+      }
+      i = 1;
+      printf("a[i + 1] e *(a + i + 1) leem o mesmo? %d\n",
+             a[i + 1] == *(a + i + 1));
+      printf("e (a + i)[1], indexando a soma, tambem? %d\n",
+             (a + i)[1] == a[i + 1]);
+      printf("os tres leem o elemento de indice %d, que vale %d\n",
+             i + 1, a[i + 1]);
+  - prosa: "Pergunta: a segunda linha põe um colchete depois de uma soma. Isso é permitido por quê?"
+  - prosa: >
+      Porque o colchete não é do array: é do ponteiro. A soma a + i já é
+      um ponteiro para um elemento, e indexar esse ponteiro com 1 pede o
+      elemento seguinte. Se o índice fosse operação exclusiva do nome do
+      array, essa linha não teria sentido.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a[i + 1] e *(a + i + 1) leem o mesmo? 1
+      e (a + i)[1], indexando a soma, tambem? 1
+      os tres leem o elemento de indice 2, que vale 6
+  - prosa: >
+      As três escritas chegam na mesma caixa, a de índice dois, que
+      guarda seis. São três maneiras de dizer a mesma conta, e não três
+      operações diferentes que por sorte coincidem.
+
+
+# A OUTRA ROTA: os endereços.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Em vez de comparar o que se lê, compare de onde se
+      lê.
+  - codigo: |
+      int a[4];
+      int i = 0;
+      int iguais = 0;
+
+      while (i < 4) {
+          if (&a[i] == a + i) {
+              iguais = iguais + 1;
+          }
+          i = i + 1;
+      }
+      printf("nas quatro posicoes, &a[i] e a + i sao o mesmo endereco? %d\n",
+             iguais == 4);
+      printf("e o nome do array e o endereco do primeiro elemento? %d\n",
+             a == &a[0]);
+  - prosa: >
+      Se a[i] é *(a + i), então tirar a estrela dos dois lados mantém a
+      igualdade: o endereço da caixa de índice i é a soma do começo com
+      i. A segunda linha é o caso i igual a zero, dito à parte porque é
+      ele que começa tudo.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      nas quatro posicoes, &a[i] e a + i sao o mesmo endereco? 1
+      e o nome do array e o endereco do primeiro elemento? 1
+  - prosa: >
+      Mesmo endereço nas quatro. Isso é mais forte que ler o mesmo valor:
+      dois caminhos podem dar o mesmo número por coincidência, mas aqui
+      eles partem do mesmo lugar e terminam no mesmo lugar. O índice não
+      é um atalho para a soma — ele é a soma.
