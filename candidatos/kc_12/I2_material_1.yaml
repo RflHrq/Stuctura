@@ -1,0 +1,197 @@
+# Material de ensino do I2 do kc_12 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Suporte em `B1`, e a refutação percorre
+# B1 -> I2.
+#
+# E A DERIVAÇÃO VEM DO B1 PELA EXCEÇÃO: o `B1` diz que o retorno encerra
+# as locais. `static` é a palavra que tira uma local dessa regra — a
+# caixa passa a durar o programa inteiro. O que ela NÃO faz é tornar o
+# nome visível de fora. Duração e escopo são duas coisas, e a palavra
+# mexe em uma só.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `static_is_scope` — "static muda o escopo da variável, e por isso
+# retornar o endereço passa a valer". Grade `T`: Sorva (2012), p. 114,
+# na lista das distinções que o autor diz confundirem quem está
+# começando — entre elas, escopo contra tempo de vida.
+#
+# A CRENÇA ACERTA A CONCLUSÃO E ERRA O MOTIVO. Retornar o endereço de
+# uma local `static` de fato vale — mas não porque o escopo mudou: porque
+# a DURAÇÃO mudou. O cartão precisa separar as duas, e por isso o caso
+# resolvido mostra as duas no mesmo programa.
+#
+# ---------------------------------------------------------------------
+# O LIMITE DA METÁFORA QUE ESTE NÓ CARREGA
+#
+# O cabeçalho do grafo declara: "desmontada" sugere que o terreno fica
+# vazio e visível, e não fica — o lugar pode já ter a casa da próxima
+# função em cima. E diz que o "às vezes funciona" é ESTE nó. Então a
+# ampliação fala disso, e com cuidado: ela diz que a linguagem não
+# define o que há no lugar de uma local que acabou, e que não definir
+# inclui poder parecer certo. Ela NÃO diz que os dados costumam
+# continuar lá — isso seria afirmação sobre uma implementação.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Duas funções, cada uma com a sua `static int n`:
+#                    as duas lembram entre chamadas (duração), e os dois
+#                    n nunca se misturam (escopo).
+#   outra rota       O endereço de uma local `static`, devolvido duas
+#                    vezes: é a mesma caixa, e ela continua lá.
+#
+# O CASO RESOLVIDO PÕE AS DUAS PROPRIEDADES NUM PROGRAMA SÓ. Os dois n
+# têm o MESMO NOME e vivem o programa inteiro — e mesmo assim não se
+# enxergam. Se `static` mudasse o escopo, dois n de mesmo nome visíveis
+# de fora seriam um conflito; não são, porque cada um continua interno à
+# sua função.
+#
+# A OUTRA ROTA É O CASO EM QUE DEVOLVER ENDEREÇO DE LOCAL É VÁLIDO, e ela
+# pode ser executada justamente por isso: a caixa dura. O `014` faz
+# `*f()` e pergunta o que o static garantiu; aqui a função é chamada duas
+# vezes e os dois endereços são comparados — a mesma caixa, entre uma
+# chamada e outra.
+#
+# NÃO MOSTRA O COMPILADOR RECUSANDO. O `t14` usa o nome n fora da função
+# e pergunta por que não compila — é a prova do escopo pelo lado da
+# recusa, e cartão que a exibisse arrastaria `compilacao`, sem cartão em
+# tópico nenhum. O caso resolvido prova o escopo pelo lado que roda: dois
+# n que coexistem.
+#
+# O QUE FICA FORA
+#
+#   o que static muda numa local        -> `ciu_kc12_013`
+#   o nome n vale fora da função?       -> `ciu_kc12_t13`
+#   `*f()` com static                   -> `ciu_kc12_014`
+#   g usando n de fora                  -> `ciu_kc12_t14`
+#   a segunda às vezes parece funcionar -> `ciu_kc12_015`, degrau 3
+#   `conta()` duas vezes                -> `ciu_kc12_t15`, degrau 3
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_12
+node: kc12:I2
+premissa: "static muda a duração, não o escopo; por isso às vezes parece funcionar."
+crenca_que_nega: static_is_scope
+
+gerado_por: Claude Fable 5.2, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 38b4801b4519
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO do B1; o segundo
+# separa duração de escopo; o terceiro trata do "às vezes funciona".
+ampliacao: >
+  Isto parte do B1, pela exceção. O retorno encerra as locais — a não
+  ser que a local seja declarada com static. Com essa palavra, a caixa
+  deixa de ser montada e desmontada a cada chamada: ela existe uma vez
+  só, desde antes da primeira chamada até o fim do programa, e guarda o
+  que tinha entre uma chamada e outra.
+
+  O que static muda é a duração, e só ela. O escopo continua o mesmo: o
+  nome da variável só vale dentro da função em que ela foi declarada, e
+  ninguém de fora consegue escrevê-lo. São duas perguntas diferentes —
+  por quanto tempo a caixa existe, e de onde o nome dela pode ser usado
+  — e a palavra responde à primeira sem tocar na segunda. É por isso que
+  devolver o endereço de uma local static vale: a caixa dura, mesmo o
+  nome continuando interno.
+
+  E é o que explica uma local comum às vezes parecer funcionar do mesmo
+  jeito. Depois do retorno, a linguagem não define o que há no lugar que
+  era dela — e não definir inclui poder parecer certo, numa execução,
+  numa máquina. O programa que conta com isso não está certo: está sem
+  garantia nenhuma, e a diferença para a versão com static é exatamente
+  a garantia.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *f(void) { static int n = 7; return &n; }
+  /* dura o programa; o NOME n continua interno */
+
+
+# O CASO RESOLVIDO: duração e escopo, no mesmo programa.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int conta_a(void)
+      {
+          static int n = 0;
+
+          n = n + 1;
+          return n;
+      }
+
+      int conta_b(void)
+      {
+          static int n = 100;
+
+          n = n + 1;
+          return n;
+      }
+  - codigo: |
+      int a = 0;
+      int b = 0;
+
+      conta_a();
+      conta_a();
+      a = conta_a();
+      b = conta_b();
+      printf("cada funcao lembrou do seu n entre as chamadas: %d e %d\n", a, b);
+      printf("os dois n, de mesmo nome, nunca se misturaram? %d\n",
+             a == 3 && b == 101);
+  - prosa: "Pergunta: as duas variáveis se chamam n e as duas duram o programa inteiro. Por que uma não atrapalha a outra?"
+  - prosa: >
+      Porque o nome de cada uma só vale dentro da sua função. A duração
+      mudou — as duas lembram o que tinham entre as chamadas — e o
+      escopo, não: cada n continua interno, e de dentro de uma função
+      não se enxerga o n da outra.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      cada funcao lembrou do seu n entre as chamadas: 3 e 101
+      os dois n, de mesmo nome, nunca se misturaram? 1
+  - prosa: >
+      Três, porque a primeira lembrou das duas chamadas anteriores — isso
+      é a duração. Cento e um, porque a segunda nunca viu o n da primeira
+      — isso é o escopo. As duas propriedades no mesmo programa, e a
+      palavra static mexeu em uma só.
+
+
+# A OUTRA ROTA: a caixa que dura.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Devolva o endereço de uma local static duas vezes e
+      compare o que veio.
+  - codigo: |
+      int *caixa(void)
+      {
+          static int n = 7;
+
+          return &n;
+      }
+  - codigo: |
+      int *p = caixa();
+      int *q = caixa();
+
+      printf("duas chamadas devolveram a mesma caixa? %d\n", p == q);
+      *p = 9;
+      printf("escrevi por um endereco e li pelo outro: %d\n", *q);
+  - prosa: >
+      Este é o caso em que devolver o endereço de uma local vale, e por
+      isso ele pode ser executado: a caixa não acaba no retorno. As duas
+      chamadas devolvem o endereço da mesma caixa, que estava lá antes da
+      primeira e continua lá depois da segunda.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      duas chamadas devolveram a mesma caixa? 1
+      escrevi por um endereco e li pelo outro: 9
+  - prosa: >
+      A mesma caixa, e o nove passa de um endereço ao outro. Funcionou
+      porque a caixa dura — e não porque o nome ficou visível: fora da
+      função, o nome n continua não existindo, e tudo o que se tem é o
+      endereço. Duração mudada, escopo intacto.

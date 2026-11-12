@@ -1,0 +1,158 @@
+# Material de ensino do B2 do kc_12 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O `B1` disse quando a local acaba; este
+# diz o que vale ENQUANTO ela não acabou.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `ampersand_copies` — "&x entrega uma cópia de x, e é a cópia que
+# viaja". Grade `T`: Sorva (2012), p. 362, item 66 — atribuir um objeto
+# significa "enviar" o objeto, ou uma cópia, a uma variável (Ma 2007). A
+# mesma crença está nos catálogos do kc_04, do kc_06 e do kc_10.
+#
+# AQUI ELA NEGA UMA PREMISSA DE VALIDADE, e isso muda o ângulo. Nos
+# outros tópicos o cartão mostra que o & não copia; neste, o que importa
+# é a consequência: se o & entregasse cópia, o endereço não dependeria de
+# a variável existir — e a premissa diz justamente que depende.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Perguntar o endereço da mesma local DUAS vezes: vem
+#                    o mesmo, e escrever por um aparece no outro.
+#   outra rota       O endereço da local entregue a uma função chamada,
+#                    duas vezes, com quem a declarou ainda executando.
+#
+# O CASO RESOLVIDO ATACA A CRENÇA PELO NÚMERO DE CÓPIAS. Se cada &
+# entregasse uma cópia, dois & dariam duas cópias, em dois lugares — e
+# escrever por uma não apareceria na outra. Vem um endereço só, o da
+# própria variável.
+#
+# A OUTRA ROTA É O "ENQUANTO A FUNÇÃO EXECUTA" EM AÇÃO: passar o endereço
+# de uma local para BAIXO, a uma função que você chama, é legítimo —
+# quem declarou a variável está parado esperando a chamada voltar, e a
+# caixa está de pé. É a direção válida, e ela prepara a conclusão do
+# tópico, onde o caminho certo é exatamente este.
+#
+# E NENHUMA DAS DUAS LEVA O ENDEREÇO PARA CIMA. Devolver o endereço de
+# uma local a quem chamou é o assunto do `I1`, e lá o trecho não é
+# executado.
+#
+# O QUE FICA FORA
+#
+#   enquanto a função roda, &local é o
+#     quê                                -> `ciu_kc12_004`
+#   &local copia a variável?             -> `ciu_kc12_t04`
+#   `*p = 9` e o que sai de n            -> `ciu_kc12_005`
+#   `dobra(n)` sem o &                   -> `ciu_kc12_t05`
+#   `int c = n` contra `int *p = &n`     -> `ciu_kc12_006`, degrau 3
+#   ponteiro contra cópia, com n = 9     -> `ciu_kc12_t06`, degrau 3
+#
+# O `006` E O `t06` COMPARAM O PONTEIRO COM UMA CÓPIA DE VERDADE — a
+# variável `c`. O caso resolvido não tem cópia nenhuma: tem dois
+# ponteiros, e a pergunta é se eles são dois lugares ou um.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_12
+node: kc12:B2
+premissa: "&local é endereço válido enquanto a função executa."
+crenca_que_nega: ampersand_copies
+
+gerado_por: Claude Fable 5.2, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: e3c09871f7bf
+
+
+# A AMPLIAÇÃO. O que o & entrega, por quanto tempo vale, e em que
+# direção ele pode viajar.
+ampliacao: >
+  O & pergunta onde a variável está, e a resposta é o endereço dela —
+  não uma cópia do que ela guarda. Quem tem esse endereço alcança a
+  própria variável: ler por ele é ler a variável, escrever por ele é
+  escrever nela. Não há segundo objeto em lugar nenhum.
+
+  E esse endereço vale enquanto a variável existir. Para uma local, isso
+  quer dizer enquanto a função dela estiver executando — e executando
+  inclui o tempo em que ela está parada, esperando voltar uma função que
+  ela chamou. Durante todo esse tempo a caixa está de pé e o endereço
+  leva a ela.
+
+  Por isso a direção importa. Entregar o endereço de uma local a uma
+  função que você chama é seguro: você ainda está lá quando ela usa.
+  Levar o endereço para quem chamou você é outra história — quando ele
+  chega lá, você já saiu, e a caixa foi junto. O número continua sendo
+  um número; o que ele indicava é que acabou.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void f(void) {
+      int n = 7;
+      int *p = &n;   /* bom, enquanto f roda */
+  }
+
+
+# O CASO RESOLVIDO: dois & da mesma variável.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int n = 1;
+      int *p = &n;
+      int *q = &n;
+
+      *p = 5;
+      printf("perguntei o endereco de n duas vezes, e veio o mesmo? %d\n", p == q);
+      printf("escrevi por um, e o nome e o outro mostram: %d e %d\n", n, *q);
+  - prosa: "Pergunta: se cada & entregasse uma cópia de n, o que as duas linhas de saída mostrariam?"
+  - prosa: >
+      Dois lugares diferentes na primeira, e o valor antigo na segunda.
+      Haveria duas cópias, cada uma no seu canto, e escrever cinco em uma
+      não mudaria nem a outra nem a variável. É uma previsão clara, e dá
+      para conferir.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      perguntei o endereco de n duas vezes, e veio o mesmo? 1
+      escrevi por um, e o nome e o outro mostram: 5 e 5
+  - prosa: >
+      O mesmo endereço, e o cinco aparece pelos três caminhos — pelo
+      primeiro ponteiro, pelo segundo e pelo nome. Não existem cópias: há
+      uma variável, e o & diz onde ela está, quantas vezes você
+      perguntar.
+
+
+# A OUTRA ROTA: o endereço descendo.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Entregue o endereço de uma local a uma função que
+      você chama, e veja se ele serve lá.
+  - codigo: |
+      void soma_um(int *alvo)
+      {
+          *alvo = *alvo + 1;
+      }
+  - codigo: |
+      int n = 7;
+
+      soma_um(&n);
+      soma_um(&n);
+      printf("o endereco de n valeu nas duas chamadas: n agora e %d\n", n);
+      printf("quem declarou n ainda estava executando o tempo todo? %d\n", n == 9);
+  - prosa: >
+      A função chamada recebeu o endereço de uma variável que não é dela
+      e escreveu lá, duas vezes. Durante as duas chamadas, quem declarou
+      n estava parado na linha da chamada, esperando — e a caixa de n
+      estava de pé.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o endereco de n valeu nas duas chamadas: n agora e 9
+      quem declarou n ainda estava executando o tempo todo? 1
+  - prosa: >
+      Sete, oito, nove. O endereço serviu porque a variável existia
+      enquanto ele era usado. Essa é a direção em que o endereço de uma
+      local pode viajar: para baixo, para quem você chama. A direção
+      contrária é o problema que este tópico existe para mostrar.

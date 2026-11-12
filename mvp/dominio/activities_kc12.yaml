@@ -100,6 +100,448 @@ exemplos:
     void g(int *destino) { *destino = 7; }
     int n;  g(&n);     /* o chamador deu a caixa */
 
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int dentro(void)
+        {
+            int local = 5;
+
+            return local + 1;
+        }
+
+        int fora(void)
+        {
+            int minha = 10;
+            int veio = dentro();
+
+            return minha + veio;
+        }
+    - codigo: |
+        int total = fora();
+
+        printf("a local de fora atravessou a chamada de dentro: %d\n", total);
+        printf("o 10 dela estava inteiro depois que a outra retornou? %d\n",
+               total == 16);
+    - prosa: >
+        Pergunta: houve um retorno no meio da execução de fora. Por que a
+        variável minha não acabou nele?
+    - prosa: >
+        Porque o retorno foi de outra função. Quem retornou foi dentro, e
+        o que acabou foram as locais de dentro. A função fora estava no
+        meio da execução dela, esperando a chamada voltar, e as caixas de
+        quem ainda está executando continuam de pé.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a local de fora atravessou a chamada de dentro: 16
+        o 10 dela estava inteiro depois que a outra retornou? 1
+    - prosa: >
+        Dezesseis: os dez de fora mais os seis que vieram de dentro. O dez
+        estava lá quando a chamada voltou. A local de dentro, não — o que
+        chegou dela foi o valor seis, copiado no retorno, e é só isso que
+        atravessa.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int n = 1;
+        int *p = &n;
+        int *q = &n;
+
+        *p = 5;
+        printf("perguntei o endereco de n duas vezes, e veio o mesmo? %d\n", p == q);
+        printf("escrevi por um, e o nome e o outro mostram: %d e %d\n", n, *q);
+    - prosa: >
+        Pergunta: se cada & entregasse uma cópia de n, o que as duas
+        linhas de saída mostrariam?
+    - prosa: >
+        Dois lugares diferentes na primeira, e o valor antigo na segunda.
+        Haveria duas cópias, cada uma no seu canto, e escrever cinco em
+        uma não mudaria nem a outra nem a variável. É uma previsão clara,
+        e dá para conferir.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        perguntei o endereco de n duas vezes, e veio o mesmo? 1
+        escrevi por um, e o nome e o outro mostram: 5 e 5
+    - prosa: >
+        O mesmo endereço, e o cinco aparece pelos três caminhos — pelo
+        primeiro ponteiro, pelo segundo e pelo nome. Não existem cópias:
+        há uma variável, e o & diz onde ela está, quantas vezes você
+        perguntar.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int sete(void)
+        {
+            int n = 7;
+
+            return n;
+        }
+    - codigo: |
+        int a = sete();
+        int b = 0;
+
+        a = a + 1;
+        b = sete();
+        printf("mexi na minha copia, e ela vale %d\n", a);
+        printf("a funcao continua devolvendo %d\n", b);
+        printf("o que voltou era copia, e nao a caixa de dentro? %d\n",
+               a == 8 && b == 7);
+    - prosa: >
+        Pergunta: somei um ao que a função devolveu. Por que a chamada
+        seguinte não devolveu oito?
+    - prosa: >
+        Porque o que eu somei foi a minha cópia. O valor veio para uma
+        caixa de quem chamou, e é nela que a soma aconteceu. A caixa de
+        dentro da função não existe entre uma chamada e outra — e a
+        chamada seguinte montou a dela de novo, com o sete que o código
+        escreve.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        mexi na minha copia, e ela vale 8
+        a funcao continua devolvendo 7
+        o que voltou era copia, e nao a caixa de dentro? 1
+    - prosa: >
+        Oito de um lado, sete do outro. O retorno entregou um valor e
+        nenhuma ligação: depois dele, o que você tem é seu, e o que a
+        função tinha acabou.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *devolve(int *p)
+        {
+            return p;
+        }
+    - codigo: |
+        int n = 7;
+        int *volta = devolve(&n);
+
+        printf("o que voltou foi o mesmo endereco que entrou? %d\n", volta == &n);
+        *volta = 9;
+        printf("e o objeto nunca saiu do lugar: escrevi pelo que voltou, e n vale %d\n",
+               n);
+    - prosa: >
+        Pergunta: a função retornou um endereço. Ela devolveu a variável
+        n?
+    - prosa: >
+        Não: devolveu onde n está. A variável nunca saiu de onde foi
+        declarada, e o que atravessou o retorno foi um número — o mesmo
+        que tinha entrado. Aqui isso funciona porque n é de quem chamou, e
+        continua existindo depois que a função sai.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o que voltou foi o mesmo endereco que entrou? 1
+        e o objeto nunca saiu do lugar: escrevi pelo que voltou, e n vale 9
+    - prosa: >
+        O mesmo endereço, e o nove aparece em n. O retorno copiou um
+        número e nenhum objeto. Guarde a forma desta função, porque a
+        outra rota faz a mesma coisa com uma única diferença: de quem era
+        a caixa.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int conta_a(void)
+        {
+            static int n = 0;
+
+            n = n + 1;
+            return n;
+        }
+
+        int conta_b(void)
+        {
+            static int n = 100;
+
+            n = n + 1;
+            return n;
+        }
+    - codigo: |
+        int a = 0;
+        int b = 0;
+
+        conta_a();
+        conta_a();
+        a = conta_a();
+        b = conta_b();
+        printf("cada funcao lembrou do seu n entre as chamadas: %d e %d\n", a, b);
+        printf("os dois n, de mesmo nome, nunca se misturaram? %d\n",
+               a == 3 && b == 101);
+    - prosa: >
+        Pergunta: as duas variáveis se chamam n e as duas duram o programa
+        inteiro. Por que uma não atrapalha a outra?
+    - prosa: >
+        Porque o nome de cada uma só vale dentro da sua função. A duração
+        mudou — as duas lembram o que tinham entre as chamadas — e o
+        escopo, não: cada n continua interno, e de dentro de uma função
+        não se enxerga o n da outra.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        cada funcao lembrou do seu n entre as chamadas: 3 e 101
+        os dois n, de mesmo nome, nunca se misturaram? 1
+    - prosa: >
+        Três, porque a primeira lembrou das duas chamadas anteriores —
+        isso é a duração. Cento e um, porque a segunda nunca viu o n da
+        primeira — isso é o escopo. As duas propriedades no mesmo
+        programa, e a palavra static mexeu em uma só.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        void menor_e_maior(int a, int b, int *menor, int *maior)
+        {
+            if (a < b) {
+                *menor = a;
+                *maior = b;
+            } else {
+                *menor = b;
+                *maior = a;
+            }
+        }
+    - codigo: |
+        int menor = 0;
+        int maior = 0;
+
+        menor_e_maior(9, 4, &menor, &maior);
+        printf("a funcao ja retornou, e as duas respostas estao aqui: %d e %d\n",
+               menor, maior);
+        printf("elas ficaram porque as caixas eram de quem chamou? %d\n",
+               menor == 4 && maior == 9);
+    - prosa: >
+        Pergunta: a função escreveu duas respostas e saiu. Por que elas
+        não acabaram junto com ela?
+    - prosa: >
+        Porque não estavam em caixas dela. As duas variáveis foram
+        declaradas por quem chamou, e a função recebeu só os endereços — o
+        caminho para baixo, que vale porque o dono das caixas está
+        executando o tempo todo. O que acabou no retorno foram os
+        parâmetros da função, e as respostas não estavam neles.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a funcao ja retornou, e as duas respostas estao aqui: 4 e 9
+        elas ficaram porque as caixas eram de quem chamou? 1
+    - prosa: >
+        Quatro e nove, depois do retorno. Nenhum endereço subiu: os dois
+        desceram. E são duas respostas, que um retorno comum não
+        entregaria de uma vez — o padrão não é só o jeito seguro, é também
+        o que resolve o que o retorno sozinho não alcança.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Caminho DIFERENTE do caso resolvido -- ha teste no
+# projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Chame a mesma função duas vezes com argumentos
+        diferentes e veja se a segunda carrega algo da primeira.
+    - codigo: |
+        int dobra(int v)
+        {
+            int local = v;
+
+            local = local * 2;
+            return local;
+        }
+    - codigo: |
+        int a = dobra(3);
+        int b = dobra(10);
+
+        printf("duas chamadas, cada uma com a sua local: %d e %d\n", a, b);
+        printf("a segunda herdou alguma coisa da primeira? %d\n", b != 20);
+    - prosa: >
+        Na primeira chamada a local valeu três e depois seis. Se essa
+        caixa continuasse existindo, a segunda chamada a encontraria — e o
+        resultado dela dependeria do que a primeira deixou.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        duas chamadas, cada uma com a sua local: 6 e 20
+        a segunda herdou alguma coisa da primeira? 0
+    - prosa: >
+        Seis e vinte, e o zero responde à pergunta. A segunda chamada
+        montou a sua própria caixa, a partir do argumento que recebeu, e
+        não havia nada da primeira para herdar. A caixa da primeira acabou
+        no retorno dela.
+
+  B2:
+    - prosa: >
+        Outro caminho. Entregue o endereço de uma local a uma função que
+        você chama, e veja se ele serve lá.
+    - codigo: |
+        void soma_um(int *alvo)
+        {
+            *alvo = *alvo + 1;
+        }
+    - codigo: |
+        int n = 7;
+
+        soma_um(&n);
+        soma_um(&n);
+        printf("o endereco de n valeu nas duas chamadas: n agora e %d\n", n);
+        printf("quem declarou n ainda estava executando o tempo todo? %d\n", n == 9);
+    - prosa: >
+        A função chamada recebeu o endereço de uma variável que não é dela
+        e escreveu lá, duas vezes. Durante as duas chamadas, quem declarou
+        n estava parado na linha da chamada, esperando — e a caixa de n
+        estava de pé.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o endereco de n valeu nas duas chamadas: n agora e 9
+        quem declarou n ainda estava executando o tempo todo? 1
+    - prosa: >
+        Sete, oito, nove. O endereço serviu porque a variável existia
+        enquanto ele era usado. Essa é a direção em que o endereço de uma
+        local pode viajar: para baixo, para quem você chama. A direção
+        contrária é o problema que este tópico existe para mostrar.
+
+  B3:
+    - prosa: >
+        Outro caminho. Use o valor duas vezes e conte quantas vezes a
+        função precisou rodar.
+    - codigo: |
+        int mede(int *chamadas)
+        {
+            *chamadas = *chamadas + 1;
+            return 42;
+        }
+    - codigo: |
+        int chamadas = 0;
+        int guardado = mede(&chamadas);
+
+        printf("usei o valor duas vezes: %d\n", guardado + guardado);
+        printf("e a funcao foi chamada quantas vezes? %d\n", chamadas);
+    - prosa: >
+        A função anota cada vez que roda, numa caixa de quem chamou. O
+        valor que ela devolveu foi para uma variável, e foi dessa variável
+        que as duas leituras saíram.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        usei o valor duas vezes: 84
+        e a funcao foi chamada quantas vezes? 1
+    - prosa: >
+        Dois usos, uma chamada. Guardar é o que tornou isso possível: se o
+        valor retornado ficasse em algum lugar por conta própria, a
+        variável seria dispensável — e sem ela a única maneira de ter o
+        quarenta e dois de novo seria rodar a função outra vez.
+
+  I1:
+    - prosa: >
+        Outro caminho, e este não tem saída para mostrar. O retorno faz a
+        mesma coisa de antes — copia um endereço.
+    - codigo: |
+        int *f(void)
+        {
+            int n = 7;
+
+            return &n;   /* invalido usar depois: n acaba neste retorno */
+        }
+    - prosa: >
+        Não há bloco de saída, e a ausência é a demonstração. O retorno em
+        si acontece normalmente: um número é copiado para quem chamou. O
+        que mudou em relação ao caso anterior é uma coisa só — a caixa que
+        o número indica é uma local desta função, e ela acaba exatamente
+        neste retorno.
+    - prosa: >
+        Então quem chamou recebe um endereço que não leva mais a objeto
+        nenhum. Mostrar o que sairia ao usá-lo exigiria usá-lo, e é isso
+        que a linguagem não define. A pergunta "mas o sete ainda está lá?"
+        já aceita a crença: supõe que a variável voltou junto. Não voltou
+        — voltou onde ela esteve.
+    - prosa: >
+        Quem quiser ver a máquina dizer isso tem onde: a demonstração
+        deste nó na tela de refutação compila uma função desta forma, e o
+        compilador diagnostica o retorno do endereço de uma local. O
+        programa não é executado nem lá.
+
+  I2:
+    - prosa: >
+        Outro caminho. Devolva o endereço de uma local static duas vezes e
+        compare o que veio.
+    - codigo: |
+        int *caixa(void)
+        {
+            static int n = 7;
+
+            return &n;
+        }
+    - codigo: |
+        int *p = caixa();
+        int *q = caixa();
+
+        printf("duas chamadas devolveram a mesma caixa? %d\n", p == q);
+        *p = 9;
+        printf("escrevi por um endereco e li pelo outro: %d\n", *q);
+    - prosa: >
+        Este é o caso em que devolver o endereço de uma local vale, e por
+        isso ele pode ser executado: a caixa não acaba no retorno. As duas
+        chamadas devolvem o endereço da mesma caixa, que estava lá antes
+        da primeira e continua lá depois da segunda.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        duas chamadas devolveram a mesma caixa? 1
+        escrevi por um endereco e li pelo outro: 9
+    - prosa: >
+        A mesma caixa, e o nove passa de um endereço ao outro. Funcionou
+        porque a caixa dura — e não porque o nome ficou visível: fora da
+        função, o nome n continua não existindo, e tudo o que se tem é o
+        endereço. Duração mudada, escopo intacto.
+
+  I3:
+    - prosa: >
+        Outro caminho, e este não tem saída para mostrar. Procure a
+        devolução de memória neste trecho.
+    - codigo: |
+        int *maior(int a, int b)
+        {
+            int m = a;
+
+            if (b > a) {
+                m = b;
+            }
+            return &m;   /* invalido usar depois: m acaba neste retorno */
+        }
+    - prosa: >
+        Não há devolução nenhuma. Não há pedido ao alocador, não há free,
+        e mesmo assim quem chamar esta função recebe um ponteiro pendente
+        — o endereço de uma caixa que acabou no instante do retorno. Não
+        há bloco de saída porque mostrar o que sairia exigiria usar esse
+        endereço, e é isso que a linguagem não define.
+    - prosa: >
+        A crença deste nó diz que funciona, que a variável continua lá. O
+        que continua é o número, e ele não garante mais nada. E a conta
+        feita dentro da função estava certa — o defeito não é o cálculo, é
+        onde a resposta foi posta: numa caixa que não sobrevive a quem a
+        criou.
+    - prosa: >
+        O conserto é o caso resolvido deste cartão: a resposta vai para
+        uma caixa de quem chamou, por um endereço que desce. Ou, quando é
+        uma resposta só, o próprio valor é retornado, e a cópia fica com
+        quem chamou. Os dois caminhos têm a mesma virtude — nenhum deles
+        deixa endereço de local subir.
+
 activities:
 
   # ------------------------------------------------------------------

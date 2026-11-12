@@ -35,11 +35,15 @@ topic: kc_12
 #     conclusão. O I5 tem ZERO caminhos na curadoria, e é o conserto da
 #     conclusão, não uma premissa separada.
 #
-# TODAS AS SEIS CRENÇAS SÃO GRADE T. É a imagem espelhada do kc_11, que
-# fechou com seis `L`, e as duas coisas fazem sentido juntas: escopo e
-# tempo de vida são estudados empiricamente em outras linguagens
-# (du Boulay, Kaczmarczyk, Kumar, Hristova), enquanto aritmética de
-# ponteiro é assunto de FAQ de C.
+# CINCO DAS SEIS CRENÇAS SÃO GRADE T, E UMA É GRADE E. Este comentário
+# dizia "todas as seis são grade T" e ficou velho em 11/11/2026: a do B1,
+# `memory_is_uniform`, desceu para `E` junto com o rebaixamento feito no
+# kc_01, porque a citação que a sustentava não se confirmou. Consertado
+# em 12/11/2026, com o material do tópico. O resto da observação fica:
+# é quase a imagem espelhada do kc_11, que fechou com seis `L`, e as duas
+# coisas fazem sentido juntas — escopo e tempo de vida são estudados
+# empiricamente em outras linguagens (du Boulay, Kumar, Hristova),
+# enquanto aritmética de ponteiro é assunto de FAQ de C.
 
 nodes:
 
@@ -88,6 +92,26 @@ nodes:
           }
         espera: |-
           as duas chamadas devolveram 1: a local nao atravessou o retorno
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Quando uma função retorna, as variáveis locais dela deixam de
+      existir. Não é o nome que fica invisível: o espaço deixa de ser
+      delas, e pode ser usado pela próxima função que for chamada. Cada
+      chamada monta as suas caixas ao entrar e as perde ao sair.
+
+
+      E o retorno encerra as locais de quem retorna, e só de quem retorna.
+      Uma função que chama outra continua executando enquanto a outra
+      roda: as caixas dela estão de pé o tempo todo, e estão inteiras
+      quando a chamada volta. O que acaba num retorno é o que pertence
+      àquela chamada, e nada mais.
+
+
+      Essa é a regra de uma área da memória, e não de todas. O que você
+      pede ao alocador segue outra regra, e o que é declarado para durar o
+      programa inteiro segue uma terceira. Tratar as três como uma só leva
+      a erros de dois lados: contar com o que já acabou, ou não devolver o
+      que continua — e o resto deste tópico é sobre o primeiro.
   B2:
     type: observavel
     role: espinha
@@ -125,6 +149,26 @@ nodes:
           }
         espera: |-
           enquanto a funcao rodava, o endereco da local funcionou
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O & pergunta onde a variável está, e a resposta é o endereço dela —
+      não uma cópia do que ela guarda. Quem tem esse endereço alcança a
+      própria variável: ler por ele é ler a variável, escrever por ele é
+      escrever nela. Não há segundo objeto em lugar nenhum.
+
+
+      E esse endereço vale enquanto a variável existir. Para uma local,
+      isso quer dizer enquanto a função dela estiver executando — e
+      executando inclui o tempo em que ela está parada, esperando voltar
+      uma função que ela chamou. Durante todo esse tempo a caixa está de
+      pé e o endereço leva a ela.
+
+
+      Por isso a direção importa. Entregar o endereço de uma local a uma
+      função que você chama é seguro: você ainda está lá quando ela usa.
+      Levar o endereço para quem chamou você é outra história — quando ele
+      chega lá, você já saiu, e a caixa foi junto. O número continua sendo
+      um número; o que ele indicava é que acabou.
   B3:
     type: observavel
     role: espinha
@@ -164,6 +208,28 @@ nodes:
         espera: |-
           o valor chegou aqui fora
           e e copia minha: mexer nela nao mexe no que a funcao devolve
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O retorno entrega um valor, e esse valor é copiado para quem chamou.
+      A caixa em que ele estava dentro da função acaba junto com a função;
+      o que sobrevive é a cópia, e ela sobrevive onde o chamador a puser.
+      Se você escreve o resultado numa variável sua, é lá que ele passa a
+      existir.
+
+
+      Não há um lugar à parte onde os valores retornados ficam esperando.
+      A ideia de que o resultado continua guardado em algum canto vem de
+      como a chamada se lê — a expressão parece valer aquele número, e
+      parece que vale para sempre. Ela vale no instante em que é avaliada;
+      quem não guardou e precisa de novo tem de chamar de novo, e a função
+      roda de novo.
+
+
+      E isso vale para qualquer tipo de valor, inclusive endereços. Uma
+      função que retorna um endereço entrega uma cópia do número, do mesmo
+      jeito que entregaria uma cópia de um inteiro. A cópia chega
+      perfeita. Se o que ela indica ainda existe é outra pergunta — e é a
+      pergunta do próximo nó.
   I1:
     type: inferencia
     role: espinha
@@ -214,6 +280,29 @@ nodes:
           COMPILA — o padrão não exige recusa, exige diagnóstico — e não
           é executado aqui: executá-lo seria justamente o comportamento
           que a premissa diz não ter resultado previsível.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o B2 e o B3 se encontrando. O endereço de
+      uma local vale enquanto a função dela executa, e o que um retorno
+      entrega é uma cópia do valor retornado. Retorne o endereço de uma
+      local, então: a cópia do número chega perfeita às mãos de quem
+      chamou — e a função acabou de sair, levando a caixa que aquele
+      número indicava.
+
+
+      O que viaja é o endereço, e o objeto fica. Um endereço não é a coisa
+      que está lá: é onde ela está. Devolver o endereço não devolve a
+      variável, do mesmo jeito que anotar o número de uma casa não leva a
+      casa junto. Quando a casa era de quem chamou, o número continua
+      servindo depois do retorno; quando era de quem retornou, o número
+      passa a indicar um lugar que não é mais de ninguém em particular.
+
+
+      E o erro engana porque nada parece errado. O ponteiro que chega não
+      é nulo, tem cara de endereço comum, e o programa segue. O que há
+      naquele lugar a partir daí a linguagem não define — e não definir
+      inclui poder parecer certo, o que torna este um dos erros mais
+      difíceis de achar olhando só para o resultado.
   I2:
     type: inferencia
     role: espinha
@@ -288,6 +377,30 @@ nodes:
           gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. O que o padrão
           exige de todo compilador conforme é o diagnóstico; o que se
           observa aqui é a recusa deste.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto parte do B1, pela exceção. O retorno encerra as locais — a não
+      ser que a local seja declarada com static. Com essa palavra, a caixa
+      deixa de ser montada e desmontada a cada chamada: ela existe uma vez
+      só, desde antes da primeira chamada até o fim do programa, e guarda
+      o que tinha entre uma chamada e outra.
+
+
+      O que static muda é a duração, e só ela. O escopo continua o mesmo:
+      o nome da variável só vale dentro da função em que ela foi
+      declarada, e ninguém de fora consegue escrevê-lo. São duas perguntas
+      diferentes — por quanto tempo a caixa existe, e de onde o nome dela
+      pode ser usado — e a palavra responde à primeira sem tocar na
+      segunda. É por isso que devolver o endereço de uma local static
+      vale: a caixa dura, mesmo o nome continuando interno.
+
+
+      E é o que explica uma local comum às vezes parecer funcionar do
+      mesmo jeito. Depois do retorno, a linguagem não define o que há no
+      lugar que era dela — e não definir inclui poder parecer certo, numa
+      execução, numa máquina. O programa que conta com isso não está
+      certo: está sem garantia nenhuma, e a diferença para a versão com
+      static é exatamente a garantia.
   I3:
     type: inferencia
     role: conclusao
@@ -301,6 +414,14 @@ nodes:
       caixa e passar o endereço dela para a função preencher.
     negated_by:
       - local_survives_return
+    # LIBERADA EM 12/11/2026. O comentario abaixo descreve o estado
+    # ANTERIOR e fica como historia: o portao de exibicao passou a
+    # aceitar cartao de topico ANTERIOR, pelo fecho dos pre-requisitos
+    # declarados (`conceitos.anteriores`), e o kc_06 e
+    # pre-requisito declarado deste topico.
+    # Esta demonstracao agora chega a tela. Ver
+    # `mvp/test_exibicao_por_prerequisito.py`.
+    #
     # BARRADA por `funcao_com_parametro`. A premissa fala do caminho
     # CERTO, e o caminho certo tem parametro -- nao ha versao sem ele.
     evidencia:
@@ -328,3 +449,26 @@ nodes:
           }
         espera: |-
           a funcao escreveu na variavel de quem chamou, e o 7 ficou
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto é o fecho do tópico. O retorno encerra as locais, e devolver o
+      endereço de uma delas entrega a quem chamou um número que não leva
+      mais a objeto nenhum. Um ponteiro assim está pendente — e repare que
+      ninguém devolveu memória nenhuma para chegar a esse estado. Bastou
+      uma função sair.
+
+
+      É isso que torna este pendente mais difícil de achar. Quem aprendeu
+      que o perigo mora depois da devolução procura a devolução, e aqui
+      não há nenhuma: o programa inteiro pode não ter um pedido ao
+      alocador sequer. A caixa não foi devolvida por ninguém — ela acabou
+      sozinha, na regra automática da área dela, e o endereço ficou para
+      trás na mão de quem chamou.
+
+
+      O conserto é inverter a direção. Em vez de a função criar a caixa e
+      tentar entregá-la para cima, quem chama cria a caixa e entrega o
+      endereço para baixo. A função escreve lá e sai; a caixa continua,
+      porque nunca foi dela. É a única das duas direções em que o endereço
+      de uma local viaja com garantia, e serve para qualquer quantidade de
+      respostas.

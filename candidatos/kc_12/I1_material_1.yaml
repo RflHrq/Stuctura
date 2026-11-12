@@ -1,0 +1,172 @@
+# Material de ensino do I1 do kc_12 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Primeiro nó de inferência: suporte em
+# `B2` e `B3`, e a refutação percorre os dois antes de chegar aqui.
+#
+# E A DERIVAÇÃO É A SOMA DOS DOIS: o endereço de uma local vale enquanto
+# a função executa (B2), e o que o retorno entrega é uma cópia do valor
+# (B3). Retorne o endereço: a cópia do NÚMERO chega perfeita, e a função
+# que dava sentido a ele acabou de sair. Não é regra nova; é o encontro
+# das duas.
+#
+# ---------------------------------------------------------------------
+# E É UM NÓ DA FAMÍLIA DO COMPORTAMENTO INDEFINIDO. A evidência dele no
+# grafo usa a TERCEIRA FORMA do contrato: o compilador diagnostica o
+# retorno do endereço de uma local, e o programa não é executado. Cartão
+# não tem essa forma, então:
+#
+#   O CASO RESOLVIDO demonstra a metade que se pode rodar — o retorno
+#   copia um ENDEREÇO, e não o objeto — com um objeto que continua vivo;
+#   A OUTRA ROTA mostra o trecho inválido, sem bloco de saída.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `pointer_is_data` — "o ponteiro é o próprio dado: retornar &local
+# devolve a variável". Grade `T`: Sorva (2012), p. 360, item 14 — a
+# variável como mero par de nome e valor, que não está guardada dentro
+# do computador (Sorva 2008; Doukakis et al. 2007). A mesma crença nega o
+# `kc_04:B3` e o `kc_08:B2`.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Uma função que devolve o endereço que RECEBEU: o
+#                    que volta é o mesmo endereço, e o objeto nunca saiu
+#                    do lugar.
+#   outra rota       O retorno de &local, mostrado e NÃO executado.
+#
+# O CASO RESOLVIDO SEPARA AS DUAS COISAS QUE A CRENÇA JUNTA. A função
+# devolve um endereço, e o objeto é de quem chamou — então dá para olhar
+# os dois depois do retorno, legitimamente. O que se vê: o endereço que
+# voltou é IGUAL ao que entrou, e o objeto está onde sempre esteve. O
+# retorno transportou um número, e nenhum objeto.
+#
+# A OUTRA ROTA É O MESMO MECANISMO COM O OBJETO ERRADO. O retorno faz
+# exatamente a mesma coisa — copia um endereço —, só que o objeto era
+# uma local de quem retornou. O cartão põe os dois casos lado a lado
+# para que a diferença fique onde ela está: não no retorno, e sim em de
+# quem era a caixa.
+#
+# O QUE FICA FORA
+#
+#   retornar &local devolve o quê        -> `ciu_kc12_010`
+#   endereço e objeto são a mesma coisa? -> `ciu_kc12_t10`
+#   `sizeof` do que voltou               -> `ciu_kc12_011`
+#   `*f()` com f devolvendo &n           -> `ciu_kc12_t11`
+#   `return n` contra `return &n`        -> `ciu_kc12_012`, degrau 3
+#   `p == NULL` depois de f              -> `ciu_kc12_t12`, degrau 3
+#
+# O `012` COMPARA DEVOLVER O VALOR COM DEVOLVER O ENDEREÇO DA LOCAL. O
+# caso resolvido não devolve valor nem endereço de local: devolve o
+# endereço de um objeto DO CHAMADOR, que é o caso em que devolver
+# endereço funciona — e é o que mostra que o problema nunca foi "retornar
+# endereço".
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): o programa do caso
+# resolvido compila sem um aviso, e a saída está transcrita da execução.
+# O trecho da outra rota NÃO É EXECUTADO, e por isso não traz saída.
+
+topico: kc_12
+node: kc12:I1
+premissa: "Retornar &local copia um endereço, não o objeto: quando o chamador o recebe, o objeto já não existe."
+crenca_que_nega: pointer_is_data
+
+gerado_por: Claude Fable 5.2, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 93c3431421fd
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO; o segundo diz o que
+# viaja e o que fica; o terceiro, por que o erro engana.
+ampliacao: >
+  Isto não é regra nova: é o B2 e o B3 se encontrando. O endereço de
+  uma local vale enquanto a função dela executa, e o que um retorno
+  entrega é uma cópia do valor retornado. Retorne o endereço de uma
+  local, então: a cópia do número chega perfeita às mãos de quem chamou
+  — e a função acabou de sair, levando a caixa que aquele número
+  indicava.
+
+  O que viaja é o endereço, e o objeto fica. Um endereço não é a coisa
+  que está lá: é onde ela está. Devolver o endereço não devolve a
+  variável, do mesmo jeito que anotar o número de uma casa não leva a
+  casa junto. Quando a casa era de quem chamou, o número continua
+  servindo depois do retorno; quando era de quem retornou, o número
+  passa a indicar um lugar que não é mais de ninguém em particular.
+
+  E o erro engana porque nada parece errado. O ponteiro que chega não é
+  nulo, tem cara de endereço comum, e o programa segue. O que há naquele
+  lugar a partir daí a linguagem não define — e não definir inclui poder
+  parecer certo, o que torna este um dos erros mais difíceis de achar
+  olhando só para o resultado.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *f(void) { int n = 7; return &n; }
+  /* volta o numero; a caixa fica para tras */
+
+
+# O CASO RESOLVIDO: o retorno transporta um endereço.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int *devolve(int *p)
+      {
+          return p;
+      }
+  - codigo: |
+      int n = 7;
+      int *volta = devolve(&n);
+
+      printf("o que voltou foi o mesmo endereco que entrou? %d\n", volta == &n);
+      *volta = 9;
+      printf("e o objeto nunca saiu do lugar: escrevi pelo que voltou, e n vale %d\n",
+             n);
+  - prosa: "Pergunta: a função retornou um endereço. Ela devolveu a variável n?"
+  - prosa: >
+      Não: devolveu onde n está. A variável nunca saiu de onde foi
+      declarada, e o que atravessou o retorno foi um número — o mesmo que
+      tinha entrado. Aqui isso funciona porque n é de quem chamou, e
+      continua existindo depois que a função sai.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o que voltou foi o mesmo endereco que entrou? 1
+      e o objeto nunca saiu do lugar: escrevi pelo que voltou, e n vale 9
+  - prosa: >
+      O mesmo endereço, e o nove aparece em n. O retorno copiou um número
+      e nenhum objeto. Guarde a forma desta função, porque a outra rota
+      faz a mesma coisa com uma única diferença: de quem era a caixa.
+
+
+# A OUTRA ROTA: a mesma cópia, com a caixa errada.
+reexplicacao:
+  - prosa: >
+      Outro caminho, e este não tem saída para mostrar. O retorno faz a
+      mesma coisa de antes — copia um endereço.
+  - codigo: |
+      int *f(void)
+      {
+          int n = 7;
+
+          return &n;   /* invalido usar depois: n acaba neste retorno */
+      }
+  - prosa: >
+      Não há bloco de saída, e a ausência é a demonstração. O retorno em
+      si acontece normalmente: um número é copiado para quem chamou. O
+      que mudou em relação ao caso anterior é uma coisa só — a caixa que
+      o número indica é uma local desta função, e ela acaba exatamente
+      neste retorno.
+  - prosa: >
+      Então quem chamou recebe um endereço que não leva mais a objeto
+      nenhum. Mostrar o que sairia ao usá-lo exigiria usá-lo, e é isso
+      que a linguagem não define. A pergunta "mas o sete ainda está lá?"
+      já aceita a crença: supõe que a variável voltou junto. Não voltou —
+      voltou onde ela esteve.
+  - prosa: >
+      Quem quiser ver a máquina dizer isso tem onde: a demonstração deste
+      nó na tela de refutação compila uma função desta forma, e o
+      compilador diagnostica o retorno do endereço de uma local. O
+      programa não é executado nem lá.

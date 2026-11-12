@@ -1,0 +1,175 @@
+# Material de ensino do B1 do kc_12 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_12 é o ÚLTIMO tópico sem material:
+# com ele, os treze estão escritos. Ele NÃO é tópico-piloto.
+#
+# A REGRA DESTE TÓPICO, e ela é a irmã da regra do kc_09:
+#
+#   NENHUMA DEMONSTRAÇÃO ESCRITA AQUI USA O ENDEREÇO DE UMA LOCAL DEPOIS
+#   QUE A FUNÇÃO DELA RETORNOU.
+#
+# Usar esse endereço é o comportamento indefinido que o tópico ensina a
+# não cometer. Os nós em que isso aperta — `I1` e `I3` — mostram o trecho
+# inválido sem executá-lo, e dizem no cabeçalho como fizeram.
+#
+# UM COMENTÁRIO DO GRAFO DESTE TÓPICO ESTÁ VELHO e é consertado junto:
+# ele diz que "todas as seis crenças são grade T". A deste nó desceu para
+# `E` em 11/11/2026, junto com o rebaixamento feito no kc_01. São cinco
+# `T` e uma `E`.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E ELA É GRADE `E`
+#
+# `memory_is_uniform` — "memória é uma região única, sem distinção de
+# regras de vida". Grade `E`: HIPÓTESE A TESTAR. O catálogo registra que
+# ela acompanha o rebaixamento do kc_01 — a citação anterior não se
+# sustentou, e o artigo não tem cópia de acesso aberto.
+#
+# A AMPLIAÇÃO NÃO ATRIBUI A CRENÇA A NINGUÉM, pela mesma razão dos
+# cartões `kc_01:B1` e `kc_01:I2`: para ela não há estudo.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Duas funções encaixadas: a local de quem CHAMOU
+#                    atravessa o retorno de quem foi chamada.
+#   outra rota       Duas chamadas da mesma função, cada uma com a sua
+#                    local, e a segunda não herda nada da primeira.
+#
+# O CASO RESOLVIDO MOSTRA O QUE A PREMISSA TEM DE PRECISO: o retorno
+# encerra as locais DA FUNÇÃO QUE RETORNA, e só dela. A função de fora
+# continua executando durante a chamada da de dentro, e a local dela está
+# inteira quando a outra volta. É a diferença entre "todo retorno apaga
+# tudo" e a regra de verdade.
+#
+# A OUTRA ROTA É PARENTE DO `kc_01:B2`, e a diferença é o insumo: lá a
+# local parte de uma constante; aqui ela é construída do ARGUMENTO de
+# cada chamada, e o resultado de cada uma depende só do que ela recebeu.
+# O zero da segunda linha é a pergunta "herdou?" respondida.
+#
+# O QUE FICA FORA
+#
+#   o que acontece com as locais no
+#     retorno                            -> `ciu_kc12_001`
+#   todas as áreas seguem a mesma regra? -> `ciu_kc12_t01`
+#   `g = &n` e a função seguinte         -> `ciu_kc12_002`
+#   `return s` de um char[] local        -> `ciu_kc12_t02`
+#   qual das três não devolve endereço
+#     válido                             -> `ciu_kc12_003`, degrau 3
+#   local contra static no retorno       -> `ciu_kc12_t03`, degrau 3
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_12
+node: kc12:B1
+premissa: "O retorno da função encerra a existência das suas locais."
+crenca_que_nega: memory_is_uniform
+
+gerado_por: Claude Fable 5.2, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 7faa7d593a47
+
+
+# A AMPLIAÇÃO. O que o retorno encerra, o que ele não encerra, e por que
+# a regra é desta área e não de toda a memória.
+ampliacao: >
+  Quando uma função retorna, as variáveis locais dela deixam de existir.
+  Não é o nome que fica invisível: o espaço deixa de ser delas, e pode
+  ser usado pela próxima função que for chamada. Cada chamada monta as
+  suas caixas ao entrar e as perde ao sair.
+
+  E o retorno encerra as locais de quem retorna, e só de quem retorna.
+  Uma função que chama outra continua executando enquanto a outra roda:
+  as caixas dela estão de pé o tempo todo, e estão inteiras quando a
+  chamada volta. O que acaba num retorno é o que pertence àquela
+  chamada, e nada mais.
+
+  Essa é a regra de uma área da memória, e não de todas. O que você pede
+  ao alocador segue outra regra, e o que é declarado para durar o
+  programa inteiro segue uma terceira. Tratar as três como uma só leva a
+  erros de dois lados: contar com o que já acabou, ou não devolver o que
+  continua — e o resto deste tópico é sobre o primeiro.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void f(void) { int n = 7; }
+  /* a caixa de n sai no retorno */
+
+
+# O CASO RESOLVIDO: quem retorna perde as suas, e só as suas.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int dentro(void)
+      {
+          int local = 5;
+
+          return local + 1;
+      }
+
+      int fora(void)
+      {
+          int minha = 10;
+          int veio = dentro();
+
+          return minha + veio;
+      }
+  - codigo: |
+      int total = fora();
+
+      printf("a local de fora atravessou a chamada de dentro: %d\n", total);
+      printf("o 10 dela estava inteiro depois que a outra retornou? %d\n",
+             total == 16);
+  - prosa: "Pergunta: houve um retorno no meio da execução de fora. Por que a variável minha não acabou nele?"
+  - prosa: >
+      Porque o retorno foi de outra função. Quem retornou foi dentro, e o
+      que acabou foram as locais de dentro. A função fora estava no meio
+      da execução dela, esperando a chamada voltar, e as caixas de quem
+      ainda está executando continuam de pé.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a local de fora atravessou a chamada de dentro: 16
+      o 10 dela estava inteiro depois que a outra retornou? 1
+  - prosa: >
+      Dezesseis: os dez de fora mais os seis que vieram de dentro. O dez
+      estava lá quando a chamada voltou. A local de dentro, não — o que
+      chegou dela foi o valor seis, copiado no retorno, e é só isso que
+      atravessa.
+
+
+# A OUTRA ROTA: cada chamada, a sua local.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Chame a mesma função duas vezes com argumentos
+      diferentes e veja se a segunda carrega algo da primeira.
+  - codigo: |
+      int dobra(int v)
+      {
+          int local = v;
+
+          local = local * 2;
+          return local;
+      }
+  - codigo: |
+      int a = dobra(3);
+      int b = dobra(10);
+
+      printf("duas chamadas, cada uma com a sua local: %d e %d\n", a, b);
+      printf("a segunda herdou alguma coisa da primeira? %d\n", b != 20);
+  - prosa: >
+      Na primeira chamada a local valeu três e depois seis. Se essa caixa
+      continuasse existindo, a segunda chamada a encontraria — e o
+      resultado dela dependeria do que a primeira deixou.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      duas chamadas, cada uma com a sua local: 6 e 20
+      a segunda herdou alguma coisa da primeira? 0
+  - prosa: >
+      Seis e vinte, e o zero responde à pergunta. A segunda chamada
+      montou a sua própria caixa, a partir do argumento que recebeu, e
+      não havia nada da primeira para herdar. A caixa da primeira acabou
+      no retorno dela.

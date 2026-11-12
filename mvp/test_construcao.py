@@ -21,6 +21,8 @@ novo e a unidade nunca termina.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
 from mvp import motor
@@ -144,22 +146,38 @@ def test_no_sem_ampliacao_nao_inventa_campo():
     ter uma e a lista ficou vazia. O teste não estava errado — o
     exemplo é que acabou.
 
-    Agora ele procura o nó sem ampliação onde ainda há muitos: dos 79
-    do projeto, a grande maioria continua sem. Se um dia não houver
-    nenhum, a trava dispara de novo, e aí o teste perdeu o objeto —
-    que é exatamente o que ela existe para dizer.
+    E A TRAVA DISPAROU DE NOVO EM 12/11/2026, como este texto previa:
+    "se um dia não houver nenhum, a trava dispara de novo, e aí o teste
+    perdeu o objeto". Naquele dia os 79 nós do projeto passaram a ter
+    ampliação, e não sobrou nó vazio em tópico nenhum para procurar.
+
+    ENTÃO O OBJETO PASSA A SER CONSTRUÍDO. Em cada tópico, a ampliação
+    de UM nó é tirada de propósito — com os vizinhos mantendo a deles —
+    e a asserção é a de sempre: a tela daquele nó não traz ampliação
+    nenhuma. Ficou mais forte do que era: antes o nó vazio vivia num
+    tópico todo vazio, onde não havia texto de vizinho para vazar; agora
+    os vizinhos têm texto, e é contra ESSE vazamento que o teste guarda.
+
+    A trava de vacuidade fica, com outro papel: se um tópico não tiver
+    nó nenhum para esvaziar, ou se o esvaziamento não pegar, ela acusa.
     """
-    achou = False
+    exercitados = 0
     for topico in topicos():
         dd = carrega(topico=topico)
-        for no in dd.nos:
-            if (dd.interpretacao(no) or "").strip():
-                continue
-            achou = True
-            tela = motor._tela_construcao(dd, no, "lacuna")
-            assert not (tela.dados.get("interpretacao") or "").strip(), (
-                "%s/%s" % (topico, no))
-    assert achou, "nenhum nó sem ampliação em tópico nenhum: teste sem objeto"
+        no = next(iter(dd.nos))
+        vazio = replace(dd, nos={**dd.nos,
+                                 no: replace(dd.nos[no], interpretacao="")})
+        assert not (vazio.interpretacao(no) or "").strip(), (
+            "o esvaziamento não pegou em %s/%s" % (topico, no))
+        assert any((vazio.interpretacao(n) or "").strip()
+                   for n in vazio.nos if n != no), (
+            "%s: nenhum vizinho com ampliação — não há o que vazar, e o "
+            "teste perde a força" % topico)
+        exercitados += 1
+        tela = motor._tela_construcao(vazio, no, "lacuna")
+        assert not (tela.dados.get("interpretacao") or "").strip(), (
+            "%s/%s" % (topico, no))
+    assert exercitados == len(topicos()), "teste sem objeto"
 
 
 def test_depois_do_ensino_vem_o_item_mais_facil(d2):

@@ -1,0 +1,166 @@
+# Material de ensino do B3 do kc_12 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Terceiro observável: o `B1` disse que a
+# local acaba no retorno, o `B2` que o endereço dela vale até lá, e este
+# diz o que, afinal, atravessa o retorno.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FRASE ESTÁ ASSIM NO ORIGINAL
+#
+# `retorno_fica_guardado` — "o valor retornado fica guardado em algum
+# lugar; não é preciso copiá-lo". Grade `T`: Sorva (2012), p. 361, item
+# 38 — um valor de retorno não precisa ser armazenado, mesmo que se
+# precise dele depois (Hristova et al. 2003). O catálogo registra que a
+# frase do apêndice tem o plural trocado no original, e a cita como está.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   A cópia é do chamador: mexer nela não muda o que a
+#                    função devolve na chamada seguinte.
+#   outra rota       Guardar o valor é o que permite usá-lo duas vezes
+#                    com UMA chamada — contada por um contador.
+#
+# O CASO RESOLVIDO MOSTRA A INDEPENDÊNCIA. O que voltou foi um valor, e
+# ele foi para uma caixa de quem chamou; a caixa de dentro da função
+# acabou. Somar um à cópia e chamar de novo põe as duas coisas lado a
+# lado: a cópia mudou, a função não.
+#
+# A OUTRA ROTA CONTA AS CHAMADAS, e é por isso que ela tem um contador
+# passado por endereço. A crença diz que o valor fica guardado em algum
+# lugar; se ficasse, não haveria diferença entre guardar e chamar de
+# novo. Há: quem não guarda tem de chamar outra vez, e a função roda
+# outra vez. O contador mostra que, guardando, ela rodou uma vez só.
+#
+# O CONTADOR USA O QUE O `B2` ACABOU DE ENSINAR — o endereço de uma
+# local entregue para baixo, a uma função chamada. É a direção válida, e
+# não é coincidência ela aparecer aqui: os três observáveis do tópico se
+# apoiam um no outro.
+#
+# O QUE FICA FORA
+#
+#   o que acontece com o valor retornado -> `ciu_kc12_007`
+#   para usar depois, o que é preciso    -> `ciu_kc12_t07`
+#   `soma(2, 3);` sozinha numa linha     -> `ciu_kc12_008`
+#   `conta()` com static                 -> `ciu_kc12_t08`
+#   o que cada uma faz com o endereço
+#     retornado                          -> `ciu_kc12_009`, degrau 3
+#   chamar `monta()` duas vezes          -> `ciu_kc12_t09`, degrau 3
+#
+# O `008` MOSTRA A CHAMADA DESCARTADA e pergunta por que ela não serviu
+# de nada. A outra rota mostra o contrário — a chamada aproveitada — e
+# mede o que guardar economizou.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): compilam sem um aviso, e
+# as saídas abaixo estão transcritas da execução.
+
+topico: kc_12
+node: kc12:B3
+premissa: "O valor retornado é copiado para o chamador."
+crenca_que_nega: retorno_fica_guardado
+
+gerado_por: Claude Fable 5.2, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: 1b3fac34d09a
+
+
+# A AMPLIAÇÃO. O que o retorno entrega, onde isso vai parar, e o que
+# acontece com o que ninguém guardou.
+ampliacao: >
+  O retorno entrega um valor, e esse valor é copiado para quem chamou. A
+  caixa em que ele estava dentro da função acaba junto com a função; o
+  que sobrevive é a cópia, e ela sobrevive onde o chamador a puser. Se
+  você escreve o resultado numa variável sua, é lá que ele passa a
+  existir.
+
+  Não há um lugar à parte onde os valores retornados ficam esperando.
+  A ideia de que o resultado continua guardado em algum canto vem de
+  como a chamada se lê — a expressão parece valer aquele número, e
+  parece que vale para sempre. Ela vale no instante em que é avaliada;
+  quem não guardou e precisa de novo tem de chamar de novo, e a função
+  roda de novo.
+
+  E isso vale para qualquer tipo de valor, inclusive endereços. Uma
+  função que retorna um endereço entrega uma cópia do número, do mesmo
+  jeito que entregaria uma cópia de um inteiro. A cópia chega perfeita.
+  Se o que ela indica ainda existe é outra pergunta — e é a pergunta do
+  próximo nó.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int soma(int a, int b);
+  soma(2, 3);        /* o 5 se perdeu */
+  int t = soma(2, 3);  /* guardado */
+
+
+# O CASO RESOLVIDO: a cópia é sua.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int sete(void)
+      {
+          int n = 7;
+
+          return n;
+      }
+  - codigo: |
+      int a = sete();
+      int b = 0;
+
+      a = a + 1;
+      b = sete();
+      printf("mexi na minha copia, e ela vale %d\n", a);
+      printf("a funcao continua devolvendo %d\n", b);
+      printf("o que voltou era copia, e nao a caixa de dentro? %d\n",
+             a == 8 && b == 7);
+  - prosa: "Pergunta: somei um ao que a função devolveu. Por que a chamada seguinte não devolveu oito?"
+  - prosa: >
+      Porque o que eu somei foi a minha cópia. O valor veio para uma
+      caixa de quem chamou, e é nela que a soma aconteceu. A caixa de
+      dentro da função não existe entre uma chamada e outra — e a
+      chamada seguinte montou a dela de novo, com o sete que o código
+      escreve.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      mexi na minha copia, e ela vale 8
+      a funcao continua devolvendo 7
+      o que voltou era copia, e nao a caixa de dentro? 1
+  - prosa: >
+      Oito de um lado, sete do outro. O retorno entregou um valor e
+      nenhuma ligação: depois dele, o que você tem é seu, e o que a
+      função tinha acabou.
+
+
+# A OUTRA ROTA: guardar, e contar as chamadas.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Use o valor duas vezes e conte quantas vezes a
+      função precisou rodar.
+  - codigo: |
+      int mede(int *chamadas)
+      {
+          *chamadas = *chamadas + 1;
+          return 42;
+      }
+  - codigo: |
+      int chamadas = 0;
+      int guardado = mede(&chamadas);
+
+      printf("usei o valor duas vezes: %d\n", guardado + guardado);
+      printf("e a funcao foi chamada quantas vezes? %d\n", chamadas);
+  - prosa: >
+      A função anota cada vez que roda, numa caixa de quem chamou. O
+      valor que ela devolveu foi para uma variável, e foi dessa variável
+      que as duas leituras saíram.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      usei o valor duas vezes: 84
+      e a funcao foi chamada quantas vezes? 1
+  - prosa: >
+      Dois usos, uma chamada. Guardar é o que tornou isso possível: se o
+      valor retornado ficasse em algum lugar por conta própria, a
+      variável seria dispensável — e sem ela a única maneira de ter o
+      quarenta e dois de novo seria rodar a função outra vez.

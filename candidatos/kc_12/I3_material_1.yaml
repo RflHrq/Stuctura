@@ -1,0 +1,191 @@
+# Material de ensino do I3 do kc_12 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico: suporte em `B1`,
+# `I1` e `I2`, e a refutação percorre os cinco nós anteriores antes de
+# chegar aqui.
+#
+# E A DERIVAÇÃO VEM DOS TRÊS: o retorno encerra as locais (B1); devolver
+# o endereço de uma delas entrega um número que não leva mais a objeto
+# nenhum (I1); e a única local que escapa disso é a `static`, pela
+# duração (I2). Junte: existe ponteiro pendente sem que ninguém tenha
+# chamado `free` — e o conserto é inverter a direção, com quem chama
+# fornecendo a caixa. Não é regra nova; é o fecho, com a saída.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `local_survives_return` — "retornar o endereço de uma variável local
+# funciona; ela continua lá". Grade `T`: Kumar (2001), ITiCSE; e Sorva
+# (2012), p. 359, item 5 — dificuldades em entender o tempo de vida dos
+# valores (du Boulay 1986). É a crença da curadoria, com a fonte dela.
+#
+# ---------------------------------------------------------------------
+# E É UM NÓ DA FAMÍLIA DO COMPORTAMENTO INDEFINIDO, como o `I1`. Vale a
+# regra do tópico: nenhuma demonstração usa o endereço de uma local
+# depois do retorno.
+#
+#   O CASO RESOLVIDO é o conserto, e ele roda inteiro;
+#   A OUTRA ROTA é o ponteiro pendente sem free, mostrado e NÃO
+#   executado.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O chamador fornece DUAS caixas, e a função as
+#                    preenche: depois do retorno, as duas respostas
+#                    estão lá.
+#   outra rota       Um programa sem nenhum free e com um ponteiro
+#                    pendente — o trecho, sem saída.
+#
+# O CASO RESOLVIDO DEVOLVE DUAS RESPOSTAS DE PROPÓSITO. Com uma só, o
+# leitor pode pensar que bastava retornar o valor — e bastava. Com duas,
+# o retorno comum não dá conta, e o padrão de o chamador fornecer o
+# armazenamento mostra para que serve: a função escreve em caixas que
+# não acabam com ela, porque não são dela.
+#
+# É O `B2` USADO COMO SOLUÇÃO. Lá o endereço de uma local descia para
+# quem era chamado, e valia porque o dono ainda estava executando. Aqui é
+# a mesma direção, vista do outro lado: quem chama é o dono das caixas,
+# e por isso elas estão de pé antes, durante e depois da chamada.
+#
+# A OUTRA ROTA TEM UM DETALHE QUE É O PONTO: não há `free` em lugar
+# nenhum do trecho. O `kc_09` ensinou o ponteiro pendente que nasce de
+# uma devolução; este mostra que ele nasce também de um retorno — e que
+# quem só procura por `free` não o acha.
+#
+# O QUE FICA FORA
+#
+#   pendente sem chamar free?           -> `ciu_kc12_016`
+#   o jeito certo de preencher          -> `ciu_kc12_t16`
+#   o jeito certo de f entregar o 7     -> `ciu_kc12_017`
+#   `monta(char *destino, int n)`       -> `ciu_kc12_t17`
+#   `int *f(void)` contra
+#     `void g(int *destino)`            -> `ciu_kc12_018`, degrau 3
+#   consertar `maior` sem malloc        -> `ciu_kc12_t18`, degrau 3
+#
+# O `t18` PEDE O CONSERTO DE UMA FUNÇÃO QUE DEVOLVE O ENDEREÇO DO MAIOR;
+# o caso resolvido entrega o menor E o maior em caixas do chamador. Não é
+# a resposta do item — o item tem uma resposta só, e mais de um conserto
+# possível —, e sim o padrão por inteiro, num caso em que retornar o
+# valor não bastaria.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): o programa do caso
+# resolvido compila sem um aviso, e a saída está transcrita da execução.
+# O trecho da outra rota NÃO É EXECUTADO, e por isso não traz saída.
+
+topico: kc_12
+node: kc12:I3
+premissa: "Há ponteiro pendente sem nenhum free; o caminho certo é o chamador fornecer o armazenamento."
+crenca_que_nega: local_survives_return
+
+gerado_por: Claude Fable 5.2, 12/11/2026
+revisado_por: Rafael H. S. Simao
+revisado_sha: af0d50dff8a6
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo junta os nós; o segundo diz por que
+# este pendente é mais difícil de ver; o terceiro é o conserto.
+ampliacao: >
+  Isto é o fecho do tópico. O retorno encerra as locais, e devolver o
+  endereço de uma delas entrega a quem chamou um número que não leva
+  mais a objeto nenhum. Um ponteiro assim está pendente — e repare que
+  ninguém devolveu memória nenhuma para chegar a esse estado. Bastou uma
+  função sair.
+
+  É isso que torna este pendente mais difícil de achar. Quem aprendeu
+  que o perigo mora depois da devolução procura a devolução, e aqui não
+  há nenhuma: o programa inteiro pode não ter um pedido ao alocador
+  sequer. A caixa não foi devolvida por ninguém — ela acabou sozinha, na
+  regra automática da área dela, e o endereço ficou para trás na mão de
+  quem chamou.
+
+  O conserto é inverter a direção. Em vez de a função criar a caixa e
+  tentar entregá-la para cima, quem chama cria a caixa e entrega o
+  endereço para baixo. A função escreve lá e sai; a caixa continua,
+  porque nunca foi dela. É a única das duas direções em que o endereço
+  de uma local viaja com garantia, e serve para qualquer quantidade de
+  respostas.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  void g(int *destino) { *destino = 7; }
+  int n;  g(&n);     /* o chamador deu a caixa */
+
+
+# O CASO RESOLVIDO: o chamador fornece as caixas.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      void menor_e_maior(int a, int b, int *menor, int *maior)
+      {
+          if (a < b) {
+              *menor = a;
+              *maior = b;
+          } else {
+              *menor = b;
+              *maior = a;
+          }
+      }
+  - codigo: |
+      int menor = 0;
+      int maior = 0;
+
+      menor_e_maior(9, 4, &menor, &maior);
+      printf("a funcao ja retornou, e as duas respostas estao aqui: %d e %d\n",
+             menor, maior);
+      printf("elas ficaram porque as caixas eram de quem chamou? %d\n",
+             menor == 4 && maior == 9);
+  - prosa: "Pergunta: a função escreveu duas respostas e saiu. Por que elas não acabaram junto com ela?"
+  - prosa: >
+      Porque não estavam em caixas dela. As duas variáveis foram
+      declaradas por quem chamou, e a função recebeu só os endereços — o
+      caminho para baixo, que vale porque o dono das caixas está
+      executando o tempo todo. O que acabou no retorno foram os
+      parâmetros da função, e as respostas não estavam neles.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      a funcao ja retornou, e as duas respostas estao aqui: 4 e 9
+      elas ficaram porque as caixas eram de quem chamou? 1
+  - prosa: >
+      Quatro e nove, depois do retorno. Nenhum endereço subiu: os dois
+      desceram. E são duas respostas, que um retorno comum não entregaria
+      de uma vez — o padrão não é só o jeito seguro, é também o que
+      resolve o que o retorno sozinho não alcança.
+
+
+# A OUTRA ROTA: pendente sem free, e isto não roda.
+reexplicacao:
+  - prosa: >
+      Outro caminho, e este não tem saída para mostrar. Procure a
+      devolução de memória neste trecho.
+  - codigo: |
+      int *maior(int a, int b)
+      {
+          int m = a;
+
+          if (b > a) {
+              m = b;
+          }
+          return &m;   /* invalido usar depois: m acaba neste retorno */
+      }
+  - prosa: >
+      Não há devolução nenhuma. Não há pedido ao alocador, não há free, e
+      mesmo assim quem chamar esta função recebe um ponteiro pendente — o
+      endereço de uma caixa que acabou no instante do retorno. Não há
+      bloco de saída porque mostrar o que sairia exigiria usar esse
+      endereço, e é isso que a linguagem não define.
+  - prosa: >
+      A crença deste nó diz que funciona, que a variável continua lá. O
+      que continua é o número, e ele não garante mais nada. E a conta
+      feita dentro da função estava certa — o defeito não é o cálculo, é
+      onde a resposta foi posta: numa caixa que não sobrevive a quem a
+      criou.
+  - prosa: >
+      O conserto é o caso resolvido deste cartão: a resposta vai para uma
+      caixa de quem chamou, por um endereço que desce. Ou, quando é uma
+      resposta só, o próprio valor é retornado, e a cópia fica com quem
+      chamou. Os dois caminhos têm a mesma virtude — nenhum deles deixa
+      endereço de local subir.
