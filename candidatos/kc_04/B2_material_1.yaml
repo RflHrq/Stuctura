@@ -56,8 +56,8 @@ premissa: "&x devolve o endereço de x, e não copia x."
 crenca_que_nega: ampersand_copies
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: 0b1af82ac1df
 
 
 # A AMPLIAÇÃO. O que o & devolve, o que ele não faz, e a diferença que

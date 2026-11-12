@@ -55,8 +55,8 @@ premissa: "O valor guardado num ponteiro é um endereço."
 crenca_que_nega: pointer_is_data
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: c2a3fdcb122a
 
 
 # A AMPLIAÇÃO. O que há dentro, o que isso significa para p, e o que

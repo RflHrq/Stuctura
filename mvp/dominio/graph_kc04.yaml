@@ -92,6 +92,24 @@ nodes:
           gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. O que o padrão
           exige de todo compilador conforme é o diagnóstico; o que se
           observa aqui é a recusa deste.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      O endereço é propriedade do LUGAR, e não do valor. Toda variável
+      ocupa um lugar na memória enquanto existe, e é esse lugar que tem
+      número. Duas variáveis com o mesmo conteúdo ocupam lugares
+      diferentes, e por isso têm endereços diferentes.
+
+
+      Um número escrito no código não ocupa lugar nenhum. O 5 que você
+      digita numa conta não é guardado em canto algum para ser consultado
+      depois: ele é parte da instrução, e some quando ela é traduzida. Não
+      há lugar, então não há número de lugar.
+
+
+      Por isso o pedido nem chega a ser feito. Escrever &5 não é pedir
+      algo difícil nem incomum: é pedir o endereço de uma coisa que não
+      tem lugar, e o compilador para ali. O mesmo vale para o resultado de
+      uma conta, que existe só durante o cálculo.
   B2:
     type: observavel
     role: espinha
@@ -127,6 +145,25 @@ nodes:
         espera: |-
           pelo endereco, a escrita chegou em x
           e a escrita na copia ficou na copia: &x nao copiou x
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      &x devolve um número: o do lugar onde x está. Nada é copiado e nada
+      é movido — a caixa de x continua onde estava, com o que estava
+      dentro. A operação é uma pergunta, e o que volta é a resposta.
+
+
+      Copiar é outra coisa, e se escreve de outro jeito. Em int c = x; o
+      conteúdo de x é duplicado numa caixa nova, e a partir daí são dois
+      conteúdos independentes: mexer num não mexe no outro. Em int *p =
+      &x; nada foi duplicado — p guarda o caminho até a única caixa que
+      existe.
+
+
+      E a diferença aparece no tempo. A cópia é um retrato do instante em
+      que foi tirada, e envelhece: o que ela guarda é o que x valia
+      naquele momento. O endereço não envelhece, porque ele nunca falou
+      sobre o conteúdo — seguir o endereço mostra sempre o que há lá
+      AGORA.
   B3:
     type: observavel
     role: espinha
@@ -160,6 +197,24 @@ nodes:
         espera: |-
           o valor copiado de p levou q ao mesmo lugar
           e os dois leem o mesmo: o que esta neles e um endereco
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Dentro de um ponteiro há um número, e esse número é um endereço. Não
+      é o conteúdo da caixa apontada, nem uma ligação mágica com ela: é a
+      informação de onde ela está, guardada como qualquer outro valor é
+      guardado.
+
+
+      Por isso o ponteiro se comporta como valor. Dá para copiá-lo para
+      outra caixa de ponteiro, compará-lo com outro, passá-lo adiante. O
+      que viaja nessas operações é o endereço — e quem o recebe passa a
+      saber chegar no mesmo lugar.
+
+
+      E é isso que separa p de *p. p é o conteúdo da caixa do ponteiro: o
+      número do lugar. *p é o conteúdo do lugar: o int que mora lá. Os
+      dois existem ao mesmo tempo, em caixas diferentes, e confundi-los é
+      o que faz alguém escrever p onde queria *p.
   I1:
     type: inferencia
     role: espinha
@@ -194,6 +249,24 @@ nodes:
         espera: |-
           a primeira escrita caiu em x
           e a segunda, igualzinha, caiu em y
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o que o B3 já disse, usado. Se dentro de p
+      há um endereço, então escrever *p é mandar o programa ler aquele
+      número, ir até aquele lugar e trabalhar no que estiver lá. É uma
+      viagem, e ela acontece toda vez.
+
+
+      Por isso *p não é um apelido. Um apelido é fixo — aponta para a
+      mesma coisa desde que foi criado. O *p depende do que está em p
+      NAQUELE momento: troque o conteúdo de p e o mesmo *p, escrito igual,
+      passa a chegar em outro lugar.
+
+
+      E a viagem serve nos dois sentidos. Do lado direito de uma
+      atribuição, *p traz o que encontrou; do lado esquerdo, deixa o que
+      você mandou. O que muda é a direção, e o caminho percorrido é o
+      mesmo.
   I2:
     type: inferencia
     role: espinha
@@ -232,6 +305,24 @@ nodes:
           as duas escritas cairam em x
           e p nao mudou de lugar: continua no de x
           tanto que a terceira escrita cai em x de novo
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Em *p = 7, a escrita acontece no fim da viagem. O programa lê o
+      endereço que está em p, vai até aquela caixa, e põe o 7 lá. O
+      endereço foi LIDO para a viagem acontecer — e ler não muda nada.
+
+
+      Por isso p continua igual depois. São duas caixas: a do ponteiro,
+      com o número do lugar, e a do lugar, com o int. A escrita por * mexe
+      na segunda, e não tem como alcançar a primeira: ela nem é o destino
+      da viagem, é o ponto de partida.
+
+
+      E quando a intenção é mexer no ponteiro, a escrita é outra: p = &y
+      troca o número que está em p, e aí a caixa apontada é que fica
+      intacta. Uma linha muda o conteúdo da casa; a outra muda o endereço
+      no papel. Saber qual é qual é saber em qual das duas caixas você
+      está mexendo.
   I3:
     type: inferencia
     role: conclusao
@@ -262,3 +353,21 @@ nodes:
         espera: |-
           *(&x) leu o que estava em x
           e escrever em *(&x) escreveu em x
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      São dois movimentos em sentidos opostos. & sobe um nível: parte de
+      uma caixa e entrega o endereço dela. * desce um nível: parte de um
+      endereço e entrega a caixa que ele nomeia. Cada um age num lugar
+      diferente, e nenhum dos dois muda nada por si.
+
+
+      Postos em sequência, eles se cancelam. *(&x) sobe de x para o
+      endereço de x e desce de volta: o que sobra é x, com o mesmo
+      significado que escrever x teria. E na outra ordem vale igual: &(*p)
+      desce até a caixa apontada e sobe de novo, devolvendo o próprio p.
+
+
+      E é isso que diz qual nome recebe um endereço. Se *p desce um nível,
+      então *p é o int — e int não guarda endereço. Quem está no nível do
+      endereço é p, e é a p que se atribui. Escrever *p = (um endereço)
+      manda o endereço para o lugar errado por um nível exato.

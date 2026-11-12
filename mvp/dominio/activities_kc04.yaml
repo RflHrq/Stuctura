@@ -93,6 +93,344 @@ exemplos:
     *(&x)         /* e a propria x */
     /* p = &x  muda p;  *p = 9  muda x */
 
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int primeiro = 5;
+        int segundo = 5;
+        int *um = NULL;
+        int *outro = NULL;
+        int passos = 0;
+
+        while (passos < 3) {
+            passos = passos + 1;
+        }
+        if (passos == 3) {
+            um = &primeiro;
+            outro = &segundo;
+        }
+        printf("os dois valores sao iguais? %d\n", primeiro == segundo);
+        printf("os dois enderecos sao iguais? %d\n", um == outro);
+    - prosa: >
+        Pergunta: as duas guardam 5. Por que os endereços não são o mesmo?
+    - prosa: >
+        A tentação é pensar que o endereço vem do valor — que existe um
+        lugar do 5, para onde qualquer 5 aponta. Olhe as duas respostas: o
+        conteúdo é igual e o endereço não é. O que tem número é a caixa, e
+        há duas caixas.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        os dois valores sao iguais? 1
+        os dois enderecos sao iguais? 0
+    - prosa: >
+        Mesmo valor, endereços diferentes. E daí sai a resposta para o 5
+        escrito no código: ele não tem caixa nenhuma, e por isso não tem
+        número de caixa para devolver.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 10;
+        int copia = x;
+        int *endereco = &x;
+
+        x = 77;
+        printf("a copia ficou em %d\n", copia);
+        printf("e pelo endereco chego em %d\n", *endereco);
+    - prosa: >
+        Pergunta: os dois foram tirados do mesmo x, no mesmo instante. Por
+        que respondem diferente?
+    - prosa: >
+        A tentação é achar que os dois guardam x, um de um jeito e outro
+        de outro. Olhe o que cada um guardou: a cópia guardou o NÚMERO 10,
+        e ele continua 10 porque ninguém mexeu nele. O endereço guardou o
+        caminho até a caixa, e a caixa agora tem 77.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a copia ficou em 10
+        e pelo endereco chego em 77
+    - prosa: >
+        Dez e setenta e sete, do mesmo x. Se o & tivesse devolvido uma
+        cópia, as duas linhas diriam 10 — porque as duas seriam retratos
+        do mesmo instante.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 42;
+        int *p = &x;
+        int *q = p;
+
+        *q = 7;
+        printf("copiei o que estava em p, e por q cheguei em x: %d\n", x);
+    - prosa: >
+        Pergunta: a linha int *q = p copiou o quê, exatamente?
+    - prosa: >
+        A tentação é dizer que copiou o 42 — se o ponteiro fosse o dado,
+        seria isso. Veja onde o 7 foi parar: em x. O que q recebeu foi o
+        endereço, e por isso escrever por q chegou na caixa de x.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        copiei o que estava em p, e por q cheguei em x: 7
+    - prosa: >
+        Se o conteúdo de p fosse o 42, q teria recebido um 42 só dele, e
+        escrever 7 em q não teria como mexer em x. O que estava em p era o
+        caminho, e caminho copiado leva ao mesmo lugar.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 0, y = 0;
+        int *p = &x;
+
+        *p = 10;
+        p = &y;
+        *p = 20;
+        printf("x = %d, y = %d\n", x, y);
+    - prosa: >
+        Pergunta: as duas escritas são iguais, letra por letra. Por que
+        caem em variáveis diferentes?
+    - prosa: >
+        A tentação é ler *p como um nome, e nome não muda de dono. Olhe a
+        linha do meio: ela trocou o que está DENTRO de p. A segunda
+        escrita leu o novo conteúdo e viajou para outro lugar.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        x = 10, y = 20
+    - prosa: >
+        Dez em x e vinte em y, escritos pela mesma sequência de
+        caracteres. Se *p fosse outro nome de x, as duas teriam ido para
+        x, e y continuaria zero.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 1;
+        int *p = &x;
+        int ainda_em_x = 0;
+
+        *p = 10;
+        *p = 20;
+        *p = 30;
+        ainda_em_x = (p == &x);
+        printf("depois de tres escritas, x = %d\n", x);
+        printf("e p continua com o endereco de x? %d\n", ainda_em_x);
+    - prosa: >
+        Pergunta: três escritas por p. Quantas delas mexeram em p?
+    - prosa: >
+        A tentação é achar que escrever por p gasta ou move alguma coisa
+        no ponteiro — que depois de usá-lo ele não está mais igual. Olhe a
+        segunda resposta: nenhuma das três o tocou. Todas as três caíram
+        no fim da viagem, que é a caixa de x.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        depois de tres escritas, x = 30
+        e p continua com o endereco de x? 1
+    - prosa: >
+        x ficou com o último valor escrito, e p está exatamente como
+        estava. Se a escrita por * mexesse no ponteiro, a segunda e a
+        terceira teriam ido parar em outro lugar.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 7, y = 3;
+        int soma = *(&x) + *(&y);
+
+        printf("a soma deu %d\n", soma);
+    - prosa: >
+        Pergunta: o que a conta somou, exatamente?
+    - prosa: >
+        A tentação é achar que *(&x) é algum outro objeto — uma cópia, ou
+        o ponteiro. Siga os dois passos: &x entrega o endereço de x, e o *
+        pega esse endereço e volta para a caixa dele. O que entrou na
+        conta foi x.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a soma deu 10
+    - prosa: >
+        Sete mais três. A dupla não acrescentou nada nem tirou nada: ela
+        subiu um nível e desceu o mesmo nível, e o que sobrou foi a
+        variável de onde ela partiu.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Caminho DIFERENTE do caso resolvido -- ha teste no
+# projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Se o endereço fosse do valor, trocar o valor
+        trocaria o endereço.
+    - codigo: |
+        int x = 1;
+        int *onde = &x;
+
+        x = 50;
+        printf("depois de x = 50, por onde chego em %d\n", *onde);
+        x = 900;
+        printf("depois de x = 900, por onde chego em %d\n", *onde);
+    - prosa: >
+        O endereço foi perguntado uma vez, no começo, e nunca mais. Depois
+        disso o conteúdo da caixa mudou duas vezes.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        depois de x = 50, por onde chego em 50
+        depois de x = 900, por onde chego em 900
+    - prosa: >
+        O mesmo endereço continuou servindo para os três valores, porque
+        ele nunca falou sobre o valor: ele diz onde a caixa está. Um
+        número escrito no código não tem caixa que fique — e é por isso
+        que não há o que perguntar sobre ele.
+
+  B2:
+    - prosa: >
+        Outro caminho. Pergunte o endereço de x duas vezes, e escreva por
+        um dos dois.
+    - codigo: |
+        int x = 1;
+        int *p = &x;
+        int *q = &x;
+
+        *p = 50;
+        printf("perguntei duas vezes, e escrevi por uma: q le %d\n", *q);
+    - prosa: >
+        Duas perguntas, duas respostas, dois ponteiros. Depois uma única
+        escrita, feita por p.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        perguntei duas vezes, e escrevi por uma: q le 50
+    - prosa: >
+        Se cada pergunta devolvesse uma cópia de x, p e q guardariam dois
+        uns independentes, e a escrita por p não teria como aparecer em q.
+        Apareceu porque as duas respostas eram o mesmo número de lugar — e
+        lugar há um só.
+
+  B3:
+    - prosa: >
+        Outro caminho. Se há um valor dentro do ponteiro, dá para comparar
+        dois deles.
+    - codigo: |
+        int x = 1, y = 2;
+        int *p = &x;
+        int *q = &y;
+
+        printf("dois lugares diferentes, valores diferentes em p e q: %d\n", p == q);
+        q = p;
+        printf("depois de q = p, o mesmo valor nos dois: %d\n", p == q);
+    - prosa: >
+        Primeiro cada um guarda o endereço da sua variável, e a comparação
+        diz que são diferentes. Depois q recebe o conteúdo de p, e a mesma
+        comparação muda de resposta.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dois lugares diferentes, valores diferentes em p e q: 0
+        depois de q = p, o mesmo valor nos dois: 1
+    - prosa: >
+        Comparar e atribuir são coisas que se fazem com VALORES, e os dois
+        funcionaram aqui. O que está dentro de um ponteiro é um número
+        como outro qualquer — só que o que ele diz é um lugar.
+
+  I1:
+    - prosa: >
+        Outro caminho, agora sem escrever nada: só olhando o que a viagem
+        traz.
+    - codigo: |
+        int x = 3, y = 400;
+        int *p = &x;
+
+        printf("a mesma escrita *p deu %d\n", *p);
+        p = &y;
+        printf("e agora deu %d\n", *p);
+    - prosa: >
+        Os dois printf são iguais. Entre eles, p recebeu outro endereço —
+        e só isso.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a mesma escrita *p deu 3
+        e agora deu 400
+    - prosa: >
+        Três e quatrocentos, do mesmo *p. A viagem é refeita a cada vez,
+        com o número que estiver em p na hora — e é por isso que a
+        resposta pode mudar sem que uma letra do *p mude.
+
+  I2:
+    - prosa: >
+        Outro caminho. Entregue o ponteiro a uma função e veja o que volta
+        mudado.
+    - codigo: |
+        void escreve_cem(int *destino)
+        {
+            *destino = 100;
+        }
+    - codigo: |
+        int x = 1;
+        int *p = &x;
+
+        escreve_cem(p);
+        printf("x virou %d\n", x);
+        printf("e p ainda leva a x? %d\n", p == &x);
+    - prosa: >
+        Dentro da função há uma escrita por *, e mais nada. Fora dela,
+        duas perguntas: o que aconteceu com a variável e o que aconteceu
+        com o ponteiro.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        x virou 100
+        e p ainda leva a x? 1
+    - prosa: >
+        A escrita atravessou a chamada e chegou em x; o ponteiro do
+        chamador ficou como estava. São duas caixas, e a função mexeu só
+        na que estava no fim da viagem.
+
+  I3:
+    - prosa: >
+        Outro caminho, pelo lado do ponteiro: desça primeiro e suba
+        depois.
+    - codigo: |
+        int x = 7;
+        int *p = &x;
+        int *voltou = &(*p);
+
+        printf("saindo de p e voltando, chego no mesmo ponteiro? %d\n", voltou == p);
+        printf("e por ele chego em %d\n", *voltou);
+    - prosa: >
+        *p desce até a caixa de x; o & em volta sobe de novo e entrega o
+        endereço dela — que é o que estava em p desde o começo. Por isso o
+        resultado coube numa caixa de ponteiro.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        saindo de p e voltando, chego no mesmo ponteiro? 1
+        e por ele chego em 7
+    - prosa: >
+        O mesmo ponteiro de volta, e o caminho até o 7 intacto. É por aí
+        que se vê em qual nível cada nome está: p e &(*p) são do nível do
+        endereço, x e *p são do nível do int — e é a p, não a *p, que um
+        endereço se atribui.
+
 activities:
 
   # ------------------------------------------------------------------
