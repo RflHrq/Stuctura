@@ -23,36 +23,36 @@ analogy: >
 resgates:
 
   B1: >
-    A categoria do quarto decide o tamanho: uma suite e um quarto simples nao
-    ocupam o mesmo espaco no predio, mesmo os dois tendo uma placa na porta.
-    O tipo e a categoria — "int" e "char" reservam quartos de tamanhos
-    diferentes. E a placa e o nome: e por ela que a recepcao acha o quarto.
+    A categoria do quarto decide o tamanho: uma suíte e um quarto simples não
+    ocupam o mesmo espaço no prédio, mesmo os dois tendo uma placa na porta.
+    O tipo é a categoria — "int" e "char" reservam quartos de tamanhos
+    diferentes. E a placa é o nome: é por ela que a recepção acha o quarto.
 
   B2: >
-    Quando voce reserva um quarto de hotel, o numero do quarto ja existe no
-    sistema, a porta ja tem aquele numero, o tamanho ja esta definido pela
-    categoria — tudo isso na hora da reserva, antes de qualquer hospede
-    chegar. "int x;" e a reserva: o quarto ja existe, so falta o hospede.
+    Quando você reserva um quarto de hotel, o número do quarto já existe no
+    sistema, a porta já tem aquele número, o tamanho já está definido pela
+    categoria — tudo isso na hora da reserva, antes de qualquer hóspede
+    chegar. "int x;" é a reserva: o quarto já existe, só falta o hóspede.
 
   B3: >
-    O hotel nao manda limpeza toda vez que alguem reserva — so quando pedem.
-    Em C a politica e: nunca limpa sozinho. O quarto pode ter lencol
-    bagunçado do hospede anterior. So fica "zero" se alguem arrumar
-    explicitamente — e o que "int x = 0;" faz: voce mesmo arruma antes de
+    O hotel não manda limpeza toda vez que alguém reserva — só quando pedem.
+    Em C a política é: nunca limpa sozinho. O quarto pode ter lençol
+    bagunçado do hóspede anterior. Só fica "zero" se alguém arrumar
+    explicitamente — é o que "int x = 0;" faz: você mesmo arruma antes de
     entrar.
 
   B4: >
-    Um hospede novo nao divide o quarto com o anterior — ele substitui.
-    Quando a variavel recebe 20, o 10 nao fica guardado esperando em algum
-    canto: e sobrescrito, do mesmo jeito que o hospede novo desfaz a mala
-    onde o antigo desfez a dele. O quarto sempre tem so um hospede atual.
+    Um hóspede novo não divide o quarto com o anterior — ele substitui.
+    Quando a variável recebe 20, o 10 não fica guardado esperando em algum
+    canto: é sobrescrito, do mesmo jeito que o hóspede novo desfaz a mala
+    onde o antigo desfez a dele. O quarto sempre tem só um hóspede atual.
 
   I1: >
-    Da para atribuir o hospede ao quarto 302 — esse hospede vai para o 302.
-    Agora, da para atribuir o quarto 302 ao numero 302? Nao faz sentido: o
-    numero e so rotulo, nao um lugar que recebe hospede. "x = 7" bota 7
-    dentro da caixa x; "7 = x" tentaria botar algo dentro do numero 7, e
-    numero nao e caixa.
+    Dá para atribuir o hóspede ao quarto 302 — esse hóspede vai para o 302.
+    Agora, dá para atribuir o quarto 302 ao número 302? Não faz sentido: o
+    número é só rótulo, não um lugar que recebe hóspede. "x = 7" bota 7
+    dentro da caixa x; "7 = x" tentaria botar algo dentro do número 7, e
+    número não é caixa.
 
 # O codigo que acompanha cada premissa na tela de ENSINO. A frase sozinha
 # fica abstrata para quem nunca declarou uma variavel; o exemplo ancora.
@@ -466,7 +466,7 @@ activities:
     codigo: |
       int total;
       total = 7;
-    enunciado: "Em que momento o espaco de total passou a existir?"
+    enunciado: "Em que momento o espaço de total passou a existir?"
     alternativas:
       a: "Na primeira linha, quando total foi declarado"
       b: "Na segunda, quando total recebeu o 7"
@@ -581,10 +581,10 @@ activities:
     codigo: |
       char a;
       double b;
-    enunciado: "Por que b ocupa mais espaco que a?"
+    enunciado: "Por que b ocupa mais espaço que a?"
     alternativas:
-      a: "Porque o tipo diz quanto espaco cabe ali"
-      c: "Nao ocupa: toda variavel ocupa o mesmo"
+      a: "Porque o tipo diz quanto espaço cabe ali"
+      c: "Não ocupa: toda variável ocupa o mesmo"
     gabarito: a
     crencas:
       c: type_is_a_hint
@@ -596,11 +596,11 @@ activities:
     formato: achar_o_erro
     tipo: teorica
     enunciado: >
-      Um colega diz que o nome da variavel serve so para ele se lembrar, e
-      que o compilador ignora. Onde esta o erro?
+      Um colega diz que o nome da variável serve só para ele se lembrar, e
+      que o compilador ignora. Onde está o erro?
     alternativas:
-      a: "O nome e como o programa chega aquele espaco; sem ele nao ha acesso"
-      b: "Nao ha erro: nome e comentario"
+      a: "O nome é como o programa chega àquele espaço; sem ele não há acesso"
+      b: "Não há erro: nome é comentário"
     gabarito: a
 
   - id: ciu_kc00_t03
@@ -613,11 +613,11 @@ activities:
       int a;
       int b;
       a = 5;
-    enunciado: "Antes da terceira linha rodar, quantos espacos ja existem?"
+    enunciado: "Antes da terceira linha rodar, quantos espaços já existem?"
     alternativas:
       a: "Dois: a e b"
       b: "Nenhum: nenhuma das duas recebeu valor"
-      c: "Um: so o de a, que vai receber valor"
+      c: "Um: só o de a, que vai receber valor"
     gabarito: a
     crencas:
       b: no_value_no_memory
@@ -633,11 +633,11 @@ activities:
       int total;
       printf("%zu", sizeof(total));
     enunciado: >
-      sizeof devolve o tamanho do espaco de uma variavel. Isso funciona
+      sizeof devolve o tamanho do espaço de uma variável. Isso funciona
       mesmo sem total ter recebido valor?
     alternativas:
-      a: "Sim: o espaco ja esta reservado, com ou sem valor dentro"
-      b: "Nao: sem valor nao ha espaco para medir"
+      a: "Sim: o espaço já está reservado, com ou sem valor dentro"
+      b: "Não: sem valor não há espaço para medir"
     gabarito: a
     crencas:
       b: no_value_no_memory
@@ -652,10 +652,10 @@ activities:
       int soma;
       soma = soma + 10;
       printf("%d", soma);
-    enunciado: "Da para saber o que aparece na tela?"
+    enunciado: "Dá para saber o que aparece na tela?"
     alternativas:
-      a: "Nao: soma entrou na conta com lixo"
-      b: "Sim: aparece 10, porque soma comecava em zero"
+      a: "Não: soma entrou na conta com lixo"
+      b: "Sim: aparece 10, porque soma começava em zero"
     gabarito: a
     crencas:
       b: declaration_zeroes
@@ -669,10 +669,10 @@ activities:
     codigo: |
       int a;
       int b = 0;
-    enunciado: "Qual das duas voce pode usar numa conta agora, com seguranca?"
+    enunciado: "Qual das duas você pode usar numa conta agora, com segurança?"
     alternativas:
-      a: "So b, que recebeu valor"
-      b: "As duas: declarar ja zera"
+      a: "Só b, que recebeu valor"
+      b: "As duas: declarar já zera"
     gabarito: a
     crencas:
       b: declaration_zeroes
@@ -689,7 +689,7 @@ activities:
       printf("%d", x);
     enunciado: "O que aparece?"
     alternativas:
-      a: "5: x virou 2 + 3, e so isso ficou"
+      a: "5: x virou 2 + 3, e só isso ficou"
       b: "2 e 5: os dois valores ficam guardados"
       c: "3: o valor novo substitui o antigo"
     gabarito: a
@@ -704,10 +704,10 @@ activities:
     tipo: teorica
     enunciado: >
       Depois de x = 7, um colega quer o valor anterior de x e diz que basta
-      olhar o historico da variavel. Onde esta o erro?
+      olhar o histórico da variável. Onde está o erro?
     alternativas:
-      a: "Nao ha historico: o valor anterior se perdeu na atribuicao"
-      b: "Nao ha erro, mas ele precisa de um comando especifico"
+      a: "Não há histórico: o valor anterior se perdeu na atribuição"
+      b: "Não há erro, mas ele precisa de um comando específico"
     gabarito: a
     crencas:
       b: variable_remembers
@@ -725,9 +725,9 @@ activities:
       printf("%d", a);
     enunciado: "Quanto vale a no fim?"
     alternativas:
-      a: "2: a copia aconteceu antes de b mudar"
-      b: "9: a ficou ligada a b pela atribuicao"
-      c: "1: a atribuicao nao teve efeito"
+      a: "2: a cópia aconteceu antes de b mudar"
+      b: "9: a ficou ligada a b pela atribuição"
+      c: "1: a atribuição não teve efeito"
     gabarito: a
     crencas:
       b: assignment_symmetric
@@ -740,7 +740,7 @@ activities:
     tipo: teorica
     enunciado: "Em y = x;, qual das duas muda?"
     alternativas:
-      a: "So y, que recebe uma copia do valor de x"
+      a: "Só y, que recebe uma cópia do valor de x"
       b: "As duas, porque passam a ser iguais"
     gabarito: a
     crencas:

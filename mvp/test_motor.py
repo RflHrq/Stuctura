@@ -196,7 +196,9 @@ def test_a_validacao_traz_a_analogia_antes_da_refutacao(d):
     assert tipos.index("validacao") < tipos.index("refutacao")
     validacao = next(x for x in telas if x.tipo == "validacao")
     assert "quarto" in validacao.texto.lower(), "a analogia não chegou à tela"
-    assert "memoria" in validacao.dados["crenca"].lower()
+    # "memória", com acento, desde a passada de acentos do kc_00 em
+    # 12/11/2026. A pergunta do teste nao mudou: a crenca certa esta na tela.
+    assert "memória" in validacao.dados["crenca"].lower()
 
     # A analogia é a DO NÓ, não o resumo do tópico: o resumo mapeia os cinco
     # nós de uma vez e entregaria a resposta das atividades seguintes.

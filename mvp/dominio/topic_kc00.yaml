@@ -4,11 +4,11 @@ pilot: false
 prerequisites: []
 conclusion_node: I1
 summary: >
-  Fundacao antes de kc_01. Uma variavel e um espaco de memoria nomeado
-  e tipado; declarar reserva esse espaco, mas so atribuir (ou inicializar)
-  lhe da um valor conhecido.
+  Fundação antes de kc_01. Uma variável é um espaço de memória nomeado
+  e tipado; declarar reserva esse espaço, mas só atribuir (ou inicializar)
+  lhe dá um valor conhecido.
 
 # A pergunta do teach-back, feita duas vezes: antes da unidade e no fim.
 # Fica no dominio, e nao no motor, pela mesma razao que as razoes ficam no
 # grafo — o motor nao escreve conteudo.
-teachback: "o que acontece quando voce escreve int x; num programa em C"
+teachback: "o que acontece quando você escreve int x; num programa em C"

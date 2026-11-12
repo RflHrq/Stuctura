@@ -33,21 +33,28 @@ nodes:
     negated_by:
       - memory_is_by_name
     evidencia:
+      # A LEGENDA ANTIGA DESTA DEMONSTRACAO, guardada como comentario em
+      # 12/11/2026. Ela estava no campo `afirma`, que e TEXTO DE TELA --
+      # em ASCII, com crase, e no que tinha de nota de manutencao o
+      # participante leria junto. O conteudo fica para quem mantem:
+      #
+      # O endereco identifica o lugar: lugares diferentes dao numeros
+      # diferentes, e o mesmo lugar da sempre o mesmo numero.
+      #
+      # A COMPARACAO PASSA POR UMA FUNCAO de proposito. A primeira
+      # versao desta evidencia escrevia `&x == &x` direto, e o gcc
+      # respondeu `warning: self-comparison always evaluates to true
+      # [-Wtautological-compare]`: aquilo era verdadeiro por SINTAXE,
+      # dobrado em tempo de compilacao, e nao media nada sobre
+      # memoria. Dentro de `igual` o compilador nao sabe de onde vem
+      # cada argumento, e a comparacao e dos dois numeros, em tempo de
+      # execucao -- que e a afirmacao do no.
+      #
+      # E nenhuma VARIAVEL ponteiro aparece: `&x` o proprio cartao
+      # deste no ja usa, e `int *p` e o B2.
       - afirma: >
-          O endereco identifica o lugar: lugares diferentes dao numeros
-          diferentes, e o mesmo lugar da sempre o mesmo numero.
-
-          A COMPARACAO PASSA POR UMA FUNCAO de proposito. A primeira
-          versao desta evidencia escrevia `&x == &x` direto, e o gcc
-          respondeu `warning: self-comparison always evaluates to true
-          [-Wtautological-compare]`: aquilo era verdadeiro por SINTAXE,
-          dobrado em tempo de compilacao, e nao media nada sobre
-          memoria. Dentro de `igual` o compilador nao sabe de onde vem
-          cada argumento, e a comparacao e dos dois numeros, em tempo de
-          execucao -- que e a afirmacao do no.
-
-          E nenhuma VARIAVEL ponteiro aparece: `&x` o proprio cartao
-          deste no ja usa, e `int *p` e o B2.
+          O endereço identifica o lugar: lugares diferentes dão números
+          diferentes, e o mesmo lugar dá sempre o mesmo número.
         programa: |
           #include <stdio.h>
 
@@ -71,22 +78,29 @@ nodes:
         espera: |-
           lugares diferentes tem numeros diferentes
           o mesmo lugar tem sempre o mesmo numero
+      # A LEGENDA ANTIGA DESTA DEMONSTRACAO, guardada como comentario em
+      # 12/11/2026. Ela estava no campo `afirma`, que e TEXTO DE TELA --
+      # em ASCII, com crase, e no que tinha de nota de manutencao o
+      # participante leria junto. O conteudo fica para quem mantem:
+      #
+      # Lugares diferentes tem numeros diferentes -- a metade que se
+      # pode mostrar aqui, na forma exata que este cartao ensina.
+      #
+      # ESTA EXISTE PARA CHEGAR A PESSOA, e e a mesma divisao que o
+      # cartao ja faz. A demonstracao acima passa a comparacao por uma
+      # funcao, para que o compilador nao dobre `&x == &x` em tempo de
+      # compilacao -- e funcao com parametro nao tem cartao que a
+      # ensine, entao o portao de exibicao a barra, com razao.
+      #
+      # O QUE SE PERDE: a metade "mesmo lugar". Nao e descuido, e o
+      # limite do que se demonstra sem ponteiro: para um lugar ter
+      # dois nomes e preciso guardar o endereco em algum lugar, e isso
+      # e o B2. O comentario deste no registra a mesma conclusao sobre
+      # o exemplo do cartao -- ele AFIRMA o caso igual e DEMONSTRA o
+      # caso diferente. A prova faz igual.
       - afirma: >
-          Lugares diferentes tem numeros diferentes -- a metade que se
-          pode mostrar aqui, na forma exata que este cartao ensina.
-
-          ESTA EXISTE PARA CHEGAR A PESSOA, e e a mesma divisao que o
-          cartao ja faz. A demonstracao acima passa a comparacao por uma
-          funcao, para que o compilador nao dobre `&x == &x` em tempo de
-          compilacao -- e funcao com parametro nao tem cartao que a
-          ensine, entao o portao de exibicao a barra, com razao.
-
-          O QUE SE PERDE: a metade "mesmo lugar". Nao e descuido, e o
-          limite do que se demonstra sem ponteiro: para um lugar ter
-          dois nomes e preciso guardar o endereco em algum lugar, e isso
-          e o B2. O comentario deste no registra a mesma conclusao sobre
-          o exemplo do cartao -- ele AFIRMA o caso igual e DEMONSTRA o
-          caso diferente. A prova faz igual.
+          Lugares diferentes têm números diferentes: duas variáveis, dois
+          endereços, e a comparação entre eles dá zero.
         programa: |
           #include <stdio.h>
 
@@ -154,9 +168,16 @@ nodes:
     negated_by:
       - pointer_has_no_address
     evidencia:
+      # A LEGENDA ANTIGA DESTA DEMONSTRACAO, guardada como comentario em
+      # 12/11/2026. Ela estava no campo `afirma`, que e TEXTO DE TELA --
+      # em ASCII, com crase, e no que tinha de nota de manutencao o
+      # participante leria junto. O conteudo fica para quem mantem:
+      #
+      # O ponteiro ocupa lugar e tem endereco proprio: `&p` existe, nao
+      # e `&x`, e serve para chegar de volta em `p`.
       - afirma: >
-          O ponteiro ocupa lugar e tem endereco proprio: `&p` existe, nao
-          e `&x`, e serve para chegar de volta em `p`.
+          O ponteiro ocupa lugar e tem endereço próprio: &p existe, não é
+          &x, e serve para chegar de volta em p.
         programa: |
           #include <stdio.h>
 
@@ -176,23 +197,30 @@ nodes:
           o ponteiro ocupa lugar
           a caixa p nao e a caixa x
           o endereco de p leva de volta a p
+      # A LEGENDA ANTIGA DESTA DEMONSTRACAO, guardada como comentario em
+      # 12/11/2026. Ela estava no campo `afirma`, que e TEXTO DE TELA --
+      # em ASCII, com crase, e no que tinha de nota de manutencao o
+      # participante leria junto. O conteudo fica para quem mantem:
+      #
+      # O ponteiro ocupa lugar e a caixa dele nao e a caixa de `x` --
+      # as duas metades que se podem mostrar SEM construto novo.
+      #
+      # ESTA EXISTE PARA CHEGAR A PESSOA. A demonstracao acima usa
+      # `int **pp`, e `ponteiro_de_ponteiro` nao tem cartao que o
+      # ensine: o portao de exibicao a barra, com razao. Mostrar
+      # ponteiro de ponteiro a quem esta no kc_02 repetiria o defeito
+      # que reprovou a cadeia do `pointer_and_target_are_one`, cujo
+      # degrau de ABERTURA exigia construto que cartao nenhum
+      # ensinava.
+      #
+      # O QUE SE PERDE sem o `**pp`: a volta. Lá, `*pp == p` mostra que
+      # o endereco de `p` SERVE para chegar de volta em `p`. Aqui fica
+      # so que `&p` existe e nao e `&x`. E menos, e e o que o caminho
+      # permite -- a demonstracao completa continua conferida pelo
+      # oraculo, para o trabalho.
       - afirma: >
-          O ponteiro ocupa lugar e a caixa dele nao e a caixa de `x` --
-          as duas metades que se podem mostrar SEM construto novo.
-
-          ESTA EXISTE PARA CHEGAR A PESSOA. A demonstracao acima usa
-          `int **pp`, e `ponteiro_de_ponteiro` nao tem cartao que o
-          ensine: o portao de exibicao a barra, com razao. Mostrar
-          ponteiro de ponteiro a quem esta no kc_02 repetiria o defeito
-          que reprovou a cadeia do `pointer_and_target_are_one`, cujo
-          degrau de ABERTURA exigia construto que cartao nenhum
-          ensinava.
-
-          O QUE SE PERDE sem o `**pp`: a volta. Lá, `*pp == p` mostra que
-          o endereco de `p` SERVE para chegar de volta em `p`. Aqui fica
-          so que `&p` existe e nao e `&x`. E menos, e e o que o caminho
-          permite -- a demonstracao completa continua conferida pelo
-          oraculo, para o trabalho.
+          O ponteiro ocupa lugar, e a caixa dele não é a caixa de x: são
+          dois lugares diferentes.
         programa: |
           #include <stdio.h>
 
@@ -252,10 +280,17 @@ nodes:
     negated_by:
       - pointer_is_data
     evidencia:
+      # A LEGENDA ANTIGA DESTA DEMONSTRACAO, guardada como comentario em
+      # 12/11/2026. Ela estava no campo `afirma`, que e TEXTO DE TELA --
+      # em ASCII, com crase, e no que tinha de nota de manutencao o
+      # participante leria junto. O conteudo fica para quem mantem:
+      #
+      # O que esta guardado em `p` e o endereco de `x`, e escrever por
+      # ali muda `x` -- que e o que faz dele endereco e nao numero
+      # solto.
       - afirma: >
-          O que esta guardado em `p` e o endereco de `x`, e escrever por
-          ali muda `x` -- que e o que faz dele endereco e nao numero
-          solto.
+          O que está guardado em p é o endereço de x, e escrever por ali
+          muda x — é isso que faz dele endereço, e não número solto.
         programa: |
           #include <stdio.h>
 
@@ -337,9 +372,16 @@ nodes:
     negated_by:
       - pointer_and_target_are_one
     evidencia:
+      # A LEGENDA ANTIGA DESTA DEMONSTRACAO, guardada como comentario em
+      # 12/11/2026. Ela estava no campo `afirma`, que e TEXTO DE TELA --
+      # em ASCII, com crase, e no que tinha de nota de manutencao o
+      # participante leria junto. O conteudo fica para quem mantem:
+      #
+      # Sao duas coisas: ficam em lugares diferentes, e REATRIBUIR o
+      # ponteiro nao mexe no objeto que ele apontava.
       - afirma: >
-          Sao duas coisas: ficam em lugares diferentes, e REATRIBUIR o
-          ponteiro nao mexe no objeto que ele apontava.
+          São duas coisas: ficam em lugares diferentes, e reatribuir o
+          ponteiro não mexe no objeto que ele apontava.
         programa: |
           #include <stdio.h>
 
@@ -398,10 +440,18 @@ nodes:
     negated_by:
       - pointer_is_integer
     evidencia:
+      # A LEGENDA ANTIGA DESTA DEMONSTRACAO, guardada como comentario em
+      # 12/11/2026. Ela estava no campo `afirma`, que e TEXTO DE TELA --
+      # em ASCII, com crase, e no que tinha de nota de manutencao o
+      # participante leria junto. O conteudo fica para quem mantem:
+      #
+      # TEM TIPO: somar 1 anda um tamanho diferente em cada tipo, logo
+      # quem soma sabe de que tipo e o ponteiro. Em `char` anda 1 byte,
+      # e isso o padrao garante (`sizeof(char) == 1`).
       - afirma: >
-          TEM TIPO: somar 1 anda um tamanho diferente em cada tipo, logo
-          quem soma sabe de que tipo e o ponteiro. Em `char` anda 1 byte,
-          e isso o padrao garante (`sizeof(char) == 1`).
+          O ponteiro tem tipo: somar 1 anda um tamanho diferente em cada
+          tipo, logo quem soma sabe de que tipo é o ponteiro. Em char anda
+          1 byte, e isso o padrão garante.
         programa: |
           #include <stdio.h>
 
@@ -425,11 +475,20 @@ nodes:
         espera: |-
           somar 1 anda um tamanho diferente em cada tipo
           em char anda 1 byte, e isso o padrao garante
+      # A LEGENDA ANTIGA DESTA DEMONSTRACAO, guardada como comentario em
+      # 12/11/2026. Ela estava no campo `afirma`, que e TEXTO DE TELA --
+      # em ASCII, com crase, e no que tinha de nota de manutencao o
+      # participante leria junto. O conteudo fica para quem mantem:
+      #
+      # E POR ISSO NAO E UM INTEIRO QUALQUER: guardar o ponteiro num
+      # `int` e violacao de restricao da linguagem, e todo compilador
+      # conforme tem de DIAGNOSTICAR. Um inteiro qualquer aceitaria a
+      # atribuicao calado. A demonstracao aqui e a recusa, nao a saida.
       - afirma: >
-          E POR ISSO NAO E UM INTEIRO QUALQUER: guardar o ponteiro num
-          `int` e violacao de restricao da linguagem, e todo compilador
-          conforme tem de DIAGNOSTICAR. Um inteiro qualquer aceitaria a
-          atribuicao calado. A demonstracao aqui e a recusa, nao a saida.
+          E por isso não é um inteiro qualquer: guardar o ponteiro num int
+          é violação de restrição da linguagem, e todo compilador conforme
+          tem de diagnosticar. A demonstração aqui é a recusa, e não a
+          saída.
         programa: |
           #include <stdio.h>
 
@@ -443,22 +502,31 @@ nodes:
               return 0;
           }
         nao_compila: true
+        # O `ambiente` ANTIGO, guardado como comentario em 12/11/2026. Ele
+        # tambem e TEXTO DE TELA -- viaja na prova por recusa --, e estava em
+        # ASCII, com crase, e com nota de manutencao que o participante leria:
+        #
+        # gcc 16.2.0 (MinGW-W64 x86_64-ucrt-posix-seh), `-std=c17 -Wall`:
+        # `error: initialization of 'int' from 'int *' makes integer from
+        # pointer without a cast [-Wint-conversion]`.
+        #
+        # E A RECUSA E DESTE COMPILADOR, NAO DE C. Em gcc anterior ao 14 a
+        # mesma linha e AVISO e o programa compila: o `-Wint-conversion`
+        # virou erro por padrao no 14. O que o padrao garante e o
+        # diagnostico, nao a recusa de traduzir -- e a primeira
+        # demonstracao deste no, que roda e compara saida, nao depende de
+        # compilador nenhum.
+        #
+        # O historico deste no registra que o projeto JA AFIRMOU "o
+        # compilador recusa" uma vez, no material antigo, e teve de voltar
+        # atras. A clausula exata do padrao fica a citar quando o ISO/IEC
+        # 9899 estiver aberto; aqui ela nao entra de memoria.
         ambiente: >
-          gcc 16.2.0 (MinGW-W64 x86_64-ucrt-posix-seh), `-std=c17 -Wall`:
-          `error: initialization of 'int' from 'int *' makes integer from
-          pointer without a cast [-Wint-conversion]`.
-
-          E A RECUSA E DESTE COMPILADOR, NAO DE C. Em gcc anterior ao 14 a
-          mesma linha e AVISO e o programa compila: o `-Wint-conversion`
-          virou erro por padrao no 14. O que o padrao garante e o
-          diagnostico, nao a recusa de traduzir -- e a primeira
-          demonstracao deste no, que roda e compara saida, nao depende de
-          compilador nenhum.
-
-          O historico deste no registra que o projeto JA AFIRMOU "o
-          compilador recusa" uma vez, no material antigo, e teve de voltar
-          atras. A clausula exata do padrao fica a citar quando o ISO/IEC
-          9899 estiver aberto; aqui ela nao entra de memoria.
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall: o compilador recusa
+          a linha com um erro de conversão de ponteiro para inteiro. A
+          recusa é deste compilador, e não de C: no gcc anterior ao 14 a
+          mesma linha é só um aviso, e o programa compila. O que o padrão
+          garante é o diagnóstico, e não a recusa de traduzir.
 
     # REESCRITA, 08/11/2026: de 277 para 137 palavras.
     #
@@ -505,9 +573,16 @@ nodes:
     negated_by:
       - pointer_is_pointless
     evidencia:
+      # A LEGENDA ANTIGA DESTA DEMONSTRACAO, guardada como comentario em
+      # 12/11/2026. Ela estava no campo `afirma`, que e TEXTO DE TELA --
+      # em ASCII, com crase, e no que tinha de nota de manutencao o
+      # participante leria junto. O conteudo fica para quem mantem:
+      #
+      # Guardar o endereco alcanca a mesma caixa de outro ponto do
+      # programa: outra funcao escreve em `x` sem receber copia de `x`.
       - afirma: >
-          Guardar o endereco alcanca a mesma caixa de outro ponto do
-          programa: outra funcao escreve em `x` sem receber copia de `x`.
+          Guardar o endereço alcança a mesma caixa de outro ponto do
+          programa: outra função escreve em x sem receber cópia de x.
         programa: |
           #include <stdio.h>
 

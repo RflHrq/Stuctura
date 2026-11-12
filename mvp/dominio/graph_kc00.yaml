@@ -6,9 +6,9 @@ nodes:
     type: observavel
     role: espinha
     support: []
-    text: "Uma variavel e um espaco de memoria com nome e tipo."
+    text: "Uma variável é um espaço de memória com nome e tipo."
     plain_text: >
-      Toda variavel tem um nome e um tipo — o tipo diz que especie de
+      Toda variável tem um nome e um tipo — o tipo diz que espécie de
       valor cabe ali.
     negated_by:
       - type_is_a_hint
@@ -74,10 +74,10 @@ nodes:
     type: observavel
     role: espinha
     support: []
-    text: "Declarar ja reserva o espaco, antes de qualquer valor entrar."
+    text: "Declarar já reserva o espaço, antes de qualquer valor entrar."
     plain_text: >
-      Quando voce escreve int x;, a caixa de x ja existe — so o que tem
-      dentro ainda nao esta definido.
+      Quando você escreve int x;, a caixa de x já existe — só o que tem
+      dentro ainda não está definido.
     negated_by:
       - no_value_no_memory
 
@@ -158,10 +158,10 @@ nodes:
     type: observavel
     role: espinha
     support: []
-    text: "Variavel local declarada sem valor tem conteudo indeterminado, nao zero."
+    text: "Variável local declarada sem valor tem conteúdo indeterminado, não zero."
     plain_text: >
-      C nao limpa a caixa para voce. O que estava la antes continua la
-      ate voce escrever algo.
+      C não limpa a caixa para você. O que estava lá antes continua lá
+      até você escrever algo.
     negated_by:
       - declaration_zeroes
 
@@ -280,10 +280,10 @@ nodes:
     support: [B1, B2, B3, B4]
     text: >
       Inicializar e declarar-depois-atribuir chegam ao mesmo lugar: uma
-      variavel com espaco reservado e valor conhecido.
+      variável com espaço reservado e valor conhecido.
     plain_text: >
       No fim das contas, dar o valor na hora de declarar ou declarar e
-      so depois atribuir chegam no mesmo lugar: uma variavel pronta.
+      só depois atribuir chegam no mesmo lugar: uma variável pronta.
     negated_by:
       - assignment_symmetric
     evidencia:

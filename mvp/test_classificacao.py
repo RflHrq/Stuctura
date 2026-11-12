@@ -238,7 +238,9 @@ def test_a_projecao_diz_de_onde_a_crenca_veio(d):
                     confianca="tenho certeza", crenca="no_value_no_memory")
     b2 = next(n for n in motor.estado_dos_nos(d, t.estado) if n["no"] == "B2")
     assert b2["origem_crenca"] == "B1"
-    assert b2["crenca_afirma"].startswith("Se eu nao dei valor")
+    # A grafia mudou em 12/11/2026, na passada de acentos do kc_00; o que
+    # se confere e o mesmo -- a frase da crenca certa chegou a projecao.
+    assert b2["crenca_afirma"].startswith("Se eu não dei valor")
 
 
 def test_uma_crenca_do_proprio_no_nao_tem_origem_cruzada(d):

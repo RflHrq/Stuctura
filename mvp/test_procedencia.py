@@ -86,7 +86,12 @@ def test_a_grade_nao_diverge_entre_topicos(catalogo):
 ROTULO_INSTANCIADO = ("ampersand_copies", "declaration_zeroes",
                       "pointer_is_data", "pointer_is_just_a_name",
                       "pointer_knows_block_size")
-ROTULO_SO_ACENTO = ("no_value_no_memory",)
+#
+# VAZIA DESDE 12/11/2026. A unica era `no_value_no_memory`, e a causa
+# era a que o comentario acima descreve: o `beliefs_kc00.yaml` escrito
+# sem acento. A limpeza "daquele arquivo inteiro" foi feita naquele
+# dia, na passada de acentos do kc_00, e as copias ficaram iguais.
+ROTULO_SO_ACENTO = ()
 
 
 def test_o_rotulo_e_instanciado_por_topico_e_isso_e_deliberado():

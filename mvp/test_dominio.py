@@ -549,6 +549,22 @@ def textos_de_tela(d):
             yield "caso_resolvido/%s/%d" % (nid, i), b.get("prosa") or ""
         for i, b in enumerate(d.outra_rota(nid)):
             yield "outra_rota/%s/%d" % (nid, i), b.get("prosa") or ""
+        # A LEGENDA DA DEMONSTRACAO TAMBEM E TEXTO DE TELA, e ficou de
+        # fora desta varredura ate 12/11/2026. `_prova` manda o `afirma`
+        # inteiro ao cliente, que o escreve com textContent acima do
+        # programa, na tela de refutacao -- e o `ambiente`, nas provas
+        # por recusa e por aviso.
+        #
+        # FOI VISTO NA TELA, num topico do PILOTO: o kc_02, o primeiro
+        # topico escrito, tinha as nove legendas em ASCII e com crase, e
+        # duas traziam NOTA DE MANUTENCAO no mesmo campo -- "a primeira
+        # versao desta evidencia escrevia...", "esta existe para chegar a
+        # pessoa" -- que o participante leria. Os topicos seguintes ja
+        # seguiam a regra (legenda curta, o resto em comentario); faltava
+        # o teste olhar.
+        for i, dem in enumerate(no.evidencia):
+            yield "nos/%s/evidencia/%d/afirma" % (nid, i), dem.afirma
+            yield "nos/%s/evidencia/%d/ambiente" % (nid, i), dem.ambiente
     for cid, c in d.crencas.items():
         yield "crencas/%s/afirma" % cid, c.afirma
     for a in d.atividades:
@@ -621,7 +637,15 @@ def test_nenhum_texto_de_tela_usa_crase(topico):
 # passou a ser a primeira linha da pagina inicial do portal
 # (`mvp/portal.py`), que lista os treze topicos -- e "Declaracao de
 # variaveis" no topo da lista era o cartao de visita do sistema.
-DIVIDA_DE_ACENTO = {"kc_00": 43}
+#
+# E DE 43 PARA ZERO NO MESMO DIA: a passada de conteudo que este
+# arquivo dizia faltar foi feita. Sessenta e sete linhas do kc_00 --
+# premissas, teachback, resgates, as cinco crencas e os itens de
+# treino -- trocadas uma a uma, a mao, porque "e" pode ser conjuncao
+# ou verbo e so quem le a frase decide. Codigo C e a saida transcrita
+# dos programas continuam em ASCII, pela convencao do projeto. O
+# dicionario fica, vazio: topico novo escrito em ASCII cai aqui.
+DIVIDA_DE_ACENTO = {}
 
 SEM_ACENTO = ("nao", "ate", "tres", "voce", "entao", "endereco",
               "enderecos", "numero", "numeros", "conteudo", "conteudos",

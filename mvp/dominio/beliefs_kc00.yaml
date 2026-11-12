@@ -1,7 +1,7 @@
 - id: type_is_a_hint
   negates: kc_00:B1
   provenance: E
-  label_pt: "Toda variavel ocupa o mesmo espaco; o tipo e so um aviso para o compilador."
+  label_pt: "Toda variável ocupa o mesmo espaço; o tipo é só um aviso para o compilador."
   source: >
     Elaborada a partir do modelo de maquina, nao de fonte empirica: e a unica
     crenca E do catalogo, e entra declarada como HIPOTESE A TESTAR. Os tres
@@ -11,7 +11,7 @@
 - id: no_value_no_memory
   negates: kc_00:B2
   provenance: D
-  label_pt: "Se eu nao dei valor, a variavel ainda nao existe na memoria."
+  label_pt: "Se eu não dei valor, a variável ainda não existe na memória."
   source: >
     Kaczmarczyk, Petrick, East & Herman (2010), SIGCSE, "Identifying
     Student Misconceptions of Programming", APUD Sorva (2012), Apêndice
@@ -27,7 +27,7 @@
 - id: declaration_zeroes
   negates: kc_00:B3
   provenance: D
-  label_pt: "Declarar ja zera a variavel, tipo em outras linguagens."
+  label_pt: "Declarar já zera a variável, tipo em outras linguagens."
   source: >
     du Boulay (1986); Samurçay (1989), APUD Sorva (2012), Apêndice A,
     p. 359, item 10: "Variables always receive a particular default
@@ -45,7 +45,7 @@
 - id: variable_remembers
   negates: kc_00:B4
   provenance: T
-  label_pt: "A variavel lembra os valores antigos, nao so o ultimo."
+  label_pt: "A variável lembra os valores antigos, não só o último."
   source: >
     du Boulay (1986); Soloway et al. (1982); Putnam et al. (1986);
     Sleeman et al. (1986); Doukakis et al. (2007), APUD Sorva (2012),
@@ -64,7 +64,7 @@
 - id: assignment_symmetric
   negates: kc_00:I1
   provenance: D
-  label_pt: "Atribuicao funciona dos dois lados, tipo igualdade matematica."
+  label_pt: "Atribuição funciona dos dois lados, tipo igualdade matemática."
   source: >
     Sleeman et al. (1986), APUD Sorva (2012), Apêndice A, p. 359,
     item 12: "Primitive assignment works both directions (swaps)."
