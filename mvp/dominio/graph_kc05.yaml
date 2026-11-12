@@ -78,6 +78,25 @@ nodes:
         espera: |-
           p comecou dizendo: nao aponto para lugar nenhum
           e depois de receber um endereco, deixou de dizer isso
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      NULL é um valor, e não a falta de um. O ponteiro que o recebeu tem
+      alguma coisa escrita dentro — tanto quanto o que recebeu um endereço
+      —, e o que está escrito significa uma informação precisa: este
+      ponteiro não aponta para objeto nenhum.
+
+
+      Por isso ele se comporta como valor. Dá para copiá-lo de um ponteiro
+      para outro, compará-lo, passá-lo para uma função e recebê-lo de
+      volta. Nada disso faria sentido com uma caixa vazia, e caixa de
+      ponteiro vazia não existe: espaço de memória sempre tem alguma
+      coisa.
+
+
+      E é essa informação que o torna útil. Uma função que procura pode
+      devolver NULL para dizer "não achei", e quem chamou sabe a diferença
+      entre isso e um endereço de verdade. O nulo não é o silêncio do
+      ponteiro: é uma resposta.
   B2:
     type: observavel
     role: espinha
@@ -133,6 +152,25 @@ nodes:
           gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. O que o padrão
           exige de todo compilador conforme é o diagnóstico; o que se
           observa aqui é a recusa deste.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Quem transforma o zero em ponteiro nulo é o compilador, e ele faz
+      isso enquanto traduz. Ao ver um 0 onde se espera um ponteiro, ele
+      troca aquilo pelo valor nulo daquele tipo — que não precisa ser
+      feito de bits zerados, e isso é assunto de outro nó deste tópico.
+
+
+      Por isso a conversão depende de o zero estar visível na tradução.
+      Escrever 0, escrever NULL, ou escrever uma conta entre constantes
+      que dê zero: nos três casos o compilador resolve a expressão antes
+      de o programa rodar, e faz a troca.
+
+
+      Um zero que só aparece com o programa rodando é outra coisa. Ele é
+      um inteiro, e convertê-lo para ponteiro é uma conversão de número
+      para endereço — o padrão não promete que o resultado seja o nulo.
+      Pode ser nesta máquina e não ser na próxima, e um teste construído
+      sobre isso não está testando o que pensa.
   B3:
     type: observavel
     role: espinha
@@ -174,6 +212,26 @@ nodes:
         espera: |-
           o endereco de x nao e o ponteiro nulo
           nem o de c: objeto nenhum mora ali
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      A linguagem reserva o valor nulo para significar "nenhum objeto", e
+      junto com a reserva vem a garantia: nenhum objeto do seu programa
+      vai ter esse valor como endereço. Não é coincidência nem sorte da
+      máquina — é regra, e vale para variáveis, para casas de um conjunto
+      e para blocos que você pediu.
+
+
+      Por isso o teste significa alguma coisa. Se algum objeto pudesse
+      calhar de ter o endereço nulo, comparar um ponteiro com NULL não
+      separaria "não aponta" de "aponta para aquele objeto", e a resposta
+      seria ambígua justamente quando mais importa.
+
+
+      E a garantia é sobre o VALOR, não sobre um lugar da memória. "O
+      endereço zero" não é um lugar onde o seu programa possa espiar: o
+      número que o nulo guarda pode nem ser zero por dentro, e o que o
+      padrão promete é só isto — que ele não vai bater com o endereço de
+      nada seu.
   I1:
     type: inferencia
     role: espinha
@@ -214,6 +272,23 @@ nodes:
         espera: |-
           a comparacao respondeu nas duas vezes, e sem parar
           e nao foi a lugar nenhum: nada em x mudou
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o B1 usado. Se o nulo é um valor guardado
+      dentro de p, então perguntar se p é nulo é ler o que está dentro de
+      p. A pergunta se resolve na caixa do ponteiro, e termina ali.
+
+
+      Por isso ela é segura com p nulo. Não há viagem nenhuma: o programa
+      compara dois valores — o que está em p e o nulo — e responde sim ou
+      não. É a mesma coisa que comparar dois números, e comparar números
+      não visita lugar nenhum.
+
+
+      E é isso que separa duas linhas parecidas. p == NULL lê a caixa do
+      ponteiro; *p == 0 manda viajar até o apontado e ler o que há lá. Com
+      p nulo, a primeira responde e a segunda não tem para onde ir — e a
+      diferença entre elas é uma estrela.
   I2:
     type: inferencia
     role: espinha
@@ -252,6 +327,27 @@ nodes:
         espera: |-
           comparar com 0 escrito no codigo responde igual a NULL
           e o 0 de um inteiro e so um numero: somou e virou 1
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      No código que você escreve, 0 e NULL dizem a mesma coisa para um
+      ponteiro. Pode comparar com 0, atribuir 0, escrever NULL — o
+      compilador entende os três como o valor nulo daquele tipo. Essa
+      parte é acordo da linguagem, e é garantida.
+
+
+      O acordo é sobre tradução, e não sobre conteúdo. Quando você escreve
+      0 num lugar onde vai um ponteiro, o compilador troca aquilo pelo
+      valor nulo — que pode ser feito de bits zerados, ou não. O padrão
+      não promete nada sobre a aparência interna, e máquinas existiram
+      onde ela era outra.
+
+
+      Por isso a igualdade não se transporta para a memória. Zerar os
+      bytes de um ponteiro à mão não é a mesma coisa que lhe atribuir
+      NULL, e comparar os bytes dele com zeros não é a mesma coisa que
+      compará-lo com NULL. O caminho garantido é sempre o mesmo: escrever
+      a comparação, e deixar o compilador fazer a conversão que ele
+      promete.
   I3:
     type: inferencia
     role: conclusao
@@ -262,3 +358,22 @@ nodes:
       existe caixa nenhuma. O que acontece daí não é definido.
     negated_by:
       - null_is_safe_to_deref
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      A estrela manda ir até o lugar que o ponteiro indica. Com p nulo,
+      não há lugar nenhum indicado — o B3 garantiu que aquele valor não é
+      o endereço de objeto algum —, e a ordem fica sem destino. Não é que
+      ela chegue num lugar vazio: é que não há lugar.
+
+
+      Por isso o padrão não diz o que acontece. Comportamento indefinido
+      não quer dizer "dá erro": quer dizer que a linguagem não promete
+      nada — nem que pare, nem que continue, nem que o valor lido seja
+      zero. Qualquer coisa que aconteça está dentro do que foi permitido
+      não prometer.
+
+
+      E é isso que torna o teste obrigatório. Se o programa for seguir um
+      ponteiro que pode ser nulo, perguntar antes é o que separa um
+      caminho definido de um sem definição — e perguntar, como o nó
+      anterior mostrou, não custa viagem nenhuma.

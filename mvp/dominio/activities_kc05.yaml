@@ -87,6 +87,384 @@ exemplos:
     int *p = NULL;
     *p = 1;          /* indefinido: nao ha objeto la */
 
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 1;
+        int *nenhum = NULL;
+        int *copia = nenhum;
+        int *algum = &x;
+
+        printf("a copia diz a mesma coisa? %d\n", copia == nenhum);
+        printf("e e diferente de um que aponta? %d\n", algum != nenhum);
+    - prosa: >
+        Pergunta: a linha int *copia = nenhum; copiou o quê?
+    - prosa: >
+        A tentação é dizer que não copiou nada — se o primeiro estivesse
+        vazio, não haveria o que copiar, e a comparação seguinte não teria
+        com o que comparar. As duas respostas mostram que havia algo ali:
+        algo que foi duplicado, e que se distingue de um endereço.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a copia diz a mesma coisa? 1
+        e e diferente de um que aponta? 1
+    - prosa: >
+        Copiar e distinguir são operações que se fazem com valores. Se
+        NULL fosse ausência, as duas linhas não teriam o que responder.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *pela_palavra = NULL;
+        int *pelo_zero = 0;
+        int *por_uma_conta = 5 - 5;
+
+        printf("NULL da o nulo? %d\n", pela_palavra == NULL);
+        printf("o 0 escrito da o nulo? %d\n", pelo_zero == NULL);
+        printf("e uma conta de constantes tambem? %d\n", por_uma_conta == NULL);
+    - prosa: >
+        Pergunta: a terceira linha não tem um zero escrito. Por que ela
+        também dá o nulo?
+    - prosa: >
+        Porque o compilador faz a conta antes de o programa existir. O que
+        ele vê, na hora de traduzir, é uma expressão de valor zero — e é
+        disso que a regra fala. Não é a aparência do texto que decide: é o
+        momento em que o valor fica conhecido.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        NULL da o nulo? 1
+        o 0 escrito da o nulo? 1
+        e uma conta de constantes tambem? 1
+    - prosa: >
+        Três maneiras de escrever, um mesmo resultado, e as três
+        resolvidas na tradução. Um zero que só aparecesse depois, com o
+        programa rodando, não teria como ser traduzido junto — e é aí que
+        a garantia acaba.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int inteiro = 1;
+        char letra = 'k';
+        double fracao = 0.5;
+        void *um = NULL;
+        void *dois = NULL;
+        void *tres = NULL;
+        int passos = 0;
+
+        while (passos < 3) {
+            passos = passos + 1;
+        }
+        if (passos == 3) {
+            um = &inteiro;
+            dois = &letra;
+            tres = &fracao;
+        }
+        printf("nenhum dos tres e nulo? %d\n",
+               um != NULL && dois != NULL && tres != NULL);
+        printf("e os tres sao lugares distintos? %d\n",
+               um != dois && dois != tres && um != tres);
+    - prosa: >
+        Pergunta: três variáveis de tamanhos diferentes. Alguma poderia
+        calhar de morar no endereço nulo?
+    - prosa: >
+        Nenhuma, e não por sorte. A segunda resposta mostra que os três
+        lugares são distintos entre si — a memória tem endereços de sobra.
+        E o valor nulo está fora dessa distribuição por regra: ele foi
+        reservado para não ser de ninguém.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        nenhum dos tres e nulo? 1
+        e os tres sao lugares distintos? 1
+    - prosa: >
+        Três objetos, três endereços, e o nulo diferente dos três. Se o
+        nulo fosse um endereço comum, alguma variável poderia cair nele —
+        e aí um ponteiro legítimo responderia "sou nulo".
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 7;
+        int *p = NULL;
+
+        printf("com p nulo, o teste responde %d\n", p == NULL);
+        p = &x;
+        printf("com p apontando, responde %d\n", p == NULL);
+        printf("o que mudou foi p; x segue valendo %d\n", x);
+    - prosa: >
+        Pergunta: a primeira comparação aconteceu com p nulo. Para onde
+        ela foi?
+    - prosa: >
+        Para lugar nenhum — e é por isso que ela pôde acontecer. Repare no
+        que mudou entre as duas respostas: o conteúdo de p, e só. A
+        resposta depende do que está dentro da caixa do ponteiro, e a
+        caixa do apontado não entra na conta.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        com p nulo, o teste responde 1
+        com p apontando, responde 0
+        o que mudou foi p; x segue valendo 7
+    - prosa: >
+        Se olhar p fosse olhar o apontado, a primeira linha não teria o
+        que olhar: com p nulo não existe apontado. Ela respondeu, e o
+        programa seguiu até o fim.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int *p = NULL;
+
+        printf("p == NULL da %d\n", p == NULL);
+        printf("p == 0    da %d\n", p == 0);
+        printf("!p        da %d\n", !p);
+    - prosa: >
+        Pergunta: as três perguntas são escritas diferente. Por que
+        respondem igual?
+    - prosa: >
+        Porque as três são traduzidas para a mesma comparação: o
+        compilador sabe que p é um ponteiro, e converte o 0 — e a ausência
+        dele, no terceiro caso — para o valor nulo daquele tipo. O acordo
+        está na tradução.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        p == NULL da 1
+        p == 0    da 1
+        !p        da 1
+    - prosa: >
+        Três formas, uma resposta, e nenhuma delas olhou o que está
+        guardado dentro de p. O que elas usaram foi a regra de conversão —
+        e é só isso que a igualdade entre NULL e 0 quer dizer.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 1;
+        int *p = NULL;
+        int escreveu = 0;
+
+        if (p != NULL) {
+            *p = 50;
+            escreveu = 1;
+        }
+        printf("com p nulo, a escrita aconteceu? %d\n", escreveu);
+        p = &x;
+        if (p != NULL) {
+            *p = 50;
+            escreveu = 1;
+        }
+        printf("com p apontando, aconteceu? %d, e x vale %d\n", escreveu, x);
+    - prosa: >
+        Pergunta: os dois blocos são iguais. Por que só o segundo
+        escreveu?
+    - prosa: >
+        Porque o teste olhou o que havia em p, e nas duas vezes a resposta
+        foi diferente. Na primeira, a estrela nem chegou a ser executada —
+        e é isso que o guarda compra: ele não torna seguro seguir um
+        ponteiro nulo, ele impede que se siga.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        com p nulo, a escrita aconteceu? 0
+        com p apontando, aconteceu? 1, e x vale 50
+    - prosa: >
+        Zero e um, do mesmo trecho escrito duas vezes. O que mudou entre
+        eles foi o conteúdo de p — e a decisão de entrar ou não no bloco
+        saiu de uma leitura dessa caixa, e de mais nada.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Caminho DIFERENTE do caso resolvido -- ha teste no
+# projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Troque o conteúdo de dois ponteiros, do jeito que
+        se troca o de duas variáveis quaisquer.
+    - codigo: |
+        int x = 1;
+        int *a = NULL;
+        int *b = &x;
+        int *guardado = a;
+
+        a = b;
+        b = guardado;
+        printf("depois da troca, a aponta para algo? %d\n", a != NULL);
+        printf("e b passou a dizer 'nenhum'? %d\n", b == NULL);
+    - prosa: >
+        O nulo saiu de a, passou por uma variável temporária e chegou em
+        b. O endereço fez o caminho contrário.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        depois da troca, a aponta para algo? 1
+        e b passou a dizer 'nenhum'? 1
+    - prosa: >
+        A troca funcionou nos dois sentidos, e ela é a mesma que se faria
+        com dois números. Para o nulo atravessar uma variável temporária,
+        ele precisa ser alguma coisa — e é: é o valor que significa
+        "nenhum lugar".
+
+  B2:
+    - prosa: >
+        Outro caminho. Veja onde a constante conta como ponteiro nulo.
+    - codigo: |
+        int recebeu_nulo(int *q)
+        {
+            return q == NULL;
+        }
+    - codigo: |
+        int *p = 0;
+
+        printf("atribuido: %d\n", p == NULL);
+        printf("comparado: %d\n", p == 0);
+        printf("passado:   %d\n", recebeu_nulo(0));
+    - prosa: >
+        Na primeira linha o zero é atribuído a um ponteiro; na segunda,
+        comparado com um; na terceira, entregue a uma função que espera
+        um. Nos três o compilador sabe, na tradução, que ali vai um
+        ponteiro.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        atribuido: 1
+        comparado: 1
+        passado:   1
+    - prosa: >
+        O que esses três lugares têm em comum é o compilador saber que o
+        destino é um ponteiro, e ver o zero ali mesmo. É essa dupla
+        condição que a regra descreve — e um zero guardado numa variável
+        inteira não cumpre a segunda metade.
+
+  B3:
+    - prosa: >
+        Outro caminho. Se o nulo fosse endereço de alguém, o candidato
+        seria algum canto fora do comum.
+    - codigo: |
+        int a[3] = {1, 2, 3};
+        void *de_dentro = NULL;
+        void *do_meio = NULL;
+        int passos = 0;
+
+        while (passos < 3) {
+            passos = passos + 1;
+        }
+        {
+            int escondido = 9;
+
+            if (passos == 3) {
+                de_dentro = &escondido;
+                do_meio = &a[1];
+            }
+            printf("a variavel de bloco tem endereco, e nao e o nulo? %d\n",
+                   de_dentro != NULL);
+        }
+        printf("e a casa do meio do conjunto tambem nao e? %d\n", do_meio != NULL);
+    - prosa: >
+        Uma variável que só existe dentro de um bloco, e uma casa no meio
+        de um conjunto — dois lugares que a intuição trata como diferentes
+        dos outros.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        a variavel de bloco tem endereco, e nao e o nulo? 1
+        e a casa do meio do conjunto tambem nao e? 1
+    - prosa: >
+        Nenhum dos dois. A garantia não tem exceção para cantos especiais:
+        enquanto o objeto existe, o endereço dele é diferente do nulo — e
+        é isso que faz a comparação com NULL valer sempre a mesma coisa.
+
+  I1:
+    - prosa: >
+        Outro caminho, sem nulo nenhum: compare dois ponteiros um com o
+        outro.
+    - codigo: |
+        int x = 1, y = 2;
+        int *p = &x;
+        int *q = &x;
+
+        printf("os dois com o mesmo endereco: %d\n", p == q);
+        q = &y;
+        printf("depois de q = &y: %d\n", p == q);
+    - prosa: >
+        Os dois apontam para o mesmo lugar e a comparação diz que sim.
+        Depois um deles recebe outro endereço, e ela passa a dizer que não
+        — sem que o conteúdo de x ou de y tenha sido consultado uma vez
+        sequer.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        os dois com o mesmo endereco: 1
+        depois de q = &y: 0
+    - prosa: >
+        A resposta mudou porque o conteúdo de uma das caixas de ponteiro
+        mudou. Comparar ponteiros é comparar os números que eles guardam;
+        o que há no fim do caminho não participa.
+
+  I2:
+    - prosa: >
+        Outro caminho. Escreva o mesmo 0 duas vezes, em dois destinos
+        diferentes.
+    - codigo: |
+        int n = 0;
+        int *p = 0;
+
+        printf("o 0 que foi para um int vale como numero? %d\n", n == 0);
+        printf("e o 0 que foi para um ponteiro diz 'nenhum'? %d\n", p == NULL);
+    - prosa: >
+        O caractere é o mesmo nas duas linhas. O que muda é o tipo do que
+        está do lado esquerdo — e é ele que decide o que aquele 0 vira.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o 0 que foi para um int vale como numero? 1
+        e o 0 que foi para um ponteiro diz 'nenhum'? 1
+    - prosa: >
+        Um virou o número zero; o outro virou o valor que significa
+        "nenhum lugar". Se o mesmo 0 já significa duas coisas diferentes
+        no código, conforme o destino, não há por que esperar que ele
+        signifique uma coisa só dentro da memória.
+
+  I3:
+    - prosa: >
+        Outro caminho: tire o guarda e olhe o que sobra. O trecho abaixo o
+        compilador aceita, e nós não o executamos — porque o que ele faz
+        não tem resultado previsível, e mostrar uma saída aqui ensinaria
+        que dá para olhar.
+    - codigo: |
+        int *p = NULL;
+
+        *p = 1;        /* indefinido: nao ha objeto nenhum la */
+    - prosa: >
+        Duas linhas, e nenhuma delas é um erro de escrita: a primeira dá a
+        p um valor legítimo, e a segunda é uma escrita bem formada. O
+        compilador traduz as duas sem reclamar.
+    - prosa: >
+        O problema não está na forma, está no destino. A segunda linha
+        manda escrever no lugar indicado por p, e o valor que está em p é
+        justamente o que significa "nenhum lugar". Não há onde o 1 possa
+        ser posto.
+    - prosa: >
+        E é por isso que não há saída para mostrar. O que um programa
+        assim faz depende da máquina, do compilador e do dia — pode parar,
+        pode seguir, pode parecer funcionar. Nenhuma dessas respostas é a
+        resposta: a resposta é que a linguagem não promete nenhuma delas.
+
 activities:
 
   # ------------------------------------------------------------------

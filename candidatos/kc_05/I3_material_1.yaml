@@ -69,8 +69,8 @@ premissa: "*p com p nulo não acessa objeto algum: é comportamento indefinido."
 crenca_que_nega: null_is_safe_to_deref
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: cd2fc3846b2d
 
 
 # A AMPLIAÇÃO. O que a viagem pede, o que não há no fim dela, e por que
