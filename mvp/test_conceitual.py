@@ -138,10 +138,17 @@ def test_todo_cartao_declarado_existe_de_verdade():
 def test_so_quem_tem_explicacao_declara_cartao():
     """Usar não é ensinar, e o inventário já separava os dois.
 
-    `printf_ponteiro` aparece nos três exemplos do kc_02 e não é
-    explicado em lugar nenhum — `usado_sem_explicacao`. Se ele ganhasse
-    `cartoes`, o histórico diria que a pessoa teve oportunidade de
-    aprender o que ninguém lhe ensinou.
+    `printf_ponteiro` é o caso que dá nome ao `tipo` dele:
+    `usado_sem_explicacao`. Se ele ganhasse `cartoes`, o histórico
+    diria que a pessoa teve oportunidade de aprender o que ninguém lhe
+    ensinou.
+
+    A ILUSTRAÇÃO DESTA DOCSTRING ESTAVA VELHA ATÉ 12/11/2026. Ela dizia
+    "aparece nos três exemplos do kc_02", e não aparecia em nenhum: o
+    único exemplo do projeto que o usava era o do `kc_03:B3`, e ele foi
+    trocado naquele dia — porque lia um ponteiro não inicializado. Hoje
+    `printf_ponteiro` não aparece em exemplo nenhum, e continua sem
+    cartão, que é o que este teste cobra.
     """
     erradas = []
     for cid, v in _CRU.items():

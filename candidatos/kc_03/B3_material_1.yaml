@@ -15,27 +15,34 @@
 # que aparece teve um autor.
 #
 # ---------------------------------------------------------------------
-# DUAS COISAS PARA O DONO, E AS DUAS ESTÃO NO `exemplo` DESTE NÓ
-#
-# O exemplo que o domínio já traz é
+# O EXEMPLO FOI TROCADO EM 12/11/2026, por decisão do dono. O anterior
+# era
 #
 #   int *p;
 #   printf("%p\n", (void *)p);   /* o que estava ali antes */
 #
-# e ele DEMONSTRA O ERRO COMETENDO-O: ler o valor de um ponteiro não
-# inicializado é o comportamento indefinido de que a premissa fala. É a
-# única parte deste cartão que faz isso, e ela não é minha — por isso
-# fica como está, e a decisão de trocá-la é do dono.
+# e ele tinha dois defeitos de uma vez.
 #
-# E É AQUI QUE MORA A ÚLTIMA DÍVIDA DE CONSTRUTO DO PROJETO. O `%p` é
-# `printf_ponteiro`, que está `desconhecido` no inventário: nem entrada
-# ele tem. O validador acusa AVISO neste arquivo por causa dessa linha,
-# e o aviso está certo. Declarar o construto em `exige_conceitos` para
-# calar o portão seria afirmar que este cartão o ensina, e ele não
-# ensina — seria usar o campo de declaração para esconder a dívida.
+# DEMONSTRAVA O ERRO COMETENDO-O. Ler o valor de um ponteiro não
+# inicializado é o comportamento indefinido de que esta premissa fala, e
+# o exemplo é a primeira coisa que a pessoa vê no cartão. Era a única
+# parte deste arquivo que fazia isso, e ela contradizia a regra que o
+# resto do cabeçalho declara.
 #
-# TROCAR O EXEMPLO RESOLVE OS DOIS DE UMA VEZ, e é uma decisão de
-# conteúdo. Fica anotado, e não feito.
+# E ERA A ÚLTIMA DÍVIDA DE CONSTRUTO DO PROJETO. O `%p` é
+# `printf_ponteiro`, que está `desconhecido` no inventário — nem entrada
+# ele tem —, e o validador acusava AVISO neste arquivo por causa
+# daquela linha. Declarar o construto em `exige_conceitos` para calar o
+# portão teria sido afirmar que este cartão o ensina.
+#
+# O NOVO PÕE AS DUAS SITUAÇÕES LADO A LADO E NÃO LÊ NENHUMA DAS DUAS. O
+# que se mostra é de onde vem o valor que existe, e que a outra caixa
+# não teve ninguém escolhendo por ela — a mesma leitura que o caso
+# resolvido faz com a soma.
+#
+# A ASSINATURA MUDOU JUNTO, de 098d9f2a470c para 782d5e0a4786, e é o
+# mecanismo funcionando: o `exemplo` entra no cálculo, então material
+# diferente é versão diferente.
 #
 # ---------------------------------------------------------------------
 # A CRENÇA
@@ -84,7 +91,7 @@ crenca_que_nega: declaration_zeroes
 
 gerado_por: Claude Opus 5, 12/11/2026
 revisado_por: Rafael H. S. Simao
-revisado_sha: 098d9f2a470c
+revisado_sha: 782d5e0a4786
 
 
 # A AMPLIAÇÃO. O que a declaração NÃO faz, de onde vem a ideia contrária,
@@ -108,8 +115,8 @@ ampliacao: >
 
 # O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
 exemplo: |
-  int *p;
-  printf("%p\n", (void *)p);   /* o que estava ali antes */
+  int total = 0;   /* o zero entrou por esta linha */
+  int outro;       /* ninguem escolheu o que ha aqui */
 
 
 # O CASO RESOLVIDO: todo valor com autor.

@@ -63,9 +63,23 @@ exemplos:
     int *p;       /* quem foi declarado: p */
     /* NAO existe uma variavel chamada *p */
 
+  # TROCADO EM 12/11/2026, e o exemplo anterior era
+  #
+  #   int *p;
+  #   printf("%p\n", (void *)p);   /* o que estava ali antes */
+  #
+  # Ele DEMONSTRAVA O ERRO COMETENDO-O: ler o valor de um ponteiro nao
+  # inicializado e o comportamento indefinido de que esta premissa
+  # fala, e o exemplo do cartao e a primeira coisa que a pessoa ve.
+  # E era a ultima divida de construto do projeto -- o `%p` e
+  # `printf_ponteiro`, que nem entrada no inventario tem.
+  #
+  # O novo poe as duas situacoes lado a lado e nao le nenhuma das
+  # duas: o que se mostra e DE ONDE VEM o valor que existe, e que a
+  # outra caixa nao teve ninguem escolhendo por ela.
   B3: |
-    int *p;
-    printf("%p\n", (void *)p);   /* o que estava ali antes */
+    int total = 0;   /* o zero entrou por esta linha */
+    int outro;       /* ninguem escolheu o que ha aqui */
 
   I1: |
     int *p;       /* uma caixa: p           */

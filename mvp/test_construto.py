@@ -271,14 +271,26 @@ def test_o_material_do_b1_existe_e_a_decisao_de_liberar_e_que_nao():
 # os seis cartões daquele tópico usavam no exemplo o construto que dá
 # nome a ele, e nenhum o explicava.
 #
-# 18 -> 8 -> 7 -> 1 em 12/11/2026, e nenhuma das três baixas veio de
-# mexer no detector: as três vieram de material escrito e assinado.
+# E DE 1 PARA ZERO, com a troca do exemplo do `kc_03:B3`. Aquele era o
+# último, e ele não saiu por material novo: saiu porque o exemplo que o
+# usava estava errado por outro motivo. Ele era
 #
-# O QUE SOBRA é um, e ele precisa de material que não existe:
+#   int *p;
+#   printf("%p\n", (void *)p);   /* o que estava ali antes */
 #
-#   kc_03:B3  printf_ponteiro  — o construto nem entrada no inventário
-#             tem, e o cartão o usa no exemplo
-USA_SEM_ENSINAR = 1
+# e LIA UM PONTEIRO NÃO INICIALIZADO — o comportamento indefinido de
+# que a premissa daquele nó fala, demonstrado cometendo-o, na primeira
+# coisa que a pessoa vê. O `%p` saiu junto.
+#
+# 18 -> 8 -> 7 -> 1 -> 0 em 12/11/2026. As três primeiras baixas vieram
+# de material escrito e assinado; a última, de um exemplo consertado.
+# Nenhuma veio de mexer no detector.
+#
+# ZERO NÃO É O FIM DA HISTÓRIA, e é bom dizer: o número conta cartões
+# cujo EXEMPLO usa construto sem ensino. Item que cobra o que ninguém
+# ensinou é outra conta, e está no `test_coerencia` — lá ainda há três,
+# todos `scanf`.
+USA_SEM_ENSINAR = 0
 
 
 def test_quantos_cartoes_usam_construto_que_ninguem_ensina():
