@@ -46,6 +46,103 @@ nodes:
       A função ganha uma casa nova, só dela, para o parâmetro.
     negated_by:
       - funcao_usa_a_variavel_do_chamador
+    # A EVIDENCIA DESTE NO, 12/11/2026, e a regra que mandou na forma de
+    # todas as seis deste arquivo:
+    #
+    # O `afirma` E TEXTO DE TELA. `_prova` o manda inteiro para o
+    # cliente, que o escreve com `textContent` (app.js, `desenhaProva`).
+    # Por isso ele e CURTO, em portugues com acento e sem crase, e diz
+    # uma coisa so: que metade da premissa aquele programa prova. Tudo o
+    # que e explicacao para quem revisa fica nestes comentarios, que
+    # nenhuma tela le.
+    #
+    # DUAS DAS TRES ESTAO BLOQUEADAS pelo portao de exibicao, e pelo
+    # mesmo construto: `funcao_com_parametro`, que esta
+    # `nao_introduzido` no inventario. Quem o ensina e o candidato
+    # `candidatos/kc_06/B1_material_1.yaml`, e a aprovacao dele e o que
+    # libera as duas. Bloqueada nao e invalida: continua conferida pelo
+    # oraculo e continua valendo para o trabalho -- so nao vai para a
+    # tela.
+    #
+    # A PREMISSA TEM DUAS METADES, e elas se demonstram por caminhos
+    # opostos, como no I2 do kc_02: "variavel nova" por saida de
+    # programa, "local a f" pela RECUSA do compilador.
+    evidencia:
+      - afirma: >
+          O parâmetro é uma variável nova: dois nomes iguais, um no main
+          e um em f, respondem números diferentes no mesmo instante.
+        programa: |
+          #include <stdio.h>
+
+          static void f(int n)
+          {
+              puts(n == 2 ? "o parametro de f vale 2" : "FALHOU");
+          }
+
+          int main(void)
+          {
+              int n = 1;
+
+              f(2);
+              puts(n == 1 ? "e o n do main vale 1, no mesmo instante"
+                          : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o parametro de f vale 2
+          e o n do main vale 1, no mesmo instante
+      - afirma: >
+          O nome do parâmetro é local a f: fora dela, o compilador não
+          conhece esse nome.
+        programa: |
+          #include <stdio.h>
+
+          static void f(int n)
+          {
+              puts(n == 2 ? "ok" : "FALHOU");
+          }
+
+          int main(void)
+          {
+              f(2);
+              return n;
+          }
+        nao_compila: true
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. Usar um nome que
+          ninguém declarou é violação de restrição, e o padrão exige
+          diagnóstico de todo compilador conforme; o que se observa aqui
+          é a recusa deste.
+      # A TERCEIRA EXISTE PARA CHEGAR A PESSOA, e e a mesma divisao que
+      # o kc_02 ja fez no B1 e no B2 dele. Ela nao tem funcao com
+      # parametro -- nao tem funcao nenhuma -- e por isso passa o
+      # portao hoje. O que ela prova e menos: o MECANISMO da premissa,
+      # que e a declaracao, sem exibir o parametro. O `afirma` diz isso
+      # com todas as letras, para que ninguem leia nela mais do que ela
+      # mostra.
+      - afirma: >
+          Duas declarações do mesmo nome criam duas variáveis, cada uma
+          com o seu valor — é a declaração que faz do parâmetro uma
+          variável nova, e isto se mostra sem chamada nenhuma.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int n = 1;
+
+              {
+                  int n = 2;
+
+                  puts(n == 2 ? "a segunda declaracao criou outra variavel"
+                              : "FALHOU");
+              }
+              puts(n == 1 ? "e a primeira ficou com o valor dela" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a segunda declaracao criou outra variavel
+          e a primeira ficou com o valor dela
 
   B2:
     type: observavel
@@ -57,6 +154,74 @@ nodes:
       e o que se copia é o valor.
     negated_by:
       - passa_a_expressao
+    # A PRIMEIRA PROVA AS DUAS METADES NUM PROGRAMA: que a chamada
+    # resolve a conta antes de copiar, e que tres maneiras de escrever o
+    # mesmo resultado chegam iguais. A segunda parte e a que derruba a
+    # crenca: se a EXPRESSAO viajasse, `f(3)` e `f(x + 1)` seriam coisas
+    # diferentes chegando.
+    #
+    # A FUNCAO AUXILIAR DEVOLVE O PARAMETRO, e isso nao e circular: a
+    # pergunta do no e o que a chamada POE no parametro, e e disso que
+    # `visto` da noticia. E o mesmo desenho do `igual` na evidencia do
+    # B1 do kc_02. A trava do aviso do compilador continua valendo, e
+    # este programa sai sem aviso nenhum.
+    #
+    # BLOQUEADA hoje: `funcao_com_parametro`.
+    evidencia:
+      - afirma: >
+          O que entra no parâmetro é o valor: a chamada resolve a
+          expressão antes, e três maneiras de escrever o mesmo resultado
+          chegam iguais lá dentro.
+        programa: |
+          #include <stdio.h>
+
+          static int visto(int n)
+          {
+              return n;
+          }
+
+          int main(void)
+          {
+              int x = 2;
+
+              puts(visto(x + 1) == 3
+                   ? "a chamada resolveu x + 1 e copiou o 3 para dentro"
+                   : "FALHOU");
+              puts(visto(3) == visto(x + 1)
+                   ? "f(3) e f(x + 1) chegam iguais: o que viaja e o valor"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a chamada resolveu x + 1 e copiou o 3 para dentro
+          f(3) e f(x + 1) chegam iguais: o que viaja e o valor
+      # A SEGUNDA CHEGA A PESSOA hoje, e prova a metade do COPIAR sem
+      # precisar de chamada: a atribuicao resolve a conta, copia o
+      # resultado, e o resultado nao segue a variavel de onde veio.
+      # Mexer em x depois e o que mostra isso -- sem essa linha, "n vale
+      # 3" nao distinguiria copia de vinculo.
+      - afirma: >
+          O que se copia é o resultado da conta, e ele não acompanha a
+          variável de onde saiu — a metade do copiar, mostrada por
+          atribuição.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 2;
+              int n = x + 1;
+
+              puts(n == 3 ? "a copia recebeu o resultado da conta, 3"
+                          : "FALHOU");
+              x = 100;
+              puts(n == 3 ? "e o 3 nao segue o x: a conta ja tinha acabado"
+                          : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a copia recebeu o resultado da conta, 3
+          e o 3 nao segue o x: a conta ja tinha acabado
 
   I1:
     type: inferencia
@@ -68,6 +233,64 @@ nodes:
       lugares diferentes.
     negated_by:
       - function_gets_original
+    # A PRIMEIRA MOSTRA AS DUAS COISAS AO MESMO TEMPO: que a modificacao
+    # ACONTECEU (dentro, n virou 11) e que o argumento nao mudou (x
+    # continua 1). Sem a primeira metade, "x nao mudou" tem duas
+    # leituras, e a falsa e a confortavel: "a atribuicao nao aconteceu".
+    # E a mesma razao pela qual o cartao do I1 imprime o valor de dentro.
+    #
+    # BLOQUEADA hoje: `funcao_com_parametro`.
+    evidencia:
+      - afirma: >
+          Modificar o parâmetro não afeta o argumento, e a modificação
+          acontece de verdade: dentro de f o parâmetro vale 11, e x
+          continua valendo 1.
+        programa: |
+          #include <stdio.h>
+
+          static int soma(int n)
+          {
+              n = n + 10;
+              return n;
+          }
+
+          int main(void)
+          {
+              int x = 1;
+
+              puts(soma(x) == 11 ? "a soma aconteceu: dentro, n virou 11"
+                                 : "FALHOU");
+              puts(x == 1 ? "e x continua 1: a escrita foi na caixa de n"
+                          : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a soma aconteceu: dentro, n virou 11
+          e x continua 1: a escrita foi na caixa de n
+      # A SEGUNDA CHEGA A PESSOA hoje. Ela prova a DIRECAO da copia --
+      # escrever na copia nao volta para a origem -- que e o que a
+      # premissa afirma, menos o fato de a copia ser um parametro.
+      - afirma: >
+          Escrever na cópia muda a cópia, e a origem dela fica como
+          estava — a direção da cópia, mostrada por atribuição.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int n = x;
+
+              n = 99;
+              puts(n == 99 ? "a escrita na copia aconteceu: n virou 99"
+                           : "FALHOU");
+              puts(x == 1 ? "e a origem da copia nao mudou: x continua 1"
+                          : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a escrita na copia aconteceu: n virou 99
+          e a origem da copia nao mudou: x continua 1
 
   I2:
     type: inferencia
@@ -81,6 +304,66 @@ nodes:
       mesma casa — e lá você mexe de verdade.
     negated_by:
       - ampersand_copies
+    # A PRIMEIRA E O CASO RESOLVIDO DO CARTAO, virado em prova: o MESMO
+    # endereco copiado para dois parametros, escrita por um, leitura
+    # pelo outro. Se `&x` entregasse uma copia de x, os dois parametros
+    # teriam dois uns separados e a leitura por `q` daria 1.
+    #
+    # BLOQUEADA hoje: `funcao_com_parametro`.
+    evidencia:
+      - afirma: >
+          Um endereço copiado leva ao mesmo lugar: o mesmo endereço em
+          dois parâmetros, e a escrita por um é lida pelo outro, e chega
+          em x aqui fora.
+        programa: |
+          #include <stdio.h>
+
+          static void dois(int *p, int *q)
+          {
+              *p = 50;
+              puts(*q == 50 ? "duas copias do mesmo endereco levam a mesma casa"
+                            : "FALHOU");
+          }
+
+          int main(void)
+          {
+              int x = 1;
+
+              dois(&x, &x);
+              puts(x == 50 ? "e a escrita feita dentro de dois chegou em x"
+                           : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          duas copias do mesmo endereco levam a mesma casa
+          e a escrita feita dentro de dois chegou em x
+      # A SEGUNDA CHEGA A PESSOA hoje, e e a metade mais importante do
+      # no: que a copia de um endereco alcanca a casa original. Ela se
+      # mostra sem chamada nenhuma, com dois ponteiros no mesmo escopo
+      # -- e o `*p` de leitura mostra que os dois alcancam a mesma casa.
+      - afirma: >
+          A cópia de um endereço escreve na mesma casa que o original, e
+          os dois ponteiros leem o mesmo valor — por atribuição, sem
+          chamada nenhuma.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int *p = &x;
+              int *q = p;
+
+              *q = 9;
+              puts(x == 9 ? "a copia do endereco escreveu na casa de x: x virou 9"
+                          : "FALHOU");
+              puts(*p == 9 ? "e quem le pelo ponteiro copiado ve o mesmo 9"
+                           : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a copia do endereco escreveu na casa de x: x virou 9
+          e quem le pelo ponteiro copiado ve o mesmo 9
 
   I3:
     type: inferencia
@@ -92,6 +375,79 @@ nodes:
       ponteiro de quem chamou fica como estava.
     negated_by:
       - modify_pp_changes_p
+    # A PRIMEIRA ESCREVE ANTES E DEPOIS DA TROCA, como o cartao: o 50
+    # chega em x porque o parametro ainda tinha o endereco dele, o 70
+    # nao chega porque o parametro passou a ter outro, e x e `*q` saem
+    # dizendo o mesmo numero -- que e o que mostra que `q` nao se moveu.
+    # Com uma escrita so, "x nao recebeu o 70" teria duas leituras.
+    #
+    # BLOQUEADA hoje: `funcao_com_parametro`.
+    evidencia:
+      - afirma: >
+          Atribuir ao parâmetro não altera o ponteiro de quem chamou: a
+          escrita feita antes da troca chega em x, a feita depois não
+          chega, e o ponteiro de fora continua levando a x.
+        programa: |
+          #include <stdio.h>
+
+          static void redireciona(int *p)
+          {
+              int reserva = 0;
+
+              *p = 50;
+              p = &reserva;
+              *p = 70;
+              puts(*p == 70 ? "dentro, a segunda escrita foi para a reserva"
+                            : "FALHOU");
+          }
+
+          int main(void)
+          {
+              int x = 1;
+              int *q = &x;
+
+              redireciona(q);
+              puts(x == 50 ? "fora, x ficou com o 50 e nao com o 70"
+                           : "FALHOU");
+              puts(*q == 50 ? "e q continua levando a x: a troca ficou dentro"
+                            : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          dentro, a segunda escrita foi para a reserva
+          fora, x ficou com o 50 e nao com o 70
+          e q continua levando a x: a troca ficou dentro
+      # A SEGUNDA CHEGA A PESSOA hoje, e vai mais longe que uma troca
+      # simples: a copia redirecionada RECEBE uma escrita, e ela aparece
+      # onde a copia passou a apontar. Depois a origem escreve, e chega
+      # em x. Sao tres fatos, e juntos eles separam as duas caixas sem
+      # precisar de chamada nenhuma.
+      - afirma: >
+          Mandar a cópia de um ponteiro para outro lugar não move o
+          ponteiro de onde ela veio, e o original continua chegando onde
+          chegava — por atribuição, sem chamada nenhuma.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1, y = 2;
+              int *origem = &x;
+              int *copia = origem;
+
+              copia = &y;
+              *copia = 70;
+              puts(x == 1 ? "a escrita pela copia nao chegou em x" : "FALHOU");
+              puts(y == 70 ? "ela chegou em y, para onde a copia passou a levar"
+                           : "FALHOU");
+              *origem = 50;
+              puts(x == 50 ? "e a origem continua levando a x" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a escrita pela copia nao chegou em x
+          ela chegou em y, para onde a copia passou a levar
+          e a origem continua levando a x
 
   I4:
     type: inferencia
@@ -103,3 +459,75 @@ nodes:
       é a cópia que dá acesso ao original.
     negated_by:
       - pointer_copy_is_alias
+    # A PRIMEIRA COPIA O MESMO ENDERECO TRES VEZES -- main para meio,
+    # meio para `meu`, `meu` para fundo -- e a escrita feita no fundo
+    # aparece nas tres pontas. Tres caixas diferentes, uma casa: e a
+    # conclusao do topico com o numero de copias no meio.
+    #
+    # BLOQUEADA hoje: `funcao_com_parametro`.
+    evidencia:
+      - afirma: >
+          Passar um endereço é copiá-lo, e a cópia é o que dá acesso ao
+          original: o mesmo endereço em três caixas diferentes, e a
+          escrita feita na última chega em x.
+        programa: |
+          #include <stdio.h>
+
+          static void fundo(int *p)
+          {
+              *p = 90;
+          }
+
+          static void meio(int *p)
+          {
+              int *meu = p;
+
+              fundo(meu);
+              puts(*p == 90 ? "meio le por outra caixa e ve o 90" : "FALHOU");
+          }
+
+          int main(void)
+          {
+              int x = 1;
+
+              meio(&x);
+              puts(x == 90 ? "tres copias do endereco, uma casa: x virou 90"
+                           : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          meio le por outra caixa e ve o 90
+          tres copias do endereco, uma casa: x virou 90
+      # A SEGUNDA CHEGA A PESSOA hoje, e e a que derruba a crenca deste
+      # no sem chamada nenhuma. A crenca nao e sobre chamada: ela diz
+      # que a copia e o original sao a MESMA VARIAVEL, e a fonte dela
+      # sao dois itens do Sorva (p. 363, 74 e 75, Holland et al. 1997).
+      # Os dois caem aqui: o 75 ("duas variaveis diferentes tem de se
+      # referir a objetos diferentes") na primeira linha, e o 74 ("uma
+      # vez que uma variavel referencia um objeto, sempre o
+      # referenciara") na segunda.
+      - afirma: >
+          A cópia de um ponteiro alcança o original e não é a mesma
+          variável que ele: escrever pela cópia muda x, e depois mandar
+          a cópia para outro lugar deixa o original onde estava —
+          mostrado por atribuição, sem chamada.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1, y = 2;
+              int *a = &x;
+              int *b = a;
+
+              *b = 50;
+              puts(x == 50 ? "a copia alcanca o original: x virou 50"
+                           : "FALHOU");
+              b = &y;
+              puts(*a == 50 ? "e nao e a mesma variavel: b saiu de la e a ficou"
+                            : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a copia alcanca o original: x virou 50
+          e nao e a mesma variavel: b saiu de la e a ficou

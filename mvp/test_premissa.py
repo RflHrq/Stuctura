@@ -52,7 +52,12 @@ sys.path.insert(0, str(RAIZ / "scripts"))
 # Os tópicos cujos nós já têm evidência. A lista cresce um tópico por
 # vez, e é ela que impede que "ainda não chegou neste" se confunda com
 # "este não precisa".
-COM_EVIDENCIA = ("kc_02",)
+#
+# O kc_06 ENTROU EM 12/11/2026, e com ele o primeiro tópico cujas seis
+# premissas têm demonstração que CHEGA à tela: treze programas, sete
+# barrados pelo portão de exibição — todos pelo mesmo construto,
+# `funcao_com_parametro` — e seis exibíveis, um por nó.
+COM_EVIDENCIA = ("kc_02", "kc_06")
 
 
 def _nos(topico):
@@ -192,7 +197,7 @@ def test_demonstracao_por_recusa_declara_o_ambiente():
 # impossível: quem acrescentar um tópico baixa o número, e quem tirar
 # uma evidência faz o teste cair. Sem ele, "nenhum nó tem evidência" e
 # "todos têm" passariam igual.
-SEM_EVIDENCIA = 73
+SEM_EVIDENCIA = 67
 
 
 def test_quantos_nos_ainda_nao_tem_evidencia():

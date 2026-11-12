@@ -197,6 +197,59 @@ def test_a_tela_esconde_a_prova_bloqueada(d):
     assert d.nos["I3"].evidencia, "o I3 perdeu a evidência"
 
 
+@pytest.fixture(scope="module")
+def d6():
+    return carrega(topico="kc_06")
+
+
+def test_a_refutacao_do_kc06_mostra_prova_nos_seis_passos(d6):
+    """O kc_06 é o primeiro tópico em que nenhuma tela fica sem prova.
+
+    A refutação da conclusão dele percorre o tópico inteiro — seis
+    passos, de B1 a I4 — e todas as seis telas mostram uma demonstração.
+    O número só tem sentido ao lado do kc_02, onde o I3 continua sem
+    nada a mostrar: o teste acima é o que mede isso.
+
+    E NÃO SAIU DE GRAÇA. As seis que chegam são as que se demonstram sem
+    chamada nenhuma, e o `afirma` de cada uma termina dizendo isso — ler
+    nelas a premissa inteira seria ler mais do que elas mostram. A
+    premissa inteira está nas barradas, e quantas são é o teste
+    seguinte.
+    """
+    e = motor._inicia_refutacao(
+        d6, motor.inicia(d6, semente="P01").estado.com(
+            "I4", crenca="pointer_copy_is_alias"), "I4").estado
+    assert list(e.plano) == ["B1", "B2", "I1", "I2", "I3", "I4"], e.plano
+    por_passo = []
+    for passo in range(len(e.plano)):
+        tela = motor._tela_refutacao(d6, motor.replace(e, passo=passo))
+        por_passo.append(len(tela.dados["prova"]))
+    assert por_passo == [1, 1, 1, 1, 1, 1], por_passo
+
+
+def test_o_portao_do_kc06_barra_sete_provas_por_um_construto_so(d6):
+    """Sete demonstrações barradas, e o construto é um único.
+
+    `funcao_com_parametro` está `nao_introduzido`, e quem o ensina é o
+    candidato `candidatos/kc_06/B1_material_1.yaml`. Aprovar aquele
+    cartão — e pôr `kc_06:B1` em `cartoes` — libera as sete de uma vez,
+    e com elas a premissa inteira de cada nó.
+
+    O NÚMERO FICA PINADO para que a liberação seja visível: no dia da
+    assinatura este teste cai, e cobra a atualização. O que não pode é
+    a dívida mudar em silêncio, nos dois sentidos.
+    """
+    barradas = []
+    for nid, no in d6.nos.items():
+        for i, dem in enumerate(no.evidencia):
+            falta = conceitos.faltando_para_exibir(dem.programa, "kc_06")
+            if falta:
+                barradas.append(("%s[%d]" % (nid, i), falta))
+    assert len(barradas) == 7, barradas
+    assert {c for _, falta in barradas for c in falta} == {
+        "funcao_com_parametro"}, barradas
+
+
 def test_a_prova_nao_promete_saida_de_programa_que_nao_compila(d):
     """A demonstração por recusa não tem saída, e a tela não pode inventar."""
     for nid in d.ordem:
