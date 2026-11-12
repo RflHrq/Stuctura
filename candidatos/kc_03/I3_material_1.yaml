@@ -1,0 +1,163 @@
+# Material de ensino do I3 do kc_03 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. A conclusão do tópico: suporte em `I1` e
+# `I2`, e a refutação percorre os cinco nós anteriores antes de chegar
+# aqui.
+#
+# TERCEIRO E ÚLTIMO CARTÃO DE COMPORTAMENTO INDEFINIDO, e o mais
+# delicado dos três: a premissa AFIRMA que uma coisa é inválida, e um
+# programa que a fizesse para provar estaria cometendo o que o nó ensina
+# a não cometer. Por isso:
+#
+#   O TRECHO INVÁLIDO APARECE, E NÃO É EXECUTADO. Ele entra como código
+#   com comentário — do mesmo jeito que o exemplo deste nó já faz no
+#   domínio — e sem bloco de saída. Não há "a máquina confirma" ali,
+#   porque não há o que ela confirme: o padrão não diz o que acontece, e
+#   inventar uma saída seria ensinar que dá para olhar.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE É A PERGUNTA MAIS REPETIDA DO FAQ
+#
+# `pode_usar_logo` — "depois de int *p; já dá para escrever em *p".
+# Grade `L`, FAQ comp.lang.c 7.1:
+#
+#   "Why doesn't this fragment work? char *answer; ... gets(answer);"
+#
+# e o 7.10. Texto conferido em c-faq.com.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   De onde o endereço pode vir: de uma variável que
+#                    existe, ou de um bloco que você pede. Duas
+#                    origens, as duas válidas.
+#   outra rota       A ORDEM das duas linhas, e o que muda quando ela
+#                    se inverte.
+#
+# O QUE FICA FORA
+#
+#   `char *resposta; scanf(...)`        -> `ciu_kc03_017`, e é o FAQ 7.1
+#   `int *p; scanf("%d", p);`           -> `ciu_kc03_t17`
+#   A `int *p; *p = 1;` contra B com
+#     `&x`                              -> `ciu_kc03_018`, degrau 3
+#   `p = &x; *p = 9;` e o que sai       -> `ciu_kc03_t18`
+#
+# E O `malloc` FICA DE FORA POR UMA RAZÃO DE FERRAMENTA, que vale
+# registrar: `revisa_material._monta` monta o programa de conferência
+# com `#include <stdio.h>` e mais nada, então material nenhum pode
+# demonstrar alocação — o oráculo responde `implicit declaration of
+# function 'malloc'`. As três origens de endereço são variável, bloco
+# pedido e outro ponteiro; o cartão usa a primeira e a terceira, e
+# manda a segunda para o kc_08.
+#
+# O `t18` É A SEQUÊNCIA VÁLIDA e pergunta o que sai; a outra rota deste
+# cartão usa a mesma sequência para falar da ORDEM, e mostra ao lado a
+# versão invertida — que é o que o item não faz. O `018` compara as duas
+# formas e pergunta qual é inválida: o cartão não pergunta, ele explica,
+# e é essa a divisão entre ensinar e medir.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução. O trecho sem saída compila — ele é inválido
+# em execução, e não na tradução.
+
+topico: kc_03
+node: kc03:I3
+premissa: "Usar *p antes de dar um endereço a p é inválido."
+crenca_que_nega: pode_usar_logo
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que *p pede, o que falta antes, e por que o compilador
+# aceitar não quer dizer nada.
+ampliacao: >
+  Escrever em *p é uma ordem com destino: vá até o endereço que está em
+  p e escreva lá. Ela só faz sentido se o que está em p for um endereço
+  que alguém escolheu — e logo depois de int *p; ninguém escolheu nada.
+
+  Então falta um passo, e ele é sempre o mesmo: dar um endereço a p. De
+  uma variável que já existe, com p = &x. De um bloco pedido enquanto o
+  programa roda. De outro ponteiro que já tenha um. Qualquer um serve;
+  nenhum pode faltar.
+
+  E o compilador aceitar não é sinal de nada. Ele confere a FORMA: *p =
+  10 é uma escrita bem escrita, e ele traduz. Quem decide se aquilo tem
+  significado é o que está em p na hora de rodar — e sobre isso o padrão
+  não promete coisa alguma. Programa que parece funcionar nesta máquina
+  pode não funcionar na próxima execução.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p;
+  *p = 10;     /* invalido: p nao recebeu endereco */
+
+
+# O CASO RESOLVIDO: de onde o endereço pode vir.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 1;
+      int *p;
+      int *copia;
+
+      p = &x;
+      *p = 20;
+      printf("endereco vindo de uma variavel: %d\n", *p);
+      copia = p;
+      *copia = 30;
+      printf("endereco vindo de outro ponteiro: %d\n", x);
+  - prosa: "Pergunta: os dois ponteiros foram usados com *. O que os dois tiveram antes?"
+  - prosa: >
+      Uma linha que lhes deu um endereço. No primeiro veio de uma
+      variável que já existia; no segundo, de um ponteiro que já tinha
+      um. As origens são diferentes, e o que elas têm em comum é o que
+      importa: em ambos os casos, alguém escolheu para onde o ponteiro
+      aponta antes de escrever lá.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      endereco vindo de uma variavel: 20
+      endereco vindo de outro ponteiro: 30
+  - prosa: >
+      Duas escritas por *, as duas válidas, e as duas precedidas de uma
+      linha que preencheu o ponteiro. Essa linha é o que falta quando se
+      escreve em *p logo depois de declarar. Há uma terceira origem —
+      pedir um bloco enquanto o programa roda —, e ela é assunto do
+      kc_08.
+
+
+# A OUTRA ROTA: a ordem das duas linhas.
+reexplicacao:
+  - prosa: >
+      Outro caminho. São duas linhas, e o que decide tudo é qual vem
+      primeiro.
+  - codigo: |
+      int x = 0;
+      int *p;
+
+      p = &x;
+      *p = 9;
+      printf("nesta ordem, x = %d\n", x);
+  - prosa: "A máquina confirma:"
+  - saida: |
+      nesta ordem, x = 9
+  - prosa: >
+      Agora troque as duas de lugar. O trecho abaixo o compilador
+      aceita, e nós não o executamos — porque o que ele faz não tem
+      resultado previsível, e mostrar uma saída aqui ensinaria que dá
+      para olhar:
+  - codigo: |
+      int outro = 0;
+      int *q;
+
+      *q = 9;        /* invalido: q ainda nao recebeu endereco */
+      q = &outro;
+  - prosa: >
+      As mesmas duas linhas, na ordem trocada. Na primeira versão, o 9
+      foi para a caixa de x porque p já sabia o caminho. Na segunda, o 9
+      é mandado para o endereço que estiver em q — e ninguém escolheu
+      esse endereço. A linha que o escolheria vem tarde demais.

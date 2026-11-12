@@ -1,0 +1,137 @@
+# Material de ensino do B2 do kc_03 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Segundo do tópico.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA, E A FONTE É A PERGUNTA MAIS REPETIDA DO FAQ
+#
+# `estrela_e_do_tipo` — "o asterisco pertence ao tipo, então int* a, b;
+# declara dois ponteiros". Grade `L`, FAQ comp.lang.c 4.16:
+#
+#   "What's wrong with this declaration? char* p1, p2; I get errors
+#   when I try to use p2."
+#
+# ---------------------------------------------------------------------
+# O QUE FICA FORA, e os itens deste nó cobrem a armadilha inteira
+#
+#   `int* a, b;` e o erro que vem depois  -> `ciu_kc03_005`
+#   `int *p, *q;` contra `int* p, q;`     -> `ciu_kc03_006`
+#   `int* p, q; q = &x;`                  -> `ciu_kc03_t05`
+#   `p = &x` contra `*p = x`              -> `ciu_kc03_t06`
+#
+# TRÊS DOS SETE ITENS SÃO A DECLARAÇÃO MÚLTIPLA, e é lá que ela mede.
+# Nenhuma das duas demonstrações deste cartão declara duas variáveis na
+# mesma linha — escrever a forma resolvida aqui faria os três itens
+# medirem memória do cartão.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   As TRÊS grafias — int *a, int* b, int * c — e as
+#                    três declarando a mesma coisa.
+#   outra rota       O nome que as duas declarações disputam é `p`,
+#                    mostrado por sombreamento.
+#
+# O CASO RESOLVIDO ATACA A CRENÇA PELO ESPAÇO EM BRANCO, que é onde ela
+# nasce: quem escreve `int* p` está lendo "o tipo é int-estrela". Se
+# fosse isso, a posição do espaço significaria alguma coisa — e as três
+# grafias dariam coisas diferentes. Dão a mesma, porque o compilador não
+# vê o espaço: ele vê o asterisco colado ao declarador.
+#
+# A OUTRA ROTA MOSTRA O NOME DECLARADO SEM FALAR DE TIPO NENHUM. Se o
+# nome criado por `int *p;` fosse `*p`, um `p` de fora não colidiria com
+# ele — seriam nomes diferentes. Colide: o de dentro esconde o de fora
+# enquanto o bloco dura, que é o que acontece entre dois nomes IGUAIS.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_03
+node: kc03:B2
+premissa: "Em int *p, quem é declarado é p, e não *p."
+crenca_que_nega: estrela_e_do_tipo
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. Que nome foi criado, a quem o asterisco pertence, e como
+# ler a declaração.
+ampliacao: >
+  A declaração int *p; cria um nome, e o nome é p. Não existe no
+  programa nenhuma variável chamada *p — essa escrita é uma operação
+  que você faz COM p depois, e não um nome que alguém possa declarar.
+
+  O asterisco pertence a p, e não ao int. Onde você põe o espaço em
+  branco não muda nada: int *p, int* p e int * p são a mesma
+  declaração, e o compilador lê as três igual. A estrela está grudada no
+  declarador, não no tipo.
+
+  E a maneira de ler é de dentro para fora: p é o nome; *p diz que p é
+  um ponteiro; int diz que o que está do outro lado é um inteiro. Lida
+  assim, a declaração diz "p é um ponteiro para int" — que é
+  exatamente o que ela faz.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p;     /* quem foi declarado: p */
+  /* NAO existe uma variavel chamada *p */
+
+
+# O CASO RESOLVIDO: as três grafias.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 1;
+      int *a = &x;
+      int* b = &x;
+      int * c = &x;
+
+      printf("as tres grafias deram ponteiros: %d %d %d\n", *a, *b, *c);
+  - prosa: "Pergunta: int* b parece dizer que o tipo é int-estrela. Dá outra coisa?"
+  - prosa: >
+      A tentação é ler int* como um tipo só, e é daí que vem a confusão
+      inteira. Olhe as três linhas: o que muda entre elas é onde está o
+      espaço em branco, e espaço em branco não é parte de nome nenhum.
+      O compilador junta a estrela ao declarador nas três.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      as tres grafias deram ponteiros: 1 1 1
+  - prosa: >
+      Três grafias, um resultado. Se a estrela fosse do tipo, int* b
+      seria diferente de int *a — e as três linhas não poderiam fazer a
+      mesma coisa.
+
+
+# A OUTRA ROTA: o nome que colide é p.
+reexplicacao:
+  - prosa: >
+      Outro caminho, sem falar de tipo nenhum: olhe qual NOME a
+      declaração criou.
+  - codigo: |
+      int p = 5;
+
+      {
+          int x = 1;
+          int *p = &x;
+
+          printf("dentro, p leva a %d\n", *p);
+      }
+      printf("fora, p vale %d\n", p);
+  - prosa: >
+      Há um p inteiro do lado de fora e um p ponteiro dentro do bloco.
+      Enquanto o bloco dura, quem responde pelo nome p é o de dentro; no
+      fim dele, o de fora volta.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      dentro, p leva a 1
+      fora, p vale 5
+  - prosa: >
+      Esconder um nome é coisa que só acontece entre nomes IGUAIS. Se a
+      segunda declaração tivesse criado algo chamado *p, não haveria
+      colisão nenhuma — os dois conviveriam, cada um com o seu nome. O
+      nome criado foi p.

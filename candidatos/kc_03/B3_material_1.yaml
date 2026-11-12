@@ -1,0 +1,165 @@
+# Material de ensino do B3 do kc_03 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. E É O PRIMEIRO DOS TRÊS CARTÕES DE
+# COMPORTAMENTO INDEFINIDO deste tópico — B3, I2 e I3 —, onde a regra
+# que manda é esta:
+#
+#   NENHUMA DEMONSTRAÇÃO ESCRITA AQUI LÊ UMA VARIÁVEL NÃO INICIALIZADA.
+#
+# Não é zelo de estilo: é a premissa. Ler para mostrar o que há dentro é
+# exatamente o que o nó ensina a não fazer, e exibir isso como
+# demonstração ensinaria pela forma o contrário do que a prosa diz. A
+# evidência do nó no grafo resolve isso com a TERCEIRA FORMA do contrato
+# — o compilador diagnostica e o programa não roda. Um cartão não tem
+# essa forma, então ele demonstra o que É demonstrável: que todo valor
+# que aparece teve um autor.
+#
+# ---------------------------------------------------------------------
+# DUAS COISAS PARA O DONO, E AS DUAS ESTÃO NO `exemplo` DESTE NÓ
+#
+# O exemplo que o domínio já traz é
+#
+#   int *p;
+#   printf("%p\n", (void *)p);   /* o que estava ali antes */
+#
+# e ele DEMONSTRA O ERRO COMETENDO-O: ler o valor de um ponteiro não
+# inicializado é o comportamento indefinido de que a premissa fala. É a
+# única parte deste cartão que faz isso, e ela não é minha — por isso
+# fica como está, e a decisão de trocá-la é do dono.
+#
+# E É AQUI QUE MORA A ÚLTIMA DÍVIDA DE CONSTRUTO DO PROJETO. O `%p` é
+# `printf_ponteiro`, que está `desconhecido` no inventário: nem entrada
+# ele tem. O validador acusa AVISO neste arquivo por causa dessa linha,
+# e o aviso está certo. Declarar o construto em `exige_conceitos` para
+# calar o portão seria afirmar que este cartão o ensina, e ele não
+# ensina — seria usar o campo de declaração para esconder a dívida.
+#
+# TROCAR O EXEMPLO RESOLVE OS DOIS DE UMA VEZ, e é uma decisão de
+# conteúdo. Fica anotado, e não feito.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `declaration_zeroes` — "declarar já zera a variável, como em outras
+# linguagens". Grade `D`, e a fonte é dupla: Sorva (2012), p. 359, item
+# 10: "Variables always receive a particular default value upon
+# creation" (du Boulay 1986; Samurçay 1989).
+#
+# E A CRENÇA TEM RAZÃO EM OUTRAS LINGUAGENS, o que a torna difícil: ela
+# não é um descuido, é uma transferência. O cartão diz isso com todas as
+# letras em vez de fingir que a pessoa inventou a ideia sozinha.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES, e as duas rodam código VÁLIDO
+#
+#   caso resolvido   Uma soma em que TODO valor tem autor: o zero
+#                    inicial é uma linha que alguém escreveu.
+#   outra rota       A distância entre declarar e escrever: o espaço
+#                    existe durante um trecho inteiro antes de receber
+#                    o primeiro valor seu.
+#
+# O QUE FICA FORA, e os sete itens deste nó cobrem quase tudo:
+#
+#   `int n;` lido duas vezes em chamadas  -> `ciu_kc03_008`
+#   global contra local, qual começa em
+#     zero                                -> `ciu_kc03_009`
+#   `int t;` como acumulador quebrado     -> `ciu_kc03_t08`
+#   o que g imprime depois de f           -> `ciu_kc03_t09`
+#
+# O ITEM `t08` É O ACUMULADOR QUEBRADO, e o caso resolvido é o
+# acumulador CERTO. Não é o mesmo: o item mostra o defeito e pergunta
+# por que a soma pode sair errada; o cartão mostra a versão correta e
+# nomeia o que a linha `= 0` comprou. Quem leu o cartão responde ao item
+# por entender, e não por lembrar.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_03
+node: kc03:B3
+premissa: "C não zera uma variável automática ao declará-la."
+crenca_que_nega: declaration_zeroes
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que a declaração NÃO faz, de onde vem a ideia contrária,
+# e o que isso custa na prática.
+ampliacao: >
+  A declaração reserva o espaço e para por aí. Ela não escreve nada
+  dentro, e o que estava naquele lugar antes continua lá — restos de
+  alguma coisa que o programa já fez, ou nunca usou. C não promete nada
+  sobre esse conteúdo.
+
+  A ideia de que a variável começa em zero não é invenção de ninguém:
+  outras linguagens fazem isso mesmo, e C faz para uma parte da memória
+  — a das variáveis que vivem o programa inteiro. Para as locais, as que
+  nascem e morrem dentro de uma função, não há promessa alguma.
+
+  Por isso o valor inicial é trabalho seu. Escrever int total = 0; não é
+  formalidade: é a linha que põe o zero lá. Sem ela, a primeira soma
+  parte de um número que ninguém escolheu — e o programa pode acertar
+  hoje e errar amanhã, com o mesmo código.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p;
+  printf("%p\n", (void *)p);   /* o que estava ali antes */
+
+
+# O CASO RESOLVIDO: todo valor com autor.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int total = 0;
+
+      total = total + 10;
+      total = total + 7;
+      printf("total = %d\n", total);
+  - prosa: "Pergunta: quais linhas deste trecho escreveram alguma coisa em total?"
+  - prosa: >
+      São três, e a primeira é a que costuma passar despercebida. A
+      declaração com `= 0` não só criou o espaço: ela escreveu. Tire
+      aquele `= 0` e a conta `total + 10` continua existindo — mas um
+      dos dois números dela não teria autor.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      total = 17
+  - prosa: >
+      17 porque 0 + 10 + 7. O zero está na conta, e ele entrou por uma
+      linha escrita por alguém. Se a declaração zerasse sozinha, aquele
+      `= 0` seria redundante — e em C ele é o que segura o resultado.
+
+
+# A OUTRA ROTA: a distância entre declarar e escrever.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Repare em QUANDO o primeiro valor seu chega.
+  - codigo: |
+      int total;
+      int quantos = 0;
+
+      while (quantos < 3) {
+          quantos = quantos + 1;
+      }
+      total = 0;
+      total = total + quantos;
+      printf("quantos = %d, total = %d\n", quantos, total);
+  - prosa: >
+      A caixa de total existe desde a primeira linha. O primeiro valor
+      que você põe nela só chega depois do laço inteiro — e nesse
+      intervalo ela tem alguma coisa dentro, porque espaço de memória
+      sempre tem.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      quantos = 3, total = 3
+  - prosa: >
+      O programa está certo porque a linha `total = 0;` veio antes de
+      qualquer leitura. Nada aqui olha o que havia na caixa durante o
+      laço — e olhar seria justamente o erro que este nó descreve: o que
+      está lá não foi escolhido por ninguém, e o padrão não diz o que é.

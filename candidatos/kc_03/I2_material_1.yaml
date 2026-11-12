@@ -1,0 +1,140 @@
+# Material de ensino do I2 do kc_03 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Suporte em `B3` e `I1`, e a refutação
+# percorre B1 -> B2 -> B3 -> I1 -> I2.
+#
+# SEGUNDO DOS TRÊS CARTÕES DE COMPORTAMENTO INDEFINIDO, e vale a mesma
+# regra do B3: NENHUM PROGRAMA AQUI LÊ UM PONTEIRO NÃO INICIALIZADO.
+# Imprimir o que há num ponteiro recém-declarado para mostrar que "não é
+# NULL" seria ler o indeterminado — e é disso que a premissa trata. O
+# cartão demonstra o que é demonstrável: que o NULL, quando existe, foi
+# você que escreveu.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `uninitialized_is_null` — "ponteiro não inicializado vale NULL". Grade
+# `D`, Sorva (2012), p. 359, item 10 (du Boulay 1986; Samurçay 1989) —
+# o MESMO item que sustenta o `declaration_zeroes` do B3, aqui na forma
+# que ele toma num ponteiro.
+#
+# E ISSO EXPLICA A DERIVAÇÃO: este nó é o B3 aplicado a um ponteiro. Se
+# a declaração não zera um int, não zera um ponteiro — e "zero" num
+# ponteiro é justamente o que NULL quer dizer.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   Os TRÊS estados de um ponteiro ao longo do
+#                    programa, e cada um escrito por uma linha sua.
+#   outra rota       O teste que significa alguma coisa: NULL escrito
+#                    primeiro, endereço depois, teste no fim.
+#
+# O QUE FICA FORA, e aqui os itens cobrem a armadilha toda:
+#
+#   `int *p; if (p == NULL)` não proteger  -> `ciu_kc03_014`
+#   A `int *p;` contra B `int *p = NULL;`  -> `ciu_kc03_015`
+#   `int *p = NULL; printf(p == NULL)`     -> `ciu_kc03_t14`
+#   o `acha` que devolve r não escrito     -> `ciu_kc03_t15`
+#
+# O `t14` É UM PONTEIRO INICIALIZADO COM NULL E O TESTE, e o caso
+# resolvido faz três estados em vez de um. A diferença não é de
+# tamanho: o item pergunta o que SAI, e o cartão pergunta QUEM ESCREVEU
+# cada estado — que é a pergunta cuja resposta desmonta a crença.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_03
+node: kc03:I2
+premissa: "Logo depois da declaração, p contém lixo, e não NULL."
+crenca_que_nega: uninitialized_is_null
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que NULL é, por que ele não aparece sozinho, e o que
+# isso faz com o teste.
+ampliacao: >
+  NULL é um valor, e valores entram nas caixas porque alguém os escreve.
+  Ele quer dizer "não aponto para lugar nenhum" — uma informação útil, e
+  que só está lá se uma linha do seu programa a tiver colocado.
+
+  Um ponteiro recém-declarado não tem esse valor nem nenhum outro que
+  alguém tenha escolhido. Ele tem o que estava naquele espaço antes, e
+  isso pode se parecer com qualquer coisa. Dizer que ele "está vazio" ou
+  que "vale NULL" é dizer algo que o padrão não promete.
+
+  E é isso que estraga o teste. if (p == NULL) é uma pergunta honesta
+  quando NULL foi escrito ali de propósito; feita num ponteiro que
+  ninguém inicializou, ela compara com um valor que não significa nada —
+  e pode responder "não é NULL" sobre um endereço que não leva a lugar
+  nenhum.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p;
+  if (p == NULL) { /* nao da para contar com isto */ }
+
+
+# O CASO RESOLVIDO: os três estados, e quem escreveu cada um.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 1;
+      int *p = NULL;
+
+      printf("comecei em NULL? %d\n", p == NULL);
+      p = &x;
+      printf("agora aponto para algo? %d\n", p != NULL);
+      p = NULL;
+      printf("voltei para NULL? %d\n", p == NULL);
+  - prosa: "Pergunta: p passou por três estados. Quem escreveu cada um deles?"
+  - prosa: >
+      Você, nas três vezes — e a primeira é a que costuma passar
+      despercebida. O `= NULL` da declaração é uma escrita como as
+      outras duas. Tire aquele pedaço e a primeira pergunta deixa de
+      ter resposta: ninguém terá escrito nada ali.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      comecei em NULL? 1
+      agora aponto para algo? 1
+      voltei para NULL? 1
+  - prosa: >
+      Três respostas certas, e três linhas que as produziram. NULL não é
+      o estado natural de um ponteiro: é um valor que se escreve, e que
+      se pode escrever de novo quando o ponteiro deixa de servir.
+
+
+# A OUTRA ROTA: o teste que significa alguma coisa.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Olhe um teste de NULL que de fato protege.
+  - codigo: |
+      int x = 7;
+      int *escolhido = NULL;
+      int quero = 1;
+
+      if (quero == 1) {
+          escolhido = &x;
+      }
+      if (escolhido != NULL) {
+          printf("o teste significou alguma coisa: %d\n", *escolhido);
+      }
+  - prosa: >
+      A ordem é o que faz o teste valer: NULL entra primeiro, o endereço
+      pode entrar depois, e só então se pergunta. O NULL inicial é o que
+      dá sentido à pergunta — ele quer dizer "ainda não escolhi".
+  - prosa: "A máquina confirma:"
+  - saida: |
+      o teste significou alguma coisa: 7
+  - prosa: >
+      Sem a primeira linha, o segundo if compararia com o que estivesse
+      no espaço, e a resposta não diria nada sobre o programa ter
+      escolhido ou não. O teste não cria a informação: ele lê a que você
+      escreveu.

@@ -1,0 +1,141 @@
+# Material de ensino do B1 do kc_03 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. O kc_03 tem ampliação VAZIA nos seis nós,
+# e é o tópico mais difícil do projeto para escrever material: TRÊS dos
+# seis nós — B3, I2 e I3 — falam de valor indeterminado e de
+# comportamento indefinido, e um cartão não pode rodar o erro para
+# mostrá-lo. Os cabeçalhos daqueles três dizem como cada um resolve.
+#
+# Este aqui não tem esse problema: a premissa dele é demonstrável.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `no_value_no_memory` — "se eu não dei valor, a variável ainda não
+# existe na memória". Grade `D`, e a fonte é das melhores do projeto:
+# Sorva (2012), p. 360, item 22: "Unassigned variables of primitive type
+# (in Java) have no memory allocated" (Kaczmarczyk et al. 2010).
+#
+# A MESMA CRENÇA ESTÁ NO kc_00. Aqui ela nega que a declaração já
+# reserve: para quem a tem, o espaço só nasce quando o valor chega.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   O espaço tem FORMA, e a forma vem do tipo: o mesmo
+#                    0.5 cabe num double e não cabe num int.
+#   outra rota       O espaço existe antes de qualquer valor SEU: dá
+#                    para entregar o endereço dele a outra função,
+#                    que escreve lá.
+#
+# O CASO RESOLVIDO ATACA A METADE "PARA A VARIÁVEL DECLARADA". A
+# premissa não diz só que há espaço; diz que ele é reservado para
+# AQUELA variável, com o tamanho e a forma que o tipo dela pede. O 0.5
+# virando 0 num int é isso visível: o espaço já estava moldado antes de
+# o valor chegar, e foi o molde que cortou a fração.
+#
+# O QUE FICA FORA, e é muito, porque os sete itens deste nó cobrem bem:
+#
+#   `sizeof x` logo depois da declaração  -> `ciu_kc03_002`, `t03`
+#   `int x; int *p = &x; *p = 10;`        -> `ciu_kc03_003`
+#   `int a; a = 5;` contra `int b = 5;`   -> `ciu_kc03_t02`
+#
+# A OUTRA ROTA PASSA O ENDEREÇO A UMA FUNÇÃO, e não o guarda num
+# ponteiro local, justamente para não repetir o `ciu_kc03_003`. O que
+# ela mostra é o mesmo fato por outro caminho: se o espaço não
+# existisse, não haveria endereço para entregar.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_03
+node: kc03:B1
+premissa: "A declaração reserva espaço para a variável declarada."
+crenca_que_nega: no_value_no_memory
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O que a declaração faz, quando faz, e por que o tipo
+# importa para o espaço.
+ampliacao: >
+  Declarar é o ato que cria a variável. A partir daquela linha existe um
+  lugar na memória que é dela, com um número de porta — e isso acontece
+  antes de qualquer valor entrar, e acontece mesmo que nenhum entre
+  nunca.
+
+  O tipo decide a forma desse lugar. int x reserva espaço com o formato
+  de um inteiro; double y reserva outro, com formato de número
+  fracionário. Não é a mesma caixa com um rótulo diferente: é o tipo que
+  diz quantos bytes e como o que estiver lá dentro deve ser lido.
+
+  Por isso o espaço já está pronto para receber, e já está pronto para
+  recusar o que não cabe. Escrever 0.5 numa caixa de int não aumenta a
+  caixa — o 0.5 é cortado para caber. A caixa veio antes do valor, e foi
+  ela que mandou.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int x;      /* a caixa de x ja existe */
+  int *p;     /* a caixa de p tambem */
+
+
+# O CASO RESOLVIDO: o espaço tem forma, e a forma vem do tipo.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int inteiro;
+      double fracionario;
+
+      inteiro = 0.5;
+      fracionario = 0.5;
+      printf("no espaco de int cabe %d\n", inteiro);
+      printf("no de double cabe %.1f\n", fracionario);
+  - prosa: "Pergunta: o mesmo 0.5 foi para os dois. Por que saiu diferente?"
+  - prosa: >
+      A tentação é pensar que a variável se adapta ao que você põe nela
+      — que ela "vira" o que recebeu. Olhe a ordem: as duas declarações
+      vieram primeiro, e cada uma já tinha reservado um espaço com a
+      forma do seu tipo. O 0.5 chegou depois, e teve de caber no que já
+      estava lá.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      no espaco de int cabe 0
+      no de double cabe 0.5
+  - prosa: >
+      O mesmo valor, dois destinos, dois resultados. Se o espaço só
+      nascesse quando o valor chegasse, ele nasceria do tamanho do valor
+      — e o 0.5 teria cabido inteiro nos dois.
+
+
+# A OUTRA ROTA: o espaço existe antes de qualquer valor seu.
+reexplicacao:
+  - prosa: >
+      Outro caminho. Se o espaço já existe logo depois da declaração,
+      ele tem endereço — e endereço é coisa que se entrega.
+  - codigo: |
+      void preenche(int *onde)
+      {
+          *onde = 42;
+      }
+  - codigo: |
+      int x;
+
+      preenche(&x);
+      printf("alguem escreveu no espaco de x: %d\n", x);
+  - prosa: >
+      Entre a declaração de x e a chamada não houve atribuição nenhuma.
+      Mesmo assim deu para falar sobre onde x mora, e entregar isso a
+      quem escreveu lá.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      alguem escreveu no espaco de x: 42
+  - prosa: >
+      Se a variável só passasse a existir ao receber um valor, não
+      haveria &x para entregar antes de ela receber — e a função não
+      teria onde escrever. Havia, e ela escreveu.

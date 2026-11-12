@@ -1,0 +1,140 @@
+# Material de ensino do I1 do kc_03 — candidato, NÃO é domínio.
+#
+# PRIMEIRA VERSÃO, 12/11/2026. Primeiro nó de inferência: suporte em
+# `B1` e `B2`, e a refutação percorre B1 -> B2 -> I1.
+#
+# E A DERIVAÇÃO DECIDE A AMPLIAÇÃO. O B1 disse que a declaração reserva
+# espaço PARA A VARIÁVEL DECLARADA; o B2 disse que a variável declarada
+# é p. Some: a declaração reservou espaço para p, e para mais nada.
+# Nenhuma regra nova.
+#
+# ---------------------------------------------------------------------
+# A CRENÇA
+#
+# `declaration_allocates` — "int *p já cria o dado apontado
+# automaticamente". Grade `T`: Ma (2007), APUD Sorva (2012), Apêndice A,
+# p. 364, item 92: "Declaring a variable also creates an object"; e FAQ
+# comp.lang.c 7.10.
+#
+# A PROCEDÊNCIA É `apud`, e isso fica dito aqui porque o capítulo de
+# curadoria distingue o que foi lido no original do que veio por
+# terceiro. O item 92 foi lido no Sorva; o Ma (2007) não.
+#
+# ---------------------------------------------------------------------
+# AS DUAS DEMONSTRAÇÕES
+#
+#   caso resolvido   DOIS ponteiros declarados, UM objeto: escrever por
+#                    um aparece no outro.
+#   outra rota       UM ponteiro, DOIS objetos em sequência: ele aponta
+#                    para cada um em turno, e não criou nenhum.
+#
+# O CASO RESOLVIDO É O QUE DERRUBA A CRENÇA. Se declarar um ponteiro
+# criasse o objeto apontado, duas declarações criariam dois objetos — e
+# escrever por um não apareceria no outro. Aparece, porque o objeto é
+# um só e foi declarado em separado, na linha do int.
+#
+# O QUE FICA FORA
+#
+#   quantos espaços existem depois de
+#     `int *p;`                        -> `ciu_kc03_010`
+#   `char *p; *p = 'a';`               -> `ciu_kc03_011`
+#   A `int *p;` contra B `int x; int *p = &x;` -> `ciu_kc03_012`
+#   `p = malloc(...)` e depois `*p`    -> `ciu_kc03_t11`
+#   `p = &x;` e depois imprimir `*p`   -> `ciu_kc03_t12`
+#
+# POR ISSO NENHUMA DAS DUAS USA `malloc`, e nenhuma faz a sequência
+# declarar-apontar-usar numa vez só: as duas formas são itens. As
+# demonstrações ficam na CONTAGEM — dois ponteiros com um objeto, um
+# ponteiro com dois objetos —, que é o que nenhum item faz.
+#
+# NARRAÇÃO: não entra.
+#
+# CONFERIDO PELO ORÁCULO (gcc -std=c17 -Wall): as saídas abaixo estão
+# transcritas da execução.
+
+topico: kc_03
+node: kc03:I1
+premissa: "Declarar p não cria o objeto para onde p vai apontar."
+crenca_que_nega: declaration_allocates
+
+gerado_por: Claude Opus 5, 12/11/2026
+revisado_por: ____
+revisado_sha: ____
+
+
+# A AMPLIAÇÃO. O primeiro parágrafo é a DERIVAÇÃO dos dois nós de
+# suporte: é o que separa este cartão de um observável.
+ampliacao: >
+  Isto não é regra nova: é a soma das duas anteriores. A declaração
+  reserva espaço para a variável declarada, e a variável declarada em
+  int *p; é p. Então ela reservou espaço para p — uma caixa de guardar
+  endereço — e para mais nada.
+
+  O objeto apontado é outra variável, e ele tem de vir de outro lugar.
+  Pode ser um int declarado em separado, e aí você escreve p = &x. Pode
+  ser um bloco que você pede enquanto o programa roda. O que não existe
+  é a terceira possibilidade: declarar p e achar que o int apareceu
+  junto.
+
+  Por isso contar caixas ajuda. Depois de int *p; existe UMA caixa nova.
+  Depois de int x; int *p; existem duas, e elas ainda não têm relação
+  nenhuma entre si — quem as liga é a linha que escreve o endereço de
+  uma dentro da outra.
+
+
+# O exemplo que já está no domínio, repetido para quem revisa. NÃO MUDA.
+exemplo: |
+  int *p;      /* uma caixa: p */
+  *p = 10;     /* para onde? nao ha caixa */
+
+
+# O CASO RESOLVIDO: dois ponteiros, um objeto.
+caso_resolvido:
+  - prosa: "Vamos resolver um junto."
+  - codigo: |
+      int x = 1;
+      int *p = &x;
+      int *q = &x;
+
+      *p = 50;
+      printf("escrevi por p, e q ve %d\n", *q);
+  - prosa: "Pergunta: há duas declarações de ponteiro aqui. Quantos inteiros existem?"
+  - prosa: >
+      A tentação é contar um inteiro para cada ponteiro — se declarar p
+      trouxesse o dado junto, seriam dois. Conte as declarações de int:
+      há uma só, a de x. As outras duas declaram caixas de endereço, e
+      as duas receberam o endereço da MESMA caixa.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      escrevi por p, e q ve 50
+  - prosa: >
+      Um único 50, visto pelos dois. Se cada declaração de ponteiro
+      criasse o seu próprio inteiro, escrever por p não teria como
+      aparecer em q — seriam dois objetos separados, e o de q
+      continuaria 1.
+
+
+# A OUTRA ROTA: um ponteiro, dois objetos.
+reexplicacao:
+  - prosa: >
+      Outro caminho, pelo avesso: um ponteiro só, e dois objetos.
+  - codigo: |
+      int a = 1, b = 2;
+      int *p;
+
+      p = &a;
+      printf("p aponta para a: %d\n", *p);
+      p = &b;
+      printf("p aponta para b: %d\n", *p);
+  - prosa: >
+      p foi declarado uma vez. Os dois inteiros foram declarados na
+      linha de cima, antes de p existir, e nenhum deles apareceu por
+      causa dele.
+  - prosa: "A máquina confirma:"
+  - saida: |
+      p aponta para a: 1
+      p aponta para b: 2
+  - prosa: >
+      O mesmo ponteiro alcançou dois objetos diferentes, em dois
+      momentos. Ele não criou nenhum dos dois: ele guardou, de cada vez,
+      o endereço de um que já estava lá.
