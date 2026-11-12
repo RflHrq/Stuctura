@@ -87,6 +87,47 @@ nodes:
       - string_literal_is_array
       - array_confused_with_cell
 
+    # A EVIDENCIA DO kc_07, 12/11/2026. O `afirma` e TEXTO DE TELA --
+    # `_prova` o manda inteiro ao cliente --, entao e curto; o resto fica
+    # nestes comentarios.
+    #
+    # ESTE E O UNICO TOPICO EM QUE `array` PASSA O PORTAO: o cartao que o
+    # ensina e `kc_07:B1`, e esta no inventario. Por isso aqui os
+    # programas usam array a vontade -- em qualquer outro topico eles
+    # ficariam barrados.
+    evidencia:
+      - afirma: >
+          int a[5] reserva cinco ints contíguos, e o nome vale pelo
+          conjunto: cada posição guarda o seu, e uma posição fica
+          exatamente ao lado da outra.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a[5];
+              int i = 0;
+              int soma = 0;
+
+              while (i < 5) {
+                  a[i] = i * 10;
+                  i = i + 1;
+              }
+              i = 0;
+              while (i < 5) {
+                  soma = soma + a[i];
+                  i = i + 1;
+              }
+              puts(soma == 100 ? "as cinco posicoes guardaram os cinco valores"
+                               : "FALHOU");
+              puts(&a[1] - &a[0] == 1 && &a[4] - &a[0] == 4
+                   ? "e estao em fila: cada uma ao lado da anterior"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          as cinco posicoes guardaram os cinco valores
+          e estao em fila: cada uma ao lado da anterior
   B2:
     type: observavel
     role: espinha
@@ -98,6 +139,34 @@ nodes:
     negated_by:
       - declaration_allocates
 
+    evidencia:
+      - afirma: >
+          int *p reserva só o ponteiro: ele não traz espaço para
+          elemento nenhum — passa a levar ao espaço que o array já
+          tinha, e escrever por ele escreve lá.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a[3];
+              int *p;
+
+              a[0] = 1;
+              a[1] = 2;
+              a[2] = 3;
+              p = a;
+              *p = 70;
+              puts(a[0] == 70 ? "escrever por p escreveu no espaco que era do array"
+                              : "FALHOU");
+              puts(a[1] == 2 && a[2] == 3
+                   ? "e nada mais apareceu: p nao trouxe espaco nenhum"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          escrever por p escreveu no espaco que era do array
+          e nada mais apareceu: p nao trouxe espaco nenhum
   B3:
     type: observavel
     role: espinha
@@ -109,6 +178,30 @@ nodes:
     negated_by:
       - array_passed_by_reference
 
+    evidencia:
+      - afirma: >
+          Em expressão, o nome do array vira o endereço do primeiro
+          elemento: a e &a[0] levam ao mesmo lugar, e *a é a[0].
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a[3];
+              int *p = a;
+
+              a[0] = 8;
+              a[1] = 9;
+              puts(p == &a[0] ? "o nome a entregou o endereco do primeiro elemento"
+                              : "FALHOU");
+              puts(*a == 8 ? "e *a le o primeiro elemento: *a e a[0]" : "FALHOU");
+              puts(*(a + 1) == 9 ? "andando um, chega no segundo" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o nome a entregou o endereco do primeiro elemento
+          e *a le o primeiro elemento: *a e a[0]
+          andando um, chega no segundo
   B4:
     type: observavel
     role: espinha
@@ -120,6 +213,45 @@ nodes:
     negated_by:
       - arr_equals_addr_of_arr
 
+    # BARRADA PELO `sizeof`, que tem cartao no kc_02 e nao aqui. E a
+    # premissa PEDE sizeof: ela fala dele. A demonstracao continua valendo
+    # como evidencia; so nao vai para a tela de quem esta neste topico.
+    #
+    # AS DISTANCIAS SAO MEDIDAS, E NAO AFIRMADAS: nada aqui diz que int
+    # tem 4 bytes. O que se compara e conjunto contra ponteiro, e passo de
+    # &a contra passo de p -- relacoes que valem em qualquer maquina.
+    evidencia:
+      - afirma: >
+          Em sizeof e em & a conversão não acontece: sizeof a mede o
+          conjunto inteiro, não um endereço, e &a anda o array todo de
+          uma vez.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a[5];
+              int *p = a;
+              long tamanho_do_conjunto = (long) sizeof a;
+              long tamanho_do_ponteiro = (long) sizeof p;
+              long passo_de_a = (char *) (&a + 1) - (char *) &a[0];
+              long passo_de_p = (char *) (p + 1) - (char *) p;
+
+              puts(tamanho_do_conjunto > tamanho_do_ponteiro
+                   ? "sizeof a mede o conjunto, e nao um endereco"
+                   : "FALHOU");
+              puts(passo_de_a == tamanho_do_conjunto
+                   ? "e &a anda o array inteiro de uma vez"
+                   : "FALHOU");
+              puts(passo_de_p < passo_de_a
+                   ? "enquanto o ponteiro anda um elemento so"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          sizeof a mede o conjunto, e nao um endereco
+          e &a anda o array inteiro de uma vez
+          enquanto o ponteiro anda um elemento so
   I1:
     type: inferencia
     role: espinha
@@ -131,6 +263,27 @@ nodes:
     negated_by:
       - array_is_assignable
 
+    evidencia:
+      - afirma: >
+          Não se atribui ao nome do array: ele não é um lugar
+          modificável, e o compilador não aceita a atribuição.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a[3];
+              int outro[3];
+
+              a = outro;
+              puts(a[0] == outro[0] ? "ok" : "FALHOU");
+              return 0;
+          }
+        nao_compila: true
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. O que o padrão
+          exige de todo compilador conforme é o diagnóstico; o que se
+          observa aqui é a recusa deste.
   I2:
     type: inferencia
     role: espinha
@@ -142,6 +295,44 @@ nodes:
     negated_by:
       - sizeof_array_via_pointer
 
+    # O QUE ESTE PROGRAMA NAO FAZ: `sizeof a` dentro da funcao para
+    # mostrar que o tamanho se perdeu. O gcc responde
+    # `-Wsizeof-array-argument`, e aviso invalida evidencia. O que ele faz
+    # e melhor: manda o parametro ANDAR. Nome de array nao anda -- o I1
+    # deste topico e a recusa disso --, entao se ali ele anda, ali ele nao
+    # e array.
+    evidencia:
+      - afirma: >
+          Como parâmetro, int a[] é reescrito como int *a: dentro da
+          função dá para mandar o nome andar, coisa que nenhum array
+          aceita — porque ali ele já é um ponteiro.
+        programa: |
+          #include <stdio.h>
+
+          static int segundo(int a[])
+          {
+              a = a + 1;
+              return *a;
+          }
+
+          int main(void)
+          {
+              int a[3];
+
+              a[0] = 10;
+              a[1] = 20;
+              a[2] = 30;
+              puts(segundo(a) == 20
+                   ? "dentro da funcao o nome andou, e entregou o segundo"
+                   : "FALHOU");
+              puts(a[0] == 10
+                   ? "e o array de fora nao mexeu: o que andou foi a copia do endereco"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          dentro da funcao o nome andou, e entregou o segundo
+          e o array de fora nao mexeu: o que andou foi a copia do endereco
   I3:
     type: inferencia
     role: conclusao
@@ -152,3 +343,30 @@ nodes:
       mesmo jeito.
     negated_by:
       - array_is_pointer
+    evidencia:
+      - afirma: >
+          Array e ponteiro são tipos distintos, ainda que a[i] e p[i]
+          deem o mesmo elemento: o ponteiro pode andar, e o nome do
+          array fica parado.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a[3];
+              int *p = a;
+              int i = 1;
+
+              a[0] = 1;
+              a[1] = 2;
+              a[2] = 3;
+              puts(a[i] == p[i] ? "a[i] e p[i] dao o mesmo elemento" : "FALHOU");
+              p = p + 1;
+              puts(p[0] == 2 && a[0] == 1
+                   ? "mas p andou e a ficou: sao tipos diferentes"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a[i] e p[i] dao o mesmo elemento
+          mas p andou e a ficou: sao tipos diferentes

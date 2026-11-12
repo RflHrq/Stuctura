@@ -57,7 +57,13 @@ sys.path.insert(0, str(RAIZ / "scripts"))
 # premissas têm demonstração que CHEGA à tela: treze programas, sete
 # barrados pelo portão de exibição — todos pelo mesmo construto,
 # `funcao_com_parametro` — e seis exibíveis, um por nó.
-COM_EVIDENCIA = ("kc_02", "kc_06")
+#
+# E NO MESMO DIA OS OUTROS ONZE TÓPICOS. São 85 demonstrações em 70 dos
+# 79 nós. Sete tópicos ficam COMPLETOS e entram aqui; os outros seis têm
+# nó sem evidência e ficam de fora — é esta lista que impede "ainda não
+# chegou neste" de se confundir com "este não precisa".
+COM_EVIDENCIA = ("kc_01", "kc_02", "kc_04", "kc_06", "kc_07", "kc_10",
+                 "kc_11")
 
 
 def _nos(topico):
@@ -197,16 +203,23 @@ def test_demonstracao_por_recusa_declara_o_ambiente():
 # impossível: quem acrescentar um tópico baixa o número, e quem tirar
 # uma evidência faz o teste cair. Sem ele, "nenhum nó tem evidência" e
 # "todos têm" passariam igual.
-SEM_EVIDENCIA = 67
+SEM_EVIDENCIA = 9
 
 
 def test_quantos_nos_ainda_nao_tem_evidencia():
     """A lacuna, contada — e é ela que define o escopo defensável.
 
-    Afirmar que as premissas do sistema são conferidas pelo compilador
-    seria falso hoje: vale para um tópico de treze. O que o trabalho
-    pode afirmar é o que este número diz, e dizer isso é mais forte que
-    deixar o leitor supor.
+    ERA "UM TÓPICO DE TREZE" ATÉ 12/11/2026, e deixou de ser: 70 dos 79
+    nós têm demonstração que o compilador confere, nos treze tópicos.
+
+    E OS NOVE QUE FALTAM SÃO UMA FAMÍLIA SÓ, o que vale mais que o
+    número: kc_00:B3, kc_03:B3, kc_03:I2, kc_03:I3, kc_05:I3, kc_08:B3,
+    kc_09:B4, kc_09:I4 e kc_12:I1 falam de valor indeterminado e de
+    comportamento indefinido. Nenhum se demonstra rodando — o programa
+    que o fizesse exibiria o próprio UB como prova — nem por recusa,
+    porque o compilador aceita e no máximo AVISA. Falta ao contrato de
+    `Demonstracao` a terceira forma, a do compilador que DIAGNOSTICA sem
+    recusar; enquanto ela não existe, o número não baixa de nove.
     """
     todos = sem = 0
     for p in sorted(DOMINIO.glob("graph_kc*.yaml")):

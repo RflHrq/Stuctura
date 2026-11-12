@@ -59,6 +59,37 @@ nodes:
     negated_by:
       - pointer_is_integer
 
+    # A EVIDENCIA DO kc_11, 12/11/2026. O `afirma` e TEXTO DE TELA.
+    #
+    # O QUE ESTE TOPICO NAO AFIRMA EM LUGAR NENHUM: que int tem 4 bytes.
+    # Todas as distancias sao MEDIDAS em execucao e comparadas entre si --
+    # passo contra passo, elemento contra elemento. Tamanho de tipo e fato
+    # sobre a maquina, e o projeto ja tem regra para isso.
+    evidencia:
+      - afirma: >
+          p aponta para um objeto de um tipo definido, e é o tipo que
+          decide o que se lê e se escreve ali: pelo ponteiro de int cabe
+          um número grande, pelo de char não.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int grande = 0;
+              char pequeno = 0;
+              int *pi = &grande;
+              char *pc = &pequeno;
+
+              *pi = 300;
+              *pc = (char) 300;
+              puts(*pi == 300 ? "pelo ponteiro de int, o 300 coube inteiro" : "FALHOU");
+              puts(*pc != 300 ? "pelo de char, nao coube: o tipo decide o que cabe"
+                              : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          pelo ponteiro de int, o 300 coube inteiro
+          pelo de char, nao coube: o tipo decide o que cabe
   B2:
     type: observavel
     role: espinha
@@ -70,6 +101,31 @@ nodes:
     negated_by:
       - pointer_knows_block_size
 
+    evidencia:
+      - afirma: >
+          O tamanho de um tipo é fixo, e o passo de um ponteiro é sempre
+          o mesmo: dois ponteiros de int andam a mesma distância quando
+          andam um.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1, y = 2;
+              int *px = &x;
+              int *py = &y;
+              long passo_x = (char *) (px + 1) - (char *) px;
+              long passo_y = (char *) (py + 1) - (char *) py;
+
+              puts(passo_x == passo_y
+                   ? "dois ponteiros de int andam a mesma distancia" : "FALHOU");
+              puts(passo_x > 0 ? "e o passo tem tamanho fixo, decidido pelo tipo"
+                               : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          dois ponteiros de int andam a mesma distancia
+          e o passo tem tamanho fixo, decidido pelo tipo
   B3:
     type: observavel
     role: espinha
@@ -81,6 +137,33 @@ nodes:
     negated_by:
       - string_literal_is_array
 
+    # BARRADA por `array`, que so tem cartao no kc_07. A premissa e sobre
+    # array, entao nao ha versao sem ele; a evidencia vale, e nao vai a
+    # tela enquanto este topico nao tiver cartao que ensine o construto.
+    evidencia:
+      - afirma: >
+          Os elementos de um array são contíguos: do primeiro ao segundo
+          anda-se um elemento, e do primeiro ao último anda-se
+          exatamente a conta.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a[4];
+              int i = 0;
+
+              while (i < 4) {
+                  a[i] = i;
+                  i = i + 1;
+              }
+              puts(&a[1] - &a[0] == 1 ? "do primeiro ao segundo, um elemento" : "FALHOU");
+              puts(&a[3] - &a[0] == 3 ? "e do primeiro ao ultimo, tres" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          do primeiro ao segundo, um elemento
+          e do primeiro ao ultimo, tres
   I1:
     type: inferencia
     role: espinha
@@ -92,6 +175,39 @@ nodes:
     negated_by:
       - indice_nao_e_soma
 
+    evidencia:
+      - afirma: >
+          a[i] é exatamente *(a + i): as duas formas leem o mesmo
+          elemento, e escrever por uma aparece na outra.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a[4];
+              int i = 0;
+              int iguais = 0;
+
+              while (i < 4) {
+                  a[i] = i * 7;
+                  i = i + 1;
+              }
+              i = 0;
+              while (i < 4) {
+                  if (a[i] == *(a + i)) {
+                      iguais = iguais + 1;
+                  }
+                  i = i + 1;
+              }
+              puts(iguais == 4 ? "nas quatro posicoes, a[i] e *(a + i) leem o mesmo"
+                               : "FALHOU");
+              *(a + 2) = 99;
+              puts(a[2] == 99 ? "e escrever por uma forma aparece na outra" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          nas quatro posicoes, a[i] e *(a + i) leem o mesmo
+          e escrever por uma forma aparece na outra
   I2:
     type: inferencia
     role: espinha
@@ -103,6 +219,39 @@ nodes:
     negated_by:
       - voidptr_arith_ok
 
+    evidencia:
+      - afirma: >
+          void * não tem escala: para andar pelo bloco foi preciso
+          primeiro dar um tipo ao ponteiro, e é o tipo que diz de quanto
+          é o passo.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              void *sem_tipo = malloc(4);
+              char *com_tipo = NULL;
+
+              if (sem_tipo == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              com_tipo = sem_tipo;
+              *com_tipo = 'a';
+              *(com_tipo + 1) = 'b';
+              puts(*com_tipo == 'a' && *(com_tipo + 1) == 'b'
+                   ? "com tipo, o ponteiro anda e escreve posicao a posicao"
+                   : "FALHOU");
+              puts(sem_tipo == (void *) com_tipo
+                   ? "e o sem tipo guarda o mesmo endereco: o que falta nele e a escala"
+                   : "FALHOU");
+              free(sem_tipo);
+              return 0;
+          }
+        espera: |-
+          com tipo, o ponteiro anda e escreve posicao a posicao
+          e o sem tipo guarda o mesmo endereco: o que falta nele e a escala
   I3:
     type: inferencia
     role: conclusao
@@ -117,3 +266,36 @@ nodes:
       por sizeof também, o ponteiro pula longe demais.
     negated_by:
       - ptr_arith_is_bytes
+    # O `a[64]` E GRANDE DE PROPOSITO. A demonstracao precisa calcular
+    # `a + 2 * sizeof(int)` para mostrar o erro da escala dobrada, e esse
+    # endereco tem de continuar DENTRO do array -- passar de um alem do
+    # fim e comportamento indefinido, e a evidencia estaria provando uma
+    # coisa cometendo outra.
+    evidencia:
+      - afirma: >
+          p + n avança n elementos, e não n bytes: a escala vem do tipo
+          e o compilador a aplica sozinho — multiplicar por sizeof na
+          mão anda muito mais do que se queria.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a[64];
+              long um_elemento = (char *) (a + 1) - (char *) a;
+              long na_mao = (a + 2 * (long) sizeof(int)) - a;
+
+              puts((a + 2) - a == 2
+                   ? "p + 2 andou dois elementos, como a conta pedia" : "FALHOU");
+              puts((char *) (a + 2) - (char *) a == 2 * um_elemento
+                   ? "e em bytes isso deu dois tamanhos do tipo: a escala foi aplicada"
+                   : "FALHOU");
+              puts(na_mao > 2
+                   ? "multiplicando por sizeof na mao, andou muito mais que dois"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          p + 2 andou dois elementos, como a conta pedia
+          e em bytes isso deu dois tamanhos do tipo: a escala foi aplicada
+          multiplicando por sizeof na mao, andou muito mais que dois

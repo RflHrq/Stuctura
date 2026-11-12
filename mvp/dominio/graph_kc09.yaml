@@ -65,6 +65,44 @@ nodes:
     negated_by:
       - pointer_knows_block_size
 
+    # A EVIDENCIA DO kc_09, 12/11/2026. O `afirma` e TEXTO DE TELA.
+    #
+    # NENHUM PROGRAMA DESTE TOPICO LE p DEPOIS DO free. Nao e cuidado de
+    # estilo: ler o valor de um ponteiro ja devolvido e indeterminado, e
+    # e exatamente o que o I4 deste grafo afirma. Evidencia que fizesse
+    # isso estaria exibindo como prova o que o topico ensina a nao fazer.
+    evidencia:
+      - afirma: >
+          free recebe o endereço do bloco, e só isso: devolver por uma
+          segunda variável que carrega o mesmo endereço funciona do
+          mesmo jeito.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              char *p = malloc(1);
+              char *copia = NULL;
+              int depois = 0;
+
+              if (p == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              *p = 'z';
+              copia = p;
+              puts(copia == p ? "a copia carrega o mesmo endereco do bloco" : "FALHOU");
+              free(copia);
+              depois = 1;
+              puts(depois == 1
+                   ? "e devolver por ela bastou: free so precisava do endereco"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a copia carrega o mesmo endereco do bloco
+          e devolver por ela bastou: free so precisava do endereco
   B2:
     type: observavel
     role: espinha
@@ -76,6 +114,43 @@ nodes:
     negated_by:
       - function_gets_original
 
+    # BARRADA por `funcao_com_parametro`, e a demonstracao e por
+    # SUBSTITUICAO: nao da para olhar free por dentro, entao o que se
+    # mostra e a REGRA de chamada que vale para ela -- e que o kc_06
+    # inteiro estabelece. O `afirma` diz isso na primeira linha, para que
+    # ninguem leia nela uma afirmacao sobre o codigo da free.
+    evidencia:
+      - afirma: >
+          free(p) é uma chamada como qualquer outra, e recebe uma cópia
+          de p: quem recebe um ponteiro por valor pode trocar o que
+          recebeu, e o ponteiro de quem chamou fica como estava.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          static void recebe(char *q)
+          {
+              char outro = 'x';
+
+              q = &outro;
+              puts(*q == 'x' ? "dentro, o parametro passou a levar a outro lugar"
+                             : "FALHOU");
+          }
+
+          int main(void)
+          {
+              char dado = 'z';
+              char *p = &dado;
+
+              recebe(p);
+              puts(*p == 'z'
+                   ? "e fora, p continua levando ao mesmo: foi uma copia que viajou"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          dentro, o parametro passou a levar a outro lugar
+          e fora, p continua levando ao mesmo: foi uma copia que viajou
   B3:
     type: observavel
     role: espinha
@@ -87,6 +162,36 @@ nodes:
     negated_by:
       - pointer_lives_in_heap
 
+    evidencia:
+      - afirma: >
+          p é variável de quem chamou e não mora junto com o bloco: o
+          lugar onde p está guardado não é o lugar que p indica.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              char *p = malloc(1);
+
+              if (p == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              *p = 'z';
+              puts((void *) &p != (void *) p
+                   ? "o lugar onde p esta guardado nao e o lugar que p indica"
+                   : "FALHOU");
+              p = NULL;
+              puts(p == NULL
+                   ? "e p e variavel de quem chamou: aceita outro valor quando se quer"
+                   : "FALHOU");
+              free(NULL);
+              return 0;
+          }
+        espera: |-
+          o lugar onde p esta guardado nao e o lugar que p indica
+          e p e variavel de quem chamou: aceita outro valor quando se quer
   B4:
     type: observavel
     role: espinha
@@ -109,6 +214,32 @@ nodes:
     negated_by:
       - free_nullifies
 
+    evidencia:
+      - afirma: >
+          free não pode alterar p nem se quisesse, e a regra não é dela:
+          nenhuma função que recebe um ponteiro por valor altera o
+          ponteiro de quem chamou.
+        programa: |
+          #include <stdio.h>
+
+          static void tenta(char *q)
+          {
+              q = NULL;
+              puts(q == NULL ? "dentro, o parametro virou NULL" : "FALHOU");
+          }
+
+          int main(void)
+          {
+              char dado = 'z';
+              char *p = &dado;
+
+              tenta(p);
+              puts(p != NULL ? "e fora, p nao virou: a troca ficou na copia" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          dentro, o parametro virou NULL
+          e fora, p nao virou: a troca ficou na copia
   I2:
     type: inferencia
     role: espinha
@@ -120,6 +251,33 @@ nodes:
     negated_by:
       - free_kills_pointer
 
+    evidencia:
+      - afirma: >
+          p continua existindo depois do free: a variável está lá,
+          aceita um valor novo e responde — o que a chamada devolveu foi
+          o bloco, e não a variável.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              char *p = malloc(1);
+
+              if (p == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              *p = 'z';
+              free(p);
+              p = NULL;
+              puts(p == NULL
+                   ? "depois do free, a variavel p aceitou um valor novo e respondeu"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          depois do free, a variavel p aceitou um valor novo e respondeu
   I3:
     type: inferencia
     role: espinha
@@ -132,6 +290,43 @@ nodes:
     negated_by:
       - null_after_free_redundant
 
+    evidencia:
+      - afirma: >
+          Atribuir NULL a p é o que registra o estado: sem isso nada no
+          programa distingue um ponteiro já devolvido de um válido, e
+          com isso o teste de sempre separa os dois.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              char *p = malloc(1);
+              char *q = malloc(1);
+              int usaveis = 0;
+
+              if (p == NULL || q == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              *p = 'a';
+              *q = 'b';
+              free(p);
+              p = NULL;
+              if (p != NULL) {
+                  usaveis = usaveis + 1;
+              }
+              if (q != NULL) {
+                  usaveis = usaveis + 1;
+              }
+              puts(usaveis == 1
+                   ? "o teste de sempre separou o devolvido do valido: sobrou um"
+                   : "FALHOU");
+              free(q);
+              return 0;
+          }
+        espera: |-
+          o teste de sempre separou o devolvido do valido: sobrou um
   I4:
     type: inferencia
     role: conclusao

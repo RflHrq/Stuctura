@@ -52,6 +52,52 @@ nodes:
     negated_by:
       - malloc_conta_elementos
 
+    # A EVIDENCIA DO kc_08, 12/11/2026. BLOCOS DE `char`, E DE PROPOSITO:
+    # `sizeof` so tem cartao no kc_02, entao `malloc(n * sizeof(int))`
+    # ficaria barrado pelo portao. Um char e 1 por definicao da linguagem,
+    # entao `malloc(n)` pede n bytes sem afirmar tamanho de tipo nenhum --
+    # que e o que a premissa deste no diz.
+    #
+    # E SEM `a[i]`: o indice literal (`b[0]`) e o que
+    # `conceitos.construtos_de` le como `array`, e array so tem cartao no
+    # kc_07. `*(bloco + i)` diz a mesma coisa e passa.
+    evidencia:
+      - afirma: >
+          malloc(n) pede n bytes ao alocador: o bloco devolvido aceita
+          escrita nas n posições, e a última ainda é dele.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              int quantos = 6;
+              char *bloco = malloc(quantos);
+              int i = 0;
+              int conferidos = 0;
+
+              if (bloco == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              while (i < quantos) {
+                  *(bloco + i) = 'a' + i;
+                  i = i + 1;
+              }
+              i = 0;
+              while (i < quantos) {
+                  if (*(bloco + i) == 'a' + i) {
+                      conferidos = conferidos + 1;
+                  }
+                  i = i + 1;
+              }
+              puts(conferidos == 6 ? "os seis bytes pedidos aceitaram escrita e leitura"
+                                   : "FALHOU");
+              free(bloco);
+              return 0;
+          }
+        espera: |-
+          os seis bytes pedidos aceitaram escrita e leitura
   B2:
     type: observavel
     role: espinha
@@ -63,6 +109,48 @@ nodes:
     negated_by:
       - pointer_is_data
 
+    # O TAMANHO IMPOSSIVEL E CALCULADO RODANDO, e nao escrito no codigo.
+    # Com a constante a vista, o gcc responde
+    # `-Walloc-size-larger-than`, e aviso invalida evidencia. Calculado em
+    # execucao, o pedido e o mesmo e o compilador nao tem o que avisar.
+    evidencia:
+      - afirma: >
+          malloc devolve o endereço do bloco, ou NULL: o pedido comum
+          volta com um endereço que funciona, e um pedido grande demais
+          volta NULL — as duas saídas acontecem de verdade.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              char *bom = malloc(4);
+              size_t enorme = 1;
+              char *impossivel = NULL;
+              int voltas = 0;
+
+              while (voltas < 6) {
+                  enorme = enorme * 1000;
+                  voltas = voltas + 1;
+              }
+              impossivel = malloc(enorme);
+              if (bom == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              *bom = 'k';
+              puts(*bom == 'k' ? "o pedido comum voltou com um endereco que funciona"
+                               : "FALHOU");
+              puts(impossivel == NULL
+                   ? "e o pedido grande demais voltou NULL: a outra saida existe"
+                   : "FALHOU");
+              free(bom);
+              free(impossivel);
+              return 0;
+          }
+        espera: |-
+          o pedido comum voltou com um endereco que funciona
+          e o pedido grande demais voltou NULL: a outra saida existe
   B3:
     type: observavel
     role: espinha
@@ -85,6 +173,37 @@ nodes:
     negated_by:
       - pointer_lives_in_heap
 
+    evidencia:
+      - afirma: >
+          O ponteiro é uma variável e o bloco é outra coisa: apagar o
+          ponteiro não apaga o bloco, que continua lá e continua
+          alcançável por outro ponteiro.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              char *p = malloc(1);
+              char *guarda = NULL;
+
+              if (p == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              *p = 'z';
+              guarda = p;
+              p = NULL;
+              puts(p == NULL ? "o ponteiro foi apagado" : "FALHOU");
+              puts(*guarda == 'z'
+                   ? "e o bloco continua la, alcancavel pelo outro ponteiro"
+                   : "FALHOU");
+              free(guarda);
+              return 0;
+          }
+        espera: |-
+          o ponteiro foi apagado
+          e o bloco continua la, alcancavel pelo outro ponteiro
   I2:
     type: inferencia
     role: espinha
@@ -96,6 +215,42 @@ nodes:
     negated_by:
       - malloc_always_succeeds
 
+    evidencia:
+      - afirma: >
+          Verificar NULL é necessário porque falhar é resultado
+          possível: quando o pedido falha, quem testou segue em frente,
+          e o teste é o que separa os dois caminhos.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          int main(void)
+          {
+              size_t enorme = 1;
+              char *bloco = NULL;
+              int caminho = 0;
+              int voltas = 0;
+
+              while (voltas < 6) {
+                  enorme = enorme * 1000;
+                  voltas = voltas + 1;
+              }
+              bloco = malloc(enorme);
+              if (bloco == NULL) {
+                  caminho = 1;
+              } else {
+                  *bloco = 'x';
+                  caminho = 2;
+              }
+              puts(caminho == 1 ? "o pedido falhou, e o teste pegou a falha" : "FALHOU");
+              puts(caminho != 2 ? "sem o teste, a escrita teria ido para o nada"
+                                : "FALHOU");
+              free(bloco);
+              return 0;
+          }
+        espera: |-
+          o pedido falhou, e o teste pegou a falha
+          sem o teste, a escrita teria ido para o nada
   I3:
     type: inferencia
     role: conclusao
@@ -106,3 +261,40 @@ nodes:
       o devolve por você. Enquanto não devolver, ele continua ocupado.
     negated_by:
       - system_frees_auto
+    evidencia:
+      - afirma: >
+          O bloco vive até o free: ele atravessa chamadas de função e
+          continua com o que você escreveu — ninguém o devolve por você.
+        programa: |
+          #include <stdio.h>
+          #include <stdlib.h>
+
+          static int trabalho(void)
+          {
+              int n = 0;
+
+              while (n < 1000) {
+                  n = n + 1;
+              }
+              return n;
+          }
+
+          int main(void)
+          {
+              char *bloco = malloc(1);
+
+              if (bloco == NULL) {
+                  puts("FALHOU");
+                  return 1;
+              }
+              *bloco = 'q';
+              trabalho();
+              trabalho();
+              puts(*bloco == 'q'
+                   ? "duas funcoes rodaram inteiras, e o bloco continua com o q"
+                   : "FALHOU");
+              free(bloco);
+              return 0;
+          }
+        espera: |-
+          duas funcoes rodaram inteiras, e o bloco continua com o q

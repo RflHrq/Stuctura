@@ -55,6 +55,39 @@ nodes:
     negated_by:
       - memory_is_uniform
 
+    # A EVIDENCIA DO kc_12, 12/11/2026. O `afirma` e TEXTO DE TELA.
+    #
+    # NENHUM PROGRAMA DESTE TOPICO DESREFERENCIA PONTEIRO PARA LOCAL
+    # MORTA. O topico inteiro e sobre isso, e demonstrar o erro cometendo
+    # o erro exibiria comportamento indefinido como prova.
+    evidencia:
+      - afirma: >
+          O retorno encerra a existência das locais da função: a chamada
+          seguinte começa com uma variável nova, e o valor deixado pela
+          anterior não está lá.
+        programa: |
+          #include <stdio.h>
+
+          static int visita(void)
+          {
+              int n = 0;
+
+              n = n + 1;
+              return n;
+          }
+
+          int main(void)
+          {
+              int primeira = visita();
+              int segunda = visita();
+
+              puts(primeira == 1 && segunda == 1
+                   ? "as duas chamadas devolveram 1: a local nao atravessou o retorno"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          as duas chamadas devolveram 1: a local nao atravessou o retorno
   B2:
     type: observavel
     role: espinha
@@ -66,6 +99,32 @@ nodes:
     negated_by:
       - ampersand_copies
 
+    evidencia:
+      - afirma: >
+          &local é endereço válido enquanto a função executa: dentro
+          dela, escrever pelo endereço da local muda a local, e ler
+          devolve o que foi escrito.
+        programa: |
+          #include <stdio.h>
+
+          static int dentro(void)
+          {
+              int local = 1;
+              int *onde = &local;
+
+              *onde = 42;
+              return local;
+          }
+
+          int main(void)
+          {
+              puts(dentro() == 42
+                   ? "enquanto a funcao rodava, o endereco da local funcionou"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          enquanto a funcao rodava, o endereco da local funcionou
   B3:
     type: observavel
     role: espinha
@@ -77,6 +136,34 @@ nodes:
     negated_by:
       - retorno_fica_guardado
 
+    evidencia:
+      - afirma: >
+          O valor retornado é copiado para quem chamou: o que chega lá
+          fora é uma cópia, que o chamador guarda na variável dele.
+        programa: |
+          #include <stdio.h>
+
+          static int entrega(void)
+          {
+              int local = 7;
+
+              return local;
+          }
+
+          int main(void)
+          {
+              int meu = entrega();
+
+              puts(meu == 7 ? "o valor chegou aqui fora" : "FALHOU");
+              meu = 8;
+              puts(meu == 8 && entrega() == 7
+                   ? "e e copia minha: mexer nela nao mexe no que a funcao devolve"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o valor chegou aqui fora
+          e e copia minha: mexer nela nao mexe no que a funcao devolve
   I1:
     type: inferencia
     role: espinha
@@ -103,6 +190,68 @@ nodes:
     negated_by:
       - static_is_scope
 
+    evidencia:
+      - afirma: >
+          static muda a duração e não o escopo: o valor atravessa as
+          chamadas, e é por isso que às vezes parece que uma local
+          sobreviveu.
+        programa: |
+          #include <stdio.h>
+
+          static int com_static(void)
+          {
+              static int n = 0;
+
+              n = n + 1;
+              return n;
+          }
+
+          static int sem_static(void)
+          {
+              int n = 0;
+
+              n = n + 1;
+              return n;
+          }
+
+          int main(void)
+          {
+              com_static();
+              sem_static();
+              puts(com_static() == 2
+                   ? "com static, o valor atravessou a chamada" : "FALHOU");
+              puts(sem_static() == 1
+                   ? "sem static, cada chamada recomecou" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          com static, o valor atravessou a chamada
+          sem static, cada chamada recomecou
+      - afirma: >
+          E o escopo não mudou: o nome continua valendo só dentro da
+          função, e usá-lo de fora o compilador não aceita.
+        programa: |
+          #include <stdio.h>
+
+          static int com_static(void)
+          {
+              static int n = 0;
+
+              n = n + 1;
+              return n;
+          }
+
+          int main(void)
+          {
+              com_static();
+              puts(n == 1 ? "ok" : "FALHOU");
+              return 0;
+          }
+        nao_compila: true
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. O que o padrão
+          exige de todo compilador conforme é o diagnóstico; o que se
+          observa aqui é a recusa deste.
   I3:
     type: inferencia
     role: conclusao
@@ -116,3 +265,30 @@ nodes:
       caixa e passar o endereço dela para a função preencher.
     negated_by:
       - local_survives_return
+    # BARRADA por `funcao_com_parametro`. A premissa fala do caminho
+    # CERTO, e o caminho certo tem parametro -- nao ha versao sem ele.
+    evidencia:
+      - afirma: >
+          O caminho certo é quem chama fornecer o armazenamento: a
+          variável é do chamador, a função só escreve nela, e o valor
+          continua lá depois que ela volta.
+        programa: |
+          #include <stdio.h>
+
+          static void preenche(int *destino)
+          {
+              *destino = 7;
+          }
+
+          int main(void)
+          {
+              int meu = 0;
+
+              preenche(&meu);
+              puts(meu == 7
+                   ? "a funcao escreveu na variavel de quem chamou, e o 7 ficou"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a funcao escreveu na variavel de quem chamou, e o 7 ficou

@@ -45,6 +45,68 @@ nodes:
     negated_by:
       - ampersand_copies
 
+    # A EVIDENCIA DO kc_10, 12/11/2026. QUASE TUDO AQUI FICA BARRADO, e
+    # pelo construto que da nome ao topico: `ponteiro_de_ponteiro` esta
+    # `so_avaliado` no inventario e nao tem cartao em lugar nenhum. A
+    # evidencia continua valendo; ela so nao chega a tela enquanto nao
+    # houver cartao que ensine o construto.
+    #
+    # A PRIMEIRA DEMONSTRACAO DESTE NO FOI ESCRITA PARA PASSAR: ela mostra
+    # que p tem lugar proprio sem escrever `int **` nenhum, comparando os
+    # dois lugares por `void *`. O endereco entra por uma decisao tomada
+    # rodando porque, com `&p` e `&x` a vista, o gcc dobra a comparacao
+    # (-Waddress) e o programa deixa de medir.
+    evidencia:
+      - afirma: >
+          Um ponteiro é uma variável e tem endereço próprio: o lugar
+          onde p mora não é o lugar de x, e os dois existem ao mesmo
+          tempo.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int *p = NULL;
+              void *lugar_de_p = NULL;
+              void *lugar_de_x = NULL;
+              int passos = 0;
+
+              while (passos < 3) {
+                  passos = passos + 1;
+              }
+              if (passos == 3) {
+                  p = &x;
+                  lugar_de_p = &p;
+                  lugar_de_x = &x;
+              }
+              puts(lugar_de_p != lugar_de_x
+                   ? "o lugar onde p mora nao e o lugar de x" : "FALHOU");
+              puts(*p == 1 ? "e p continua levando a x: sao duas caixas" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o lugar onde p mora nao e o lugar de x
+          e p continua levando a x: sao duas caixas
+      - afirma: >
+          E &p produz esse endereço: guardado num ponteiro de ponteiro,
+          ele leva de volta a p.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int *p = &x;
+              int **pp = &p;
+
+              puts(*pp == p ? "o endereco de p levou de volta a p" : "FALHOU");
+              puts(**pp == 1 ? "e de p ate x, um nivel por vez" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          o endereco de p levou de volta a p
+          e de p ate x, um nivel por vez
   B2:
     type: observavel
     role: espinha
@@ -56,6 +118,30 @@ nodes:
     negated_by:
       - pointer_is_just_a_name
 
+    evidencia:
+      - afirma: >
+          Cada aplicação de * desfaz exatamente um nível: de pp se chega
+          a p, e de p ao int — nunca dois de uma vez.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 5;
+              int *p = &x;
+              int **pp = &p;
+
+              puts(*pp == p ? "um asterisco em pp entrega p" : "FALHOU");
+              puts(**pp == x ? "dois asteriscos entregam o int" : "FALHOU");
+              **pp = 9;
+              puts(x == 9 ? "e escrever com dois chega no int: um nivel por asterisco"
+                          : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          um asterisco em pp entrega p
+          dois asteriscos entregam o int
+          e escrever com dois chega no int: um nivel por asterisco
   B3:
     type: observavel
     role: espinha
@@ -68,6 +154,31 @@ nodes:
     negated_by:
       - voidptr_is_universal
 
+    # A RECUSA NAO TEM `**` NO CODIGO, entao ela passa o portao -- e e a
+    # unica coisa que este topico consegue mostrar hoje junto com a
+    # primeira do B1.
+    evidencia:
+      - afirma: >
+          O tipo diz quantos níveis existem, e não é opcional: guardar o
+          endereço de um ponteiro numa variável de um nível só é
+          recusado pelo compilador.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1;
+              int *p = &x;
+              int *errado = &p;
+
+              puts(errado != NULL ? "ok" : "FALHOU");
+              return 0;
+          }
+        nao_compila: true
+        ambiente: >
+          gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. O que o padrão
+          exige de todo compilador conforme é o diagnóstico; o que se
+          observa aqui é a recusa deste.
   I1:
     type: inferencia
     role: espinha
@@ -79,6 +190,41 @@ nodes:
     negated_by:
       - modify_pp_changes_p
 
+    evidencia:
+      - afirma: >
+          Para uma função alterar o p de quem chamou, ela precisa
+          receber &p: recebendo p ela troca a cópia, recebendo &p ela
+          chega à caixa de p.
+        programa: |
+          #include <stdio.h>
+
+          static void recebe_o_ponteiro(int *q)
+          {
+              q = NULL;
+              puts(q == NULL ? "quem recebeu p trocou a copia dele" : "FALHOU");
+          }
+
+          static void recebe_o_endereco(int **qq)
+          {
+              *qq = NULL;
+          }
+
+          int main(void)
+          {
+              int x = 1;
+              int *p = &x;
+
+              recebe_o_ponteiro(p);
+              puts(p != NULL ? "e o p de fora continuou" : "FALHOU");
+              recebe_o_endereco(&p);
+              puts(p == NULL ? "com &p, a funcao chegou na caixa de p e trocou"
+                             : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          quem recebeu p trocou a copia dele
+          e o p de fora continuou
+          com &p, a funcao chegou na caixa de p e trocou
   I2:
     type: inferencia
     role: espinha
@@ -90,6 +236,46 @@ nodes:
     negated_by:
       - array2d_is_double_pointer
 
+    evidencia:
+      - afirma: >
+          int a[N][M] é um bloco contíguo, e não um vetor de ponteiros:
+          a segunda linha começa logo depois da primeira, na mesma fila
+          de inteiros.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int a[2][3];
+              int i = 0, j = 0;
+              int seguidos = 0;
+
+              while (i < 2) {
+                  j = 0;
+                  while (j < 3) {
+                      a[i][j] = i * 3 + j;
+                      j = j + 1;
+                  }
+                  i = i + 1;
+              }
+              puts(&a[1][0] - &a[0][0] == 3
+                   ? "a segunda linha comeca tres inteiros depois da primeira"
+                   : "FALHOU");
+              i = 0;
+              while (i < 6) {
+                  if (*(&a[0][0] + i) == i) {
+                      seguidos = seguidos + 1;
+                  }
+                  i = i + 1;
+              }
+              puts(seguidos == 6
+                   ? "e os seis estao numa fila so: e bloco, nao vetor de ponteiros"
+                   : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          a segunda linha comeca tres inteiros depois da primeira
+          e os seis estao numa fila so: e bloco, nao vetor de ponteiros
   I3:
     type: inferencia
     role: conclusao
@@ -102,3 +288,28 @@ nodes:
       outra. *pp chega em p; **pp dá mais um passo e chega no número.
     negated_by:
       - double_deref_is_data
+    evidencia:
+      - afirma: >
+          *pp é o ponteiro p e **pp é o int: pp e p são caixas
+          distintas, e trocar o que está em pp não encosta no que está
+          em p.
+        programa: |
+          #include <stdio.h>
+
+          int main(void)
+          {
+              int x = 1, y = 2;
+              int *p = &x;
+              int *outro = &y;
+              int **pp = &p;
+
+              puts(*pp == p && **pp == 1 ? "*pp e o ponteiro p, **pp e o int" : "FALHOU");
+              pp = &outro;
+              puts(**pp == 2 ? "pp passou a levar ao outro ponteiro" : "FALHOU");
+              puts(*p == 1 ? "e p ficou onde estava: sao caixas distintas" : "FALHOU");
+              return 0;
+          }
+        espera: |-
+          *pp e o ponteiro p, **pp e o int
+          pp passou a levar ao outro ponteiro
+          e p ficou onde estava: sao caixas distintas
