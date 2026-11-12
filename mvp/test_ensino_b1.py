@@ -193,12 +193,14 @@ def test_liberar_o_b1_foi_decisao_separada_de_escrever_o_cartao():
         "a decisão foi tomada e o campo que a chamava de pendente ficou")
 
 
-def test_as_duas_cadeias_liberadas_continuam_sem_rodar(d):
-    """O inventário abriu duas cadeias, e o portão pedagógico as segura.
+def test_as_cadeias_liberadas_continuam_sem_rodar(d):
+    """O inventário abriu três cadeias, e o portão pedagógico as segura.
 
     AFIRMAVA QUE NENHUMA ESTAVA LIBERADA, e deixou de valer em
-    12/11/2026, quando `comparacao_de_ponteiros` foi promovido: as duas
-    cadeias que o exigiam passaram a ter todos os conceitos ensinados.
+    12/11/2026 — duas vezes no mesmo dia. Primeiro o
+    `comparacao_de_ponteiros` abriu a `pointer_is_data` e a
+    `pointer_and_target_are_one`; depois o `ponteiro_de_ponteiro`, com
+    os seis materiais do kc_10, abriu a `pointer_has_no_address`.
 
     E NENHUMA DAS DUAS RODA, que é o que importa para quem usa o
     sistema. São DUAS autorizações independentes, e `Dominio.descida`
@@ -213,7 +215,8 @@ def test_as_duas_cadeias_liberadas_continuam_sem_rodar(d):
     revisão".
     """
     liberadas = sorted(c for c, de in d.descidas.items() if de.liberada)
-    assert liberadas == ["pointer_and_target_are_one", "pointer_is_data"],         liberadas
+    assert liberadas == ["pointer_and_target_are_one",
+                         "pointer_has_no_address", "pointer_is_data"],         liberadas
     for c in liberadas:
         assert d.descida(c) is None, (
             "a cadeia %s passou os dois portões e vai RODAR para o "

@@ -88,6 +88,362 @@ exemplos:
     *pp  == p        /* verdadeiro */
     **pp == x        /* verdadeiro */
 
+# O CASO TRABALHADO, uma vez por no: vem antes de pedir qualquer
+# coisa a pessoa. Dos candidatos assinados em 12/11/2026.
+casos_resolvidos:
+
+  B1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 1, y = 2;
+        int *p = &x;
+        int *q = &y;
+        int **pp = &p;
+
+        printf("pp aponta para p, e por ele chego em %d\n", **pp);
+        pp = &q;
+        printf("pp passou a apontar para q, e agora chego em %d\n", **pp);
+        printf("e p continua levando a %d\n", *p);
+    - prosa: >
+        Pergunta: o que foi que mudou quando escrevi pp = &q?
+    - prosa: >
+        A tentação é dizer que mudou o ponteiro — que agora "o ponteiro
+        aponta para y". Repare na última linha: p não mudou nada, continua
+        levando ao 1. Quem mudou foi pp, e o que entrou nele foi o
+        endereço de OUTRA caixa.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        pp aponta para p, e por ele chego em 1
+        pp passou a apontar para q, e agora chego em 2
+        e p continua levando a 1
+    - prosa: >
+        &p e &q são dois números diferentes, porque p e q são duas caixas
+        em dois lugares. Se o & devolvesse uma cópia do ponteiro, as duas
+        cópias levariam cada uma ao seu alvo e trocar de uma para a outra
+        não teria por que mexer no que chega pela ponta — e mexeu.
+
+  B2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 7;
+        int *p = &x;
+        int **pp = &p;
+        int *meio = *pp;
+
+        printf("uma estrela entregou um ponteiro, e ele cabe num int *\n");
+        printf("esse ponteiro leva a %d\n", *meio);
+    - prosa: >
+        Pergunta: por que *pp coube num int *, e não num int?
+    - prosa: >
+        A tentação é pensar que a estrela "vai buscar o valor", e que o
+        valor é o 7. Olhe onde ele foi guardado: numa caixa declarada int
+        *, que é caixa de endereço. O primeiro passo parou numa caixa de
+        ponteiro, porque era ali que o endereço guardado em pp levava.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        uma estrela entregou um ponteiro, e ele cabe num int *
+        esse ponteiro leva a 7
+    - prosa: >
+        E foi preciso mais uma estrela para chegar no 7, agora saindo de
+        meio. Dois passos, dois endereços lidos, duas caixas atravessadas.
+
+  B3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 1;
+        int *p = &x;
+        void *guardado = &p;
+        int **de_volta = guardado;
+
+        printf("o void * levou o endereco, e nao levou o nivel\n");
+        printf("dito o tipo de novo, os dois passos voltam: %d\n", **de_volta);
+    - prosa: >
+        Pergunta: o que foi preciso escrever para poder seguir de novo?
+    - prosa: >
+        A tentação é dizer que nada se perdeu — o endereço está lá, é o
+        mesmo número. É mesmo. O que não está lá é quantas vezes seguir, e
+        foi isso que a declaração int ** devolveu ao programa.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o void * levou o endereco, e nao levou o nivel
+        dito o tipo de novo, os dois passos voltam: 1
+    - prosa: >
+        O número atravessou o void * intacto. O nível não atravessou: ele
+        voltou porque alguém o escreveu outra vez, no tipo de de_volta.
+
+  I1:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        void aponta_para(int **destino, int *novo)
+        {
+            *destino = novo;
+        }
+    - codigo: |
+        int x = 1, y = 2, z = 3;
+        int *p = &x;
+        int *q = &y;
+
+        aponta_para(&p, &z);
+        aponta_para(&q, &z);
+        printf("p agora leva a %d\n", *p);
+        printf("q agora leva a %d\n", *q);
+    - prosa: >
+        Pergunta: a função é a mesma nas duas chamadas. Como ela soube
+        qual trocar?
+    - prosa: >
+        A tentação é dizer que ela mexe "no ponteiro", como se houvesse um
+        só, ou que ela conhece quem a chamou. Não conhece nada: ela
+        recebeu um endereço e escreveu no lugar indicado por ele. Na
+        primeira chamada o endereço era o da caixa p; na segunda, o da
+        caixa q.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        p agora leva a 3
+        q agora leva a 3
+    - prosa: >
+        Os dois passaram a levar ao mesmo z, e cada um por ter entregado o
+        próprio endereço. Quem decide qual caixa muda é o argumento, e o
+        argumento é um endereço como outro qualquer.
+
+  I2:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int a[3][4];
+        int i = 0, j = 0;
+
+        while (i < 3) {
+            j = 0;
+            while (j < 4) {
+                a[i][j] = 0;
+                j = j + 1;
+            }
+            i = i + 1;
+        }
+        *(&a[0][0] + 5) = 99;
+        printf("escrevi na sexta casa da fila, e a[1][1] vale %d\n", a[1][1]);
+    - prosa: >
+        Pergunta: eu nunca escrevi em a[1][1]. Por que ele mudou?
+    - prosa: >
+        A tentação é dizer que andar a partir de a[0][0] não sai da
+        primeira fileira — que cada fileira é uma coisa separada. Conte:
+        quatro passos chegam ao fim da primeira, o quinto entra na
+        segunda, o sexto é a casa seguinte. Que é a[1][1].
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        escrevi na sexta casa da fila, e a[1][1] vale 99
+    - prosa: >
+        Se as três fileiras fossem caixas apontando para lugares
+        separados, a "sexta casa da fila" não existiria — não haveria fila
+        para contar, e andar cinco a partir da primeira cairia fora de
+        tudo. Caiu em a[1][1] porque as doze estão em fila.
+
+  I3:
+    - prosa: >
+        Vamos resolver um junto.
+    - codigo: |
+        int x = 7;
+        int *p = &x;
+        int **pp = &p;
+        int *como_ponteiro = *pp;
+        int como_numero = **pp;
+
+        printf("uma estrela deu um ponteiro, e ele leva a %d\n", *como_ponteiro);
+        printf("duas estrelas deram um numero, e ele mais 1 da %d\n",
+               como_numero + 1);
+    - prosa: >
+        Pergunta: por que o primeiro precisou de mais uma estrela para
+        mostrar o 7, e o segundo não?
+    - prosa: >
+        A tentação é tratar as duas profundidades como o mesmo acesso, uma
+        mais curta e outra mais longa. Olhe as caixas que receberam cada
+        uma: a primeira é int *, e por isso ainda dá para seguir. A
+        segunda é int, e seguir não faz sentido — mas somar faz.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        uma estrela deu um ponteiro, e ele leva a 7
+        duas estrelas deram um numero, e ele mais 1 da 8
+    - prosa: >
+        Duas espécies diferentes, e cada uma fazendo o que a sua espécie
+        faz. Se **pp fosse um acesso direto ao dado, *pp teria de dar no
+        mesmo — e o que ele deu não cabe num int nem se soma a 1.
+
+
+# A OUTRA ROTA: o que o "Ainda nao entendi" mostra na segunda
+# vez. Caminho DIFERENTE do caso resolvido -- ha teste no
+# projeto exigindo isso.
+outras_rotas:
+
+  B1:
+    - prosa: >
+        Outro caminho. Se um ponteiro é uma caixa como as outras, a regra
+        não para em p.
+    - codigo: |
+        int x = 1;
+        int *p = &x;
+        int **pp = &p;
+        int ***ppp = &pp;
+
+        printf("pp tambem tem endereco proprio, e por ele chego em %d\n", ***ppp);
+        printf("o do meio e o proprio p? %d\n", **ppp == p);
+    - prosa: >
+        pp é uma caixa, então pp tem endereço, então &pp existe — e
+        guardá-lo custou mais uma estrela. A regra é a mesma três vezes.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        pp tambem tem endereco proprio, e por ele chego em 1
+        o do meio e o proprio p? 1
+    - prosa: >
+        Repare que cada estrela a mais foi DECLARADA no tipo. Não dá para
+        acrescentar uma na hora de usar e ganhar um nível que a caixa não
+        tem — quantos existem está escrito na declaração, e é o que o
+        compilador segue.
+
+  B2:
+    - prosa: >
+        Outro caminho. Se são dois passos, dá para dá-los em duas linhas e
+        chegar no mesmo lugar.
+    - codigo: |
+        int x = 7;
+        int *p = &x;
+        int **pp = &p;
+        int primeiro_passo_depois_segundo;
+        int *parada = *pp;
+
+        primeiro_passo_depois_segundo = *parada;
+        printf("dois passos separados dao %d\n", primeiro_passo_depois_segundo);
+        printf("e as duas estrelas de uma vez dao %d\n", **pp);
+    - prosa: >
+        A primeira linha faz o passo de pp até p e para. A segunda faz o
+        passo de p até x. Depois o programa refaz o caminho inteiro de uma
+        vez, com as duas estrelas.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dois passos separados dao 7
+        e as duas estrelas de uma vez dao 7
+    - prosa: >
+        O mesmo número pelos dois caminhos, porque é o mesmo caminho. Se a
+        estrela não fosse um passo — se p fosse só outro nome de x — não
+        haveria como parar no meio, porque não haveria meio.
+
+  B3:
+    - prosa: >
+        Outro caminho, e mais curto. Olhe o que o void * aceita.
+    - codigo: |
+        int x = 1;
+        int *p = &x;
+        void *um_nivel = p;
+        void *dois_niveis = &p;
+
+        printf("o mesmo void * aceitou p, de um nivel\n");
+        printf("e aceitou &p, de dois: %d\n", um_nivel != dois_niveis);
+    - prosa: >
+        p tem um nível; &p tem dois. As duas caixas que os recebem são do
+        mesmo tipo, e as duas atribuições passam sem reclamação nenhuma.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        o mesmo void * aceitou p, de um nivel
+        e aceitou &p, de dois: 1
+    - prosa: >
+        Se o void * carregasse o nível, ele não poderia aceitar os dois —
+        um de um nível e um de dois teriam de ir para caixas diferentes.
+        Foram para a mesma, e por isso o nível não pode estar lá. A última
+        linha confirma que são endereços diferentes: são duas caixas.
+
+  I1:
+    - prosa: >
+        Outro caminho. Entregar o endereço da sua caixa não serve só para
+        a função escrever nela.
+    - codigo: |
+        void olha_e_troca(int **pp, int *novo)
+        {
+            printf("dentro da funcao, o seu ponteiro leva a %d\n", **pp);
+            *pp = novo;
+        }
+    - codigo: |
+        int x = 1, y = 2;
+        int *p = &x;
+
+        olha_e_troca(&p, &y);
+        printf("e depois leva a %d\n", *p);
+    - prosa: >
+        A primeira linha de dentro não escreve nada: ela segue duas vezes.
+        Um passo de pp até a sua caixa p, outro de p até x — e lê o 1 que
+        estava lá.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        dentro da funcao, o seu ponteiro leva a 1
+        e depois leva a 2
+    - prosa: >
+        O endereço da caixa dá acesso à caixa, e acesso serve nos dois
+        sentidos. Com p em vez de &p, a função teria chegado no 1 do mesmo
+        jeito — e não teria como voltar para trocar o que você guardou.
+
+  I2:
+    - prosa: >
+        Outro caminho. Em vez de escrever, meça.
+    - codigo: |
+        int a[3][4];
+
+        printf("da primeira casa da fileira 0 ate a da fileira 1: %d int\n",
+               (int) (&a[1][0] - &a[0][0]));
+        printf("e a fileira tem %d casas\n",
+               (int) (&a[0][3] - &a[0][0]) + 1);
+    - prosa: >
+        A subtração de dois endereços responde em ELEMENTOS, e não em
+        bytes — por isso este número é o mesmo em qualquer máquina.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        da primeira casa da fileira 0 ate a da fileira 1: 4 int
+        e a fileira tem 4 casas
+    - prosa: >
+        A fileira seguinte começa exatamente uma fileira adiante: quatro
+        casas, nem uma a mais. Num vetor de ponteiros essa distância não
+        teria por que ser quatro, nem por que ser sempre a mesma — as
+        fileiras morariam onde cada ponteiro apontasse.
+
+  I3:
+    - prosa: >
+        Outro caminho. O mesmo 7, alcançado de três lugares diferentes.
+    - codigo: |
+        int x = 7;
+        int *p = &x;
+        int **pp = &p;
+
+        printf("nenhum passo, pelo nome x:   %d\n", x);
+        printf("um passo, por p:             %d\n", *p);
+        printf("dois passos, por pp:         %d\n", **pp);
+    - prosa: >
+        Três nomes, três distâncias até o mesmo número. E nenhuma delas
+        foi escolhida na hora de escrever o printf: cada uma já estava
+        fixada no tipo do nome.
+    - prosa: >
+        A máquina confirma:
+    - saida: |
+        nenhum passo, pelo nome x:   7
+        um passo, por p:             7
+        dois passos, por pp:         7
+    - prosa: >
+        É a mesma casa vista de três distâncias. Por isso uma estrela a
+        mais não resolve nada sozinha: ela não encurta nem alonga o
+        caminho — ela pede um passo, e o passo só existe se o tipo o tiver
+        declarado.
+
 activities:
 
   # ------------------------------------------------------------------

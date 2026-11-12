@@ -107,6 +107,24 @@ nodes:
         espera: |-
           o endereco de p levou de volta a p
           e de p ate x, um nivel por vez
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      p é uma caixa como qualquer outra. O que está dentro dela é um
+      endereço, e isso muda o que ela GUARDA — não muda o que ela É. Como
+      toda caixa, ela ocupa um lugar na memória, e esse lugar tem número.
+
+
+      &p devolve o número DESSE lugar. Não é o mesmo que &x: são duas
+      caixas diferentes, em lugares diferentes, e cada uma tem o seu. É
+      por isso que &p faz sentido mesmo p já sendo um ponteiro — a
+      pergunta "onde você mora" não depende do que você guarda.
+
+
+      E guardar o que &p devolve pede uma caixa de mais um nível. int *p
+      diz "guardo o endereço de um int"; int **pp diz "guardo o endereço
+      de uma caixa que guarda o endereço de um int". A segunda estrela não
+      é enfeite: ela está contando quantas caixas existem entre pp e o
+      número.
   B2:
     type: observavel
     role: espinha
@@ -142,6 +160,22 @@ nodes:
           um asterisco em pp entrega p
           dois asteriscos entregam o int
           e escrever com dois chega no int: um nivel por asterisco
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Uma estrela é um passo, e um passo vai de uma caixa até a caixa cujo
+      endereço ela guarda. Em *pp, o passo sai de pp e para na caixa de p.
+      É isso e só isso: ler o endereço que está em pp e ir até lá.
+
+
+      E o que se acha ao parar ali é um PONTEIRO, não um número. *pp é p —
+      cabe num int *, e dá para seguir de novo. O número só aparece no
+      passo seguinte, quando a segunda estrela sai de p e chega em x.
+
+
+      Por isso o número de estrelas não é uma escolha de estilo. Cada uma
+      gasta um nível dos que existem, e existem tantos quantos o tipo
+      declarou. Duas estrelas num int ** chegam ao int; uma para antes;
+      três pediriam um nível que ninguém criou.
   B3:
     type: observavel
     role: espinha
@@ -179,6 +213,25 @@ nodes:
           gcc 16.2.0 (MinGW-W64), com -std=c17 -Wall. O que o padrão
           exige de todo compilador conforme é o diagnóstico; o que se
           observa aqui é a recusa deste.
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Quantos passos existem entre uma caixa e o número está escrito no
+      tipo dela, antes de o programa rodar. int *p diz um; int **pp diz
+      dois. Não é informação que se descubra abrindo caixas: é o
+      compilador que lê a declaração e sabe, de antemão, quantas vezes
+      pode seguir.
+
+
+      void * é o endereço sem essa informação. Ele aceita o endereço de
+      qualquer coisa — e aceita justamente porque não promete nada sobre o
+      que há do outro lado. Guardar ali não é perder o endereço; é ficar
+      sem o número de passos, e sem ele não há como seguir.
+
+
+      Por isso não existe um ponteiro genérico de dois níveis. void **
+      parece ser isso e não é: ele é um tipo concreto, o de "endereço de
+      uma caixa que guarda void *" — e uma caixa que guarda int * não é
+      uma caixa que guarda void *. O genérico vale para um nível, e só.
   I1:
     type: inferencia
     role: espinha
@@ -225,6 +278,24 @@ nodes:
           quem recebeu p trocou a copia dele
           e o p de fora continuou
           com &p, a funcao chegou na caixa de p e trocou
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Isto não é regra nova: é o B1 aplicado a quem chama. Se p é uma
+      caixa com endereço próprio, então mexer no que está dentro dela é um
+      trabalho que precisa do endereço dela — do mesmo jeito que mexer em
+      x precisou do endereço de x.
+
+
+      Então o que a função tem de receber é &p, e não p. Receber p é
+      receber o conteúdo da sua caixa: uma cópia do endereço de x, com a
+      qual dá para chegar em x e mexer no 1 que está lá. O que não dá é
+      voltar até a sua caixa, porque o endereço dela não veio junto.
+
+
+      E com &p ela chega. O parâmetro passa a guardar o endereço da sua
+      caixa, e uma estrela em cima dele vai até lá — para ler o que você
+      guardou ou para escrever outra coisa no lugar. É o mesmo passo de
+      sempre, dado um nível acima.
   I2:
     type: inferencia
     role: espinha
@@ -276,6 +347,25 @@ nodes:
         espera: |-
           a segunda linha comeca tres inteiros depois da primeira
           e os seis estao numa fila so: e bloco, nao vetor de ponteiros
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      int a[3][4] são doze caixas grudadas, numa fila só. A escrita com
+      dois colchetes organiza a leitura — três fileiras de quatro —, e não
+      muda o que está na memória: as quatro da primeira fileira, depois as
+      quatro da segunda, depois as quatro da terceira, sem nada no meio.
+
+
+      Um vetor de ponteiros é outra coisa, e se escreve assim: int
+      *linhas[3]. Ali existem três caixas de endereço, cada uma apontando
+      para uma fileira que pode estar em qualquer lugar. São quinze caixas
+      no total, e para chegar num número você segue um endereço. Em
+      a[3][4] não há endereço nenhum guardado: só os doze números.
+
+
+      Por isso a regra do nome que vira endereço não se aplica duas vezes.
+      O nome a vira o endereço da primeira FILEIRA, e ali ela para — o
+      resultado já é um ponteiro, e ponteiro não vira ponteiro de novo. É
+      o que separa um bloco de doze de uma caixa de caixas.
   I3:
     type: inferencia
     role: conclusao
@@ -313,3 +403,22 @@ nodes:
           *pp e o ponteiro p, **pp e o int
           pp passou a levar ao outro ponteiro
           e p ficou onde estava: sao caixas distintas
+    # A AMPLIACAO, do candidato assinado em 12/11/2026.
+    interpretation: >
+      Junte os quatro e sobra uma coisa só. p é uma caixa com endereço
+      próprio, cada estrela é um passo, o tipo diz quantos passos existem,
+      e um bloco de números não é uma caixa de caixas. Daí: pp e p são
+      duas caixas, em dois níveis, e o caminho entre elas tem um passo de
+      comprimento.
+
+
+      Então *pp e **pp não são a mesma coisa nem parecidas. *pp para na
+      caixa de p, e o que ele entrega é um ponteiro — um endereço, que se
+      pode seguir. **pp dá o passo seguinte e entrega o int, que é um
+      número e não leva a lugar nenhum.
+
+
+      E a estrela a mais não inventa nível. Quantos existem foi escrito na
+      declaração, e escrever uma estrela a mais não cria uma caixa que
+      ninguém criou — pede ao compilador um passo que o tipo não tem. Para
+      haver três passos é preciso declarar três níveis, antes, no tipo.

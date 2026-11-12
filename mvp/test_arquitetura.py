@@ -566,7 +566,11 @@ def test_o_requer_da_descida_fala_o_vocabulario_do_inventario():
 # tópico a aparecer aqui, e o primeiro cujo cartão declarado fica na
 # ABERTURA — o B1 é nó observável, então a oportunidade é de quem entra
 # no tópico, e não só de quem declara lacuna.
-OPORTUNIDADES = {"kc_02": 8, "kc_06": 1, "kc_07": 1}
+#
+# E O KC_10 ENTROU NO MESMO DIA, também com UMA: a do
+# `ponteiro_de_ponteiro` no B1. São QUATRO tópicos declarando, e os dois
+# que entraram hoje são os dois que tinham dívida de construto.
+OPORTUNIDADES = {"kc_02": 8, "kc_06": 1, "kc_07": 1, "kc_10": 1}
 
 # O HISTÓRICO CONCEITUAL DE CADA PERSONA no kc_02, medido. São três
 # trajetórias de aprendizagem diferentes, e o log passou a contá-las por

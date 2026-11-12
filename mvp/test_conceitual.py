@@ -64,6 +64,7 @@ CARTOES_ESPERADOS = {
     "array": ("kc_07:B1",),
     "funcao_com_parametro": ("kc_06:B1",),
     "comparacao_de_ponteiros": ("kc_02:B1",),
+    "ponteiro_de_ponteiro": ("kc_10:B1",),
 }
 
 # O mapa inverso, que é o que o evento vai consultar.
@@ -76,6 +77,7 @@ CONCEITOS_POR_CARTAO = {
     ("kc_02", "B2"): ("operador_endereco", "ponteiro", "sizeof"),
     ("kc_02", "B3"): ("derreferencia", "operador_endereco"),
     ("kc_07", "B1"): ("array",),
+    ("kc_10", "B1"): ("ponteiro_de_ponteiro",),
 }
 
 # `tipo` da evidência que significa ENSINO, e não menção. A auditoria usa

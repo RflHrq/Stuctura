@@ -296,9 +296,10 @@ def test_com_o_inventario_real_a_descida_nao_e_acionada(monkeypatch):
 
     # O CONJUNTO LIBERADO PELO INVENTARIO, que nao e o conjunto que roda.
     #
-    # Era vazio ate 12/11/2026, quando `comparacao_de_ponteiros` foi
-    # promovido e as duas cadeias que o exigiam passaram a ter todos os
-    # conceitos ensinados.
+    # Era vazio ate 12/11/2026, e encheu em duas etapas no mesmo dia: o
+    # `comparacao_de_ponteiros` abriu duas cadeias, e o
+    # `ponteiro_de_ponteiro` -- com os seis materiais do kc_10 -- abriu
+    # a terceira.
     #
     # E NENHUMA DAS DUAS RODA, que e o que o nome deste teste afirma.
     # `liberada` e so a primeira das duas autorizacoes; a segunda e
@@ -311,7 +312,8 @@ def test_com_o_inventario_real_a_descida_nao_e_acionada(monkeypatch):
     # forma comparava liberado contra auditado como se fossem a mesma
     # pergunta, e hoje elas se separaram.
     liberadas_pelo_inventario = {"pointer_is_data",
-                                 "pointer_and_target_are_one"}
+                                 "pointer_and_target_are_one",
+                                 "pointer_has_no_address"}
     liberadas = {c for c, de in d.descidas.items() if de.liberada}
     assert liberadas == liberadas_pelo_inventario, (
         "liberadas a mais: %s · fechadas que deveriam abrir: %s"

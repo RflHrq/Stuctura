@@ -262,16 +262,23 @@ def test_o_material_do_b1_existe_e_a_decisao_de_liberar_e_que_nao():
 # quando o kc_06 ganhou material e o construto foi liberado, com
 # `kc_06:B1` como evidência. Foi material novo, e não detector mexido.
 #
-# E DE 8 PARA 7 NO MESMO DIA, com a assinatura do
+# DE 8 PARA 7 NO MESMO DIA, com a assinatura do
 # `comparacao_de_ponteiros`: aquele era o único dos oito a uma decisão
 # de distância, e o cartão do `kc_02:B1` já o ensinava desde 05/11.
 #
-# OS SETE QUE SOBRAM precisam de material que não existe:
+# E DE 7 PARA 1, ainda no mesmo dia, com os SEIS materiais do kc_10
+# assinados: o `ponteiro_de_ponteiro` era a maior dívida que restava —
+# os seis cartões daquele tópico usavam no exemplo o construto que dá
+# nome a ele, e nenhum o explicava.
 #
-#   kc_03:B3  printf_ponteiro       — nem entrada no inventário tem
-#   kc_10:*   ponteiro_de_ponteiro  — os seis cartões do tópico,
-#             `so_avaliado`, e é o construto que dá nome a ele
-USA_SEM_ENSINAR = 7
+# 18 -> 8 -> 7 -> 1 em 12/11/2026, e nenhuma das três baixas veio de
+# mexer no detector: as três vieram de material escrito e assinado.
+#
+# O QUE SOBRA é um, e ele precisa de material que não existe:
+#
+#   kc_03:B3  printf_ponteiro  — o construto nem entrada no inventário
+#             tem, e o cartão o usa no exemplo
+USA_SEM_ENSINAR = 1
 
 
 def test_quantos_cartoes_usam_construto_que_ninguem_ensina():

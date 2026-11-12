@@ -396,7 +396,7 @@ def test_a_reexecucao_nao_depende_de_nenhum_dos_quatro(tmp_path):
     assert log.reconstroi(d, "P91", destino=sem).estado == com.estado
 
 
-COM_DECLARACAO = ("kc_02", "kc_06", "kc_07")
+COM_DECLARACAO = ("kc_02", "kc_06", "kc_07", "kc_10")
 
 
 @pytest.mark.parametrize("topico", [t for t in topicos()

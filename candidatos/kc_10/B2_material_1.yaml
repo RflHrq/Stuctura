@@ -57,8 +57,8 @@ premissa: "Cada aplicação de * desfaz exatamente um nível."
 crenca_que_nega: pointer_is_just_a_name
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: eb8fda4712ca
 
 # Declarado porque este cartão USA. Quem introduz é o B1.
 exige_conceitos: [ponteiro_de_ponteiro]

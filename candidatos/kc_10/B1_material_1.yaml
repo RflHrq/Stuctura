@@ -59,8 +59,8 @@ premissa: "Um ponteiro é variável: tem endereço próprio, e &p o produz."
 crenca_que_nega: ampersand_copies
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: 0ca945d0b5ed
 
 # O construto que este cartão INTRODUZ. Hoje `so_avaliado`, e a
 # aprovação deste material é o que o move — como o `funcao_com_parametro`

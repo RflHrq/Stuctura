@@ -168,7 +168,7 @@ def test_o_evento_nao_diz_que_a_pessoa_aprendeu(d):
             assert chave not in proibidos, e.dados
 
 
-COM_DECLARACAO = ("kc_02", "kc_06", "kc_07")
+COM_DECLARACAO = ("kc_02", "kc_06", "kc_07", "kc_10")
 
 
 @pytest.mark.parametrize("topico", [t for t in topicos()

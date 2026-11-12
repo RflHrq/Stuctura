@@ -155,12 +155,34 @@ conceitos:
 
   ponteiro_de_ponteiro:
     nome: "ponteiro para ponteiro (int **)"
-    status: so_avaliado
-    introduzido_em: ""
+    # PROMOVIDO EM 12/11/2026, por decisão do dono, com a assinatura dos
+    # seis materiais do kc_10. O registro anterior era
+    #
+    #   onde: "kc_02, um item de diagnóstico de nível 3"
+    #   texto: "aparece uma vez, em avaliação, nunca em ensino"
+    #
+    # e ele era verdade: o construto era COBRADO num item de nível 3 do
+    # kc_02 e nos seis cartões do kc_10, sem que lugar nenhum o
+    # explicasse. Era a maior dívida de construto que sobrava.
+    status: disponivel
+    introduzido_em: kc_10
     evidencia:
-      onde: "kc_02, um item de diagnóstico de nível 3"
-      texto: "aparece uma vez, em avaliação, nunca em ensino"
-      tipo: so_em_avaliacao
+      cartoes: ["kc_10:B1"]
+      onde: "kc_10, cartão de ensino B1, campo `interpretation` e exemplo"
+      texto: >
+        "int *p diz 'guardo o endereço de um int'; int **pp diz 'guardo o
+        endereço de uma caixa que guarda o endereço de um int'. A segunda
+        estrela não é enfeite: ela está contando quantas caixas existem
+        entre pp e o número."
+      exemplo: |
+        int  x = 1;
+        int *p = &x;
+        int **pp = &p;   /* &p: endereco da caixa p */
+      tipo: explicacao_com_exemplo
+      aprovacao: >
+        Liberado em 12/11/2026, com os seis cartões do kc_10. O B1 é nó
+        observável, então `_cartoes()` o põe na abertura do tópico: quem
+        entra no kc_10 vê a explicação, e não só quem declara lacuna.
 
   comparacao_de_ponteiros:
     nome: "comparar ponteiros com =="

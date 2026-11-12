@@ -59,8 +59,8 @@ premissa: "int a[N][M] é bloco contíguo, e não vetor de ponteiros."
 crenca_que_nega: array2d_is_double_pointer
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: ae8be813b1d2
 
 # Declarado porque este cartão USA. Quem introduz é o B1.
 exige_conceitos: [ponteiro_de_ponteiro]

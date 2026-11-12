@@ -54,8 +54,8 @@ premissa: "O tipo diz quantos níveis existem; não é opcional."
 crenca_que_nega: voidptr_is_universal
 
 gerado_por: Claude Opus 5, 12/11/2026
-revisado_por: ____
-revisado_sha: ____
+revisado_por: Rafael H. S. Simao
+revisado_sha: 0b4ae411b826
 
 # Declarado porque este cartão USA. Quem introduz é o B1.
 exige_conceitos: [ponteiro_de_ponteiro]
