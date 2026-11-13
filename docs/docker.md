@@ -65,7 +65,7 @@ Para atender outro computador da rede é preciso trocar a linha de `ports` no
 
 **As versões da suíte.** A imagem usa Python 3.14.7 e as mesmas versões de
 biblioteca em que os testes rodam. A primeira construção, sem isso fixado,
-trouxe um Python e um `pydantic` mais novos; num piloto, descobrir diferença
+trouxe um Python e um `pydantic` mais novos; com pessoas usando, descobrir diferença
 de versão no meio de uma sessão é o pior momento possível.
 
 **Sem compilador e sem testes na imagem.** As demonstrações em C chegam à
@@ -105,7 +105,7 @@ STRUCTURA_TOPICO=kc_02 STRUCTURA_LOG=coleta/portal/kc_02.jsonl python -m mvp.pai
 
 Em 12/11/2026, com Docker 29.9 no Windows: a imagem foi construída, o
 contêiner subiu saudável, a lista dos treze tópicos respondeu, oito sessões
-inteiras foram atravessadas pelo contêiner nos quatro tópicos do piloto
+inteiras foram atravessadas pelo contêiner em quatro tópicos
 (nenhuma premissa sem medida), os registros apareceram na pasta da máquina,
 e os dois atalhos foram executados — desligar, conferir que parou, ligar,
 conferir que voltou. As sessões dessa verificação foram movidas para

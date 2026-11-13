@@ -33,7 +33,6 @@
   .marcas { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   .marca { font-size: .78rem; padding: 3px 8px; border-radius: 999px;
            white-space: nowrap; }
-  .marca.piloto { background: var(--acento-fundo); color: var(--acento); }
   .marca.aberto { background: var(--ok-fundo); color: var(--ok); }
   .falha { color: var(--erro); }
 </style>
@@ -117,11 +116,6 @@
 
       var marcas = document.createElement("span");
       marcas.className = "marcas";
-      if (t.piloto) {
-        var p = document.createElement("span");
-        p.className = "marca piloto"; p.textContent = "piloto";
-        marcas.appendChild(p);
-      }
       if (ja[t.id]) {
         var v = document.createElement("span");
         v.className = "marca aberto"; v.textContent = "já aberto";

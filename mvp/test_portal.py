@@ -51,15 +51,28 @@ def test_a_lista_traz_os_treze_topicos_na_ordem(cliente):
     lista = r.json()["topicos"]
     assert [t["id"] for t in lista] == list(topicos())
     um = lista[0]
-    assert set(um) >= {"id", "titulo", "nos", "atividades", "piloto",
-                       "caminho"}
+    assert set(um) >= {"id", "titulo", "nos", "atividades", "caminho"}
     assert um["caminho"] == "/kc/%s/" % um["id"]
 
 
-def test_a_lista_marca_os_quatro_do_piloto(cliente):
+def test_o_portal_nao_distingue_topico_nenhum(cliente):
+    """Os treze são o sistema. Nenhum aparece marcado como "piloto".
+
+    A primeira versão do portal marcava quatro tópicos com a etiqueta
+    "piloto" — os que o desenho do estudo escolheu para uma coleta. Em
+    12/11/2026 o Rafael tirou essa moldura: o que se está construindo e
+    mostrando é o sistema inteiro, e uma etiqueta de estudo na tela de
+    quem usa não diz nada a essa pessoa.
+
+    O campo `pilot` continua nos `topic_kcXX.yaml`, como registro de uma
+    decisão de pesquisa; o que este teste guarda é que o PORTAL não o lê
+    nem o mostra — nem na lista que ele serve, nem na página.
+    """
     lista = cliente.get("/topicos").json()["topicos"]
-    assert [t["id"] for t in lista if t["piloto"]] == [
-        "kc_02", "kc_07", "kc_09", "kc_11"]
+    assert len(lista) == 13
+    assert not [t["id"] for t in lista if "piloto" in t], lista
+    pagina = cliente.get("/").text.lower()
+    assert "piloto" not in pagina and "pilot" not in pagina
 
 
 def test_a_pagina_inicial_leva_a_cada_topico(cliente):

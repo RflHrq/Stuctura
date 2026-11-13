@@ -27,6 +27,12 @@ uma vez, e a retomada de uma sessão procura no arquivo certo.
 
 A pasta padrão é `ensaios/portal/`, fora do git e longe do log de coleta
 de um tópico só. `STRUCTURA_PASTA` troca.
+
+OS TREZE SÃO O SISTEMA, e o portal não distingue nenhum. A primeira
+versão marcava quatro com a etiqueta "piloto", lida do campo `pilot` dos
+`topic_kcXX.yaml`; ela saiu em 12/11/2026, por decisão do Rafael. O campo
+continua nos arquivos de tópico, como registro de uma decisão de
+pesquisa — o portal é que não o lê.
 """
 
 from __future__ import annotations
@@ -35,7 +41,6 @@ import importlib.util
 import os
 from pathlib import Path
 
-import yaml
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -84,15 +89,6 @@ def _app_do_topico(topico: str, destino: Path):
     return mod
 
 
-def _e_do_piloto(topico: str) -> bool:
-    arquivo = AQUI / "dominio" / ("topic_%s.yaml" % topico.replace("_", ""))
-    try:
-        cru = yaml.safe_load(arquivo.read_text(encoding="utf-8")) or {}
-    except (OSError, yaml.YAMLError):
-        return False
-    return bool(cru.get("pilot"))
-
-
 def cria_portal(pasta: Path | None = None) -> FastAPI:
     """O portal sobre uma pasta de logs. Um arquivo por tópico, lá dentro."""
     pasta = Path(pasta) if pasta else PASTA_PADRAO
@@ -122,7 +118,6 @@ def cria_portal(pasta: Path | None = None) -> FastAPI:
             "titulo": d.titulo,
             "nos": len(d.nos),
             "atividades": len(d.atividades),
-            "piloto": _e_do_piloto(topico),
             "caminho": "/kc/%s/" % topico,
         })
 
