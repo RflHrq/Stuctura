@@ -82,6 +82,10 @@ def test_o_cliente_le_o_que_vem_dentro_do_mapa_e_do_progresso():
     for chave in ("progresso", "feitas", "explicacao", "simples", "veredito",
                   "sessao"):
         assert re.search(r"\b%s\b" % chave, js), chave
+    # O modo e o ritmo da sessão vêm na resposta: quem reabre a página com
+    # o código não passou pela tela de entrada, e os ajustes precisam
+    # saber o que marcar.
+    assert "j.modo" in js and "j.ritmo" in js
 
 
 def test_o_cliente_desenha_as_cinco_formas_e_os_oito_tipos_de_tela():

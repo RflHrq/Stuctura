@@ -225,3 +225,48 @@ def toques(c: Caminhada) -> int:
     """Quantas vezes a pessoa respondeu ou seguiu: a medida do esforço,
     em que cada degrau da escada conta."""
     return len(c.telas) - 1
+
+
+ABREVIA = {"ja_sabia": "sabia", "firmou": "firmou", "aprendeu_agora": "aprendeu",
+           "corrigiu": "corrigiu", "em_aberto": "aberto"}
+
+
+def main(args: list[str] | None = None) -> int:
+    """A medida: telas por aluno simulado, modo e ritmo.
+
+    `telas` é a conta da spec (a subida inteira da escada vale uma, o
+    retorno não conta, a reconferência entra); `maior` é a premissa que
+    mais custou; `toques` é o esforço de verdade, cada degrau contando.
+    """
+    args = list(sys.argv[1:] if args is None else args)
+    if len(args) != 1:
+        print("uso: python scripts/trilha_alunos.py <topico>", file=sys.stderr)
+        return 2
+    d = carrega(topico=args[0])
+    arquivo = (RAIZ / "mvp" / "dominio"
+               / ("escada_%s.yaml" % d.id.replace("_", "")))
+    if not arquivo.exists():
+        print("o tópico %s não tem escada escrita (%s)" % (d.id, arquivo.name),
+              file=sys.stderr)
+        return 2
+    escadas = le(arquivo, d)
+
+    print("%s - %s (%d premissas)" % (d.id, d.titulo, len(d.ordem)))
+    print("%-18s %-9s %-9s %5s %5s %6s %6s  %s" % (
+        "aluno", "modo", "ritmo", "telas", "maior", "reconf", "toques",
+        "resultados"))
+    for persona in PERSONAS:
+        for modo in trilha.MODOS:
+            for ritmo in trilha.RITMOS:
+                c = caminha(d, escadas, persona, modo, ritmo)
+                resultados = [c.estado.premissa(n).resultado for n in d.ordem]
+                print("%-18s %-9s %-9s %5d %5d %6d %6d  %s" % (
+                    persona, modo, ritmo, conta(c),
+                    max(c.estado.premissa(n).telas for n in d.ordem),
+                    reconferencias(c), toques(c),
+                    " ".join(ABREVIA[r] for r in resultados)))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -173,6 +173,26 @@ def test_a_mesma_sessao_reexecutada_da_as_mesmas_telas(
         (e.tipo, e.dados) for e in b.eventos]
 
 
+def test_a_medida_sai_para_todas_as_personas(capsys):
+    """`python scripts/trilha_alunos.py kc_00` é de onde sai a tabela de
+    telas da spec. A conta é a da spec, e a tabela traz também os toques."""
+    assert trilha_alunos.main(["kc_00"]) == 0
+    saida = capsys.readouterr().out
+    assert all(p in saida for p in PERSONAS)
+    assert "completo" in saida and "rapido" in saida
+    assert "direto" in saida and "explique" in saida
+    linhas = [l for l in saida.splitlines() if l.startswith("sabe ")]
+    assert len(linhas) == 4
+    direto_completo = next(l for l in linhas
+                           if " direto " in l and " completo " in l).split()
+    assert direto_completo[3:6] == ["12", "2", "0"]   # telas, maior, reconferências
+
+
+def test_a_medida_recusa_topico_sem_escada(capsys):
+    assert trilha_alunos.main(["kc_02"]) == 2
+    assert "escada" in capsys.readouterr().err
+
+
 def test_as_sessoes_nao_sao_todas_iguais():
     """As personas servem para alguma coisa: os resultados variam."""
     vistos = {tuple(_sessao(p, "direto", "completo", "s1").estado.premissa(n)

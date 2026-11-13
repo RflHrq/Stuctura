@@ -1,8 +1,13 @@
 # A trilha: o tópico em sequência, com o trabalho que cada premissa pede
 
 Desenho de 13/11/2026, **aprovado pelo Rafael no mesmo dia**. O plano da
-primeira fatia está em [plano-trilha.md](plano-trilha.md). Nada aqui foi
-construído ainda.
+primeira fatia está em [plano-trilha.md](plano-trilha.md).
+
+**O que já existe:** a primeira fatia — o kc_00 inteiro no formato novo
+—, construída no ramo `trilha` em 13/11/2026. A medida dela está na
+seção 6.10, e o texto dos degraus, para leitura, em
+[escada-kc00-leitura.md](escada-kc00-leitura.md). O conteúdo ainda não
+foi lido pelo Rafael. As fatias 2 a 4 (seção 9) não começaram.
 
 ## 1. O que é, e por quê
 
@@ -411,6 +416,49 @@ simulados, não medida**: cerca de 14 telas para quem acerta tudo (8 no
 e uma crença; 20 para quem entra em "Me explique antes" e acerta as
 fáceis.
 
+**Medido no kc_00, em 13/11/2026**, com a primeira fatia construída. O
+kc_00 tem cinco premissas, e os alunos são simulados
+(`python scripts/trilha_alunos.py kc_00`). "Telas" é a conta desta
+seção; "toques" é o esforço de verdade — cada resposta e cada
+"continuar", com cada degrau da escada contando.
+
+| aluno simulado | entrada | telas | maior premissa | toques |
+| --- | --- | --- | --- | --- |
+| acerta tudo, com certeza | direto, completo | 12 | 2 | 16 |
+| acerta tudo, com certeza | direto, rápido | 7 | 1 | 11 |
+| acerta tudo, sem certeza | direto | 12 | 2 | 16 |
+| não sabe, e aprende | direto | 22 | 3 | 42 |
+| não sabe, e aprende | explique antes | 17 | 2 | 37 |
+| tem a crença em toda premissa, e aprende | direto | 32 | 5 | 31 |
+| tem a crença em toda premissa, e não aprende | direto | 37 | 6 | 56 |
+| chuta tudo, com certeza | direto | 31 | 7 | 64 |
+| não sabe, e erra todo degrau duas vezes | direto | 31 | 5 | 138 |
+
+Para comparar: no fluxo atual o mesmo kc_00 custa 38 telas a quem acerta
+tudo, 64 a quem erra e aprende, e 21 a quem só diz "não sei" (medido no
+mesmo dia, com os alunos simulados daquele fluxo; lá cada tela é um
+toque).
+
+Quatro leituras dessa tabela:
+
+- Quem acerta tudo caiu de 38 para 16 toques, e quem tem a crença e
+  aprende, de 64 para 31.
+- **Quem não sabe passou a fazer MAIS: de 21 para cerca de 40 toques.**
+  No fluxo atual ele lê os cartões e diz "não sei"; aqui ele é ensinado
+  degrau por degrau, com um exercício em cada. É o que o Rafael pediu, e
+  o número diz quanto custa.
+- O teto de oito telas por premissa vale: a maior foi sete, e de quem
+  chuta.
+- **A conta de telas esconde o esforço da escada.** Quem sobe as cinco
+  escadas acertando faz 37 toques; a subida conta uma tela por premissa,
+  e são de cinco a seis degraus em cada. É o preço do passo a passo, e
+  ele precisa ser olhado numa pessoa de verdade antes de a escada dos
+  outros tópicos ser escrita.
+- O pior caso — errar todo degrau duas vezes — passa de cem toques. O
+  motor não deixa ninguém preso, mas também não encurta a escada de quem
+  só erra. Se isso aparecer com gente de verdade, a saída é encurtar:
+  depois de errar dois degraus seguidos, mostrar a revisão e ir ao topo.
+
 ### 6.11 O fim: reconferência e mapa
 
 - **Reconferência**: uma pergunta por premissa **trabalhada** na sessão
@@ -622,6 +670,21 @@ tentativa. É o tópico de declaração de variáveis — o primeiro, e o que
 o Rafael estava lendo quando apontou o problema dos textos. O conteúdo é
 revisado contra a régua de 6.16, conferido pelo compilador, e só entra
 depois que o Rafael ler.
+
+**O que a primeira fatia mostrou sobre o conteúdo que NÃO foi reescrito**
+
+Vistos na tela, em 13/11/2026, ao atravessar o kc_00 no navegador:
+
+- **Os programas de prova são de examinador, não de iniciante.** A prova
+  do B2 traz `#include`, `int main(void)` e
+  `puts(x == 7 ? "ok" : "FALHOU")`. No fluxo atual ela fica recolhida
+  atrás de um botão; na trilha ela é o centro da tela, e quem está em
+  declaração de variáveis nunca viu um operador ternário. As provas
+  precisam da mesma reescrita que os cartões tiveram — é conteúdo da
+  fatia 4, e convém fazer antes de a trilha chegar aos outros tópicos.
+- **As figuras são as da analogia antiga** (o quarto de hotel, com a
+  variável `x`). Aparecem depois do texto, como a régua manda, mas falam
+  de outro cenário que não o da escada (`idade`, `nota`, `turma`).
 
 **Novo, e opcional — a trilha funciona sem**
 

@@ -102,14 +102,22 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
         return {"feitas": sum(1 for p in premissas if p["resultado"]),
                 "total": len(premissas), "premissas": premissas}
 
+    def corpo(sessao: str, e: trilha.Estado, explicacao=None,
+              veredito=None) -> dict:
+        return {"sessao": sessao, "tela": e.tela.json(),
+                "explicacao": explicacao, "veredito": veredito,
+                "progresso": progresso(e),
+                # A escolha da pessoa, que ela pode ter trocado. Quem
+                # reabre a página com o código não passou pela tela de
+                # entrada, e é por aqui que os ajustes sabem o que marcar.
+                "modo": e.modo, "ritmo": e.ritmo}
+
     def resposta(sessao: str, t: trilha.Transicao, entrada=None) -> dict:
         sessoes[sessao] = t.estado
         # A entrada vai antes dos eventos que ela provocou: é o que
         # permite reexecutar a sessão.
         trilha_log.grava(destino, sessao, t.eventos, entrada)
-        return {"sessao": sessao, "tela": t.tela.json(),
-                "explicacao": t.explicacao, "veredito": _veredito(t.eventos),
-                "progresso": progresso(t.estado)}
+        return corpo(sessao, t.estado, t.explicacao, _veredito(t.eventos))
 
     @app.post("/sessoes")
     def abre(body: SessaoBody | None = None) -> dict:
@@ -127,9 +135,7 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
             e = sessoes[codigo]
             trilha_log.grava(destino, codigo, [Evento(
                 "sessao_retomada", {"tela": e.tela.tipo})])
-            return {"sessao": codigo, "tela": e.tela.json(),
-                    "explicacao": None, "veredito": None,
-                    "progresso": progresso(e)}
+            return corpo(codigo, e)
         elif trilha_log.le(destino, codigo):
             # Está no registro e não na memória: o servidor reiniciou.
             # Abrir outra sessão com o mesmo código misturaria duas no

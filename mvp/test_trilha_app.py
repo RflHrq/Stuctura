@@ -174,6 +174,19 @@ def test_a_resposta_diz_se_acertou_para_a_tela_piscar(app, cliente):
     assert errada["veredito"] == "errada" and errada["tela"]["tipo"] == "retorno"
 
 
+def test_a_resposta_diz_o_modo_e_o_ritmo_da_sessao(cliente):
+    """Quem reabre a pagina com o codigo nao passou pela tela de entrada:
+    e por aqui que os ajustes sabem o que marcar."""
+    j = cliente.post("/sessoes", json={"codigo": "P10"}).json()
+    assert (j["modo"], j["ritmo"]) == ("", "completo")
+    sessao, j = _abre(cliente, modo="explique", ritmo="rapido", codigo="P11")
+    assert (j["modo"], j["ritmo"]) == ("explique", "rapido")
+    j = _age(cliente, sessao, trilha.Entrada(acao="modo", modo="direto")).json()
+    assert (j["modo"], j["ritmo"]) == ("direto", "rapido")
+    de_novo = cliente.post("/sessoes", json={"codigo": "P11"}).json()
+    assert (de_novo["modo"], de_novo["ritmo"]) == ("direto", "rapido")
+
+
 def test_a_explicacao_vem_com_a_mesma_tela(cliente):
     sessao, j = _abre(cliente)
     assert j["explicacao"] is None

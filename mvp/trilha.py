@@ -66,6 +66,12 @@ TETO_TELAS = 8
 TREINO_ALVO = 2                  # certas seguidas para fechar o treino
 TREINO_MAX = 3                   # perguntas de treino, no máximo
 
+# As formas em que a pessoa PRODUZ a resposta. `escolher` e `tocar` são de
+# apontar — marcar outra vez —, e a segunda resposta de quem acerta firme
+# tem de ser de outra natureza (decisão 16 do Rafael). O mesmo vale para a
+# reconferência: "ver se assimilou sem ser de marcar".
+PRODUZEM = ("montar", "completar", "digitar")
+
 ACOES = ("comecar", "responder", "nao_sei", "continuar", "explicacao",
          "modo", "ritmo")
 
@@ -286,6 +292,10 @@ def _degrau(escadas: Mapping[str, Escada], e: Estado, no: str, g: Degrau,
         "premissa": no, "papel": papel, "degrau": g.id,
         "indice": escada.degraus.index(g) + 1, "total": len(escada.degraus),
         "guiado": g.guiado,
+        # Se as peças são C ou são frases. A tela desenha código com cara
+        # de código, e não tem como adivinhar: uma opção de `escolher`
+        # pode ser `char turma;` ou "Sim: a declaração já reservou".
+        "em_codigo": g.codigo,
         "frases": list(g.frases) if papel == "subida" else [],
         "forma": g.forma, "pede": v.pede, "mostra": v.mostra,
         "antes": v.antes, "pecas": [v.pecas[i] for i in ordem],
@@ -339,6 +349,19 @@ def _explicacao(d: Dominio, escadas: Mapping[str, Escada], no: str) -> dict:
     return {"premissa": no, "no": no, "simples": d.nos[no].simples,
             "frases": [f for g in escada.guiados for f in g.frases],
             "codigo": escada.revisao.codigo}
+
+
+def _de_produzir(escada: Escada) -> tuple[Degrau, ...]:
+    """Os degraus de prática, do mais alto para o mais baixo, com os de
+    PRODUZIR na frente.
+
+    É a ordem em que se procura o exercício da segunda resposta de quem
+    acerta firme e o da reconferência: primeiro montar, completar ou
+    digitar; só na falta deles, escolher.
+    """
+    alto = tuple(reversed(escada.pratica))
+    return (tuple(g for g in alto if g.forma in PRODUZEM)
+            + tuple(g for g in alto if g.forma not in PRODUZEM))
 
 
 def _versao_livre(ep: EstadoPremissa, g: Degrau, fora: int = -1) -> int:
@@ -412,7 +435,7 @@ def _reconfere(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         ep = e.premissa(no)
         if not ep.trabalho or ep.reconferencia:
             continue
-        livre = next(((g, k) for g in reversed(escadas[no].pratica)
+        livre = next(((g, k) for g in _de_produzir(escadas[no])
                       for k in range(len(g.versoes))
                       if (g.id, k) not in ep.mostrados), None)
         if livre is not None:
@@ -936,7 +959,7 @@ def _segue(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         e = _fecha(e, no, EM_ABERTO, eventos)
         return _abre_proxima(d, escadas, e, eventos)
     if adiante == "produzir":
-        g = escadas[no].pratica[-1]
+        g = _de_produzir(escadas[no])[0]
         return _degrau(escadas, e, no, g, _versao_livre(e.premissa(no), g),
                        "produzir", eventos)
     if adiante == "reconfere":

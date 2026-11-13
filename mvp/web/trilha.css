@@ -36,6 +36,8 @@
 
 .opcao .t-linhas{font:14px/1.5 ui-monospace,Consolas,monospace; white-space:pre;
                  margin:0; overflow-x:auto}
+/* opção que é uma linha de C */
+.t-codigo .opcao{font:15px/1.5 ui-monospace,Consolas,monospace}
 
 /* ---------------------------------------------------------------- peças */
 .t-banco, .t-montada{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px}
@@ -52,7 +54,11 @@
         min-height:40px}
 .t-peca:hover{border-color:var(--acento)}
 .t-peca[aria-pressed="true"]{border-color:var(--acento); background:var(--acento-fundo)}
+/* A peça usada some do banco. Lado a lado ela guarda o lugar, para as
+   outras não pularem debaixo do dedo; empilhada ela sai de vez, senão
+   ficam buracos entre as linhas. */
 .t-peca.t-usada{visibility:hidden}
+.t-em-linhas .t-peca.t-usada{display:none}
 
 /* tocar: a linha de código, com cada parte tocável */
 .t-toque{display:flex; flex-wrap:wrap; gap:6px; align-items:center}
@@ -91,7 +97,8 @@
 
 /* ------------------------------------------------------------------ aviso */
 .t-aviso{position:fixed; left:50%; bottom:22px; transform:translateX(-50%);
-         z-index:30; padding:9px 18px; border-radius:999px; font-weight:600;
+         z-index:30; padding:9px 18px; border-radius:16px; font-weight:600;
+         text-align:center;
          background:var(--tinta); color:var(--papel); max-width:90vw}
 .t-aviso.ok{background:var(--ok); color:#fff}
 

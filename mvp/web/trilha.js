@@ -51,7 +51,7 @@
     "topo": "A pergunta desta ideia",
     "confirmacao": "Mais uma pergunta",
     "reconferencia": "Reconferência",
-    "produzir": "Agora escrevendo",
+    "produzir": "Agora é com você",
     "treino": "Treino"
   };
   var VEREDITO = {
@@ -194,6 +194,12 @@
 
   function recebe(j, mesmaTela) {
     S.tela = j.tela;
+    /* O modo e o ritmo vêm do servidor a cada resposta. Quem reabre a
+     * página com o código não passou pela tela de entrada, e sem isto
+     * os ajustes abririam vazios. */
+    S.modo = j.modo || S.modo;
+    S.ritmo = j.ritmo || S.ritmo;
+    desenhaAjustes();
     desenhaProgresso(j.progresso, j.tela);
     if (j.explicacao) { abrePainel(j.explicacao); return; }
     if (mesmaTela) return;
@@ -454,9 +460,12 @@
   FORMA["escolher"] = function (c, t, pronto) {
     if (t.mostra) c.appendChild(bloco(t.mostra));
     c.appendChild(p("t-pede", t.pede));
-    c.appendChild(grupo("opcoes", "opcao", t.pecas, function (i) {
-      pronto({ pecas: [i] });
-    }));
+    /* Opção que é uma linha de C aparece com cara de código; opção que é
+     * frase, não. Quem sabe qual é qual é o conteúdo, não esta tela. */
+    c.appendChild(grupo("opcoes" + (t.em_codigo ? " t-codigo" : ""), "opcao",
+                        t.pecas, function (i) {
+                          pronto({ pecas: [i] });
+                        }));
   };
 
   FORMA["completar"] = function (c, t, pronto) {

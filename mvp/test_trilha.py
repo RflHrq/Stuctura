@@ -146,8 +146,14 @@ def test_firme_no_ritmo_completo_escreve_antes_de_fechar():
     produzir = [t for t in c.telas if t.tipo == "degrau"]
     assert len(produzir) == 5
     assert {t.dados["papel"] for t in produzir} == {"produzir"}
-    assert all(t.dados["degrau"] == ESC[t.dados["premissa"]].pratica[-1].id
-               for t in produzir)
+    # "De produzir" e de produzir: montar, completar ou digitar. O ultimo
+    # degrau de pratica de tres das cinco escadas e de ESCOLHER, que e
+    # marcar outra vez -- e a decisao 16 pede uma segunda resposta de
+    # outra natureza.
+    assert all(t.dados["forma"] in trilha.PRODUZEM for t in produzir)
+    assert [t.dados["degrau"] for t in produzir] == [
+        "esc_kc00_B1_4", "esc_kc00_B2_4", "esc_kc00_B3_4", "esc_kc00_B4_5",
+        "esc_kc00_I1_6"]
     assert [c.estado.premissa(n).resultado for n in D.ordem] == ["ja_sabia"] * 5
     assert all(c.estado.premissa(n).telas == 2 for n in D.ordem)
 
@@ -255,6 +261,19 @@ def test_o_degrau_guiado_leva_as_frases_e_o_de_pratica_nao():
         assert t.dados["guiado"] == g.guiado
         assert t.dados["frases"] == list(g.frases)
         assert t.dados["forma"] == g.forma and t.dados["pede"]
+
+
+def test_o_degrau_diz_se_as_pecas_sao_codigo():
+    """Para a tela desenhar codigo com cara de codigo. Opcao de `escolher`
+    pode ser uma linha de C ou uma frase, e o cliente nao adivinha."""
+    c = caminha(D, ESC, "nao_sabe_aprende")
+    vistos = set()
+    for t in (t for t in c.telas if t.tipo == "degrau"):
+        g = next(x for x in ESC[t.dados["premissa"]].degraus
+                 if x.id == t.dados["degrau"])
+        assert t.dados["em_codigo"] is g.codigo
+        vistos.add(g.codigo)
+    assert vistos == {True, False}
 
 
 def test_quem_aprende_fecha_como_aprendeu_agora_em_tres_telas():
@@ -840,7 +859,7 @@ def test_a_reconferencia_e_de_produzir_e_nao_repete_exercicio():
         chave = (t.dados["degrau"], tuple(t.dados["pecas"]), t.dados["mostra"])
         if t.dados["papel"] == "reconferencia":
             assert chave not in vistos
-            assert t.dados["degrau"] == ESC[t.dados["premissa"]].pratica[-1].id
+            assert t.dados["forma"] in trilha.PRODUZEM
             assert t.dados["frases"] == []
         vistos.add(chave)
     assert len(_reconferencias(c)) == 5
