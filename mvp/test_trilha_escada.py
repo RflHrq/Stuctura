@@ -216,6 +216,29 @@ def test_completar_pede_a_lacuna_uma_vez(tmp_path):
     assert any("lacuna" in p for p in erro.value.problemas)
 
 
+def test_digitar_aceita_o_trecho_mostrado_no_lugar_do_programa(tmp_path):
+    """O trecho que a pessoa lê e o que o compilador roda são o MESMO texto.
+
+    Um degrau de `digitar` pode trazer só `mostra`: o conferidor embrulha
+    o trecho num `main`. Com `programa` à parte, o que se mostra e o que
+    se confere poderiam divergir sem ninguém ver.
+    """
+    b = _valida()
+    for v in b["degraus"][2]["versoes"]:
+        v["mostra"] = "int idade = 20;" + chr(10) + "idade = 21;"
+        v["programa"] = ""
+    v = _le(tmp_path, {"B1": b})["B1"].degraus[2].versoes[0]
+    assert v.programa == "" and v.mostra.startswith("int idade = 20;")
+
+
+def test_digitar_sem_programa_e_sem_trecho_e_recusado(tmp_path):
+    b = _valida()
+    b["degraus"][2]["versoes"][0]["programa"] = ""
+    with pytest.raises(trilha_escada.EscadaInvalida) as erro:
+        _le(tmp_path, {"B1": b})
+    assert any("digitar sem programa" in p for p in erro.value.problemas)
+
+
 def test_faltando_lista_as_premissas_sem_escada(tmp_path):
     escadas = _le(tmp_path, {"B1": _valida()})
     assert trilha_escada.faltando(D, escadas) == ("B2", "B3", "B4", "I1")

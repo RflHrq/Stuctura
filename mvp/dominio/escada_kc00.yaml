@@ -1,0 +1,1083 @@
+# A escada do kc_00 — declaração de variáveis.
+#
+# O QUE É. Para cada premissa do tópico, a sequência de degraus que leva
+# do mais mecânico até a ideia (docs/trilha.md, 6.16). Explicar e
+# exercitar são a mesma sequência: um degrau guiado é uma ou duas frases
+# e um exercício pequeno; um degrau de prática é só o exercício. É o
+# caminho de quem não sabe e de quem escolheu "Me explique antes"; quem
+# acerta firme a pergunta da premissa não passa por aqui.
+#
+# QUEM LÊ ESTE ARQUIVO é `mvp/trilha_escada.py`. Quem o confere com o
+# compilador é `scripts/confere_escada.py`: toda linha dita certa
+# compila, toda linha dita inválida é recusada, e todo valor esperado é
+# o que o programa imprime. O texto corrido, para leitura humana, está
+# em `docs/escada-kc00-leitura.md`.
+#
+# A RÉGUA DO TEXTO (6.16), que este arquivo segue:
+#   1. um degrau, uma ideia; no máximo duas frases curtas;
+#   2. só usa o que um degrau anterior ensinou — nada de tamanho,
+#      conversão, ponteiro ou comentário;
+#   3. primeiro o que se faz, depois a ideia;
+#   4. código que um iniciante escreveria;
+#   5. cada degrau muda uma coisa em relação ao anterior;
+#   6. todo erro previsto tem retorno próprio, que diz o que faltou;
+#   7. analogia não entra no lugar do passo.
+#
+# UM CENÁRIO SÓ, do começo ao fim: `idade` e `nota` (int) e `turma`
+# (char). A segunda versão de cada degrau — a que aparece quando a pessoa
+# erra a primeira — troca nomes e valores: `ano`, `pontos`, `inicial`.
+#
+# O `printf` ENTRA NO B3, e não antes: é lá que ler uma variável passa a
+# ser o assunto. B1 e B2 não mostram saída nenhuma.
+#
+# NO B3 NADA É EXECUTADO. Os trechos que leem antes de escrever estão lá
+# para a pessoa ESCOLHER e ORDENAR; o conferidor só os compila. Rodá-los
+# seria o comportamento que a premissa ensina a evitar.
+#
+# A CRENÇA DE CADA PREMISSA aparece dita com todas as letras numa
+# alternativa de um degrau guiado, e só ali o erro leva `crenca`. Uma
+# resposta errada que apenas combina com a crença não é atribuída a ela.
+#
+# gerado_por: Claude Fable 5.2, em 13/11/2026
+# revisado_por:
+#   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
+#   principal)
+
+B1:
+  revisao:
+    frases:
+      - "Toda declaração tem o tipo, o nome e o ponto e vírgula, nessa ordem."
+      - "O tipo decide o que cabe: int para número inteiro, char para um caractere."
+    codigo: |
+      int idade;
+      char turma;
+    saida: ""
+  degraus:
+    - id: esc_kc00_B1_1
+      guiado: true
+      forma: tocar
+      codigo: true
+      frases:
+        - "Para guardar um valor, o programa pede ao C uma variável."
+        - "O pedido tem três partes: o tipo, o nome e um ponto e vírgula no fim."
+      versoes:
+        - pede: "Toque no nome da variável."
+          mostra: "int idade;"
+          pecas: ["int", "idade", ";"]
+          certa: [[1]]
+          certa_texto: "idade"
+          erros:
+            - exata: [0]
+              retorno: "int é o tipo: diz que ali vai um número inteiro. O nome é a palavra que você escolhe: idade."
+            - exata: [2]
+              retorno: "O ponto e vírgula só fecha a linha. O nome é a palavra que você escolhe: idade."
+          retorno_geral: "O nome é a palavra do meio, a que você escolhe: idade."
+        - pede: "Toque no nome da variável."
+          mostra: "int ano;"
+          pecas: ["int", "ano", ";"]
+          certa: [[1]]
+          certa_texto: "ano"
+          erros:
+            - exata: [0]
+              retorno: "int é o tipo: diz que ali vai um número inteiro. O nome é a palavra que você escolhe: ano."
+            - exata: [2]
+              retorno: "O ponto e vírgula só fecha a linha. O nome é a palavra que você escolhe: ano."
+          retorno_geral: "O nome é a palavra do meio, a que você escolhe: ano."
+
+    - id: esc_kc00_B1_2
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "Agora é você quem escreve o pedido."
+        - "A ordem é sempre a mesma: primeiro o tipo, depois o nome, e o ponto e vírgula fecha."
+      versoes:
+        - pede: "Declare uma variável inteira chamada nota."
+          pecas: ["int", "nota", ";", "idade"]
+          certa: [[0, 1, 2]]
+          certa_texto: "int nota;"
+          erros:
+            - exata: [1, 0, 2]
+              invalida: true
+              retorno: "Em C o tipo vem primeiro e o nome depois: int nota;"
+            - exata: [0, 3, 2]
+              retorno: "Essa linha declara idade. O nome pedido era nota: int nota;"
+            - sem: [2]
+              invalida: true
+              retorno: "Faltou o ponto e vírgula. Toda declaração termina com ele: int nota;"
+          retorno_geral: "A declaração é o tipo, o nome e o ponto e vírgula: int nota;"
+        - pede: "Declare uma variável inteira chamada ano."
+          pecas: ["int", "ano", ";", "nota"]
+          certa: [[0, 1, 2]]
+          certa_texto: "int ano;"
+          erros:
+            - exata: [1, 0, 2]
+              invalida: true
+              retorno: "Em C o tipo vem primeiro e o nome depois: int ano;"
+            - exata: [0, 3, 2]
+              retorno: "Essa linha declara nota. O nome pedido era ano: int ano;"
+            - sem: [2]
+              invalida: true
+              retorno: "Faltou o ponto e vírgula. Toda declaração termina com ele: int ano;"
+          retorno_geral: "A declaração é o tipo, o nome e o ponto e vírgula: int ano;"
+
+    - id: esc_kc00_B1_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O tipo diz que espécie de valor cabe na variável."
+        - "int guarda um número inteiro, como 20. char guarda um caractere, como 'B'."
+      versoes:
+        - pede: "Qual declaração serve para guardar a letra de uma turma, como 'B'?"
+          pecas:
+            - "char turma;"
+            - "int turma;"
+            - "Tanto faz: o tipo é só um aviso"
+          certa: [[0]]
+          certa_texto: "char turma;"
+          erros:
+            - exata: [1]
+              retorno: "int é para número inteiro. Uma letra pede char: char turma;"
+            - exata: [2]
+              crenca: type_is_a_hint
+              retorno: "O tipo não é só um aviso: é ele que decide o que cabe na variável. Uma letra pede char: char turma;"
+          retorno_geral: "Para guardar uma letra, o tipo é char: char turma;"
+        - pede: "Qual declaração serve para guardar a idade de uma pessoa, como 20?"
+          pecas:
+            - "int idade;"
+            - "char idade;"
+            - "Tanto faz: o tipo é só um aviso"
+          certa: [[0]]
+          certa_texto: "int idade;"
+          erros:
+            - exata: [1]
+              retorno: "char é para um caractere, como uma letra. Um número inteiro pede int: int idade;"
+            - exata: [2]
+              crenca: type_is_a_hint
+              retorno: "O tipo não é só um aviso: é ele que decide o que cabe na variável. Um número inteiro pede int: int idade;"
+          retorno_geral: "Para guardar um número inteiro, o tipo é int: int idade;"
+
+    - id: esc_kc00_B1_4
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Declare duas variáveis: um inteiro chamado idade e um caractere chamado turma."
+          pecas: ["int", "idade;", "char", "turma;"]
+          certa: [[0, 1, 2, 3], [2, 3, 0, 1]]
+          certa_texto: |-
+            int idade;
+            char turma;
+          erros:
+            - exata: [2, 1, 0, 3]
+              retorno: "Os tipos ficaram trocados: idade é um número inteiro (int) e turma é uma letra (char)."
+            - exata: [0, 3, 2, 1]
+              retorno: "Os tipos ficaram trocados: idade é um número inteiro (int) e turma é uma letra (char)."
+            - exata: [1, 0, 3, 2]
+              invalida: true
+              retorno: "O tipo vem antes do nome, nas duas declarações: int idade; char turma;"
+          retorno_geral: "São duas declarações, cada uma com o tipo antes do nome: int idade; char turma;"
+        - pede: "Declare duas variáveis: um inteiro chamado ano e um caractere chamado inicial."
+          pecas: ["int", "ano;", "char", "inicial;"]
+          certa: [[0, 1, 2, 3], [2, 3, 0, 1]]
+          certa_texto: |-
+            int ano;
+            char inicial;
+          erros:
+            - exata: [2, 1, 0, 3]
+              retorno: "Os tipos ficaram trocados: ano é um número inteiro (int) e inicial é uma letra (char)."
+            - exata: [0, 3, 2, 1]
+              retorno: "Os tipos ficaram trocados: ano é um número inteiro (int) e inicial é uma letra (char)."
+            - exata: [1, 0, 3, 2]
+              invalida: true
+              retorno: "O tipo vem antes do nome, nas duas declarações: int ano; char inicial;"
+          retorno_geral: "São duas declarações, cada uma com o tipo antes do nome: int ano; char inicial;"
+
+    - id: esc_kc00_B1_5
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Uma destas linhas não é uma declaração válida. Qual?"
+          pecas: ["int idade;", "idade int;", "char turma;"]
+          certa: [[1]]
+          invalidas: [1]
+          certa_texto: "idade int;"
+          erros:
+            - exata: [0]
+              retorno: "Essa é válida: tem o tipo, o nome e o ponto e vírgula, nessa ordem."
+            - exata: [2]
+              retorno: "Essa é válida: char é o tipo e turma é o nome."
+          retorno_geral: "A inválida é a que põe o nome antes do tipo: idade int;"
+        - pede: "Uma destas linhas não é uma declaração válida. Qual?"
+          pecas: ["char inicial;", "inicial char;", "int ano;"]
+          certa: [[1]]
+          invalidas: [1]
+          certa_texto: "inicial char;"
+          erros:
+            - exata: [0]
+              retorno: "Essa é válida: char é o tipo e inicial é o nome."
+            - exata: [2]
+              retorno: "Essa é válida: tem o tipo, o nome e o ponto e vírgula, nessa ordem."
+          retorno_geral: "A inválida é a que põe o nome antes do tipo: inicial char;"
+
+B2:
+  revisao:
+    frases:
+      - "A declaração reserva o lugar: a partir dela a variável existe."
+      - "O valor é outra coisa: só entra quando uma linha escreve nele."
+    codigo: |
+      int idade;
+      idade = 20;
+    saida: ""
+  degraus:
+    - id: esc_kc00_B2_1
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "Uma variável declarada já pode receber um valor."
+        - "Para guardar, escreva o nome, o sinal de igual, o valor e o ponto e vírgula."
+      versoes:
+        - pede: "Guarde 20 em idade."
+          antes: "int idade;"
+          pecas: ["idade", "=", "20", ";", "int"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "idade = 20;"
+          erros:
+            - exata: [4, 0, 1, 2, 3]
+              invalida: true
+              retorno: "idade já foi declarada na linha de cima. Declarar de novo é pedir outra variável com o mesmo nome, e o compilador recusa. Basta idade = 20;"
+            - exata: [2, 1, 0, 3]
+              invalida: true
+              retorno: "A variável que recebe fica antes do sinal de igual, e o valor depois: idade = 20;"
+            - sem: [3]
+              invalida: true
+              retorno: "Faltou o ponto e vírgula no fim da linha: idade = 20;"
+          retorno_geral: "A linha é o nome, o sinal de igual, o valor e o ponto e vírgula: idade = 20;"
+        - pede: "Guarde 2026 em ano."
+          antes: "int ano;"
+          pecas: ["ano", "=", "2026", ";", "int"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "ano = 2026;"
+          erros:
+            - exata: [4, 0, 1, 2, 3]
+              invalida: true
+              retorno: "ano já foi declarada na linha de cima. Declarar de novo é pedir outra variável com o mesmo nome, e o compilador recusa. Basta ano = 2026;"
+            - exata: [2, 1, 0, 3]
+              invalida: true
+              retorno: "A variável que recebe fica antes do sinal de igual, e o valor depois: ano = 2026;"
+            - sem: [3]
+              invalida: true
+              retorno: "Faltou o ponto e vírgula no fim da linha: ano = 2026;"
+          retorno_geral: "A linha é o nome, o sinal de igual, o valor e o ponto e vírgula: ano = 2026;"
+
+    - id: esc_kc00_B2_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Repare: você escreveu na variável sem declarar de novo."
+        - "Ela existe desde a linha da declaração, mesmo antes de receber qualquer valor."
+      versoes:
+        - pede: "Logo depois de int idade; e antes de qualquer valor, a variável idade já existe?"
+          pecas:
+            - "Sim: a declaração já reservou o lugar dela"
+            - "Não: ela só existe depois de receber um valor"
+          certa: [[0]]
+          certa_texto: "Sim: a declaração já reservou o lugar dela"
+          erros:
+            - exata: [1]
+              crenca: no_value_no_memory
+              retorno: "Ela já existe. Quem reserva o lugar é a declaração; o valor entra depois, num lugar que já está lá."
+          retorno_geral: "A variável existe desde a declaração; o valor só vem depois."
+        - pede: "Logo depois de char turma; e antes de qualquer valor, a variável turma já existe?"
+          pecas:
+            - "Sim: a declaração já reservou o lugar dela"
+            - "Não: ela só existe depois de receber um valor"
+          certa: [[0]]
+          certa_texto: "Sim: a declaração já reservou o lugar dela"
+          erros:
+            - exata: [1]
+              crenca: no_value_no_memory
+              retorno: "Ela já existe. Quem reserva o lugar é a declaração; o valor entra depois, num lugar que já está lá."
+          retorno_geral: "A variável existe desde a declaração; o valor só vem depois."
+
+    - id: esc_kc00_B2_3
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Só dá para guardar valor numa variável que já foi declarada."
+      versoes:
+        - pede: "Complete com a variável que já existe."
+          antes: "int nota;"
+          mostra: "___ = 7;"
+          pecas: ["nota", "idade", "int"]
+          certa: [[0]]
+          certa_texto: "nota = 7;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "idade não foi declarada neste trecho. A variável que existe aqui é nota: nota = 7;"
+            - exata: [2]
+              invalida: true
+              retorno: "int é um tipo, não uma variável. Quem recebe o valor é nota: nota = 7;"
+          retorno_geral: "A variável declarada neste trecho é nota: nota = 7;"
+        - pede: "Complete com a variável que já existe."
+          antes: "int pontos;"
+          mostra: "___ = 10;"
+          pecas: ["pontos", "nota", "int"]
+          certa: [[0]]
+          certa_texto: "pontos = 10;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "nota não foi declarada neste trecho. A variável que existe aqui é pontos: pontos = 10;"
+            - exata: [2]
+              invalida: true
+              retorno: "int é um tipo, não uma variável. Quem recebe o valor é pontos: pontos = 10;"
+          retorno_geral: "A variável declarada neste trecho é pontos: pontos = 10;"
+
+    - id: esc_kc00_B2_4
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Monte o trecho: declare um inteiro chamado nota e depois guarde 7 nele."
+          pecas: ["int nota;", "nota = 7;", "idade = 7;"]
+          certa: [[0, 1]]
+          certa_texto: |-
+            int nota;
+            nota = 7;
+          erros:
+            - exata: [1, 0]
+              invalida: true
+              retorno: "A declaração vem primeiro: antes dela a variável não existe, e não há onde guardar o 7."
+            - exata: [0, 2]
+              invalida: true
+              retorno: "idade não foi declarada neste trecho. A variável que existe é nota: nota = 7;"
+            - sem: [0]
+              retorno: "Faltou declarar. Sem int nota; a variável não existe."
+          retorno_geral: "Primeiro a declaração, depois o valor: int nota; e então nota = 7;"
+        - pede: "Monte o trecho: declare um inteiro chamado pontos e depois guarde 10 nele."
+          pecas: ["int pontos;", "pontos = 10;", "nota = 10;"]
+          certa: [[0, 1]]
+          certa_texto: |-
+            int pontos;
+            pontos = 10;
+          erros:
+            - exata: [1, 0]
+              invalida: true
+              retorno: "A declaração vem primeiro: antes dela a variável não existe, e não há onde guardar o 10."
+            - exata: [0, 2]
+              invalida: true
+              retorno: "nota não foi declarada neste trecho. A variável que existe é pontos: pontos = 10;"
+            - sem: [0]
+              retorno: "Faltou declarar. Sem int pontos; a variável não existe."
+          retorno_geral: "Primeiro a declaração, depois o valor: int pontos; e então pontos = 10;"
+
+    - id: esc_kc00_B2_5
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Um destes trechos usa uma variável que não foi declarada. Qual?"
+          pecas:
+            - |-
+              int idade;
+              idade = 20;
+            - "nota = 7;"
+            - |-
+              int ano;
+              ano = 2026;
+          certa: [[1]]
+          invalidas: [1]
+          certa_texto: "nota = 7;"
+          erros:
+            - exata: [0]
+              retorno: "Aqui idade foi declarada na primeira linha, então já existe quando recebe o 20."
+            - exata: [2]
+              retorno: "Aqui ano foi declarada na primeira linha, então já existe quando recebe o valor."
+          retorno_geral: "O trecho sem declaração é nota = 7; — ali a variável nota não existe."
+        - pede: "Um destes trechos usa uma variável que não foi declarada. Qual?"
+          pecas:
+            - |-
+              int pontos;
+              pontos = 10;
+            - |-
+              int nota;
+              nota = 7;
+            - "turma = 'B';"
+          certa: [[2]]
+          invalidas: [2]
+          certa_texto: "turma = 'B';"
+          erros:
+            - exata: [0]
+              retorno: "Aqui pontos foi declarada na primeira linha, então já existe quando recebe o 10."
+            - exata: [1]
+              retorno: "Aqui nota foi declarada na primeira linha, então já existe quando recebe o 7."
+          retorno_geral: "O trecho sem declaração é turma = 'B'; — ali a variável turma não existe."
+
+B3:
+  revisao:
+    frases:
+      - "O C não escreve nada na variável quando você declara."
+      - "Por isso o programa escreve antes de ler: primeiro idade = 20; e só depois o printf."
+    codigo: |
+      int idade;
+      idade = 20;
+      printf("%d\n", idade);
+    saida: "20"
+  degraus:
+    - id: esc_kc00_B3_1
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Para ver o que uma variável guarda, o programa usa printf."
+        - "Em printf(\"%d\\n\", idade); o %d marca onde o número aparece, e idade é a variável lida."
+      versoes:
+        - pede: "Complete para mostrar o valor de idade."
+          antes: |-
+            int idade;
+            idade = 20;
+          mostra: 'printf("%d\n", ___);'
+          pecas: ["idade", "int", "20"]
+          certa: [[0]]
+          certa_texto: 'printf("%d\n", idade);'
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "int é o tipo. Depois da vírgula vai a variável que você quer ler: idade."
+            - exata: [2]
+              retorno: "Assim o programa mostraria o número 20 escrito à mão, e não o que está guardado. Para ler a variável, use o nome: idade."
+          retorno_geral: "Depois da vírgula vai o nome da variável que você quer ler: idade."
+        - pede: "Complete para mostrar o valor de nota."
+          antes: |-
+            int nota;
+            nota = 7;
+          mostra: 'printf("%d\n", ___);'
+          pecas: ["nota", "int", "7"]
+          certa: [[0]]
+          certa_texto: 'printf("%d\n", nota);'
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "int é o tipo. Depois da vírgula vai a variável que você quer ler: nota."
+            - exata: [2]
+              retorno: "Assim o programa mostraria o número 7 escrito à mão, e não o que está guardado. Para ler a variável, use o nome: nota."
+          retorno_geral: "Depois da vírgula vai o nome da variável que você quer ler: nota."
+
+    - id: esc_kc00_B3_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Declarar reserva o lugar, mas não escreve nada nele."
+        - "O C não põe zero para você: logo depois de int idade; ninguém sabe o que há ali."
+      versoes:
+        - pede: "Logo depois de int idade; que valor está guardado em idade?"
+          pecas:
+            - "Não dá para saber: ninguém escreveu nada ali"
+            - "0: declarar já zera a variável"
+          certa: [[0]]
+          certa_texto: "Não dá para saber: ninguém escreveu nada ali"
+          erros:
+            - exata: [1]
+              crenca: declaration_zeroes
+              retorno: "O C não zera a variável. A declaração só reserva o lugar, e o valor só passa a ser conhecido quando uma linha escreve nele."
+          retorno_geral: "Sem ninguém ter escrito, o valor não é conhecido."
+        - pede: "Logo depois de int nota; que valor está guardado em nota?"
+          pecas:
+            - "Não dá para saber: ninguém escreveu nada ali"
+            - "0: declarar já zera a variável"
+          certa: [[0]]
+          certa_texto: "Não dá para saber: ninguém escreveu nada ali"
+          erros:
+            - exata: [1]
+              crenca: declaration_zeroes
+              retorno: "O C não zera a variável. A declaração só reserva o lugar, e o valor só passa a ser conhecido quando uma linha escreve nele."
+          retorno_geral: "Sem ninguém ter escrito, o valor não é conhecido."
+
+    - id: esc_kc00_B3_3
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "Por isso a regra é: escreva na variável antes de ler."
+      versoes:
+        - pede: "Qual trecho escreve em idade antes de ler?"
+          pecas:
+            - |-
+              int idade;
+              idade = 20;
+              printf("%d\n", idade);
+            - |-
+              int idade;
+              printf("%d\n", idade);
+              idade = 20;
+          certa: [[0]]
+          certa_texto: |-
+            int idade;
+            idade = 20;
+            printf("%d\n", idade);
+          erros:
+            - exata: [1]
+              retorno: "Aqui o printf vem antes de idade = 20; — ele lê a variável quando ninguém escreveu nela ainda."
+          retorno_geral: "O trecho certo é o que tem idade = 20; antes do printf."
+        - pede: "Qual trecho escreve em nota antes de ler?"
+          pecas:
+            - |-
+              int nota;
+              nota = 7;
+              printf("%d\n", nota);
+            - |-
+              int nota;
+              printf("%d\n", nota);
+              nota = 7;
+          certa: [[0]]
+          certa_texto: |-
+            int nota;
+            nota = 7;
+            printf("%d\n", nota);
+          erros:
+            - exata: [1]
+              retorno: "Aqui o printf vem antes de nota = 7; — ele lê a variável quando ninguém escreveu nela ainda."
+          retorno_geral: "O trecho certo é o que tem nota = 7; antes do printf."
+
+    - id: esc_kc00_B3_4
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Ponha as linhas em ordem, para que nota tenha valor quando for lida."
+          pecas:
+            - "int nota;"
+            - "nota = 7;"
+            - 'printf("%d\n", nota);'
+          certa: [[0, 1, 2]]
+          certa_texto: |-
+            int nota;
+            nota = 7;
+            printf("%d\n", nota);
+          erros:
+            - exata: [0, 2, 1]
+              retorno: "Assim o printf lê nota antes de ela receber o 7, e o que aparece não é confiável. A escrita vem antes da leitura."
+            - exata: [1, 0, 2]
+              invalida: true
+              retorno: "A declaração vem primeiro: antes dela a variável não existe."
+            - sem: [1]
+              retorno: "Faltou escrever o valor. Sem nota = 7; o printf lê uma variável em que ninguém escreveu."
+          retorno_geral: "A ordem é declarar, escrever e só então ler: int nota; nota = 7; e o printf."
+        - pede: "Ponha as linhas em ordem, para que pontos tenha valor quando for lida."
+          pecas:
+            - "int pontos;"
+            - "pontos = 10;"
+            - 'printf("%d\n", pontos);'
+          certa: [[0, 1, 2]]
+          certa_texto: |-
+            int pontos;
+            pontos = 10;
+            printf("%d\n", pontos);
+          erros:
+            - exata: [0, 2, 1]
+              retorno: "Assim o printf lê pontos antes de ela receber o 10, e o que aparece não é confiável. A escrita vem antes da leitura."
+            - exata: [1, 0, 2]
+              invalida: true
+              retorno: "A declaração vem primeiro: antes dela a variável não existe."
+            - sem: [1]
+              retorno: "Faltou escrever o valor. Sem pontos = 10; o printf lê uma variável em que ninguém escreveu."
+          retorno_geral: "A ordem é declarar, escrever e só então ler: int pontos; pontos = 10; e o printf."
+
+    - id: esc_kc00_B3_5
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Qual trecho lê uma variável em que ninguém escreveu ainda?"
+          pecas:
+            - |-
+              int pontos;
+              pontos = 10;
+              printf("%d\n", pontos);
+            - |-
+              int pontos;
+              printf("%d\n", pontos);
+            - |-
+              int pontos;
+              pontos = 10;
+              pontos = 12;
+              printf("%d\n", pontos);
+          certa: [[1]]
+          certa_texto: |-
+            int pontos;
+            printf("%d\n", pontos);
+          erros:
+            - exata: [0]
+              retorno: "Aqui pontos recebe 10 antes do printf, então a leitura é segura."
+            - exata: [2]
+              retorno: "Aqui pontos recebe valor duas vezes antes do printf, então a leitura é segura."
+          retorno_geral: "É o trecho em que o printf vem logo depois da declaração, sem nenhuma escrita antes."
+        - pede: "Qual trecho lê uma variável em que ninguém escreveu ainda?"
+          pecas:
+            - |-
+              int idade;
+              idade = 20;
+              idade = 21;
+              printf("%d\n", idade);
+            - |-
+              int idade;
+              idade = 20;
+              printf("%d\n", idade);
+            - |-
+              int idade;
+              printf("%d\n", idade);
+          certa: [[2]]
+          certa_texto: |-
+            int idade;
+            printf("%d\n", idade);
+          erros:
+            - exata: [0]
+              retorno: "Aqui idade recebe valor duas vezes antes do printf, então a leitura é segura."
+            - exata: [1]
+              retorno: "Aqui idade recebe 20 antes do printf, então a leitura é segura."
+          retorno_geral: "É o trecho em que o printf vem logo depois da declaração, sem nenhuma escrita antes."
+
+B4:
+  revisao:
+    frases:
+      - "Cada escrita apaga o valor que estava antes."
+      - "A variável fica só com o último valor escrito nela."
+    codigo: |
+      int idade;
+      idade = 20;
+      idade = 21;
+      printf("%d\n", idade);
+    saida: "21"
+  degraus:
+    - id: esc_kc00_B4_1
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Uma variável guarda um valor só."
+        - "Quando uma linha escreve um valor novo, ele entra no lugar do antigo."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            idade = 20;
+            idade = 21;
+            printf("%d\n", idade);
+          aceitas: ["21"]
+          certa_texto: "21"
+          erros:
+            - texto: "20"
+              retorno: "O 20 foi apagado quando o 21 entrou. Vale o último valor escrito: 21."
+            - texto: "41"
+              retorno: "Os valores não se somam: o 21 entra no lugar do 20. Vale o último valor escrito: 21."
+          retorno_geral: "A variável fica com o último valor escrito nela: 21."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            nota = 7;
+            nota = 9;
+            printf("%d\n", nota);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "7"
+              retorno: "O 7 foi apagado quando o 9 entrou. Vale o último valor escrito: 9."
+            - texto: "16"
+              retorno: "Os valores não se somam: o 9 entra no lugar do 7. Vale o último valor escrito: 9."
+          retorno_geral: "A variável fica com o último valor escrito nela: 9."
+
+    - id: esc_kc00_B4_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O valor antigo não fica guardado em outro canto da variável."
+        - "Depois de idade = 21; não existe mais 20 nenhum ali."
+      versoes:
+        - pede: "Depois de idade = 20; e idade = 21; onde ficou o 20?"
+          pecas:
+            - "Em lugar nenhum: foi apagado"
+            - "Continua guardado, junto com o 21"
+          certa: [[0]]
+          certa_texto: "Em lugar nenhum: foi apagado"
+          erros:
+            - exata: [1]
+              crenca: variable_remembers
+              retorno: "A variável não lembra os valores antigos. Ela guarda um só, e o 21 entrou no lugar do 20."
+          retorno_geral: "O valor antigo é apagado quando o novo entra."
+        - pede: "Depois de nota = 7; e nota = 9; onde ficou o 7?"
+          pecas:
+            - "Em lugar nenhum: foi apagado"
+            - "Continua guardado, junto com o 9"
+          certa: [[0]]
+          certa_texto: "Em lugar nenhum: foi apagado"
+          erros:
+            - exata: [1]
+              crenca: variable_remembers
+              retorno: "A variável não lembra os valores antigos. Ela guarda um só, e o 9 entrou no lugar do 7."
+          retorno_geral: "O valor antigo é apagado quando o novo entra."
+
+    - id: esc_kc00_B4_3
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "Para trocar o valor, basta escrever de novo no mesmo nome."
+      versoes:
+        - pede: "A turma mudou de 'A' para 'B'. Escreva a linha que troca o valor."
+          antes: |-
+            char turma;
+            turma = 'A';
+          pecas: ["turma", "=", "'B'", ";", "char"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "turma = 'B';"
+          erros:
+            - exata: [4, 0, 1, 2, 3]
+              invalida: true
+              retorno: "turma já existe. Para trocar o valor não se declara de novo, só se escreve: turma = 'B';"
+            - sem: [3]
+              invalida: true
+              retorno: "Faltou o ponto e vírgula no fim da linha: turma = 'B';"
+          retorno_geral: "Trocar o valor é escrever de novo no mesmo nome: turma = 'B';"
+        - pede: "A nota subiu de 7 para 9. Escreva a linha que troca o valor."
+          antes: |-
+            int nota;
+            nota = 7;
+          pecas: ["nota", "=", "9", ";", "int"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "nota = 9;"
+          erros:
+            - exata: [4, 0, 1, 2, 3]
+              invalida: true
+              retorno: "nota já existe. Para trocar o valor não se declara de novo, só se escreve: nota = 9;"
+            - sem: [3]
+              invalida: true
+              retorno: "Faltou o ponto e vírgula no fim da linha: nota = 9;"
+          retorno_geral: "Trocar o valor é escrever de novo no mesmo nome: nota = 9;"
+
+    - id: esc_kc00_B4_4
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int pontos;
+            pontos = 3;
+            pontos = 5;
+            pontos = 8;
+            printf("%d\n", pontos);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "3"
+              retorno: "O 3 foi o primeiro valor, e já foi apagado. Vale o último escrito: 8."
+            - texto: "5"
+              retorno: "O 5 foi apagado quando o 8 entrou. Vale o último escrito: 8."
+            - texto: "16"
+              retorno: "Os valores não se somam: cada escrita apaga a anterior. Vale o último: 8."
+          retorno_geral: "Vale o último valor escrito na variável: 8."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            idade = 18;
+            idade = 19;
+            idade = 20;
+            printf("%d\n", idade);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "18"
+              retorno: "O 18 foi o primeiro valor, e já foi apagado. Vale o último escrito: 20."
+            - texto: "19"
+              retorno: "O 19 foi apagado quando o 20 entrou. Vale o último escrito: 20."
+            - texto: "57"
+              retorno: "Os valores não se somam: cada escrita apaga a anterior. Vale o último: 20."
+          retorno_geral: "Vale o último valor escrito na variável: 20."
+
+    - id: esc_kc00_B4_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int nota;
+            idade = 20;
+            nota = 7;
+            nota = 9;
+            printf("%d\n", nota);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "7"
+              retorno: "O 7 foi apagado quando o 9 entrou em nota. Vale o último escrito: 9."
+            - texto: "20"
+              retorno: "O 20 está em idade. O printf lê nota, e nela vale o último valor escrito: 9."
+          retorno_geral: "O printf lê nota, e nela vale o último valor escrito: 9."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int ano;
+            int pontos;
+            ano = 2026;
+            pontos = 10;
+            pontos = 12;
+            printf("%d\n", pontos);
+          aceitas: ["12"]
+          certa_texto: "12"
+          erros:
+            - texto: "10"
+              retorno: "O 10 foi apagado quando o 12 entrou em pontos. Vale o último escrito: 12."
+            - texto: "2026"
+              retorno: "O 2026 está em ano. O printf lê pontos, e nela vale o último valor escrito: 12."
+          retorno_geral: "O printf lê pontos, e nela vale o último valor escrito: 12."
+
+I1:
+  revisao:
+    frases:
+      - "Declarar com valor e declarar para depois guardar dão no mesmo: a variável fica pronta, com o valor dentro."
+      - "Em toda escrita, a variável que recebe fica à esquerda do sinal de igual."
+    codigo: |
+      int nota;
+      nota = 7;
+      int pontos = 7;
+      printf("%d\n", nota);
+      printf("%d\n", pontos);
+    saida: "7\n7"
+  degraus:
+    - id: esc_kc00_I1_1
+      guiado: true
+      forma: tocar
+      codigo: true
+      frases:
+        - "Dá para declarar e dar o valor na mesma linha."
+        - "Em int idade = 20; a variável já nasce guardando 20."
+      versoes:
+        - pede: "Toque no valor que a variável recebe."
+          mostra: "int idade = 20;"
+          pecas: ["int", "idade", "=", "20", ";"]
+          certa: [[3]]
+          certa_texto: "20"
+          erros:
+            - exata: [1]
+              retorno: "idade é o nome da variável. O valor é o que vem depois do sinal de igual: 20."
+            - exata: [0]
+              retorno: "int é o tipo. O valor é o que vem depois do sinal de igual: 20."
+          retorno_geral: "O valor é o que vem depois do sinal de igual: 20."
+        - pede: "Toque no valor que a variável recebe."
+          mostra: "int nota = 7;"
+          pecas: ["int", "nota", "=", "7", ";"]
+          certa: [[3]]
+          certa_texto: "7"
+          erros:
+            - exata: [1]
+              retorno: "nota é o nome da variável. O valor é o que vem depois do sinal de igual: 7."
+            - exata: [0]
+              retorno: "int é o tipo. O valor é o que vem depois do sinal de igual: 7."
+          retorno_geral: "O valor é o que vem depois do sinal de igual: 7."
+
+    - id: esc_kc00_I1_2
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "A ordem é: tipo, nome, sinal de igual, valor e ponto e vírgula."
+      versoes:
+        - pede: "Declare um inteiro chamado nota que já comece valendo 7."
+          pecas: ["int", "nota", "=", "7", ";"]
+          certa: [[0, 1, 2, 3, 4]]
+          certa_texto: "int nota = 7;"
+          erros:
+            - exata: [0, 3, 2, 1, 4]
+              invalida: true
+              retorno: "O nome fica antes do sinal de igual e o valor depois: int nota = 7;"
+            - exata: [1, 2, 3, 4]
+              invalida: true
+              retorno: "Faltou o tipo. Sem ele a variável não é declarada: int nota = 7;"
+            - sem: [4]
+              invalida: true
+              retorno: "Faltou o ponto e vírgula no fim da linha: int nota = 7;"
+          retorno_geral: "A linha é o tipo, o nome, o sinal de igual, o valor e o ponto e vírgula: int nota = 7;"
+        - pede: "Declare um inteiro chamado pontos que já comece valendo 10."
+          pecas: ["int", "pontos", "=", "10", ";"]
+          certa: [[0, 1, 2, 3, 4]]
+          certa_texto: "int pontos = 10;"
+          erros:
+            - exata: [0, 3, 2, 1, 4]
+              invalida: true
+              retorno: "O nome fica antes do sinal de igual e o valor depois: int pontos = 10;"
+            - exata: [1, 2, 3, 4]
+              invalida: true
+              retorno: "Faltou o tipo. Sem ele a variável não é declarada: int pontos = 10;"
+            - sem: [4]
+              invalida: true
+              retorno: "Faltou o ponto e vírgula no fim da linha: int pontos = 10;"
+          retorno_geral: "A linha é o tipo, o nome, o sinal de igual, o valor e o ponto e vírgula: int pontos = 10;"
+
+    - id: esc_kc00_I1_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Declarar com valor faz, numa linha só, o mesmo que declarar e depois guardar."
+      versoes:
+        - pede: "Estes dois trechos deixam idade com o mesmo valor?"
+          mostra: |-
+            Trecho 1:
+            int idade;
+            idade = 20;
+
+            Trecho 2:
+            int idade = 20;
+          pecas:
+            - "Sim: nos dois idade termina guardando 20"
+            - "Não: só o de uma linha deixa a variável pronta"
+          certa: [[0]]
+          certa_texto: "Sim: nos dois idade termina guardando 20"
+          erros:
+            - exata: [1]
+              retorno: "Os dois chegam ao mesmo lugar: uma variável idade guardando 20. A linha única só junta os dois passos."
+          retorno_geral: "Os dois trechos terminam com idade guardando 20."
+        - pede: "Estes dois trechos deixam turma com o mesmo valor?"
+          mostra: |-
+            Trecho 1:
+            char turma;
+            turma = 'B';
+
+            Trecho 2:
+            char turma = 'B';
+          pecas:
+            - "Sim: nos dois turma termina guardando 'B'"
+            - "Não: só o de uma linha deixa a variável pronta"
+          certa: [[0]]
+          certa_texto: "Sim: nos dois turma termina guardando 'B'"
+          erros:
+            - exata: [1]
+              retorno: "Os dois chegam ao mesmo lugar: uma variável turma guardando 'B'. A linha única só junta os dois passos."
+          retorno_geral: "Os dois trechos terminam com turma guardando 'B'."
+
+    - id: esc_kc00_I1_4
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "O sinal de igual do C não é o da matemática: ele manda guardar."
+        - "O valor da direita vai para a variável da esquerda, nunca o contrário."
+      versoes:
+        - pede: "Qual linha guarda 7 em nota?"
+          antes: "int nota;"
+          pecas: ["nota = 7;", "7 = nota;"]
+          certa: [[0]]
+          invalidas: [1]
+          certa_texto: "nota = 7;"
+          erros:
+            - exata: [1]
+              crenca: assignment_symmetric
+              retorno: "O sinal de igual não funciona dos dois lados. À esquerda fica a variável que recebe, e por isso 7 = nota; não compila."
+          retorno_geral: "A variável que recebe fica à esquerda do sinal de igual: nota = 7;"
+        - pede: "Qual linha guarda 20 em idade?"
+          antes: "int idade;"
+          pecas: ["idade = 20;", "20 = idade;"]
+          certa: [[0]]
+          invalidas: [1]
+          certa_texto: "idade = 20;"
+          erros:
+            - exata: [1]
+              crenca: assignment_symmetric
+              retorno: "O sinal de igual não funciona dos dois lados. À esquerda fica a variável que recebe, e por isso 20 = idade; não compila."
+          retorno_geral: "A variável que recebe fica à esquerda do sinal de igual: idade = 20;"
+
+    - id: esc_kc00_I1_5
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Escreva em uma linha só o que este trecho faz em duas."
+          mostra: |-
+            char turma;
+            turma = 'B';
+          pecas: ["char", "turma", "=", "'B'", ";"]
+          certa: [[0, 1, 2, 3, 4]]
+          certa_texto: "char turma = 'B';"
+          erros:
+            - exata: [1, 2, 3, 4]
+              invalida: true
+              retorno: "Assim falta o tipo, e sem ele a variável não é declarada: char turma = 'B';"
+            - exata: [0, 3, 2, 1, 4]
+              invalida: true
+              retorno: "O nome fica antes do sinal de igual e o valor depois: char turma = 'B';"
+            - sem: [4]
+              invalida: true
+              retorno: "Faltou o ponto e vírgula no fim da linha: char turma = 'B';"
+          retorno_geral: "Em uma linha: o tipo, o nome, o sinal de igual, o valor e o ponto e vírgula."
+        - pede: "Escreva em uma linha só o que este trecho faz em duas."
+          mostra: |-
+            int ano;
+            ano = 2026;
+          pecas: ["int", "ano", "=", "2026", ";"]
+          certa: [[0, 1, 2, 3, 4]]
+          certa_texto: "int ano = 2026;"
+          erros:
+            - exata: [1, 2, 3, 4]
+              invalida: true
+              retorno: "Assim falta o tipo, e sem ele a variável não é declarada: int ano = 2026;"
+            - exata: [0, 3, 2, 1, 4]
+              invalida: true
+              retorno: "O nome fica antes do sinal de igual e o valor depois: int ano = 2026;"
+            - sem: [4]
+              invalida: true
+              retorno: "Faltou o ponto e vírgula no fim da linha: int ano = 2026;"
+          retorno_geral: "Em uma linha: o tipo, o nome, o sinal de igual, o valor e o ponto e vírgula."
+
+    - id: esc_kc00_I1_6
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota = 7;
+            int pontos = 3;
+            nota = pontos;
+            printf("%d\n", nota);
+          aceitas: ["3"]
+          certa_texto: "3"
+          erros:
+            - texto: "7"
+              retorno: "nota = pontos; copia o valor da direita para a variável da esquerda. O 7 de nota foi apagado, e entrou o 3."
+            - texto: "10"
+              retorno: "Os valores não se somam: nota recebe o valor que está em pontos, que é 3."
+          retorno_geral: "nota recebe o valor que está em pontos: 3."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade = 20;
+            int ano = 5;
+            idade = ano;
+            printf("%d\n", idade);
+          aceitas: ["5"]
+          certa_texto: "5"
+          erros:
+            - texto: "20"
+              retorno: "idade = ano; copia o valor da direita para a variável da esquerda. O 20 de idade foi apagado, e entrou o 5."
+            - texto: "25"
+              retorno: "Os valores não se somam: idade recebe o valor que está em ano, que é 5."
+          retorno_geral: "idade recebe o valor que está em ano: 5."

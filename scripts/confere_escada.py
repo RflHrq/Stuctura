@@ -95,6 +95,15 @@ def linha_de(v: Versao, sequencia: tuple[int, ...]) -> str:
     return " ".join(v.pecas[i] for i in sequencia)
 
 
+def programa_do_digitar(v: Versao) -> str:
+    """O programa que um degrau de `digitar` roda.
+
+    Vindo só o trecho em `mostra`, ele é embrulhado aqui: o que a pessoa
+    lê e o que o compilador roda saem do mesmo texto.
+    """
+    return v.programa if v.programa.strip() else programa_de(v.antes, v.mostra)
+
+
 def _deve(compilar: bool, onde: str, v: Versao, linha: str,
           problemas: list[str]) -> None:
     ok, nota = compila(programa_de(v.antes, linha))
@@ -108,7 +117,7 @@ def _deve(compilar: bool, onde: str, v: Versao, linha: str,
 def _confere_versao(onde: str, g: Degrau, v: Versao,
                     problemas: list[str]) -> None:
     if g.forma == "digitar":
-        ok, nota = oraculo.roda(v.programa, v.aceitas[0])
+        ok, nota = oraculo.roda(programa_do_digitar(v), v.aceitas[0])
         if not ok:
             problemas.append("%s: a resposta aceita não é o que o programa "
                              "imprime — %s" % (onde, nota))
@@ -175,7 +184,7 @@ def _versao_em_texto(g: Degrau, k: int, v: Versao) -> list[str]:
     if v.antes.strip():
         saida += ["Já está escrito:", ""] + _bloco(v.antes) + [""]
     if g.forma == "digitar":
-        saida += _bloco(v.programa) + [""]
+        saida += _bloco(v.mostra if v.mostra.strip() else v.programa) + [""]
     elif v.mostra.strip():
         saida += _bloco(v.mostra) + [""]
     if v.pecas:

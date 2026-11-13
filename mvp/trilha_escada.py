@@ -205,7 +205,10 @@ def _confere_versao(onde: str, forma: str, codigo: bool, v: Versao,
     if forma == "digitar":
         if not v.aceitas:
             problemas.append("%s: sem resposta aceita (`aceitas`)" % onde)
-        if codigo and not v.programa.strip():
+        # O programa pode vir inteiro em `programa`, ou só o trecho em
+        # `mostra` — aí o conferidor o embrulha num `main`, e o que a
+        # pessoa lê e o que o compilador roda são o MESMO texto.
+        if codigo and not (v.programa.strip() or v.mostra.strip()):
             problemas.append("%s: digitar sem programa — a resposta é a "
                              "saída de um programa que o compilador roda"
                              % onde)

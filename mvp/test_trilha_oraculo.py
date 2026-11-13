@@ -147,6 +147,20 @@ def test_o_conferidor_acusa_saida_que_nao_bate(tmp_path):
 
 
 @tem_gcc
+def test_digitar_sem_programa_e_conferido_pelo_trecho_mostrado(tmp_path):
+    trecho = chr(10).join(["int idade = 20;", "idade = 21;",
+                           'printf("%d' + chr(92) + 'n", idade);'])
+    b = _valida()
+    v = b["degraus"][2]["versoes"][0]
+    v["mostra"], v["programa"] = trecho, ""
+    assert confere_escada.confere(_escadas(tmp_path, b)) == []
+
+    v["aceitas"], v["certa_texto"], v["erros"] = ["20"], "20", []
+    problemas = confere_escada.confere(_escadas(tmp_path, b))
+    assert len(problemas) == 1 and "esc_t_B1_3" in problemas[0]
+
+
+@tem_gcc
 def test_o_conferidor_acusa_revisao_que_nao_imprime_o_que_diz(tmp_path):
     b = _valida()
     b["revisao"] = {"frases": ["Vale o último valor."],
