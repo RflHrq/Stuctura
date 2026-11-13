@@ -35,6 +35,12 @@
            white-space: nowrap; }
   .marca.aberto { background: var(--ok-fundo); color: var(--ok); }
   .falha { color: var(--erro); }
+  /* O caminho de sempre, para o tópico que já abre pela trilha. */
+  #lista a.anterior { display: inline; padding: 0; border: 0; background: none;
+                      color: var(--tinta2); font-size: .82rem;
+                      text-decoration: underline; margin-left: 16px; }
+  #lista a.anterior:hover, #lista a.anterior:focus-visible {
+                      color: var(--acento); }
 </style>
 </head>
 <body>
@@ -100,7 +106,10 @@
     topicos.forEach(function (t, i) {
       var li = document.createElement("li");
       var a = document.createElement("a");
-      a.href = t.caminho;
+      /* Quem tem trilha abre por ela; o caminho de sempre fica num link
+       * discreto, logo abaixo. */
+      var destino = t.trilha || t.caminho;
+      a.href = destino;
 
       var num = document.createElement("span");
       num.className = "num";
@@ -128,9 +137,21 @@
         if (c === null) { ev.preventDefault(); campo.focus(); return; }
         var marcados = abertos(); marcados[t.id] = true;
         guarda("structura-abertos", JSON.stringify(marcados));
-        if (c) { ev.preventDefault(); window.location.href = t.caminho + "?codigo=" + encodeURIComponent(c); }
+        if (c) { ev.preventDefault(); window.location.href = destino + "?codigo=" + encodeURIComponent(c); }
       });
       li.appendChild(a);
+      if (t.trilha) {
+        var antes = document.createElement("a");
+        antes.className = "anterior";
+        antes.href = t.caminho;
+        antes.textContent = "versão anterior";
+        antes.addEventListener("click", function (ev) {
+          var c = codigoValido();
+          if (c === null) { ev.preventDefault(); campo.focus(); return; }
+          if (c) { ev.preventDefault(); window.location.href = t.caminho + "?codigo=" + encodeURIComponent(c); }
+        });
+        li.appendChild(antes);
+      }
       lista.appendChild(li);
     });
   }

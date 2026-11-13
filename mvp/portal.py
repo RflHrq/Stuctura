@@ -45,7 +45,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from mvp import log
+from mvp import log, trilha_app, trilha_escada
 from mvp.dominio import carrega, topicos
 
 AQUI = Path(__file__).resolve().parent
@@ -89,6 +89,36 @@ def _app_do_topico(topico: str, destino: Path):
     return mod
 
 
+def _monta_a_trilha(portal: FastAPI, d, pasta: Path) -> str | None:
+    """A trilha daquele tópico, se ele tiver escada para tudo.
+
+    A TRILHA É O SEGUNDO JEITO DE ATRAVESSAR UM TÓPICO (docs/trilha.md):
+    premissa por premissa, perguntando primeiro, com a escada passo a
+    passo. Ela precisa de conteúdo próprio — `escada_kcNN.yaml` —, e só
+    sobe quando TODAS as premissas do tópico têm escada: meia trilha
+    deixaria a pessoa sem caminho no meio. Hoje, só o kc_00.
+
+    Aqui ela é uma fábrica (`trilha_app.cria_app`), e não uma cópia de
+    módulo: é a refatoração que o cabeçalho deste arquivo pede para o
+    `mvp.app`, já feita onde o código nasceu novo.
+
+    O registro dela é outro arquivo, em `<pasta>/trilha/`, e a pasta só
+    nasce na primeira gravação — montar a trilha não pode fazer aparecer
+    uma pasta vazia ao lado dos registros de quem nunca a abriu.
+
+    Devolve o caminho da trilha, ou `None` quando o tópico não tem uma.
+    """
+    arquivo = AQUI / "dominio" / ("escada_%s.yaml" % d.id.replace("_", ""))
+    if not arquivo.exists():
+        return None
+    escadas = trilha_escada.le(arquivo, d)
+    if trilha_escada.faltando(d, escadas):
+        return None
+    portal.mount("/trilha/%s" % d.id, trilha_app.cria_app(
+        d, escadas, pasta / "trilha" / ("%s.jsonl" % d.id)))
+    return "/trilha/%s/" % d.id
+
+
 def cria_portal(pasta: Path | None = None) -> FastAPI:
     """O portal sobre uma pasta de logs. Um arquivo por tópico, lá dentro."""
     pasta = Path(pasta) if pasta else PASTA_PADRAO
@@ -119,6 +149,9 @@ def cria_portal(pasta: Path | None = None) -> FastAPI:
             "nos": len(d.nos),
             "atividades": len(d.atividades),
             "caminho": "/kc/%s/" % topico,
+            # `None` em quem não tem. A página abre a trilha quando ela
+            # existe, e guarda o caminho de sempre atrás de um link.
+            "trilha": _monta_a_trilha(portal, d, pasta),
         })
 
     @portal.get("/topicos")
