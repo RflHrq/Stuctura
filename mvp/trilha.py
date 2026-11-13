@@ -389,7 +389,59 @@ def _abre_proxima(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
     for no in d.ordem:
         if not e.premissa(no).resultado:
             return _abre(d, escadas, e, no, eventos)
+    return _reconfere(d, escadas, e, eventos)
+
+
+# --------------------------------------------------------------------------
+# A reconferência
+# --------------------------------------------------------------------------
+
+def _reconfere(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
+               eventos: list) -> Transicao:
+    """Uma pergunta por premissa TRABALHADA, depois que todas passaram.
+
+    É o que separa "acertou logo depois de ler" de "assimilou": a
+    pergunta chega com outras premissas no meio. E é de produzir sempre
+    que sobra exercício — o último degrau de prática numa versão que a
+    pessoa ainda não viu; depois os outros, do mais alto para o mais
+    baixo; só então uma questão de marcar não usada.
+
+    Não abre trabalho novo. Errou: o mapa diz, e a trilha segue.
+    """
+    for no in d.ordem:
+        ep = e.premissa(no)
+        if not ep.trabalho or ep.reconferencia:
+            continue
+        livre = next(((g, k) for g in reversed(escadas[no].pratica)
+                      for k in range(len(g.versoes))
+                      if (g.id, k) not in ep.mostrados), None)
+        if livre is not None:
+            return _degrau(escadas, e, no, livre[0], livre[1],
+                           "reconferencia", eventos)
+        a = _proxima_pergunta(d, e, no)
+        if a is not None:
+            return _pergunta(d, e, no, a, "reconferencia", eventos,
+                             certeza=False)
+        # O banco da premissa acabou. O mapa diz que não deu para
+        # reconferir — é melhor do que repetir uma pergunta já vista e
+        # chamar a resposta de assimilação.
+        e = e.com(no, reconferencia=SEM_QUESTAO)
+        eventos.append(_ev("reconferencia_impossivel", no=no))
     return _mapa(d, escadas, e, eventos)
+
+
+def _reconferida(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
+                 no: str, certa: bool, crenca: str, eventos: list) -> Estado:
+    """O resultado da reconferência de uma premissa."""
+    if certa:
+        resultado = ASSIMILOU
+    elif crenca and crenca == e.premissa(no).crenca:
+        # A resposta errada aponta a crença que foi corrigida aqui.
+        resultado = A_IDEIA_VOLTOU
+    else:
+        resultado = NAO_SE_MANTEVE
+    eventos.append(_ev("reconferencia_respondida", no=no, resultado=resultado))
+    return e.com(no, reconferencia=resultado)
 
 
 def _abre(d: Dominio, escadas: Mapping[str, Escada], e: Estado, no: str,
@@ -587,8 +639,13 @@ def _responde_pergunta(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
             e = _registra(e, no, crenca, eventos)
         return _retorno_da_pergunta(d, e, no, razao, "fecha_aberto", eventos)
 
-    e = _fecha(e, no, EM_ABERTO, eventos)
-    return _abre_proxima(d, escadas, e, eventos)
+    if p.papel == "reconferencia":
+        e = _reconferida(d, escadas, e, no, bem, crenca, eventos)
+        if bem:
+            return _reconfere(d, escadas, e, eventos)
+        return _retorno_da_pergunta(d, e, no, razao, "reconfere", eventos)
+
+    raise EntradaInvalida("pergunta de papel %r sem caminho" % p.papel)
 
 
 def _registra(e: Estado, no: str, crenca: str, eventos: list) -> Estado:
@@ -833,6 +890,13 @@ def _responde_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         return _retorno(d, e, no, "errada", "treino", eventos,
                         texto=c.retorno, mostra_certa=c.mostra_certa)
 
+    if p.papel == "reconferencia":
+        e = _reconferida(d, escadas, e, no, c.certa, c.crenca, eventos)
+        if c.certa:
+            return _reconfere(d, escadas, e, eventos)
+        return _retorno(d, e, no, "errada", "reconfere", eventos,
+                        texto=c.retorno, mostra_certa=c.mostra_certa)
+
     if p.papel == "subida":
         if c.certa:
             if p.tentativa == 1:
@@ -875,6 +939,8 @@ def _segue(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         g = escadas[no].pratica[-1]
         return _degrau(escadas, e, no, g, _versao_livre(e.premissa(no), g),
                        "produzir", eventos)
+    if adiante == "reconfere":
+        return _reconfere(d, escadas, e, eventos)
     if adiante == "reforco":
         return _reforco(d, escadas, e, no, eventos)
     if adiante == "treino":

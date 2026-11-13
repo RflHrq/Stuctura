@@ -807,6 +807,191 @@ def test_no_modo_explique_crenca_no_topo_leva_a_prova():
     assert t.estado.premissa("B1").telas <= trilha.TETO_TELAS
 
 
+# --------------------------------------------------------------------------
+# Parte 4: reconferência e mapa
+# --------------------------------------------------------------------------
+
+def _reconferencias(c):
+    return [t for t in c.telas if t.dados.get("papel") == "reconferencia"]
+
+
+def test_toda_premissa_trabalhada_e_reconferida_e_as_outras_nao():
+    c = caminha(D, ESC, "nao_sabe_aprende")
+    assert [t.dados["premissa"] for t in _reconferencias(c)] == list(D.ordem)
+    assert not _reconferencias(caminha(D, ESC, "sabe"))
+    assert not _reconferencias(caminha(D, ESC, "inseguro"))
+    assert {caminha(D, ESC, "sabe").estado.premissa(n).reconferencia
+            for n in D.ordem} == {""}
+
+
+def test_a_reconferencia_vem_depois_de_todas_as_premissas():
+    c = caminha(D, ESC, "nao_sabe_aprende")
+    papeis = [t.dados.get("papel") for t in c.telas if t.tipo != "retorno"]
+    primeira = papeis.index("reconferencia")
+    assert set(papeis[primeira:-1]) == {"reconferencia"}
+    fechos = [e.tipo for e in c.eventos].count("premissa_fechada")
+    assert fechos == 5
+
+
+def test_a_reconferencia_e_de_produzir_e_nao_repete_exercicio():
+    c = caminha(D, ESC, "nao_sabe_aprende")
+    vistos = set()
+    for t in (t for t in c.telas if t.tipo == "degrau"):
+        chave = (t.dados["degrau"], tuple(t.dados["pecas"]), t.dados["mostra"])
+        if t.dados["papel"] == "reconferencia":
+            assert chave not in vistos
+            assert t.dados["degrau"] == ESC[t.dados["premissa"]].pratica[-1].id
+            assert t.dados["frases"] == []
+        vistos.add(chave)
+    assert len(_reconferencias(c)) == 5
+    assert {t.tipo for t in _reconferencias(c)} == {"degrau"}
+
+
+def test_a_reconferencia_nao_conta_nas_telas_da_premissa():
+    c = caminha(D, ESC, "nao_sabe_aprende")
+    assert all(c.estado.premissa(n).telas == 3 for n in D.ordem)
+    assert [e.dados["telas"] for e in c.eventos
+            if e.tipo == "premissa_fechada"] == [3] * 5
+
+
+def test_quem_aprendeu_e_acerta_no_fim_assimilou():
+    c = caminha(D, ESC, "nao_sabe_aprende")
+    assert {c.estado.premissa(n).reconferencia for n in D.ordem} == {"assimilou"}
+    assert _tipos(c, "reconferencia_respondida") == [
+        {"no": n, "resultado": "assimilou"} for n in D.ordem]
+
+
+def test_quem_corrigiu_a_crenca_e_acerta_no_fim_assimilou():
+    c = caminha(D, ESC, "crente_aprende")
+    assert {c.estado.premissa(n).resultado for n in D.ordem} == {"corrigiu"}
+    assert {c.estado.premissa(n).reconferencia for n in D.ordem} == {"assimilou"}
+
+
+def test_quem_erra_no_fim_nao_se_manteve_e_nao_abre_laco():
+    c = caminha(D, ESC, "crente_teimoso")
+    assert {c.estado.premissa(n).reconferencia for n in D.ordem} == {
+        "nao_se_manteve"}
+    rec = _reconferencias(c)
+    assert len(rec) == 5
+    depois = c.telas[c.telas.index(rec[0]):]
+    assert {t.tipo for t in depois} <= {"degrau", "pergunta", "retorno", "mapa"}
+    assert not [t for t in depois if t.dados.get("papel") in (
+        "subida", "treino", "abertura", "reforco", "topo")]
+
+
+def test_sem_exercicio_de_produzir_a_reconferencia_e_de_marcar():
+    """`nao_sabe_erra` vê as duas versões de todo degrau ao subir: não
+    sobra exercício de produzir, e a reconferência cai numa questão de
+    marcar ainda não usada — com razão, sem certeza."""
+    c = caminha(D, ESC, "nao_sabe_erra")
+    marcar = [t for t in _reconferencias(c) if t.tipo == "pergunta"]
+    assert marcar and not [t for t in _reconferencias(c) if t.tipo == "degrau"]
+    assert all(t.dados["pede_razao"] and not t.dados["pede_certeza"]
+               for t in marcar)
+    for t in marcar:
+        antes = [x.dados["atividade"] for x in c.telas[:c.telas.index(t)]
+                 if x.tipo == "pergunta"]
+        assert t.dados["atividade"] not in antes
+
+
+def test_sem_questao_nenhuma_o_mapa_diz_que_nao_deu_para_reconferir():
+    """O B1 do kc_00 tem três questões de marcar com razão. Quem gasta as
+    três e todos os exercícios fica sem reconferência — e o mapa diz."""
+    c = caminha(D, ESC, "nao_sabe_erra")
+    assert c.estado.premissa("B1").reconferencia == "sem_questao"
+    assert not [t for t in _reconferencias(c) if t.dados["premissa"] == "B1"]
+    assert {c.estado.premissa(n).reconferencia for n in D.ordem[1:]} == {
+        "nao_se_manteve"}
+
+
+def _com_crenca_na_pratica(no):
+    """A escada de `no` com a crença dele ligada aos erros do último
+    degrau de prática. O conteúdo do kc_00 não faz isso (só liga crença
+    onde ela é dita com todas as letras), então a regra é testada aqui
+    com uma escada montada de propósito."""
+    from dataclasses import replace
+    crenca = _crenca_de(no)
+    escada = ESC[no]
+    ultimo = escada.pratica[-1]
+    novo = replace(ultimo, versoes=tuple(
+        replace(v, erros=tuple(replace(x, crenca=crenca) for x in v.erros))
+        for v in ultimo.versoes))
+    return {**ESC, no: replace(escada, degraus=tuple(
+        novo if g.id == ultimo.id else g for g in escada.degraus))}
+
+
+def test_a_crenca_de_novo_no_fim_e_a_ideia_voltou():
+    escadas = _com_crenca_na_pratica("B1")
+    c = caminha(D, escadas, "crente_teimoso")
+    assert c.estado.premissa("B1").reconferencia == "a_ideia_voltou"
+    assert c.estado.premissa("B2").reconferencia == "nao_se_manteve"
+
+
+def _com_uma_versao_so():
+    """Escadas com UMA versão por degrau: o treino gasta os exercícios de
+    produzir, e a reconferência tem de ser de marcar."""
+    from dataclasses import replace
+    return {no: replace(e, degraus=tuple(
+        replace(g, versoes=g.versoes[:1]) for g in e.degraus))
+        for no, e in ESC.items()}
+
+
+def test_na_reconferencia_de_marcar_a_razao_da_crenca_e_a_ideia_voltou():
+    escadas = _com_uma_versao_so()
+    t = trilha.inicia(D, escadas, "s1")
+    t = trilha.avanca(D, escadas, t.estado, trilha.Entrada(
+        acao="comecar", modo="direto", ritmo="rapido"))
+
+    def anda(t, persona="sabe"):
+        return trilha.avanca(D, escadas, t.estado, trilha_alunos.responde(
+            D, escadas, t.tela, persona, t.estado))
+
+    t = anda(t)                                       # B1 firme
+    t = anda(t)
+    assert t.tela.dados["premissa"] == "B2"
+    t = trilha.avanca(D, escadas, t.estado,
+                      _marca(t.estado, crenca="no_value_no_memory"))
+    while t.tela.dados.get("papel") != "reconferencia":
+        t = anda(t)                                   # prova, treino, resto
+    assert (t.tela.tipo, t.tela.dados["premissa"]) == ("pergunta", "B2")
+    assert t.estado.premissa("B2").resultado == "corrigiu"
+    volta = trilha.avanca(D, escadas, t.estado,
+                          _marca(t.estado, crenca="no_value_no_memory"))
+    assert volta.estado.premissa("B2").reconferencia == "a_ideia_voltou"
+    assert volta.tela.tipo == "retorno"
+    certa = anda(t)
+    assert certa.estado.premissa("B2").reconferencia == "assimilou"
+
+
+def test_o_mapa_traz_resultado_degrau_e_reconferencia():
+    c = caminha(D, ESC, "nao_sabe_aprende")
+    p = c.telas[-1].dados["premissas"][0]
+    assert set(p) == {"no", "texto", "resultado", "trabalho", "degrau",
+                      "degraus", "reconferencia", "telas", "crenca",
+                      "apareceu", "frases", "codigo"}
+    assert p["degrau"] == p["degraus"] == len(ESC["B1"].degraus)
+    assert (p["resultado"], p["trabalho"], p["reconferencia"]) == (
+        "aprendeu_agora", "lacuna", "assimilou")
+    assert p["texto"] == D.nos["B1"].simples
+    assert p["frases"] == [f for g in ESC["B1"].guiados for f in g.frases]
+    assert p["codigo"] == ESC["B1"].revisao.codigo
+
+
+def test_no_mapa_quem_fechou_pelo_topo_tem_a_escada_inteira():
+    for p in caminha(D, ESC, "sabe").telas[-1].dados["premissas"]:
+        assert p["degrau"] == p["degraus"] and p["resultado"] == "ja_sabia"
+    for p in caminha(D, ESC, "nao_sabe_erra").telas[-1].dados["premissas"]:
+        assert p["degrau"] == 0 and p["resultado"] == "em_aberto"
+
+
+def test_o_mapa_diz_a_crenca_corrigida_e_as_que_so_apareceram():
+    c = caminha(D, ESC, "crente_aprende")
+    premissas = c.telas[-1].dados["premissas"]
+    assert [p["crenca"] for p in premissas] == [
+        D.crencas[_crenca_de(n)].afirma for n in D.ordem]
+    assert all(p["apareceu"] == [] for p in premissas)
+
+
 def test_o_motor_nao_importa_relogio_disco_nem_sorteio():
     fonte = (RAIZ / "trilha.py").read_text(encoding="utf-8")
     for proibido in ("import random", "import time", "datetime", "open(",

@@ -207,6 +207,21 @@ def caminha(d, escadas, persona: str, modo: str = "direto",
                           responde(d, escadas, t.tela, persona, t.estado))
 
 
+def reconferencias(c: Caminhada) -> int:
+    return sum(1 for t in c.telas if t.dados.get("papel") == "reconferencia")
+
+
 def conta(c: Caminhada) -> int:
-    """As telas de uma caminhada, como a spec conta: sem `retorno`."""
-    return sum(1 for t in c.telas if t.tipo != "retorno")
+    """As telas de uma caminhada, como a spec conta (docs/trilha.md, 6.10).
+
+    A entrada e o mapa, o que cada premissa somou — onde a subida inteira
+    da escada vale UMA, e o retorno não conta —, e a reconferência.
+    """
+    por_premissa = sum(p.telas for p in c.estado.premissas.values())
+    return 2 + por_premissa + reconferencias(c)
+
+
+def toques(c: Caminhada) -> int:
+    """Quantas vezes a pessoa respondeu ou seguiu: a medida do esforço,
+    em que cada degrau da escada conta."""
+    return len(c.telas) - 1
