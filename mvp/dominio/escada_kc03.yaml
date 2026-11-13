@@ -1,0 +1,1369 @@
+# A escada do kc_03 — declaração e inicialização de ponteiros.
+#
+# O QUE É. Para cada premissa do tópico, os degraus do mais mecânico até
+# a ideia, e a prova de cada crença que nega a premissa. Segue o molde
+# do kc_00 e do kc_02, e a mesma régua do texto (docs/trilha.md, 6.16).
+#
+# QUEM CHEGA AQUI passou pelo kc_00 e pelo kc_02: sabe declarar, guardar
+# e ler uma variável; sabe o que é endereço (`&idade`), declarar um
+# ponteiro (`int *p;`), guardar um endereço nele (`p = &idade;`) e
+# chegar ao lugar apontado (`*p`). O cenário continua: `idade`, `nota`,
+# `turma`, e os ponteiros `p`, `q` e `c`.
+#
+# O QUE ESTE TÓPICO APRESENTA, e onde:
+#
+#   int *p, q;        dois nomes numa linha, e de quem é o *    B2, degrau 2
+#   int *p, *q;       dois ponteiros numa linha                 B2, degrau 3
+#   NULL              "não aponta para lugar nenhum"            I2, degrau 1
+#   p = NULL;         escrever NULL num ponteiro                I2, degrau 2
+#   int *p = NULL;    o ponteiro que já nasce com NULL          I2, degrau 3
+#
+# NADA AQUI É EXECUTADO LENDO O QUE NINGUÉM ESCREVEU. O assunto do
+# tópico é justamente a variável e o ponteiro sem valor escolhido. Os
+# degraus de `digitar` só rodam trechos em que tudo recebeu valor antes
+# de ser lido; os trechos que usam ponteiro sem endereço aparecem para a
+# pessoa ESCOLHER e ORDENAR, e o conferidor só os compila. Cinco das
+# seis provas são o que o compilador DIZ, e não uma saída.
+#
+# O `if` NÃO ENTRA. A premissa do I2 fala de NULL, e o jeito usual de
+# usá-lo é um teste (`if (p == NULL)`). O teste é assunto do kc_05; aqui
+# o NULL é só um valor que se escreve — e que não aparece sozinho.
+#
+# AS QUESTÕES DE MARCAR. O banco do kc_03 foi escrito para o fluxo
+# anterior, em que um cartão ensinava cada construto, e NÃO foi mexido:
+# os cartões do tópico foram escritos contando com o cenário de cada
+# questão. Onze das 36 questões de diagnóstico e de treino usam o que
+# esta escada não ensina — `sizeof`, vetor, laço, `malloc`, `if`, função
+# de várias linhas —, e estão em `fora_da_trilha`, na premissa de cada
+# uma. Em quatro premissas a que ficou de fora é justamente a de código
+# de degrau 2, que abriria a premissa; nelas a trilha abre com a de
+# código que sobrou (B1, I2 e I3) ou, no B3, com a de conceito — é a
+# única premissa do tópico que fica com duas questões só.
+#
+# A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
+# alternativa de um degrau guiado, e só ali o erro leva `crenca`.
+#
+# gerado_por: Claude Fable 5.2, em 13/11/2026
+# revisado_por:
+#   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
+#   principal)
+
+B1:
+  revisao:
+    frases:
+      - "Declarar cria o lugar da variável, antes de qualquer valor."
+      - "Vale para toda variável: int idade; cria o lugar de idade, e int *p; cria o lugar de p."
+    codigo: |
+      int idade;
+      int *p;
+    saida: ""
+  # sizeof com %zu, e vetor: a escada não ensina nenhum dos dois.
+  fora_da_trilha: [ciu_kc03_002, ciu_kc03_t03]
+  provas:
+    - crenca: no_value_no_memory
+      programa: |
+        int nota;
+        int *q;
+
+        q = &nota;
+        *q = 7;
+        printf("%d\n", nota);
+      previsao:
+        pergunta: >
+          Quando a linha q = &nota; roda, nota ainda não recebeu valor
+          nenhum. O que o trecho imprime?
+        opcoes:
+          - "7"
+          - "Nada: sem valor, nota ainda não existe, e não tem endereço"
+        real: 0
+        crenca: 1
+      espera: "7"
+      afirma: >
+        Saiu 7. O endereço de nota foi pego antes de ela ter valor, e o
+        7 entrou por ele. O lugar existe desde a declaração; o valor só
+        chega depois.
+  degraus:
+    - id: esc_kc03_B1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Declarar uma variável já reserva o lugar dela na memória."
+        - "O valor vem depois. O lugar existe desde a declaração."
+      versoes:
+        - pede: "Depois dessa linha, o que já existe?"
+          antes: "int idade;"
+          pecas:
+            - "O lugar de idade, reservado"
+            - "Nada ainda: sem valor, a variável não existe"
+            - "O lugar de idade, com zero dentro"
+          certa: [[0]]
+          certa_texto: "O lugar de idade, reservado"
+          erros:
+            - exata: [1]
+              crenca: no_value_no_memory
+              retorno: "A declaração já reserva o lugar, com valor ou sem. O que falta a idade é o valor, e não a existência."
+            - exata: [2]
+              retorno: "O lugar existe, mas ninguém escreveu zero nele. Declarar reserva; não escreve."
+          retorno_geral: "A declaração reserva o lugar de idade. O valor vem depois."
+        - pede: "Depois dessa linha, o que já existe?"
+          antes: "int nota;"
+          pecas:
+            - "O lugar de nota, reservado"
+            - "Nada ainda: sem valor, a variável não existe"
+            - "O lugar de nota, com zero dentro"
+          certa: [[0]]
+          certa_texto: "O lugar de nota, reservado"
+          erros:
+            - exata: [1]
+              crenca: no_value_no_memory
+              retorno: "A declaração já reserva o lugar, com valor ou sem. O que falta a nota é o valor, e não a existência."
+            - exata: [2]
+              retorno: "O lugar existe, mas ninguém escreveu zero nele. Declarar reserva; não escreve."
+          retorno_geral: "A declaração reserva o lugar de nota. O valor vem depois."
+
+    - id: esc_kc03_B1_2
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "Como o lugar já existe, ele já tem endereço."
+        - "Dá para guardar o endereço de idade num ponteiro antes de idade receber qualquer valor."
+      versoes:
+        - pede: "idade ainda não tem valor. Guarde o endereço dela em p."
+          antes: |-
+            int idade;
+            int *p;
+          pecas: ["p", "=", "&idade", ";", "idade"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "p = &idade;"
+          erros:
+            - exata: [0, 1, 4, 3]
+              retorno: "idade, sem o &, seria o valor guardado, e ela ainda nem tem valor. O que já existe é o lugar: p = &idade;"
+            - exata: [2, 1, 0, 3]
+              invalida: true
+              retorno: "Quem recebe fica à esquerda do sinal de igual. É p que recebe o endereço: p = &idade;"
+          retorno_geral: "O lugar de idade já existe, e o endereço dele é &idade: p = &idade;"
+        - pede: "nota ainda não tem valor. Guarde o endereço dela em q."
+          antes: |-
+            int nota;
+            int *q;
+          pecas: ["q", "=", "&nota", ";", "nota"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "q = &nota;"
+          erros:
+            - exata: [0, 1, 4, 3]
+              retorno: "nota, sem o &, seria o valor guardado, e ela ainda nem tem valor. O que já existe é o lugar: q = &nota;"
+            - exata: [2, 1, 0, 3]
+              invalida: true
+              retorno: "Quem recebe fica à esquerda do sinal de igual. É q que recebe o endereço: q = &nota;"
+          retorno_geral: "O lugar de nota já existe, e o endereço dele é &nota: q = &nota;"
+
+    - id: esc_kc03_B1_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com o endereço na mão, dá para escrever no lugar de idade pelo ponteiro."
+        - "É a primeira escrita em idade, e ela encontra o lugar pronto."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            p = &idade;
+            *p = 15;
+            printf("%d\n", idade);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "Ninguém pôs zero em idade. A linha *p = 15; escreveu 15 no lugar dela, que existia desde a declaração."
+          retorno_geral: "O lugar de idade existe desde a declaração. *p = 15; escreveu nele: o trecho mostra 15."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int pontos;
+            int *q;
+
+            q = &pontos;
+            *q = 3;
+            printf("%d\n", pontos);
+          aceitas: ["3"]
+          certa_texto: "3"
+          erros:
+            - texto: "0"
+              retorno: "Ninguém pôs zero em pontos. A linha *q = 3; escreveu 3 no lugar dela, que existia desde a declaração."
+          retorno_geral: "O lugar de pontos existe desde a declaração. *q = 3; escreveu nele: o trecho mostra 3."
+
+    - id: esc_kc03_B1_4
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Declare um inteiro chamado nota e, sem dar valor a ele, guarde o endereço dele em q."
+          antes: "int *q;"
+          pecas: ["int nota;", "q = &nota;", "nota = 0;", "q = nota;"]
+          certa: [[0, 1]]
+          certa_texto: "int nota; q = &nota;"
+          erros:
+            - exata: [1, 0]
+              invalida: true
+              retorno: "Primeiro a declaração, que cria o lugar. Só depois o endereço: int nota; e então q = &nota;"
+            - exata: [0, 3]
+              invalida: true
+              retorno: "nota, sem o &, é o valor guardado, e o ponteiro recebe endereço. O compilador reclama. O certo é q = &nota;"
+            - exata: [0, 2, 1]
+              retorno: "Não precisava do valor: o lugar de nota existe desde a declaração. Bastam int nota; e q = &nota;"
+          retorno_geral: "São duas linhas: int nota; cria o lugar, e q = &nota; guarda o endereço dele."
+        - pede: "Declare um inteiro chamado idade e, sem dar valor a ele, guarde o endereço dele em p."
+          antes: "int *p;"
+          pecas: ["int idade;", "p = &idade;", "idade = 0;", "p = idade;"]
+          certa: [[0, 1]]
+          certa_texto: "int idade; p = &idade;"
+          erros:
+            - exata: [1, 0]
+              invalida: true
+              retorno: "Primeiro a declaração, que cria o lugar. Só depois o endereço: int idade; e então p = &idade;"
+            - exata: [0, 3]
+              invalida: true
+              retorno: "idade, sem o &, é o valor guardado, e o ponteiro recebe endereço. O compilador reclama. O certo é p = &idade;"
+            - exata: [0, 2, 1]
+              retorno: "Não precisava do valor: o lugar de idade existe desde a declaração. Bastam int idade; e p = &idade;"
+          retorno_geral: "São duas linhas: int idade; cria o lugar, e p = &idade; guarda o endereço dele."
+
+    - id: esc_kc03_B1_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Quantos lugares da memória estas três linhas reservam?"
+          antes: |-
+            int idade;
+            int nota;
+            int *p;
+          pecas:
+            - "Três: um para cada nome declarado"
+            - "Dois: o ponteiro não conta"
+            - "Nenhum: nada recebeu valor"
+          certa: [[0]]
+          certa_texto: "Três: um para cada nome declarado"
+          erros:
+            - exata: [1]
+              retorno: "O ponteiro é uma variável como as outras, e a declaração reserva o lugar dele também. São três."
+            - exata: [2]
+              retorno: "Declarar já reserva o lugar, com valor ou sem. São três nomes declarados, e três lugares."
+          retorno_geral: "Cada declaração reserva um lugar: o de idade, o de nota e o de p."
+        - pede: "Quantos lugares da memória estas três linhas reservam?"
+          antes: |-
+            char turma;
+            int *q;
+            int pontos;
+          pecas:
+            - "Três: um para cada nome declarado"
+            - "Dois: o ponteiro não conta"
+            - "Nenhum: nada recebeu valor"
+          certa: [[0]]
+          certa_texto: "Três: um para cada nome declarado"
+          erros:
+            - exata: [1]
+              retorno: "O ponteiro é uma variável como as outras, e a declaração reserva o lugar dele também. São três."
+            - exata: [2]
+              retorno: "Declarar já reserva o lugar, com valor ou sem. São três nomes declarados, e três lugares."
+          retorno_geral: "Cada declaração reserva um lugar: o de turma, o de q e o de pontos."
+
+B2:
+  revisao:
+    frases:
+      - "Em int *p; a variável criada se chama p. O * diz o que p é: um ponteiro."
+      - "Cada nome leva o seu *: int *p, *q; declara dois ponteiros, e int *p, q; um ponteiro e um int."
+    codigo: |
+      int *p, *q;
+    saida: ""
+  provas:
+    - crenca: estrela_e_do_tipo
+      programa: |
+        int idade;
+        int* p, q;
+
+        p = &idade;
+        q = &idade;
+      previsao:
+        pergunta: >
+          A segunda linha escreve o * junto do tipo e declara p e q. O
+          compilador reclama de alguma das duas últimas linhas?
+        opcoes:
+          - "Não: int* vale para os dois, e p e q são ponteiros"
+          - "Sim, de p = &idade;"
+          - "Sim, de q = &idade;"
+        real: 2
+        crenca: 0
+      reclama: "makes integer from pointer without a cast"
+      ambiente: >
+        Mensagem do gcc 16.2 para a linha de q. Todo compilador de C tem
+        de reclamar dela, cada um com as suas palavras.
+      afirma: >
+        O compilador reclama só de q: ele é um int comum, e &idade é um
+        endereço. O * não pertence ao tipo — pertence ao nome em que
+        está colado, e ali só p ficou ponteiro.
+  degraus:
+    - id: esc_kc03_B2_1
+      guiado: true
+      forma: tocar
+      codigo: true
+      frases:
+        - "Em int *p; a variável que nasce se chama p."
+        - "O * não é outra variável: ele faz parte do que p é."
+      versoes:
+        - pede: "Toque no nome da variável declarada."
+          mostra: "int *p;"
+          pecas: ["int", "*", "p", ";"]
+          certa: [[2]]
+          certa_texto: "p"
+          erros:
+            - exata: [1]
+              retorno: "O * não é nome nem variável: ele diz que p é um ponteiro. O nome é p."
+            - exata: [0]
+              retorno: "int é o tipo do que fica no endereço guardado. O nome da variável é p."
+            - exata: [3]
+              retorno: "O ponto e vírgula só fecha a linha. O nome da variável é p."
+          retorno_geral: "A variável declarada se chama p. O * diz que ela é um ponteiro."
+        - pede: "Toque no nome da variável declarada."
+          mostra: "char *c;"
+          pecas: ["char", "*", "c", ";"]
+          certa: [[2]]
+          certa_texto: "c"
+          erros:
+            - exata: [1]
+              retorno: "O * não é nome nem variável: ele diz que c é um ponteiro. O nome é c."
+            - exata: [0]
+              retorno: "char é o tipo do que fica no endereço guardado. O nome da variável é c."
+            - exata: [3]
+              retorno: "O ponto e vírgula só fecha a linha. O nome da variável é c."
+          retorno_geral: "A variável declarada se chama c. O * diz que ela é um ponteiro."
+
+    - id: esc_kc03_B2_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Dá para declarar dois nomes numa linha, separados por vírgula."
+        - "O * vale só para o nome em que está colado: em int *p, q; p é ponteiro, e q é um int comum."
+      versoes:
+        - pede: "O que esta linha declara?"
+          antes: "int *p, q;"
+          pecas:
+            - "Um ponteiro, p, e um int comum, q"
+            - "Dois ponteiros: o * é do tipo, e vale para os dois"
+            - "Dois ints comuns"
+          certa: [[0]]
+          certa_texto: "Um ponteiro, p, e um int comum, q"
+          erros:
+            - exata: [1]
+              crenca: estrela_e_do_tipo
+              retorno: "O * não pertence ao tipo: pertence ao nome em que está colado. Aqui só p é ponteiro; q é um int comum."
+            - exata: [2]
+              retorno: "p tem o * na frente, e é ponteiro. q não tem, e é um int comum."
+          retorno_geral: "p, que leva o *, é ponteiro. q, que não leva, é um int comum."
+        - pede: "O que esta linha declara?"
+          antes: "char *c, d;"
+          pecas:
+            - "Um ponteiro, c, e um char comum, d"
+            - "Dois ponteiros: o * é do tipo, e vale para os dois"
+            - "Dois chars comuns"
+          certa: [[0]]
+          certa_texto: "Um ponteiro, c, e um char comum, d"
+          erros:
+            - exata: [1]
+              crenca: estrela_e_do_tipo
+              retorno: "O * não pertence ao tipo: pertence ao nome em que está colado. Aqui só c é ponteiro; d é um char comum."
+            - exata: [2]
+              retorno: "c tem o * na frente, e é ponteiro. d não tem, e é um char comum."
+          retorno_geral: "c, que leva o *, é ponteiro. d, que não leva, é um char comum."
+
+    - id: esc_kc03_B2_3
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "Para declarar dois ponteiros na mesma linha, ponha um * em cada nome."
+      versoes:
+        - pede: "Declare, numa linha só, dois ponteiros para inteiro: p e q."
+          pecas: ["int", "*p", ",", "*q", ";", "q"]
+          certa: [[0, 1, 2, 3, 4]]
+          certa_texto: "int *p, *q;"
+          erros:
+            - exata: [0, 1, 2, 5, 4]
+              retorno: "Assim q fica um int comum: o * de p não vale para ele. Cada ponteiro leva o seu: int *p, *q;"
+          retorno_geral: "Cada nome leva o seu *: int *p, *q;"
+        - pede: "Declare, numa linha só, dois ponteiros para caractere: c e d."
+          pecas: ["char", "*c", ",", "*d", ";", "d"]
+          certa: [[0, 1, 2, 3, 4]]
+          certa_texto: "char *c, *d;"
+          erros:
+            - exata: [0, 1, 2, 5, 4]
+              retorno: "Assim d fica um char comum: o * de c não vale para ele. Cada ponteiro leva o seu: char *c, *d;"
+          retorno_geral: "Cada nome leva o seu *: char *c, *d;"
+
+    - id: esc_kc03_B2_4
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Qual linha declara dois ponteiros?"
+          pecas: ["int *p, *q;", "int* p, q;", "int p, q;"]
+          certa: [[0]]
+          certa_texto: "int *p, *q;"
+          erros:
+            - exata: [1]
+              retorno: "Mudar o espaço de lugar não muda nada: o * continua valendo só para p, e q fica um int comum. Dois ponteiros: int *p, *q;"
+            - exata: [2]
+              retorno: "Sem * nenhum, os dois são ints comuns. Dois ponteiros: int *p, *q;"
+          retorno_geral: "Dois ponteiros pedem dois asteriscos, um em cada nome: int *p, *q;"
+        - pede: "Qual linha declara dois ponteiros?"
+          pecas: ["char* c, d;", "char *c, *d;", "char c, d;"]
+          certa: [[1]]
+          certa_texto: "char *c, *d;"
+          erros:
+            - exata: [0]
+              retorno: "Mudar o espaço de lugar não muda nada: o * continua valendo só para c, e d fica um char comum. Dois ponteiros: char *c, *d;"
+            - exata: [2]
+              retorno: "Sem * nenhum, os dois são chars comuns. Dois ponteiros: char *c, *d;"
+          retorno_geral: "Dois ponteiros pedem dois asteriscos, um em cada nome: char *c, *d;"
+
+    - id: esc_kc03_B2_5
+      guiado: false
+      forma: completar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "q foi declarada na segunda linha. Complete com o que q pode receber."
+          antes: |-
+            int idade;
+            int *p, q;
+          mostra: "q = ___;"
+          pecas: ["15", "&idade", "p"]
+          certa: [[0]]
+          certa_texto: "q = 15;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "q não é ponteiro: o * da segunda linha é só de p. q é um int comum, e recebe um número: q = 15;"
+            - exata: [2]
+              invalida: true
+              retorno: "p é ponteiro, e q é um int comum: o * não valeu para ele. q recebe um número: q = 15;"
+          retorno_geral: "Em int *p, q; só p é ponteiro. q é um int comum: q = 15;"
+        - pede: "n foi declarada na segunda linha. Complete com o que n pode receber."
+          antes: |-
+            int nota;
+            int *q, n;
+          mostra: "n = ___;"
+          pecas: ["7", "&nota", "q"]
+          certa: [[0]]
+          certa_texto: "n = 7;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "n não é ponteiro: o * da segunda linha é só de q. n é um int comum, e recebe um número: n = 7;"
+            - exata: [2]
+              invalida: true
+              retorno: "q é ponteiro, e n é um int comum: o * não valeu para ele. n recebe um número: n = 7;"
+          retorno_geral: "Em int *q, n; só q é ponteiro. n é um int comum: n = 7;"
+
+B3:
+  revisao:
+    frases:
+      - "O C não escreve nada na variável quando você declara: nem zero."
+      - "Vale para o ponteiro também: logo depois de int *p; ninguém escolheu o que p guarda."
+    codigo: |
+      int nota;
+      int *p;
+
+      nota = 0;
+      p = &nota;
+    saida: ""
+  # Função de várias linhas, variável fora de função, laço e vetor: a
+  # escada não ensina nenhum deles.
+  fora_da_trilha: [ciu_kc03_008, ciu_kc03_009, ciu_kc03_t08, ciu_kc03_t09]
+  provas:
+    - crenca: declaration_zeroes
+      programa: |
+        int nota;
+
+        printf("%d\n", nota);
+      previsao:
+        pergunta: "O compilador reclama de alguma coisa neste trecho?"
+        opcoes:
+          - "Não: nota foi declarada, e começa valendo 0"
+          - "Sim: nota está sendo lida sem ter recebido valor"
+        real: 1
+        crenca: 0
+      reclama: "'nota' is used uninitialized"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa não
+        é executado: o que ele imprimiria, ninguém sabe.
+      afirma: >
+        Se declarar zerasse a variável, não haveria do que reclamar. O
+        compilador avisa que nota é lida sem valor ("used uninitialized"):
+        o C não escreveu nada ali, nem zero.
+  degraus:
+    - id: esc_kc03_B3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Declarar reserva o lugar, mas não escreve nada nele."
+        - "O que estava naquele lugar antes continua lá: um valor que ninguém escolheu."
+      versoes:
+        - pede: "Logo depois dessa linha, o que está guardado em nota?"
+          antes: "int nota;"
+          pecas:
+            - "O que já estava naquele lugar: ninguém escolheu"
+            - "Zero: declarar já zera a variável"
+            - "Nada: o lugar está vazio"
+          certa: [[0]]
+          certa_texto: "O que já estava naquele lugar: ninguém escolheu"
+          erros:
+            - exata: [1]
+              crenca: declaration_zeroes
+              retorno: "O C não zera o que você declara. O lugar fica com o que já estava nele, e ninguém escolheu esse valor."
+            - exata: [2]
+              retorno: "Lugar da memória não fica vazio: sempre há alguma coisa guardada. Aqui, o que já estava lá antes."
+          retorno_geral: "Declarar não escreve nada. nota fica com o que já estava naquele lugar."
+        - pede: "Logo depois dessa linha, o que está guardado em idade?"
+          antes: "int idade;"
+          pecas:
+            - "O que já estava naquele lugar: ninguém escolheu"
+            - "Zero: declarar já zera a variável"
+            - "Nada: o lugar está vazio"
+          certa: [[0]]
+          certa_texto: "O que já estava naquele lugar: ninguém escolheu"
+          erros:
+            - exata: [1]
+              crenca: declaration_zeroes
+              retorno: "O C não zera o que você declara. O lugar fica com o que já estava nele, e ninguém escolheu esse valor."
+            - exata: [2]
+              retorno: "Lugar da memória não fica vazio: sempre há alguma coisa guardada. Aqui, o que já estava lá antes."
+          retorno_geral: "Declarar não escreve nada. idade fica com o que já estava naquele lugar."
+
+    - id: esc_kc03_B3_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Com o ponteiro é igual: int *p; reserva o lugar de p e não escreve nada nele."
+        - "O que p guarda nesse momento é um valor que ninguém escolheu."
+      versoes:
+        - pede: "Logo depois dessa linha, o que está guardado em p?"
+          antes: "int *p;"
+          pecas:
+            - "Um valor que ninguém escolheu"
+            - "O endereço de um int que acabou de ser criado"
+            - "Zero: ponteiro novo vem zerado"
+          certa: [[0]]
+          certa_texto: "Um valor que ninguém escolheu"
+          erros:
+            - exata: [1]
+              retorno: "A linha cria só o ponteiro. Ninguém escreveu endereço nenhum em p: ele guarda o que já estava naquele lugar."
+            - exata: [2]
+              retorno: "O C não zera o que você declara, e ponteiro não é exceção. p guarda o que já estava naquele lugar."
+          retorno_geral: "p foi declarado e ninguém escreveu nele: guarda um valor que ninguém escolheu."
+        - pede: "Logo depois dessa linha, o que está guardado em c?"
+          antes: "char *c;"
+          pecas:
+            - "Um valor que ninguém escolheu"
+            - "O endereço de um char que acabou de ser criado"
+            - "Zero: ponteiro novo vem zerado"
+          certa: [[0]]
+          certa_texto: "Um valor que ninguém escolheu"
+          erros:
+            - exata: [1]
+              retorno: "A linha cria só o ponteiro. Ninguém escreveu endereço nenhum em c: ele guarda o que já estava naquele lugar."
+            - exata: [2]
+              retorno: "O C não zera o que você declara, e ponteiro não é exceção. c guarda o que já estava naquele lugar."
+          retorno_geral: "c foi declarado e ninguém escreveu nele: guarda um valor que ninguém escolheu."
+
+    - id: esc_kc03_B3_3
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "Por isso a regra do começo continua valendo: escreva antes de ler."
+        - "Para a variável começar em zero, o zero tem de ser escrito por uma linha sua."
+      versoes:
+        - pede: "Faça nota começar valendo zero."
+          antes: "int nota;"
+          pecas: ["nota", "=", "0", ";", "int"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "nota = 0;"
+          erros:
+            - exata: [4, 0, 3]
+              invalida: true
+              retorno: "Declarar de novo não zera nada, e o compilador reclama da repetição. O zero entra por uma escrita: nota = 0;"
+            - exata: [2, 1, 0, 3]
+              invalida: true
+              retorno: "Quem recebe fica à esquerda do sinal de igual. É nota que recebe o zero: nota = 0;"
+          retorno_geral: "O zero entra por uma linha que escreve: nota = 0;"
+        - pede: "Faça idade começar valendo zero."
+          antes: "int idade;"
+          pecas: ["idade", "=", "0", ";", "int"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "idade = 0;"
+          erros:
+            - exata: [4, 0, 3]
+              invalida: true
+              retorno: "Declarar de novo não zera nada, e o compilador reclama da repetição. O zero entra por uma escrita: idade = 0;"
+            - exata: [2, 1, 0, 3]
+              invalida: true
+              retorno: "Quem recebe fica à esquerda do sinal de igual. É idade que recebe o zero: idade = 0;"
+          retorno_geral: "O zero entra por uma linha que escreve: idade = 0;"
+
+    - id: esc_kc03_B3_4
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Ponha as linhas na ordem em que nota só é lida depois de receber valor."
+          pecas: ["int nota;", 'printf("%d\n", nota);', "nota = 7;"]
+          certa: [[0, 2, 1]]
+          certa_texto: 'int nota; nota = 7; printf("%d\n", nota);'
+          erros:
+            - exata: [0, 1, 2]
+              retorno: "Nessa ordem o printf lê nota antes de alguém escrever nela. Primeiro nota = 7; e só depois o printf."
+            - exata: [2, 0, 1]
+              invalida: true
+              retorno: "nota = 7; não pode vir antes da declaração: a variável ainda não existe. Declarar, escrever, ler."
+          retorno_geral: "A ordem é declarar, escrever e só então ler."
+        - pede: "Ponha as linhas na ordem em que idade só é lida depois de receber valor."
+          pecas: ["int idade;", 'printf("%d\n", idade);', "idade = 15;"]
+          certa: [[0, 2, 1]]
+          certa_texto: 'int idade; idade = 15; printf("%d\n", idade);'
+          erros:
+            - exata: [0, 1, 2]
+              retorno: "Nessa ordem o printf lê idade antes de alguém escrever nela. Primeiro idade = 15; e só depois o printf."
+            - exata: [2, 0, 1]
+              invalida: true
+              retorno: "idade = 15; não pode vir antes da declaração: a variável ainda não existe. Declarar, escrever, ler."
+          retorno_geral: "A ordem é declarar, escrever e só então ler."
+
+    - id: esc_kc03_B3_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Qual destas variáveis ainda não pode ser lida?"
+          antes: |-
+            int idade;
+            int nota;
+            int *p;
+
+            nota = 0;
+            p = &nota;
+          pecas:
+            - "idade: foi declarada, e ninguém escreveu nela"
+            - "nota: zero não conta como valor"
+            - "p: ponteiro não pode ser lido"
+          certa: [[0]]
+          certa_texto: "idade: foi declarada, e ninguém escreveu nela"
+          erros:
+            - exata: [1]
+              retorno: "Zero é um valor como outro qualquer, e foi escrito por uma linha. A que ninguém escreveu é idade."
+            - exata: [2]
+              retorno: "p recebeu o endereço de nota, e pode ser lido. A que ninguém escreveu é idade."
+          retorno_geral: "idade foi declarada e não recebeu valor: é a que ainda não pode ser lida."
+        - pede: "Qual destas variáveis ainda não pode ser lida?"
+          antes: |-
+            int pontos;
+            int ano;
+            int *q;
+
+            ano = 0;
+            q = &pontos;
+          pecas:
+            - "pontos: foi declarada, e ninguém escreveu nela"
+            - "ano: zero não conta como valor"
+            - "q: ponteiro não pode ser lido"
+          certa: [[0]]
+          certa_texto: "pontos: foi declarada, e ninguém escreveu nela"
+          erros:
+            - exata: [1]
+              retorno: "Zero é um valor como outro qualquer, e foi escrito por uma linha. A que ninguém escreveu é pontos."
+            - exata: [2]
+              retorno: "q recebeu o endereço de pontos, e pode ser lido. A que ninguém escreveu é pontos."
+          retorno_geral: "pontos foi declarada e não recebeu valor: é a que ainda não pode ser lida."
+
+I1:
+  revisao:
+    frases:
+      - "int *p; cria uma variável só: p. O lugar apontado não vem junto."
+      - "Para p ter para onde apontar, é preciso existir outra variável, e p receber o endereço dela."
+    codigo: |
+      int idade;
+      int *p;
+
+      p = &idade;
+      *p = 10;
+      printf("%d\n", idade);
+    saida: "10"
+  # malloc e sizeof: a escada não ensina nenhum dos dois.
+  fora_da_trilha: [ciu_kc03_t11]
+  provas:
+    - crenca: declaration_allocates
+      programa: |
+        int *p;
+
+        printf("%d\n", *p);
+      previsao:
+        pergunta: >
+          O printf pede o valor que mora no lugar apontado por p. O
+          compilador reclama de alguma coisa?
+        opcoes:
+          - "Sim: p não recebeu o endereço de lugar nenhum"
+          - "Não: int *p; já criou o int para onde p aponta"
+        real: 0
+        crenca: 1
+      reclama: "'p' is used uninitialized"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa não
+        é executado: o lugar que ele leria, ninguém escolheu.
+      afirma: >
+        O compilador avisa que p é usado sem ter recebido valor. A
+        declaração criou só o ponteiro: não há int nenhum esperando do
+        outro lado.
+  degraus:
+    - id: esc_kc03_I1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "int *p; declara uma variável só: o ponteiro."
+        - "O lugar para onde ele vai apontar não nasce junto. Quem cria esse lugar é outra declaração."
+      versoes:
+        - pede: "Quantos lugares da memória essa linha reserva?"
+          antes: "int *p;"
+          pecas:
+            - "Um: o de p"
+            - "Dois: o de p e o do int apontado, que já vem criado"
+            - "Nenhum: p não recebeu valor"
+          certa: [[0]]
+          certa_texto: "Um: o de p"
+          erros:
+            - exata: [1]
+              crenca: declaration_allocates
+              retorno: "A linha declara um nome só, p, e reserva um lugar só. O int apontado não vem junto: precisa de uma declaração dele."
+            - exata: [2]
+              retorno: "Declarar já reserva o lugar, com valor ou sem. A linha reserva um: o de p."
+          retorno_geral: "A linha reserva um lugar só: o do ponteiro p."
+        - pede: "Quantos lugares da memória essa linha reserva?"
+          antes: "char *c;"
+          pecas:
+            - "Um: o de c"
+            - "Dois: o de c e o do char apontado, que já vem criado"
+            - "Nenhum: c não recebeu valor"
+          certa: [[0]]
+          certa_texto: "Um: o de c"
+          erros:
+            - exata: [1]
+              crenca: declaration_allocates
+              retorno: "A linha declara um nome só, c, e reserva um lugar só. O char apontado não vem junto: precisa de uma declaração dele."
+            - exata: [2]
+              retorno: "Declarar já reserva o lugar, com valor ou sem. A linha reserva um: o de c."
+          retorno_geral: "A linha reserva um lugar só: o do ponteiro c."
+
+    - id: esc_kc03_I1_2
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Para o ponteiro ter para onde apontar, declare a variável e entregue o endereço dela."
+      versoes:
+        - pede: "Complete para p apontar para um lugar que existe."
+          antes: |-
+            int idade;
+            int *p;
+          mostra: "p = ___;"
+          pecas: ["&idade", "*p", "10"]
+          certa: [[0]]
+          certa_texto: "p = &idade;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "*p é o lugar apontado, e p ainda não aponta para lugar nenhum. O lugar que existe é o de idade: p = &idade;"
+            - exata: [2]
+              invalida: true
+              retorno: "10 é um valor, e não um endereço. p precisa do endereço de uma variável que exista: p = &idade;"
+          retorno_geral: "O lugar que existe é o de idade, e o endereço dele é &idade: p = &idade;"
+        - pede: "Complete para q apontar para um lugar que existe."
+          antes: |-
+            int nota;
+            int *q;
+          mostra: "q = ___;"
+          pecas: ["&nota", "*q", "7"]
+          certa: [[0]]
+          certa_texto: "q = &nota;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "*q é o lugar apontado, e q ainda não aponta para lugar nenhum. O lugar que existe é o de nota: q = &nota;"
+            - exata: [2]
+              invalida: true
+              retorno: "7 é um valor, e não um endereço. q precisa do endereço de uma variável que exista: q = &nota;"
+          retorno_geral: "O lugar que existe é o de nota, e o endereço dele é &nota: q = &nota;"
+
+    - id: esc_kc03_I1_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Agora *p tem dono: é o lugar de idade."
+        - "Escrever em *p é escrever em idade."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            p = &idade;
+            *p = 10;
+            printf("%d\n", idade);
+          aceitas: ["10"]
+          certa_texto: "10"
+          erros:
+            - texto: "0"
+              retorno: "Ninguém zerou idade. A linha *p = 10; escreveu 10 no lugar dela, que é para onde p aponta."
+          retorno_geral: "p aponta para idade. *p = 10; escreveu em idade: o trecho mostra 10."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int *q;
+
+            q = &nota;
+            *q = 4;
+            printf("%d\n", nota);
+          aceitas: ["4"]
+          certa_texto: "4"
+          erros:
+            - texto: "0"
+              retorno: "Ninguém zerou nota. A linha *q = 4; escreveu 4 no lugar dela, que é para onde q aponta."
+          retorno_geral: "q aponta para nota. *q = 4; escreveu em nota: o trecho mostra 4."
+
+    - id: esc_kc03_I1_4
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Em qual trecho *p tem um lugar de verdade?"
+          pecas:
+            - |-
+              int idade;
+              int *p;
+              p = &idade;
+            - |-
+              int *p;
+            - |-
+              int idade;
+              int *p;
+          certa: [[0]]
+          certa_texto: "int idade; int *p; p = &idade;"
+          erros:
+            - exata: [1]
+              retorno: "Aqui só existe o lugar de p. O lugar apontado não nasce com a declaração do ponteiro."
+            - exata: [2]
+              retorno: "idade existe, mas p não recebeu o endereço dela. Falta a linha p = &idade;"
+          retorno_geral: "*p só tem lugar quando existe uma variável e p recebeu o endereço dela."
+        - pede: "Em qual trecho *q tem um lugar de verdade?"
+          pecas:
+            - |-
+              int nota;
+              int *q;
+            - |-
+              int nota;
+              int *q;
+              q = &nota;
+            - |-
+              int *q;
+          certa: [[1]]
+          certa_texto: "int nota; int *q; q = &nota;"
+          erros:
+            - exata: [0]
+              retorno: "nota existe, mas q não recebeu o endereço dela. Falta a linha q = &nota;"
+            - exata: [2]
+              retorno: "Aqui só existe o lugar de q. O lugar apontado não nasce com a declaração do ponteiro."
+          retorno_geral: "*q só tem lugar quando existe uma variável e q recebeu o endereço dela."
+
+    - id: esc_kc03_I1_5
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Monte, em três linhas, um ponteiro q com um lugar de verdade para apontar."
+          pecas: ["int nota;", "int *q;", "q = &nota;", "int *nota;"]
+          certa: [[0, 1, 2], [1, 0, 2]]
+          certa_texto: "int nota; int *q; q = &nota;"
+          erros:
+            - exata: [3, 1, 2]
+              invalida: true
+              retorno: "int *nota; cria outro ponteiro, e não o int para onde q vai apontar. O lugar apontado é int nota;"
+            - exata: [0, 1]
+              retorno: "Faltou entregar o endereço: sem q = &nota; o ponteiro não aponta para o lugar que você criou."
+            - exata: [1, 2]
+              invalida: true
+              retorno: "Faltou criar o lugar apontado. Sem int nota; não existe nota nenhuma para dar o endereço."
+          retorno_geral: "São três linhas: int nota; cria o lugar, int *q; cria o ponteiro, e q = &nota; liga um ao outro."
+        - pede: "Monte, em três linhas, um ponteiro p com um lugar de verdade para apontar."
+          pecas: ["int idade;", "int *p;", "p = &idade;", "int *idade;"]
+          certa: [[0, 1, 2], [1, 0, 2]]
+          certa_texto: "int idade; int *p; p = &idade;"
+          erros:
+            - exata: [3, 1, 2]
+              invalida: true
+              retorno: "int *idade; cria outro ponteiro, e não o int para onde p vai apontar. O lugar apontado é int idade;"
+            - exata: [0, 1]
+              retorno: "Faltou entregar o endereço: sem p = &idade; o ponteiro não aponta para o lugar que você criou."
+            - exata: [1, 2]
+              invalida: true
+              retorno: "Faltou criar o lugar apontado. Sem int idade; não existe idade nenhuma para dar o endereço."
+          retorno_geral: "São três linhas: int idade; cria o lugar, int *p; cria o ponteiro, e p = &idade; liga um ao outro."
+
+I2:
+  revisao:
+    frases:
+      - "NULL é o valor que se escreve num ponteiro para dizer: não aponta para lugar nenhum."
+      - "Um ponteiro só vale NULL se uma linha escreveu NULL nele. Sem isso, guarda um valor que ninguém escolheu."
+    codigo: |
+      int *p;
+
+      p = NULL;
+    saida: ""
+  # if, malloc e sizeof; a comparação impressa com %d; função que
+  # devolve ponteiro: a escada não ensina nenhum deles.
+  fora_da_trilha: [ciu_kc03_014, ciu_kc03_t14, ciu_kc03_t15]
+  provas:
+    - crenca: uninitialized_is_null
+      programa: |
+        int *p;
+        int *q;
+
+        q = p;
+      previsao:
+        pergunta: >
+          A última linha copia para q o que está guardado em p. O que o
+          compilador diz dela?
+        opcoes:
+          - "Nada: p vale NULL, e copiar NULL é permitido"
+          - "Que p está sendo usado sem ter recebido valor"
+        real: 1
+        crenca: 0
+      reclama: "'p' is used uninitialized"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa não
+        é executado: o que ele copiaria de p, ninguém sabe.
+      afirma: >
+        Para o compilador, p não vale NULL: está sem valor ("used
+        uninitialized"). NULL é um valor como os outros — só está no
+        ponteiro em que uma linha o escreveu.
+  degraus:
+    - id: esc_kc03_I2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Existe um valor especial para ponteiro: NULL. Ele quer dizer: não aponta para lugar nenhum."
+        - "NULL não aparece sozinho. Um ponteiro só vale NULL se uma linha escreveu NULL nele."
+      versoes:
+        - pede: "Logo depois dessa linha, p vale NULL?"
+          antes: "int *p;"
+          pecas:
+            - "Não: p guarda um valor que ninguém escolheu"
+            - "Sim: ponteiro que não recebeu valor vale NULL"
+            - "Sim: declarar já zera, e zero é NULL"
+          certa: [[0]]
+          certa_texto: "Não: p guarda um valor que ninguém escolheu"
+          erros:
+            - exata: [1]
+              crenca: uninitialized_is_null
+              retorno: "NULL é um valor, e ninguém o escreveu em p. O ponteiro recém-declarado guarda o que já estava naquele lugar."
+            - exata: [2]
+              retorno: "O C não zera o que você declara. p guarda o que já estava naquele lugar, e não NULL."
+          retorno_geral: "Ninguém escreveu NULL em p. Ele guarda um valor que ninguém escolheu."
+        - pede: "Logo depois dessa linha, c vale NULL?"
+          antes: "char *c;"
+          pecas:
+            - "Não: c guarda um valor que ninguém escolheu"
+            - "Sim: ponteiro que não recebeu valor vale NULL"
+            - "Sim: declarar já zera, e zero é NULL"
+          certa: [[0]]
+          certa_texto: "Não: c guarda um valor que ninguém escolheu"
+          erros:
+            - exata: [1]
+              crenca: uninitialized_is_null
+              retorno: "NULL é um valor, e ninguém o escreveu em c. O ponteiro recém-declarado guarda o que já estava naquele lugar."
+            - exata: [2]
+              retorno: "O C não zera o que você declara. c guarda o que já estava naquele lugar, e não NULL."
+          retorno_geral: "Ninguém escreveu NULL em c. Ele guarda um valor que ninguém escolheu."
+
+    - id: esc_kc03_I2_2
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "Para um ponteiro valer NULL, escreva NULL nele."
+      versoes:
+        - pede: "Faça p valer NULL."
+          antes: "int *p;"
+          pecas: ["p", "=", "NULL", ";", "*p"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "p = NULL;"
+          erros:
+            - exata: [4, 1, 2, 3]
+              retorno: "*p é o lugar apontado, e p ainda não aponta para lugar nenhum. O NULL vai no próprio ponteiro: p = NULL;"
+            - exata: [2, 1, 0, 3]
+              invalida: true
+              retorno: "Quem recebe fica à esquerda do sinal de igual. É p que recebe o NULL: p = NULL;"
+          retorno_geral: "O NULL é escrito no próprio ponteiro: p = NULL;"
+        - pede: "Faça q valer NULL."
+          antes: "int *q;"
+          pecas: ["q", "=", "NULL", ";", "*q"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "q = NULL;"
+          erros:
+            - exata: [4, 1, 2, 3]
+              retorno: "*q é o lugar apontado, e q ainda não aponta para lugar nenhum. O NULL vai no próprio ponteiro: q = NULL;"
+            - exata: [2, 1, 0, 3]
+              invalida: true
+              retorno: "Quem recebe fica à esquerda do sinal de igual. É q que recebe o NULL: q = NULL;"
+          retorno_geral: "O NULL é escrito no próprio ponteiro: q = NULL;"
+
+    - id: esc_kc03_I2_3
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "O ponteiro também pode já nascer com NULL: int *p = NULL;"
+        - "É declarar e dar o valor na mesma linha, como em int idade = 15;"
+      versoes:
+        - pede: "Em qual linha p vale NULL com certeza?"
+          pecas: ["int *p = NULL;", "int *p;", "int *p, *q;"]
+          certa: [[0]]
+          certa_texto: "int *p = NULL;"
+          erros:
+            - exata: [1]
+              retorno: "Aqui ninguém escreveu NULL em p: ele guarda um valor que ninguém escolheu. Com certeza, só em int *p = NULL;"
+            - exata: [2]
+              retorno: "Declarar dois ponteiros não escreve nada em nenhum deles. Com certeza, só em int *p = NULL;"
+          retorno_geral: "p só vale NULL com certeza onde uma linha escreveu: int *p = NULL;"
+        - pede: "Em qual linha c vale NULL com certeza?"
+          pecas: ["char *c;", "char *c = NULL;", "char *c, *d;"]
+          certa: [[1]]
+          certa_texto: "char *c = NULL;"
+          erros:
+            - exata: [0]
+              retorno: "Aqui ninguém escreveu NULL em c: ele guarda um valor que ninguém escolheu. Com certeza, só em char *c = NULL;"
+            - exata: [2]
+              retorno: "Declarar dois ponteiros não escreve nada em nenhum deles. Com certeza, só em char *c = NULL;"
+          retorno_geral: "c só vale NULL com certeza onde uma linha escreveu: char *c = NULL;"
+
+    - id: esc_kc03_I2_4
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Depois destas linhas, qual ponteiro vale NULL?"
+          antes: |-
+            int *p;
+            int *q;
+
+            q = NULL;
+          pecas:
+            - "Só q: foi o único em que uma linha escreveu NULL"
+            - "Os dois: ponteiro sem endereço vale NULL"
+            - "Nenhum: p ainda não foi usado"
+          certa: [[0]]
+          certa_texto: "Só q: foi o único em que uma linha escreveu NULL"
+          erros:
+            - exata: [1]
+              retorno: "p não recebeu nada: guarda um valor que ninguém escolheu, e não NULL. Só q vale NULL, porque uma linha escreveu."
+            - exata: [2]
+              retorno: "q recebeu NULL na última linha, e vale NULL. p é que ficou sem valor escolhido."
+          retorno_geral: "Vale NULL o ponteiro em que uma linha escreveu NULL: só q."
+        - pede: "Depois destas linhas, qual ponteiro vale NULL?"
+          antes: |-
+            char *c = NULL;
+            char *d;
+          pecas:
+            - "Só c: foi o único em que uma linha escreveu NULL"
+            - "Os dois: ponteiro sem endereço vale NULL"
+            - "Nenhum: c ainda não foi usado"
+          certa: [[0]]
+          certa_texto: "Só c: foi o único em que uma linha escreveu NULL"
+          erros:
+            - exata: [1]
+              retorno: "d não recebeu nada: guarda um valor que ninguém escolheu, e não NULL. Só c vale NULL, porque uma linha escreveu."
+            - exata: [2]
+              retorno: "c nasceu com NULL, e vale NULL. d é que ficou sem valor escolhido."
+          retorno_geral: "Vale NULL o ponteiro em que uma linha escreveu NULL: só c."
+
+    - id: esc_kc03_I2_5
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Declare um ponteiro para inteiro chamado q que já nasça valendo NULL."
+          pecas: ["int", "*q", "=", "NULL", ";", "q"]
+          certa: [[0, 1, 2, 3, 4]]
+          certa_texto: "int *q = NULL;"
+          erros:
+            - exata: [0, 1, 4]
+              retorno: "Assim q nasce com um valor que ninguém escolheu, e não com NULL. O NULL tem de ser escrito: int *q = NULL;"
+            - exata: [0, 5, 2, 3, 4]
+              retorno: "Sem o *, q é um int comum, e NULL é valor de ponteiro. O certo é int *q = NULL;"
+          retorno_geral: "É declarar o ponteiro e dar o valor na mesma linha: int *q = NULL;"
+        - pede: "Declare um ponteiro para inteiro chamado p que já nasça valendo NULL."
+          pecas: ["int", "*p", "=", "NULL", ";", "p"]
+          certa: [[0, 1, 2, 3, 4]]
+          certa_texto: "int *p = NULL;"
+          erros:
+            - exata: [0, 1, 4]
+              retorno: "Assim p nasce com um valor que ninguém escolheu, e não com NULL. O NULL tem de ser escrito: int *p = NULL;"
+            - exata: [0, 5, 2, 3, 4]
+              retorno: "Sem o *, p é um int comum, e NULL é valor de ponteiro. O certo é int *p = NULL;"
+          retorno_geral: "É declarar o ponteiro e dar o valor na mesma linha: int *p = NULL;"
+
+I3:
+  revisao:
+    frases:
+      - "Um ponteiro recém-declarado guarda um valor que ninguém escolheu."
+      - "Usar *p nesse momento é ir a um lugar que ninguém escolheu. Primeiro p recebe um endereço; só depois vem o *p."
+    codigo: |
+      int nota;
+      int *p;
+
+      p = &nota;
+      *p = 7;
+      printf("%d\n", nota);
+    saida: "7"
+  # Colchetes de vetor: a escada não ensina.
+  fora_da_trilha: [ciu_kc03_017]
+  provas:
+    - crenca: pode_usar_logo
+      programa: |
+        int *p;
+
+        *p = 10;
+      previsao:
+        pergunta: "O compilador reclama da última linha?"
+        opcoes:
+          - "Não: depois de int *p; já dá para escrever em *p"
+          - "Sim: p ainda não recebeu endereço nenhum"
+        real: 1
+        crenca: 0
+      reclama: "'p' is used uninitialized"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa não
+        é executado: o lugar onde o 10 cairia, ninguém escolheu.
+      afirma: >
+        O compilador avisa que p é usado sem ter recebido valor. *p vai
+        ao lugar cujo endereço está em p — e em p, por enquanto, há um
+        número que ninguém escolheu.
+  degraus:
+    - id: esc_kc03_I3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "*p vai ao lugar cujo endereço está guardado em p."
+        - "Se p ainda não recebeu endereço, esse lugar é um que ninguém escolheu."
+      versoes:
+        - pede: "Para onde a última linha manda o 10?"
+          antes: |-
+            int *p;
+
+            *p = 10;
+          pecas:
+            - "Para um lugar que ninguém escolheu: p não recebeu endereço"
+            - "Para o lugar de p: depois de declarar, já dá para escrever em *p"
+            - "Para lugar nenhum: a linha não faz nada"
+          certa: [[0]]
+          certa_texto: "Para um lugar que ninguém escolheu: p não recebeu endereço"
+          erros:
+            - exata: [1]
+              crenca: pode_usar_logo
+              retorno: "Declarar p não dá a ele um endereço. *p vai aonde o valor guardado em p mandar, e esse valor ninguém escolheu."
+            - exata: [2]
+              retorno: "A linha faz, e é esse o problema: ela escreve no lugar que o valor guardado em p indicar. Ninguém escolheu esse lugar."
+          retorno_geral: "p não recebeu endereço. *p = 10; escreveria num lugar que ninguém escolheu."
+        - pede: "Para onde a última linha manda o 'B'?"
+          antes: |-
+            char *c;
+
+            *c = 'B';
+          pecas:
+            - "Para um lugar que ninguém escolheu: c não recebeu endereço"
+            - "Para o lugar de c: depois de declarar, já dá para escrever em *c"
+            - "Para lugar nenhum: a linha não faz nada"
+          certa: [[0]]
+          certa_texto: "Para um lugar que ninguém escolheu: c não recebeu endereço"
+          erros:
+            - exata: [1]
+              crenca: pode_usar_logo
+              retorno: "Declarar c não dá a ele um endereço. *c vai aonde o valor guardado em c mandar, e esse valor ninguém escolheu."
+            - exata: [2]
+              retorno: "A linha faz, e é esse o problema: ela escreve no lugar que o valor guardado em c indicar. Ninguém escolheu esse lugar."
+          retorno_geral: "c não recebeu endereço. *c = 'B'; escreveria num lugar que ninguém escolheu."
+
+    - id: esc_kc03_I3_2
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "Por isso a ordem importa: primeiro o ponteiro recebe um endereço, e só depois vem o *p."
+      versoes:
+        - pede: "Qual linha tem de vir antes de *p = 10; ?"
+          antes: |-
+            int idade;
+            int *p;
+          pecas: ["p = &idade;", "idade = 10;", "*p = 0;"]
+          certa: [[0]]
+          certa_texto: "p = &idade;"
+          erros:
+            - exata: [1]
+              retorno: "idade = 10; escreve em idade, mas p continua sem endereço. O que falta antes do *p é p = &idade;"
+            - exata: [2]
+              retorno: "*p = 0; já usa o lugar apontado, e p ainda não aponta para um lugar escolhido. Antes vem p = &idade;"
+          retorno_geral: "Antes de usar *p, o ponteiro recebe um endereço: p = &idade;"
+        - pede: "Qual linha tem de vir antes de *q = 7; ?"
+          antes: |-
+            int nota;
+            int *q;
+          pecas: ["nota = 7;", "q = &nota;", "*q = 0;"]
+          certa: [[1]]
+          certa_texto: "q = &nota;"
+          erros:
+            - exata: [0]
+              retorno: "nota = 7; escreve em nota, mas q continua sem endereço. O que falta antes do *q é q = &nota;"
+            - exata: [2]
+              retorno: "*q = 0; já usa o lugar apontado, e q ainda não aponta para um lugar escolhido. Antes vem q = &nota;"
+          retorno_geral: "Antes de usar *q, o ponteiro recebe um endereço: q = &nota;"
+
+    - id: esc_kc03_I3_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com o endereço dado antes, *p é seguro: é o lugar de nota."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int *p;
+
+            nota = 0;
+            p = &nota;
+            *p = 9;
+            printf("%d\n", nota);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "0"
+              retorno: "p recebeu o endereço de nota antes do uso. *p = 9; escreveu em nota, por cima do 0."
+          retorno_geral: "p aponta para nota desde a linha p = &nota;. *p = 9; escreveu nela: o trecho mostra 9."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *q;
+
+            idade = 15;
+            q = &idade;
+            *q = 16;
+            printf("%d\n", idade);
+          aceitas: ["16"]
+          certa_texto: "16"
+          erros:
+            - texto: "15"
+              retorno: "q recebeu o endereço de idade antes do uso. *q = 16; escreveu em idade, por cima do 15."
+          retorno_geral: "q aponta para idade desde a linha q = &idade;. *q = 16; escreveu nela: o trecho mostra 16."
+
+    - id: esc_kc03_I3_4
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Ponha as quatro linhas numa ordem em que *q não é usado cedo demais."
+          pecas: ["int nota;", "int *q;", "*q = 7;", "q = &nota;"]
+          certa: [[0, 1, 3, 2], [1, 0, 3, 2]]
+          certa_texto: "int nota; int *q; q = &nota; *q = 7;"
+          erros:
+            - exata: [0, 1, 2, 3]
+              retorno: "Nessa ordem *q = 7; roda antes de q receber o endereço, e vai a um lugar que ninguém escolheu. Troque as duas últimas."
+            - exata: [1, 0, 2, 3]
+              retorno: "Nessa ordem *q = 7; roda antes de q receber o endereço, e vai a um lugar que ninguém escolheu. Troque as duas últimas."
+          retorno_geral: "As declarações primeiro; depois q = &nota; e só então *q = 7;"
+        - pede: "Ponha as quatro linhas numa ordem em que *p não é usado cedo demais."
+          pecas: ["int idade;", "int *p;", "*p = 20;", "p = &idade;"]
+          certa: [[0, 1, 3, 2], [1, 0, 3, 2]]
+          certa_texto: "int idade; int *p; p = &idade; *p = 20;"
+          erros:
+            - exata: [0, 1, 2, 3]
+              retorno: "Nessa ordem *p = 20; roda antes de p receber o endereço, e vai a um lugar que ninguém escolheu. Troque as duas últimas."
+            - exata: [1, 0, 2, 3]
+              retorno: "Nessa ordem *p = 20; roda antes de p receber o endereço, e vai a um lugar que ninguém escolheu. Troque as duas últimas."
+          retorno_geral: "As declarações primeiro; depois p = &idade; e só então *p = 20;"
+
+    - id: esc_kc03_I3_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Uma das três últimas linhas usa um ponteiro cedo demais. Qual?"
+          antes: |-
+            int idade;
+            int *p;
+            int *q;
+
+            p = &idade;
+            *p = 10;
+            *q = 20;
+          pecas:
+            - "*q = 20; — q não recebeu endereço"
+            - "*p = 10; — idade não tinha valor"
+            - "p = &idade; — idade não tinha valor"
+          certa: [[0]]
+          certa_texto: "*q = 20; — q não recebeu endereço"
+          erros:
+            - exata: [1]
+              retorno: "p recebeu o endereço de idade na linha anterior: *p = 10; escreve num lugar escolhido. A que usa cedo demais é *q = 20;"
+            - exata: [2]
+              retorno: "O lugar de idade existe desde a declaração, com valor ou sem, e tem endereço. A que usa cedo demais é *q = 20;"
+          retorno_geral: "q foi declarado e não recebeu endereço: *q = 20; iria a um lugar que ninguém escolheu."
+        - pede: "Uma das três últimas linhas usa um ponteiro cedo demais. Qual?"
+          antes: |-
+            int nota;
+            int *p;
+            int *q;
+
+            *p = 4;
+            q = &nota;
+            *q = 7;
+          pecas:
+            - "*p = 4; — p não recebeu endereço"
+            - "*q = 7; — nota não tinha valor"
+            - "q = &nota; — nota não tinha valor"
+          certa: [[0]]
+          certa_texto: "*p = 4; — p não recebeu endereço"
+          erros:
+            - exata: [1]
+              retorno: "q recebeu o endereço de nota na linha anterior: *q = 7; escreve num lugar escolhido. A que usa cedo demais é *p = 4;"
+            - exata: [2]
+              retorno: "O lugar de nota existe desde a declaração, com valor ou sem, e tem endereço. A que usa cedo demais é *p = 4;"
+          retorno_geral: "p foi declarado e não recebeu endereço: *p = 4; iria a um lugar que ninguém escolheu."

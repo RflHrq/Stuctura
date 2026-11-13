@@ -364,3 +364,62 @@ def test_no_kc_02_ficam_fora_as_quatro_que_usam_o_que_a_escada_nao_ensina():
     for a in d.atividades:
         if a.id not in fora and len(motor.razoes_de(d, a)) >= 2:
             assert not ruim.search((a.codigo or "") + a.enunciado), a.id
+
+
+def _servidas_pela_trilha(topico, no):
+    d, fora = _dominio(topico), _escadas(topico)[no].fora
+    return [a.id for uso in ("diagnostico", "treino")
+            for a in d.atividades_do_no(no, uso)
+            if a.id not in fora and len(motor.razoes_de(d, a)) >= 2]
+
+
+def test_no_kc_03_ficam_fora_as_onze_que_usam_o_que_a_escada_nao_ensina():
+    """O banco do kc_03 não foi mexido: os cartões do tópico contam com o
+    cenário de cada questão. O que a escada não ensina fica fora."""
+    escadas = _escadas("kc_03")
+    assert {no: e.fora for no, e in escadas.items() if e.fora} == {
+        "B1": ("ciu_kc03_002", "ciu_kc03_t03"),
+        "B3": ("ciu_kc03_008", "ciu_kc03_009", "ciu_kc03_t08", "ciu_kc03_t09"),
+        "I1": ("ciu_kc03_t11",),
+        "I2": ("ciu_kc03_014", "ciu_kc03_t14", "ciu_kc03_t15"),
+        "I3": ("ciu_kc03_017",),
+    }
+    d = _dominio("kc_03")
+    ruim = re.compile(r"\b(double|float|sizeof|malloc|if|for|while|return)\b"
+                      r"|%zu|\*\*|\[|\(void\)")
+    por_id = {a.id: a for a in d.atividades}
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_03", no):
+            a = por_id[i]
+            assert not ruim.search((a.codigo or "") + a.enunciado), i
+    # O custo, dito: o B3 fica com duas questões de marcar, e é a única
+    # premissa do tópico que abre com a de conceito.
+    assert {no: len(_servidas_pela_trilha("kc_03", no)) for no in d.ordem} == {
+        "B1": 4, "B2": 6, "B3": 2, "I1": 5, "I2": 3, "I3": 5}
+    aberturas = {no: trilha.abertura(d, no, fora=escadas[no].fora)
+                 for no in d.ordem}
+    assert {no: a.id for no, a in aberturas.items()} == {
+        "B1": "ciu_kc03_003", "B2": "ciu_kc03_005", "B3": "ciu_kc03_007",
+        "I1": "ciu_kc03_011", "I2": "ciu_kc03_015", "I3": "ciu_kc03_018"}
+    assert [no for no, a in aberturas.items() if not a.codigo] == ["B3"]
+
+
+def test_sem_a_questao_de_degrau_2_a_premissa_abre_com_a_de_codigo():
+    """A abertura é a questão de código de degrau 2: é a que APLICA a
+    ideia. Quando ela fica fora da trilha, quem abre é outra de código, e
+    não a que pede só a definição — foi o que o kc_03 pediu, onde quatro
+    das seis questões de degrau 2 usam o que a escada não ensina."""
+    d = _dominio("kc_00")
+    de_sempre = trilha.abertura(d, "B4")
+    assert de_sempre.nivel == 2 and de_sempre.codigo
+    # Sem ela, sobram no B4 uma de conceito (a 007) — e nenhuma de código
+    # de diagnóstico: a abertura cai na de conceito, que é o que há.
+    sem = trilha.abertura(d, "B4", fora=(de_sempre.id,))
+    assert sem.uso == "diagnostico" and not sem.codigo
+
+    d3 = _dominio("kc_03")
+    # No B1 do kc_03, sem a 002, sobram a 001 (conceito) e a 003 (código,
+    # degrau 3). A de código vem primeiro.
+    assert trilha.abertura(d3, "B1").id == "ciu_kc03_002"
+    outra = trilha.abertura(d3, "B1", fora=("ciu_kc03_002",))
+    assert outra.id == "ciu_kc03_003" and outra.codigo

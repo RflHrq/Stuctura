@@ -239,10 +239,15 @@ def abertura(d: Dominio, no: str, evita_formato: str = "",
 
     `evita_formato` é o formato da abertura da premissa anterior — duas
     premissas vizinhas não abrem do mesmo jeito, quando há escolha.
+
+    `fora` são as questões que a escada do tópico declarou fora da
+    trilha. Sem a de degrau 2, abre outra questão de CÓDIGO; só na falta
+    de qualquer uma delas é que abre a que pede a definição.
     """
     serve = [a for a in d.atividades_do_no(no, "diagnostico")
              if len(motor.razoes_de(d, a)) >= 2 and a.id not in fora]
-    de_codigo = [a for a in serve if a.nivel == 2] or serve
+    de_codigo = ([a for a in serve if a.nivel == 2]
+                 or [a for a in serve if a.codigo] or serve)
     if not de_codigo:
         raise ValueError("a premissa %s não tem pergunta de abertura" % no)
     return next((a for a in de_codigo if a.formato != evita_formato),

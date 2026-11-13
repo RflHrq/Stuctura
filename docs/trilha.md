@@ -769,6 +769,33 @@ deste tópico.
 `mvp/test_trilha_topicos.py` confere o que vale para todo tópico com
 escada; tópico novo entra nele sozinho, pelo arquivo.
 
+**O kc_03, em 13/11/2026 — declaração e inicialização de ponteiros**
+
+O terceiro na ordem dos pré-requisitos (kc_00 → kc_02 → kc_03). Seis
+premissas, 30 degraus, uma prova por crença
+(`mvp/dominio/escada_kc03.yaml`, `docs/escada-kc03-leitura.md`). O que
+ele tem de próprio:
+
+- **O assunto é o que NÃO se pode executar.** Variável e ponteiro sem
+  valor escolhido: cinco das seis provas são o que o compilador diz
+  (`reclama`), e nenhum degrau de `digitar` roda um trecho que lê o que
+  ninguém escreveu. Os trechos que usam ponteiro sem endereço aparecem
+  para a pessoa escolher e ordenar.
+- **Entram dois construtos:** dois nomes numa linha (`int *p, q;`), que
+  é onde mora a crença do B2, e `NULL`, que a premissa do I2 cita — só
+  como valor que se escreve. O teste (`if (p == NULL)`) é do kc_05.
+- **O banco não foi mexido.** Os cartões do tópico foram escritos
+  contando com o cenário de cada questão, e reescrever uma quebraria
+  essa correspondência. Onze das 36 questões de diagnóstico e de treino
+  usam o que a escada não ensina (`sizeof`, vetor, laço, `malloc`, `if`,
+  função de várias linhas) e ficam fora da trilha.
+- **A abertura sem a questão de degrau 2.** Em quatro premissas a que
+  ficou de fora é justamente a de código de degrau 2. O motor passou a
+  abrir, nesse caso, com outra questão de CÓDIGO (B1, I2, I3); só o B3
+  abre com a de conceito, e é a única premissa que fica com duas
+  questões de marcar. É o custo de não mexer no banco, e fica para o
+  Rafael decidir se vale reescrever a `ciu_kc03_008`.
+
 **Novo, e opcional — a trilha funciona sem**
 
 1. **A previsão.** Os programas de demonstração imprimem frases ("o
