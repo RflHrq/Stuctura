@@ -432,3 +432,82 @@ def test_o_aluno_simulado_preve_como_a_persona(persona, certa):
 def test_todas_as_personas_ainda_chegam_ao_mapa():
     for persona in PERSONAS:
         assert caminha(D, ESC, persona).telas[-1].tipo == "mapa", persona
+
+
+# --------------------------------------------------------------------------
+# O que o kc_02 pediu ao conferidor: função e endereço
+# --------------------------------------------------------------------------
+
+def test_a_linha_de_funcao_fica_fora_do_main():
+    """Um trecho pode trazer uma função de uma linha, acima do resto. Em C
+    ela não pode ficar dentro do `main` — o gcc aceita por extensão, e o
+    conteúdo não ensina extensão."""
+    p = confere_escada.programa_de(
+        "void zera(int *q) { *q = 0; }\n\nint idade;\n\nidade = 15;",
+        "zera(&idade);")
+    assert p.index("void zera(int *q) { *q = 0; }") < p.index("int main(void)")
+    assert p.index("int main(void)") < p.index("int idade;") < p.index(
+        "zera(&idade);") < p.index("return 0;")
+
+
+def test_a_chamada_de_funcao_continua_dentro_do_main():
+    p = confere_escada.programa_de("int idade;", "zera(&idade);")
+    assert p.index("int main(void)") < p.index("zera(&idade);")
+
+
+@tem_gcc
+def test_o_trecho_com_funcao_compila_como_c_padrao():
+    programa = confere_escada.programa_de(
+        "void zera(int *q) { *q = 0; }\n\nint idade;\n\nidade = 15;",
+        "zera(&idade);\nprintf(\"%d\\n\", idade);")
+    assert oraculo.roda(programa, "0") == (True, "0")
+
+
+def _prova_de_enderecos(espera) -> dict:
+    return {
+        "crenca": "type_is_a_hint",
+        "programa": ("int idade;\nint *p;\n\np = &idade;\n"
+                     "printf(\"%p\\n\", (void *)&idade);\n"
+                     "printf(\"%p\\n\", (void *)&p);\n"),
+        "espera": espera,
+        "ambiente": "Os números dos lugares mudam de máquina para máquina.",
+        "previsao": {"pergunta": "O que as duas linhas mostram?",
+                     "opcoes": ["Dois endereços diferentes",
+                                "O mesmo endereço, duas vezes"],
+                     "real": 0, "crenca": 1},
+        "afirma": "Saíram dois endereços, e diferentes.",
+    }
+
+
+@tem_gcc
+def test_endereco_de_exemplo_confere_a_forma_e_nao_o_numero(tmp_path):
+    """O número de um lugar muda a cada máquina. A prova mostra números
+    de exemplo, e o que o compilador confere é a FORMA: quantas linhas,
+    e quais endereços são iguais entre si."""
+    diferentes = _le(tmp_path, _com_prova(_prova_de_enderecos("0x1000\n0x2A00")))
+    assert confere_escada.confere(diferentes) == []
+
+
+@tem_gcc
+def test_endereco_de_exemplo_repetido_exige_o_mesmo_endereco(tmp_path):
+    iguais = _le(tmp_path, _com_prova(_prova_de_enderecos("0x1000\n0x1000")))
+    problemas = confere_escada.confere(iguais)
+    assert len(problemas) == 1 and "não imprime" in problemas[0]
+
+
+@tem_gcc
+def test_endereco_de_exemplo_nao_aceita_saida_de_outra_forma(tmp_path):
+    uma_linha = _le(tmp_path, _com_prova(_prova_de_enderecos("0x1000")))
+    assert len(confere_escada.confere(uma_linha)) == 1
+    com_texto = _prova_de_enderecos("0x1000\n15")
+    assert len(confere_escada.confere(_le(tmp_path, _com_prova(com_texto)))) == 1
+
+
+def test_prova_com_endereco_de_exemplo_tem_de_dizer_que_e_exemplo(tmp_path):
+    """A tela mostra `0x1000` debaixo de "a máquina respondeu". Sem a nota
+    de ambiente, isso seria afirmar um número que máquina nenhuma deu."""
+    prova = _prova_de_enderecos("0x1000\n0x2A00")
+    prova["ambiente"] = ""
+    with pytest.raises(trilha_escada.EscadaInvalida) as erro:
+        _le(tmp_path, _com_prova(prova))
+    assert any("endereço de exemplo" in p for p in erro.value.problemas)

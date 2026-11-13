@@ -36,6 +36,7 @@ retornos na ordem em que a pessoa os encontra.
 from __future__ import annotations
 
 import pathlib
+import re
 import subprocess
 import sys
 import tempfile
@@ -49,7 +50,7 @@ import oraculo  # noqa: E402
 
 from mvp.dominio import Dominio, carrega  # noqa: E402
 from mvp.trilha_escada import (  # noqa: E402
-    LACUNA, Degrau, Escada, Prova, Versao, faltando, le)
+    ENDERECO_DE_EXEMPLO, LACUNA, Degrau, Escada, Prova, Versao, faltando, le)
 
 DOMINIO = RAIZ / "mvp" / "dominio"
 
@@ -59,11 +60,25 @@ def arquivo_da_escada(topico: str) -> pathlib.Path:
     return DOMINIO / ("escada_%s.yaml" % topico.replace("_", ""))
 
 
+# Uma função inteira numa linha só: `void zera(int *q) { *q = 0; }`. É a
+# única forma de função que a escada mostra.
+FUNCAO = re.compile(r"^\s*(void|int|char)\s+\*?\s*\w+\s*\([^;{]*\)\s*\{.*\}\s*$")
+
+
 def programa_de(antes: str, linhas: str) -> str:
-    """As linhas, dentro de um `main` que o compilador aceita."""
+    """As linhas, dentro de um `main` que o compilador aceita.
+
+    A LINHA DE FUNÇÃO FICA FORA DO `main`. O trecho que a pessoa lê traz
+    a função em cima e o resto embaixo, sem `main` nenhum; em C, função
+    não se define dentro de outra — o gcc aceita por extensão, e conferir
+    o conteúdo contra uma extensão seria conferir outra linguagem.
+    """
     corpo = "\n".join(parte.strip("\n") for parte in (antes, linhas)
                       if parte and parte.strip())
-    return "#include <stdio.h>\nint main(void) {\n%s\nreturn 0;\n}\n" % corpo
+    fora = [l for l in corpo.split("\n") if FUNCAO.match(l)]
+    dentro = [l for l in corpo.split("\n") if not FUNCAO.match(l)]
+    return ("#include <stdio.h>\n%sint main(void) {\n%s\nreturn 0;\n}\n"
+            % ("".join(l + "\n" for l in fora), "\n".join(dentro)))
 
 
 def compila(programa: str) -> tuple[bool, str]:
@@ -114,8 +129,66 @@ def diz(programa: str) -> str:
     return saiu.stderr
 
 
+def _saida(programa: str) -> tuple[bool, str]:
+    """Compila e executa, e devolve o que saiu. Com timeout nas duas."""
+    gcc = oraculo.GCC
+    if not gcc.exists():
+        raise oraculo.SemCompilador(
+            "não achei o compilador em %s — aponte STRUCTURA_GCC para ele"
+            % gcc)
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = pathlib.Path(tmp)
+        (pasta / "o.c").write_text(programa, encoding="utf-8")
+        try:
+            compilou = subprocess.run(
+                [str(gcc), "-std=c17", "-Wall", "-o", "o.exe", "o.c"],
+                capture_output=True, text=True, timeout=oraculo.TEMPO,
+                cwd=str(pasta))
+            if compilou.returncode != 0:
+                return False, "não compilou"
+            rodou = subprocess.run(
+                [str(pasta / "o.exe")], capture_output=True, text=True,
+                timeout=oraculo.TEMPO, cwd=str(pasta))
+        except subprocess.TimeoutExpired:
+            return False, "não terminou em %ds" % oraculo.TEMPO
+    return True, rodou.stdout.strip()
+
+
+def mesma_forma(espera: str, saiu: str) -> bool:
+    """A saída tem a forma da esperada, a menos dos endereços?
+
+    Na esperada, `0x1000` e `0x2A00` são endereços DE EXEMPLO: o número
+    de um lugar muda a cada máquina. O que tem de bater é o resto do
+    texto, e a relação entre os endereços — exemplo repetido é o mesmo
+    endereço na saída, exemplos diferentes são endereços diferentes.
+    """
+    pedacos, grupos, ultimo = [], {}, 0
+    for achado in ENDERECO_DE_EXEMPLO.finditer(espera):
+        pedacos.append(re.escape(espera[ultimo:achado.start()]))
+        nome = grupos.get(achado.group(0))
+        if nome is None:
+            nome = grupos[achado.group(0)] = "e%d" % len(grupos)
+            pedacos.append(r"(?P<%s>(?:0x)?[0-9A-Fa-f]+)" % nome)
+        else:
+            pedacos.append("(?P=%s)" % nome)
+        ultimo = achado.end()
+    pedacos.append(re.escape(espera[ultimo:]))
+    casou = re.fullmatch("".join(pedacos), saiu)
+    if casou is None:
+        return False
+    valores = [casou.group(nome).lower() for nome in grupos.values()]
+    return len(set(valores)) == len(valores)
+
+
 def _confere_prova(onde: str, p: Prova, problemas: list[str]) -> None:
     programa = programa_de("", p.programa)
+    if p.espera and ENDERECO_DE_EXEMPLO.search(p.espera):
+        ok, saiu = _saida(programa)
+        if not ok or not mesma_forma(p.espera, saiu):
+            problemas.append("%s: o programa não imprime o que a prova diz "
+                             "— saiu %r, e a forma esperada é %r"
+                             % (onde, saiu, p.espera))
+        return
     if p.espera:
         ok, nota = oraculo.roda(programa, p.espera)
         if not ok:

@@ -229,7 +229,8 @@ def _mostra(e: Estado, tela: Tela, passo: Passo, eventos,
                      tuple(eventos), explicacao)
 
 
-def abertura(d: Dominio, no: str, evita_formato: str = "") -> Atividade:
+def abertura(d: Dominio, no: str, evita_formato: str = "",
+             fora: tuple[str, ...] = ()) -> Atividade:
     """A pergunta que abre a premissa: a de código, de degrau 2.
 
     Uma resposta só pode fechar a premissa, e por isso ela tem de ser de
@@ -240,7 +241,7 @@ def abertura(d: Dominio, no: str, evita_formato: str = "") -> Atividade:
     premissas vizinhas não abrem do mesmo jeito, quando há escolha.
     """
     serve = [a for a in d.atividades_do_no(no, "diagnostico")
-             if len(motor.razoes_de(d, a)) >= 2]
+             if len(motor.razoes_de(d, a)) >= 2 and a.id not in fora]
     de_codigo = [a for a in serve if a.nivel == 2] or serve
     if not de_codigo:
         raise ValueError("a premissa %s não tem pergunta de abertura" % no)
@@ -466,7 +467,7 @@ def _reconfere(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         if livre is not None:
             return _degrau(escadas, e, no, livre[0], livre[1],
                            "reconferencia", eventos)
-        a = _proxima_pergunta(d, e, no)
+        a = _proxima_pergunta(d, escadas, e, no)
         if a is not None:
             return _pergunta(d, e, no, a, "reconferencia", eventos,
                              certeza=False)
@@ -501,7 +502,7 @@ def _abre(d: Dominio, escadas: Mapping[str, Escada], e: Estado, no: str,
         # pergunta de abertura não existe. Quem é ensinado é reconferido
         # no fim, e por isso o trabalho já nasce marcado.
         return _inicia_lacuna(escadas, e, no, eventos)
-    a = abertura(d, no, e.formato_da_abertura)
+    a = abertura(d, no, e.formato_da_abertura, escadas[no].fora)
     e = replace(e, formato_da_abertura=a.formato)
     return _pergunta(d, e, no, a, "abertura", eventos, certeza=True)
 
@@ -525,7 +526,8 @@ def _sobe(escadas: Mapping[str, Escada], e: Estado, no: str, i: int,
                    "subida", eventos, conta=primeiro)
 
 
-def _proxima_pergunta(d: Dominio, e: Estado, no: str) -> Atividade | None:
+def _proxima_pergunta(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
+                      no: str) -> Atividade | None:
     """Uma questão de marcar ainda não usada nesta premissa.
 
     As de diagnóstico antes das de treino, e com duas razões ou mais:
@@ -535,7 +537,8 @@ def _proxima_pergunta(d: Dominio, e: Estado, no: str) -> Atividade | None:
     ep = e.premissa(no)
     livres = [a for uso in ("diagnostico", "treino")
               for a in d.atividades_do_no(no, uso)
-              if a.id not in ep.usadas and len(motor.razoes_de(d, a)) >= 2]
+              if a.id not in ep.usadas and a.id not in escadas[no].fora
+              and len(motor.razoes_de(d, a)) >= 2]
     return next((a for a in livres if a.formato != ep.formato_anterior),
                 livres[0] if livres else None)
 
@@ -547,9 +550,9 @@ def _topo(d: Dominio, escadas: Mapping[str, Escada], e: Estado, no: str,
     # Sem pergunta respondida nesta premissa, é o topo que decide o
     # caminho — o caso do modo "explique" —, e aí ele pede a certeza.
     decide = not ep.usadas
-    a = abertura(d, no, e.formato_da_abertura)
+    a = abertura(d, no, e.formato_da_abertura, escadas[no].fora)
     if a.id in ep.usadas:
-        a = _proxima_pergunta(d, e, no)
+        a = _proxima_pergunta(d, escadas, e, no)
     elif decide:
         e = replace(e, formato_da_abertura=a.formato)
     if a is None:
@@ -742,7 +745,7 @@ def _lacuna_ou_aberto(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
 def _reforco(d: Dominio, escadas: Mapping[str, Escada], e: Estado, no: str,
              eventos: list) -> Transicao:
     """UMA pergunta a mais, em outro formato. Ela decide o caminho."""
-    a = _proxima_pergunta(d, e, no)
+    a = _proxima_pergunta(d, escadas, e, no)
     if a is None:
         e = _fecha(e, no, EM_ABERTO, eventos)
         return _abre_proxima(d, escadas, e, eventos)
@@ -940,7 +943,7 @@ def _treino(d: Dominio, escadas: Mapping[str, Escada], e: Estado, alvo: str,
     if fila:
         g, k = fila[0]
         return _degrau(escadas, e, alvo, g, k, "treino", eventos)
-    a = _proxima_pergunta(d, e, alvo)
+    a = _proxima_pergunta(d, escadas, e, alvo)
     if a is not None:
         return _pergunta(d, e, alvo, a, "treino", eventos, certeza=False)
     return _fim_da_prova(d, escadas, e, alvo, EM_ABERTO, eventos)
@@ -1080,7 +1083,7 @@ def _segue(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         return _degrau(escadas, e, no, g, outra, "subida", eventos,
                        tentativa=2, conta=False)
     if adiante == "confirmacao":
-        a = _proxima_pergunta(d, e, no)
+        a = _proxima_pergunta(d, escadas, e, no)
         if a is None:
             e = _fecha(e, no, EM_ABERTO, eventos)
             return _abre_proxima(d, escadas, e, eventos)

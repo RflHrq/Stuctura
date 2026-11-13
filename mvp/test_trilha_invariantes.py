@@ -196,7 +196,10 @@ def test_a_medida_sai_para_todas_as_personas(capsys):
 
 
 def test_a_medida_recusa_topico_sem_escada(capsys):
-    assert trilha_alunos.main(["kc_02"]) == 2
+    # Era o kc_02, até ele ganhar escada em 13/11/2026. O kc_01 é o que
+    # está sem; quando ganhar a dele, este teste pede outro tópico.
+    assert not (RAIZ / "dominio" / "escada_kc01.yaml").exists()
+    assert trilha_alunos.main(["kc_01"]) == 2
     assert "escada" in capsys.readouterr().err
 
 

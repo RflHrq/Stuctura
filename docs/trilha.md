@@ -737,6 +737,38 @@ servir de molde:
 compilador, uma prova de iniciante por crença, e as questões de marcar
 curadas contra as mesmas réguas.
 
+**O kc_02, em 13/11/2026 — o segundo tópico, e o do piloto**
+
+Veio antes do kc_01 por duas razões: é o tópico marcado como piloto, e
+só depende do kc_00 (o kc_01 fala de função e de `malloc`). Seis
+premissas, 32 degraus, uma prova por crença
+(`mvp/dominio/escada_kc02.yaml`, e `docs/escada-kc02-leitura.md` para
+ler). Ele pediu três coisas que o kc_00 não tinha pedido:
+
+- **Endereço não se confere pelo número.** A prova do B2 imprime dois
+  endereços, e o número de um lugar muda a cada máquina. A saída
+  esperada traz endereços de exemplo (`0x1000`, `0x2A00`); o conferidor
+  exige a FORMA — quantas linhas, quais endereços são iguais entre si —
+  e a nota de ambiente, obrigatória nesse caso, diz na tela que o número
+  é de exemplo. Nenhum degrau de `digitar` pede endereço.
+- **Função de uma linha.** O I3 é "alcançar a mesma caixa de outro ponto
+  do programa", e não há outro ponto sem função. A linha da função fica
+  acima do trecho, e o conferidor a põe fora do `main`.
+- **Questão fora da trilha** (`fora_da_trilha`, por premissa). O banco
+  do kc_02 já era material revisado, sem erro nos portões mecânicos, e
+  não foi reescrito. Quatro das 58 questões usam o que a escada não
+  ensina (`sizeof` com `%zu`, `int **`, `double`): a escada as declara
+  fora, com o motivo, e o fluxo anterior continua servindo. É curadoria
+  por escolha, e não por reescrita — reescrevê-las, ou ensinar `sizeof`
+  na escada, é decisão do Rafael.
+
+Fica dito também que as questões do kc_02 usam `x` e `y`, e a escada
+`idade` e `nota`: a régua do "um cenário só" não foi aplicada ao banco
+deste tópico.
+
+`mvp/test_trilha_topicos.py` confere o que vale para todo tópico com
+escada; tópico novo entra nele sozinho, pelo arquivo.
+
 **Novo, e opcional — a trilha funciona sem**
 
 1. **A previsão.** Os programas de demonstração imprimem frases ("o

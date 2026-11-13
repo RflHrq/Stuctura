@@ -44,10 +44,21 @@ def cliente(pasta):
     return TestClient(portal.cria_portal(pasta))
 
 
-def test_so_o_kc_00_tem_trilha(cliente):
+# Os tópicos que têm escada escrita. Este teste nasceu como "só o kc_00
+# tem trilha", que era verdade na primeira fatia; desde 13/11/2026 o
+# kc_02 também tem, e a lista vai crescer um tópico de cada vez. O que se
+# confere continua o mesmo: tem trilha quem tem escada, e só quem tem.
+COM_ESCADA = {t for t in topicos()
+              if (RAIZ / "dominio" / ("escada_%s.yaml" % t.replace("_", ""))
+                  ).exists()}
+SEM_ESCADA = next(t for t in topicos() if t not in COM_ESCADA)
+
+
+def test_so_tem_trilha_o_topico_que_tem_escada(cliente):
+    assert "kc_00" in COM_ESCADA
     lista = cliente.get("/topicos").json()["topicos"]
     assert {t["id"]: t["trilha"] for t in lista} == {
-        t: ("/trilha/kc_00/" if t == "kc_00" else None) for t in topicos()}
+        t: ("/trilha/%s/" % t if t in COM_ESCADA else None) for t in topicos()}
 
 
 def test_o_caminho_de_sempre_nao_muda(cliente):
@@ -74,8 +85,9 @@ def test_a_trilha_serve_a_pagina_e_os_assets(cliente):
 
 
 def test_topico_sem_escada_nao_tem_trilha(cliente):
-    assert cliente.get("/trilha/kc_02/saude").status_code == 404
-    assert cliente.post("/trilha/kc_02/sessoes", json={}).status_code in (404, 405)
+    assert cliente.get("/trilha/%s/saude" % SEM_ESCADA).status_code == 404
+    assert cliente.post("/trilha/%s/sessoes" % SEM_ESCADA,
+                        json={}).status_code in (404, 405)
 
 
 def test_o_fluxo_atual_do_kc_00_continua_no_lugar(cliente):

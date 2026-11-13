@@ -26,6 +26,7 @@ texto ensina — é leitura humana.
 from __future__ import annotations
 
 import hashlib
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -46,6 +47,11 @@ MAX_FRASES, MAX_PALAVRAS = 2, 30
 MAX_FRASES_DA_REVISAO = 3
 
 LACUNA = "___"
+
+# Na saída esperada de uma prova, um endereço DE EXEMPLO. O número de um
+# lugar muda a cada máquina e a cada execução: a prova mostra um número
+# curto no lugar dele, e o conferidor compara a forma, não o número.
+ENDERECO_DE_EXEMPLO = re.compile(r"0x[0-9A-Fa-f]+")
 
 
 class EscadaInvalida(Exception):
@@ -152,6 +158,10 @@ class Escada:
     degraus: tuple[Degrau, ...]
     revisao: Revisao
     provas: tuple[Prova, ...] = ()
+    # Questões de marcar desta premissa que a trilha NÃO serve: usam o
+    # que a escada do tópico não ensina. O banco não muda — o fluxo
+    # anterior, que tem cartão para cada construto, continua servindo.
+    fora: tuple[str, ...] = ()
 
     @property
     def guiados(self) -> tuple[Degrau, ...]:
@@ -367,7 +377,34 @@ def _escada(premissa: str, cru: Any, d: Dominio, vistos: set[str],
     if not revisao.codigo.strip():
         problemas.append("%s: revisão sem código" % premissa)
     provas = _provas(premissa, cru.get("provas"), d, problemas)
-    return Escada(premissa, tuple(degraus), revisao, provas)
+    fora = _fora_da_trilha(premissa, cru.get("fora_da_trilha"), d, problemas)
+    return Escada(premissa, tuple(degraus), revisao, provas, fora)
+
+
+def _fora_da_trilha(premissa: str, cru: Any, d: Dominio,
+                    problemas: list[str]) -> tuple[str, ...]:
+    """As questões da premissa que a trilha não serve.
+
+    Tem de sobrar com o que ABRIR a premissa: uma questão de diagnóstico
+    em que algum distrator diz uma crença — é a razão marcada que diz
+    qual, e sem ela a abertura não mede nada.
+    """
+    fora = _strs(cru)
+    por_id = {a.id: a for a in d.atividades}
+    for i in fora:
+        if i not in por_id:
+            problemas.append("%s: questão desconhecida em fora_da_trilha: %r"
+                             % (premissa, i))
+        elif por_id[i].no != premissa:
+            problemas.append("%s: %s não é desta premissa — é do %s"
+                             % (premissa, i, por_id[i].no))
+    sobra = [a for a in d.atividades_do_no(premissa, "diagnostico")
+             if a.id not in fora
+             and any(o.crenca in d.crencas for o in a.opcoes if o.crenca)]
+    if fora and not sobra:
+        problemas.append("%s: com essas questões fora, a premissa fica sem "
+                         "pergunta de abertura" % premissa)
+    return fora
 
 
 def _inteiro(valor: Any) -> int:
@@ -417,6 +454,11 @@ def _provas(premissa: str, cru: Any, d: Dominio,
         if not afirma:
             problemas.append("%s: sem `afirma` — é a frase que diz o que a "
                              "máquina mostrou" % onde)
+        ambiente = " ".join(_str(b.get("ambiente")).split())
+        if ENDERECO_DE_EXEMPLO.search(espera) and not ambiente:
+            problemas.append("%s: a saída traz endereço de exemplo, e a tela "
+                             "a mostra como resposta da máquina — `ambiente` "
+                             "tem de dizer que o número é de exemplo" % onde)
 
         pv = b.get("previsao")
         if not isinstance(pv, Mapping):
@@ -443,7 +485,7 @@ def _provas(premissa: str, cru: Any, d: Dominio,
 
         provas.append(Prova(crenca=crenca, programa=programa, afirma=afirma,
                             previsao=previsao, espera=espera, reclama=reclama,
-                            ambiente=" ".join(_str(b.get("ambiente")).split())))
+                            ambiente=ambiente))
     return tuple(provas)
 
 
