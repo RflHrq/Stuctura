@@ -153,7 +153,7 @@ def test_firme_no_ritmo_completo_escreve_antes_de_fechar():
     assert all(t.dados["forma"] in trilha.PRODUZEM for t in produzir)
     assert [t.dados["degrau"] for t in produzir] == [
         "esc_kc00_B1_4", "esc_kc00_B2_4", "esc_kc00_B3_4", "esc_kc00_B4_5",
-        "esc_kc00_I1_6"]
+        "esc_kc00_I1_7"]
     assert [c.estado.premissa(n).resultado for n in D.ordem] == ["ja_sabia"] * 5
     assert all(c.estado.premissa(n).telas == 2 for n in D.ordem)
 

@@ -34,9 +34,21 @@
 # para a pessoa ESCOLHER e ORDENAR; o conferidor só os compila. Rodá-los
 # seria o comportamento que a premissa ensina a evitar.
 #
-# A CRENÇA DE CADA PREMISSA aparece dita com todas as letras numa
-# alternativa de um degrau guiado, e só ali o erro leva `crenca`. Uma
-# resposta errada que apenas combina com a crença não é atribuída a ela.
+# A CRENÇA DE CADA PREMISSA aparece numa alternativa de um degrau
+# guiado, e só ali o erro leva `crenca`. Em quatro das cinco ela é DITA
+# com todas as letras ("Tanto faz: o tipo é só um aviso"). No I1 não há
+# como dizê-la sem escrever o código que ela produz: a alternativa é a
+# linha `7 = nota;`, que é a crença em ação — o mesmo exemplo que o
+# grafo do tópico usa. Uma resposta errada que apenas combina com uma
+# crença não é atribuída a ela.
+#
+# "RECLAMA", E NÃO "NÃO COMPILA", nos retornos: que o compilador recuse
+# é fato sobre um compilador; que ele tenha de reclamar é o que o padrão
+# exige de todos. É a regra que o projeto já segue nos cartões.
+#
+# COPIAR DE OUTRA VARIÁVEL (`nota = pontos;`) é ensinado no degrau 5 do
+# I1, guiado, antes de ser cobrado no último. A primeira versão cobrava
+# sem ensinar, e a revisão do ramo pegou.
 #
 # gerado_por: Claude Fable 5.2, em 13/11/2026
 # revisado_por:
@@ -250,7 +262,7 @@ B2:
           erros:
             - exata: [4, 0, 1, 2, 3]
               invalida: true
-              retorno: "idade já foi declarada na linha de cima. Declarar de novo é pedir outra variável com o mesmo nome, e o compilador recusa. Basta idade = 20;"
+              retorno: "idade já foi declarada na linha de cima. Declarar de novo é pedir outra variável com o mesmo nome, e o compilador reclama. Basta idade = 20;"
             - exata: [2, 1, 0, 3]
               invalida: true
               retorno: "A variável que recebe fica antes do sinal de igual, e o valor depois: idade = 20;"
@@ -266,7 +278,7 @@ B2:
           erros:
             - exata: [4, 0, 1, 2, 3]
               invalida: true
-              retorno: "ano já foi declarada na linha de cima. Declarar de novo é pedir outra variável com o mesmo nome, e o compilador recusa. Basta ano = 2026;"
+              retorno: "ano já foi declarada na linha de cima. Declarar de novo é pedir outra variável com o mesmo nome, e o compilador reclama. Basta ano = 2026;"
             - exata: [2, 1, 0, 3]
               invalida: true
               retorno: "A variável que recebe fica antes do sinal de igual, e o valor depois: ano = 2026;"
@@ -990,7 +1002,7 @@ I1:
           erros:
             - exata: [1]
               crenca: assignment_symmetric
-              retorno: "O sinal de igual não funciona dos dois lados. À esquerda fica a variável que recebe, e por isso 7 = nota; não compila."
+              retorno: "O sinal de igual não funciona dos dois lados. À esquerda fica a variável que recebe, e por isso o compilador reclama de 7 = nota;"
           retorno_geral: "A variável que recebe fica à esquerda do sinal de igual: nota = 7;"
         - pede: "Qual linha guarda 20 em idade?"
           antes: "int idade;"
@@ -1001,10 +1013,49 @@ I1:
           erros:
             - exata: [1]
               crenca: assignment_symmetric
-              retorno: "O sinal de igual não funciona dos dois lados. À esquerda fica a variável que recebe, e por isso 20 = idade; não compila."
+              retorno: "O sinal de igual não funciona dos dois lados. À esquerda fica a variável que recebe, e por isso o compilador reclama de 20 = idade;"
           retorno_geral: "A variável que recebe fica à esquerda do sinal de igual: idade = 20;"
 
     - id: esc_kc00_I1_5
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "O valor da direita também pode vir de outra variável."
+        - "Em nota = pontos; o que está guardado em pontos é copiado para nota."
+      versoes:
+        - pede: "Complete para que nota receba o valor que está em pontos."
+          antes: |-
+            int pontos = 3;
+            int nota;
+          mostra: "nota = ___;"
+          pecas: ["pontos", "nota", "int"]
+          certa: [[0]]
+          certa_texto: "nota = pontos;"
+          erros:
+            - exata: [1]
+              retorno: "Assim nota receberia o próprio valor, e nela ninguém escreveu ainda. Quem tem o valor a copiar é pontos: nota = pontos;"
+            - exata: [2]
+              invalida: true
+              retorno: "int é um tipo, não um valor. À direita vai a variável de onde o valor vem: nota = pontos;"
+          retorno_geral: "À direita vai a variável de onde o valor vem: nota = pontos;"
+        - pede: "Complete para que idade receba o valor que está em ano."
+          antes: |-
+            int ano = 5;
+            int idade;
+          mostra: "idade = ___;"
+          pecas: ["ano", "idade", "int"]
+          certa: [[0]]
+          certa_texto: "idade = ano;"
+          erros:
+            - exata: [1]
+              retorno: "Assim idade receberia o próprio valor, e nela ninguém escreveu ainda. Quem tem o valor a copiar é ano: idade = ano;"
+            - exata: [2]
+              invalida: true
+              retorno: "int é um tipo, não um valor. À direita vai a variável de onde o valor vem: idade = ano;"
+          retorno_geral: "À direita vai a variável de onde o valor vem: idade = ano;"
+
+    - id: esc_kc00_I1_6
       guiado: false
       forma: montar
       codigo: true
@@ -1047,7 +1098,7 @@ I1:
               retorno: "Faltou o ponto e vírgula no fim da linha: int ano = 2026;"
           retorno_geral: "Em uma linha: o tipo, o nome, o sinal de igual, o valor e o ponto e vírgula."
 
-    - id: esc_kc00_I1_6
+    - id: esc_kc00_I1_7
       guiado: false
       forma: digitar
       codigo: true

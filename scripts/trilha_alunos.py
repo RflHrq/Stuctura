@@ -21,6 +21,13 @@ caminhada dar sempre as mesmas telas.
     crente_teimoso     sempre a crença com certeza; degrau errado
     escorrega          na abertura, erra a resposta e acerta a razão
     chuta_com_certeza  escolhas sem critério, sempre "tenho certeza"
+    tropeca_na_pratica como o que não sabe e aprende, mas erra a primeira
+                       tentativa de todo degrau de PRÁTICA
+    abre_a_explicacao  acerta tudo, depois de abrir a explicação em cada
+                       pergunta de abertura
+
+As duas últimas entraram com a revisão do ramo: os caminhos em que ela
+achou defeito eram os que nenhuma das oito primeiras fazia.
 """
 
 from __future__ import annotations
@@ -39,7 +46,7 @@ from mvp.trilha_escada import le, ordem_das_pecas  # noqa: E402
 
 PERSONAS = ("sabe", "inseguro", "nao_sabe_aprende", "nao_sabe_erra",
             "crente_aprende", "crente_teimoso", "escorrega",
-            "chuta_com_certeza")
+            "chuta_com_certeza", "tropeca_na_pratica", "abre_a_explicacao")
 
 CERTEZA = "tenho certeza"
 MEIA = "acho que sei"
@@ -95,11 +102,15 @@ def _pergunta(d, tela, persona: str, estado) -> "trilha.Entrada":
                  None)
         return None if j is None else (i, j)
 
+    if persona == "abre_a_explicacao":
+        if papel == "abertura" and not estado.premissa(no).abriu_explicacao:
+            return trilha.Entrada(acao="explicacao")
+        return monta(certa, razao_certa, CERTEZA)
     if persona == "sabe":
         return monta(certa, razao_certa, CERTEZA)
     if persona == "inseguro":
         return monta(certa, razao_certa, MEIA)
-    if persona == "nao_sabe_aprende":
+    if persona in ("nao_sabe_aprende", "tropeca_na_pratica"):
         if papel in DECIDEM:
             return trilha.Entrada(acao="nao_sei")
         return monta(certa, razao_certa, MEIA)
@@ -124,7 +135,7 @@ def _pergunta(d, tela, persona: str, estado) -> "trilha.Entrada":
 
 
 ACERTAM_DEGRAU = ("sabe", "inseguro", "nao_sabe_aprende", "crente_aprende",
-                  "escorrega")
+                  "escorrega", "abre_a_explicacao")
 
 
 def _degrau(escadas, tela, persona: str, estado) -> "trilha.Entrada":
@@ -139,7 +150,12 @@ def _degrau(escadas, tela, persona: str, estado) -> "trilha.Entrada":
     def na_tela(seq):
         return tuple(ordem.index(i) for i in seq)
 
-    if persona in ACERTAM_DEGRAU:
+    # Erra a primeira tentativa de todo degrau de prática, na subida; no
+    # resto, acerta.
+    tropeca = (persona == "tropeca_na_pratica" and not g.guiado
+               and dados["papel"] == "subida" and dados["tentativa"] == 1)
+    if persona in ACERTAM_DEGRAU or (persona == "tropeca_na_pratica"
+                                     and not tropeca):
         if g.forma == "digitar":
             return trilha.Entrada(acao="responder", texto=v.aceitas[0])
         return trilha.Entrada(acao="responder", pecas=na_tela(v.certa[0]))

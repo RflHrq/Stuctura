@@ -61,7 +61,8 @@ def test_a_trilha_responde_no_caminho_dela(cliente):
     j = cliente.post("/trilha/kc_00/sessoes", json={}).json()
     assert j["tela"]["tipo"] == "entrada"
     r = cliente.post("/trilha/kc_00/sessoes/%s/agir" % j["sessao"],
-                     json={"acao": "comecar", "modo": "explique"})
+                     json={"acao": "comecar", "modo": "explique",
+                           "passo": j["passo"]})
     assert r.status_code == 200 and r.json()["tela"]["tipo"] == "degrau"
 
 

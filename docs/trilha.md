@@ -427,12 +427,12 @@ seção; "toques" é o esforço de verdade — cada resposta e cada
 | acerta tudo, com certeza | direto, completo | 12 | 2 | 16 |
 | acerta tudo, com certeza | direto, rápido | 7 | 1 | 11 |
 | acerta tudo, sem certeza | direto | 12 | 2 | 16 |
-| não sabe, e aprende | direto | 22 | 3 | 42 |
-| não sabe, e aprende | explique antes | 17 | 2 | 37 |
+| não sabe, e aprende | direto | 22 | 3 | 43 |
+| não sabe, e aprende | explique antes | 17 | 2 | 38 |
 | tem a crença em toda premissa, e aprende | direto | 32 | 5 | 31 |
 | tem a crença em toda premissa, e não aprende | direto | 37 | 6 | 56 |
 | chuta tudo, com certeza | direto | 31 | 7 | 64 |
-| não sabe, e erra todo degrau duas vezes | direto | 31 | 5 | 138 |
+| não sabe, e erra todo degrau duas vezes | direto | 31 | 5 | 142 |
 
 Para comparar: no fluxo atual o mesmo kc_00 custa 38 telas a quem acerta
 tudo, 64 a quem erra e aprende, e 21 a quem só diz "não sei" (medido no
@@ -450,7 +450,7 @@ Quatro leituras dessa tabela:
 - O teto de oito telas por premissa vale: a maior foi sete, e de quem
   chuta.
 - **A conta de telas esconde o esforço da escada.** Quem sobe as cinco
-  escadas acertando faz 37 toques; a subida conta uma tela por premissa,
+  escadas acertando faz 38 toques; a subida conta uma tela por premissa,
   e são de cinco a seis degraus em cada. É o preço do passo a passo, e
   ele precisa ser olhado numa pessoa de verdade antes de a escada dos
   outros tópicos ser escrita.
@@ -489,6 +489,20 @@ Quatro leituras dessa tabela:
   vale só na trilha.
 - A página inicial mostra, por tópico: não começou, em andamento ("3 de
   6"), ou concluído.
+
+**O que disso já existe** (13/11/2026): a parte do servidor. Com código
+de participante, a sessão volta na tela em que estava — da memória, ou
+refeita pelo registro depois de um reinício do sistema. A abertura grava
+a assinatura do conteúdo, e uma sessão só é refeita sobre a mesma escada
+em que começou; se o conteúdo mudou, a tela diz isso e pede outro
+código. Faltam, para a fatia 3: o navegador lembrar a sessão de quem não
+informou código, e o progresso na página inicial.
+
+**Cada pedido diz de que tela é.** O servidor numera as telas, o cliente
+devolve o número em toda ação, e um pedido de uma tela que já passou —
+resposta reenviada, outra aba, duplo clique — é recusado com a tela
+atual, que o cliente passa a mostrar. Sem isso a resposta repetida de um
+degrau valia como resposta do degrau seguinte.
 
 ### 6.13 Onde mora
 
@@ -739,7 +753,9 @@ Cada fatia deixa o sistema funcionando.
    validar antes de o conteúdo dos outros ser escrito.
 2. Os outros doze tópicos na trilha, com o conteúdo que existe (escada
    curta, sem previsão escrita).
-3. Parar e voltar, e o progresso na página inicial.
+3. Parar e voltar para quem não informou código, e o progresso na
+   página inicial. (A retomada pelo código, depois de um reinício, já
+   entrou com a revisão da fatia 1.)
 4. A previsão e o porquê do acerto, tópico a tópico.
 
 ## 10. Decisões minhas, para o Rafael conferir

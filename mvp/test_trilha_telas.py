@@ -113,14 +113,53 @@ def test_o_cliente_conhece_todo_veredito_resultado_e_reconferencia():
 
 
 def test_o_cliente_trata_a_sessao_perdida():
-    """Review Focus 2: reinício do servidor com a página aberta."""
-    assert "404" in _js() and "Recomeçar" in _html()
-    assert "btn-recomecar" in _js()
+    """Review Focus 2: reinício do servidor com a página aberta.
+
+    Ler o arquivo não prova que a tela funciona — isso foi visto no
+    navegador —, mas prova que o caminho existe: o 404 de uma ação chama
+    a função que troca a tela pela mensagem, e a mensagem tem o botão.
+    """
+    js, html = _js(), _html()
+    assert re.search(r"r\.status === 404\)\s*\{\s*perdeu\(\)", js)
+    assert re.search(r"function perdeu\(", js)
+    assert 'id="perdida"' in html and "Recomeçar" in html
+    assert re.search(r'\$\("btn-recomecar"\)\.addEventListener', js)
 
 
 def test_o_cliente_nao_manda_duas_vezes():
-    """Review Focus 1: enquanto um pedido está no ar, os botões não agem."""
-    assert "ocupado" in _js()
+    """Review Focus 1: enquanto um pedido está no ar, os botões não agem.
+
+    A proteção de verdade é do servidor, que recusa o pedido de uma tela
+    que já passou (`mvp/test_trilha_revisao.py`). Aqui se confere a
+    metade do cliente: a guarda na entrada de `age`, e a volta dela.
+    """
+    js = _js()
+    assert re.search(r"if \(S\.ocupado[^)]*\) return;", js)
+    assert "S.ocupado = true" in js and "S.ocupado = false" in js
+
+
+def test_o_cliente_diz_de_que_tela_e_o_pedido():
+    """E redesenha quando o servidor diz que a tela já mudou."""
+    js = _js()
+    assert "corpo.passo = S.passo" in js
+    assert "S.passo = j.passo" in js
+    assert re.search(r"r\.status === 409 && r\.json && r\.json\.tela", js)
+
+
+def test_na_reconferencia_o_botao_da_explicacao_nao_aparece():
+    js = _js()
+    assert re.search(
+        r't\.papel === "reconferencia" \? null : botaoDaExplicacao\(\)', js)
+    # Duas ocorrências: a definição e ESTA chamada. Nenhuma tela chama o
+    # botão direto, sem passar pela pergunta do papel.
+    assert js.count("botaoDaExplicacao()") == 2
+    assert js.count("explicacaoSe(t)") == 3      # a definição e duas telas
+
+
+def test_o_tempo_mandado_tem_teto():
+    """Uma página esquecida aberta não pode travar a sessão."""
+    js = _js()
+    assert "Math.min(ms, LIMITE_MS)" in js
 
 
 def test_o_cliente_nao_escreve_conteudo():

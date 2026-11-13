@@ -42,7 +42,8 @@ from mvp.motor import Evento, Tela
 # programa cujos construtos o tópico já ensinou — não pode ter cópia.
 # Duas regras de exibição divergem em silêncio; uma só não tem como.
 from mvp.motor import _prova as provas_exibiveis
-from mvp.trilha_escada import Degrau, Escada, corrige, ordem_das_pecas
+from mvp.trilha_escada import (
+    Degrau, Escada, assinatura, corrige, ordem_das_pecas)
 
 MODOS = ("direto", "explique")
 RITMOS = ("completo", "rapido")
@@ -85,6 +86,18 @@ class EntradaInvalida(ValueError):
     """
 
 
+class EntradaVelha(EntradaInvalida):
+    """A entrada é de uma tela que já passou.
+
+    Checar se a ação CABE na tela não basta: depois de um degrau vem
+    outro degrau, e a resposta repetida do primeiro cabe na forma do
+    segundo. Sem isto ela virava a primeira tentativa errada de um
+    exercício que a pessoa nem tinha visto — achado da revisão do ramo.
+    Quem manda `passo` diz de que tela o pedido é; se não for a de agora,
+    é recusado, e quem serve a tela devolve a atual.
+    """
+
+
 @dataclass(frozen=True)
 class Entrada:
     """O que a pessoa fez. Índices são posições NA TELA."""
@@ -98,6 +111,10 @@ class Entrada:
     modo: str = ""
     ritmo: str = ""
     ms: int = 0
+    # De que tela o pedido é: o `Estado.n` que veio com ela. `None` não
+    # confere — é o que os alunos simulados e a reexecução do registro
+    # mandam, e os dois andam uma entrada por tela, sem repetir.
+    passo: int | None = None
 
 
 @dataclass(frozen=True)
@@ -158,6 +175,9 @@ class Estado:
     origem: str = ""
     volta: str = ""
     previu: str | None = None        # a previsão dada antes de ver a máquina
+    # O número da tela: anda um a cada tela nova, e fica parado nas ações
+    # que devolvem a mesma tela (explicação, modo, ritmo).
+    n: int = 0
 
     def premissa(self, no: str) -> EstadoPremissa:
         return self.premissas.get(no, EstadoPremissa())
@@ -204,7 +224,7 @@ def _razoes_na_tela(d: Dominio, semente: str, a: Atividade) -> tuple:
 
 def _mostra(e: Estado, tela: Tela, passo: Passo, eventos,
             explicacao: dict | None = None) -> Transicao:
-    return Transicao(replace(e, tela=tela, passo=passo), tela,
+    return Transicao(replace(e, tela=tela, passo=passo, n=e.n + 1), tela,
                      tuple(eventos), explicacao)
 
 
@@ -389,7 +409,11 @@ def inicia(d: Dominio, escadas: Mapping[str, Escada],
     })
     return _mostra(Estado(semente=semente), tela, Passo("entrada"),
                    [_ev("trilha_iniciada", topico=d.id,
-                        premissas=len(d.ordem))])
+                        premissas=len(d.ordem),
+                        # QUE conteúdo esta sessão viu. A escada vai mudar
+                        # depois de lida, e entradas reexecutadas contra
+                        # outra escada dão um estado plausível e errado.
+                        escada=assinatura(escadas))])
 
 
 def _comeca(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
@@ -666,7 +690,22 @@ def _responde_pergunta(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         e = _reconferida(d, escadas, e, no, bem, crenca, eventos)
         if bem:
             return _reconfere(d, escadas, e, eventos)
+        if crenca:
+            e = _registra(e, no, crenca, eventos)
         return _retorno_da_pergunta(d, e, no, razao, "reconfere", eventos)
+
+    if p.papel == "treino":
+        # O treino caiu numa questão de marcar: os exercícios de produzir
+        # da premissa acabaram. Vale o mesmo que num degrau — certa pela
+        # razão certa soma na sequência, qualquer outra coisa zera.
+        ep = e.premissa(no)
+        e = e.com(no, treinos=ep.treinos + 1,
+                  streak=ep.streak + 1 if bem else 0)
+        if bem:
+            return _treino(d, escadas, e, no, eventos)
+        if crenca:
+            e = _registra(e, no, crenca, eventos)
+        return _retorno_da_pergunta(d, e, no, razao, "treino", eventos)
 
     raise EntradaInvalida("pergunta de papel %r sem caminho" % p.papel)
 
@@ -684,7 +723,8 @@ def _registra(e: Estado, no: str, crenca: str, eventos: list) -> Estado:
 
 def _anota(e: Estado, no: str, crenca: str) -> Estado:
     ep = e.premissa(no)
-    if crenca in ep.apareceu:
+    # A crença CORRIGIDA nesta premissa já está no mapa, em lugar próprio.
+    if crenca in ep.apareceu or crenca == ep.crenca:
         return e
     return e.com(no, apareceu=ep.apareceu + (crenca,))
 
@@ -834,19 +874,35 @@ def _treino(d: Dominio, escadas: Mapping[str, Escada], e: Estado, alvo: str,
 
     A ordem é a primeira versão de cada degrau de prática, depois a
     segunda — e nunca um exercício que a pessoa já viu nesta sessão.
+
+    QUEM SUBIU A ESCADA JÁ VIU QUASE TODOS. A subida gasta a primeira
+    versão de cada degrau, e a segunda de todo degrau errado; sobrava um
+    exercício, ou nenhum, e o treino não tinha como fechar. Sem exercício
+    livre ele cai nas questões de marcar ainda não usadas, que é o que a
+    spec 6.5 manda. Só com o banco inteiro esgotado a premissa fica em
+    aberto.
+
+    O TETO É DAQUI. Oito telas por premissa valia no kc_00 por
+    coincidência do conteúdo — dois degraus de prática, duas versões.
+    Quem garante é esta conta, e não o tamanho da escada.
     """
     ep = e.premissa(alvo)
     if ep.streak >= TREINO_ALVO:
         return _fim_da_prova(d, escadas, e, alvo, CORRIGIU, eventos)
+    if ep.treinos >= TREINO_MAX or ep.telas >= TETO_TELAS:
+        return _fim_da_prova(d, escadas, e, alvo, EM_ABERTO, eventos)
     pratica = escadas[alvo].pratica
     fila = [(g, k)
             for k in range(max((len(g.versoes) for g in pratica), default=0))
             for g in pratica
             if k < len(g.versoes) and (g.id, k) not in ep.mostrados]
-    if ep.treinos >= TREINO_MAX or not fila:
-        return _fim_da_prova(d, escadas, e, alvo, EM_ABERTO, eventos)
-    g, k = fila[0]
-    return _degrau(escadas, e, alvo, g, k, "treino", eventos)
+    if fila:
+        g, k = fila[0]
+        return _degrau(escadas, e, alvo, g, k, "treino", eventos)
+    a = _proxima_pergunta(d, e, alvo)
+    if a is not None:
+        return _pergunta(d, e, alvo, a, "treino", eventos, certeza=False)
+    return _fim_da_prova(d, escadas, e, alvo, EM_ABERTO, eventos)
 
 
 def _fim_da_prova(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
@@ -883,15 +939,24 @@ def _responde_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         if not (r.texto or "").strip():
             raise EntradaInvalida("resposta vazia")
         c = corrige(v, g.forma, texto=r.texto)
+        resposta = r.texto.strip()
     else:
         ordem = ordem_das_pecas(e.semente, g.id, p.versao, g.forma,
                                 len(v.pecas))
-        c = corrige(v, g.forma, pecas=tuple(
-            ordem[_indice(i, len(ordem), "peça")] for i in r.pecas))
+        resposta = [ordem[_indice(i, len(ordem), "peça")] for i in r.pecas]
+        c = corrige(v, g.forma, pecas=tuple(resposta))
 
     eventos = [_ev("degrau_respondido", no=no, degrau=g.id, versao=p.versao,
                    papel=p.papel, certa=c.certa, tentativa=p.tentativa,
-                   ms=r.ms)]
+                   # A resposta em índices do ARQUIVO (ou o texto digitado):
+                   # na tela as peças vão embaralhadas pela semente, e o
+                   # registro tem de ser legível sem refazer a ordem.
+                   resposta=resposta, ms=r.ms)]
+    # Uma resposta errada que o conteúdo liga a uma crença: a pessoa disse
+    # a crença, e isso é dado em QUALQUER degrau — na subida também, que é
+    # onde os degraus guiados a oferecem com todas as letras.
+    if not c.certa and c.crenca:
+        e = _registra(e, no, c.crenca, eventos)
 
     if p.papel == "produzir":
         if c.certa:
@@ -908,8 +973,6 @@ def _responde_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
                   streak=ep.streak + 1 if c.certa else 0)
         if c.certa:
             return _treino(d, escadas, e, no, eventos)
-        if c.crenca:
-            e = _registra(e, no, c.crenca, eventos)
         return _retorno(d, e, no, "errada", "treino", eventos,
                         texto=c.retorno, mostra_certa=c.mostra_certa)
 
@@ -996,6 +1059,10 @@ def _a_parte(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
     if r.acao == "explicacao":
         if tipo not in ("pergunta", "degrau"):
             raise EntradaInvalida("a explicação abre em pergunta e em degrau")
+        if e.passo.papel == "reconferencia":
+            # A reconferência existe para separar "acertou logo depois de
+            # ler" de "assimilou". Reler ali e acertar não é assimilar.
+            raise EntradaInvalida("na reconferência a explicação não abre")
         no = e.passo.premissa
         e = e.com(no, abriu_explicacao=True)
         return Transicao(e, e.tela, (_ev("explicacao_aberta", no=no),),
@@ -1018,6 +1085,9 @@ def avanca(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
     """Uma entrada, uma transição. Entrada que não cabe levanta e nada muda."""
     if r.acao not in ACOES:
         raise EntradaInvalida("ação desconhecida: %r" % r.acao)
+    if r.passo is not None and r.passo != e.n:
+        raise EntradaVelha("o pedido é da tela %r, e a sessão está na %d"
+                           % (r.passo, e.n))
     if e.fim:
         raise EntradaInvalida("a trilha já terminou")
     if r.acao == "comecar":

@@ -66,8 +66,14 @@ def _corpo(entrada: trilha.Entrada) -> dict:
     return corpo
 
 
-def _age(cliente, sessao, entrada):
-    return cliente.post("/sessoes/%s/agir" % sessao, json=_corpo(entrada))
+def _age(cliente, sessao, entrada, passo=None):
+    """Uma entrada pelo HTTP. O pedido diz de que tela é (`passo`); sem
+    ser dito, vale o da tela em que a sessão está — que é o que um
+    cliente em dia mandaria."""
+    corpo = _corpo(entrada)
+    corpo["passo"] = (cliente.app.state.sessoes[sessao].n
+                      if passo is None else passo)
+    return cliente.post("/sessoes/%s/agir" % sessao, json=corpo)
 
 
 def _abre(cliente, modo="direto", ritmo="completo", codigo=""):
@@ -275,7 +281,8 @@ def test_peca_repetida_ou_fora_da_faixa_da_400(app, cliente, destino):
     antes, estado = len(trilha_log.le(destino)), app.state.sessoes[sessao]
     for ruim in ([0, 0, 1], [0, 99], [-1], []):
         r = cliente.post("/sessoes/%s/agir" % sessao,
-                         json={"acao": "responder", "pecas": ruim})
+                         json={"acao": "responder", "pecas": ruim,
+                               "passo": estado.n})
         assert r.status_code == 400, ruim
     assert len(trilha_log.le(destino)) == antes
     assert app.state.sessoes[sessao] is estado
@@ -283,7 +290,8 @@ def test_peca_repetida_ou_fora_da_faixa_da_400(app, cliente, destino):
 
 def test_sessao_desconhecida_da_404(cliente):
     """Review Focus 2: a página aberta depois de o servidor reiniciar."""
-    r = cliente.post("/sessoes/nao_existe/agir", json={"acao": "continuar"})
+    r = cliente.post("/sessoes/nao_existe/agir",
+                     json={"acao": "continuar", "passo": 3})
     assert r.status_code == 404
 
 
@@ -303,26 +311,31 @@ def test_o_mesmo_codigo_devolve_a_tela_em_que_a_sessao_estava(cliente, destino):
     assert [l["tipo"] for l in depois[antes:]] == ["sessao_retomada"]
 
 
-def test_codigo_que_esta_no_registro_e_nao_na_memoria_da_409(destino):
-    """Depois de um reinício o servidor não tem mais a sessão, e abrir
-    outra com o mesmo código misturaria duas no mesmo registro. A
-    reexecução pelo registro é a fatia 3; até lá, recusa e diz."""
+def test_codigo_que_esta_no_registro_e_nao_na_memoria_e_retomado(destino):
+    """Depois de um reinício o servidor não tem mais a sessão na memória.
+
+    A primeira versão recusava com 409, e a revisão do ramo mostrou o
+    custo: religar o sistema queimava todos os códigos. O motor é puro e
+    o registro guarda as entradas, então a sessão é refeita — os casos
+    difíceis estão em `mvp/test_trilha_revisao.py`.
+    """
     primeiro = TestClient(trilha_app.cria_app(D, ESC, destino))
-    _abre(primeiro, codigo="P02")
+    _, j = _abre(primeiro, codigo="P02")
     outro = TestClient(trilha_app.cria_app(D, ESC, destino))
     r = outro.post("/sessoes", json={"codigo": "P02"})
-    assert r.status_code == 409 and "P02" in r.json()["detail"]
+    assert r.status_code == 200 and r.json()["tela"] == j["tela"]
     assert outro.post("/sessoes", json={"codigo": "P03"}).status_code == 200
 
 
 @pytest.mark.parametrize("corpo", [
     {"acao": "continuar", "ms": -1},
-    {"acao": "continuar", "ms": 3 * 60 * 60 * 1000},
     {"acao": "responder", "texto": "x" * 201},
     {"acao": "responder", "pecas": list(range(41))},
     {"acao": "responder", "escolha": "a"},
+    {"acao": "continuar", "passo": "dois"},
 ])
 def test_corpo_fora_do_limite_da_422(cliente, corpo):
-    sessao, _ = _abre(cliente)
+    sessao, j = _abre(cliente)
+    corpo = {"passo": j["passo"], **corpo}
     r = cliente.post("/sessoes/%s/agir" % sessao, json=corpo)
     assert r.status_code == 422

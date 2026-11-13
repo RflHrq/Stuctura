@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import sys
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -111,7 +112,17 @@ def _monta_a_trilha(portal: FastAPI, d, pasta: Path) -> str | None:
     arquivo = AQUI / "dominio" / ("escada_%s.yaml" % d.id.replace("_", ""))
     if not arquivo.exists():
         return None
-    escadas = trilha_escada.le(arquivo, d)
+    try:
+        escadas = trilha_escada.le(arquivo, d)
+    except (trilha_escada.EscadaInvalida, ValueError) as erro:
+        # UMA ESCADA QUEBRADA NÃO DERRUBA OS TREZE TÓPICOS. O arquivo é
+        # conteúdo em edição, e o portal fica ligado sozinho: sem isto,
+        # um erro de digitação num YAML tirava o sistema inteiro do ar.
+        # O tópico continua pelo fluxo de sempre, e o aviso vai para
+        # quem olha a saída do servidor.
+        print("AVISO: a escada de %s não carregou, e o tópico ficou sem "
+              "trilha — %s" % (d.id, erro), file=sys.stderr)
+        return None
     if trilha_escada.faltando(d, escadas):
         return None
     portal.mount("/trilha/%s" % d.id, trilha_app.cria_app(

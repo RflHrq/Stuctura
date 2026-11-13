@@ -24,9 +24,15 @@
   var NO_PORTAL = PARTES[1] === "trilha" && !!PARTES[2];
   var BASE = NO_PORTAL ? "/trilha/" + PARTES[2] : "";
 
+  /* O mesmo teto do servidor para o tempo de uma resposta. Quem deixa a
+   * página aberta de um dia para o outro não pode ficar com um número
+   * que só cresce. */
+  var LIMITE_MS = 2 * 60 * 60 * 1000;
+
   var S = {
     sessao: null,
     tela: null,
+    passo: 0,           // o número da tela, que volta em todo pedido
     cartao: null,       // o cartão na tela, para o retorno entrar ABAIXO dele
     inicio: 0,
     ocupado: false,     // um pedido no ar: os botões não agem de novo
@@ -110,7 +116,8 @@
   }
 
   function decorrido() {
-    return Math.max(0, Math.round(performance.now() - S.inicio));
+    var ms = Math.max(0, Math.round(performance.now() - S.inicio));
+    return Math.min(ms, LIMITE_MS);
   }
 
   /* Um grupo de botões em que UM fica marcado. Devolve o elemento; quem
@@ -177,12 +184,23 @@
     S.ocupado = true;
     $("palco").classList.add("t-ocupado");
     corpo.ms = decorrido();
+    /* De que tela este pedido é. O servidor recusa o que for de uma tela
+     * que já passou — uma resposta reenviada, outra aba —, em vez de
+     * aplicá-lo à tela seguinte. */
+    corpo.passo = S.passo;
     var r = await pede("/sessoes/" + S.sessao + "/agir", corpo);
     S.ocupado = false;
     $("palco").classList.remove("t-ocupado");
 
     if (r.status === 200) { recebe(r.json, mesmaTela); return; }
     if (r.status === 404) { perdeu(); return; }
+    if (r.status === 409 && r.json && r.json.tela) {
+      /* A tela já tinha mudado. O servidor manda a atual, e é ela que
+       * passa a valer: nada de adivinhar onde a sessão está. */
+      avisa("Esta tela já tinha mudado. Aqui está a atual.");
+      recebe(r.json);
+      return;
+    }
     if (r.status === 400) {
       avisa("Essa ação não cabe mais nesta tela.");
     } else if (r.status === 0) {
@@ -194,6 +212,7 @@
 
   function recebe(j, mesmaTela) {
     S.tela = j.tela;
+    S.passo = j.passo;
     /* O modo e o ritmo vêm do servidor a cada resposta. Quem reabre a
      * página com o código não passou pela tela de entrada, e sem isto
      * os ajustes abririam vazios. */
@@ -321,6 +340,13 @@
     }, "btn-topo");
   }
 
+  /* Na reconferência a explicação não abre — o servidor recusa, e o
+   * botão nem aparece. Ela existe para separar "acertou logo depois de
+   * ler" de "assimilou". */
+  function explicacaoSe(t) {
+    return t.papel === "reconferencia" ? null : botaoDaExplicacao();
+  }
+
   /* ------------------------------------------------------------- telas */
 
   var DESENHA = {};
@@ -440,7 +466,7 @@
     c.appendChild(el("div", { "class": "t-acoes" }, [
       enviar,
       botao("Não sei", function () { age({ acao: "nao_sei" }); }, "btn-topo"),
-      botaoDaExplicacao()
+      explicacaoSe(t)
     ]));
   };
 
@@ -573,7 +599,7 @@
     }
     (FORMA[t.forma] || FORMA["escolher"])(c, t, pronto, envia);
     c.appendChild(el("div", { "class": "t-acoes" }, [
-      enviar, botaoDaExplicacao()
+      enviar, explicacaoSe(t)
     ]));
   };
 

@@ -11,8 +11,12 @@ A interface não decide nada. Ela manda o que a pessoa fez e desenha a
 tela que volta; toda transição acontece em `mvp/trilha.py`, e o que
 acontece vira linha em `mvp/trilha_log.py`.
 
-    POST /sessoes                  abre (ou devolve a que está aberta)
-    POST /sessoes/{sessao}/agir    uma entrada, uma transição
+    POST /sessoes                  abre; com um código que já tem sessão,
+                                   devolve a tela em que ela estava —
+                                   da memória, ou refeita pelo registro
+    POST /sessoes/{sessao}/agir    uma entrada, uma transição. O pedido
+                                   diz de que tela é (`passo`); se a
+                                   tela já mudou, 409 com a tela atual
     GET  /saude
     GET  /                         a página
 """
@@ -25,7 +29,7 @@ from pathlib import Path
 from typing import Mapping
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -52,16 +56,26 @@ class SessaoBody(BaseModel):
     codigo: str = ""
 
 
+# Ação, certeza, modo e ritmo são palavras de uma lista fechada, e a mais
+# longa tem treze letras. O teto existe porque a entrada aceita vai
+# inteira para o registro: sem ele, um campo que o motor nem lê levaria
+# o que viesse para o disco.
+LIMITE_DA_PALAVRA = 32
+
+
 class AcaoBody(BaseModel):
-    acao: str = "responder"
+    acao: str = Field(default="responder", max_length=LIMITE_DA_PALAVRA)
+    # De que tela o pedido é. Obrigatório: é o que impede uma resposta
+    # repetida, reenviada ou de outra aba de valer para a tela seguinte.
+    passo: int
     escolha: int | None = None
     razao: int | None = None
-    confianca: str = ""
+    confianca: str = Field(default="", max_length=LIMITE_DA_PALAVRA)
     pecas: list[int] = Field(default_factory=list, max_length=LIMITE_DE_PECAS)
     texto: str = Field(default="", max_length=LIMITE_DO_TEXTO)
-    modo: str = ""
-    ritmo: str = ""
-    ms: int = Field(default=0, ge=0, le=LIMITE_MS)
+    modo: str = Field(default="", max_length=LIMITE_DA_PALAVRA)
+    ritmo: str = Field(default="", max_length=LIMITE_DA_PALAVRA)
+    ms: int = Field(default=0, ge=0)
 
 
 def _veredito(eventos) -> str | None:
@@ -107,6 +121,8 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
         return {"sessao": sessao, "tela": e.tela.json(),
                 "explicacao": explicacao, "veredito": veredito,
                 "progresso": progresso(e),
+                # O número da tela. O cliente o devolve em todo pedido.
+                "passo": e.n,
                 # A escolha da pessoa, que ela pode ter trocado. Quem
                 # reabre a página com o código não passou pela tela de
                 # entrada, e é por aqui que os ajustes sabem o que marcar.
@@ -136,16 +152,23 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
             trilha_log.grava(destino, codigo, [Evento(
                 "sessao_retomada", {"tela": e.tela.tipo})])
             return corpo(codigo, e)
-        elif trilha_log.le(destino, codigo):
-            # Está no registro e não na memória: o servidor reiniciou.
-            # Abrir outra sessão com o mesmo código misturaria duas no
-            # mesmo registro; refazer a antiga pelo registro é a fatia 3.
-            raise HTTPException(
-                status_code=409,
-                detail="a sessão %r existe no registro e não está mais na "
-                       "memória deste servidor. A retomada depois de um "
-                       "reinício ainda não foi construída; use outro código."
-                       % codigo)
+        elif trilha_log.existe(destino, codigo):
+            # Está no registro e não na memória: o servidor reiniciou —
+            # e ele reinicia toda vez que o sistema é religado. Abrir
+            # outra sessão com o mesmo código misturaria duas no mesmo
+            # registro; recusar queimava o código para sempre. O motor é
+            # puro e o registro guarda as entradas: a sessão é REFEITA.
+            try:
+                t = trilha_log.reconstroi(d, escadas, destino, codigo)
+            except trilha_log.RegistroNaoReexecutavel as erro:
+                # 409: a sessão existe, e este servidor não consegue
+                # continuá-la. A mensagem é para quem está na tela.
+                raise HTTPException(status_code=409, detail=str(erro)) from erro
+            sessoes[codigo] = t.estado
+            trilha_log.grava(destino, codigo, [Evento(
+                "sessao_reconstruida", {"tela": t.tela.tipo,
+                                        "passo": t.estado.n})])
+            return corpo(codigo, t.estado)
         else:
             sessao = codigo
         # A sessão é a semente: a ordem das alternativas e das peças sai
@@ -153,19 +176,31 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
         return resposta(sessao, trilha.inicia(d, escadas, semente=sessao))
 
     @app.post("/sessoes/{sessao}/agir")
-    def age(sessao: str, body: AcaoBody) -> dict:
+    def age(sessao: str, body: AcaoBody):
         estado = sessoes.get(sessao)
         if estado is None:
             raise HTTPException(status_code=404, detail="sessão desconhecida")
         entrada = trilha.Entrada(
             acao=body.acao, escolha=body.escolha, razao=body.razao,
             confianca=body.confianca, pecas=tuple(body.pecas),
-            texto=body.texto, modo=body.modo, ritmo=body.ritmo, ms=body.ms)
+            texto=body.texto, modo=body.modo, ritmo=body.ritmo,
+            # Tempo absurdo é CORTADO, não recusado. Recusar travava a
+            # sessão de quem deixou a página aberta: cada nova tentativa
+            # mandava um tempo ainda maior, e o 422 não acabava.
+            ms=min(body.ms, LIMITE_MS), passo=body.passo)
         try:
             t = trilha.avanca(d, escadas, estado, entrada)
+        except trilha.EntradaVelha:
+            # 409, com a tela ATUAL: o pedido é de uma tela que já
+            # passou — reenvio depois de uma resposta perdida na rede,
+            # outra aba, duplo clique. Nada é gravado, o estado não anda,
+            # e o cliente redesenha em vez de adivinhar onde está.
+            return JSONResponse(status_code=409, content={
+                **corpo(sessao, estado),
+                "detail": "esta tela já mudou"})
         except (trilha.EntradaInvalida, RespostaInvalida) as erro:
             # 400, e nada gravado: a tentativa inválida não é dado, e o
-            # estado não anda. É o que segura o duplo clique.
+            # estado não anda.
             raise HTTPException(status_code=400, detail=str(erro)) from erro
         return resposta(sessao, t, entrada)
 

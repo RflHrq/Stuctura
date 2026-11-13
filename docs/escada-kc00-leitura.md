@@ -186,7 +186,7 @@ Resposta certa: `idade = 20;`
 
 Se errar:
 
-- respondeu `int idade = 20 ;` → idade já foi declarada na linha de cima. Declarar de novo é pedir outra variável com o mesmo nome, e o compilador recusa. Basta idade = 20;
+- respondeu `int idade = 20 ;` → idade já foi declarada na linha de cima. Declarar de novo é pedir outra variável com o mesmo nome, e o compilador reclama. Basta idade = 20;
 - respondeu `20 = idade ;` → A variável que recebe fica antes do sinal de igual, e o valor depois: idade = 20;
 - não usou `;` → Faltou o ponto e vírgula no fim da linha: idade = 20;
 - qualquer outro erro → A linha é o nome, o sinal de igual, o valor e o ponto e vírgula: idade = 20;
@@ -205,7 +205,7 @@ Resposta certa: `ano = 2026;`
 
 Se errar:
 
-- respondeu `int ano = 2026 ;` → ano já foi declarada na linha de cima. Declarar de novo é pedir outra variável com o mesmo nome, e o compilador recusa. Basta ano = 2026;
+- respondeu `int ano = 2026 ;` → ano já foi declarada na linha de cima. Declarar de novo é pedir outra variável com o mesmo nome, e o compilador reclama. Basta ano = 2026;
 - respondeu `2026 = ano ;` → A variável que recebe fica antes do sinal de igual, e o valor depois: ano = 2026;
 - não usou `;` → Faltou o ponto e vírgula no fim da linha: ano = 2026;
 - qualquer outro erro → A linha é o nome, o sinal de igual, o valor e o ponto e vírgula: ano = 2026;
@@ -992,7 +992,7 @@ Resposta certa: `nota = 7;`
 
 Se errar:
 
-- respondeu `7 = nota;` → O sinal de igual não funciona dos dois lados. À esquerda fica a variável que recebe, e por isso 7 = nota; não compila. _(aponta a crença `assignment_symmetric`)_
+- respondeu `7 = nota;` → O sinal de igual não funciona dos dois lados. À esquerda fica a variável que recebe, e por isso o compilador reclama de 7 = nota; _(aponta a crença `assignment_symmetric`)_
 - qualquer outro erro → A variável que recebe fica à esquerda do sinal de igual: nota = 7;
 
 **Versão 2.** Qual linha guarda 20 em idade?
@@ -1009,10 +1009,61 @@ Resposta certa: `idade = 20;`
 
 Se errar:
 
-- respondeu `20 = idade;` → O sinal de igual não funciona dos dois lados. À esquerda fica a variável que recebe, e por isso 20 = idade; não compila. _(aponta a crença `assignment_symmetric`)_
+- respondeu `20 = idade;` → O sinal de igual não funciona dos dois lados. À esquerda fica a variável que recebe, e por isso o compilador reclama de 20 = idade; _(aponta a crença `assignment_symmetric`)_
 - qualquer outro erro → A variável que recebe fica à esquerda do sinal de igual: idade = 20;
 
-### Degrau 5 — prática, montar
+### Degrau 5 — guiado, completar
+
+> O valor da direita também pode vir de outra variável.
+> Em nota = pontos; o que está guardado em pontos é copiado para nota.
+
+**Versão 1.** Complete para que nota receba o valor que está em pontos.
+
+Já está escrito:
+
+```c
+int pontos = 3;
+int nota;
+```
+
+```c
+nota = ___;
+```
+
+Peças: `pontos`  `nota`  `int`
+
+Resposta certa: `nota = pontos;`
+
+Se errar:
+
+- respondeu `nota = nota;` → Assim nota receberia o próprio valor, e nela ninguém escreveu ainda. Quem tem o valor a copiar é pontos: nota = pontos;
+- respondeu `nota = int;` → int é um tipo, não um valor. À direita vai a variável de onde o valor vem: nota = pontos;
+- qualquer outro erro → À direita vai a variável de onde o valor vem: nota = pontos;
+
+**Versão 2.** Complete para que idade receba o valor que está em ano.
+
+Já está escrito:
+
+```c
+int ano = 5;
+int idade;
+```
+
+```c
+idade = ___;
+```
+
+Peças: `ano`  `idade`  `int`
+
+Resposta certa: `idade = ano;`
+
+Se errar:
+
+- respondeu `idade = idade;` → Assim idade receberia o próprio valor, e nela ninguém escreveu ainda. Quem tem o valor a copiar é ano: idade = ano;
+- respondeu `idade = int;` → int é um tipo, não um valor. À direita vai a variável de onde o valor vem: idade = ano;
+- qualquer outro erro → À direita vai a variável de onde o valor vem: idade = ano;
+
+### Degrau 6 — prática, montar
 
 **Versão 1.** Escreva em uma linha só o que este trecho faz em duas.
 
@@ -1050,7 +1101,7 @@ Se errar:
 - não usou `;` → Faltou o ponto e vírgula no fim da linha: int ano = 2026;
 - qualquer outro erro → Em uma linha: o tipo, o nome, o sinal de igual, o valor e o ponto e vírgula.
 
-### Degrau 6 — prática, digitar
+### Degrau 7 — prática, digitar
 
 **Versão 1.** Que número este trecho mostra na tela?
 

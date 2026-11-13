@@ -355,6 +355,21 @@ def le(caminho: Path, d: Dominio) -> dict[str, Escada]:
     return escadas
 
 
+def assinatura(escadas: Mapping[str, Escada]) -> str:
+    """Doze dígitos que mudam quando o conteúdo das escadas muda.
+
+    Vai para o registro na abertura de cada sessão. A escada é conteúdo
+    que ainda vai ser lido e corrigido, e uma sessão refeita pelas
+    entradas contra OUTRA escada daria um estado plausível e errado — as
+    entradas são posições de peças, e as peças teriam mudado.
+
+    Sai do `repr` das estruturas congeladas, na ordem das premissas: tudo
+    o que chega à tela ou decide uma correção entra na conta.
+    """
+    texto = repr(sorted(escadas.items()))
+    return hashlib.sha256(texto.encode("utf-8")).hexdigest()[:12]
+
+
 def faltando(d: Dominio, escadas: Mapping[str, Escada]) -> tuple[str, ...]:
     """As premissas do tópico que ainda não têm escada, na ordem do grafo."""
     return tuple(n for n in d.ordem if n not in escadas)
