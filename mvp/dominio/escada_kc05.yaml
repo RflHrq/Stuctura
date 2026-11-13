@@ -1,0 +1,1530 @@
+# A escada do kc_05 — o ponteiro NULL.
+#
+# O QUE É. Para cada premissa do tópico, os degraus do mais mecânico até
+# a ideia, e a prova de cada crença que nega a premissa. Segue o molde
+# do kc_00, e a mesma régua do texto (docs/trilha.md, 6.16).
+#
+# QUEM CHEGA AQUI passou pelo kc_00, kc_02, kc_03 e kc_04. Do kc_03 traz
+# o NULL como valor que se escreve num ponteiro (`p = NULL;`,
+# `int *p = NULL;`). Aqui o NULL passa a ser PERGUNTADO.
+#
+# O QUE ESTE TÓPICO APRESENTA, e onde:
+#
+#   p == NULL         a pergunta, que responde 1 ou 0       B1, degrau 2
+#   if (...) linha;   a linha que só roda se a resposta     B1, degrau 3
+#                     for sim
+#   p = 0;            o 0 escrito no código                 B2, degrau 1
+#   (int *)n          a conversão forçada                   B2, degrau 3
+#   p != NULL         a pergunta ao contrário               I1, degrau 3
+#   if (p)            o mesmo que if (p != NULL)            I3, degrau 2
+#
+# O `if` ENTRA DO JEITO MAIS CURTO: uma pergunta entre parênteses e uma
+# linha só, na mesma linha. Sem chaves, sem `else`.
+#
+# NADA É EXECUTADO INDO A UM PONTEIRO NULO. Os degraus de `digitar` só
+# rodam trechos em que o `*p` está guardado por uma pergunta, ou em que
+# o ponteiro aponta para uma variável. Os trechos que vão a um ponteiro
+# nulo aparecem para a pessoa escolher, e o conferidor só os compila.
+#
+# TRÊS PROVAS PEDIRAM MAIS DO CONFERIDOR:
+#
+#   - a do B1 mostra que o compilador reclama do ponteiro sem valor e
+#     NÃO reclama do que vale NULL. `cala` é o trecho de mensagem que
+#     não pode aparecer;
+#   - a do B2 depende de a reclamação ser de UMA linha só (`p = n;`, e
+#     não `p = 0;`). O conferidor passou a exigir que a mensagem de
+#     `reclama` apareça uma vez, e uma só;
+#   - a do I3 é um aviso que o gcc só dá olhando o fluxo do programa.
+#     `avisos` leva as opções a mais (`-O2 -Wnull-dereference`), e a
+#     nota de ambiente as diz.
+#
+# A PROVA DO I2 VALE NESTE COMPILADOR. A crença é "NULL é o inteiro 0 em
+# todo lugar", e o que a máquina mostra é que guardar NULL num int faz o
+# gcc reclamar — porque, nele, NULL é escrito como ponteiro. A linguagem
+# permite escrevê-lo de outro jeito, e a nota de ambiente diz isso.
+#
+# AS QUESTÕES DE MARCAR. O banco do kc_05 não foi mexido. Doze das 36
+# questões de diagnóstico e de treino usam o que as escadas não ensinam
+# — `sizeof`, `malloc`, protótipo de função, `return`, `&&`, vetor,
+# `memcpy` e parentes, `%c` e `%s` — e estão em `fora_da_trilha`. O I2
+# é a única premissa que abre com a questão de conceito: as duas de
+# código de diagnóstico dele são sobre `memcpy`.
+#
+# A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
+# alternativa de um degrau guiado, e só ali o erro leva `crenca`.
+#
+# gerado_por: Claude Fable 5.2, em 13/11/2026
+# revisado_por:
+#   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
+#   principal)
+
+B1:
+  revisao:
+    frases:
+      - "NULL é um valor: o que se guarda num ponteiro para dizer que ele não aponta para lugar nenhum."
+      - "Um ponteiro que vale NULL tem valor. Sem valor escolhido está o ponteiro em que ninguém escreveu."
+    codigo: |
+      int *p;
+
+      p = NULL;
+      printf("%d\n", p == NULL);
+    saida: "1"
+  # sizeof com %zu; protótipo de função e o if (p) sem comparação.
+  fora_da_trilha: [ciu_kc05_002, ciu_kc05_t02]
+  provas:
+    - crenca: null_is_absence
+      programa: |
+        int *p;
+        int *q;
+        int *r;
+
+        p = NULL;
+        r = p;
+        r = q;
+      previsao:
+        pergunta: >
+          p recebeu NULL, e q não recebeu nada. As duas últimas linhas
+          copiam de p e de q. De qual delas o compilador reclama?
+        opcoes:
+          - "Das duas: p e q estão sem valor"
+          - "Só de r = q;"
+          - "De nenhuma"
+        real: 1
+        crenca: 0
+      reclama: "'q' is used uninitialized"
+      cala: "'p' is used uninitialized"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa não
+        é executado: o que ele copiaria de q, ninguém sabe.
+      afirma: >
+        O compilador reclama só de q, que está sem valor. De p ele não
+        diz nada: NULL é um valor como os outros, e copiar de p é copiar
+        um valor.
+  degraus:
+    - id: esc_kc05_B1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "NULL é um valor que se guarda num ponteiro. Ele quer dizer: não aponta para lugar nenhum."
+        - "É um valor escolhido, escrito por uma linha, e não o ponteiro estar vazio."
+      versoes:
+        - pede: "Depois da última linha, p tem valor?"
+          antes: |-
+            int *p;
+
+            p = NULL;
+          pecas:
+            - "Tem: o valor NULL, que a linha escreveu"
+            - "Não: NULL quer dizer que p está vazio, sem valor dentro"
+            - "Tem: o endereço de uma variável"
+          certa: [[0]]
+          certa_texto: "Tem: o valor NULL, que a linha escreveu"
+          erros:
+            - exata: [1]
+              crenca: null_is_absence
+              retorno: "NULL não é falta de valor: é um valor, e a linha o escreveu em p. Ele diz uma coisa certa: p não aponta para lugar nenhum."
+            - exata: [2]
+              retorno: "Nenhuma variável teve o endereço guardado em p. O valor que a linha escreveu é NULL: não aponta para lugar nenhum."
+          retorno_geral: "p tem valor: NULL, que a última linha escreveu."
+        - pede: "Depois dessa linha, q tem valor?"
+          antes: "int *q = NULL;"
+          pecas:
+            - "Tem: o valor NULL, que a linha escreveu"
+            - "Não: NULL quer dizer que q está vazio, sem valor dentro"
+            - "Tem: o endereço de uma variável"
+          certa: [[0]]
+          certa_texto: "Tem: o valor NULL, que a linha escreveu"
+          erros:
+            - exata: [1]
+              crenca: null_is_absence
+              retorno: "NULL não é falta de valor: é um valor, e a linha o escreveu em q. Ele diz uma coisa certa: q não aponta para lugar nenhum."
+            - exata: [2]
+              retorno: "Nenhuma variável teve o endereço guardado em q. O valor que a linha escreveu é NULL: não aponta para lugar nenhum."
+          retorno_geral: "q tem valor: NULL, que a linha escreveu."
+
+    - id: esc_kc05_B1_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Dá para perguntar se um ponteiro vale NULL: p == NULL."
+        - "A resposta é um número: 1 quando é verdade, 0 quando não é. O printf com %d mostra."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int *p;
+
+            p = NULL;
+            printf("%d\n", p == NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "p recebeu NULL na linha anterior. A pergunta p == NULL é verdadeira, e a resposta é 1."
+          retorno_geral: "p vale NULL: a pergunta p == NULL é verdadeira, e a resposta é 1."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *q;
+
+            q = &idade;
+            printf("%d\n", q == NULL);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "q recebeu o endereço de idade, e não NULL. A pergunta q == NULL é falsa, e a resposta é 0."
+          retorno_geral: "q guarda o endereço de idade: a pergunta q == NULL é falsa, e a resposta é 0."
+
+    - id: esc_kc05_B1_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com if, uma linha só roda quando a resposta é sim."
+        - "Em if (p == NULL) idade = 20; a escrita em idade só acontece se p valer NULL."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = NULL;
+            if (p == NULL) idade = 20;
+            printf("%d\n", idade);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "15"
+              retorno: "p vale NULL, então a pergunta é verdadeira e a linha do if rodou: idade passou a guardar 20."
+          retorno_geral: "p vale NULL. A pergunta do if é verdadeira, e idade recebe 20."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = &idade;
+            if (p == NULL) idade = 20;
+            printf("%d\n", idade);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "20"
+              retorno: "p guarda o endereço de idade, e não NULL. A pergunta é falsa, e a linha do if não rodou: idade continua com 15."
+          retorno_geral: "p não vale NULL. A pergunta do if é falsa, e idade continua com 15."
+
+    - id: esc_kc05_B1_4
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "Como NULL é um valor, ele se copia como qualquer outro."
+      versoes:
+        - pede: "p vale NULL. Faça q valer NULL também, copiando de p."
+          antes: |-
+            int *p;
+            int *q;
+
+            p = NULL;
+          pecas: ["q", "=", "p", ";", "*p"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "q = p;"
+          erros:
+            - exata: [0, 1, 4, 3]
+              invalida: true
+              retorno: "*p iria ao lugar apontado, e p não aponta para lugar nenhum. O valor de p se copia sem o *: q = p;"
+            - exata: [2, 1, 0, 3]
+              retorno: "Assim é p que recebe o que está em q, e q não tem valor escolhido. Quem recebe fica à esquerda: q = p;"
+          retorno_geral: "O valor guardado em p se copia sem o *: q = p;"
+        - pede: "c vale NULL. Faça d valer NULL também, copiando de c."
+          antes: |-
+            char *c;
+            char *d;
+
+            c = NULL;
+          pecas: ["d", "=", "c", ";", "*c"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "d = c;"
+          erros:
+            - exata: [0, 1, 4, 3]
+              invalida: true
+              retorno: "*c iria ao lugar apontado, e c não aponta para lugar nenhum. O valor de c se copia sem o *: d = c;"
+            - exata: [2, 1, 0, 3]
+              retorno: "Assim é c que recebe o que está em d, e d não tem valor escolhido. Quem recebe fica à esquerda: d = c;"
+          retorno_geral: "O valor guardado em c se copia sem o *: d = c;"
+
+    - id: esc_kc05_B1_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int *p;
+            int *q;
+
+            p = NULL;
+            q = p;
+            printf("%d\n", q == NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "q = p; copiou o valor de p, que era NULL. q passou a valer NULL também, e a resposta é 1."
+          retorno_geral: "NULL é um valor, e foi copiado de p para q. A pergunta q == NULL dá 1."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+            int *q;
+
+            p = &idade;
+            q = p;
+            printf("%d\n", q == NULL);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "q = p; copiou o endereço de idade. q não vale NULL, e a resposta é 0."
+          retorno_geral: "q recebeu o endereço de idade, copiado de p. A pergunta q == NULL dá 0."
+
+    - id: esc_kc05_B1_6
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Declare um ponteiro para inteiro chamado p e, na linha seguinte, escreva nele o valor que diz: não aponta para lugar nenhum."
+          pecas: ["int *p;", "p = NULL;", "*p = NULL;", "int p;"]
+          certa: [[0, 1]]
+          certa_texto: "int *p; p = NULL;"
+          erros:
+            - exata: [0, 2]
+              invalida: true
+              retorno: "*p é o lugar apontado, e p ainda não aponta para lugar nenhum. O NULL vai no próprio ponteiro: p = NULL;"
+            - exata: [3, 1]
+              invalida: true
+              retorno: "Sem o *, p é um int comum, e NULL é valor de ponteiro. A declaração é int *p;"
+            - exata: [1, 0]
+              invalida: true
+              retorno: "Primeiro a declaração, depois a escrita: int *p; e então p = NULL;"
+          retorno_geral: "São duas linhas: int *p; e p = NULL;"
+        - pede: "Declare um ponteiro para caractere chamado c e, na linha seguinte, escreva nele o valor que diz: não aponta para lugar nenhum."
+          pecas: ["char *c;", "c = NULL;", "*c = NULL;", "char c;"]
+          certa: [[0, 1]]
+          certa_texto: "char *c; c = NULL;"
+          erros:
+            - exata: [0, 2]
+              invalida: true
+              retorno: "*c é o lugar apontado, e c ainda não aponta para lugar nenhum. O NULL vai no próprio ponteiro: c = NULL;"
+            - exata: [3, 1]
+              invalida: true
+              retorno: "Sem o *, c é um char comum, e NULL é valor de ponteiro. A declaração é char *c;"
+            - exata: [1, 0]
+              invalida: true
+              retorno: "Primeiro a declaração, depois a escrita: char *c; e então c = NULL;"
+          retorno_geral: "São duas linhas: char *c; e c = NULL;"
+
+B2:
+  revisao:
+    frases:
+      - "O 0 escrito no código, posto num ponteiro, é o ponteiro nulo: p = 0; faz o mesmo que p = NULL;"
+      - "Vale para o 0 escrito ali. Um zero guardado numa variável inteira é só um número, e o compilador não o aceita num ponteiro."
+    codigo: |
+      int *p;
+
+      p = 0;
+      printf("%d\n", p == NULL);
+    saida: "1"
+  # malloc, void * e return.
+  fora_da_trilha: [ciu_kc05_t06]
+  provas:
+    - crenca: any_zero_is_null
+      programa: |
+        int n;
+        int *p;
+
+        n = 0;
+        p = 0;
+        p = n;
+      previsao:
+        pergunta: >
+          As duas últimas linhas põem um zero em p: o 0 escrito no
+          código, e o zero guardado em n. De qual delas o compilador
+          reclama?
+        opcoes:
+          - "De nenhuma: zero é zero, e qualquer zero vira o ponteiro nulo"
+          - "Só de p = n;"
+          - "Das duas"
+        real: 1
+        crenca: 0
+      reclama: "makes pointer from integer without a cast"
+      ambiente: >
+        Mensagem do gcc 16.2, para a linha p = n;. Todo compilador de C
+        tem de reclamar dela, cada um com as suas palavras.
+      afirma: >
+        O compilador aceita p = 0; e reclama de p = n;, mesmo com n
+        valendo zero. O que vira ponteiro nulo é o 0 escrito no código,
+        e não qualquer zero.
+  degraus:
+    - id: esc_kc05_B2_1
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "O 0 escrito no código, posto num ponteiro, é o ponteiro nulo."
+        - "p = 0; faz o mesmo que p = NULL;"
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int *p;
+
+            p = 0;
+            printf("%d\n", p == NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "O 0 escrito no código vira o ponteiro nulo: p = 0; deixa p valendo NULL, e a resposta é 1."
+          retorno_geral: "p = 0; põe o ponteiro nulo em p. A pergunta p == NULL dá 1."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int *q = 0;
+
+            printf("%d\n", q == NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "O 0 escrito no código vira o ponteiro nulo: q nasce valendo NULL, e a resposta é 1."
+          retorno_geral: "int *q = 0; faz q nascer com o ponteiro nulo. A pergunta q == NULL dá 1."
+
+    - id: esc_kc05_B2_2
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "Isso vale para o 0 escrito ali, na linha."
+        - "Um zero guardado numa variável inteira é um número comum: o compilador reclama de p = n;"
+      versoes:
+        - pede: "n guarda zero. Qual destas linhas o compilador aceita?"
+          antes: |-
+            int n;
+            int *p;
+
+            n = 0;
+          pecas: ["p = 0;", "p = n;", "p = &0;"]
+          certa: [[0]]
+          certa_texto: "p = 0;"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "n é uma variável inteira: o que ela guarda é um número comum, mesmo sendo zero. O compilador reclama. Aceita: p = 0;"
+            - exata: [2]
+              retorno: "0 é um número escrito no código, e não tem endereço. Para o ponteiro nulo basta o próprio 0: p = 0;"
+          retorno_geral: "Só o 0 escrito na linha vira o ponteiro nulo: p = 0;"
+        - pede: "pontos guarda zero. Qual destas linhas o compilador aceita?"
+          antes: |-
+            int pontos;
+            int *q;
+
+            pontos = 0;
+          pecas: ["q = pontos;", "q = 0;", "q = &0;"]
+          certa: [[1]]
+          certa_texto: "q = 0;"
+          invalidas: [0, 2]
+          erros:
+            - exata: [0]
+              retorno: "pontos é uma variável inteira: o que ela guarda é um número comum, mesmo sendo zero. O compilador reclama. Aceita: q = 0;"
+            - exata: [2]
+              retorno: "0 é um número escrito no código, e não tem endereço. Para o ponteiro nulo basta o próprio 0: q = 0;"
+          retorno_geral: "Só o 0 escrito na linha vira o ponteiro nulo: q = 0;"
+
+    - id: esc_kc05_B2_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Dá para forçar: q = (int *)n; manda o compilador tratar o número de n como endereço, e ele aceita."
+        - "Mas a linguagem não promete que saia dali o ponteiro nulo, mesmo com n valendo zero."
+      versoes:
+        - pede: "Qual dos dois é o ponteiro nulo com certeza?"
+          antes: |-
+            int n;
+            int *p;
+            int *q;
+
+            n = 0;
+            p = 0;
+            q = (int *)n;
+          pecas:
+            - "Só p: recebeu o 0 escrito no código"
+            - "Os dois: qualquer zero vira o ponteiro nulo"
+            - "Só q: recebeu o zero da variável, que é o de verdade"
+          certa: [[0]]
+          certa_texto: "Só p: recebeu o 0 escrito no código"
+          erros:
+            - exata: [1]
+              crenca: any_zero_is_null
+              retorno: "A garantia é do 0 escrito no código. O zero que chega dentro de n é um número comum: forçado para dentro de q, não tem promessa nenhuma."
+            - exata: [2]
+              retorno: "É o contrário: a garantia é do 0 escrito na linha. O zero que vem de n foi forçado para dentro de q, sem promessa nenhuma."
+          retorno_geral: "Com certeza, só p: a garantia é do 0 escrito no código."
+        - pede: "Qual dos dois é o ponteiro nulo com certeza?"
+          antes: |-
+            int pontos;
+            int *p;
+            int *q;
+
+            pontos = 0;
+            p = (int *)pontos;
+            q = 0;
+          pecas:
+            - "Só q: recebeu o 0 escrito no código"
+            - "Os dois: qualquer zero vira o ponteiro nulo"
+            - "Só p: recebeu o zero da variável, que é o de verdade"
+          certa: [[0]]
+          certa_texto: "Só q: recebeu o 0 escrito no código"
+          erros:
+            - exata: [1]
+              crenca: any_zero_is_null
+              retorno: "A garantia é do 0 escrito no código. O zero que chega dentro de pontos é um número comum: forçado para dentro de p, não tem promessa nenhuma."
+            - exata: [2]
+              retorno: "É o contrário: a garantia é do 0 escrito na linha. O zero que vem de pontos foi forçado para dentro de p, sem promessa nenhuma."
+          retorno_geral: "Com certeza, só q: a garantia é do 0 escrito no código."
+
+    - id: esc_kc05_B2_4
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Uma destas linhas faz o compilador reclamar. Qual?"
+          antes: |-
+            int n;
+            int *p;
+
+            n = 0;
+          pecas: ["p = NULL;", "p = 0;", "p = n;"]
+          certa: [[2]]
+          certa_texto: "p = n;"
+          invalidas: [2]
+          erros:
+            - exata: [0]
+              retorno: "p = NULL; escreve o ponteiro nulo, e é aceita. A que não é: p = n;, que põe um inteiro comum num ponteiro."
+            - exata: [1]
+              retorno: "p = 0; usa o 0 escrito no código, que vira o ponteiro nulo. A que não é aceita: p = n;"
+          retorno_geral: "n é um inteiro comum, mesmo valendo zero: p = n; faz o compilador reclamar."
+        - pede: "Uma destas linhas faz o compilador reclamar. Qual?"
+          antes: |-
+            int pontos;
+            int *q;
+
+            pontos = 0;
+          pecas: ["q = pontos;", "q = 0;", "q = NULL;"]
+          certa: [[0]]
+          certa_texto: "q = pontos;"
+          invalidas: [0]
+          erros:
+            - exata: [1]
+              retorno: "q = 0; usa o 0 escrito no código, que vira o ponteiro nulo. A que não é aceita: q = pontos;"
+            - exata: [2]
+              retorno: "q = NULL; escreve o ponteiro nulo, e é aceita. A que não é: q = pontos;, que põe um inteiro comum num ponteiro."
+          retorno_geral: "pontos é um inteiro comum, mesmo valendo zero: q = pontos; faz o compilador reclamar."
+
+    - id: esc_kc05_B2_5
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Sem escrever a palavra NULL, faça q virar o ponteiro nulo."
+          antes: "int *q;"
+          pecas: ["q", "=", "0", ";", "*q", "&0"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "q = 0;"
+          erros:
+            - exata: [4, 1, 2, 3]
+              retorno: "*q = 0; escreveria zero no lugar apontado, e q não aponta para lugar escolhido. O ponteiro nulo é q = 0;"
+            - exata: [0, 1, 5, 3]
+              invalida: true
+              retorno: "0 é um número escrito no código, e não tem endereço. Basta o próprio 0: q = 0;"
+          retorno_geral: "O 0 escrito no código, posto no ponteiro, é o ponteiro nulo: q = 0;"
+        - pede: "Sem escrever a palavra NULL, faça p virar o ponteiro nulo."
+          antes: "int *p;"
+          pecas: ["p", "=", "0", ";", "*p", "&0"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "p = 0;"
+          erros:
+            - exata: [4, 1, 2, 3]
+              retorno: "*p = 0; escreveria zero no lugar apontado, e p não aponta para lugar escolhido. O ponteiro nulo é p = 0;"
+            - exata: [0, 1, 5, 3]
+              invalida: true
+              retorno: "0 é um número escrito no código, e não tem endereço. Basta o próprio 0: p = 0;"
+          retorno_geral: "O 0 escrito no código, posto no ponteiro, é o ponteiro nulo: p = 0;"
+
+B3:
+  revisao:
+    frases:
+      - "Nenhuma variável mora no endereço do ponteiro nulo: ele é reservado para dizer 'nenhum lugar'."
+      - "Por isso o endereço de uma variável nunca é NULL."
+    codigo: |
+      int idade;
+      int *p;
+
+      p = &idade;
+      printf("%d\n", p == NULL);
+    saida: "0"
+  # malloc; os colchetes de vetor e o %c.
+  fora_da_trilha: [ciu_kc05_009, ciu_kc05_t09]
+  provas:
+    - crenca: null_points_to_zero
+      programa: |
+        int idade;
+
+        if (&idade == NULL) printf("igual\n");
+      previsao:
+        pergunta: >
+          O if compara o endereço de idade com NULL. O que o compilador
+          diz dessa comparação?
+        opcoes:
+          - "Nada: idade pode estar no endereço do ponteiro nulo, como em qualquer outro"
+          - "Que ela nunca vai dar verdadeiro"
+        real: 1
+        crenca: 0
+      reclama: "will never be NULL"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall).
+      afirma: >
+        O próprio compilador avisa: o endereço de idade nunca vai ser
+        NULL. Esse valor é reservado para dizer "nenhum lugar", e
+        variável nenhuma mora ali.
+  degraus:
+    - id: esc_kc05_B3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O valor NULL não é o endereço de variável nenhuma."
+        - "Ele é reservado: existe só para dizer que o ponteiro não aponta para lugar nenhum."
+      versoes:
+        - pede: "Para onde p aponta?"
+          antes: |-
+            int *p;
+
+            p = NULL;
+          pecas:
+            - "Para lugar nenhum: não há variável nesse endereço"
+            - "Para o endereço 0, onde há memória como em qualquer outro lugar"
+            - "Para o próprio p"
+          certa: [[0]]
+          certa_texto: "Para lugar nenhum: não há variável nesse endereço"
+          erros:
+            - exata: [1]
+              crenca: null_points_to_zero
+              retorno: "O valor do ponteiro nulo não é um lugar como os outros: é reservado, e nenhuma variável mora ali. p não aponta para lugar nenhum."
+            - exata: [2]
+              retorno: "Um ponteiro que aponta para si mesmo guardaria o próprio endereço. p guarda NULL: não aponta para lugar nenhum."
+          retorno_geral: "p vale NULL: não aponta para lugar nenhum."
+        - pede: "Para onde q aponta?"
+          antes: "int *q = NULL;"
+          pecas:
+            - "Para lugar nenhum: não há variável nesse endereço"
+            - "Para o endereço 0, onde há memória como em qualquer outro lugar"
+            - "Para o próprio q"
+          certa: [[0]]
+          certa_texto: "Para lugar nenhum: não há variável nesse endereço"
+          erros:
+            - exata: [1]
+              crenca: null_points_to_zero
+              retorno: "O valor do ponteiro nulo não é um lugar como os outros: é reservado, e nenhuma variável mora ali. q não aponta para lugar nenhum."
+            - exata: [2]
+              retorno: "Um ponteiro que aponta para si mesmo guardaria o próprio endereço. q guarda NULL: não aponta para lugar nenhum."
+          retorno_geral: "q vale NULL: não aponta para lugar nenhum."
+
+    - id: esc_kc05_B3_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Por isso o endereço de uma variável nunca é NULL."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            p = &idade;
+            printf("%d\n", p == NULL);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "p guarda o endereço de idade, e endereço de variável nunca é NULL. A pergunta é falsa: a resposta é 0."
+          retorno_geral: "O endereço de idade nunca é NULL. A pergunta p == NULL dá 0."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int *q;
+
+            nota = 0;
+            q = &nota;
+            printf("%d\n", q == NULL);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "Quem guarda zero é nota. q guarda o endereço dela, e endereço de variável nunca é NULL: a resposta é 0."
+          retorno_geral: "O endereço de nota nunca é NULL, valha nota o que valer. A pergunta q == NULL dá 0."
+
+    - id: esc_kc05_B3_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "É o que torna NULL útil: ele separa o ponteiro que aponta para uma variável do que não aponta para nada."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+            int *q;
+
+            p = &idade;
+            q = NULL;
+            printf("%d\n", p == q);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "p guarda o endereço de idade, e q guarda NULL. Endereço de variável nunca é NULL: os dois são diferentes, e a resposta é 0."
+          retorno_geral: "Um guarda o endereço de idade, o outro guarda NULL. São diferentes: a resposta é 0."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int *p;
+            int *q;
+
+            p = NULL;
+            q = NULL;
+            printf("%d\n", p == q);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "Os dois guardam o mesmo valor, NULL. A pergunta p == q é verdadeira, e a resposta é 1."
+          retorno_geral: "p e q guardam o mesmo valor, NULL. A pergunta p == q dá 1."
+
+    - id: esc_kc05_B3_4
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = &idade;
+            if (p == NULL) idade = 0;
+            printf("%d\n", idade);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "p guarda o endereço de idade, que nunca é NULL. A pergunta é falsa, e a linha do if não rodou."
+          retorno_geral: "O endereço de idade nunca é NULL: o if não roda, e idade continua com 15."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int *q;
+
+            nota = 7;
+            q = &nota;
+            if (q == NULL) nota = 0;
+            printf("%d\n", nota);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "0"
+              retorno: "q guarda o endereço de nota, que nunca é NULL. A pergunta é falsa, e a linha do if não rodou."
+          retorno_geral: "O endereço de nota nunca é NULL: o if não roda, e nota continua com 7."
+
+    - id: esc_kc05_B3_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Depois destas linhas, qual ponteiro vale NULL?"
+          antes: |-
+            int idade;
+            int nota;
+            int *p;
+            int *q;
+
+            p = &idade;
+            q = &nota;
+          pecas:
+            - "Nenhum: endereço de variável nunca é NULL"
+            - "p, se idade estiver no começo da memória"
+            - "Os dois, até idade e nota receberem valor"
+          certa: [[0]]
+          certa_texto: "Nenhum: endereço de variável nunca é NULL"
+          erros:
+            - exata: [1]
+              retorno: "Nenhuma variável mora no endereço do ponteiro nulo, esteja onde estiver. p guarda o endereço de idade, que não é NULL."
+            - exata: [2]
+              retorno: "O endereço existe desde a declaração, com valor ou sem, e nunca é NULL. Nenhum dos dois ponteiros vale NULL."
+          retorno_geral: "p e q guardam endereços de variáveis, e endereço de variável nunca é NULL."
+        - pede: "Depois destas linhas, qual ponteiro vale NULL?"
+          antes: |-
+            int idade;
+            int *p;
+            int *q;
+
+            p = &idade;
+            q = NULL;
+          pecas:
+            - "Só q: uma linha escreveu NULL nele"
+            - "Os dois, se idade estiver no começo da memória"
+            - "Nenhum: NULL não é valor que se guarde"
+          certa: [[0]]
+          certa_texto: "Só q: uma linha escreveu NULL nele"
+          erros:
+            - exata: [1]
+              retorno: "Nenhuma variável mora no endereço do ponteiro nulo, esteja onde estiver. p guarda o endereço de idade; só q vale NULL."
+            - exata: [2]
+              retorno: "NULL é um valor, e a última linha o escreveu em q. Só q vale NULL."
+          retorno_geral: "q recebeu NULL; p recebeu o endereço de idade, que nunca é NULL."
+
+I1:
+  revisao:
+    frases:
+      - "p == NULL olha só o que está guardado em p. Não vai ao lugar apontado."
+      - "Por isso é seguro perguntar mesmo quando p vale NULL — e é assim que se evita ir aonde não há lugar."
+    codigo: |
+      int idade;
+      int *p;
+
+      idade = 15;
+      p = NULL;
+      if (p != NULL) idade = *p;
+      printf("%d\n", idade);
+    saida: "15"
+  # return; protótipo de função, && e a comparação com >.
+  fora_da_trilha: [ciu_kc05_011, ciu_kc05_t12]
+  provas:
+    - crenca: pointer_is_just_a_name
+      programa: |
+        int *p;
+
+        p = NULL;
+        if (p == NULL) printf("1\n");
+      previsao:
+        pergunta: >
+          p vale NULL: não aponta para lugar nenhum. O que o trecho faz?
+        opcoes:
+          - "Mostra 1: a comparação só lê o valor guardado em p"
+          - "Não mostra nada: para comparar, o programa vai até o lugar apontado, e não há lugar"
+        real: 0
+        crenca: 1
+      espera: "1"
+      afirma: >
+        Saiu 1, e nada parou. A comparação leu o valor guardado em p, e
+        mais nada: se ela fosse até o lugar apontado, não haveria lugar
+        para ir.
+  degraus:
+    - id: esc_kc05_I1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "p == NULL lê o valor guardado em p, e compara."
+        - "Ela não vai ao lugar apontado: quem vai é o *p."
+      versoes:
+        - pede: "O que a comparação da última linha lê?"
+          antes: |-
+            int idade;
+            int *p;
+
+            p = NULL;
+            if (p == NULL) idade = 0;
+          pecas:
+            - "O valor guardado em p"
+            - "O que está no lugar apontado: olhar p é olhar o que está lá"
+            - "O endereço do próprio p"
+          certa: [[0]]
+          certa_texto: "O valor guardado em p"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_just_a_name
+              retorno: "p é uma variável, com o valor dela: um endereço, ou NULL. A comparação lê esse valor e para aí. Ir ao lugar apontado é com o *p."
+            - exata: [2]
+              retorno: "O endereço do próprio ponteiro seria &p. A comparação lê o valor guardado em p, que aqui é NULL."
+          retorno_geral: "A comparação lê o valor guardado em p, e não vai a lugar nenhum."
+        - pede: "O que a comparação da última linha lê?"
+          antes: |-
+            int nota;
+            int *q;
+
+            q = NULL;
+            if (q == NULL) nota = 0;
+          pecas:
+            - "O valor guardado em q"
+            - "O que está no lugar apontado: olhar q é olhar o que está lá"
+            - "O endereço do próprio q"
+          certa: [[0]]
+          certa_texto: "O valor guardado em q"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_just_a_name
+              retorno: "q é uma variável, com o valor dela: um endereço, ou NULL. A comparação lê esse valor e para aí. Ir ao lugar apontado é com o *q."
+            - exata: [2]
+              retorno: "O endereço do próprio ponteiro seria &q. A comparação lê o valor guardado em q, que aqui é NULL."
+          retorno_geral: "A comparação lê o valor guardado em q, e não vai a lugar nenhum."
+
+    - id: esc_kc05_I1_2
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "São duas perguntas diferentes: p == NULL pergunta do ponteiro; *p == 0 pergunta do lugar apontado."
+        - "Com p valendo NULL, só a primeira pode ser feita."
+      versoes:
+        - pede: "p vale NULL. Qual destas linhas é segura?"
+          antes: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = NULL;
+          pecas: ["if (p == NULL) idade = 0;", "if (*p == 0) idade = 0;", "idade = *p;"]
+          certa: [[0]]
+          certa_texto: "if (p == NULL) idade = 0;"
+          erros:
+            - exata: [1]
+              retorno: "*p == 0 vai ao lugar apontado para ler, e p não aponta para lugar nenhum. A pergunta segura é sobre o ponteiro: p == NULL"
+            - exata: [2]
+              retorno: "idade = *p; vai ao lugar apontado, e p não aponta para lugar nenhum. Segura é a que só lê o ponteiro: if (p == NULL) idade = 0;"
+          retorno_geral: "Segura é a que só lê o ponteiro: if (p == NULL) idade = 0;"
+        - pede: "q vale NULL. Qual destas linhas é segura?"
+          antes: |-
+            int nota;
+            int *q;
+
+            nota = 7;
+            q = NULL;
+          pecas: ["nota = *q;", "if (*q == 0) nota = 0;", "if (q == NULL) nota = 0;"]
+          certa: [[2]]
+          certa_texto: "if (q == NULL) nota = 0;"
+          erros:
+            - exata: [0]
+              retorno: "nota = *q; vai ao lugar apontado, e q não aponta para lugar nenhum. Segura é a que só lê o ponteiro: if (q == NULL) nota = 0;"
+            - exata: [1]
+              retorno: "*q == 0 vai ao lugar apontado para ler, e q não aponta para lugar nenhum. A pergunta segura é sobre o ponteiro: q == NULL"
+          retorno_geral: "Segura é a que só lê o ponteiro: if (q == NULL) nota = 0;"
+
+    - id: esc_kc05_I1_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "A pergunta ao contrário é p != NULL: 'p aponta para algum lugar?'"
+        - "Posta antes do *p, ela garante que só se vai aonde há lugar."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int nota;
+            int *p;
+
+            idade = 15;
+            nota = 7;
+            p = &nota;
+            if (p != NULL) idade = *p;
+            printf("%d\n", idade);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "15"
+              retorno: "p guarda o endereço de nota, então p != NULL é verdade e a linha rodou: idade recebeu o valor de nota, 7."
+          retorno_geral: "p aponta para nota. A pergunta é verdadeira, e idade recebe o valor que mora lá: 7."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = NULL;
+            if (p != NULL) idade = *p;
+            printf("%d\n", idade);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "p vale NULL, então p != NULL é falso, e a linha do if não rodou. idade continua com 15."
+          retorno_geral: "p vale NULL. A pergunta é falsa, o *p não é usado, e idade continua com 15."
+
+    - id: esc_kc05_I1_4
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = NULL;
+            if (p == NULL) p = &idade;
+            *p = 20;
+            printf("%d\n", idade);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "15"
+              retorno: "A pergunta p == NULL era verdadeira, e o if deu a p o endereço de idade. Depois *p = 20; escreveu nela."
+          retorno_geral: "O if deu a p o endereço de idade antes do uso. *p = 20; escreveu em idade."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int pontos;
+            int *q;
+
+            nota = 7;
+            pontos = 3;
+            q = &pontos;
+            if (q == NULL) q = &nota;
+            *q = 9;
+            printf("%d\n", nota);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "9"
+              retorno: "q já guardava o endereço de pontos: a pergunta q == NULL era falsa, e o if não trocou nada. O 9 foi para pontos; nota continua com 7."
+          retorno_geral: "q apontava para pontos, e o if não rodou. *q = 9; escreveu em pontos; nota continua com 7."
+
+    - id: esc_kc05_I1_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "p vale NULL. Qual destas perguntas o programa pode fazer sem ir a lugar nenhum?"
+          antes: |-
+            int *p;
+
+            p = NULL;
+          pecas:
+            - "p == NULL — lê só o valor guardado em p"
+            - "*p == 0 — lê o lugar apontado"
+            - "As duas: p e *p olham a mesma coisa"
+          certa: [[0]]
+          certa_texto: "p == NULL — lê só o valor guardado em p"
+          erros:
+            - exata: [1]
+              retorno: "*p == 0 precisa ir ao lugar apontado para ler, e p não aponta para lugar nenhum. A que não sai de p é p == NULL."
+            - exata: [2]
+              retorno: "p é o valor guardado no ponteiro; *p é o que mora no lugar apontado. Só p == NULL fica dentro de p."
+          retorno_geral: "p == NULL lê só o ponteiro. *p == 0 iria ao lugar apontado."
+        - pede: "q vale NULL. Qual destas perguntas o programa pode fazer sem ir a lugar nenhum?"
+          antes: "int *q = NULL;"
+          pecas:
+            - "*q != 0 — lê o lugar apontado"
+            - "q != NULL — lê só o valor guardado em q"
+            - "As duas: q e *q olham a mesma coisa"
+          certa: [[1]]
+          certa_texto: "q != NULL — lê só o valor guardado em q"
+          erros:
+            - exata: [0]
+              retorno: "*q != 0 precisa ir ao lugar apontado para ler, e q não aponta para lugar nenhum. A que não sai de q é q != NULL."
+            - exata: [2]
+              retorno: "q é o valor guardado no ponteiro; *q é o que mora no lugar apontado. Só q != NULL fica dentro de q."
+          retorno_geral: "q != NULL lê só o ponteiro. *q != 0 iria ao lugar apontado."
+
+I2:
+  revisao:
+    frases:
+      - "No código, comparar um ponteiro com 0 é perguntar se ele é o ponteiro nulo: p == 0 e p == NULL dizem o mesmo."
+      - "É uma regra da linguagem. Ela não diz que NULL é o número zero, nem o que fica guardado na memória."
+    codigo: |
+      int *p;
+
+      p = NULL;
+      printf("%d\n", p == 0);
+    saida: "1"
+  # memcpy, memcmp e memset; vetor de unsigned char e sizeof.
+  fora_da_trilha: [ciu_kc05_014, ciu_kc05_t14, ciu_kc05_015]
+  provas:
+    - crenca: null_is_zero_always
+      programa: |
+        int n;
+
+        n = NULL;
+      previsao:
+        pergunta: "O compilador reclama de guardar NULL numa variável inteira?"
+        opcoes:
+          - "Sim: NULL é valor de ponteiro, e n é um int"
+          - "Não: NULL é o número 0, em qualquer lugar"
+        real: 0
+        crenca: 1
+      reclama: "makes integer from pointer without a cast"
+      ambiente: >
+        Mensagem do gcc 16.2, em que NULL é escrito como um ponteiro. A
+        linguagem deixa cada compilador escrevê-lo do seu jeito, e outro
+        pode aceitar esta linha.
+      afirma: >
+        Aqui o compilador reclama: para ele NULL é um ponteiro, e n é um
+        inteiro. No código, 0 e NULL se comparam igual com um ponteiro —
+        e isso não faz de NULL o número zero.
+  degraus:
+    - id: esc_kc05_I2_1
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "No código, comparar um ponteiro com 0 é perguntar se ele é o ponteiro nulo."
+        - "p == 0 e p == NULL dão a mesma resposta."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int *p;
+
+            p = NULL;
+            printf("%d\n", p == 0);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "Ao lado de um ponteiro, o 0 do código quer dizer 'o ponteiro nulo'. p vale NULL, e a resposta é 1."
+          retorno_geral: "p == 0 pergunta se p é o ponteiro nulo. p vale NULL: a resposta é 1."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int *q;
+
+            q = &nota;
+            printf("%d\n", q == 0);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "q == 0 pergunta se q é o ponteiro nulo. q guarda o endereço de nota, que nunca é: a resposta é 0."
+          retorno_geral: "q guarda o endereço de nota, e não o ponteiro nulo. A resposta é 0."
+
+    - id: esc_kc05_I2_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Essa é uma regra de escrita: no código, o 0 ao lado de um ponteiro quer dizer 'o ponteiro nulo'."
+        - "Ela não diz o que a máquina guarda dentro de p. Isso é assunto de cada máquina."
+      versoes:
+        - pede: "p == 0 dá 1. O que isso garante sobre o que a máquina guarda dentro de p?"
+          antes: |-
+            int *p;
+
+            p = NULL;
+          pecas:
+            - "Nada: a regra é da linguagem, e não da memória"
+            - "Que lá só há zeros: NULL é o número 0 em todo lugar"
+            - "Que p aponta para o endereço 0"
+          certa: [[0]]
+          certa_texto: "Nada: a regra é da linguagem, e não da memória"
+          erros:
+            - exata: [1]
+              crenca: null_is_zero_always
+              retorno: "A igualdade com 0 vale no código que você escreve. O que a máquina guarda para representar o ponteiro nulo, a linguagem não diz."
+            - exata: [2]
+              retorno: "O ponteiro nulo não aponta para lugar nenhum. A comparação com 0 é só o jeito de perguntar isso no código."
+          retorno_geral: "A regra é da linguagem: ela não diz o que a máquina guarda dentro de p."
+        - pede: "q == 0 dá 1. O que isso garante sobre o que a máquina guarda dentro de q?"
+          antes: "int *q = 0;"
+          pecas:
+            - "Nada: a regra é da linguagem, e não da memória"
+            - "Que lá só há zeros: NULL é o número 0 em todo lugar"
+            - "Que q aponta para o endereço 0"
+          certa: [[0]]
+          certa_texto: "Nada: a regra é da linguagem, e não da memória"
+          erros:
+            - exata: [1]
+              crenca: null_is_zero_always
+              retorno: "A igualdade com 0 vale no código que você escreve. O que a máquina guarda para representar o ponteiro nulo, a linguagem não diz."
+            - exata: [2]
+              retorno: "O ponteiro nulo não aponta para lugar nenhum. A comparação com 0 é só o jeito de perguntar isso no código."
+          retorno_geral: "A regra é da linguagem: ela não diz o que a máquina guarda dentro de q."
+
+    - id: esc_kc05_I2_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "E o ponteiro nulo não é um número inteiro: é um valor de ponteiro."
+        - "Uma variável inteira que guarda 0 guarda um número. Um ponteiro que vale NULL guarda 'nenhum lugar'."
+      versoes:
+        - pede: "n e p receberam um 0 escrito no código. O que cada um guarda?"
+          antes: |-
+            int n;
+            int *p;
+
+            n = 0;
+            p = 0;
+          pecas:
+            - "n guarda o número zero; p guarda o ponteiro nulo"
+            - "Os dois guardam o número zero"
+            - "Os dois guardam o ponteiro nulo"
+          certa: [[0]]
+          certa_texto: "n guarda o número zero; p guarda o ponteiro nulo"
+          erros:
+            - exata: [1]
+              retorno: "Em p, que é ponteiro, o 0 do código vira o ponteiro nulo: 'nenhum lugar'. Número zero, só n guarda."
+            - exata: [2]
+              retorno: "n é uma variável inteira, e guarda o número zero. Só em p, que é ponteiro, o 0 do código vira o ponteiro nulo."
+          retorno_geral: "O mesmo 0 do código vira coisas diferentes: número zero em n, ponteiro nulo em p."
+        - pede: "pontos e q receberam um 0 escrito no código. O que cada um guarda?"
+          antes: |-
+            int pontos;
+            int *q;
+
+            pontos = 0;
+            q = 0;
+          pecas:
+            - "pontos guarda o número zero; q guarda o ponteiro nulo"
+            - "Os dois guardam o número zero"
+            - "Os dois guardam o ponteiro nulo"
+          certa: [[0]]
+          certa_texto: "pontos guarda o número zero; q guarda o ponteiro nulo"
+          erros:
+            - exata: [1]
+              retorno: "Em q, que é ponteiro, o 0 do código vira o ponteiro nulo: 'nenhum lugar'. Número zero, só pontos guarda."
+            - exata: [2]
+              retorno: "pontos é uma variável inteira, e guarda o número zero. Só em q, que é ponteiro, o 0 do código vira o ponteiro nulo."
+          retorno_geral: "O mesmo 0 do código vira coisas diferentes: número zero em pontos, ponteiro nulo em q."
+
+    - id: esc_kc05_I2_4
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            idade = 0;
+            p = &idade;
+            printf("%d\n", p == 0);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "Quem guarda zero é idade. p guarda o endereço dela, e endereço de variável nunca é o ponteiro nulo: a resposta é 0."
+          retorno_geral: "p == 0 pergunta do ponteiro, e não do que está em idade. p guarda um endereço: a resposta é 0."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int *q;
+
+            nota = 0;
+            q = NULL;
+            printf("%d\n", q == 0);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "q == 0 pergunta se q é o ponteiro nulo, e q recebeu NULL: a resposta é 1. O zero em nota não entra na pergunta."
+          retorno_geral: "q vale NULL, e q == 0 pergunta exatamente isso: a resposta é 1."
+
+    - id: esc_kc05_I2_5
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Monte a linha que mostra na tela se p é o ponteiro nulo, sem escrever a palavra NULL."
+          antes: |-
+            int *p;
+
+            p = NULL;
+          pecas: ['printf("%d\n",', "p == 0", ");", "*p == 0", "p"]
+          certa: [[0, 1, 2]]
+          certa_texto: 'printf("%d\n", p == 0);'
+          erros:
+            - exata: [0, 3, 2]
+              retorno: "*p == 0 iria ao lugar apontado para ler, e p não aponta para lugar nenhum. A pergunta é sobre o ponteiro: p == 0"
+            - exata: [0, 4, 2]
+              retorno: "p sozinho é o valor guardado no ponteiro, e não uma pergunta. Para perguntar se é o nulo: p == 0"
+          retorno_geral: 'A pergunta é p == 0, e o printf mostra a resposta: printf("%d\n", p == 0);'
+        - pede: "Monte a linha que mostra na tela se q é o ponteiro nulo, sem escrever a palavra NULL."
+          antes: "int *q = NULL;"
+          pecas: ['printf("%d\n",', "q == 0", ");", "*q == 0", "q"]
+          certa: [[0, 1, 2]]
+          certa_texto: 'printf("%d\n", q == 0);'
+          erros:
+            - exata: [0, 3, 2]
+              retorno: "*q == 0 iria ao lugar apontado para ler, e q não aponta para lugar nenhum. A pergunta é sobre o ponteiro: q == 0"
+            - exata: [0, 4, 2]
+              retorno: "q sozinho é o valor guardado no ponteiro, e não uma pergunta. Para perguntar se é o nulo: q == 0"
+          retorno_geral: 'A pergunta é q == 0, e o printf mostra a resposta: printf("%d\n", q == 0);'
+
+I3:
+  revisao:
+    frases:
+      - "*p com p valendo NULL manda o programa a um lugar que não existe."
+      - "O que acontece ali não é definido. Por isso se pergunta antes: if (p != NULL)"
+    codigo: |
+      int idade;
+      int *p;
+
+      idade = 15;
+      p = NULL;
+      if (p != NULL) *p = 20;
+      printf("%d\n", idade);
+    saida: "15"
+  # malloc e sizeof; o %s.
+  fora_da_trilha: [ciu_kc05_017, ciu_kc05_t18]
+  provas:
+    - crenca: null_is_safe_to_deref
+      programa: |
+        int *p;
+
+        p = NULL;
+        printf("%d\n", *p);
+      previsao:
+        pergunta: >
+          p vale NULL, e o printf pede o valor que mora no lugar
+          apontado. O que o compilador diz dessa linha?
+        opcoes:
+          - "Nada: *p com p nulo devolve 0, como um lugar vazio"
+          - "Que ela vai a um ponteiro nulo"
+        real: 1
+        crenca: 0
+      reclama: "null pointer dereference"
+      avisos: "-O2 -Wnull-dereference"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos de fluxo ligados (-O2
+        -Wnull-dereference). O programa não é executado: o que ele faria
+        nessa linha não é definido.
+      afirma: >
+        O compilador aponta a linha: ela vai ao lugar apontado por um
+        ponteiro nulo ("null pointer dereference"). Lá não há lugar que
+        devolva 0. O que o programa faz nesse ponto não é definido.
+  degraus:
+    - id: esc_kc05_I3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "*p vai ao lugar cujo endereço está em p."
+        - "Com p valendo NULL não há lugar: o que o programa faz aí não é definido. Pode parar, pode seguir errado."
+      versoes:
+        - pede: "O que a última linha faz?"
+          antes: |-
+            int *p;
+
+            p = NULL;
+            *p = 1;
+          pecas:
+            - "Não dá para dizer: ela vai a um lugar que não existe"
+            - "Nada de mais: *p com p nulo vale 0, como um lugar vazio"
+            - "Escreve 1 dentro do próprio p"
+          certa: [[0]]
+          certa_texto: "Não dá para dizer: ela vai a um lugar que não existe"
+          erros:
+            - exata: [1]
+              crenca: null_is_safe_to_deref
+              retorno: "Não há lugar vazio ali: não há lugar nenhum. A linguagem não define o que acontece — o programa pode parar, ou seguir errado."
+            - exata: [2]
+              retorno: "Escrever no próprio ponteiro seria p = ...; sem o *. Com o *, a linha vai ao lugar apontado, e p não aponta para nenhum."
+          retorno_geral: "p não aponta para lugar nenhum. O que *p = 1; faz não é definido."
+        - pede: "O que a última linha faz?"
+          antes: |-
+            int nota;
+            int *q;
+
+            q = NULL;
+            nota = *q;
+          pecas:
+            - "Não dá para dizer: ela vai a um lugar que não existe"
+            - "Nada de mais: *q com q nulo vale 0, como um lugar vazio"
+            - "Copia o NULL para nota"
+          certa: [[0]]
+          certa_texto: "Não dá para dizer: ela vai a um lugar que não existe"
+          erros:
+            - exata: [1]
+              crenca: null_is_safe_to_deref
+              retorno: "Não há lugar vazio ali: não há lugar nenhum. A linguagem não define o que acontece — o programa pode parar, ou seguir errado."
+            - exata: [2]
+              retorno: "Copiar o valor do ponteiro seria sem o *. Com o *, a linha vai ao lugar apontado, e q não aponta para nenhum."
+          retorno_geral: "q não aponta para lugar nenhum. O que nota = *q; faz não é definido."
+
+    - id: esc_kc05_I3_2
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "Por isso, antes de usar *p, pergunta-se ao ponteiro: if (p != NULL)"
+        - "Escrever só if (p) quer dizer a mesma coisa: 'se p não é o ponteiro nulo'."
+      versoes:
+        - pede: "Qual linha só escreve em *p quando há lugar?"
+          antes: |-
+            int *p;
+
+            p = NULL;
+          pecas: ["if (p != NULL) *p = 1;", "if (p == NULL) *p = 1;", "*p = 1;"]
+          certa: [[0]]
+          certa_texto: "if (p != NULL) *p = 1;"
+          erros:
+            - exata: [1]
+              retorno: "Com p == NULL a escrita roda justamente quando não há lugar. A pergunta certa é p != NULL."
+            - exata: [2]
+              retorno: "Sem pergunta nenhuma, a linha vai ao lugar apontado mesmo com p nulo. Antes dela: if (p != NULL)"
+          retorno_geral: "A escrita fica guardada pela pergunta: if (p != NULL) *p = 1;"
+        - pede: "Qual linha só escreve em *q quando há lugar?"
+          antes: "int *q = NULL;"
+          pecas: ["if (q == NULL) *q = 1;", "if (q) *q = 1;", "*q = 1;"]
+          certa: [[1]]
+          certa_texto: "if (q) *q = 1;"
+          erros:
+            - exata: [0]
+              retorno: "Com q == NULL a escrita roda justamente quando não há lugar. if (q) é que quer dizer 'se q não é o ponteiro nulo'."
+            - exata: [2]
+              retorno: "Sem pergunta nenhuma, a linha vai ao lugar apontado mesmo com q nulo. Antes dela: if (q)"
+          retorno_geral: "if (q) quer dizer 'se q não é o ponteiro nulo': if (q) *q = 1;"
+
+    - id: esc_kc05_I3_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com a pergunta antes, o programa não vai aonde não há lugar, e segue."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = NULL;
+            if (p != NULL) *p = 20;
+            printf("%d\n", idade);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "20"
+              retorno: "p vale NULL, então p != NULL é falso, e a escrita não rodou. idade continua com 15."
+            - texto: "0"
+              retorno: "Nada escreveu zero em idade: a pergunta era falsa, e a linha do if não rodou. idade continua com 15."
+          retorno_geral: "p vale NULL: a pergunta é falsa, *p não é usado, e idade continua com 15."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = &idade;
+            if (p != NULL) *p = 20;
+            printf("%d\n", idade);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "15"
+              retorno: "p guarda o endereço de idade, então p != NULL é verdade e a escrita rodou: idade passou a guardar 20."
+          retorno_geral: "p aponta para idade: a pergunta é verdadeira, e *p = 20; escreve nela."
+
+    - id: esc_kc05_I3_4
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Monte a linha que só lê *q quando q aponta para algum lugar."
+          antes: |-
+            int nota;
+            int *q;
+
+            nota = 7;
+            q = NULL;
+          pecas: ["if (q != NULL)", "nota = *q;", "if (q == NULL)", "if (*q != 0)"]
+          certa: [[0, 1]]
+          certa_texto: "if (q != NULL) nota = *q;"
+          erros:
+            - exata: [3, 1]
+              retorno: "*q != 0 já vai ao lugar apontado para perguntar. A pergunta tem de ser sobre o ponteiro: if (q != NULL)"
+            - exata: [2, 1]
+              retorno: "Com q == NULL, a leitura roda justamente quando não há lugar. A pergunta certa é q != NULL."
+            - exata: [1]
+              retorno: "Sem pergunta, a linha vai ao lugar apontado mesmo com q nulo. Antes dela: if (q != NULL)"
+          retorno_geral: "A leitura fica guardada pela pergunta sobre o ponteiro: if (q != NULL) nota = *q;"
+        - pede: "Monte a linha que só escreve em *p quando p aponta para algum lugar."
+          antes: |-
+            int *p;
+
+            p = NULL;
+          pecas: ["if (p != NULL)", "*p = 9;", "if (p == NULL)", "if (*p != 0)"]
+          certa: [[0, 1]]
+          certa_texto: "if (p != NULL) *p = 9;"
+          erros:
+            - exata: [3, 1]
+              retorno: "*p != 0 já vai ao lugar apontado para perguntar. A pergunta tem de ser sobre o ponteiro: if (p != NULL)"
+            - exata: [2, 1]
+              retorno: "Com p == NULL, a escrita roda justamente quando não há lugar. A pergunta certa é p != NULL."
+            - exata: [1]
+              retorno: "Sem pergunta, a linha vai ao lugar apontado mesmo com p nulo. Antes dela: if (p != NULL)"
+          retorno_geral: "A escrita fica guardada pela pergunta sobre o ponteiro: if (p != NULL) *p = 9;"
+
+    - id: esc_kc05_I3_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Qual destas linhas, posta no fim, iria a um lugar que não existe?"
+          antes: |-
+            int idade;
+            int *p;
+            int *q;
+
+            p = &idade;
+            q = NULL;
+          pecas:
+            - "*q = 20; — q vale NULL"
+            - "*p = 10; — idade ainda não tinha valor"
+            - "q = p; — copia um endereço"
+          certa: [[0]]
+          certa_texto: "*q = 20; — q vale NULL"
+          erros:
+            - exata: [1]
+              retorno: "p guarda o endereço de idade, que existe desde a declaração: *p = 10; vai a um lugar de verdade. A que não tem para onde ir é *q = 20;"
+            - exata: [2]
+              retorno: "q = p; só copia o valor de um ponteiro para outro, sem ir a lugar nenhum. A que iria aonde não há lugar é *q = 20;"
+          retorno_geral: "q vale NULL: *q = 20; iria a um lugar que não existe."
+        - pede: "Qual destas linhas, posta no fim, iria a um lugar que não existe?"
+          antes: |-
+            int nota;
+            int *p;
+            int *q;
+
+            p = NULL;
+            q = &nota;
+          pecas:
+            - "*q = 7; — nota ainda não tinha valor"
+            - "*p = 4; — p vale NULL"
+            - "p = q; — copia um endereço"
+          certa: [[1]]
+          certa_texto: "*p = 4; — p vale NULL"
+          erros:
+            - exata: [0]
+              retorno: "q guarda o endereço de nota, que existe desde a declaração: *q = 7; vai a um lugar de verdade. A que não tem para onde ir é *p = 4;"
+            - exata: [2]
+              retorno: "p = q; só copia o valor de um ponteiro para outro, sem ir a lugar nenhum. A que iria aonde não há lugar é *p = 4;"
+          retorno_geral: "p vale NULL: *p = 4; iria a um lugar que não existe."

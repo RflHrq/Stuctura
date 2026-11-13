@@ -511,3 +511,92 @@ def test_prova_com_endereco_de_exemplo_tem_de_dizer_que_e_exemplo(tmp_path):
     with pytest.raises(trilha_escada.EscadaInvalida) as erro:
         _le(tmp_path, _com_prova(prova))
     assert any("endereço de exemplo" in p for p in erro.value.problemas)
+
+
+# --------------------------------------------------------------------------
+# O que o kc_05 pediu ao conferidor: de QUAL linha o compilador reclama
+# --------------------------------------------------------------------------
+
+def _prova_de_uma_linha_so(programa, reclama, **mais) -> dict:
+    return dict({
+        "crenca": "type_is_a_hint",
+        "programa": programa,
+        "reclama": reclama,
+        "ambiente": "Mensagem do gcc 16.2.",
+        "previsao": {"pergunta": "De qual linha o compilador reclama?",
+                     "opcoes": ["Das duas", "Só da última"],
+                     "real": 1, "crenca": 0},
+        "afirma": "O compilador reclama de uma linha só.",
+    }, **mais)
+
+
+@tem_gcc
+def test_a_reclamacao_tem_de_ser_de_uma_linha_so(tmp_path):
+    """A prova diz "o compilador reclama DESTA linha". Se a mesma
+    mensagem saísse de duas linhas, a tela estaria dizendo menos do que
+    aconteceu — e a pessoa que previu "das duas" teria razão."""
+    uma = _prova_de_uma_linha_so(
+        "int n;\nint *p;\n\nn = 0;\np = 0;\np = n;\n",
+        "makes pointer from integer without a cast")
+    assert confere_escada.confere(_le(tmp_path, _com_prova(uma))) == []
+
+    duas = _prova_de_uma_linha_so(
+        "int n;\nint *p;\n\nn = 0;\np = n;\np = n;\n",
+        "makes pointer from integer without a cast")
+    problemas = confere_escada.confere(_le(tmp_path, _com_prova(duas)))
+    assert len(problemas) == 1 and "2 linhas" in problemas[0]
+
+
+@tem_gcc
+def test_a_prova_pode_dizer_do_que_o_compilador_nao_reclama(tmp_path):
+    """`cala`: o pedaço de mensagem que NÃO pode aparecer. É a metade da
+    prova que diz "de p ele não reclama"."""
+    programa = "int *p;\nint *q;\nint *r;\n\np = NULL;\nr = p;\nr = q;\n"
+    certa = _prova_de_uma_linha_so(
+        programa, "'q' is used uninitialized",
+        cala="'p' is used uninitialized")
+    escadas = _le(tmp_path, _com_prova(certa))
+    assert escadas["B1"].provas[0].cala == "'p' is used uninitialized"
+    assert confere_escada.confere(escadas) == []
+
+    # Sem o p = NULL; o compilador reclama de p também, e a prova mente.
+    mente = _prova_de_uma_linha_so(
+        programa.replace("p = NULL;\n", ""), "'q' is used uninitialized",
+        cala="'p' is used uninitialized")
+    problemas = confere_escada.confere(_le(tmp_path, _com_prova(mente)))
+    assert len(problemas) == 1 and "deveria calar" in problemas[0]
+
+
+@tem_gcc
+def test_a_prova_pode_pedir_avisos_a_mais(tmp_path):
+    """Há aviso que o gcc só dá olhando o fluxo do programa. `avisos`
+    leva as opções; sem elas, a mesma prova não se confirma."""
+    programa = "int *p;\n\np = NULL;\nprintf(\"%d\\n\", *p);\n"
+    com = _prova_de_uma_linha_so(programa, "null pointer dereference",
+                                 avisos="-O2 -Wnull-dereference")
+    escadas = _le(tmp_path, _com_prova(com))
+    assert escadas["B1"].provas[0].avisos == ("-O2", "-Wnull-dereference")
+    assert confere_escada.confere(escadas) == []
+
+    sem = _prova_de_uma_linha_so(programa, "null pointer dereference")
+    assert len(confere_escada.confere(_le(tmp_path, _com_prova(sem)))) == 1
+
+
+@pytest.mark.parametrize("estraga, diz", [
+    # Opção de compilador vem do conteúdo, e vira argumento de comando:
+    # só passam as da lista.
+    (_muda("avisos", "-O2 -o /tmp/x"), "opção de compilador não permitida"),
+    (_muda("avisos", "-Werror"), "opção de compilador não permitida"),
+    # Sem a nota, a pessoa não saberia que o aviso pede opção a mais.
+    (lambda p: p.update(avisos="-O2 -Wnull-dereference", ambiente=""),
+     "`ambiente` tem de dizer"),
+    # `cala` e `avisos` são do que o compilador DIZ, não de uma saída.
+    (lambda p: p.update(cala="qualquer", reclama="", espera="9"),
+     "só fazem sentido com `reclama`"),
+])
+def test_cala_e_avisos_malformados_sao_recusados(tmp_path, estraga, diz):
+    prova = _prova_que_reclama()
+    estraga(prova)
+    with pytest.raises(trilha_escada.EscadaInvalida) as erro:
+        _le(tmp_path, _com_prova(prova))
+    assert any(diz in p for p in erro.value.problemas), erro.value.problemas

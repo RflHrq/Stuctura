@@ -404,6 +404,81 @@ def test_no_kc_03_ficam_fora_as_onze_que_usam_o_que_a_escada_nao_ensina():
     assert [no for no, a in aberturas.items() if not a.codigo] == ["B3"]
 
 
+def _selecao(topico):
+    """O que a escada do tópico deixa fora, quantas questões cada
+    premissa tem para a trilha, e com qual ela abre."""
+    d, escadas = _dominio(topico), _escadas(topico)
+    return (
+        {no: e.fora for no, e in escadas.items() if e.fora},
+        {no: len(_servidas_pela_trilha(topico, no)) for no in d.ordem},
+        {no: trilha.abertura(d, no, fora=escadas[no].fora).id
+         for no in d.ordem})
+
+
+def test_no_kc_04_ficam_fora_nove_e_toda_premissa_abre_com_codigo():
+    fora, quantas, abre = _selecao("kc_04")
+    assert fora == {
+        "B1": ("ciu_kc04_002", "ciu_kc04_t02", "ciu_kc04_t03"),
+        "B2": ("ciu_kc04_t06",),
+        "B3": ("ciu_kc04_008",),
+        "I1": ("ciu_kc04_t12",),
+        "I2": ("ciu_kc04_014", "ciu_kc04_t14"),
+        "I3": ("ciu_kc04_017",),
+    }
+    assert quantas == {"B1": 3, "B2": 5, "B3": 5, "I1": 5, "I2": 4, "I3": 5}
+    assert abre == {
+        "B1": "ciu_kc04_003", "B2": "ciu_kc04_005", "B3": "ciu_kc04_009",
+        "I1": "ciu_kc04_011", "I2": "ciu_kc04_015", "I3": "ciu_kc04_018"}
+    d = _dominio("kc_04")
+    por_id = {a.id: a for a in d.atividades}
+    assert all(por_id[i].codigo for i in abre.values())
+    # Nenhuma questão servida usa o que as escadas até o kc_04 não
+    # ensinam: vetor, malloc, o ++, protótipo sem corpo, aritmética de
+    # ponteiro, a comparação impressa.
+    ruim = re.compile(
+        r"\b(malloc|sizeof|return)\b|\+\+|\[|=="
+        # o protótipo, que é a função sem corpo: `void f(int *p);`
+        r"|^\s*(?:void|int)\s+\w+\([^)]*\);"
+        # e o ponteiro andando: `p = p + 1`. A conta no VALOR,
+        # `*p = *p + 1`, é outra coisa, e é servida.
+        r"|(?<![*\w])p\s*=\s*p\s*\+", re.M)
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_04", no):
+            achou = ruim.search(por_id[i].codigo or "")
+            assert not achou, (i, achou.group(0))
+    # A régua morde: as nove de fora são pegas por ela, menos a da
+    # multiplicação escrita com o mesmo * (`*n = *n * 2`), que é saída
+    # por leitura, e não por construto.
+    pegas = {i for ids in fora.values() for i in ids
+             if ruim.search(por_id[i].codigo or "")}
+    assert {i for ids in fora.values() for i in ids} - pegas == {
+        "ciu_kc04_t06"}
+
+
+def test_no_kc_05_ficam_fora_doze_e_so_o_i2_abre_com_conceito():
+    fora, quantas, abre = _selecao("kc_05")
+    assert fora == {
+        "B1": ("ciu_kc05_002", "ciu_kc05_t02"),
+        "B2": ("ciu_kc05_t06",),
+        "B3": ("ciu_kc05_009", "ciu_kc05_t09"),
+        "I1": ("ciu_kc05_011", "ciu_kc05_t12"),
+        "I2": ("ciu_kc05_014", "ciu_kc05_t14", "ciu_kc05_015"),
+        "I3": ("ciu_kc05_017", "ciu_kc05_t18"),
+    }
+    assert quantas == {"B1": 4, "B2": 5, "B3": 4, "I1": 4, "I2": 3, "I3": 4}
+    assert abre == {
+        "B1": "ciu_kc05_003", "B2": "ciu_kc05_005", "B3": "ciu_kc05_008",
+        "I1": "ciu_kc05_012", "I2": "ciu_kc05_013", "I3": "ciu_kc05_018"}
+    d = _dominio("kc_05")
+    por_id = {a.id: a for a in d.atividades}
+    assert [no for no, i in abre.items() if not por_id[i].codigo] == ["I2"]
+    ruim = re.compile(r"\b(malloc|sizeof|return|memcpy|memcmp|memset)\b"
+                      r"|&&|\[|%zu|%s|%c")
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_05", no):
+            assert not ruim.search(por_id[i].codigo or ""), i
+
+
 def test_sem_a_questao_de_degrau_2_a_premissa_abre_com_a_de_codigo():
     """A abertura é a questão de código de degrau 2: é a que APLICA a
     ideia. Quando ela fica fora da trilha, quem abre é outra de código, e

@@ -104,12 +104,15 @@ def compila(programa: str) -> tuple[bool, str]:
     return saiu.returncode == 0, nota
 
 
-def diz(programa: str) -> str:
+def diz(programa: str, avisos: tuple[str, ...] = ()) -> str:
     """O que o compilador DIZ do programa. Compila, e NUNCA executa.
 
     Não é `-fsyntax-only`: o aviso de variável lida sem valor só sai
     quando o compilador analisa o fluxo, e para isso ele precisa gerar o
     objeto (`-c`). O objeto fica na pasta temporária e ninguém o roda.
+
+    `avisos` são opções a mais, para o aviso que só sai com elas. Quem
+    lê a escada já recusou o que não está na lista permitida.
     """
     gcc = oraculo.GCC
     if not gcc.exists():
@@ -121,7 +124,8 @@ def diz(programa: str) -> str:
         (pasta / "o.c").write_text(programa, encoding="utf-8")
         try:
             saiu = subprocess.run(
-                [str(gcc), "-std=c17", "-Wall", "-c", "-o", "o.o", "o.c"],
+                [str(gcc), "-std=c17", "-Wall", *avisos,
+                 "-c", "-o", "o.o", "o.c"],
                 capture_output=True, text=True, timeout=oraculo.TEMPO,
                 cwd=str(pasta))
         except subprocess.TimeoutExpired:
@@ -197,9 +201,21 @@ def _confere_prova(onde: str, p: Prova, problemas: list[str]) -> None:
         return
     # A prova é o que o compilador diz. O programa não é executado: pode
     # ser justamente o que o tópico ensina a não fazer.
-    if p.reclama not in diz(programa):
+    reclamacoes = [l for l in diz(programa, p.avisos).splitlines()
+                   if "warning:" in l or "error:" in l]
+    # DE UMA LINHA SÓ. A tela diz "o compilador reclama desta linha"; a
+    # mesma mensagem saindo de duas seria a prova dizer menos do que
+    # aconteceu.
+    com_ela = [l for l in reclamacoes if p.reclama in l]
+    if not com_ela:
         problemas.append("%s: o compilador não reclama com %r"
                          % (onde, p.reclama))
+    elif len(com_ela) > 1:
+        problemas.append("%s: o compilador reclama com %r de %d linhas, e a "
+                         "prova fala de uma" % (onde, p.reclama, len(com_ela)))
+    if p.cala and any(p.cala in l for l in reclamacoes):
+        problemas.append("%s: o compilador diz %r, e a prova afirma que ele "
+                         "deveria calar isso" % (onde, p.cala))
 
 
 def linha_de(v: Versao, sequencia: tuple[int, ...]) -> str:
@@ -373,6 +389,8 @@ def _prova_em_texto(d: Dominio, p: Prova) -> list[str]:
         saida += ["", "A máquina imprime:", "", "```", p.espera, "```"]
     else:
         saida += ["", "O compilador reclama:", "", "```", p.reclama, "```"]
+        if p.cala:
+            saida += ["", "E não diz:", "", "```", p.cala, "```"]
     if p.ambiente:
         saida += ["", "_%s_" % p.ambiente]
     saida += ["", "O que isto mostra: %s" % p.afirma]

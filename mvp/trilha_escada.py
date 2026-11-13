@@ -53,6 +53,10 @@ LACUNA = "___"
 # curto no lugar dele, e o conferidor compara a forma, não o número.
 ENDERECO_DE_EXEMPLO = re.compile(r"0x[0-9A-Fa-f]+")
 
+# As opções de compilador que uma prova pode pedir a mais. A lista é
+# fechada porque o que está em `avisos` vira argumento de comando.
+AVISOS_PERMITIDOS = ("-O1", "-O2", "-Wextra", "-Wnull-dereference")
+
 
 class EscadaInvalida(Exception):
     """O arquivo da escada tem problema. `problemas` traz TODOS, de uma vez."""
@@ -150,6 +154,11 @@ class Prova:
     espera: str = ""
     reclama: str = ""
     ambiente: str = ""
+    # Com `reclama`: o pedaço de mensagem que NÃO pode aparecer ("de p
+    # ele não reclama"), e as opções de compilador a mais que o aviso
+    # pede. O conferidor confere as duas coisas.
+    cala: str = ""
+    avisos: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -459,6 +468,21 @@ def _provas(premissa: str, cru: Any, d: Dominio,
             problemas.append("%s: a saída traz endereço de exemplo, e a tela "
                              "a mostra como resposta da máquina — `ambiente` "
                              "tem de dizer que o número é de exemplo" % onde)
+        cala = " ".join(_str(b.get("cala")).split())
+        avisos = tuple(_str(b.get("avisos")).split())
+        if (cala or avisos) and not reclama:
+            problemas.append("%s: `cala` e `avisos` só fazem sentido com "
+                             "`reclama` — são do que o compilador diz" % onde)
+        proibidas = [a for a in avisos if a not in AVISOS_PERMITIDOS]
+        if proibidas:
+            problemas.append("%s: opção de compilador não permitida em "
+                             "`avisos`: %s — só passam %s"
+                             % (onde, " ".join(proibidas),
+                                " ".join(AVISOS_PERMITIDOS)))
+        if avisos and not ambiente:
+            problemas.append("%s: o aviso só sai com opções a mais do "
+                             "compilador — `ambiente` tem de dizer quais"
+                             % onde)
 
         pv = b.get("previsao")
         if not isinstance(pv, Mapping):
@@ -485,7 +509,7 @@ def _provas(premissa: str, cru: Any, d: Dominio,
 
         provas.append(Prova(crenca=crenca, programa=programa, afirma=afirma,
                             previsao=previsao, espera=espera, reclama=reclama,
-                            ambiente=ambiente))
+                            ambiente=ambiente, cala=cala, avisos=avisos))
     return tuple(provas)
 
 

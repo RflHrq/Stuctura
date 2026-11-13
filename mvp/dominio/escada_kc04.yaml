@@ -1,0 +1,1580 @@
+# A escada do kc_04 — dereferência: & e *.
+#
+# O QUE É. Para cada premissa do tópico, os degraus do mais mecânico até
+# a ideia, e a prova de cada crença que nega a premissa. Segue o molde
+# do kc_00, e a mesma régua do texto (docs/trilha.md, 6.16).
+#
+# QUEM CHEGA AQUI passou pelo kc_00, pelo kc_02 e pelo kc_03: já escreveu
+# `&idade`, `int *p;`, `p = &idade;`, `*p`, `*p = 20;` e uma função de
+# uma linha que recebe endereço. Este tópico NÃO apresenta construto
+# novo: ele volta aos dois sinais, um de cada vez, e diz com precisão o
+# que cada um faz — de onde se pode pedir endereço, o que o & entrega, o
+# que o * faz, e em qual dos dois se escreve o quê.
+#
+# O ÚNICO SINAL A MAIS É O PARÊNTESE de `*(&idade)`, no I3: é a premissa.
+#
+# O CENÁRIO continua: `idade`, `nota`, `pontos`, `ano`, com `p` e `q`.
+#
+# NO I2 A PROVA MOSTRA ENDEREÇO. A crença é "mexer em *p mexe no
+# ponteiro", e o que a desmente é o endereço guardado em p ser o mesmo
+# antes e depois de `*p = 20;`. A saída vem com endereços de exemplo, e
+# o conferidor exige a forma: duas linhas, o MESMO endereço.
+#
+# AS QUESTÕES DE MARCAR. O banco do kc_04 não foi mexido. Nove das 36
+# questões de diagnóstico e de treino usam o que as escadas até aqui não
+# ensinam, e estão em `fora_da_trilha`: protótipo de função sem corpo,
+# vetor, `malloc`, o `++`, a multiplicação escrita com o mesmo `*`, a
+# comparação impressa com `%d` e a aritmética de ponteiro (`p = p + 1`),
+# que é assunto do kc_11. Em quatro premissas a que saiu é a de código
+# de degrau 2; nelas a trilha abre com a de código de degrau 3.
+#
+# A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
+# alternativa de um degrau guiado, e só ali o erro leva `crenca`.
+#
+# gerado_por: Claude Fable 5.2, em 13/11/2026
+# revisado_por:
+#   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
+#   principal)
+
+B1:
+  revisao:
+    frases:
+      - "Endereço é de lugar: só tem endereço o que ocupa um lugar na memória."
+      - "Uma variável ocupa. Um número escrito no código, como 5, não: por isso &idade existe, e &5 não."
+    codigo: |
+      int idade;
+      int *p;
+
+      p = &idade;
+    saida: ""
+  # Protótipo de função sem corpo, função que devolve valor, e vetor.
+  fora_da_trilha: [ciu_kc04_002, ciu_kc04_t02, ciu_kc04_t03]
+  provas:
+    - crenca: ampersand_takes_value
+      programa: |
+        int *p;
+
+        p = &5;
+      previsao:
+        pergunta: "O compilador reclama da última linha?"
+        opcoes:
+          - "Não: o & dá o endereço do 5"
+          - "Sim: o 5 não ocupa lugar nenhum, e não tem endereço"
+        real: 1
+        crenca: 0
+      reclama: "lvalue required as unary '&' operand"
+      ambiente: >
+        Mensagem do gcc 16.2. Todo compilador de C tem de reclamar desta
+        linha, cada um com as suas palavras.
+      afirma: >
+        O compilador reclama: o & pede algo que ocupe um lugar, e um
+        número escrito no código não ocupa nenhum. Endereço é de lugar,
+        e não de valor.
+  degraus:
+    - id: esc_kc04_B1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O endereço é o número de um lugar da memória."
+        - "Só tem endereço o que ocupa um lugar: uma variável ocupa; um número escrito no código não."
+      versoes:
+        - pede: "De qual destes dá para pedir o endereço?"
+          antes: |-
+            int idade;
+            idade = 15;
+          pecas:
+            - "De idade: ela ocupa um lugar"
+            - "Do 15: é o valor que está guardado"
+            - "Dos dois: o & funciona em qualquer coisa"
+          certa: [[0]]
+          certa_texto: "De idade: ela ocupa um lugar"
+          erros:
+            - exata: [1]
+              retorno: "15 é um valor escrito no código: não ocupa lugar nenhum. Quem ocupa é a variável idade, e é dela o endereço."
+            - exata: [2]
+              crenca: ampersand_takes_value
+              retorno: "O & só funciona no que ocupa um lugar. idade ocupa; o 15 escrito no código, não."
+          retorno_geral: "Só a variável ocupa um lugar. O endereço é de idade, e não do 15."
+        - pede: "De qual destes dá para pedir o endereço?"
+          antes: |-
+            int nota;
+            nota = 7;
+          pecas:
+            - "De nota: ela ocupa um lugar"
+            - "Do 7: é o valor que está guardado"
+            - "Dos dois: o & funciona em qualquer coisa"
+          certa: [[0]]
+          certa_texto: "De nota: ela ocupa um lugar"
+          erros:
+            - exata: [1]
+              retorno: "7 é um valor escrito no código: não ocupa lugar nenhum. Quem ocupa é a variável nota, e é dela o endereço."
+            - exata: [2]
+              crenca: ampersand_takes_value
+              retorno: "O & só funciona no que ocupa um lugar. nota ocupa; o 7 escrito no código, não."
+          retorno_geral: "Só a variável ocupa um lugar. O endereço é de nota, e não do 7."
+
+    - id: esc_kc04_B1_2
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "Por isso &idade é aceito, e &5 faz o compilador reclamar."
+      versoes:
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int idade;
+            int *p;
+          pecas: ["p = &idade;", "p = &5;", "p = &15;"]
+          certa: [[0]]
+          certa_texto: "p = &idade;"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "5 é um número escrito no código: não ocupa lugar, e não tem endereço. O compilador reclama. Aceita: p = &idade;"
+            - exata: [2]
+              retorno: "15 é um número escrito no código: não ocupa lugar, e não tem endereço. O compilador reclama. Aceita: p = &idade;"
+          retorno_geral: "O & vai antes de uma variável, que ocupa um lugar: p = &idade;"
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int nota;
+            int *q;
+          pecas: ["q = &7;", "q = &nota;", "q = &0;"]
+          certa: [[1]]
+          certa_texto: "q = &nota;"
+          invalidas: [0, 2]
+          erros:
+            - exata: [0]
+              retorno: "7 é um número escrito no código: não ocupa lugar, e não tem endereço. O compilador reclama. Aceita: q = &nota;"
+            - exata: [2]
+              retorno: "0 é um número escrito no código: não ocupa lugar, e não tem endereço. O compilador reclama. Aceita: q = &nota;"
+          retorno_geral: "O & vai antes de uma variável, que ocupa um lugar: q = &nota;"
+
+    - id: esc_kc04_B1_3
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "Quando uma função espera um endereço, o que vai na chamada é o endereço de uma variável."
+        - "Para entregar o endereço de um valor, o valor tem de morar numa variável."
+      versoes:
+        - pede: "A função espera um endereço. Chame-a para ela zerar idade."
+          antes: |-
+            void zera(int *q) { *q = 0; }
+
+            int idade;
+
+            idade = 15;
+          pecas: ["zera(", "&idade", ");", "&15", "15"]
+          certa: [[0, 1, 2]]
+          certa_texto: "zera(&idade);"
+          erros:
+            - exata: [0, 3, 2]
+              invalida: true
+              retorno: "15 é um valor escrito no código, e não tem endereço. Quem tem é a variável onde ele mora: zera(&idade);"
+            - exata: [0, 4, 2]
+              invalida: true
+              retorno: "15 é um valor, e a função espera um endereço. O endereço é o da variável: zera(&idade);"
+          retorno_geral: "O endereço que existe é o da variável: zera(&idade);"
+        - pede: "A função espera um endereço. Chame-a para ela zerar nota."
+          antes: |-
+            void zera(int *q) { *q = 0; }
+
+            int nota;
+
+            nota = 7;
+          pecas: ["zera(", "&nota", ");", "&7", "7"]
+          certa: [[0, 1, 2]]
+          certa_texto: "zera(&nota);"
+          erros:
+            - exata: [0, 3, 2]
+              invalida: true
+              retorno: "7 é um valor escrito no código, e não tem endereço. Quem tem é a variável onde ele mora: zera(&nota);"
+            - exata: [0, 4, 2]
+              invalida: true
+              retorno: "7 é um valor, e a função espera um endereço. O endereço é o da variável: zera(&nota);"
+          retorno_geral: "O endereço que existe é o da variável: zera(&nota);"
+
+    - id: esc_kc04_B1_4
+      guiado: false
+      forma: completar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Complete com algo que tem endereço."
+          antes: |-
+            int nota;
+            int *q;
+
+            nota = 7;
+          mostra: "q = &___;"
+          pecas: ["nota", "7", "0"]
+          certa: [[0]]
+          certa_texto: "q = &nota;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "7 é um valor escrito no código: não ocupa lugar. Quem ocupa é nota: q = &nota;"
+            - exata: [2]
+              invalida: true
+              retorno: "0 é um valor escrito no código: não ocupa lugar. Quem ocupa é nota: q = &nota;"
+          retorno_geral: "Tem endereço o que ocupa um lugar: a variável nota. q = &nota;"
+        - pede: "Complete com algo que tem endereço."
+          antes: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+          mostra: "p = &___;"
+          pecas: ["15", "idade", "20"]
+          certa: [[1]]
+          certa_texto: "p = &idade;"
+          erros:
+            - exata: [0]
+              invalida: true
+              retorno: "15 é um valor escrito no código: não ocupa lugar. Quem ocupa é idade: p = &idade;"
+            - exata: [2]
+              invalida: true
+              retorno: "20 é um valor escrito no código: não ocupa lugar. Quem ocupa é idade: p = &idade;"
+          retorno_geral: "Tem endereço o que ocupa um lugar: a variável idade. p = &idade;"
+
+    - id: esc_kc04_B1_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Por que o compilador reclama da última linha?"
+          antes: |-
+            int *p;
+
+            p = &20;
+          pecas:
+            - "Porque 20 não ocupa lugar na memória, e não tem endereço"
+            - "Porque p ainda não recebeu valor"
+            - "Porque faltou o * antes de p"
+          certa: [[0]]
+          certa_texto: "Porque 20 não ocupa lugar na memória, e não tem endereço"
+          erros:
+            - exata: [1]
+              retorno: "p estar sem valor não impede de escrever nele. O problema é o &20: um número escrito no código não tem endereço."
+            - exata: [2]
+              retorno: "Para guardar um endereço no ponteiro é p, sem o *, mesmo. O problema é o &20: um número escrito no código não tem endereço."
+          retorno_geral: "O problema é o &20: um número escrito no código não ocupa lugar, e não tem endereço."
+        - pede: "Por que o compilador reclama da última linha?"
+          antes: |-
+            int *q;
+
+            q = &3;
+          pecas:
+            - "Porque 3 não ocupa lugar na memória, e não tem endereço"
+            - "Porque q ainda não recebeu valor"
+            - "Porque faltou o * antes de q"
+          certa: [[0]]
+          certa_texto: "Porque 3 não ocupa lugar na memória, e não tem endereço"
+          erros:
+            - exata: [1]
+              retorno: "q estar sem valor não impede de escrever nele. O problema é o &3: um número escrito no código não tem endereço."
+            - exata: [2]
+              retorno: "Para guardar um endereço no ponteiro é q, sem o *, mesmo. O problema é o &3: um número escrito no código não tem endereço."
+          retorno_geral: "O problema é o &3: um número escrito no código não ocupa lugar, e não tem endereço."
+
+B2:
+  revisao:
+    frases:
+      - "&idade é o endereço de idade. Pedir o endereço não copia o valor."
+      - "Quem recebe &idade recebe o caminho até a própria idade: o que escrever por ele fica nela."
+    codigo: |
+      int idade;
+      int *p;
+
+      idade = 15;
+      p = &idade;
+      *p = 16;
+      printf("%d\n", idade);
+    saida: "16"
+  # A multiplicação escrita com o mesmo * da dereferência: *n = *n * 2;
+  fora_da_trilha: [ciu_kc04_t06]
+  provas:
+    - crenca: ampersand_copies
+      programa: |
+        void marca(int *q) { *q = 9; }
+
+        int nota;
+
+        nota = 7;
+        marca(&nota);
+        printf("%d\n", nota);
+      previsao:
+        pergunta: >
+          A chamada entrega &nota à função, e a função escreve 9 no que
+          recebeu. O que o trecho imprime?
+        opcoes:
+          - "7"
+          - "9"
+        real: 1
+        crenca: 0
+      espera: "9"
+      afirma: >
+        Saiu 9. Se &nota entregasse uma cópia, a função teria escrito na
+        cópia, e nota continuaria com 7. O & entrega o endereço: a
+        função chegou na própria nota.
+  degraus:
+    - id: esc_kc04_B2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "&idade é o endereço de idade: o número do lugar dela."
+        - "Pedir o endereço não copia nada. O valor continua guardado em idade, e só lá."
+      versoes:
+        - pede: "Depois da última linha, em quantos lugares o 15 está guardado?"
+          antes: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = &idade;
+          pecas:
+            - "Em um só: idade"
+            - "Em dois: &idade entregou uma cópia do valor a p"
+            - "Em nenhum: o 15 saiu de idade e foi para p"
+          certa: [[0]]
+          certa_texto: "Em um só: idade"
+          erros:
+            - exata: [1]
+              crenca: ampersand_copies
+              retorno: "&idade não copia o valor: entrega o endereço. p guarda o número do lugar, e o 15 continua só em idade."
+            - exata: [2]
+              retorno: "Nada sai de idade. p recebe o endereço, e o 15 continua onde estava."
+          retorno_geral: "p recebeu o endereço, e não o valor. O 15 está guardado só em idade."
+        - pede: "Depois da última linha, em quantos lugares o 7 está guardado?"
+          antes: |-
+            int nota;
+            int *q;
+
+            nota = 7;
+            q = &nota;
+          pecas:
+            - "Em um só: nota"
+            - "Em dois: &nota entregou uma cópia do valor a q"
+            - "Em nenhum: o 7 saiu de nota e foi para q"
+          certa: [[0]]
+          certa_texto: "Em um só: nota"
+          erros:
+            - exata: [1]
+              crenca: ampersand_copies
+              retorno: "&nota não copia o valor: entrega o endereço. q guarda o número do lugar, e o 7 continua só em nota."
+            - exata: [2]
+              retorno: "Nada sai de nota. q recebe o endereço, e o 7 continua onde estava."
+          retorno_geral: "q recebeu o endereço, e não o valor. O 7 está guardado só em nota."
+
+    - id: esc_kc04_B2_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Como p tem o endereço, e não uma cópia, o que muda em idade aparece por *p."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = &idade;
+            idade = 16;
+            printf("%d\n", *p);
+          aceitas: ["16"]
+          certa_texto: "16"
+          erros:
+            - texto: "15"
+              retorno: "p não guardou uma cópia do 15: guardou o endereço. *p foi até idade e achou o que está lá agora, 16."
+          retorno_geral: "p tem o endereço de idade. *p acha o valor de agora: 16."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int *q;
+
+            nota = 7;
+            q = &nota;
+            nota = 9;
+            printf("%d\n", *q);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "7"
+              retorno: "q não guardou uma cópia do 7: guardou o endereço. *q foi até nota e achou o que está lá agora, 9."
+          retorno_geral: "q tem o endereço de nota. *q acha o valor de agora: 9."
+
+    - id: esc_kc04_B2_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com a função é igual: zera(&idade); entrega o endereço, e não uma cópia."
+        - "Por isso o que a função escreve em *q fica na própria idade."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            void zera(int *q) { *q = 0; }
+
+            int idade;
+
+            idade = 15;
+            zera(&idade);
+            printf("%d\n", idade);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "15"
+              retorno: "A função não recebeu uma cópia: recebeu o endereço de idade. *q = 0; escreveu na própria idade."
+          retorno_geral: "&idade entrega o endereço. A função escreveu na própria idade: o trecho mostra 0."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            void zera(int *q) { *q = 0; }
+
+            int pontos;
+
+            pontos = 3;
+            zera(&pontos);
+            printf("%d\n", pontos);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "3"
+              retorno: "A função não recebeu uma cópia: recebeu o endereço de pontos. *q = 0; escreveu na própria pontos."
+          retorno_geral: "&pontos entrega o endereço. A função escreveu na própria pontos: o trecho mostra 0."
+
+    - id: esc_kc04_B2_4
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int nota;
+            int *p;
+
+            idade = 15;
+            p = &idade;
+            nota = *p;
+            *p = 20;
+            printf("%d\n", nota);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "20"
+              retorno: "nota = *p; copiou o valor que estava em idade naquele momento: 15. Depois *p = 20; mudou idade, e a cópia em nota ficou como estava."
+          retorno_geral: "nota recebeu uma cópia do valor, 15. Quem tem o endereço é p; nota não muda quando idade muda."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int pontos;
+            int ano;
+            int *q;
+
+            pontos = 3;
+            q = &pontos;
+            ano = *q;
+            *q = 8;
+            printf("%d\n", ano);
+          aceitas: ["3"]
+          certa_texto: "3"
+          erros:
+            - texto: "8"
+              retorno: "ano = *q; copiou o valor que estava em pontos naquele momento: 3. Depois *q = 8; mudou pontos, e a cópia em ano ficou como estava."
+          retorno_geral: "ano recebeu uma cópia do valor, 3. Quem tem o endereço é q; ano não muda quando pontos muda."
+
+    - id: esc_kc04_B2_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Qual destas linhas, posta no fim, mudaria idade?"
+          antes: |-
+            int idade;
+            int nota;
+            int *p;
+
+            idade = 15;
+            nota = idade;
+            p = &idade;
+          pecas:
+            - "*p = 99; — p tem o endereço de idade"
+            - "nota = 99; — nota recebeu o valor de idade"
+            - "Qualquer uma: nota e p vieram de idade"
+          certa: [[0]]
+          certa_texto: "*p = 99; — p tem o endereço de idade"
+          erros:
+            - exata: [1]
+              retorno: "nota recebeu uma cópia do valor, e é outra variável: mexer nela não mexe em idade. Quem chega em idade é *p."
+            - exata: [2]
+              retorno: "nota guarda uma cópia do valor; p guarda o endereço. Só pelo endereço se chega na própria idade: *p = 99;"
+          retorno_geral: "nota tem uma cópia; p tem o endereço. Quem muda idade é *p = 99;"
+        - pede: "Qual destas linhas, posta no fim, mudaria pontos?"
+          antes: |-
+            int pontos;
+            int ano;
+            int *q;
+
+            pontos = 3;
+            ano = pontos;
+            q = &pontos;
+          pecas:
+            - "ano = 99; — ano recebeu o valor de pontos"
+            - "*q = 99; — q tem o endereço de pontos"
+            - "Qualquer uma: ano e q vieram de pontos"
+          certa: [[1]]
+          certa_texto: "*q = 99; — q tem o endereço de pontos"
+          erros:
+            - exata: [0]
+              retorno: "ano recebeu uma cópia do valor, e é outra variável: mexer nela não mexe em pontos. Quem chega em pontos é *q."
+            - exata: [2]
+              retorno: "ano guarda uma cópia do valor; q guarda o endereço. Só pelo endereço se chega na própria pontos: *q = 99;"
+          retorno_geral: "ano tem uma cópia; q tem o endereço. Quem muda pontos é *q = 99;"
+
+B3:
+  revisao:
+    frases:
+      - "Dentro de um ponteiro há um endereço, e não o valor apontado."
+      - "p é o endereço guardado. *p é o valor que mora naquele endereço."
+    codigo: |
+      int idade;
+      int *p;
+
+      idade = 42;
+      p = &idade;
+      printf("%d\n", *p);
+    saida: "42"
+  # A comparação p == &x impressa com %d: a escada não ensina.
+  fora_da_trilha: [ciu_kc04_008]
+  provas:
+    - crenca: pointer_is_data
+      programa: |
+        int nota;
+        int *q;
+
+        nota = 7;
+        q = &nota;
+        nota = 9;
+        printf("%d\n", *q);
+      previsao:
+        pergunta: >
+          Quando a linha q = &nota; rodou, nota guardava 7. Depois nota
+          mudou para 9, e ninguém mexeu em q. O que o trecho imprime?
+        opcoes:
+          - "9"
+          - "7"
+        real: 0
+        crenca: 1
+      espera: "9"
+      afirma: >
+        Saiu 9. Se o ponteiro fosse o próprio dado, q teria ficado com o
+        7. O que está dentro de q é o endereço: *q foi até nota e achou
+        o que está lá agora.
+  degraus:
+    - id: esc_kc04_B3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O que um ponteiro guarda é um endereço: o número de um lugar."
+        - "O valor que mora naquele lugar não está dentro do ponteiro."
+      versoes:
+        - pede: "idade guarda 42. O que está guardado em p?"
+          antes: |-
+            int idade;
+            int *p;
+
+            idade = 42;
+            p = &idade;
+          pecas:
+            - "O endereço de idade"
+            - "O 42: o ponteiro é o próprio dado"
+            - "O nome idade"
+          certa: [[0]]
+          certa_texto: "O endereço de idade"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_data
+              retorno: "O 42 está guardado em idade. Dentro de p há o endereço: o número do lugar onde idade fica."
+            - exata: [2]
+              retorno: "Ponteiro não guarda nome. Guarda o endereço: o número do lugar onde idade fica."
+          retorno_geral: "p guarda o endereço de idade. O 42 fica em idade."
+        - pede: "nota guarda 9. O que está guardado em q?"
+          antes: |-
+            int nota;
+            int *q;
+
+            nota = 9;
+            q = &nota;
+          pecas:
+            - "O endereço de nota"
+            - "O 9: o ponteiro é o próprio dado"
+            - "O nome nota"
+          certa: [[0]]
+          certa_texto: "O endereço de nota"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_data
+              retorno: "O 9 está guardado em nota. Dentro de q há o endereço: o número do lugar onde nota fica."
+            - exata: [2]
+              retorno: "Ponteiro não guarda nome. Guarda o endereço: o número do lugar onde nota fica."
+          retorno_geral: "q guarda o endereço de nota. O 9 fica em nota."
+
+    - id: esc_kc04_B3_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "São duas coisas diferentes: p é o endereço guardado, e *p é o valor que mora lá."
+      versoes:
+        - pede: "Qual destas vale 42?"
+          antes: |-
+            int idade;
+            int *p;
+
+            idade = 42;
+            p = &idade;
+          pecas: ["*p", "p", "&p"]
+          certa: [[0]]
+          certa_texto: "*p"
+          erros:
+            - exata: [1]
+              retorno: "p, sem o *, é o endereço guardado. O 42 é o valor que mora lá: *p"
+            - exata: [2]
+              retorno: "&p é o endereço do próprio ponteiro. O 42 é o valor que mora no endereço guardado: *p"
+          retorno_geral: "p é o endereço; *p é o valor que mora lá, 42."
+        - pede: "Qual destas vale 9?"
+          antes: |-
+            int nota;
+            int *q;
+
+            nota = 9;
+            q = &nota;
+          pecas: ["q", "*q", "&q"]
+          certa: [[1]]
+          certa_texto: "*q"
+          erros:
+            - exata: [0]
+              retorno: "q, sem o *, é o endereço guardado. O 9 é o valor que mora lá: *q"
+            - exata: [2]
+              retorno: "&q é o endereço do próprio ponteiro. O 9 é o valor que mora no endereço guardado: *q"
+          retorno_geral: "q é o endereço; *q é o valor que mora lá, 9."
+
+    - id: esc_kc04_B3_3
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Por isso um ponteiro recebe endereço, e não valor: p = &idade; e nunca p = idade;"
+      versoes:
+        - pede: "Complete para p receber o que um ponteiro guarda."
+          antes: |-
+            int idade;
+            int *p;
+
+            idade = 42;
+          mostra: "p = ___;"
+          pecas: ["&idade", "idade", "42"]
+          certa: [[0]]
+          certa_texto: "p = &idade;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "idade, sem o &, é o valor guardado, e um ponteiro guarda endereço. O compilador reclama. O certo é p = &idade;"
+            - exata: [2]
+              invalida: true
+              retorno: "42 é um valor, e um ponteiro guarda endereço. O compilador reclama. O certo é p = &idade;"
+          retorno_geral: "Um ponteiro guarda endereço: p = &idade;"
+        - pede: "Complete para q receber o que um ponteiro guarda."
+          antes: |-
+            int nota;
+            int *q;
+
+            nota = 9;
+          mostra: "q = ___;"
+          pecas: ["&nota", "nota", "9"]
+          certa: [[0]]
+          certa_texto: "q = &nota;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "nota, sem o &, é o valor guardado, e um ponteiro guarda endereço. O compilador reclama. O certo é q = &nota;"
+            - exata: [2]
+              invalida: true
+              retorno: "9 é um valor, e um ponteiro guarda endereço. O compilador reclama. O certo é q = &nota;"
+          retorno_geral: "Um ponteiro guarda endereço: q = &nota;"
+
+    - id: esc_kc04_B3_4
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+            int *q;
+
+            idade = 42;
+            p = &idade;
+            q = p;
+            *q = 50;
+            printf("%d\n", *p);
+          aceitas: ["50"]
+          certa_texto: "50"
+          erros:
+            - texto: "42"
+              retorno: "q = p; copiou o endereço, e não o 42. Os dois ponteiros guardam o endereço de idade: *q = 50; mudou idade, e *p acha 50."
+          retorno_geral: "q = p; copia o endereço guardado. Os dois apontam para idade, que passou a guardar 50."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int *p;
+            int *q;
+
+            nota = 9;
+            q = &nota;
+            p = q;
+            *p = 4;
+            printf("%d\n", *q);
+          aceitas: ["4"]
+          certa_texto: "4"
+          erros:
+            - texto: "9"
+              retorno: "p = q; copiou o endereço, e não o 9. Os dois ponteiros guardam o endereço de nota: *p = 4; mudou nota, e *q acha 4."
+          retorno_geral: "p = q; copia o endereço guardado. Os dois apontam para nota, que passou a guardar 4."
+
+    - id: esc_kc04_B3_5
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Faça q guardar o endereço de nota, e mostre na tela o valor que mora lá."
+          antes: |-
+            int nota;
+            int *q;
+
+            nota = 9;
+          pecas: ["q = &nota;", 'printf("%d\n", *q);', 'printf("%d\n", q);', "q = nota;"]
+          certa: [[0, 1]]
+          certa_texto: 'q = &nota; printf("%d\n", *q);'
+          erros:
+            - exata: [0, 2]
+              retorno: "q, sem o *, é o endereço guardado, e o %d espera um número inteiro. O valor que mora lá é *q."
+            - exata: [3, 1]
+              invalida: true
+              retorno: "nota, sem o &, é o valor, e um ponteiro guarda endereço. O certo é q = &nota;"
+            - exata: [1, 0]
+              retorno: "Nessa ordem o printf usa *q antes de q receber o endereço. Primeiro q = &nota;"
+          retorno_geral: 'O ponteiro recebe o endereço, e o valor se lê com o *: q = &nota; e printf("%d\n", *q);'
+        - pede: "Faça p guardar o endereço de idade, e mostre na tela o valor que mora lá."
+          antes: |-
+            int idade;
+            int *p;
+
+            idade = 42;
+          pecas: ["p = &idade;", 'printf("%d\n", *p);', 'printf("%d\n", p);', "p = idade;"]
+          certa: [[0, 1]]
+          certa_texto: 'p = &idade; printf("%d\n", *p);'
+          erros:
+            - exata: [0, 2]
+              retorno: "p, sem o *, é o endereço guardado, e o %d espera um número inteiro. O valor que mora lá é *p."
+            - exata: [3, 1]
+              invalida: true
+              retorno: "idade, sem o &, é o valor, e um ponteiro guarda endereço. O certo é p = &idade;"
+            - exata: [1, 0]
+              retorno: "Nessa ordem o printf usa *p antes de p receber o endereço. Primeiro p = &idade;"
+          retorno_geral: 'O ponteiro recebe o endereço, e o valor se lê com o *: p = &idade; e printf("%d\n", *p);'
+
+I1:
+  revisao:
+    frases:
+      - "*p não é outro nome da variável: é ir até o endereço guardado em p."
+      - "Se p passa a guardar outro endereço, o mesmo *p vai a outro lugar."
+    codigo: |
+      int idade;
+      int nota;
+      int *p;
+
+      idade = 15;
+      nota = 7;
+      p = &idade;
+      p = &nota;
+      printf("%d\n", *p);
+    saida: "7"
+  # Aritmética de ponteiro (p = p + 1): é assunto do kc_11.
+  fora_da_trilha: [ciu_kc04_t12]
+  provas:
+    - crenca: pointer_is_just_a_name
+      programa: |
+        int idade;
+        int nota;
+        int *p;
+
+        idade = 15;
+        p = &idade;
+        p = &nota;
+        *p = 9;
+        printf("%d\n", idade);
+      previsao:
+        pergunta: >
+          p guardou o endereço de idade, e depois o de nota. A linha *p =
+          9; vem por último. O que o trecho imprime?
+        opcoes:
+          - "9"
+          - "15"
+        real: 1
+        crenca: 0
+      espera: "15"
+      afirma: >
+        Saiu 15. Se *p fosse outro nome de idade, o 9 teria ido para ela.
+        *p é um caminho: foi aonde o endereço guardado em p mandava
+        naquele momento, que era nota.
+  degraus:
+    - id: esc_kc04_I1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "*p quer dizer: vá até o endereço guardado em p."
+        - "Não é outro nome da variável. É um caminho, e o destino é o endereço que estiver em p naquele momento."
+      versoes:
+        - pede: "O que o *p da última linha faz?"
+          antes: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = &idade;
+            printf("%d\n", *p);
+          pecas:
+            - "Vai até o endereço guardado em p, e lê o que está lá"
+            - "Nada: *p é só outro nome de idade"
+            - "Entrega o endereço guardado em p"
+          certa: [[0]]
+          certa_texto: "Vai até o endereço guardado em p, e lê o que está lá"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_just_a_name
+              retorno: "*p não é um nome: é um caminho. Ele vai ao endereço que estiver em p, e se p mudar de endereço, *p vai a outro lugar."
+            - exata: [2]
+              retorno: "Quem é o endereço guardado é p, sem o *. Com o *, a linha vai até lá e lê o valor."
+          retorno_geral: "*p vai até o endereço guardado em p e lê o que está lá: o valor de idade."
+        - pede: "O que o *q da última linha faz?"
+          antes: |-
+            int nota;
+            int *q;
+
+            nota = 7;
+            q = &nota;
+            printf("%d\n", *q);
+          pecas:
+            - "Vai até o endereço guardado em q, e lê o que está lá"
+            - "Nada: *q é só outro nome de nota"
+            - "Entrega o endereço guardado em q"
+          certa: [[0]]
+          certa_texto: "Vai até o endereço guardado em q, e lê o que está lá"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_just_a_name
+              retorno: "*q não é um nome: é um caminho. Ele vai ao endereço que estiver em q, e se q mudar de endereço, *q vai a outro lugar."
+            - exata: [2]
+              retorno: "Quem é o endereço guardado é q, sem o *. Com o *, a linha vai até lá e lê o valor."
+          retorno_geral: "*q vai até o endereço guardado em q e lê o que está lá: o valor de nota."
+
+    - id: esc_kc04_I1_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "A prova de que é um caminho: troque o endereço em p, e o mesmo *p vai a outro lugar."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int nota;
+            int *p;
+
+            idade = 15;
+            nota = 7;
+            p = &idade;
+            p = &nota;
+            printf("%d\n", *p);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "15"
+              retorno: "p deixou de guardar o endereço de idade e passou a guardar o de nota. *p vai aonde p manda agora: 7."
+          retorno_geral: "p guarda agora o endereço de nota. *p vai até lá: 7."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int pontos;
+            int ano;
+            int *q;
+
+            pontos = 3;
+            ano = 2026;
+            q = &ano;
+            q = &pontos;
+            printf("%d\n", *q);
+          aceitas: ["3"]
+          certa_texto: "3"
+          erros:
+            - texto: "2026"
+              retorno: "q deixou de guardar o endereço de ano e passou a guardar o de pontos. *q vai aonde q manda agora: 3."
+          retorno_geral: "q guarda agora o endereço de pontos. *q vai até lá: 3."
+
+    - id: esc_kc04_I1_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "O caminho também serve para escrever: *p = 20; vai até o endereço guardado e escreve lá."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int nota;
+            int *p;
+
+            idade = 15;
+            nota = 7;
+            p = &nota;
+            *p = 20;
+            printf("%d\n", idade);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "20"
+              retorno: "*p foi aonde p mandava: nota. idade não foi tocada, e continua com 15."
+            - texto: "7"
+              retorno: "O 7 era de nota, que virou 20. O printf mostra idade, que ninguém tocou: 15."
+          retorno_geral: "p guarda o endereço de nota. *p = 20; escreveu lá, e idade continua com 15."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int pontos;
+            int ano;
+            int *q;
+
+            pontos = 3;
+            ano = 2026;
+            q = &pontos;
+            *q = 8;
+            printf("%d\n", ano);
+          aceitas: ["2026"]
+          certa_texto: "2026"
+          erros:
+            - texto: "8"
+              retorno: "*q foi aonde q mandava: pontos. ano não foi tocada, e continua com 2026."
+            - texto: "3"
+              retorno: "O 3 era de pontos, que virou 8. O printf mostra ano, que ninguém tocou: 2026."
+          retorno_geral: "q guarda o endereço de pontos. *q = 8; escreveu lá, e ano continua com 2026."
+
+    - id: esc_kc04_I1_4
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int nota;
+            int *p;
+
+            idade = 15;
+            nota = 7;
+            p = &idade;
+            *p = 30;
+            p = &nota;
+            *p = 40;
+            printf("%d\n", idade);
+          aceitas: ["30"]
+          certa_texto: "30"
+          erros:
+            - texto: "40"
+              retorno: "O segundo *p foi para nota: p tinha trocado de endereço. idade ficou com o 30 da primeira viagem."
+            - texto: "15"
+              retorno: "*p = 30; rodou enquanto p guardava o endereço de idade, e escreveu 30 nela."
+          retorno_geral: "O primeiro *p foi a idade e escreveu 30. O segundo foi a nota. idade guarda 30."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int pontos;
+            int ano;
+            int *q;
+
+            pontos = 3;
+            ano = 2026;
+            q = &ano;
+            *q = 2027;
+            q = &pontos;
+            *q = 8;
+            printf("%d\n", ano);
+          aceitas: ["2027"]
+          certa_texto: "2027"
+          erros:
+            - texto: "8"
+              retorno: "O segundo *q foi para pontos: q tinha trocado de endereço. ano ficou com o 2027 da primeira viagem."
+            - texto: "2026"
+              retorno: "*q = 2027; rodou enquanto q guardava o endereço de ano, e escreveu 2027 nela."
+          retorno_geral: "O primeiro *q foi a ano e escreveu 2027. O segundo foi a pontos. ano guarda 2027."
+
+    - id: esc_kc04_I1_5
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Sem usar o nome nota, escreva 9 nela e depois mostre o valor na tela."
+          antes: |-
+            int nota;
+            int *p;
+
+            nota = 7;
+            p = &nota;
+          pecas: ["*p = 9;", 'printf("%d\n", *p);', "p = 9;", 'printf("%d\n", p);']
+          certa: [[0, 1]]
+          certa_texto: '*p = 9; printf("%d\n", *p);'
+          erros:
+            - exata: [2, 1]
+              invalida: true
+              retorno: "p = 9; tentaria trocar o endereço guardado. Para ir até nota e escrever, é *p = 9;"
+            - exata: [0, 3]
+              retorno: "p, sem o *, é o endereço. Para ler o que mora lá, a viagem é *p."
+            - exata: [1, 0]
+              retorno: "Nessa ordem o printf lê nota antes de o 9 entrar. Primeiro *p = 9; depois o printf."
+          retorno_geral: 'As duas linhas vão até nota pelo ponteiro: *p = 9; e printf("%d\n", *p);'
+        - pede: "Sem usar o nome idade, escreva 16 nela e depois mostre o valor na tela."
+          antes: |-
+            int idade;
+            int *q;
+
+            idade = 15;
+            q = &idade;
+          pecas: ["*q = 16;", 'printf("%d\n", *q);', "q = 16;", 'printf("%d\n", q);']
+          certa: [[0, 1]]
+          certa_texto: '*q = 16; printf("%d\n", *q);'
+          erros:
+            - exata: [2, 1]
+              invalida: true
+              retorno: "q = 16; tentaria trocar o endereço guardado. Para ir até idade e escrever, é *q = 16;"
+            - exata: [0, 3]
+              retorno: "q, sem o *, é o endereço. Para ler o que mora lá, a viagem é *q."
+            - exata: [1, 0]
+              retorno: "Nessa ordem o printf lê idade antes de o 16 entrar. Primeiro *q = 16; depois o printf."
+          retorno_geral: 'As duas linhas vão até idade pelo ponteiro: *q = 16; e printf("%d\n", *q);'
+
+I2:
+  revisao:
+    frases:
+      - "*p = 7; escreve no lugar apontado. O ponteiro continua guardando o mesmo endereço."
+      - "Para o ponteiro mudar, a escrita tem de ser nele, sem o *: p = &nota;"
+    codigo: |
+      int idade;
+      int *p;
+
+      p = &idade;
+      *p = 7;
+      *p = 8;
+      printf("%d\n", idade);
+    saida: "8"
+  # A comparação p == &x impressa com %d, e o ++.
+  fora_da_trilha: [ciu_kc04_014, ciu_kc04_t14]
+  provas:
+    - crenca: star_binds_to_the_pointer
+      programa: |
+        int idade;
+        int *p;
+
+        p = &idade;
+        printf("%p\n", (void *)p);
+        *p = 20;
+        printf("%p\n", (void *)p);
+      previsao:
+        pergunta: >
+          Os dois printf mostram o endereço guardado em p: um antes e um
+          depois da linha *p = 20;. O que eles mostram?
+        opcoes:
+          - "O mesmo endereço, duas vezes"
+          - "Dois endereços diferentes: *p = 20; mexeu no ponteiro"
+        real: 0
+        crenca: 1
+      espera: "0x1000\n0x1000"
+      ambiente: >
+        O número do lugar muda de máquina para máquina; aqui ele aparece
+        como um número de exemplo. O que foi conferido é que as duas
+        linhas saem com o mesmo endereço.
+      afirma: >
+        O endereço guardado em p é o mesmo antes e depois. *p = 20;
+        escreveu no lugar apontado, que é idade; no ponteiro, ninguém
+        mexeu.
+  degraus:
+    - id: esc_kc04_I2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "*p = 7; escreve 7 no lugar apontado por p."
+        - "O ponteiro não muda: continua guardando o mesmo endereço de antes."
+      versoes:
+        - pede: "Depois da última linha, o que mudou?"
+          antes: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = &idade;
+            *p = 7;
+          pecas:
+            - "idade, que passou a guardar 7. p continua igual"
+            - "p, que passou a guardar 7: mexer em *p mexe no ponteiro"
+            - "Os dois: idade e p passaram a guardar 7"
+          certa: [[0]]
+          certa_texto: "idade, que passou a guardar 7. p continua igual"
+          erros:
+            - exata: [1]
+              crenca: star_binds_to_the_pointer
+              retorno: "*p = 7; escreve no lugar apontado, que é idade. O ponteiro continua guardando o endereço de idade, como antes."
+            - exata: [2]
+              retorno: "Só um lugar recebeu o 7: o apontado, que é idade. p continua guardando o endereço, e não um 7."
+          retorno_geral: "*p = 7; mudou idade. O ponteiro continua guardando o mesmo endereço."
+        - pede: "Depois da última linha, o que mudou?"
+          antes: |-
+            int nota;
+            int *q;
+
+            nota = 7;
+            q = &nota;
+            *q = 9;
+          pecas:
+            - "nota, que passou a guardar 9. q continua igual"
+            - "q, que passou a guardar 9: mexer em *q mexe no ponteiro"
+            - "Os dois: nota e q passaram a guardar 9"
+          certa: [[0]]
+          certa_texto: "nota, que passou a guardar 9. q continua igual"
+          erros:
+            - exata: [1]
+              crenca: star_binds_to_the_pointer
+              retorno: "*q = 9; escreve no lugar apontado, que é nota. O ponteiro continua guardando o endereço de nota, como antes."
+            - exata: [2]
+              retorno: "Só um lugar recebeu o 9: o apontado, que é nota. q continua guardando o endereço, e não um 9."
+          retorno_geral: "*q = 9; mudou nota. O ponteiro continua guardando o mesmo endereço."
+
+    - id: esc_kc04_I2_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Como o ponteiro não mudou, um segundo *p vai ao mesmo lugar do primeiro."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *p;
+
+            idade = 15;
+            p = &idade;
+            *p = 7;
+            *p = 8;
+            printf("%d\n", idade);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "7"
+              retorno: "O segundo *p foi ao mesmo lugar do primeiro: p não tinha mudado. O 8 entrou por cima do 7."
+            - texto: "15"
+              retorno: "As duas escritas foram em idade, pelo ponteiro. Ficou a última: 8."
+          retorno_geral: "As duas escritas vão ao mesmo lugar, idade. Fica a última: 8."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int *q;
+
+            nota = 7;
+            q = &nota;
+            *q = 5;
+            *q = 6;
+            printf("%d\n", nota);
+          aceitas: ["6"]
+          certa_texto: "6"
+          erros:
+            - texto: "5"
+              retorno: "O segundo *q foi ao mesmo lugar do primeiro: q não tinha mudado. O 6 entrou por cima do 5."
+            - texto: "7"
+              retorno: "As duas escritas foram em nota, pelo ponteiro. Ficou a última: 6."
+          retorno_geral: "As duas escritas vão ao mesmo lugar, nota. Fica a última: 6."
+
+    - id: esc_kc04_I2_3
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "Quem muda o ponteiro é a escrita sem o *: p = &nota;"
+      versoes:
+        - pede: "Qual linha faz p passar a apontar para nota?"
+          antes: |-
+            int idade;
+            int nota;
+            int *p;
+
+            p = &idade;
+          pecas: ["p = &nota;", "*p = nota;", "*p = &nota;"]
+          certa: [[0]]
+          certa_texto: "p = &nota;"
+          invalidas: [2]
+          erros:
+            - exata: [1]
+              retorno: "*p = nota; copia o valor de nota para dentro de idade, e p continua apontando para idade. Para trocar o alvo: p = &nota;"
+            - exata: [2]
+              retorno: "*p é o lugar apontado, que guarda um int, e não um endereço. O compilador reclama. Para trocar o alvo: p = &nota;"
+          retorno_geral: "O ponteiro muda quando a escrita é nele, sem o *: p = &nota;"
+        - pede: "Qual linha faz q passar a apontar para ano?"
+          antes: |-
+            int pontos;
+            int ano;
+            int *q;
+
+            q = &pontos;
+          pecas: ["*q = ano;", "q = &ano;", "*q = &ano;"]
+          certa: [[1]]
+          certa_texto: "q = &ano;"
+          invalidas: [2]
+          erros:
+            - exata: [0]
+              retorno: "*q = ano; copia o valor de ano para dentro de pontos, e q continua apontando para pontos. Para trocar o alvo: q = &ano;"
+            - exata: [2]
+              retorno: "*q é o lugar apontado, que guarda um int, e não um endereço. O compilador reclama. Para trocar o alvo: q = &ano;"
+          retorno_geral: "O ponteiro muda quando a escrita é nele, sem o *: q = &ano;"
+
+    - id: esc_kc04_I2_4
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int nota;
+            int *p;
+
+            idade = 15;
+            nota = 7;
+            p = &idade;
+            *p = nota;
+            printf("%d\n", idade);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "15"
+              retorno: "*p = nota; escreveu em idade o valor que estava em nota: 7. O ponteiro continuou apontando para idade."
+          retorno_geral: "*p = nota; copia o valor de nota para o lugar apontado, que é idade: 7."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int pontos;
+            int ano;
+            int *q;
+
+            pontos = 3;
+            ano = 2026;
+            q = &ano;
+            *q = pontos;
+            printf("%d\n", ano);
+          aceitas: ["3"]
+          certa_texto: "3"
+          erros:
+            - texto: "2026"
+              retorno: "*q = pontos; escreveu em ano o valor que estava em pontos: 3. O ponteiro continuou apontando para ano."
+          retorno_geral: "*q = pontos; copia o valor de pontos para o lugar apontado, que é ano: 3."
+
+    - id: esc_kc04_I2_5
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "p aponta para idade. Escreva 30 em idade pelo ponteiro e, depois, faça p apontar para nota."
+          antes: |-
+            int idade;
+            int nota;
+            int *p;
+
+            p = &idade;
+          pecas: ["*p = 30;", "p = &nota;", "p = 30;", "*p = &nota;"]
+          certa: [[0, 1]]
+          certa_texto: "*p = 30; p = &nota;"
+          erros:
+            - exata: [1, 0]
+              retorno: "Nessa ordem p troca de alvo primeiro, e o 30 vai parar em nota. Primeiro *p = 30; depois p = &nota;"
+            - exata: [2, 1]
+              invalida: true
+              retorno: "p = 30; mexeria no ponteiro, e não em idade. Escrever no lugar apontado é com o *: *p = 30;"
+            - exata: [0, 3]
+              invalida: true
+              retorno: "*p = &nota; tentaria guardar um endereço dentro de idade. Quem recebe o endereço é o ponteiro: p = &nota;"
+          retorno_geral: "Com o * se escreve no lugar apontado; sem o *, no ponteiro: *p = 30; e p = &nota;"
+        - pede: "q aponta para pontos. Escreva 8 em pontos pelo ponteiro e, depois, faça q apontar para ano."
+          antes: |-
+            int pontos;
+            int ano;
+            int *q;
+
+            q = &pontos;
+          pecas: ["*q = 8;", "q = &ano;", "q = 8;", "*q = &ano;"]
+          certa: [[0, 1]]
+          certa_texto: "*q = 8; q = &ano;"
+          erros:
+            - exata: [1, 0]
+              retorno: "Nessa ordem q troca de alvo primeiro, e o 8 vai parar em ano. Primeiro *q = 8; depois q = &ano;"
+            - exata: [2, 1]
+              invalida: true
+              retorno: "q = 8; mexeria no ponteiro, e não em pontos. Escrever no lugar apontado é com o *: *q = 8;"
+            - exata: [0, 3]
+              invalida: true
+              retorno: "*q = &ano; tentaria guardar um endereço dentro de pontos. Quem recebe o endereço é o ponteiro: q = &ano;"
+          retorno_geral: "Com o * se escreve no lugar apontado; sem o *, no ponteiro: *q = 8; e q = &ano;"
+
+I3:
+  revisao:
+    frases:
+      - "O & pergunta onde a variável está. O * vai até um endereço. Um desfaz o outro."
+      - "Por isso *(&idade) é a própria idade — e o endereço se guarda em p, nunca em *p."
+    codigo: |
+      int idade;
+
+      idade = 7;
+      printf("%d\n", *(&idade));
+    saida: "7"
+  # malloc: a escada não ensina.
+  fora_da_trilha: [ciu_kc04_017]
+  provas:
+    - crenca: star_assigns_pointer
+      programa: |
+        int idade;
+        int *p;
+
+        *p = &idade;
+      previsao:
+        pergunta: "O compilador reclama da última linha?"
+        opcoes:
+          - "Sim: *p é o lugar apontado, que guarda um int, e não um endereço"
+          - "Não: é em *p que o endereço fica guardado"
+        real: 0
+        crenca: 1
+      reclama: "makes integer from pointer without a cast"
+      ambiente: >
+        Mensagem do gcc 16.2. Todo compilador de C tem de reclamar desta
+        linha, cada um com as suas palavras.
+      afirma: >
+        O compilador reclama: *p é o lugar apontado, feito para um int,
+        e &idade é um endereço. Quem guarda o endereço é o ponteiro, sem
+        o *: p = &idade;
+  degraus:
+    - id: esc_kc04_I3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O & pergunta: onde está esta variável? O * diz: vá até este endereço."
+        - "Um desfaz o outro: *(&idade) vai até o endereço de idade, e chega na própria idade."
+      versoes:
+        - pede: "O que é *(&idade)?"
+          antes: |-
+            int idade;
+            idade = 7;
+          pecas:
+            - "A própria idade"
+            - "O endereço de idade"
+            - "Uma cópia de idade"
+          certa: [[0]]
+          certa_texto: "A própria idade"
+          erros:
+            - exata: [1]
+              retorno: "O endereço é só o &idade. O * na frente vai até esse endereço, e o que está lá é a própria idade."
+            - exata: [2]
+              retorno: "Nada foi copiado: o & deu o endereço, e o * foi até ele. Chega-se na própria idade."
+          retorno_geral: "O & dá o endereço, e o * vai até ele: *(&idade) é a própria idade."
+        - pede: "O que é *(&nota)?"
+          antes: |-
+            int nota;
+            nota = 4;
+          pecas:
+            - "A própria nota"
+            - "O endereço de nota"
+            - "Uma cópia de nota"
+          certa: [[0]]
+          certa_texto: "A própria nota"
+          erros:
+            - exata: [1]
+              retorno: "O endereço é só o &nota. O * na frente vai até esse endereço, e o que está lá é a própria nota."
+            - exata: [2]
+              retorno: "Nada foi copiado: o & deu o endereço, e o * foi até ele. Chega-se na própria nota."
+          retorno_geral: "O & dá o endereço, e o * vai até ele: *(&nota) é a própria nota."
+
+    - id: esc_kc04_I3_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Como *(&idade) é a própria idade, escrever ali é escrever em idade."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+
+            idade = 7;
+            *(&idade) = 9;
+            printf("%d\n", idade);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "7"
+              retorno: "*(&idade) é a própria idade: o * desfez o &. A linha escreveu 9 em idade."
+          retorno_geral: "*(&idade) = 9; é o mesmo que idade = 9; O trecho mostra 9."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+
+            nota = 4;
+            *(&nota) = 6;
+            printf("%d\n", nota);
+          aceitas: ["6"]
+          certa_texto: "6"
+          erros:
+            - texto: "4"
+              retorno: "*(&nota) é a própria nota: o * desfez o &. A linha escreveu 6 em nota."
+          retorno_geral: "*(&nota) = 6; é o mesmo que nota = 6; O trecho mostra 6."
+
+    - id: esc_kc04_I3_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Cada coisa tem o seu lugar: o endereço se guarda em p, e o valor se escreve em *p."
+        - "p = &idade; guarda o endereço. *p = 9; escreve no lugar apontado."
+      versoes:
+        - pede: "Em qual destes o endereço de idade fica guardado?"
+          antes: |-
+            int idade;
+            int *p;
+
+            p = &idade;
+          pecas:
+            - "Em p: o ponteiro é quem guarda o endereço"
+            - "Em *p: é em *p que se guarda o endereço"
+            - "Em &p"
+          certa: [[0]]
+          certa_texto: "Em p: o ponteiro é quem guarda o endereço"
+          erros:
+            - exata: [1]
+              crenca: star_assigns_pointer
+              retorno: "*p é o lugar apontado, que guarda um int. O endereço fica no próprio ponteiro, sem o *: p = &idade;"
+            - exata: [2]
+              retorno: "&p é o endereço do ponteiro, e não um lugar onde se guarda. O endereço de idade fica em p."
+          retorno_geral: "O endereço fica guardado no ponteiro, sem o *: em p."
+        - pede: "Em qual destes o endereço de nota fica guardado?"
+          antes: |-
+            int nota;
+            int *q;
+
+            q = &nota;
+          pecas:
+            - "Em q: o ponteiro é quem guarda o endereço"
+            - "Em *q: é em *q que se guarda o endereço"
+            - "Em &q"
+          certa: [[0]]
+          certa_texto: "Em q: o ponteiro é quem guarda o endereço"
+          erros:
+            - exata: [1]
+              crenca: star_assigns_pointer
+              retorno: "*q é o lugar apontado, que guarda um int. O endereço fica no próprio ponteiro, sem o *: q = &nota;"
+            - exata: [2]
+              retorno: "&q é o endereço do ponteiro, e não um lugar onde se guarda. O endereço de nota fica em q."
+          retorno_geral: "O endereço fica guardado no ponteiro, sem o *: em q."
+
+    - id: esc_kc04_I3_4
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Uma destas linhas faz o compilador reclamar. Qual?"
+          antes: |-
+            int idade;
+            int *p;
+
+            p = &idade;
+          pecas: ["*p = &idade;", "*p = 9;", "p = &idade;"]
+          certa: [[0]]
+          certa_texto: "*p = &idade;"
+          invalidas: [0]
+          erros:
+            - exata: [1]
+              retorno: "*p = 9; escreve um int no lugar apontado, que é de int: combina. A que não combina é *p = &idade;"
+            - exata: [2]
+              retorno: "p = &idade; guarda um endereço no ponteiro: combina. A que não combina é *p = &idade;"
+          retorno_geral: "*p é lugar de int, e &idade é um endereço: *p = &idade; não combina."
+        - pede: "Uma destas linhas faz o compilador reclamar. Qual?"
+          antes: |-
+            int nota;
+            int *q;
+
+            q = &nota;
+          pecas: ["q = &nota;", "*q = 6;", "*q = &nota;"]
+          certa: [[2]]
+          certa_texto: "*q = &nota;"
+          invalidas: [2]
+          erros:
+            - exata: [0]
+              retorno: "q = &nota; guarda um endereço no ponteiro: combina. A que não combina é *q = &nota;"
+            - exata: [1]
+              retorno: "*q = 6; escreve um int no lugar apontado, que é de int: combina. A que não combina é *q = &nota;"
+          retorno_geral: "*q é lugar de int, e &nota é um endereço: *q = &nota; não combina."
+
+    - id: esc_kc04_I3_5
+      guiado: false
+      forma: montar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Faça p apontar para nota e, pelo ponteiro, escreva 5 nela."
+          antes: |-
+            int nota;
+            int *p;
+          pecas: ["p = &nota;", "*p = 5;", "*p = &nota;", "p = 5;"]
+          certa: [[0, 1]]
+          certa_texto: "p = &nota; *p = 5;"
+          erros:
+            - exata: [2, 1]
+              invalida: true
+              retorno: "O endereço se guarda no ponteiro, sem o *. *p é o lugar apontado, que guarda um int: p = &nota;"
+            - exata: [1, 0]
+              retorno: "Nessa ordem *p = 5; roda antes de p receber o endereço. Primeiro p = &nota;"
+            - exata: [0, 3]
+              invalida: true
+              retorno: "p = 5; trocaria o endereço guardado por 5. Para escrever em nota pelo ponteiro: *p = 5;"
+          retorno_geral: "O endereço vai em p, e o valor vai em *p: p = &nota; e *p = 5;"
+        - pede: "Faça q apontar para idade e, pelo ponteiro, escreva 16 nela."
+          antes: |-
+            int idade;
+            int *q;
+          pecas: ["q = &idade;", "*q = 16;", "*q = &idade;", "q = 16;"]
+          certa: [[0, 1]]
+          certa_texto: "q = &idade; *q = 16;"
+          erros:
+            - exata: [2, 1]
+              invalida: true
+              retorno: "O endereço se guarda no ponteiro, sem o *. *q é o lugar apontado, que guarda um int: q = &idade;"
+            - exata: [1, 0]
+              retorno: "Nessa ordem *q = 16; roda antes de q receber o endereço. Primeiro q = &idade;"
+            - exata: [0, 3]
+              invalida: true
+              retorno: "q = 16; trocaria o endereço guardado por 16. Para escrever em idade pelo ponteiro: *q = 16;"
+          retorno_geral: "O endereço vai em q, e o valor vai em *q: q = &idade; e *q = 16;"

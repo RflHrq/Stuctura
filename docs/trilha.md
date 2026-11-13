@@ -796,6 +796,39 @@ ele tem de próprio:
   questões de marcar. É o custo de não mexer no banco, e fica para o
   Rafael decidir se vale reescrever a `ciu_kc03_008`.
 
+**O kc_04 e o kc_05, em 13/11/2026**
+
+O kc_04 (dereferência: `&` e `*`) não apresenta construto novo: volta
+aos dois sinais, um de cada vez, e diz com precisão o que cada um faz.
+Seis premissas, 30 degraus. Nove das 36 questões do banco ficam fora
+(protótipo de função, vetor, `malloc`, `++`, a comparação impressa, a
+aritmética de ponteiro), e as seis premissas abrem com questão de
+código.
+
+O kc_05 (ponteiro NULL) é onde o NULL passa a ser **perguntado**: entram
+`p == NULL`, que responde 1 ou 0, e o `if` do jeito mais curto — uma
+pergunta e uma linha. Seis premissas, 31 degraus. Doze das 36 questões
+ficam fora; só o I2 abre com a de conceito, porque as de código dele
+são sobre `memcpy`. O tópico pediu três coisas ao conferidor:
+
+- **A reclamação é de UMA linha.** A tela diz "o compilador reclama
+  desta linha"; o conferidor passou a exigir que a mensagem de `reclama`
+  apareça uma vez, e uma só. Vale para todas as provas, e as dos tópicos
+  anteriores já cumpriam.
+- **`cala`**: o pedaço de mensagem que NÃO pode aparecer. É a metade da
+  prova do B1 que diz "de p, que vale NULL, ele não reclama".
+- **`avisos`**: opções de compilador a mais, de uma lista fechada. A
+  prova do I3 — `*p` com `p` nulo — é um aviso que o gcc só dá olhando o
+  fluxo (`-O2 -Wnull-dereference`), e a nota de ambiente diz isso.
+
+Com isso o `kc_05:I3` deixa de ser premissa sem demonstração: a seção
+6.5 o listava ao lado do `kc_02:I3`, e os dois têm prova na escada.
+
+Duas provas do kc_05 valem **neste compilador**, e a nota de ambiente de
+cada uma diz: a do I2 (guardar NULL num `int` faz o gcc reclamar, porque
+nele NULL é escrito como ponteiro) e a do I3 (o aviso de fluxo). O que
+elas mostram é o que esta máquina diz, e não o que a linguagem obriga.
+
 **Novo, e opcional — a trilha funciona sem**
 
 1. **A previsão.** Os programas de demonstração imprimem frases ("o
