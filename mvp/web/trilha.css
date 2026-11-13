@@ -1,0 +1,117 @@
+/* A trilha. As cores e as peças de base (cartão, código, opção, botão)
+   vêm de style.css; aqui só o que a trilha tem de próprio: o progresso,
+   as peças de montar, a lacuna, o retorno na mesma tela, a explicação
+   por cima, o mapa. */
+
+.t-topo{gap:12px; position:sticky; top:0; z-index:5}
+.t-topo .btn-topo{text-decoration:none; white-space:nowrap}
+
+/* ------------------------------------------------------------ progresso */
+.t-progresso{display:flex; gap:6px; list-style:none; margin:0 auto; padding:0;
+             flex:1; max-width:340px}
+.t-progresso li{flex:1; height:8px; border-radius:999px; background:var(--linha2)}
+.t-progresso li.t-atual{background:var(--acento)}
+.t-progresso li.t-bem{background:var(--ok)}
+.t-progresso li.t-aberto{background:var(--aviso)}
+
+/* -------------------------------------------------------------- ajustes */
+.t-ajustes{max-width:640px; margin:0 auto; padding:14px 18px 0}
+.t-ajuste{margin-bottom:6px}
+.t-ajuste .confianca{margin-bottom:10px}
+.t-ajustes .aviso{margin:0}
+
+/* ---------------------------------------------------------------- cartão */
+.t-cartao > .etiqueta{display:flex; justify-content:space-between; gap:12px}
+.t-pede{font-weight:600; margin:0 0 12px}
+.t-frase{font-size:17px; line-height:1.5; margin:0 0 12px}
+.t-intro{color:var(--tinta2); margin:0 0 14px}
+.t-rotulo{font-size:13px; color:var(--tinta2); margin:0 0 6px}
+.t-etapa{margin-top:4px}
+.t-acoes{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:6px}
+.t-acoes .btn-topo{margin-left:0}
+.t-ocupado{pointer-events:none; opacity:.6}
+.t-respondido .opcao, .t-respondido .conf, .t-respondido .t-peca,
+.t-respondido .t-digita{pointer-events:none}
+.t-travada .opcao:not([aria-pressed="true"]){opacity:.5}
+
+.opcao .t-linhas{font:14px/1.5 ui-monospace,Consolas,monospace; white-space:pre;
+                 margin:0; overflow-x:auto}
+
+/* ---------------------------------------------------------------- peças */
+.t-banco, .t-montada{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px}
+.t-montada{min-height:52px; align-items:center; padding:8px 10px;
+           border:1.5px dashed var(--linha2); border-radius:9px;
+           background:var(--papel)}
+.t-montada:empty::before{content:"toque nas peças para montar";
+                         color:var(--tinta2); font-size:14px}
+.t-em-linhas{flex-direction:column; align-items:stretch}
+.t-peca{font:15px/1.4 ui-monospace,Consolas,monospace; white-space:pre;
+        color:inherit; cursor:pointer; text-align:left;
+        background:var(--cartao); border:1.5px solid var(--linha2);
+        border-bottom-width:3px; border-radius:9px; padding:8px 12px;
+        min-height:40px}
+.t-peca:hover{border-color:var(--acento)}
+.t-peca[aria-pressed="true"]{border-color:var(--acento); background:var(--acento-fundo)}
+.t-peca.t-usada{visibility:hidden}
+
+/* tocar: a linha de código, com cada parte tocável */
+.t-toque{display:flex; flex-wrap:wrap; gap:6px; align-items:center}
+.t-toque .t-peca{border-bottom-width:1.5px}
+
+/* completar: a linha com o buraco */
+.t-buraco{display:inline-block; min-width:56px; padding:0 8px; text-align:center;
+          border-bottom:2px solid var(--acento); color:var(--acento);
+          font-weight:600}
+
+.t-digita{font:18px ui-monospace,Consolas,monospace; color:inherit;
+          background:var(--cartao); border:1.5px solid var(--linha2);
+          border-radius:9px; padding:10px 12px; width:140px; margin:0 0 14px}
+.t-digita:focus{outline:2px solid var(--acento); outline-offset:1px}
+
+/* --------------------------------------------------------------- retorno */
+.t-retorno{margin-top:18px; padding:16px 16px 4px; border-radius:10px;
+           border:1px solid var(--linha); background:var(--papel)}
+.t-retorno.certo{border-color:var(--ok); background:var(--ok-fundo)}
+.t-retorno.errado{border-color:var(--erro); background:var(--erro-fundo)}
+.t-retorno.neutro{border-color:var(--aviso); background:var(--aviso-fundo)}
+.t-retorno .veredito{font-size:18px}
+.t-retorno .codigo{background:var(--cartao)}
+.t-retorno .t-acoes{margin:10px 0 12px}
+
+.t-fala{margin:0 0 16px; padding:10px 14px; border-left:3px solid var(--aviso);
+        background:var(--aviso-fundo); border-radius:0 8px 8px 0; font-size:17px}
+.t-caixa{padding:10px 14px; border-radius:8px; margin:0 0 14px;
+         border:1px solid var(--erro); background:var(--erro-fundo)}
+
+/* -------------------------------------------------------------- explicação */
+.t-fundo{position:fixed; inset:0; z-index:20; background:rgba(0,0,0,.45);
+         display:flex; align-items:flex-start; justify-content:center;
+         padding:24px 14px; overflow-y:auto}
+.t-painel{max-width:600px; width:100%}
+
+/* ------------------------------------------------------------------ aviso */
+.t-aviso{position:fixed; left:50%; bottom:22px; transform:translateX(-50%);
+         z-index:30; padding:9px 18px; border-radius:999px; font-weight:600;
+         background:var(--tinta); color:var(--papel); max-width:90vw}
+.t-aviso.ok{background:var(--ok); color:#fff}
+
+/* ------------------------------------------------------------------- mapa */
+.premissa.t-bem{border-color:var(--ok); background:var(--ok-fundo)}
+.premissa.t-aberto{border-color:var(--aviso); background:var(--aviso-fundo)}
+.premissa details{margin-top:8px}
+.premissa summary{cursor:pointer; font-size:13px; color:var(--acento)}
+.premissa details .codigo{margin-top:8px}
+.t-selo{display:inline-block; font-size:12.5px; font-weight:600; padding:2px 9px;
+        border-radius:999px; border:1px solid currentColor; margin:6px 6px 0 0}
+
+@media (max-width:520px){
+  .palco{padding:18px 12px 48px}
+  .cartao{padding:18px 16px}
+  .t-acoes .btn{flex:1 1 100%}
+  .t-progresso{max-width:none}
+}
+@media (prefers-reduced-motion:no-preference){
+  .t-retorno{animation:t-entra .18s ease-out}
+  @keyframes t-entra{from{opacity:0; transform:translateY(6px)}
+                     to{opacity:1; transform:none}}
+}

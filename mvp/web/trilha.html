@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structura — trilha</title>
+<!-- Assets versionados, sempre: a porta 8010 já serviu outras páginas, e
+     o navegador guarda as antigas. mvp/test_trilha_telas.py confere. -->
+<link rel="stylesheet" href="/web/style.css?v=20261112">
+<link rel="stylesheet" href="/web/trilha.css?v=20261113">
+</head>
+<body>
+
+<header class="topo t-topo">
+  <a class="btn-topo" id="lnk-topicos" href="/">← tópicos</a>
+  <!-- Uma marca por ideia do tópico. O servidor manda o estado de cada
+       uma a cada resposta. -->
+  <ol class="t-progresso" id="progresso" aria-label="Ideias deste tópico"></ol>
+  <button class="btn-topo" id="btn-ajustes" type="button"
+          aria-expanded="false" aria-controls="ajustes" hidden>Ajustes</button>
+</header>
+
+<!-- As duas escolhas da entrada, que a pessoa troca quando quiser. A
+     troca vale a partir da ideia seguinte. -->
+<section class="t-ajustes oculto" id="ajustes" aria-label="Ajustes da sessão">
+  <div class="t-ajuste">
+    <span class="etiqueta">Começar cada ideia</span>
+    <div class="confianca" id="ajuste-modo"></div>
+  </div>
+  <div class="t-ajuste">
+    <span class="etiqueta">Ritmo</span>
+    <div class="confianca" id="ajuste-ritmo"></div>
+  </div>
+  <p class="aviso">A troca vale a partir da próxima ideia.</p>
+</section>
+
+<main class="palco" id="palco"></main>
+
+<!-- A sessão que o servidor não conhece mais: ele reiniciou com a página
+     aberta. Uma mensagem e um botão, e não uma tela em branco. -->
+<section class="palco oculto" id="perdida">
+  <div class="cartao">
+    <h2>Esta sessão não existe mais</h2>
+    <p id="perdida-texto">O servidor foi reiniciado, e a sessão que estava
+    aberta aqui se perdeu. Dá para começar de novo.</p>
+    <button class="btn" id="btn-recomecar" type="button">Recomeçar</button>
+  </div>
+</section>
+
+<!-- A explicação, por cima do que estiver na tela. -->
+<div class="t-fundo oculto" id="painel" role="dialog" aria-modal="true"
+     aria-labelledby="painel-titulo">
+  <section class="t-painel cartao">
+    <p class="etiqueta" id="painel-titulo">A explicação desta ideia</p>
+    <div id="painel-corpo"></div>
+    <button class="btn" id="btn-fechar-painel" type="button">Voltar</button>
+  </section>
+</div>
+
+<div class="t-aviso oculto" id="aviso" role="status" aria-live="polite"></div>
+
+<script src="/web/figuras.js?v=20261112"></script>
+<script src="/web/trilha.js?v=20261113"></script>
+</body>
+</html>
