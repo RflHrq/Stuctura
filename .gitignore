@@ -25,3 +25,7 @@ ensaios/
 
 # A saida do gerador: candidatos vao e vem a cada expansao.
 candidatos/*/mol_*.yaml
+
+# Os registros do portal em Docker (docker-compose.yml monta esta pasta
+# em /dados). E DADO DE SESSAO: nunca vai para um commit.
+coleta/

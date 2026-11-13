@@ -2,3 +2,7 @@
 # para CRLF no diretorio de trabalho, e o bash le `set -euo pipefail\r`
 # como opcao invalida — o script morre na primeira linha.
 *.sh text eol=lf
+
+# O inverso para os atalhos do Windows: CRLF, sempre. Com LF o cmd.exe
+# perde os rotulos do `goto`, e o iniciar-structura.bat para no meio.
+*.bat text eol=crlf

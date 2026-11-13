@@ -1,0 +1,22 @@
+# O que NÃO entra no contexto de construção da imagem.
+#
+# Dado nunca entra numa imagem: uma imagem é copiada, enviada e guardada
+# em lugares que ninguém lembra depois. As quatro primeiras linhas de
+# dados estão aqui por isso, e `mvp/test_docker.py` confere que estão.
+.git
+ensaios
+coleta
+data
+mvp/dados
+
+# Teste não roda em sessão.
+mvp/test_*.py
+tests
+
+# O resto do repositório, que o portal não usa.
+.claude
+candidatos
+docs
+scripts
+**/__pycache__
+*.pyc

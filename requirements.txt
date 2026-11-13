@@ -12,6 +12,15 @@ fastapi==0.141.1
 uvicorn[standard]==0.52.4
 PyYAML==6.0.3
 
+# As tres de que o fastapi depende e que decidem como um pedido e lido e
+# validado. Vinham SEM versao -- instaladas pelo fastapi, na que houvesse
+# no dia --, e a primeira imagem Docker, construida em 12/11/2026, trouxe
+# outras: pydantic 2.14.3 e starlette 1.10.0, contra 2.13.5 e 1.6.0 aqui.
+# Fixadas nas versoes em que a suite roda.
+pydantic==2.13.5
+starlette==1.6.0
+anyio==4.15.0
+
 # Só para rodar os testes.
 pytest==9.1.1
 httpx==0.28.1

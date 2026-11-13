@@ -1,0 +1,37 @@
+# Structura — sobe o portal dos treze tópicos e o deixa ligado.
+#
+#   docker compose up -d --build     sobe (ou atualiza) e deixa rodando
+#   docker compose down              desliga; os dados ficam
+#   docker compose logs -f portal    o que o sistema está dizendo
+#
+# No Windows, os dois arquivos da raiz fazem isso com dois cliques:
+# iniciar-structura.bat e parar-structura.bat.
+
+name: structura
+
+services:
+  portal:
+    build: .
+    image: structura-portal
+    container_name: structura-portal
+
+    # "Deixar ativado": se cair, volta; e volta sozinho quando o Docker
+    # inicia. Só para de voltar se alguém mandar parar.
+    restart: unless-stopped
+
+    # SÓ NESTA MÁQUINA. O sistema não tem login, e o registro guarda o que
+    # os participantes escrevem. `8010:8010`, sem o 127.0.0.1 na frente,
+    # publicaria a porta para a rede inteira. Abrir para a rede tem de ser
+    # decisão escrita aqui, e há teste que cai se esta linha mudar.
+    ports:
+      - "127.0.0.1:8010:8010"
+
+    environment:
+      STRUCTURA_PASTA: /dados
+
+    # OS REGISTROS FICAM NA MÁQUINA, em coleta/portal/, um arquivo por
+    # tópico. A pasta está no .gitignore e fora da imagem. E NÃO é a
+    # ensaios/portal/: lá estão as sessões simuladas da verificação, e o
+    # que roda aqui nasce separado delas.
+    volumes:
+      - ./coleta/portal:/dados

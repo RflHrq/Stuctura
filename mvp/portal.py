@@ -138,14 +138,37 @@ def cria_portal(pasta: Path | None = None) -> FastAPI:
     return portal
 
 
+def endereco() -> tuple[str, int]:
+    """Onde o portal escuta. Sem configuração, só nesta máquina.
+
+    `STRUCTURA_HOST` e `STRUCTURA_PORTA` existem por causa do contêiner:
+    dentro dele, 127.0.0.1 é o próprio contêiner, e ninguém de fora
+    chega. Lá o portal escuta em 0.0.0.0, e quem decide até onde a porta
+    vai é o `docker-compose.yml` — que a publica só em 127.0.0.1 da
+    máquina, e há teste guardando isso.
+
+    O padrão não muda: rodando direto com `python -m mvp.portal`, o
+    sistema continua invisível para a rede. Ele não tem login.
+    """
+    host = os.environ.get("STRUCTURA_HOST") or "127.0.0.1"
+    bruta = os.environ.get("STRUCTURA_PORTA") or "8010"
+    try:
+        porta = int(bruta)
+    except ValueError:
+        raise SystemExit(
+            "STRUCTURA_PORTA tem de ser um número, e veio %r" % bruta)
+    return host, porta
+
+
 def main() -> None:
     import uvicorn
 
+    host, porta = endereco()
     app = cria_portal()
     print("Structura — portal dos tópicos")
     print("  %d tópicos · logs em %s" % (len(topicos()), PASTA_PADRAO))
-    print("  http://127.0.0.1:8010")
-    uvicorn.run(app, host="127.0.0.1", port=8010, log_level="warning")
+    print("  http://%s:%d" % (host, porta))
+    uvicorn.run(app, host=host, port=porta, log_level="warning")
 
 
 if __name__ == "__main__":

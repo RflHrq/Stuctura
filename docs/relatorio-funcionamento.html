@@ -74,14 +74,18 @@ aqui são de ensaio, feitas para verificar o funcionamento.</p>
 <div class="numero"><b>79</b><span>premissas, todas com material de ensino completo</span></div>
 <div class="numero"><b>560</b><span>atividades de múltipla escolha</span></div>
 <div class="numero"><b>93</b><span>demonstrações em C, conferidas no compilador</span></div>
-<div class="numero"><b>2324</b><span>testes automáticos passando</span></div>
+<div class="numero"><b>2334</b><span>testes automáticos passando</span></div>
 </div>
 
 <h2>Como abrir</h2>
-<p>Um comando sobe o sistema inteiro, com os treze tópicos:</p>
+<p>No Windows, com o Docker Desktop aberto: dois cliques em
+<code>iniciar-structura.bat</code>. O sistema sobe num contêiner, o
+navegador abre em <code>http://127.0.0.1:8010</code>, e ele continua ligado
+depois que a janela fecha. Para desligar, <code>parar-structura.bat</code>.
+Os registros das sessões ficam na pasta <code>coleta/portal/</code>, um
+arquivo por tópico.</p>
+<p>Sem Docker, um comando sobe o mesmo sistema direto na máquina:</p>
 <pre>python -m mvp.portal</pre>
-<p>Depois, no navegador: <code>http://127.0.0.1:8010</code>. Cada tópico
-grava num arquivo próprio, na pasta <code>ensaios/portal/</code>.</p>
 
 <h2>O percurso de uma sessão, etapa por etapa</h2>
 <p>As telas abaixo são de uma mesma sessão no tópico <em>O que é um
@@ -129,7 +133,7 @@ mostrou na tela 8.</p>
 <h2>Como o funcionamento foi verificado</h2>
 <table>
 <tr><th>verificação</th><th>resultado</th></tr>
-<tr><td>Suíte de testes automáticos</td><td><span class="ok">2324 passam</span>, 8 pulados, nenhuma falha</td></tr>
+<tr><td>Suíte de testes automáticos</td><td><span class="ok">2334 passam</span>, 8 pulados, nenhuma falha</td></tr>
 <tr><td>Sessões inteiras pelo sistema no ar, em sequência e sem reiniciar: seis tópicos, incluindo os quatro do piloto</td><td><span class="ok">todas concluídas</span>, nenhuma premissa sem medida</td></tr>
 <tr><td>Quatro perfis de resposta por tópico do piloto: quem sabe, quem erra e aprende, quem erra e não muda, quem não sabe</td><td><span class="ok">48 sessões</span>, uma crença detectada em cada premissa nos perfis que erram</td></tr>
 <tr><td>Demonstrações em C</td><td><span class="ok">93 conferidas no compilador</span>: as que rodam têm a saída comparada; as que tratam de comportamento indefinido são conferidas pelo diagnóstico, sem executar</td></tr>
