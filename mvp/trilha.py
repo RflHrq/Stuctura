@@ -175,6 +175,7 @@ class Estado:
     origem: str = ""
     volta: str = ""
     previu: str | None = None        # a previsão dada antes de ver a máquina
+    previu_certo: bool | None = None # se ela foi o que a máquina respondeu
     # O número da tela: anda um a cada tela nova, e fica parado nas ações
     # que devolvem a mesma tela (explicação, modo, ritmo).
     n: int = 0
@@ -768,9 +769,47 @@ PREVISOES = {
 }
 
 
-def _primeira_prova(d: Dominio, no: str) -> dict | None:
+def _prova_de(d: Dominio, escadas: Mapping[str, Escada], no: str,
+              crenca: str) -> dict | None:
+    """A prova que a pessoa vê, e a previsão que vem antes dela.
+
+    A DA ESCADA PRIMEIRO. Ela foi escrita para quem está aprendendo: só o
+    trecho, com os nomes dos degraus, respondendo a ESTA crença, e com a
+    previsão escrita — a alternativa que a máquina confirma e a que a
+    crença espera.
+
+    A DO GRAFO É A RESERVA, para o tópico cuja escada ainda não tem prova
+    própria. Ela foi escrita para o examinador (`#include`, `main`,
+    `puts(cond ? ... : "FALHOU")`), e a previsão dela só existe onde sai
+    de graça: quando a prova é o que o compilador DIZ, a pergunta é
+    sim-ou-não. Onde a prova é uma saída, não há o que perguntar sem
+    conteúdo escrito por crença.
+
+    `real` e `da_crenca` são índices em `previsao["opcoes"]`.
+    """
+    propria = escadas[no].prova(crenca)
+    if propria is not None:
+        return {
+            "programa": propria.programa, "espera": propria.espera,
+            "nao_compila": False, "avisa": propria.reclama,
+            "ambiente": propria.ambiente, "afirma": propria.afirma,
+            "previsao": {"pergunta": propria.previsao.pergunta,
+                         "opcoes": list(propria.previsao.opcoes)},
+            "real": propria.previsao.real,
+            "da_crenca": propria.previsao.crenca,
+        }
     provas = provas_exibiveis(d, no)
-    return provas[0] if provas else None
+    if not provas:
+        return None
+    prova = dict(provas[0])
+    forma = ("nao_compila" if prova["nao_compila"]
+             else "avisa" if prova["avisa"] else "")
+    prova["previsao"] = ({"pergunta": PREVISOES[forma],
+                          "opcoes": ["Sim", "Não"]} if forma else None)
+    # "Este programa compila?" — não. "O compilador reclama?" — sim.
+    prova["real"] = {"nao_compila": 1, "avisa": 0}.get(forma)
+    prova["da_crenca"] = None
+    return prova
 
 
 def _inicia_prova(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
@@ -801,19 +840,14 @@ def _inicia_prova(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         eventos.append(_ev("premissa_reaberta", no=alvo, era=ea.resultado))
     e = e.com(alvo, trabalho="crenca", crenca=crenca, resultado="",
               streak=0, treinos=0)
-    e = replace(e, origem=origem, volta=volta, previu=None)
+    e = replace(e, origem=origem, volta=volta, previu=None, previu_certo=None)
     eventos.append(_ev("trabalho_iniciado", no=alvo, trabalho="crenca"))
     eventos.append(_ev("prova_apresentada", no=alvo, crenca=crenca,
                        veio_de=origem))
 
-    prova = _primeira_prova(d, alvo)
-    forma = ("nao_compila" if prova and prova["nao_compila"]
-             else "avisa" if prova and prova["avisa"] else "")
-    # Onde a prova é o que o compilador DIZ, a previsão sai de graça: a
-    # pessoa se compromete antes de ver. Onde a prova é uma saída, a
-    # previsão pede conteúdo escrito por crença, que ainda não existe.
-    previsao = ({"pergunta": PREVISOES[forma], "opcoes": ["Sim", "Não"]}
-                if forma else None)
+    prova = _prova_de(d, escadas, alvo, crenca)
+    # Com previsão, a pessoa se compromete antes de ver a máquina.
+    previsao = prova["previsao"] if prova else None
     e = e.com(alvo, telas=e.premissa(alvo).telas + 1)
     tela = Tela("voce_disse", dados={
         "premissa": alvo, "crenca": d.crencas[crenca].afirma,
@@ -831,9 +865,14 @@ def _responde_previsao(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         if r.acao != "responder":
             raise EntradaInvalida("esta tela pede a previsão antes de seguir")
         i = _indice(r.escolha, len(previsao["opcoes"]), "previsão")
-        e = replace(e, previu=previsao["opcoes"][i])
+        prova = _prova_de(d, escadas, alvo, e.premissa(alvo).crenca)
+        e = replace(e, previu=previsao["opcoes"][i],
+                    previu_certo=i == prova["real"])
+        # `como_a_crenca`: a pessoa previu o que a crença espera. É o que
+        # separa "errou a previsão" de "previu como quem acredita".
         eventos.append(_ev("previsao_registrada", no=alvo, previu=e.previu,
-                           ms=r.ms))
+                           certa=e.previu_certo,
+                           como_a_crenca=i == prova["da_crenca"], ms=r.ms))
     elif r.acao != "continuar":
         raise EntradaInvalida("esta tela só continua")
     return _maquina(d, escadas, e, alvo, eventos)
@@ -846,7 +885,7 @@ def _maquina(d: Dominio, escadas: Mapping[str, Escada], e: Estado, alvo: str,
     `tem_prova` existe para a tela não mentir: sem demonstração exibível
     ela mostra o código da revisão e NÃO diz que a máquina respondeu.
     """
-    prova = _primeira_prova(d, alvo)
+    prova = _prova_de(d, escadas, alvo, e.premissa(alvo).crenca)
     e = e.com(alvo, telas=e.premissa(alvo).telas + 1)
     tela = Tela("maquina", dados={
         "premissa": alvo,
@@ -863,6 +902,8 @@ def _maquina(d: Dominio, escadas: Mapping[str, Escada], e: Estado, alvo: str,
         "apoio": [{"no": s, "texto": d.nos[s].simples}
                   for s in d.nos[alvo].suporte],
         "previu": e.previu,
+        # Sem previsão não há o que julgar, e a tela não diz nada.
+        "previu_certo": e.previu_certo,
     })
     return _mostra(e, tela, Passo("maquina", premissa=alvo, adiante="treino"),
                    eventos)

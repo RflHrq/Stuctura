@@ -28,7 +28,8 @@ from trilha_alunos import caminha  # noqa: E402
 from mvp import (  # noqa: E402
     motor, portal, trilha, trilha_app, trilha_escada, trilha_log)
 from mvp.test_trilha import (  # noqa: E402
-    D, ESC, _anda, _ate_a_abertura, _comeca, _marca, _tela_voce_disse_de)
+    D, ESC, SEM_PROVA, _anda, _ate_a_abertura, _comeca, _marca,
+    _tela_voce_disse_de)
 from mvp.test_trilha_app import _abre, _age, _tela  # noqa: E402
 
 
@@ -87,12 +88,15 @@ def test_resposta_de_um_degrau_nao_vale_para_o_degrau_seguinte():
 
 
 def test_dois_continuar_nao_pulam_a_tela_da_maquina():
-    t = _tela_voce_disse_de("B1")                 # prova com saída: sem previsão
+    # A prova do GRAFO para o B1 tem saída, e por isso não tem previsão: é
+    # o caso em que a tela só continua. Com a prova da escada a tela pede
+    # a previsão, e o mesmo é conferido em `mvp/test_trilha_prova.py`.
+    t = _tela_voce_disse_de("B1", SEM_PROVA)
     segue = trilha.Entrada(acao="continuar", passo=t.estado.n)
-    maquina = trilha.avanca(D, ESC, t.estado, segue)
+    maquina = trilha.avanca(D, SEM_PROVA, t.estado, segue)
     assert maquina.tela.tipo == "maquina"
     with pytest.raises(trilha.EntradaVelha):
-        trilha.avanca(D, ESC, maquina.estado, segue)
+        trilha.avanca(D, SEM_PROVA, maquina.estado, segue)
 
 
 def test_a_entrada_velha_e_uma_entrada_invalida():

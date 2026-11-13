@@ -113,10 +113,45 @@ class Revisao:
 
 
 @dataclass(frozen=True)
+class Previsao:
+    """O que a pessoa responde ANTES de ver a máquina.
+
+    `real` é a alternativa que a máquina confirma; `crenca`, a que a
+    crença espera. São diferentes por construção: se a crença previsse o
+    que a máquina faz, a prova não a refutaria.
+    """
+
+    pergunta: str
+    opcoes: tuple[str, ...]
+    real: int
+    crenca: int
+
+
+@dataclass(frozen=True)
+class Prova:
+    """A demonstração que responde a UMA crença, em código de iniciante.
+
+    `programa` é só o trecho que a pessoa lê — o `main` em volta é do
+    conferidor. A prova é uma de duas coisas: o que o programa IMPRIME
+    (`espera`), ou o que o compilador DIZ dele (`reclama`, um pedaço da
+    mensagem). A segunda nunca é executada.
+    """
+
+    crenca: str
+    programa: str
+    afirma: str
+    previsao: Previsao
+    espera: str = ""
+    reclama: str = ""
+    ambiente: str = ""
+
+
+@dataclass(frozen=True)
 class Escada:
     premissa: str
     degraus: tuple[Degrau, ...]
     revisao: Revisao
+    provas: tuple[Prova, ...] = ()
 
     @property
     def guiados(self) -> tuple[Degrau, ...]:
@@ -125,6 +160,10 @@ class Escada:
     @property
     def pratica(self) -> tuple[Degrau, ...]:
         return tuple(g for g in self.degraus if not g.guiado)
+
+    def prova(self, crenca: str) -> Prova | None:
+        """A prova que responde a esta crença, se a escada tem uma."""
+        return next((p for p in self.provas if p.crenca == crenca), None)
 
 
 @dataclass(frozen=True)
@@ -327,7 +366,85 @@ def _escada(premissa: str, cru: Any, d: Dominio, vistos: set[str],
                          % (premissa, MAX_FRASES_DA_REVISAO))
     if not revisao.codigo.strip():
         problemas.append("%s: revisão sem código" % premissa)
-    return Escada(premissa, tuple(degraus), revisao)
+    provas = _provas(premissa, cru.get("provas"), d, problemas)
+    return Escada(premissa, tuple(degraus), revisao, provas)
+
+
+def _inteiro(valor: Any) -> int:
+    """Um índice, ou -1 — que fica fora de qualquer faixa."""
+    ok = isinstance(valor, int) and not isinstance(valor, bool)
+    return valor if ok else -1
+
+
+def _provas(premissa: str, cru: Any, d: Dominio,
+            problemas: list[str]) -> tuple[Prova, ...]:
+    """As provas da premissa: uma por crença que a nega.
+
+    São opcionais — sem prova na escada, a trilha mostra a demonstração
+    do grafo. Mas a que vier tem de estar inteira: é ela que a pessoa vê
+    na tela em que o sistema diz "a máquina respondeu".
+    """
+    provas: list[Prova] = []
+    vistas: set[str] = set()
+    for b in (cru if isinstance(cru, list) else []):
+        b = b if isinstance(b, Mapping) else {}
+        crenca = _str(b.get("crenca"))
+        onde = "%s/prova de %s" % (premissa, crenca or "?")
+
+        if crenca not in d.crencas:
+            problemas.append("%s: crença desconhecida: %r" % (onde, crenca))
+        elif d.crencas[crenca].nega != premissa:
+            problemas.append("%s: a crença nega %s, e não %s — a prova dela "
+                             "mora lá" % (onde, d.crencas[crenca].nega,
+                                          premissa))
+        if crenca in vistas:
+            problemas.append("%s: mais de uma prova para a mesma crença" % onde)
+        vistas.add(crenca)
+
+        programa = _str(b.get("programa"))
+        espera = str(b.get("espera", "") or "").strip()
+        reclama = " ".join(_str(b.get("reclama")).split())
+        afirma = " ".join(_str(b.get("afirma")).split())
+        if not programa.strip():
+            problemas.append("%s: sem programa" % onde)
+        if "#include" in programa or "main" in programa:
+            problemas.append("%s: o programa é só o trecho que a pessoa lê — "
+                             "sem #include e sem main" % onde)
+        if bool(espera) == bool(reclama):
+            problemas.append("%s: a prova é `espera` ou `reclama`, uma das "
+                             "duas — o que o programa imprime, ou o que o "
+                             "compilador diz dele" % onde)
+        if not afirma:
+            problemas.append("%s: sem `afirma` — é a frase que diz o que a "
+                             "máquina mostrou" % onde)
+
+        pv = b.get("previsao")
+        if not isinstance(pv, Mapping):
+            problemas.append("%s: sem previsão — a pessoa se compromete "
+                             "antes de ver a máquina" % onde)
+            pv = {}
+        previsao = Previsao(
+            pergunta=_str(pv.get("pergunta")).strip(),
+            opcoes=tuple(o.strip() for o in _strs(pv.get("opcoes"))),
+            real=_inteiro(pv.get("real")), crenca=_inteiro(pv.get("crenca")))
+        if pv:
+            n = len(previsao.opcoes)
+            if not previsao.pergunta:
+                problemas.append("%s: previsão sem pergunta" % onde)
+            if n < 2:
+                problemas.append("%s: a previsão pede ao menos duas "
+                                 "alternativas" % onde)
+            elif _fora((previsao.real, previsao.crenca), n):
+                problemas.append("%s: `real` ou `crenca` fora da faixa das "
+                                 "alternativas da previsão" % onde)
+            elif previsao.real == previsao.crenca:
+                problemas.append("%s: a alternativa da crença não pode ser a "
+                                 "mesma que a máquina confirma" % onde)
+
+        provas.append(Prova(crenca=crenca, programa=programa, afirma=afirma,
+                            previsao=previsao, espera=espera, reclama=reclama,
+                            ambiente=" ".join(_str(b.get("ambiente")).split())))
+    return tuple(provas)
 
 
 def le(caminho: Path, d: Dominio) -> dict[str, Escada]:

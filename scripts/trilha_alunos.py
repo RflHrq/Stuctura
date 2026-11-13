@@ -190,14 +190,34 @@ def responde(d, escadas, tela, persona: str, estado) -> "trilha.Entrada":
     if tela.tipo == "degrau":
         return _degrau(escadas, tela, persona, estado)
     if tela.tipo == "voce_disse" and tela.dados.get("previsao"):
-        # A pergunta é "compila?" ou "o compilador reclama?". A resposta
-        # certa é o que a prova mostra: não compila (índice 1) ou reclama
-        # (índice 0).
-        certa = 1 if "compila" in tela.dados["previsao"]["pergunta"] else 0
-        if persona in ("crente_teimoso", "nao_sabe_erra"):
-            certa = 1 - certa
-        return trilha.Entrada(acao="responder", escolha=certa)
+        return trilha.Entrada(acao="responder",
+                              escolha=_previsao(d, escadas, tela, persona))
     return trilha.Entrada(acao="continuar")
+
+
+def _previsao(d, escadas, tela, persona: str) -> int:
+    """O que a persona prevê antes de ver a máquina.
+
+    Com a prova da escada, quem ACREDITA prevê o que a crença espera — é
+    o que faz da previsão um dado. Quem só erra, erra; os outros acertam.
+    """
+    propria = next(
+        (p for p in escadas[tela.dados["premissa"]].provas
+         if d.crencas[p.crenca].afirma == tela.dados["crenca"]), None)
+    if propria is not None:
+        pv = propria.previsao
+        if persona in ("crente_aprende", "crente_teimoso"):
+            return pv.crenca
+        if persona == "nao_sabe_erra":
+            return next(i for i in range(len(pv.opcoes)) if i != pv.real)
+        return pv.real
+    # A prova do grafo: a pergunta é "compila?" ou "o compilador
+    # reclama?", e a resposta certa é o que a prova mostra — não compila
+    # (índice 1) ou reclama (índice 0).
+    certa = 1 if "compila" in tela.dados["previsao"]["pergunta"] else 0
+    if persona in ("crente_teimoso", "nao_sabe_erra"):
+        certa = 1 - certa
+    return certa
 
 
 def caminha(d, escadas, persona: str, modo: str = "direto",

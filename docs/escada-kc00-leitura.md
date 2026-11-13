@@ -165,6 +165,36 @@ int idade;
 char turma;
 ```
 
+### Se a pessoa disser a crença: a prova
+
+Você disse:
+
+> Toda variável ocupa o mesmo espaço; o tipo é só um aviso para o compilador.
+
+```c
+int idade;
+char turma;
+
+idade = 300;
+turma = 300;
+```
+
+**O compilador reclama de alguma destas linhas?**
+
+- Não: 300 cabe nas duas variáveis _(é o que a crença espera)_
+- Sim, de idade = 300;
+- Sim, de turma = 300; _(é o que a máquina faz)_
+
+O compilador reclama:
+
+```
+overflow in conversion from 'int' to 'char' changes value from '300' to '44'
+```
+
+_Mensagem do gcc 16.2 para a linha de turma. Outro compilador reclama com outras palavras._
+
+O que isto mostra: O mesmo 300 coube em idade e não coube em turma: o compilador avisa que, num char, o valor mudaria para 44. O tipo não é só um aviso — é ele que decide o que cabe na variável.
+
 ## B2 — Quando você escreve int x;, a caixa de x já existe — só o que tem dentro ainda não está definido.
 
 ### Degrau 1 — guiado, montar
@@ -388,6 +418,35 @@ nota = 7;` → Aqui nota foi declarada na primeira linha, então já existe quan
 int idade;
 idade = 20;
 ```
+
+### Se a pessoa disser a crença: a prova
+
+Você disse:
+
+> Se eu não dei valor, a variável ainda não existe na memória.
+
+```c
+int idade;
+int nota;
+
+nota = idade;
+```
+
+**A última linha copia para nota o que está em idade. O que o compilador diz dela?**
+
+- Que idade não existe _(é o que a crença espera)_
+- Que idade está sendo usada sem ter recebido valor _(é o que a máquina faz)_
+- Nada: ele aceita calado
+
+O compilador reclama:
+
+```
+'idade' is used uninitialized
+```
+
+_Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa não é executado: o que ele leria em idade, ninguém sabe._
+
+O que isto mostra: O compilador não disse que idade não existe. Disse que ela está sendo usada sem valor ("used uninitialized"). A declaração já criou a variável; o que falta é o valor.
 
 ## B3 — C não limpa a caixa para você. O que estava lá antes continua lá até você escrever algo.
 
@@ -652,6 +711,33 @@ A máquina imprime:
 20
 ```
 
+### Se a pessoa disser a crença: a prova
+
+Você disse:
+
+> Declarar já zera a variável, tipo em outras linguagens.
+
+```c
+int idade;
+
+printf("%d\n", idade);
+```
+
+**O compilador reclama de alguma coisa neste trecho?**
+
+- Sim: idade está sendo lida sem ter recebido valor _(é o que a máquina faz)_
+- Não: idade foi declarada e começa valendo 0 _(é o que a crença espera)_
+
+O compilador reclama:
+
+```
+'idade' is used uninitialized
+```
+
+_Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa não é executado: o que ele imprimiria, ninguém sabe._
+
+O que isto mostra: Se declarar zerasse a variável, não haveria do que reclamar. O compilador avisa que idade é lida sem valor ("used uninitialized"): o C não escreveu nada ali, nem zero.
+
 ## B4 — Escrever um valor novo apaga o antigo. A caixa nunca guarda dois valores ao mesmo tempo.
 
 ### Degrau 1 — guiado, digitar
@@ -859,6 +945,34 @@ A máquina imprime:
 ```
 21
 ```
+
+### Se a pessoa disser a crença: a prova
+
+Você disse:
+
+> A variável lembra os valores antigos, não só o último.
+
+```c
+int nota;
+
+nota = 7;
+nota = 9;
+printf("%d\n", nota);
+```
+
+**O que este trecho imprime?**
+
+- 7
+- 9 _(é o que a máquina faz)_
+- 7 e 9 _(é o que a crença espera)_
+
+A máquina imprime:
+
+```
+9
+```
+
+O que isto mostra: Só o 9 aparece. O 7 não ficou guardado em nenhum canto de nota: quando o 9 entrou, ele foi apagado.
 
 ## I1 — No fim das contas, dar o valor na hora de declarar ou declarar e só depois atribuir chegam no mesmo lugar: uma variável pronta.
 
@@ -1156,3 +1270,30 @@ A máquina imprime:
 7
 7
 ```
+
+### Se a pessoa disser a crença: a prova
+
+Você disse:
+
+> Atribuição funciona dos dois lados, tipo igualdade matemática.
+
+```c
+int nota;
+
+7 = nota;
+```
+
+**O compilador reclama da última linha?**
+
+- Não: é o mesmo que nota = 7; _(é o que a crença espera)_
+- Sim: ele não aceita essa linha _(é o que a máquina faz)_
+
+O compilador reclama:
+
+```
+lvalue required as left operand of assignment
+```
+
+_Mensagem do gcc 16.2. Todo compilador de C tem de reclamar desta linha, cada um com as suas palavras._
+
+O que isto mostra: O compilador pede, à esquerda do sinal de igual, um lugar que possa receber valor: uma variável. O 7 não é lugar. Por isso 7 = nota; não é nota = 7; escrito ao contrário.

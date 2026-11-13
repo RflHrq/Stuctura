@@ -50,6 +50,26 @@
 # I1, guiado, antes de ser cobrado no último. A primeira versão cobrava
 # sem ensinar, e a revisão do ramo pegou.
 #
+# AS PROVAS. Cada premissa traz, em `provas`, a demonstração que responde
+# à crença que a nega — a tela "a máquina respondeu" de quem DISSE a
+# crença. A primeira versão da trilha mostrava ali a demonstração do
+# grafo, escrita para o examinador (`#include`, `main`, um `puts` com
+# condição): era a tela mais difícil da sessão. Aqui a prova é o trecho
+# que um iniciante escreveria, com os nomes dos degraus, e vem depois de
+# uma PREVISÃO: a pessoa diz o que acha que a máquina vai fazer, e só
+# então vê. `real` é a alternativa que a máquina confirma; `crenca`, a
+# que a crença espera.
+#
+# Três das cinco provas são o que o compilador DIZ, e não uma saída
+# (`reclama`): os trechos do B2 e do B3 leem variável sem valor, e não
+# são executados nunca. A mensagem é a do gcc, em inglês, como ela sai;
+# a frase de `afirma` diz em português o que ela quer dizer.
+#
+# A PROVA DO B2 USA `nota = idade;`, que só é ensinado no I1. Ela não
+# pede que a pessoa escreva a linha: a pergunta da previsão diz o que a
+# linha faz. Sem ler uma variável não há como o compilador dizer que ela
+# existe e está sem valor — e é essa a frase que responde à crença.
+#
 # gerado_por: Claude Fable 5.2, em 13/11/2026
 # revisado_por:
 #   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
@@ -64,6 +84,30 @@ B1:
       int idade;
       char turma;
     saida: ""
+  provas:
+    - crenca: type_is_a_hint
+      programa: |
+        int idade;
+        char turma;
+
+        idade = 300;
+        turma = 300;
+      previsao:
+        pergunta: "O compilador reclama de alguma destas linhas?"
+        opcoes:
+          - "Não: 300 cabe nas duas variáveis"
+          - "Sim, de idade = 300;"
+          - "Sim, de turma = 300;"
+        real: 2
+        crenca: 0
+      reclama: "overflow in conversion from 'int' to 'char' changes value from '300' to '44'"
+      ambiente: >
+        Mensagem do gcc 16.2 para a linha de turma. Outro compilador
+        reclama com outras palavras.
+      afirma: >
+        O mesmo 300 coube em idade e não coube em turma: o compilador avisa
+        que, num char, o valor mudaria para 44. O tipo não é só um aviso —
+        é ele que decide o que cabe na variável.
   degraus:
     - id: esc_kc00_B1_1
       guiado: true
@@ -245,6 +289,31 @@ B2:
       int idade;
       idade = 20;
     saida: ""
+  provas:
+    - crenca: no_value_no_memory
+      programa: |
+        int idade;
+        int nota;
+
+        nota = idade;
+      previsao:
+        pergunta: >
+          A última linha copia para nota o que está em idade. O que o
+          compilador diz dela?
+        opcoes:
+          - "Que idade não existe"
+          - "Que idade está sendo usada sem ter recebido valor"
+          - "Nada: ele aceita calado"
+        real: 1
+        crenca: 0
+      reclama: "'idade' is used uninitialized"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa não
+        é executado: o que ele leria em idade, ninguém sabe.
+      afirma: >
+        O compilador não disse que idade não existe. Disse que ela está
+        sendo usada sem valor ("used uninitialized"). A declaração já criou
+        a variável; o que falta é o valor.
   degraus:
     - id: esc_kc00_B2_1
       guiado: true
@@ -446,6 +515,27 @@ B3:
       idade = 20;
       printf("%d\n", idade);
     saida: "20"
+  provas:
+    - crenca: declaration_zeroes
+      programa: |
+        int idade;
+
+        printf("%d\n", idade);
+      previsao:
+        pergunta: "O compilador reclama de alguma coisa neste trecho?"
+        opcoes:
+          - "Sim: idade está sendo lida sem ter recebido valor"
+          - "Não: idade foi declarada e começa valendo 0"
+        real: 0
+        crenca: 1
+      reclama: "'idade' is used uninitialized"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa não
+        é executado: o que ele imprimiria, ninguém sabe.
+      afirma: >
+        Se declarar zerasse a variável, não haveria do que reclamar. O
+        compilador avisa que idade é lida sem valor ("used uninitialized"):
+        o C não escreveu nada ali, nem zero.
   degraus:
     - id: esc_kc00_B3_1
       guiado: true
@@ -674,6 +764,26 @@ B4:
       idade = 21;
       printf("%d\n", idade);
     saida: "21"
+  provas:
+    - crenca: variable_remembers
+      programa: |
+        int nota;
+
+        nota = 7;
+        nota = 9;
+        printf("%d\n", nota);
+      previsao:
+        pergunta: "O que este trecho imprime?"
+        opcoes:
+          - "7"
+          - "9"
+          - "7 e 9"
+        real: 1
+        crenca: 2
+      espera: "9"
+      afirma: >
+        Só o 9 aparece. O 7 não ficou guardado em nenhum canto de nota:
+        quando o 9 entrou, ele foi apagado.
   degraus:
     - id: esc_kc00_B4_1
       guiado: true
@@ -873,6 +983,27 @@ I1:
       printf("%d\n", nota);
       printf("%d\n", pontos);
     saida: "7\n7"
+  provas:
+    - crenca: assignment_symmetric
+      programa: |
+        int nota;
+
+        7 = nota;
+      previsao:
+        pergunta: "O compilador reclama da última linha?"
+        opcoes:
+          - "Não: é o mesmo que nota = 7;"
+          - "Sim: ele não aceita essa linha"
+        real: 1
+        crenca: 0
+      reclama: "lvalue required as left operand of assignment"
+      ambiente: >
+        Mensagem do gcc 16.2. Todo compilador de C tem de reclamar desta
+        linha, cada um com as suas palavras.
+      afirma: >
+        O compilador pede, à esquerda do sinal de igual, um lugar que possa
+        receber valor: uma variável. O 7 não é lugar. Por isso 7 = nota;
+        não é nota = 7; escrito ao contrário.
   degraus:
     - id: esc_kc00_I1_1
       guiado: true

@@ -14,6 +14,7 @@ isso.
 
 from __future__ import annotations
 
+import dataclasses
 import pathlib
 import sys
 
@@ -31,6 +32,13 @@ from mvp.dominio import carrega  # noqa: E402
 
 D = carrega(topico="kc_00")
 ESC = trilha_escada.le(RAIZ / "dominio" / "escada_kc00.yaml", D)
+# A mesma escada, SEM as provas próprias: é como fica um tópico cuja
+# escada ainda não as tem, e a trilha mostra a demonstração do grafo.
+# Os testes da prova do grafo, abaixo, foram escritos quando ela era a
+# única; desde 13/11/2026 o kc_00 tem prova na escada
+# (`mvp/test_trilha_prova.py`), e eles conferem a RESERVA — com as
+# mesmas afirmações de antes.
+SEM_PROVA = {no: dataclasses.replace(e, provas=()) for no, e in ESC.items()}
 
 
 # --------------------------------------------------------------------------
@@ -498,18 +506,18 @@ def _crenca_de(no):
     return next(c.id for c in D.crencas.values() if c.nega == no)
 
 
-def _tela_voce_disse_de(no):
+def _tela_voce_disse_de(no, esc=ESC):
     t = _ate_a_abertura(no)
-    t = trilha.avanca(D, ESC, t.estado, _marca(t.estado, crenca=_crenca_de(no)))
+    t = trilha.avanca(D, esc, t.estado, _marca(t.estado, crenca=_crenca_de(no)))
     assert (t.tela.tipo, t.tela.dados["premissa"]) == ("voce_disse", no)
     return t
 
 
-def _tela_maquina_de(no, previsao=0):
-    t = _tela_voce_disse_de(no)
+def _tela_maquina_de(no, previsao=0, esc=ESC):
+    t = _tela_voce_disse_de(no, esc)
     entrada = (trilha.Entrada(acao="responder", escolha=previsao)
                if t.tela.dados["previsao"] else trilha.Entrada(acao="continuar"))
-    t = trilha.avanca(D, ESC, t.estado, entrada)
+    t = trilha.avanca(D, esc, t.estado, entrada)
     assert (t.tela.tipo, t.tela.dados["premissa"]) == ("maquina", no)
     return t
 
@@ -611,7 +619,7 @@ def test_crenca_leva_a_prova_da_premissa_que_ela_nega():
 
 def test_a_prova_vem_de_motor_prova_e_nao_de_copia():
     assert trilha.provas_exibiveis is motor._prova
-    c = caminha(D, ESC, "crente_aprende")
+    c = caminha(D, SEM_PROVA, "crente_aprende")
     maquinas = [t for t in c.telas if t.tipo == "maquina"]
     assert len(maquinas) == 5
     for t in maquinas:
@@ -624,34 +632,34 @@ def test_a_prova_vem_de_motor_prova_e_nao_de_copia():
 
 
 def test_prova_que_nao_compila_pede_a_previsao():
-    t = _tela_voce_disse_de("B2").tela
+    t = _tela_voce_disse_de("B2", SEM_PROVA).tela
     assert t.dados["previsao"] == {
         "pergunta": "Este programa compila?", "opcoes": ["Sim", "Não"]}
     assert t.dados["programa"] == motor._prova(D, "B2")[0]["programa"]
 
 
 def test_prova_que_avisa_pede_a_previsao_do_aviso():
-    t = _tela_voce_disse_de("B3").tela
+    t = _tela_voce_disse_de("B3", SEM_PROVA).tela
     assert t.dados["previsao"] == {
         "pergunta": "O compilador reclama de alguma coisa aqui?",
         "opcoes": ["Sim", "Não"]}
 
 
 def test_prova_com_saida_nao_tem_previsao():
-    t = _tela_voce_disse_de("B1").tela
+    t = _tela_voce_disse_de("B1", SEM_PROVA).tela
     assert t.dados["previsao"] is None and t.dados["programa"] == ""
 
 
 def test_a_previsao_e_obrigatoria_e_volta_na_tela_da_maquina():
-    t = _tela_voce_disse_de("B2")
+    t = _tela_voce_disse_de("B2", SEM_PROVA)
     with pytest.raises(trilha.EntradaInvalida):
-        trilha.avanca(D, ESC, t.estado, trilha.Entrada(acao="continuar"))
+        trilha.avanca(D, SEM_PROVA, t.estado, trilha.Entrada(acao="continuar"))
     with pytest.raises(trilha.EntradaInvalida):
-        trilha.avanca(D, ESC, t.estado,
+        trilha.avanca(D, SEM_PROVA, t.estado,
                       trilha.Entrada(acao="responder", escolha=2))
-    assert _tela_maquina_de("B2", previsao=0).tela.dados["previu"] == "Sim"
-    assert _tela_maquina_de("B2", previsao=1).tela.dados["previu"] == "Não"
-    assert _tela_maquina_de("B1").tela.dados["previu"] is None
+    assert _tela_maquina_de("B2", 0, SEM_PROVA).tela.dados["previu"] == "Sim"
+    assert _tela_maquina_de("B2", 1, SEM_PROVA).tela.dados["previu"] == "Não"
+    assert _tela_maquina_de("B1", esc=SEM_PROVA).tela.dados["previu"] is None
 
 
 def test_a_premissa_de_inferencia_mostra_o_apoio():
@@ -663,9 +671,9 @@ def test_a_premissa_de_inferencia_mostra_o_apoio():
 
 def test_sem_prova_exibivel_a_tela_nao_diz_que_a_maquina_respondeu(monkeypatch):
     monkeypatch.setattr(trilha, "provas_exibiveis", lambda d, no: [])
-    voce = _tela_voce_disse_de("B2").tela
+    voce = _tela_voce_disse_de("B2", SEM_PROVA).tela
     assert voce.dados["previsao"] is None
-    t = _tela_maquina_de("B2").tela
+    t = _tela_maquina_de("B2", esc=SEM_PROVA).tela
     assert t.dados["tem_prova"] is False
     assert t.dados["programa"] == ESC["B2"].revisao.codigo
     assert t.dados["espera"] == "" and t.dados["afirma"] == ""

@@ -406,6 +406,49 @@ outras_rotas:
         três linhas e uma terceira caixa, que é exatamente o que a outra
         rota do B4 mostra.
 
+# A CURADORIA DE 13/11/2026. As vinte questões foram relidas quando a
+# trilha passou a usá-las (docs/trilha.md), e reescritas onde falhavam
+# numa destas réguas:
+#
+#   1. UM CENÁRIO SÓ, o da escada do tópico: `idade`, `nota`, `turma`,
+#      `ano`, `pontos`, `inicial`. Eram `a`, `b`, `x`, `total`,
+#      `contador` — nomes novos numa sessão que só falou destes.
+#   2. SÓ O QUE O TÓPICO ENSINA. Saíram `double`, `sizeof`, `%zu`, a
+#      declaração de duas variáveis numa linha e a conta `x = x + 3`.
+#      Dar o valor na declaração (`int x = 2;`) ficou só nas questões do
+#      I1, que é a premissa que o ensina.
+#   3. "RECLAMA", e não "compila" ou "recusa" — a regra dos cartões.
+#   4. A CERTA NÃO É A MAIS LONGA. Dez das vinte eram denunciadas pelo
+#      tamanho, quase todas binárias: "Certo" contra "Errado — <a
+#      explicação>".
+#   5. A CRENÇA DITA COMO ELA É. No `002` o distrator de
+#      `type_is_a_hint` dizia "um espaço só, compartilhado pelas duas",
+#      que é outra ideia; a crença é que o tipo não muda nada.
+#   6. A QUESTÃO SERVE À TRILHA quando ao menos um distrator diz uma
+#      crença: é pela razão marcada que a trilha sabe qual. Dezenove das
+#      vinte servem. O `t02` NÃO, e ficou assim de propósito: ele é a
+#      única questão sobre o NOME da variável, o catálogo não tem crença
+#      sobre nome, e `mvp/test_razao.py` usa justamente ele como o item
+#      sem crença nenhuma. Dar-lhe uma crença pediria ou uma crença nova
+#      no catálogo, com procedência, ou mexer naquele teste — e as duas
+#      coisas são decisão do Rafael. O B1 fica com três questões para a
+#      trilha, e as outras premissas com quatro.
+#   7. A ABERTURA DO I1 PERGUNTA A PREMISSA. O `010` perguntava só se
+#      `3 = x;` compila; a premissa é que dar o valor na declaração e
+#      declarar para escrever depois dão no mesmo. Agora ele pergunta
+#      isso, e a crença aparece como ela é escrita: `7 = nota;`.
+#
+# O QUE NÃO MUDOU: os ids, o nó, o degrau, o uso, o formato, a letra do
+# gabarito e a crença de cada distrator que já tinha uma. É isso que os
+# testes do projeto e os registros de sessões antigas fixam.
+#
+# DISTRATOR SEM CRENÇA continua existindo, e é de propósito: é a
+# resposta errada que não é ideia catalogada de ninguém ("10: o primeiro
+# valor é o que fica"). Marcá-la conta como erro, e não como crença.
+#
+# revisado_por:
+#   (em branco até o Rafael ler)
+
 activities:
 
   - id: ciu_kc00_001
@@ -432,12 +475,12 @@ activities:
     tipo: codigo
     codigo: |
       int idade;
-      char letra;
+      char turma;
     enunciado: "Depois dessas duas linhas, o que já existe na memória?"
     alternativas:
-      a: "Nada ainda, nenhuma tem valor"
-      b: "Dois espaços reservados, cada um com seu próprio tamanho"
-      c: "Um espaço só, compartilhado pelas duas"
+      a: "Nada ainda: nenhuma das duas tem valor"
+      b: "Dois espaços, cada um do tipo que a sua linha pediu"
+      c: "Dois espaços iguais: o tipo não muda nada neles"
     gabarito: b
     crencas:
       a: no_value_no_memory
@@ -449,11 +492,11 @@ activities:
     formato: achar_o_erro
     tipo: teorica
     enunciado: >
-      Rafael diz: "Enquanto eu não atribuo um valor, a variável não
+      Um colega diz: "Enquanto eu não atribuo um valor, a variável não
       existe de verdade — é só uma promessa." Certo ou errado?
     alternativas:
-      certo: "Certo"
-      errado: "Errado — a memória já foi reservada na declaração"
+      certo: "Certo: sem valor, a variável ainda não existe"
+      errado: "Errado: a declaração já reservou o espaço dela"
     gabarito: errado
     crencas:
       certo: no_value_no_memory
@@ -464,13 +507,13 @@ activities:
     formato: reconhecer_conceito
     tipo: codigo
     codigo: |
-      int total;
-      total = 7;
-    enunciado: "Em que momento o espaço de total passou a existir?"
+      int nota;
+      nota = 7;
+    enunciado: "Em que momento o espaço de nota passou a existir?"
     alternativas:
-      a: "Na primeira linha, quando total foi declarado"
-      b: "Na segunda, quando total recebeu o 7"
-      c: "Nas duas: a primeira reserva metade, a segunda o resto"
+      a: "Na primeira linha, quando nota foi declarada"
+      b: "Na segunda linha, quando nota recebeu o 7"
+      c: "Nas duas: a primeira reserva metade, e a segunda o resto"
     gabarito: a
     crencas:
       b: no_value_no_memory
@@ -480,11 +523,13 @@ activities:
     nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
-    enunciado: "Depois de int x; sem atribuir nada, o que está guardado dentro de x?"
+    enunciado: >
+      Logo depois de int idade;, sem nenhuma atribuição, o que está
+      guardado em idade?
     alternativas:
-      a: "Zero, porque C limpa toda variável nova"
-      b: "Lixo — o que quer que estivesse naquele espaço antes"
-      c: "Nada — x não tem conteúdo até receber um valor"
+      a: "Zero, porque o C limpa toda variável nova"
+      b: "O que já estava naquele espaço: um valor que ninguém escolheu"
+      c: "Nada: idade não tem conteúdo até receber um valor"
     gabarito: b
     crencas:
       a: declaration_zeroes
@@ -496,25 +541,28 @@ activities:
     formato: comparar_casos
     tipo: codigo
     codigo: |
-      int contador;
-      printf("%d\n", contador);
-    enunciado: "O que esse printf provavelmente mostra?"
+      int idade;
+      printf("%d\n", idade);
+    enunciado: "O que esse printf mostra?"
     alternativas:
-      a: "0, sempre"
-      b: "Um número imprevisível — pode mudar a cada execução"
+      a: "0: a variável nova começa zerada"
+      b: "Não dá para saber: idade não recebeu valor"
+      c: "Nada: sem valor, não há o que mostrar"
     gabarito: b
     crencas:
       a: declaration_zeroes
+      c: no_value_no_memory
 
   - id: ciu_kc00_007
     node: kc00:B4
     nivel: 1
     formato: reconhecer_conceito
     tipo: teorica
-    enunciado: "Depois de x = 5; e depois x = 8;, o que x guarda agora?"
+    enunciado: "Depois de nota = 5; e, em seguida, nota = 8;, o que nota guarda?"
     alternativas:
-      a: "Os dois valores, 5 e 8"
-      b: "Só 8 — o 5 foi substituído e não existe mais"
+      a: "Os dois valores: o 5 e o 8"
+      b: "Só o 8: o 5 foi apagado"
+      c: "Só o 5: o primeiro valor é o que fica"
     gabarito: b
     crencas:
       a: variable_remembers
@@ -525,14 +573,17 @@ activities:
     formato: comparar_casos
     tipo: codigo
     codigo: |
-      int pontos = 10;
+      int pontos;
+
+      pontos = 10;
       pontos = 20;
       pontos = 30;
       printf("%d\n", pontos);
-    enunciado: "O que aparece?"
+    enunciado: "O que aparece na tela?"
     alternativas:
-      a: "10 20 30, os três"
-      b: "30 — só o último valor escrito sobrevive"
+      a: "10 20 30: os três valores"
+      b: "30: só o último valor escrito"
+      c: "10: o primeiro valor é o que fica"
     gabarito: b
     crencas:
       a: variable_remembers
@@ -542,10 +593,10 @@ activities:
     nivel: 1
     formato: achar_o_erro
     tipo: teorica
-    enunciado: "x = 7 e 7 = x significam a mesma coisa?"
+    enunciado: "nota = 7; e 7 = nota; pedem a mesma coisa ao C?"
     alternativas:
-      a: "Sim, duas formas da mesma igualdade"
-      b: "Não — só uma variável pode ficar à esquerda, recebendo o valor"
+      a: "Sim: são duas formas de escrever a mesma igualdade"
+      b: "Não: só uma variável pode ficar à esquerda, recebendo"
     gabarito: b
     crencas:
       a: assignment_symmetric
@@ -556,12 +607,12 @@ activities:
     formato: comparar_casos
     tipo: codigo
     codigo: |
-      int x;
-      3 = x;
-    enunciado: "Esse código compila?"
+      int nota = 7;
+    enunciado: "Qual destes trechos deixa nota do mesmo jeito que essa linha?"
     alternativas:
-      a: "Sim, é igual a x = 3;"
-      b: "Não — o compilador recusa, 3 não é um lugar que recebe valor"
+      a: "int nota;  7 = nota;"
+      b: "int nota;  nota = 7;"
+      c: "nota = 7;  int nota;"
     gabarito: b
     crencas:
       a: assignment_symmetric
@@ -579,12 +630,15 @@ activities:
     formato: comparar_casos
     tipo: codigo
     codigo: |
-      char a;
-      double b;
-    enunciado: "Por que b ocupa mais espaço que a?"
+      char inicial;
+      int ano;
+    enunciado: >
+      Uma dessas variáveis vai guardar a letra 'R', e a outra o número
+      2026. O que decide qual valor cabe em qual?
     alternativas:
-      a: "Porque o tipo diz quanto espaço cabe ali"
-      c: "Não ocupa: toda variável ocupa o mesmo"
+      a: "O tipo de cada uma: char para a letra, int para o número"
+      b: "A ordem das linhas: a primeira recebe o primeiro valor"
+      c: "Nada: qualquer valor cabe em qualquer variável"
     gabarito: a
     crencas:
       c: type_is_a_hint
@@ -596,11 +650,11 @@ activities:
     formato: achar_o_erro
     tipo: teorica
     enunciado: >
-      Um colega diz que o nome da variável serve só para ele se lembrar, e
-      que o compilador ignora. Onde está o erro?
+      Um colega diz que o nome da variável serve só para ele se lembrar,
+      e que o programa não usa o nome para nada. Onde está o erro?
     alternativas:
-      a: "O nome é como o programa chega àquele espaço; sem ele não há acesso"
-      b: "Não há erro: nome é comentário"
+      a: "É pelo nome que o programa chega ao espaço da variável"
+      b: "Não há erro: o nome é só uma anotação para quem lê"
     gabarito: a
 
   - id: ciu_kc00_t03
@@ -610,14 +664,14 @@ activities:
     formato: prever_saida
     tipo: codigo
     codigo: |
-      int a;
-      int b;
-      a = 5;
-    enunciado: "Antes da terceira linha rodar, quantos espaços já existem?"
+      int idade;
+      int nota;
+      idade = 15;
+    enunciado: "Antes de a terceira linha rodar, quantos espaços já existem?"
     alternativas:
-      a: "Dois: a e b"
+      a: "Dois: o de idade e o de nota"
       b: "Nenhum: nenhuma das duas recebeu valor"
-      c: "Um: só o de a, que vai receber valor"
+      c: "Um: só o de idade, que vai receber valor"
     gabarito: a
     crencas:
       b: no_value_no_memory
@@ -630,14 +684,15 @@ activities:
     formato: comparar_casos
     tipo: codigo
     codigo: |
-      int total;
-      printf("%zu", sizeof(total));
-    enunciado: >
-      sizeof devolve o tamanho do espaço de uma variável. Isso funciona
-      mesmo sem total ter recebido valor?
+      int pontos;
+
+      pontos = 3;
+      pontos = 8;
+    enunciado: "Quantas vezes o espaço de pontos foi criado?"
     alternativas:
-      a: "Sim: o espaço já está reservado, com ou sem valor dentro"
-      b: "Não: sem valor não há espaço para medir"
+      a: "Uma: na declaração. As outras linhas só escrevem nele"
+      b: "Duas: cada linha que dá um valor cria o espaço de novo"
+      c: "Três: toda linha que cita pontos cria um espaço"
     gabarito: a
     crencas:
       b: no_value_no_memory
@@ -649,13 +704,16 @@ activities:
     formato: prever_saida
     tipo: codigo
     codigo: |
-      int soma;
-      soma = soma + 10;
-      printf("%d", soma);
+      int idade;
+      int nota;
+
+      nota = 9;
+      printf("%d\n", idade);
     enunciado: "Dá para saber o que aparece na tela?"
     alternativas:
-      a: "Não: soma entrou na conta com lixo"
-      b: "Sim: aparece 10, porque soma começava em zero"
+      a: "Não: a variável lida é idade, que não recebeu valor"
+      b: "Sim: 0, porque idade foi declarada e começa zerada"
+      c: "Sim: 9, o único valor que o programa escreveu"
     gabarito: a
     crencas:
       b: declaration_zeroes
@@ -667,12 +725,15 @@ activities:
     formato: comparar_casos
     tipo: codigo
     codigo: |
-      int a;
-      int b = 0;
-    enunciado: "Qual das duas você pode usar numa conta agora, com segurança?"
+      int idade;
+      int ano;
+
+      ano = 0;
+    enunciado: "Qual das duas já pode ser lida com segurança?"
     alternativas:
-      a: "Só b, que recebeu valor"
-      b: "As duas: declarar já zera"
+      a: "Só ano: foi a única que recebeu valor"
+      b: "As duas: declarar já deixa a variável em zero"
+      c: "Nenhuma: zero não conta como valor"
     gabarito: a
     crencas:
       b: declaration_zeroes
@@ -684,14 +745,17 @@ activities:
     formato: prever_saida
     tipo: codigo
     codigo: |
-      int x = 2;
-      x = x + 3;
-      printf("%d", x);
-    enunciado: "O que aparece?"
+      int idade;
+
+      idade = 15;
+      printf("%d\n", idade);
+      idade = 16;
+      printf("%d\n", idade);
+    enunciado: "O que os dois printf mostram, nessa ordem?"
     alternativas:
-      a: "5: x virou 2 + 3, e só isso ficou"
-      b: "2 e 5: os dois valores ficam guardados"
-      c: "3: o valor novo substitui o antigo"
+      a: "15 e depois 16: cada um mostra o valor daquele momento"
+      b: "15 e depois 15 16: a variável vai juntando os valores"
+      c: "16 e depois 16: vale o último valor que o programa escreve"
     gabarito: a
     crencas:
       b: variable_remembers
@@ -703,11 +767,11 @@ activities:
     formato: achar_o_erro
     tipo: teorica
     enunciado: >
-      Depois de x = 7, um colega quer o valor anterior de x e diz que basta
-      olhar o histórico da variável. Onde está o erro?
+      Depois de nota = 7;, um colega quer o valor que nota tinha antes e
+      diz que basta consultar o histórico da variável. Onde está o erro?
     alternativas:
-      a: "Não há histórico: o valor anterior se perdeu na atribuição"
-      b: "Não há erro, mas ele precisa de um comando específico"
+      a: "Não existe histórico: o valor anterior foi apagado na atribuição"
+      b: "Não há erro: o histórico existe, só falta o comando que o lê"
     gabarito: a
     crencas:
       b: variable_remembers
@@ -719,15 +783,17 @@ activities:
     formato: prever_saida
     tipo: codigo
     codigo: |
-      int a = 1, b = 2;
-      a = b;
-      b = 9;
-      printf("%d", a);
-    enunciado: "Quanto vale a no fim?"
+      int nota = 1;
+      int pontos = 2;
+
+      nota = pontos;
+      pontos = 9;
+      printf("%d\n", nota);
+    enunciado: "O que aparece na tela?"
     alternativas:
-      a: "2: a cópia aconteceu antes de b mudar"
-      b: "9: a ficou ligada a b pela atribuição"
-      c: "1: a atribuição não teve efeito"
+      a: "2: a cópia foi feita antes de pontos mudar"
+      b: "9: nota e pontos ficaram ligadas pela atribuição"
+      c: "1: copiar de pontos não muda nota"
     gabarito: a
     crencas:
       b: assignment_symmetric
@@ -738,10 +804,11 @@ activities:
     uso: treino
     formato: reconhecer_conceito
     tipo: teorica
-    enunciado: "Em y = x;, qual das duas muda?"
+    enunciado: "Em nota = pontos;, qual das duas variáveis muda?"
     alternativas:
-      a: "Só y, que recebe uma cópia do valor de x"
-      b: "As duas, porque passam a ser iguais"
+      a: "Só nota, que recebe uma cópia do valor de pontos"
+      b: "As duas: depois da linha, uma passa a valer pela outra"
+      c: "Só pontos, que entrega o valor e fica sem ele"
     gabarito: a
     crencas:
       b: assignment_symmetric

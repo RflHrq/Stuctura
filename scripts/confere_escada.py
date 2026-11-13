@@ -16,11 +16,17 @@ estar certo antes de chegar a alguém:
 É a mesma regra das provas da refutação — nada é afirmado sobre código
 que a máquina não conferiu —, levada aos exercícios.
 
-SÓ O `digitar` E A REVISÃO COM SAÍDA SÃO EXECUTADOS. Todo o resto é só
-compilado (`-fsyntax-only`), e isso é decisão: o kc_00 mostra, para a
-pessoa escolher o que NÃO fazer, trechos que leem variável sem valor.
-Compilá-los prova o que o degrau afirma; rodá-los seria o comportamento
-indefinido que o tópico ensina a evitar.
+E ÀS PROVAS DA ESCADA, que são a refutação escrita para quem está
+aprendendo: o que a prova diz que o programa imprime, ele imprime; o que
+ela diz que o compilador reclama, ele reclama.
+
+SÓ O `digitar`, A REVISÃO COM SAÍDA E A PROVA QUE IMPRIME SÃO
+EXECUTADOS. Todo o resto é só compilado, e isso é decisão: o kc_00
+mostra, para a pessoa escolher o que NÃO fazer, trechos que leem
+variável sem valor — e a prova de duas das crenças dele É o aviso do
+compilador sobre um trecho desses. Compilá-los prova o que o conteúdo
+afirma; rodá-los seria o comportamento indefinido que o tópico ensina a
+evitar.
 
 A LEITURA existe porque o conteúdo só entra depois de alguém ler, e ler
 YAML não é ler texto: ela põe frases, exercício, resposta certa e
@@ -43,7 +49,7 @@ import oraculo  # noqa: E402
 
 from mvp.dominio import Dominio, carrega  # noqa: E402
 from mvp.trilha_escada import (  # noqa: E402
-    LACUNA, Degrau, Escada, Versao, faltando, le)
+    LACUNA, Degrau, Escada, Prova, Versao, faltando, le)
 
 DOMINIO = RAIZ / "mvp" / "dominio"
 
@@ -81,6 +87,46 @@ def compila(programa: str) -> tuple[bool, str]:
     nota = next((l for l in linhas if "error:" in l),
                 linhas[0] if linhas else "")
     return saiu.returncode == 0, nota
+
+
+def diz(programa: str) -> str:
+    """O que o compilador DIZ do programa. Compila, e NUNCA executa.
+
+    Não é `-fsyntax-only`: o aviso de variável lida sem valor só sai
+    quando o compilador analisa o fluxo, e para isso ele precisa gerar o
+    objeto (`-c`). O objeto fica na pasta temporária e ninguém o roda.
+    """
+    gcc = oraculo.GCC
+    if not gcc.exists():
+        raise oraculo.SemCompilador(
+            "não achei o compilador em %s — aponte STRUCTURA_GCC para ele"
+            % gcc)
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = pathlib.Path(tmp)
+        (pasta / "o.c").write_text(programa, encoding="utf-8")
+        try:
+            saiu = subprocess.run(
+                [str(gcc), "-std=c17", "-Wall", "-c", "-o", "o.o", "o.c"],
+                capture_output=True, text=True, timeout=oraculo.TEMPO,
+                cwd=str(pasta))
+        except subprocess.TimeoutExpired:
+            return ""
+    return saiu.stderr
+
+
+def _confere_prova(onde: str, p: Prova, problemas: list[str]) -> None:
+    programa = programa_de("", p.programa)
+    if p.espera:
+        ok, nota = oraculo.roda(programa, p.espera)
+        if not ok:
+            problemas.append("%s: o programa não imprime o que a prova diz "
+                             "— %s" % (onde, nota))
+        return
+    # A prova é o que o compilador diz. O programa não é executado: pode
+    # ser justamente o que o tópico ensina a não fazer.
+    if p.reclama not in diz(programa):
+        problemas.append("%s: o compilador não reclama com %r"
+                         % (onde, p.reclama))
 
 
 def linha_de(v: Versao, sequencia: tuple[int, ...]) -> str:
@@ -160,6 +206,9 @@ def confere(escadas: Mapping[str, Escada]) -> list[str]:
             if not ok:
                 problemas.append("%s: o código da revisão não compila — %s"
                                  % (premissa, nota))
+        for p in e.provas:
+            _confere_prova("%s/prova de %s" % (premissa, p.crenca), p,
+                           problemas)
     return problemas
 
 
@@ -231,7 +280,30 @@ def leitura(d: Dominio, escadas: Mapping[str, Escada]) -> str:
         if e.revisao.saida:
             saida += ["", "A máquina imprime:", "", "```",
                       e.revisao.saida, "```"]
+        for p in e.provas:
+            saida += _prova_em_texto(d, p)
     return "\n".join(saida) + "\n"
+
+
+def _prova_em_texto(d: Dominio, p: Prova) -> list[str]:
+    """A prova, na ordem das duas telas: o que a pessoa disse, o trecho,
+    a previsão; depois o que a máquina respondeu e o que isso mostra."""
+    saida = ["", "### Se a pessoa disser a crença: a prova", "",
+             "Você disse:", "", "> %s" % d.crencas[p.crenca].afirma, ""]
+    saida += _bloco(p.programa) + ["", "**%s**" % p.previsao.pergunta, ""]
+    for i, opcao in enumerate(p.previsao.opcoes):
+        marca = (" _(é o que a máquina faz)_" if i == p.previsao.real
+                 else " _(é o que a crença espera)_" if i == p.previsao.crenca
+                 else "")
+        saida.append("- %s%s" % (opcao, marca))
+    if p.espera:
+        saida += ["", "A máquina imprime:", "", "```", p.espera, "```"]
+    else:
+        saida += ["", "O compilador reclama:", "", "```", p.reclama, "```"]
+    if p.ambiente:
+        saida += ["", "_%s_" % p.ambiente]
+    saida += ["", "O que isto mostra: %s" % p.afirma]
+    return saida
 
 
 def main(args: list[str] | None = None) -> int:

@@ -88,6 +88,14 @@
         background:var(--aviso-fundo); border-radius:0 8px 8px 0; font-size:17px}
 .t-caixa{padding:10px 14px; border-radius:8px; margin:0 0 14px;
          border:1px solid var(--erro); background:var(--erro-fundo)}
+/* A previsão da pessoa, ao lado do que a máquina fez. */
+.t-previu{padding:10px 14px; border-radius:8px; margin:0 0 16px;
+          border:1px solid var(--linha); background:var(--cartao)}
+.t-previu .t-rotulo{margin-bottom:2px}
+.t-previu .t-frase{margin:0}
+.t-previu .t-veredito{margin:4px 0 0; font-size:14px; font-weight:600}
+.t-previu.ok{border-color:var(--ok); background:var(--ok-fundo)}
+.t-previu.nao{border-color:var(--aviso); background:var(--aviso-fundo)}
 
 /* -------------------------------------------------------------- explicação */
 .t-fundo{position:fixed; inset:0; z-index:20; background:rgba(0,0,0,.45);

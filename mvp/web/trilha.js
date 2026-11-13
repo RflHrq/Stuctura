@@ -675,7 +675,7 @@
     }
     /* Onde a prova é o que o compilador DIZ, a pessoa se compromete
      * antes de ver. */
-    c.appendChild(p("t-frase", "Antes de ver a resposta da máquina, leia este programa:"));
+    c.appendChild(p("t-frase", "Antes de ver a resposta da máquina, leia este trecho:"));
     c.appendChild(bloco(t.programa));
     c.appendChild(p("t-pede", t.previsao.pergunta));
     var escolha = null;
@@ -683,7 +683,9 @@
       age({ acao: "responder", escolha: escolha });
     });
     ver.disabled = true;
-    c.appendChild(grupo("confianca", "conf", t.previsao.opcoes, function (i) {
+    /* Empilhadas, como as alternativas de uma pergunta: a previsão da
+     * escada é uma frase, e não um "Sim" ou "Não". */
+    c.appendChild(grupo("opcoes", "opcao", t.previsao.opcoes, function (i) {
       escolha = i;
       ver.disabled = false;
     }));
@@ -700,7 +702,7 @@
       if (t.nao_compila) {
         c.appendChild(p("t-caixa", "O compilador recusou este programa: ele não compila."));
       } else if (t.avisa) {
-        c.appendChild(p("t-rotulo", "O compilador avisou:"));
+        c.appendChild(p("t-rotulo", "O compilador reclamou:"));
         c.appendChild(bloco(t.avisa, "terminal"));
       } else {
         c.appendChild(p("t-rotulo", "Saída:"));
@@ -708,7 +710,19 @@
       }
       if (t.ambiente) c.appendChild(p("nota", t.ambiente));
       if (t.previu !== null && t.previu !== undefined) {
-        c.appendChild(p("t-rotulo", "A sua previsão foi: " + t.previu + "."));
+        /* Quem julga a previsão é o servidor. Sem julgamento a tela só
+         * repete o que a pessoa disse. */
+        var bateu = t.previu_certo === true ? "Foi o que a máquina fez."
+                  : t.previu_certo === false ? "A máquina fez outra coisa."
+                  : "";
+        c.appendChild(el("div", {
+          "class": "t-previu" + (t.previu_certo === true ? " ok"
+                                 : t.previu_certo === false ? " nao" : "")
+        }, [
+          p("t-rotulo", "A sua previsão:"),
+          p("t-frase", "“" + t.previu + "”"),
+          bateu ? p("t-veredito", bateu) : null
+        ]));
       }
       if (t.afirma) {
         c.appendChild(p("t-rotulo", "O que isto mostra:"));

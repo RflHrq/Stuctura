@@ -116,10 +116,17 @@ def test_a_certeza_declarada_nao_fecha_premissa_sozinha(
 def test_a_maquina_so_respondeu_onde_ha_prova(persona, modo, ritmo, semente):
     c = _sessao(persona, modo, ritmo, semente)
     for t in (t for t in c.telas if t.tipo == "maquina"):
-        provas = motor._prova(D, t.dados["premissa"])
-        assert t.dados["tem_prova"] == bool(provas)
-        if provas:
-            assert t.dados["programa"] == provas[0]["programa"]
+        no = t.dados["premissa"]
+        # A prova da escada, para a crença trabalhada naquela premissa; na
+        # falta dela, a demonstração do grafo. Fora disso a tela não diz
+        # que a máquina respondeu.
+        propria = ESC[no].prova(c.estado.premissa(no).crenca)
+        do_grafo = motor._prova(D, no)
+        assert t.dados["tem_prova"] == bool(propria or do_grafo)
+        if propria:
+            assert t.dados["programa"] == propria.programa
+        elif do_grafo:
+            assert t.dados["programa"] == do_grafo[0]["programa"]
 
 
 @todas

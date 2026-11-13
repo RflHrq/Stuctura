@@ -302,9 +302,16 @@ o mapa, sem abrir outra prova.
 4. A crença entra na fila de reconferência do fim do tópico.
 ```
 
-- O programa é a primeira demonstração exibível da premissa que a crença
-  nega, e fica **aberto**, no centro — não mais recolhido atrás de um
-  botão.
+- **Desde 13/11/2026 a prova mora na escada**, ao lado dos degraus
+  (`provas`, uma por crença que nega a premissa): só o trecho, com os
+  nomes do cenário, e com a previsão **escrita** — a alternativa que a
+  máquina confirma e a que a crença espera. O registro passa a dizer se
+  a pessoa previu certo e se previu como quem acredita. O compilador
+  confere a prova como confere os degraus. Ver a seção 7.
+- Onde a escada não tem prova para a crença, o programa é a primeira
+  demonstração exibível da premissa que a crença nega — a do grafo, que
+  é a reserva. Em qualquer dos dois casos ele fica **aberto**, no centro
+  — não mais recolhido atrás de um botão.
 - Demonstração do tipo "não compila" ou "o compilador avisa": a tela
   mostra o que o compilador diz, com a nota de ambiente que a
   demonstração já carrega. Nesses dois tipos a previsão sai de graça:
@@ -700,6 +707,36 @@ Vistos na tela, em 13/11/2026, ao atravessar o kc_00 no navegador:
   variável `x`). Aparecem depois do texto, como a régua manda, mas falam
   de outro cenário que não o da escada (`idade`, `nota`, `turma`).
 
+**O que foi feito com isso no kc_00, em 13/11/2026 — o tópico-modelo**
+
+O Rafael pediu que o caminho seguisse pelos outros tópicos, com
+curadoria das questões. Antes de replicar, o kc_00 ficou completo, para
+servir de molde:
+
+- **A prova de iniciante.** Cada uma das cinco crenças do tópico tem a
+  sua prova na escada (`mvp/dominio/escada_kc00.yaml`, bloco `provas`):
+  três a cinco linhas, sem `#include` e sem `main`, com `idade`, `nota`
+  e `turma`. Três são o que o compilador **diz** (`reclama`) e duas
+  delas nunca são executadas, porque leem variável sem valor; uma é
+  saída. Todas vêm depois de uma previsão escrita.
+- **A curadoria das vinte questões** (`activities_kc00.yaml`), contra
+  sete réguas que estão no cabeçalho da seção: um cenário só; só o que
+  o tópico ensina (saíram `double`, `sizeof`, a conta `x = x + 3` e o
+  valor dado na declaração antes do I1); "reclama" no lugar de
+  "compila"; a certa sem ser a mais longa; a crença dita como ela é; a
+  abertura do I1 perguntando a premissa. Os portões mecânicos do banco
+  foram de 10 erros para 0. Ids, nós, gabaritos e a crença de cada
+  distrator não mudaram.
+- **O que ficou como estava, e por quê:** o `ciu_kc00_t02`, a única
+  questão sobre o nome da variável, continua sem crença em distrator —
+  o catálogo não tem crença sobre nome, e um teste anterior à trilha
+  usa esse item como o exemplo de questão sem crença. A trilha não o
+  usa; o B1 fica com três questões, e as outras premissas com quatro.
+
+**Tópico pronto, daqui em diante, é:** escada escrita e conferida pelo
+compilador, uma prova de iniciante por crença, e as questões de marcar
+curadas contra as mesmas réguas.
+
 **Novo, e opcional — a trilha funciona sem**
 
 1. **A previsão.** Os programas de demonstração imprimem frases ("o
@@ -751,12 +788,16 @@ Cada fatia deixa o sistema funcionando.
    formas de produzir e a escada escrita das cinco premissas dele. É a
    fatia que mostra a experiência completa num tópico, para o Rafael
    validar antes de o conteúdo dos outros ser escrito.
-2. Os outros doze tópicos na trilha, com o conteúdo que existe (escada
-   curta, sem previsão escrita).
+2. Os outros doze tópicos na trilha, **um de cada vez, na ordem de
+   ensino, e cada um completo** — escada, provas de iniciante com
+   previsão, questões curadas —, como o kc_00 ficou em 13/11/2026
+   (seção 7). A primeira redação desta fatia previa entrar com o
+   conteúdo que existe; o Rafael pediu o caminho do kc_00 para todos, e
+   a previsão, que era da fatia 4, passou a vir junto com a escada.
 3. Parar e voltar para quem não informou código, e o progresso na
    página inicial. (A retomada pelo código, depois de um reinício, já
    entrou com a revisão da fatia 1.)
-4. A previsão e o porquê do acerto, tópico a tópico.
+4. O porquê do acerto, por questão, tópico a tópico.
 
 ## 10. Decisões minhas, para o Rafael conferir
 
