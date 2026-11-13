@@ -433,6 +433,380 @@ def test_trocar_para_modo_ou_ritmo_que_nao_existe_e_recusado():
                       trilha.Entrada(acao="modo", modo="direto"))
 
 
+# --------------------------------------------------------------------------
+# Parte 3: reforço e crença
+# --------------------------------------------------------------------------
+
+def _ate_a_abertura(no, modo="direto", ritmo="rapido", semente="s1"):
+    """Uma sessão levada, acertando firme, até a abertura de `no`."""
+    t = _comeca(modo, ritmo, semente)
+    for _ in range(200):
+        if (t.tela.tipo == "pergunta" and t.tela.dados["premissa"] == no
+                and t.tela.dados["papel"] == "abertura"):
+            return t
+        t = _anda(t.estado, "sabe")
+    raise AssertionError("a abertura de %s não chegou" % no)
+
+
+def _marca(estado, crenca=None, certa=False, razao_certa=False,
+           confianca="tenho certeza"):
+    """Uma resposta montada à mão para a pergunta que está na tela.
+
+    A alternativa é a certa ou a que aponta `crenca`; a razão é a certa
+    ou a que diz `crenca`.
+    """
+    dados = estado.tela.dados
+    a = next(x for x in D.atividades if x.id == dados["atividade"])
+    opcoes = motor.opcoes_na_tela(estado.semente, a)
+    brutas = motor.razoes_de(D, a)
+    razoes = [brutas[i] for i in motor.ordem_das_razoes(
+        estado.semente, a.id, len(brutas))]
+    if certa:
+        escolha = next(i for i, o in enumerate(opcoes) if o.correta)
+    else:
+        escolha = next((i for i, o in enumerate(opcoes) if o.crenca == crenca),
+                       next(i for i, o in enumerate(opcoes) if not o.correta))
+    if razao_certa:
+        razao = next(i for i, z in enumerate(razoes) if z.correta)
+    else:
+        razao = next(i for i, z in enumerate(razoes) if z.crenca == crenca)
+    return trilha.Entrada(
+        acao="responder", escolha=escolha, razao=razao,
+        confianca=confianca if dados["pede_certeza"] else "")
+
+
+def _crenca_de(no):
+    return next(c.id for c in D.crencas.values() if c.nega == no)
+
+
+def _tela_voce_disse_de(no):
+    t = _ate_a_abertura(no)
+    t = trilha.avanca(D, ESC, t.estado, _marca(t.estado, crenca=_crenca_de(no)))
+    assert (t.tela.tipo, t.tela.dados["premissa"]) == ("voce_disse", no)
+    return t
+
+
+def _tela_maquina_de(no, previsao=0):
+    t = _tela_voce_disse_de(no)
+    entrada = (trilha.Entrada(acao="responder", escolha=previsao)
+               if t.tela.dados["previsao"] else trilha.Entrada(acao="continuar"))
+    t = trilha.avanca(D, ESC, t.estado, entrada)
+    assert (t.tela.tipo, t.tela.dados["premissa"]) == ("maquina", no)
+    return t
+
+
+def _tipos(c, tipo):
+    return [e.dados for e in c.eventos if e.tipo == tipo]
+
+
+def test_inseguro_ganha_uma_pergunta_de_outro_formato_e_firma():
+    c = caminha(D, ESC, "inseguro")
+    b1 = _da_premissa(c, "B1", "pergunta")
+    assert [t.dados["papel"] for t in b1] == ["abertura", "reforco"]
+    assert b1[0].dados["formato"] != b1[1].dados["formato"]
+    assert b1[1].dados["pede_certeza"]
+    assert c.estado.premissa("B1").resultado == "firmou"
+    assert c.estado.premissa("B1").telas == 2
+    assert {c.estado.premissa(n).resultado for n in D.ordem} == {"firmou"}
+    assert not [t for t in c.telas if t.tipo in ("degrau", "voce_disse")]
+
+
+def test_o_inseguro_le_o_retorno_antes_da_segunda_pergunta():
+    t = _anda(_comeca("direto").estado, "inseguro")
+    assert (t.tela.tipo, t.tela.dados["veredito"]) == ("retorno", "inseguro")
+    assert t.tela.dados["premissa_texto"] == D.nos["B1"].simples
+    t = _anda(t.estado, "inseguro")
+    assert (t.tela.tipo, t.tela.dados["papel"]) == ("pergunta", "reforco")
+
+
+def test_escorregao_vai_para_o_reforco_e_nao_para_a_prova():
+    t = _anda(_comeca("direto").estado, "escorrega")
+    assert (t.tela.tipo, t.tela.dados["veredito"]) == ("retorno", "escorregao")
+    c = caminha(D, ESC, "escorrega")
+    assert not any(t.tipo == "voce_disse" for t in c.telas)
+    assert c.estado.premissa("B1").resultado == "firmou"
+    assert not _tipos(c, "prova_apresentada")
+
+
+def test_acertar_pela_razao_errada_mostra_o_contraste():
+    e = _comeca("direto").estado
+    t = trilha.avanca(D, ESC, e, _marca(e, crenca="type_is_a_hint", certa=True))
+    assert (t.tela.tipo, t.tela.dados["veredito"]) == ("retorno", "razao_errada")
+    assert t.tela.dados["escolheu"] == D.crencas["type_is_a_hint"].afirma
+    assert t.tela.dados["contradiz"] is True
+    assert t.tela.dados["premissa_texto"] == D.nos["B1"].simples
+
+    de_outra = trilha.avanca(D, ESC, e, _marca(
+        e, crenca="no_value_no_memory", certa=True))
+    assert de_outra.tela.dados["contradiz"] is False
+    seguinte = _anda(de_outra.estado)
+    assert (seguinte.tela.tipo, seguinte.tela.dados["papel"]) == (
+        "pergunta", "reforco")
+
+
+def test_razao_errada_duas_vezes_na_mesma_ideia_vai_para_a_prova():
+    """6.7: uma vez pode ser tropeço de alternativa; duas, é a ideia."""
+    e = _comeca("direto").estado
+    t = trilha.avanca(D, ESC, e, _marca(
+        e, crenca="no_value_no_memory", certa=True))
+    t = trilha.avanca(D, ESC, t.estado, trilha.Entrada(acao="continuar"))
+    assert t.tela.dados["papel"] == "reforco"
+    t = trilha.avanca(D, ESC, t.estado, _marca(
+        t.estado, crenca="no_value_no_memory", certa=True))
+    assert (t.tela.tipo, t.tela.dados["premissa"]) == ("voce_disse", "B2")
+    assert t.tela.dados["crenca"] == D.crencas["no_value_no_memory"].afirma
+
+
+def test_errar_o_degrau_de_produzir_leva_ao_reforco():
+    t = _anda(_comeca("direto").estado)                 # abertura firme
+    t = _anda(t.estado)                                 # continuar
+    assert t.tela.dados["papel"] == "produzir"
+    t = _anda(t.estado, "nao_sabe_erra")                # escreve errado
+    assert (t.tela.tipo, t.tela.dados["veredito"]) == ("retorno", "errada")
+    assert t.tela.dados["mostra_certa"]
+    t = _anda(t.estado)
+    assert (t.tela.tipo, t.tela.dados["papel"]) == ("pergunta", "reforco")
+    t = _anda(t.estado)
+    assert t.estado.premissa("B1").resultado == "firmou"
+    assert t.estado.premissa("B1").telas == 3
+
+
+def test_nao_sei_no_reforco_leva_a_escada():
+    t = _anda(_comeca("direto").estado, "inseguro")
+    t = _anda(t.estado, "inseguro")
+    t = trilha.avanca(D, ESC, t.estado, trilha.Entrada(acao="nao_sei"))
+    assert (t.tela.tipo, t.tela.dados["papel"], t.tela.dados["indice"]) == (
+        "degrau", "subida", 1)
+    assert t.estado.premissa("B1").trabalho == "lacuna"
+
+
+def test_crenca_leva_a_prova_da_premissa_que_ela_nega():
+    c = caminha(D, ESC, "crente_aprende")
+    provas = _tipos(c, "prova_apresentada")
+    assert [p["no"] for p in provas] == list(D.ordem)
+    assert all(D.crencas[p["crenca"]].nega == p["no"] for p in provas)
+    disse = next(t for t in c.telas if t.tipo == "voce_disse")
+    assert disse.dados["crenca"] == D.crencas[provas[0]["crenca"]].afirma
+    assert all(c.estado.premissa(n).trabalho == "crenca" for n in D.ordem)
+
+
+def test_a_prova_vem_de_motor_prova_e_nao_de_copia():
+    assert trilha.provas_exibiveis is motor._prova
+    c = caminha(D, ESC, "crente_aprende")
+    maquinas = [t for t in c.telas if t.tipo == "maquina"]
+    assert len(maquinas) == 5
+    for t in maquinas:
+        esperado = motor._prova(D, t.dados["premissa"])
+        assert t.dados["tem_prova"] == bool(esperado)
+        for chave in ("programa", "afirma", "espera", "nao_compila", "avisa",
+                      "ambiente"):
+            assert t.dados[chave] == esperado[0][chave], chave
+        assert t.dados["premissa_texto"] == D.nos[t.dados["premissa"]].simples
+
+
+def test_prova_que_nao_compila_pede_a_previsao():
+    t = _tela_voce_disse_de("B2").tela
+    assert t.dados["previsao"] == {
+        "pergunta": "Este programa compila?", "opcoes": ["Sim", "Não"]}
+    assert t.dados["programa"] == motor._prova(D, "B2")[0]["programa"]
+
+
+def test_prova_que_avisa_pede_a_previsao_do_aviso():
+    t = _tela_voce_disse_de("B3").tela
+    assert t.dados["previsao"] == {
+        "pergunta": "O compilador reclama de alguma coisa aqui?",
+        "opcoes": ["Sim", "Não"]}
+
+
+def test_prova_com_saida_nao_tem_previsao():
+    t = _tela_voce_disse_de("B1").tela
+    assert t.dados["previsao"] is None and t.dados["programa"] == ""
+
+
+def test_a_previsao_e_obrigatoria_e_volta_na_tela_da_maquina():
+    t = _tela_voce_disse_de("B2")
+    with pytest.raises(trilha.EntradaInvalida):
+        trilha.avanca(D, ESC, t.estado, trilha.Entrada(acao="continuar"))
+    with pytest.raises(trilha.EntradaInvalida):
+        trilha.avanca(D, ESC, t.estado,
+                      trilha.Entrada(acao="responder", escolha=2))
+    assert _tela_maquina_de("B2", previsao=0).tela.dados["previu"] == "Sim"
+    assert _tela_maquina_de("B2", previsao=1).tela.dados["previu"] == "Não"
+    assert _tela_maquina_de("B1").tela.dados["previu"] is None
+
+
+def test_a_premissa_de_inferencia_mostra_o_apoio():
+    t = _tela_maquina_de("I1").tela
+    assert t.dados["apoio"] == [
+        {"no": n, "texto": D.nos[n].simples} for n in ("B1", "B2", "B3", "B4")]
+    assert _tela_maquina_de("B1").tela.dados["apoio"] == []
+
+
+def test_sem_prova_exibivel_a_tela_nao_diz_que_a_maquina_respondeu(monkeypatch):
+    monkeypatch.setattr(trilha, "provas_exibiveis", lambda d, no: [])
+    voce = _tela_voce_disse_de("B2").tela
+    assert voce.dados["previsao"] is None
+    t = _tela_maquina_de("B2").tela
+    assert t.dados["tem_prova"] is False
+    assert t.dados["programa"] == ESC["B2"].revisao.codigo
+    assert t.dados["espera"] == "" and t.dados["afirma"] == ""
+    assert t.dados["nao_compila"] is False and t.dados["avisa"] == ""
+
+
+def test_o_treino_fecha_com_duas_certas_seguidas():
+    c = caminha(D, ESC, "crente_aprende")
+    for no in D.ordem:
+        treino = [t for t in c.telas if t.tipo == "degrau"
+                  and t.dados["papel"] == "treino" and t.dados["premissa"] == no]
+        assert [t.dados["degrau"] for t in treino] == [
+            g.id for g in ESC[no].pratica[:2]]
+        assert c.estado.premissa(no).resultado == "corrigiu"
+        assert c.estado.premissa(no).telas == 5   # abertura, 2 da prova, 2 de treino
+
+
+def test_o_treino_para_em_tres_e_fecha_em_aberto():
+    c = caminha(D, ESC, "crente_teimoso")
+    for n in D.ordem:
+        treino = [t for t in c.telas if t.tipo == "degrau"
+                  and t.dados["papel"] == "treino" and t.dados["premissa"] == n]
+        assert len(treino) == 3
+        chaves = [(t.dados["degrau"], tuple(t.dados["pecas"]), t.dados["mostra"])
+                  for t in treino]
+        assert len(set(chaves)) == 3
+        assert c.estado.premissa(n).resultado == "em_aberto"
+
+
+def test_erro_no_treino_zera_a_sequencia():
+    t = _tela_maquina_de("B1")
+    t = _anda(t.estado)                                  # continuar: 1º treino
+    assert t.tela.dados["papel"] == "treino"
+    t = _anda(t.estado)                                  # certa
+    t = _anda(t.estado, "nao_sabe_erra")                 # errada: zera
+    assert (t.tela.tipo, t.tela.dados["veredito"]) == ("retorno", "errada")
+    assert t.tela.dados["mostra_certa"]
+    t = _anda(t.estado)                                  # continuar: 3º treino
+    assert t.tela.dados["papel"] == "treino"
+    t = _anda(t.estado)                                  # certa, mas uma só
+    assert t.estado.premissa("B1").resultado == "em_aberto"
+
+
+def test_cada_premissa_recebe_no_maximo_uma_prova():
+    for persona in PERSONAS:
+        for modo in trilha.MODOS:
+            c = caminha(D, ESC, persona, modo)
+            nos = [p["no"] for p in _tipos(c, "prova_apresentada")]
+            assert len(nos) == len(set(nos)), (persona, modo)
+
+
+def test_crenca_sobre_outra_premissa_prova_a_outra_e_volta():
+    """6.8. A abertura do B1 oferece uma crença que nega o B2."""
+    e = _comeca("direto").estado
+    crenca = "no_value_no_memory"
+    assert D.crencas[crenca].nega == "B2"
+    t = trilha.avanca(D, ESC, e, _marca(e, crenca=crenca))
+    assert (t.tela.tipo, t.tela.dados["premissa"]) == ("voce_disse", "B2")
+    assert [x.dados for x in t.eventos if x.tipo == "prova_apresentada"] == [
+        {"no": "B2", "crenca": crenca, "veio_de": "B1"}]
+    assert t.estado.premissa("B2").trabalho == "crenca"
+    assert t.estado.premissa("B1").trabalho == ""
+
+    vistas = []
+    for _ in range(40):                                  # prova e treino do B2
+        t = _anda(t.estado)
+        vistas.append(t.tela)
+        if t.tela.dados.get("premissa") == "B1":
+            break
+    assert t.estado.premissa("B2").resultado == "corrigiu"
+    assert (t.tela.tipo, t.tela.dados["papel"]) == ("pergunta", "reforco")
+
+    resto = []
+    while t.tela.tipo != "mapa":
+        t = _anda(t.estado)
+        resto.append(t.tela)
+    assert t.estado.premissa("B1").resultado == "firmou"
+    assert not [x for x in resto if x.dados.get("premissa") == "B2"
+                and x.dados.get("papel") == "abertura"]
+    assert t.estado.premissa("B2").telas <= trilha.TETO_TELAS
+
+
+def test_premissa_ja_fechada_como_ja_sabia_e_reaberta_pela_prova():
+    """6.8: a prova acontece mesmo que a premissa negada já estivesse fechada."""
+    t = _ate_a_abertura("B3")
+    assert t.estado.premissa("B2").resultado == "ja_sabia"
+    # A pergunta de reforço do B3 oferece a crença que nega o B2.
+    t = trilha.avanca(D, ESC, t.estado, _marca(t.estado, crenca="declaration_zeroes",
+                                               razao_certa=True))
+    t = trilha.avanca(D, ESC, t.estado, trilha.Entrada(acao="continuar"))
+    assert t.tela.dados["papel"] == "reforco"
+    t = trilha.avanca(D, ESC, t.estado, _marca(t.estado, crenca="no_value_no_memory"))
+    assert (t.tela.tipo, t.tela.dados["premissa"]) == ("voce_disse", "B2")
+    assert t.estado.premissa("B2").resultado == ""
+    assert [x.dados for x in t.eventos if x.tipo == "premissa_reaberta"] == [
+        {"no": "B2", "era": "ja_sabia"}]
+
+
+def test_premissa_ja_trabalhada_nao_recebe_segunda_prova():
+    e = _comeca("direto").estado
+    t = trilha.avanca(D, ESC, e, _marca(e, crenca="no_value_no_memory"))
+    while t.tela.dados.get("premissa") != "B1":          # a prova do B2, inteira
+        t = _anda(t.estado)
+    assert t.tela.dados["papel"] == "reforco"
+    t = trilha.avanca(D, ESC, t.estado, _marca(t.estado, crenca="no_value_no_memory"))
+    assert [x.dados for x in t.eventos if x.tipo == "prova_dispensada"] == [
+        {"no": "B2", "crenca": "no_value_no_memory", "veio_de": "B1"}]
+    assert not [x for x in t.eventos if x.tipo == "prova_apresentada"]
+    assert (t.tela.tipo, t.tela.dados["premissa"], t.tela.dados["papel"]) == (
+        "degrau", "B1", "subida")
+
+
+def test_a_mesma_crenca_duas_vezes_vai_para_a_prova_mesmo_com_chutei():
+    """6.6 e 6.14: o que a pessoa faz vale mais do que o que ela diz."""
+    t = _ate_a_abertura("B2")
+    crenca = "no_value_no_memory"
+    t = trilha.avanca(D, ESC, t.estado, _marca(t.estado, crenca=crenca,
+                                               confianca="chutei"))
+    assert (t.tela.tipo, t.tela.dados["papel"]) == ("degrau", "subida")
+    assert t.estado.premissa("B2").trabalho == "lacuna"
+    while t.tela.tipo != "pergunta":                     # sobe a escada, certo
+        t = _anda(t.estado)
+    assert t.tela.dados["papel"] == "topo" and not t.tela.dados["pede_certeza"]
+    t = trilha.avanca(D, ESC, t.estado, _marca(t.estado, crenca=crenca))
+    assert (t.tela.tipo, t.tela.dados["premissa"]) == ("voce_disse", "B2")
+    assert t.estado.premissa("B2").trabalho == "crenca"
+    while t.estado.premissa("B2").resultado == "":
+        t = _anda(t.estado)
+    assert t.estado.premissa("B2").resultado == "corrigiu"
+    assert t.estado.premissa("B2").telas <= trilha.TETO_TELAS
+
+
+def test_crenca_dentro_de_um_trabalho_so_e_registrada():
+    t = _ate_a_abertura("B3")
+    t = trilha.avanca(D, ESC, t.estado, trilha.Entrada(acao="nao_sei"))
+    while t.tela.tipo != "pergunta":
+        t = _anda(t.estado)
+    assert t.tela.dados["papel"] == "topo"
+    t = trilha.avanca(D, ESC, t.estado, _marca(t.estado, crenca="declaration_zeroes"))
+    assert t.tela.tipo == "revisao"
+    assert [x.dados for x in t.eventos if x.tipo == "crenca_registrada"] == [
+        {"no": "B3", "crenca": "declaration_zeroes"}]
+    assert not [x for x in t.eventos if x.tipo == "prova_apresentada"]
+    assert t.estado.premissa("B3").trabalho == "lacuna"
+
+
+def test_no_modo_explique_crenca_no_topo_leva_a_prova():
+    t = _comeca("explique")
+    while t.tela.tipo != "pergunta":
+        t = _anda(t.estado)
+    assert t.tela.dados["papel"] == "topo" and t.tela.dados["pede_certeza"]
+    t = trilha.avanca(D, ESC, t.estado, _marca(t.estado, crenca="type_is_a_hint"))
+    assert (t.tela.tipo, t.tela.dados["premissa"]) == ("voce_disse", "B1")
+    assert t.estado.premissa("B1").trabalho == "crenca"
+    while t.estado.premissa("B1").resultado == "":
+        t = _anda(t.estado)
+    assert t.estado.premissa("B1").resultado == "corrigiu"
+    assert t.estado.premissa("B1").telas <= trilha.TETO_TELAS
+
+
 def test_o_motor_nao_importa_relogio_disco_nem_sorteio():
     fonte = (RAIZ / "trilha.py").read_text(encoding="utf-8")
     for proibido in ("import random", "import time", "datetime", "open(",

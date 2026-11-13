@@ -36,6 +36,12 @@ from typing import Any, Mapping
 from mvp import motor
 from mvp.dominio import Atividade, Dominio
 from mvp.motor import Evento, Tela
+# AS PROVAS QUE PODEM CHEGAR A QUEM ESTÁ NESTE TÓPICO. O nome é privado
+# no motor atual, e é importado assim de propósito: o motor atual não
+# muda (é restrição do plano), e a regra de exibição — só passa o
+# programa cujos construtos o tópico já ensinou — não pode ter cópia.
+# Duas regras de exibição divergem em silêncio; uma só não tem como.
+from mvp.motor import _prova as provas_exibiveis
 from mvp.trilha_escada import Degrau, Escada, corrige, ordem_das_pecas
 
 MODOS = ("direto", "explique")
@@ -100,6 +106,16 @@ class EstadoPremissa:
     usadas: tuple[str, ...] = ()     # questões de marcar já mostradas
     mostrados: tuple[tuple[str, int], ...] = ()   # (degrau, versão) já vistos
     formato_anterior: str = ""       # o da última pergunta de marcar
+    # A crença dita na abertura, mesmo com "chutei". Se ela voltar no
+    # topo da escada, é a ideia, e não chute (spec 6.6 e 6.14).
+    crenca_da_abertura: str = ""
+    # A crença da razão errada de quem acertou a resposta. Uma vez pode
+    # ser tropeço de alternativa; a mesma duas vezes vai para a prova.
+    razao_errada: str = ""
+    streak: int = 0                  # certas seguidas no treino
+    treinos: int = 0                 # perguntas de treino já feitas
+    # Crenças que apareceram sem abrir prova. Vão para o mapa.
+    apareceu: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -131,6 +147,11 @@ class Estado:
     passo: Passo = Passo()
     tela: Tela | None = None
     fim: bool = False
+    # Enquanto uma prova corre: a premissa em que a crença foi dita, e
+    # por onde ela continua quando a prova é de OUTRA premissa.
+    origem: str = ""
+    volta: str = ""
+    previu: str | None = None        # a previsão dada antes de ver a máquina
 
     def premissa(self, no: str) -> EstadoPremissa:
         return self.premissas.get(no, EstadoPremissa())
@@ -219,6 +240,8 @@ def resumo(d: Dominio, escadas: Mapping[str, Escada], e: Estado) -> list[dict]:
             "telas": ep.telas,
             "crenca": (d.crencas[ep.crenca].afirma
                        if ep.crenca in d.crencas else ""),
+            "apareceu": [d.crencas[c].afirma for c in ep.apareceu
+                         if c in d.crencas],
             "frases": [f for g in escada.guiados for f in g.frases],
             "codigo": escada.revisao.codigo,
         })
@@ -499,35 +522,260 @@ def _responde_pergunta(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
 
     # Certa pela razão certa, com ou sem certeza declarada.
     bem = episodio in (motor.CONFIRMADA, motor.FRAGIL_EP)
+    # A crença que a razão marcada diz, quando diz alguma.
+    crenca = razao.crenca if (razao and razao.crenca in d.crencas) else ""
 
     if p.papel == "abertura":
+        if crenca:
+            e = e.com(no, crenca_da_abertura=crenca)
         if episodio == motor.CONFIRMADA:
             completo = e.em_vigor[1] == "completo" and escadas[no].pratica
             return _retorno(d, e, no, "firme",
                             "produzir" if completo else "fecha_firme", eventos)
-        if episodio == motor.LACUNA_EP:
-            return _inicia_lacuna(escadas, e, no, eventos)
-        e = _fecha(e, no, EM_ABERTO, eventos)
-        return _abre_proxima(d, escadas, e, eventos)
+        if episodio == motor.FRAGIL_EP:
+            return _retorno(d, e, no, "inseguro", "reforco", eventos)
+        if episodio == motor.FALSO_NEGATIVO_EP:
+            return _retorno(d, e, no, "escorregao", "reforco", eventos)
+        if episodio == motor.FALSO_POSITIVO_EP:
+            e = e.com(no, razao_errada=crenca)
+            return _retorno(
+                d, e, no, "razao_errada", "reforco", eventos,
+                escolheu=d.crencas[crenca].afirma if crenca else "",
+                contradiz=bool(crenca and d.crencas[crenca].nega == no))
+        if episodio == motor.CRENCA_EP and crenca:
+            return _inicia_prova(d, escadas, e, no, crenca, eventos,
+                                 volta="reforco")
+        # "Não sei", erro com "chutei", ou erro sem crença que se saiba.
+        return _inicia_lacuna(escadas, e, no, eventos)
+
+    if p.papel == "reforco":
+        if bem:
+            e = _fecha(e, no, FIRMOU, eventos)
+            return _abre_proxima(d, escadas, e, eventos)
+        repetiu = (episodio == motor.FALSO_POSITIVO_EP and crenca
+                   and crenca == e.premissa(no).razao_errada)
+        if crenca and (episodio == motor.CRENCA_EP or repetiu):
+            return _inicia_prova(d, escadas, e, no, crenca, eventos,
+                                 volta="lacuna")
+        return _lacuna_ou_aberto(d, escadas, e, no, eventos)
 
     if p.papel == "topo":
         if bem:
             e = _fecha(e, no, APRENDEU, eventos)
             return _abre_proxima(d, escadas, e, eventos)
-        if dados["pede_certeza"] and episodio == motor.CRENCA_EP:
-            # O topo que decide (modo "explique") achou uma crença. A
-            # prova entra na parte 3; por enquanto a premissa fica aberta.
-            e = _fecha(e, no, EM_ABERTO, eventos)
-            return _abre_proxima(d, escadas, e, eventos)
+        # Duas crenças levam do topo à prova. No topo que DECIDE (modo
+        # "explique"), a de sempre: errada, razão errada, com confiança.
+        # No topo da lacuna, a MESMA que foi dita na abertura — ali a
+        # pessoa disse "chutei", e voltar à mesma ideia depois de subir a
+        # escada mostra que não era chute.
+        if dados["pede_certeza"]:
+            leva = episodio == motor.CRENCA_EP
+        else:
+            leva = crenca == e.premissa(no).crenca_da_abertura
+        if crenca and leva:
+            return _inicia_prova(d, escadas, e, no, crenca, eventos,
+                                 volta="revisao", troca=True)
+        if crenca:
+            e = _registra(e, no, crenca, eventos)
         return _revisao(escadas, e, no, eventos)
 
     if p.papel == "confirmacao":
         if bem:
             e = _fecha(e, no, APRENDEU, eventos)
             return _abre_proxima(d, escadas, e, eventos)
+        if crenca:
+            e = _registra(e, no, crenca, eventos)
         return _retorno_da_pergunta(d, e, no, razao, "fecha_aberto", eventos)
 
     e = _fecha(e, no, EM_ABERTO, eventos)
+    return _abre_proxima(d, escadas, e, eventos)
+
+
+def _registra(e: Estado, no: str, crenca: str, eventos: list) -> Estado:
+    """Uma crença que apareceu DENTRO de um trabalho.
+
+    Não abre prova: ali a resposta só conta como certa pela razão certa,
+    ou não. Mas a pessoa disse a crença, e isso é dado — vai para o
+    registro e para o mapa.
+    """
+    eventos.append(_ev("crenca_registrada", no=no, crenca=crenca))
+    return _anota(e, no, crenca)
+
+
+def _anota(e: Estado, no: str, crenca: str) -> Estado:
+    ep = e.premissa(no)
+    if crenca in ep.apareceu:
+        return e
+    return e.com(no, apareceu=ep.apareceu + (crenca,))
+
+
+def _lacuna_ou_aberto(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
+                      no: str, eventos: list) -> Transicao:
+    """Cada premissa recebe UM trabalho. Já teve: fecha em aberto."""
+    if not e.premissa(no).trabalho:
+        return _inicia_lacuna(escadas, e, no, eventos)
+    e = _fecha(e, no, EM_ABERTO, eventos)
+    return _abre_proxima(d, escadas, e, eventos)
+
+
+def _reforco(d: Dominio, escadas: Mapping[str, Escada], e: Estado, no: str,
+             eventos: list) -> Transicao:
+    """UMA pergunta a mais, em outro formato. Ela decide o caminho."""
+    a = _proxima_pergunta(d, e, no)
+    if a is None:
+        e = _fecha(e, no, EM_ABERTO, eventos)
+        return _abre_proxima(d, escadas, e, eventos)
+    return _pergunta(d, e, no, a, "reforco", eventos, certeza=True)
+
+
+def _retoma(d: Dominio, escadas: Mapping[str, Escada], e: Estado, no: str,
+            volta: str, eventos: list) -> Transicao:
+    """A premissa em que a crença foi dita continua de onde estava."""
+    if volta == "reforco":
+        return _reforco(d, escadas, e, no, eventos)
+    if volta == "revisao":
+        return _revisao(escadas, e, no, eventos)
+    return _lacuna_ou_aberto(d, escadas, e, no, eventos)
+
+
+# --------------------------------------------------------------------------
+# A crença: a prova
+# --------------------------------------------------------------------------
+
+PREVISOES = {
+    "nao_compila": "Este programa compila?",
+    "avisa": "O compilador reclama de alguma coisa aqui?",
+}
+
+
+def _primeira_prova(d: Dominio, no: str) -> dict | None:
+    provas = provas_exibiveis(d, no)
+    return provas[0] if provas else None
+
+
+def _inicia_prova(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
+                  origem: str, crenca: str, eventos: list, volta: str,
+                  troca: bool = False) -> Transicao:
+    """A prova acontece NA HORA, na premissa que a crença nega.
+
+    Essa premissa pode não ser a da pergunta: uma alternativa do B1 pode
+    dizer uma crença sobre o B2. A prova é o trabalho do B2 — ainda que a
+    trilha não tivesse chegado nele, e ainda que ele já estivesse fechado
+    como "já sabia" — e depois a premissa de origem continua por `volta`.
+
+    Uma prova por premissa. Se a premissa negada já teve o seu trabalho,
+    o fato é registrado e a origem segue. `troca` é a única exceção: a
+    crença achada no topo da escada troca o trabalho daquela premissa de
+    lacuna para crença.
+    """
+    alvo = d.crencas[crenca].nega
+    ea = e.premissa(alvo)
+    pode = not ea.trabalho or (troca and alvo == origem
+                               and ea.trabalho == "lacuna")
+    if not pode:
+        eventos.append(_ev("prova_dispensada", no=alvo, crenca=crenca,
+                           veio_de=origem))
+        return _retoma(d, escadas, _anota(e, alvo, crenca), origem, volta,
+                       eventos)
+    if ea.resultado:
+        eventos.append(_ev("premissa_reaberta", no=alvo, era=ea.resultado))
+    e = e.com(alvo, trabalho="crenca", crenca=crenca, resultado="",
+              streak=0, treinos=0)
+    e = replace(e, origem=origem, volta=volta, previu=None)
+    eventos.append(_ev("trabalho_iniciado", no=alvo, trabalho="crenca"))
+    eventos.append(_ev("prova_apresentada", no=alvo, crenca=crenca,
+                       veio_de=origem))
+
+    prova = _primeira_prova(d, alvo)
+    forma = ("nao_compila" if prova and prova["nao_compila"]
+             else "avisa" if prova and prova["avisa"] else "")
+    # Onde a prova é o que o compilador DIZ, a previsão sai de graça: a
+    # pessoa se compromete antes de ver. Onde a prova é uma saída, a
+    # previsão pede conteúdo escrito por crença, que ainda não existe.
+    previsao = ({"pergunta": PREVISOES[forma], "opcoes": ["Sim", "Não"]}
+                if forma else None)
+    e = e.com(alvo, telas=e.premissa(alvo).telas + 1)
+    tela = Tela("voce_disse", dados={
+        "premissa": alvo, "crenca": d.crencas[crenca].afirma,
+        "previsao": previsao,
+        "programa": prova["programa"] if previsao else "",
+    })
+    return _mostra(e, tela, Passo("voce_disse", premissa=alvo), eventos)
+
+
+def _responde_previsao(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
+                       r: Entrada) -> Transicao:
+    alvo, previsao = e.passo.premissa, e.tela.dados["previsao"]
+    eventos: list = []
+    if previsao:
+        if r.acao != "responder":
+            raise EntradaInvalida("esta tela pede a previsão antes de seguir")
+        i = _indice(r.escolha, len(previsao["opcoes"]), "previsão")
+        e = replace(e, previu=previsao["opcoes"][i])
+        eventos.append(_ev("previsao_registrada", no=alvo, previu=e.previu,
+                           ms=r.ms))
+    elif r.acao != "continuar":
+        raise EntradaInvalida("esta tela só continua")
+    return _maquina(d, escadas, e, alvo, eventos)
+
+
+def _maquina(d: Dominio, escadas: Mapping[str, Escada], e: Estado, alvo: str,
+             eventos: list) -> Transicao:
+    """O programa e o que a máquina respondeu — no centro, e aberto.
+
+    `tem_prova` existe para a tela não mentir: sem demonstração exibível
+    ela mostra o código da revisão e NÃO diz que a máquina respondeu.
+    """
+    prova = _primeira_prova(d, alvo)
+    e = e.com(alvo, telas=e.premissa(alvo).telas + 1)
+    tela = Tela("maquina", dados={
+        "premissa": alvo,
+        "tem_prova": prova is not None,
+        "programa": prova["programa"] if prova else escadas[alvo].revisao.codigo,
+        "espera": prova["espera"] if prova else "",
+        "nao_compila": bool(prova and prova["nao_compila"]),
+        "avisa": prova["avisa"] if prova else "",
+        "ambiente": prova["ambiente"] if prova else "",
+        "afirma": prova["afirma"] if prova else "",
+        "premissa_texto": d.nos[alvo].simples,
+        # As premissas que sustentam esta. Na ordem do grafo a pessoa já
+        # passou por elas antes de chegar aqui.
+        "apoio": [{"no": s, "texto": d.nos[s].simples}
+                  for s in d.nos[alvo].suporte],
+        "previu": e.previu,
+    })
+    return _mostra(e, tela, Passo("maquina", premissa=alvo, adiante="treino"),
+                   eventos)
+
+
+def _treino(d: Dominio, escadas: Mapping[str, Escada], e: Estado, alvo: str,
+            eventos: list) -> Transicao:
+    """Os degraus de prática, até duas certas seguidas. No máximo três.
+
+    A ordem é a primeira versão de cada degrau de prática, depois a
+    segunda — e nunca um exercício que a pessoa já viu nesta sessão.
+    """
+    ep = e.premissa(alvo)
+    if ep.streak >= TREINO_ALVO:
+        return _fim_da_prova(d, escadas, e, alvo, CORRIGIU, eventos)
+    pratica = escadas[alvo].pratica
+    fila = [(g, k)
+            for k in range(max((len(g.versoes) for g in pratica), default=0))
+            for g in pratica
+            if k < len(g.versoes) and (g.id, k) not in ep.mostrados]
+    if ep.treinos >= TREINO_MAX or not fila:
+        return _fim_da_prova(d, escadas, e, alvo, EM_ABERTO, eventos)
+    g, k = fila[0]
+    return _degrau(escadas, e, alvo, g, k, "treino", eventos)
+
+
+def _fim_da_prova(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
+                  alvo: str, resultado: str, eventos: list) -> Transicao:
+    e = _fecha(e, alvo, resultado, eventos)
+    origem, volta = e.origem, e.volta
+    e = replace(e, origem="", volta="", previu=None)
+    if origem and origem != alvo:
+        return _retoma(d, escadas, e, origem, volta, eventos)
     return _abre_proxima(d, escadas, e, eventos)
 
 
@@ -569,7 +817,20 @@ def _responde_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         if c.certa:
             e = _fecha(e, no, _firme(e, no), eventos)
             return _abre_proxima(d, escadas, e, eventos)
-        return _retorno(d, e, no, "errada", "fecha_aberto", eventos,
+        # Marcou certo e escreveu errado: a segunda evidência não fechou,
+        # e quem decide é mais uma pergunta.
+        return _retorno(d, e, no, "errada", "reforco", eventos,
+                        texto=c.retorno, mostra_certa=c.mostra_certa)
+
+    if p.papel == "treino":
+        ep = e.premissa(no)
+        e = e.com(no, treinos=ep.treinos + 1,
+                  streak=ep.streak + 1 if c.certa else 0)
+        if c.certa:
+            return _treino(d, escadas, e, no, eventos)
+        if c.crenca:
+            e = _registra(e, no, c.crenca, eventos)
+        return _retorno(d, e, no, "errada", "treino", eventos,
                         texto=c.retorno, mostra_certa=c.mostra_certa)
 
     if p.papel == "subida":
@@ -614,6 +875,10 @@ def _segue(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         g = escadas[no].pratica[-1]
         return _degrau(escadas, e, no, g, _versao_livre(e.premissa(no), g),
                        "produzir", eventos)
+    if adiante == "reforco":
+        return _reforco(d, escadas, e, no, eventos)
+    if adiante == "treino":
+        return _treino(d, escadas, e, no, eventos)
     if adiante in ("degrau_de_novo", "degrau_seguinte"):
         g = next(x for x in escadas[no].degraus if x.id == e.passo.degrau)
         if adiante == "degrau_seguinte":
@@ -676,6 +941,8 @@ def avanca(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         return _responde_pergunta(d, escadas, e, r)
     if tipo == "degrau" and r.acao == "responder":
         return _responde_degrau(d, escadas, e, r)
-    if tipo in ("retorno", "revisao") and r.acao == "continuar":
+    if tipo == "voce_disse" and r.acao in ("responder", "continuar"):
+        return _responde_previsao(d, escadas, e, r)
+    if tipo in ("retorno", "revisao", "maquina") and r.acao == "continuar":
         return _segue(d, escadas, e, [])
     raise EntradaInvalida("a ação %r não cabe na tela %r" % (r.acao, tipo))
