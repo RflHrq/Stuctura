@@ -275,15 +275,47 @@ def _degrau(escadas: Mapping[str, Escada], e: Estado, no: str, g: Degrau,
 
 def _retorno(d: Dominio, e: Estado, no: str, veredito: str, adiante: str,
              eventos: list, texto: str = "", mostra_certa: str = "",
-             escolheu: str = "", contradiz: bool = False) -> Transicao:
-    """O retorno, que a tela mostra ABAIXO do que a pessoa acabou de fazer."""
+             escolheu: str = "", contradiz: bool = False,
+             degrau: str = "", versao: int = 0) -> Transicao:
+    """O retorno, que a tela mostra ABAIXO do que a pessoa acabou de fazer.
+
+    `degrau` e `versao` viajam no passo quando o retorno é de um degrau:
+    é por eles que o "continuar" sabe qual degrau repetir, e com que
+    versão NÃO repetir.
+    """
     tela = Tela("retorno", texto=texto, dados={
         "premissa": no, "veredito": veredito, "mostra_certa": mostra_certa,
         "premissa_texto": d.nos[no].simples, "escolheu": escolheu,
         "contradiz": contradiz, "sobre": no,
     })
-    return _mostra(e, tela, Passo("retorno", premissa=no, adiante=adiante),
-                   eventos)
+    return _mostra(e, tela, Passo("retorno", premissa=no, adiante=adiante,
+                                  degrau=degrau, versao=versao), eventos)
+
+
+def _revisao(escadas: Mapping[str, Escada], e: Estado, no: str,
+             eventos: list) -> Transicao:
+    """O exemplo resolvido da premissa, para quem errou o topo da escada."""
+    r = escadas[no].revisao
+    e = e.com(no, telas=e.premissa(no).telas + 1)
+    tela = Tela("revisao", dados={
+        "premissa": no, "frases": list(r.frases), "codigo": r.codigo,
+        "saida": r.saida,
+    })
+    return _mostra(e, tela, Passo("revisao", premissa=no,
+                                  adiante="confirmacao"), eventos)
+
+
+def _explicacao(d: Dominio, escadas: Mapping[str, Escada], no: str) -> dict:
+    """A explicação que a pessoa abre quando quer: o texto dos degraus
+    guiados, em ordem, e o código da revisão.
+
+    Não usa o exemplo nem a ampliação do cartão antigo: aquele material
+    tem outro cenário e outro nível, e foi o que motivou a escada.
+    """
+    escada = escadas[no]
+    return {"premissa": no, "no": no, "simples": d.nos[no].simples,
+            "frases": [f for g in escada.guiados for f in g.frases],
+            "codigo": escada.revisao.codigo}
 
 
 def _versao_livre(ep: EstadoPremissa, g: Degrau, fora: int = -1) -> int:
@@ -341,9 +373,67 @@ def _abre(d: Dominio, escadas: Mapping[str, Escada], e: Estado, no: str,
           eventos: list) -> Transicao:
     e = replace(e, atual=no, em_vigor=(e.modo, e.ritmo))
     eventos.append(_ev("premissa_aberta", no=no, modo=e.modo, ritmo=e.ritmo))
+    if e.modo == "explique":
+        # "Me explique antes": a premissa abre pelo primeiro degrau, e a
+        # pergunta de abertura não existe. Quem é ensinado é reconferido
+        # no fim, e por isso o trabalho já nasce marcado.
+        return _inicia_lacuna(escadas, e, no, eventos)
     a = abertura(d, no, e.formato_da_abertura)
     e = replace(e, formato_da_abertura=a.formato)
     return _pergunta(d, e, no, a, "abertura", eventos, certeza=True)
+
+
+# --------------------------------------------------------------------------
+# A lacuna: subir a escada
+# --------------------------------------------------------------------------
+
+def _inicia_lacuna(escadas: Mapping[str, Escada], e: Estado, no: str,
+                   eventos: list) -> Transicao:
+    e = e.com(no, trabalho="lacuna")
+    eventos.append(_ev("trabalho_iniciado", no=no, trabalho="lacuna"))
+    return _sobe(escadas, e, no, 0, eventos, primeiro=True)
+
+
+def _sobe(escadas: Mapping[str, Escada], e: Estado, no: str, i: int,
+          eventos: list, primeiro: bool = False) -> Transicao:
+    """O degrau `i` da escada. A subida inteira conta UMA tela."""
+    g = escadas[no].degraus[i]
+    return _degrau(escadas, e, no, g, _versao_livre(e.premissa(no), g),
+                   "subida", eventos, conta=primeiro)
+
+
+def _proxima_pergunta(d: Dominio, e: Estado, no: str) -> Atividade | None:
+    """Uma questão de marcar ainda não usada nesta premissa.
+
+    As de diagnóstico antes das de treino, e com duas razões ou mais:
+    sem razão a pergunta não mede o que a trilha precisa. Entre as que
+    servem, vem primeiro a de formato diferente da pergunta anterior.
+    """
+    ep = e.premissa(no)
+    livres = [a for uso in ("diagnostico", "treino")
+              for a in d.atividades_do_no(no, uso)
+              if a.id not in ep.usadas and len(motor.razoes_de(d, a)) >= 2]
+    return next((a for a in livres if a.formato != ep.formato_anterior),
+                livres[0] if livres else None)
+
+
+def _topo(d: Dominio, escadas: Mapping[str, Escada], e: Estado, no: str,
+          eventos: list) -> Transicao:
+    """A pergunta da premissa, depois do último degrau."""
+    ep = e.premissa(no)
+    # Sem pergunta respondida nesta premissa, é o topo que decide o
+    # caminho — o caso do modo "explique" —, e aí ele pede a certeza.
+    decide = not ep.usadas
+    a = abertura(d, no, e.formato_da_abertura)
+    if a.id in ep.usadas:
+        a = _proxima_pergunta(d, e, no)
+    elif decide:
+        e = replace(e, formato_da_abertura=a.formato)
+    if a is None:
+        # O banco acabou antes de a premissa poder ser conferida.
+        e = _fecha(e, no, EM_ABERTO, eventos)
+        return _abre_proxima(d, escadas, e, eventos)
+    return _pergunta(d, e, no, a, "topo", eventos, certeza=decide)
 
 
 def _fecha(e: Estado, no: str, resultado: str, eventos: list) -> Estado:
@@ -407,13 +497,52 @@ def _responde_pergunta(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
             atividade=a.id, papel=p.papel),
     ]
 
-    if p.papel == "abertura" and episodio == motor.CONFIRMADA:
-        completo = e.em_vigor[1] == "completo" and escadas[no].pratica
-        return _retorno(d, e, no, "firme",
-                        "produzir" if completo else "fecha_firme", eventos)
+    # Certa pela razão certa, com ou sem certeza declarada.
+    bem = episodio in (motor.CONFIRMADA, motor.FRAGIL_EP)
+
+    if p.papel == "abertura":
+        if episodio == motor.CONFIRMADA:
+            completo = e.em_vigor[1] == "completo" and escadas[no].pratica
+            return _retorno(d, e, no, "firme",
+                            "produzir" if completo else "fecha_firme", eventos)
+        if episodio == motor.LACUNA_EP:
+            return _inicia_lacuna(escadas, e, no, eventos)
+        e = _fecha(e, no, EM_ABERTO, eventos)
+        return _abre_proxima(d, escadas, e, eventos)
+
+    if p.papel == "topo":
+        if bem:
+            e = _fecha(e, no, APRENDEU, eventos)
+            return _abre_proxima(d, escadas, e, eventos)
+        if dados["pede_certeza"] and episodio == motor.CRENCA_EP:
+            # O topo que decide (modo "explique") achou uma crença. A
+            # prova entra na parte 3; por enquanto a premissa fica aberta.
+            e = _fecha(e, no, EM_ABERTO, eventos)
+            return _abre_proxima(d, escadas, e, eventos)
+        return _revisao(escadas, e, no, eventos)
+
+    if p.papel == "confirmacao":
+        if bem:
+            e = _fecha(e, no, APRENDEU, eventos)
+            return _abre_proxima(d, escadas, e, eventos)
+        return _retorno_da_pergunta(d, e, no, razao, "fecha_aberto", eventos)
 
     e = _fecha(e, no, EM_ABERTO, eventos)
     return _abre_proxima(d, escadas, e, eventos)
+
+
+def _retorno_da_pergunta(d: Dominio, e: Estado, no: str, razao,
+                         adiante: str, eventos: list) -> Transicao:
+    """O erro numa pergunta de marcar que só confirma.
+
+    Montado do domínio, como o motor atual faz no treino: a fala da
+    crença que a razão marcada afirma, e se ela contradiz ESTA premissa
+    ou outra. Sem razão marcada ("não sei"), não há ideia a nomear.
+    """
+    crenca = d.crencas.get(razao.crenca) if (razao and razao.crenca) else None
+    return _retorno(d, e, no, "errada", adiante, eventos,
+                    escolheu=crenca.afirma if crenca else "",
+                    contradiz=bool(crenca and crenca.nega == no))
 
 
 def _responde_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
@@ -443,7 +572,32 @@ def _responde_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         return _retorno(d, e, no, "errada", "fecha_aberto", eventos,
                         texto=c.retorno, mostra_certa=c.mostra_certa)
 
+    if p.papel == "subida":
+        if c.certa:
+            if p.tentativa == 1:
+                e = e.com(no, degrau=e.premissa(no).degrau + 1)
+            return _depois_do_degrau(d, escadas, e, no, g, eventos)
+        if p.tentativa == 1:
+            # Primeiro erro: o retorno daquele erro, e o MESMO degrau com
+            # outros valores. A resposta certa ainda não aparece.
+            return _retorno(d, e, no, "errada", "degrau_de_novo", eventos,
+                            texto=c.retorno, degrau=g.id, versao=p.versao)
+        # Segundo erro: mostra a certa, e a escada segue. Ninguém fica
+        # preso num degrau.
+        return _retorno(d, e, no, "errada", "degrau_seguinte", eventos,
+                        texto=c.retorno, mostra_certa=c.mostra_certa,
+                        degrau=g.id, versao=p.versao)
+
     raise EntradaInvalida("degrau de papel %r ainda não tem caminho" % p.papel)
+
+
+def _depois_do_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
+                      no: str, g: Degrau, eventos: list) -> Transicao:
+    degraus = escadas[no].degraus
+    i = degraus.index(g) + 1
+    if i < len(degraus):
+        return _sobe(escadas, e, no, i, eventos)
+    return _topo(d, escadas, e, no, eventos)
 
 
 def _segue(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
@@ -460,7 +614,49 @@ def _segue(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         g = escadas[no].pratica[-1]
         return _degrau(escadas, e, no, g, _versao_livre(e.premissa(no), g),
                        "produzir", eventos)
+    if adiante in ("degrau_de_novo", "degrau_seguinte"):
+        g = next(x for x in escadas[no].degraus if x.id == e.passo.degrau)
+        if adiante == "degrau_seguinte":
+            return _depois_do_degrau(d, escadas, e, no, g, eventos)
+        outra = _versao_livre(e.premissa(no), g, fora=e.passo.versao)
+        return _degrau(escadas, e, no, g, outra, "subida", eventos,
+                       tentativa=2, conta=False)
+    if adiante == "confirmacao":
+        a = _proxima_pergunta(d, e, no)
+        if a is None:
+            e = _fecha(e, no, EM_ABERTO, eventos)
+            return _abre_proxima(d, escadas, e, eventos)
+        return _pergunta(d, e, no, a, "confirmacao", eventos, certeza=False)
     raise EntradaInvalida("não há para onde continuar daqui")
+
+
+def _a_parte(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
+             r: Entrada) -> Transicao:
+    """As três ações que não respondem à tela: devolvem a MESMA tela.
+
+    `explicacao` abre a explicação da premissa por cima do que está na
+    frente da pessoa. `modo` e `ritmo` trocam a escolha da entrada, e a
+    troca vale a partir da premissa seguinte.
+    """
+    tipo = e.passo.tipo
+    if r.acao == "explicacao":
+        if tipo not in ("pergunta", "degrau"):
+            raise EntradaInvalida("a explicação abre em pergunta e em degrau")
+        no = e.passo.premissa
+        e = e.com(no, abriu_explicacao=True)
+        return Transicao(e, e.tela, (_ev("explicacao_aberta", no=no),),
+                         _explicacao(d, escadas, no))
+    if tipo in ("entrada", "mapa"):
+        raise EntradaInvalida("não há o que trocar nesta tela")
+    if r.acao == "modo":
+        if r.modo not in MODOS:
+            raise EntradaInvalida("modo desconhecido: %r" % r.modo)
+        e = replace(e, modo=r.modo)
+        return Transicao(e, e.tela, (_ev("modo_trocado", modo=r.modo),))
+    if r.ritmo not in RITMOS:
+        raise EntradaInvalida("ritmo desconhecido: %r" % r.ritmo)
+    e = replace(e, ritmo=r.ritmo)
+    return Transicao(e, e.tela, (_ev("ritmo_trocado", ritmo=r.ritmo),))
 
 
 def avanca(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
@@ -472,12 +668,14 @@ def avanca(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         raise EntradaInvalida("a trilha já terminou")
     if r.acao == "comecar":
         return _comeca(d, escadas, e, r)
+    if r.acao in ("explicacao", "modo", "ritmo"):
+        return _a_parte(d, escadas, e, r)
 
     tipo = e.passo.tipo
     if tipo == "pergunta" and r.acao in ("responder", "nao_sei"):
         return _responde_pergunta(d, escadas, e, r)
     if tipo == "degrau" and r.acao == "responder":
         return _responde_degrau(d, escadas, e, r)
-    if tipo == "retorno" and r.acao == "continuar":
+    if tipo in ("retorno", "revisao") and r.acao == "continuar":
         return _segue(d, escadas, e, [])
     raise EntradaInvalida("a ação %r não cabe na tela %r" % (r.acao, tipo))
