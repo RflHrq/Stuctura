@@ -1076,23 +1076,23 @@ I2:
             - exata: [2]
               retorno: "O * serve a ponteiro, e idade não é um. O endereço se pede com o &: poe(&idade);"
           retorno_geral: "A função recebe o endereço: poe(&idade);"
-        - pede: "Qual chamada faz a função escrever em nota?"
+        - pede: "Qual chamada faz a função escrever em pontos?"
           antes: |-
             void poe(int *p) { *p = 42; }
 
-            int nota;
+            int pontos;
 
-            nota = 7;
-          pecas: ["poe(nota);", "poe(&nota);", "poe(*nota);"]
+            pontos = 3;
+          pecas: ["poe(pontos);", "poe(&pontos);", "poe(*pontos);"]
           certa: [[1]]
-          certa_texto: "poe(&nota);"
+          certa_texto: "poe(&pontos);"
           invalidas: [0, 2]
           erros:
             - exata: [0]
-              retorno: "Sem o &, a chamada entregaria uma cópia do valor, e a função espera um endereço. O compilador reclama. O certo é poe(&nota);"
+              retorno: "Sem o &, a chamada entregaria uma cópia do valor, e a função espera um endereço. O compilador reclama. O certo é poe(&pontos);"
             - exata: [2]
-              retorno: "O * serve a ponteiro, e nota não é um. O endereço se pede com o &: poe(&nota);"
-          retorno_geral: "A função recebe o endereço: poe(&nota);"
+              retorno: "O * serve a ponteiro, e pontos não é um. O endereço se pede com o &: poe(&pontos);"
+          retorno_geral: "A função recebe o endereço: poe(&pontos);"
 
 I3:
   revisao:

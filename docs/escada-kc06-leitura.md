@@ -1062,27 +1062,27 @@ Se errar:
 - respondeu `poe(*idade);` → O * serve a ponteiro, e idade não é um. O endereço se pede com o &: poe(&idade);
 - qualquer outro erro → A função recebe o endereço: poe(&idade);
 
-**Versão 2.** Qual chamada faz a função escrever em nota?
+**Versão 2.** Qual chamada faz a função escrever em pontos?
 
 Já está escrito:
 
 ```c
 void poe(int *p) { *p = 42; }
 
-int nota;
+int pontos;
 
-nota = 7;
+pontos = 3;
 ```
 
-Opções: `poe(nota);`  `poe(&nota);`  `poe(*nota);`
+Opções: `poe(pontos);`  `poe(&pontos);`  `poe(*pontos);`
 
-Resposta certa: `poe(&nota);`
+Resposta certa: `poe(&pontos);`
 
 Se errar:
 
-- respondeu `poe(nota);` → Sem o &, a chamada entregaria uma cópia do valor, e a função espera um endereço. O compilador reclama. O certo é poe(&nota);
-- respondeu `poe(*nota);` → O * serve a ponteiro, e nota não é um. O endereço se pede com o &: poe(&nota);
-- qualquer outro erro → A função recebe o endereço: poe(&nota);
+- respondeu `poe(pontos);` → Sem o &, a chamada entregaria uma cópia do valor, e a função espera um endereço. O compilador reclama. O certo é poe(&pontos);
+- respondeu `poe(*pontos);` → O * serve a ponteiro, e pontos não é um. O endereço se pede com o &: poe(&pontos);
+- qualquer outro erro → A função recebe o endereço: poe(&pontos);
 
 ### Se errar a pergunta do topo: a revisão
 

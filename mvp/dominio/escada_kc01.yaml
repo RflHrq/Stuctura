@@ -1,0 +1,1291 @@
+# A escada do kc_01 — modelo de memória.
+#
+# O QUE É. Para cada premissa do tópico, os degraus do mais mecânico até
+# a ideia, e a prova de cada crença que nega a premissa. Segue o molde
+# do kc_00, e a mesma régua do texto (docs/trilha.md, 6.16).
+#
+# ONDE ELE FICA NA ORDEM. O kc_01 é o segundo tópico do curso, mas na
+# trilha vem depois do kc_07: ele fala de função e de `malloc`, e só faz
+# sentido para quem já chamou função (kc_06) e já viu `sizeof` (kc_07).
+#
+# O QUE ESTE TÓPICO APRESENTA, e onde:
+#
+#   return, e a função que devolve um valor                    B2, degrau 1
+#   (void) nos parênteses: função sem parâmetro                B2, degrau 2
+#   a função escrita em várias linhas                          B2, degrau 3
+#   malloc(sizeof(int)) e a palavra "bloco"                    B3, degrau 1
+#   free(p);                                                   B3, degrau 2
+#   "pilha" e "monte"                                          I2, degrau 1
+#
+# A FUNÇÃO EM VÁRIAS LINHAS. Até o kc_07 a escada só mostrava função de
+# uma linha. O banco deste tópico escreve sete questões com a função em
+# várias linhas, que é como ela aparece em qualquer programa; a escada
+# passa a mostrar uma, num passo guiado, e o conferidor a põe fora do
+# `main` como já fazia com a de uma linha.
+#
+# O QUE A PROVA DO B1 MOSTRA, E O QUE NÃO MOSTRA. A premissa é "a memória
+# é do programa, e outro programa não mexe nela". De dentro de um
+# programa não se vê outro programa: o grafo do tópico já diz isso. O que
+# se mostra é a consequência — o C não promete nada sobre o que há num
+# lugar em que esta execução não escreveu, e o compilador reclama de
+# quem lê ali. A nota de ambiente da prova diz o limite com todas as
+# letras.
+#
+# AS PROVAS, e o que cada uma usa:
+#
+#   B1  a memória é do computador  o compilador reclama de ler sem valor
+#   B2  a local continua lá        o compilador reclama do return &n
+#   B3  o sistema recolhe sozinho  o analisador aponta o bloco que vazou
+#   I1  o bloco some com a função  o bloco lido depois do return: 7
+#   I2  memória é uma só           o compilador reclama de free(&nota)
+#
+# A do B3 pede o analisador de fluxo do gcc (-fanalyzer), que segue o
+# caminho do programa; a nota de ambiente diz isso.
+#
+# AS QUESTÕES DE MARCAR. O banco do kc_01 não foi mexido. Cinco das 30
+# questões de diagnóstico e de treino usam o que as escadas não ensinam
+# — variável global, o `+=`, a multiplicação (`100 * sizeof(int)`), o
+# tamanho da pilha — e estão em `fora_da_trilha`.
+#
+# A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
+# alternativa de um degrau guiado, e só ali o erro leva `crenca`.
+#
+# gerado_por: Claude Fable 5.2, em 13/11/2026
+# revisado_por:
+#   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
+#   principal)
+
+B1:
+  revisao:
+    frases:
+      - "Cada vez que o programa roda, ele recebe uma memória só dele."
+      - "Quando termina, ela volta para o sistema: o que ele guardou não fica esperando a próxima execução."
+    codigo: |
+      int nota;
+
+      nota = 7;
+      printf("%d\n", nota);
+    saida: "7"
+  # Variável global, que nenhuma escada ensinou.
+  fora_da_trilha: [ciu_kc01_t03]
+  provas:
+    - crenca: memoria_e_do_computador
+      programa: |
+        int nota;
+
+        printf("%d\n", nota);
+      previsao:
+        pergunta: >
+          O programa só lê nota: não escreve nada nela. O compilador
+          reclama de alguma coisa?
+        opcoes:
+          - "Não: nota tem o que ficou na memória do computador"
+          - "Sim: nota é lida sem valor garantido"
+        real: 1
+        crenca: 0
+      reclama: "'nota' is used uninitialized"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa
+        não é executado. Isto é o que se vê de dentro de um programa; que
+        um não alcança a memória do outro, programa nenhum mostra
+        sozinho.
+      afirma: >
+        O compilador reclama: nota é lida sem ter recebido valor ("used
+        uninitialized"). Para o C não existe o que ficou do último
+        programa: a memória que a execução recebe é só dela, e o que há
+        num lugar em que ela não escreveu não tem garantia nenhuma.
+  degraus:
+    - id: esc_kc01_B1_1
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Enquanto o programa roda, a memória que ele recebeu é só dele."
+        - "Ninguém de fora mexe nela: o que ele escreveu continua lá."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int idade;
+
+            nota = 7;
+            idade = 15;
+            idade = idade + 1;
+            printf("%d\n", nota);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "16"
+              retorno: "16 é o que ficou em idade. nota recebeu 7, e ninguém mais escreveu nela: continua 7."
+            - texto: "8"
+              retorno: "A soma foi feita em idade, que é outra variável. nota recebeu 7, e ninguém mais escreveu nela."
+          retorno_geral: "nota recebeu 7, e ninguém mais escreveu nela: continua 7."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int idade;
+
+            nota = 9;
+            idade = 20;
+            idade = idade + 5;
+            printf("%d\n", nota);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "25"
+              retorno: "25 é o que ficou em idade. nota recebeu 9, e ninguém mais escreveu nela: continua 9."
+            - texto: "14"
+              retorno: "A soma foi feita em idade, que é outra variável. nota recebeu 9, e ninguém mais escreveu nela."
+          retorno_geral: "nota recebeu 9, e ninguém mais escreveu nela: continua 9."
+
+    - id: esc_kc01_B1_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Quando o programa termina, a memória dele volta para o sistema."
+        - "Na próxima vez que rodar, ele recebe outra: o que a execução anterior guardou não está lá."
+      versoes:
+        - pede: "O programa roda, guarda 7 em nota e termina. Depois roda de novo. O que a segunda execução encontra em nota, antes de escrever nela?"
+          antes: |-
+            int nota;
+
+            nota = 7;
+          pecas:
+            - "Um valor sem garantia: a memória da outra execução não é a dela"
+            - "O 7: a memória é do computador, e guarda o que o último programa deixou"
+            - "Zero: toda memória começa zerada"
+          certa: [[0]]
+          certa_texto: "Um valor sem garantia: a memória da outra execução não é a dela"
+          erros:
+            - exata: [1]
+              crenca: memoria_e_do_computador
+              retorno: "A memória não fica guardando o que um programa deixou. Cada execução recebe a dela, e a da execução anterior voltou para o sistema. O 7 não está lá."
+            - exata: [2]
+              retorno: "O C não promete zero numa variável em que ninguém escreveu: o valor não tem garantia. O que é certo é que o 7 da outra execução não está lá."
+          retorno_geral: "Cada execução recebe a memória dela. O que a anterior guardou não está lá, e nota começa sem valor garantido."
+        - pede: "O programa roda, guarda 42 em pontos e termina. Depois roda de novo. O que a segunda execução encontra em pontos, antes de escrever nela?"
+          antes: |-
+            int pontos;
+
+            pontos = 42;
+          pecas:
+            - "O 42: a memória é do computador, e guarda o que o último programa deixou"
+            - "Zero: toda memória começa zerada"
+            - "Um valor sem garantia: a memória da outra execução não é a dela"
+          certa: [[2]]
+          certa_texto: "Um valor sem garantia: a memória da outra execução não é a dela"
+          erros:
+            - exata: [0]
+              crenca: memoria_e_do_computador
+              retorno: "A memória não fica guardando o que um programa deixou. Cada execução recebe a dela, e a da execução anterior voltou para o sistema. O 42 não está lá."
+            - exata: [1]
+              retorno: "O C não promete zero numa variável em que ninguém escreveu: o valor não tem garantia. O que é certo é que o 42 da outra execução não está lá."
+          retorno_geral: "Cada execução recebe a memória dela. O que a anterior guardou não está lá, e pontos começa sem valor garantido."
+
+    - id: esc_kc01_B1_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Dois programas rodando ao mesmo tempo têm, cada um, a sua memória e a sua numeração de endereços."
+        - "Um não lê nem muda a do outro, mesmo que as variáveis tenham o mesmo nome."
+      versoes:
+        - pede: "Os dois programas rodam ao mesmo tempo, e cada um tem uma variável idade. O programa B escreve 0 na dele. Quanto vale a idade do programa A?"
+          antes: |-
+            /* programa A */  int idade = 15;
+            /* programa B */  int idade = 0;
+          pecas:
+            - "15: a memória de A é só de A"
+            - "0: o nome é o mesmo, e a memória é uma só"
+            - "Não dá para saber: um programa bagunça o outro"
+          certa: [[0]]
+          certa_texto: "15: a memória de A é só de A"
+          erros:
+            - exata: [1]
+              retorno: "O nome igual não junta as duas: cada programa tem a memória dele, e a idade de B fica na de B. A de A continua com 15."
+            - exata: [2]
+              retorno: "Um programa não alcança a memória do outro: nada que B faça muda a idade de A. Ela continua com 15."
+          retorno_geral: "A idade de A fica na memória de A, que B não alcança: 15."
+        - pede: "Os dois programas rodam ao mesmo tempo, e cada um tem uma variável nota. O programa B escreve 10 na dele. Quanto vale a nota do programa A?"
+          antes: |-
+            /* programa A */  int nota = 7;
+            /* programa B */  int nota = 10;
+          pecas:
+            - "10: o nome é o mesmo, e a memória é uma só"
+            - "Não dá para saber: um programa bagunça o outro"
+            - "7: a memória de A é só de A"
+          certa: [[2]]
+          certa_texto: "7: a memória de A é só de A"
+          erros:
+            - exata: [0]
+              retorno: "O nome igual não junta as duas: cada programa tem a memória dele, e a nota de B fica na de B. A de A continua com 7."
+            - exata: [1]
+              retorno: "Um programa não alcança a memória do outro: nada que B faça muda a nota de A. Ela continua com 7."
+          retorno_geral: "A nota de A fica na memória de A, que B não alcança: 7."
+
+    - id: esc_kc01_B1_4
+      nome: "Cada execução começa com a memória dela"
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "O programa quer contar quantas vezes já foi rodado, somando 1 numa variável a cada execução. Funciona?"
+          antes: |-
+            int vezes;
+
+            vezes = vezes + 1;
+            printf("%d\n", vezes);
+          pecas:
+            - "Não: cada execução recebe outra memória, e vezes começa sem valor garantido"
+            - "Funciona: vezes guarda o que a execução anterior deixou"
+            - "Funciona, enquanto o computador não for desligado"
+          certa: [[0]]
+          certa_texto: "Não: cada execução recebe outra memória, e vezes começa sem valor garantido"
+          erros:
+            - exata: [1]
+              retorno: "A variável não guarda nada entre uma execução e outra: a memória da execução anterior voltou para o sistema. vezes começa sem valor garantido."
+            - exata: [2]
+              retorno: "Desligar não é a questão: basta o programa terminar. A memória dele volta para o sistema, e a execução seguinte recebe outra."
+          retorno_geral: "Cada execução recebe outra memória: vezes não traz nada da execução anterior."
+        - pede: "O jogo guarda os pontos numa variável. Você fecha o jogo e abre de novo. Os pontos da partida anterior estão lá?"
+          antes: "int pontos;"
+          pecas:
+            - "Estão: ficam na memória do computador até outro programa usar"
+            - "Não: a memória daquela execução voltou para o sistema"
+            - "Estão, se a variável tiver o mesmo nome"
+          certa: [[1]]
+          certa_texto: "Não: a memória daquela execução voltou para o sistema"
+          erros:
+            - exata: [0]
+              retorno: "A memória não fica guardando o que um programa deixou: quando o jogo fechou, a dele voltou para o sistema. A nova execução recebe outra."
+            - exata: [2]
+              retorno: "O nome da variável não segura valor nenhum. A memória da execução anterior voltou para o sistema, e a nova começa com outra."
+          retorno_geral: "Quando o jogo fechou, a memória dele voltou para o sistema. A nova execução recebe outra."
+
+    - id: esc_kc01_B1_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Os programas A e B rodam ao mesmo tempo. A termina. O que muda na memória de B?"
+          pecas:
+            - "Nada: a memória de B é só de B"
+            - "B passa a enxergar o que A tinha guardado"
+            - "B perde o que tinha: a memória foi devolvida"
+          certa: [[0]]
+          certa_texto: "Nada: a memória de B é só de B"
+          erros:
+            - exata: [1]
+              retorno: "O que A guardou estava na memória de A, que voltou para o sistema. B continua só com a dele, e não enxerga a de mais ninguém."
+            - exata: [2]
+              retorno: "Quem devolveu a memória foi A, e a memória devolvida era a de A. A de B continua com B, como estava."
+          retorno_geral: "Cada programa tem a sua memória. O fim de A não muda nada na de B."
+        - pede: "O programa A tem um erro, e escreve sem parar em todas as variáveis dele. O que acontece com as variáveis do programa B, que roda ao mesmo tempo?"
+          pecas:
+            - "São sobrescritas: a memória é do computador, e os dois dividem"
+            - "Somem quando A terminar"
+            - "Nada: A não alcança a memória de B"
+          certa: [[2]]
+          certa_texto: "Nada: A não alcança a memória de B"
+          erros:
+            - exata: [0]
+              retorno: "Os dois não dividem a memória: cada programa tem a dele. O que A escreve fica na de A, e não chega nas variáveis de B."
+            - exata: [1]
+              retorno: "Quando A termina, o que volta para o sistema é a memória de A. As variáveis de B estão na de B, e continuam lá."
+          retorno_geral: "Cada programa tem a sua memória. A não alcança as variáveis de B."
+
+B2:
+  revisao:
+    frases:
+      - "A variável declarada dentro da função é local: nasce quando a chamada começa e acaba quando a chamada termina."
+      - "Na chamada seguinte nasce outra, do zero: a função não lembra de nada."
+    codigo: |
+      int conta(void) { int n = 0; n = n + 1; return n; }
+
+      conta();
+      printf("%d\n", conta());
+    saida: "1"
+  # O +=, e variável declarada fora da função.
+  fora_da_trilha: [ciu_kc01_t06]
+  provas:
+    - crenca: local_sobrevive
+      programa: |
+        int *valor(void) { int n = 7; return &n; }
+
+        int *p;
+
+        p = valor();
+      previsao:
+        pergunta: >
+          A função devolve o endereço de n, a variável dela, e p guarda
+          esse endereço. O compilador reclama de alguma coisa?
+        opcoes:
+          - "Não: n continua lá depois que a função termina"
+          - "Sim: reclama de devolver o endereço de uma variável da função"
+        real: 1
+        crenca: 0
+      reclama: "function returns address of local variable"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa
+        não é executado: o que haveria naquele lugar, ninguém sabe.
+      afirma: >
+        O compilador reclama do return: a função devolve o endereço de
+        uma variável local ("address of local variable"). n acaba quando
+        a chamada termina, e o endereço fica apontando para um lugar que
+        não é mais de n.
+  degraus:
+    - id: esc_kc01_B2_1
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Uma função pode devolver um valor, com return. O tipo antes do nome diz o que ela devolve."
+        - "Com int dobro(int n) { return n + n; } a chamada dobro(4) vale 8."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int dobro(int n) { return n + n; }
+
+            printf("%d\n", dobro(5));
+          aceitas: ["10"]
+          certa_texto: "10"
+          erros:
+            - texto: "5"
+              retorno: "5 é o que entrou em n. A função devolve n + n, e é esse valor que a chamada passa a valer: 10."
+          retorno_geral: "A chamada dobro(5) vale o que a função devolve: 5 mais 5, 10."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int mais3(int n) { return n + 3; }
+
+            printf("%d\n", mais3(4));
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "4"
+              retorno: "4 é o que entrou em n. A função devolve n + 3, e é esse valor que a chamada passa a valer: 7."
+          retorno_geral: "A chamada mais3(4) vale o que a função devolve: 4 mais 3, 7."
+
+    - id: esc_kc01_B2_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "A variável declarada dentro da função é local: nasce quando a chamada começa e acaba quando ela termina."
+        - "(void) nos parênteses quer dizer que a função não tem parâmetro."
+      versoes:
+        - pede: "A função é chamada duas vezes. Quando a segunda chamada começa, o que há com o n da primeira?"
+          antes: |-
+            int conta(void) { int n = 0; n = n + 1; return n; }
+
+            conta();
+            conta();
+          pecas:
+            - "Acabou: a segunda chamada cria outro n"
+            - "Continua lá, com o 1 que tinha: a variável da função não some"
+            - "Continua lá, mas zerado"
+          certa: [[0]]
+          certa_texto: "Acabou: a segunda chamada cria outro n"
+          erros:
+            - exata: [1]
+              crenca: local_sobrevive
+              retorno: "A variável local acaba quando a chamada termina. O n da primeira chamada não existe mais; a segunda cria outro, que começa do zero."
+            - exata: [2]
+              retorno: "Não é o mesmo n, zerado: o da primeira chamada acabou. A segunda cria outro, e a linha int n = 0; dá o valor dele."
+          retorno_geral: "O n da primeira chamada acabou com ela. A segunda cria outro."
+        - pede: "A função é chamada duas vezes. Quando a segunda chamada começa, o que há com o t da primeira?"
+          antes: |-
+            int soma(int v) { int t = 10; t = t + v; return t; }
+
+            soma(5);
+            soma(1);
+          pecas:
+            - "Continua lá, com o 15 que tinha: a variável da função não some"
+            - "Continua lá, mas de volta em 10"
+            - "Acabou: a segunda chamada cria outro t"
+          certa: [[2]]
+          certa_texto: "Acabou: a segunda chamada cria outro t"
+          erros:
+            - exata: [0]
+              crenca: local_sobrevive
+              retorno: "A variável local acaba quando a chamada termina. O t da primeira chamada não existe mais; a segunda cria outro, que começa do zero."
+            - exata: [1]
+              retorno: "Não é o mesmo t, de volta em 10: o da primeira chamada acabou. A segunda cria outro, e a linha int t = 10; dá o valor dele."
+          retorno_geral: "O t da primeira chamada acabou com ela. A segunda cria outro."
+
+    - id: esc_kc01_B2_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Por isso a função não lembra de nada entre uma chamada e outra."
+        - "Ela pode ser escrita em várias linhas, entre as chaves: é a mesma função."
+      versoes:
+        - pede: "A função é chamada duas vezes, e só a segunda é mostrada. Que número aparece?"
+          mostra: |-
+            int conta(void) {
+                int n = 0;
+                n = n + 1;
+                return n;
+            }
+
+            conta();
+            printf("%d\n", conta());
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "2"
+              retorno: "O n da primeira chamada acabou junto com ela. A segunda cria outro n, que começa em 0 e vira 1."
+          retorno_geral: "Cada chamada cria o seu n, que começa em 0 e vira 1. A segunda devolve 1."
+        - pede: "A função é chamada duas vezes, e só a segunda é mostrada. Que número aparece?"
+          mostra: |-
+            int passo(void) {
+                int n = 5;
+                n = n + 5;
+                return n;
+            }
+
+            passo();
+            printf("%d\n", passo());
+          aceitas: ["10"]
+          certa_texto: "10"
+          erros:
+            - texto: "15"
+              retorno: "O n da primeira chamada acabou junto com ela. A segunda cria outro n, que começa em 5 e vira 10."
+          retorno_geral: "Cada chamada cria o seu n, que começa em 5 e vira 10. A segunda devolve 10."
+
+    - id: esc_kc01_B2_4
+      nome: "A variável local acaba com a chamada"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "A função é chamada duas vezes, e só a segunda é mostrada. Que número aparece?"
+          mostra: |-
+            int soma(int v) { int t = 10; t = t + v; return t; }
+
+            soma(5);
+            printf("%d\n", soma(1));
+          aceitas: ["11"]
+          certa_texto: "11"
+          erros:
+            - texto: "16"
+              retorno: "O t da primeira chamada acabou com ela. Na segunda nasce outro t, com 10, que soma 1: 11."
+            - texto: "15"
+              retorno: "15 foi o que a primeira chamada devolveu, e ninguém guardou. O printf mostra a segunda: 10 mais 1, 11."
+          retorno_geral: "A segunda chamada cria outro t, com 10, e soma 1: 11."
+        - pede: "A função é chamada duas vezes, e só a segunda é mostrada. Que número aparece?"
+          mostra: |-
+            int junta(int v) { int t = 100; t = t + v; return t; }
+
+            junta(20);
+            printf("%d\n", junta(3));
+          aceitas: ["103"]
+          certa_texto: "103"
+          erros:
+            - texto: "123"
+              retorno: "O t da primeira chamada acabou com ela. Na segunda nasce outro t, com 100, que soma 3: 103."
+            - texto: "120"
+              retorno: "120 foi o que a primeira chamada devolveu, e ninguém guardou. O printf mostra a segunda: 100 mais 3, 103."
+          retorno_geral: "A segunda chamada cria outro t, com 100, e soma 3: 103."
+
+    - id: esc_kc01_B2_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "A função devolve o endereço da variável dela. Quem recebe pode usar esse endereço?"
+          antes: "int *onde(void) { int idade = 15; return &idade; }"
+          pecas:
+            - "Não: idade acabou com a chamada, e o endereço não aponta mais para ela"
+            - "Pode: idade continua lá depois do return"
+            - "Pode: o endereço foi devolvido, e leva a idade junto"
+          certa: [[0]]
+          certa_texto: "Não: idade acabou com a chamada, e o endereço não aponta mais para ela"
+          erros:
+            - exata: [1]
+              retorno: "idade é local: acaba quando a chamada termina. O endereço devolvido fica apontando para um lugar que não é mais de idade."
+            - exata: [2]
+              retorno: "O return devolve só o endereço, que é um número. A variável não viaja com ele: acaba quando a chamada termina."
+          retorno_geral: "idade acaba quando a chamada termina. O endereço devolvido não aponta mais para uma variável."
+        - pede: "A função devolve o endereço da variável dela. Quem recebe pode usar esse endereço?"
+          antes: "int *lugar(void) { int nota = 9; return &nota; }"
+          pecas:
+            - "Pode: o endereço foi devolvido, e leva a nota junto"
+            - "Pode: nota continua lá depois do return"
+            - "Não: nota acabou com a chamada, e o endereço não aponta mais para ela"
+          certa: [[2]]
+          certa_texto: "Não: nota acabou com a chamada, e o endereço não aponta mais para ela"
+          erros:
+            - exata: [1]
+              retorno: "nota é local: acaba quando a chamada termina. O endereço devolvido fica apontando para um lugar que não é mais de nota."
+            - exata: [0]
+              retorno: "O return devolve só o endereço, que é um número. A variável não viaja com ele: acaba quando a chamada termina."
+          retorno_geral: "nota acaba quando a chamada termina. O endereço devolvido não aponta mais para uma variável."
+
+B3:
+  revisao:
+    frases:
+      - "malloc pede um bloco de memória e devolve o endereço dele. O bloco é seu até você devolver, com free."
+      - "A função terminar não devolve o bloco, e o sistema não recolhe sozinho enquanto o programa roda."
+    codigo: |
+      int *p;
+
+      p = malloc(sizeof(int));
+      *p = 7;
+      printf("%d\n", *p);
+      free(p);
+    saida: "7"
+  # A multiplicação, em malloc(100 * sizeof(int)).
+  fora_da_trilha: [ciu_kc01_t08]
+  provas:
+    - crenca: system_frees_auto
+      programa: |
+        void devolve(void) { int *p = malloc(sizeof(int)); free(p); }
+        void esquece(void) { int *p; p = malloc(sizeof(int)); }
+
+        devolve();
+        esquece();
+      previsao:
+        pergunta: >
+          As duas funções pedem um bloco. Só a primeira chama free.
+          Seguindo o caminho do programa, de qual delas o compilador
+          reclama?
+        opcoes:
+          - "Da segunda: o bloco dela vazou"
+          - "De nenhuma: o sistema recolhe sozinho o bloco da segunda"
+        real: 0
+        crenca: 1
+      reclama: "leak of 'p'"
+      avisos: "-fanalyzer"
+      ambiente: >
+        Mensagem do gcc 16.2 com o analisador de fluxo ligado
+        (-fanalyzer), que segue o caminho do programa. "leak" é
+        vazamento: memória pedida e nunca devolvida. O programa não é
+        executado.
+      afirma: >
+        O compilador reclama da segunda função: o bloco de p vazou ("leak
+        of 'p'"). Foi pedido, a função terminou, e ninguém o devolveu. Se
+        o sistema recolhesse sozinho, não haveria vazamento para apontar.
+  degraus:
+    - id: esc_kc01_B3_1
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "malloc(sizeof(int)) pede ao sistema um bloco do tamanho de um int, e devolve o endereço dele."
+        - "O bloco não tem nome: chega-se nele pelo ponteiro que guardou o endereço."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            *p = 7;
+            *p = *p + 1;
+            printf("%d\n", *p);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "7"
+              retorno: "O bloco recebeu 7, e a linha seguinte somou 1 nele, pelo mesmo endereço. *p acha 8."
+          retorno_geral: "O bloco recebeu 7 e depois mais 1, sempre pelo endereço guardado em p: 8."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            *q = 15;
+            *q = *q + 5;
+            printf("%d\n", *q);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "15"
+              retorno: "O bloco recebeu 15, e a linha seguinte somou 5 nele, pelo mesmo endereço. *q acha 20."
+          retorno_geral: "O bloco recebeu 15 e depois mais 5, sempre pelo endereço guardado em q: 20."
+
+    - id: esc_kc01_B3_2
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "O bloco é seu até você devolver, com free(p);"
+        - "free recebe o endereço do bloco. Dali em diante o bloco não é mais seu."
+      versoes:
+        - pede: "Complete com a linha que devolve o bloco."
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            *p = 7;
+          mostra: "___;"
+          pecas: ["free(p)", "free(*p)", "p = NULL"]
+          certa: [[0]]
+          certa_texto: "free(p);"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "*p é o valor guardado no bloco, o 7. free recebe o endereço do bloco, que está em p: o compilador reclama. O certo é free(p);"
+            - exata: [2]
+              retorno: "p = NULL; só apaga o endereço que estava em p. O bloco continua alugado, e agora ninguém sabe onde ele está. Quem devolve é free(p);"
+          retorno_geral: "Quem devolve o bloco é free, com o endereço dele: free(p);"
+        - pede: "Complete com a linha que devolve o bloco."
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            *q = 15;
+          mostra: "___;"
+          pecas: ["q = NULL", "free(q)", "free(*q)"]
+          certa: [[1]]
+          certa_texto: "free(q);"
+          erros:
+            - exata: [2]
+              invalida: true
+              retorno: "*q é o valor guardado no bloco, o 15. free recebe o endereço do bloco, que está em q: o compilador reclama. O certo é free(q);"
+            - exata: [0]
+              retorno: "q = NULL; só apaga o endereço que estava em q. O bloco continua alugado, e agora ninguém sabe onde ele está. Quem devolve é free(q);"
+          retorno_geral: "Quem devolve o bloco é free, com o endereço dele: free(q);"
+
+    - id: esc_kc01_B3_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "A função terminar não devolve o bloco: quem acaba é a variável p, e o bloco continua alugado."
+        - "O sistema também não recolhe sozinho. Sem free, o bloco fica ocupado até o programa terminar."
+      versoes:
+        - pede: "A função pede um bloco e termina sem chamar free. O que acontece com o bloco?"
+          antes: |-
+            void usa(void) { int *p = malloc(sizeof(int)); *p = 7; }
+
+            usa();
+          pecas:
+            - "Continua alugado: ninguém chamou free"
+            - "O sistema recolhe sozinho, quando vê que ninguém usa mais"
+            - "Some junto com a variável p"
+          certa: [[0]]
+          certa_texto: "Continua alugado: ninguém chamou free"
+          erros:
+            - exata: [1]
+              crenca: system_frees_auto
+              retorno: "Em C ninguém recolhe por você: o bloco só volta com free. Como a função terminou sem chamar, ele continua alugado — e o endereço, que estava em p, se perdeu."
+            - exata: [2]
+              retorno: "Quem some é p, a variável da função. O bloco é outra coisa: foi pedido com malloc, e só volta com free."
+          retorno_geral: "O bloco continua alugado: só free devolve, e ninguém chamou."
+        - pede: "A função pede um bloco e termina sem chamar free. O que acontece com o bloco?"
+          antes: |-
+            void anota(void) { int *q = malloc(sizeof(int)); *q = 9; }
+
+            anota();
+          pecas:
+            - "Some junto com a variável q"
+            - "Continua alugado: ninguém chamou free"
+            - "O sistema recolhe sozinho, quando vê que ninguém usa mais"
+          certa: [[1]]
+          certa_texto: "Continua alugado: ninguém chamou free"
+          erros:
+            - exata: [2]
+              crenca: system_frees_auto
+              retorno: "Em C ninguém recolhe por você: o bloco só volta com free. Como a função terminou sem chamar, ele continua alugado — e o endereço, que estava em q, se perdeu."
+            - exata: [0]
+              retorno: "Quem some é q, a variável da função. O bloco é outra coisa: foi pedido com malloc, e só volta com free."
+          retorno_geral: "O bloco continua alugado: só free devolve, e ninguém chamou."
+
+    - id: esc_kc01_B3_4
+      nome: "O bloco continua seu depois que a função acaba"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "A função pede um bloco, guarda nele o valor que recebeu e devolve o endereço. Ela é chamada duas vezes. Que número aparece?"
+          mostra: |-
+            int *novo(int v) { int *p = malloc(sizeof(int)); *p = v; return p; }
+
+            int *a;
+            int *b;
+
+            a = novo(7);
+            b = novo(9);
+            printf("%d\n", *a);
+            free(a);
+            free(b);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "9"
+              retorno: "Cada chamada pede outro bloco. O de a continua com 7, mesmo depois de a função terminar; o 9 foi para o bloco de b."
+          retorno_geral: "O bloco de a continua valendo depois da função, com o 7 que recebeu."
+        - pede: "A função pede um bloco, guarda nele o valor que recebeu e devolve o endereço. Ela é chamada duas vezes. Que número aparece?"
+          mostra: |-
+            int *novo(int v) { int *p = malloc(sizeof(int)); *p = v; return p; }
+
+            int *a;
+            int *b;
+
+            a = novo(15);
+            b = novo(20);
+            printf("%d\n", *b);
+            free(a);
+            free(b);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "15"
+              retorno: "Cada chamada pede outro bloco. O de b recebeu 20, e continua valendo depois de a função terminar; o 15 está no bloco de a."
+          retorno_geral: "O bloco de b continua valendo depois da função, com o 20 que recebeu."
+
+    - id: esc_kc01_B3_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "No fim deste trecho, quantos blocos continuam alugados?"
+          antes: |-
+            int *p;
+            int *q;
+
+            p = malloc(sizeof(int));
+            q = malloc(sizeof(int));
+            free(p);
+          pecas:
+            - "Um: o de q"
+            - "Nenhum: o sistema recolhe o que sobrou"
+            - "Dois: free só avisa o sistema"
+          certa: [[0]]
+          certa_texto: "Um: o de q"
+          erros:
+            - exata: [1]
+              retorno: "Enquanto o programa roda, ninguém recolhe por você. O bloco de p voltou com free; o de q continua alugado."
+            - exata: [2]
+              retorno: "free devolve o bloco na hora: o de p não é mais seu. Sobra um alugado, o de q."
+          retorno_geral: "O bloco de p foi devolvido com free. O de q continua alugado: um."
+        - pede: "No fim deste trecho, quantos blocos continuam alugados?"
+          antes: |-
+            int *a;
+            int *b;
+            int *c;
+
+            a = malloc(sizeof(int));
+            b = malloc(sizeof(int));
+            c = malloc(sizeof(int));
+            free(a);
+            free(c);
+          pecas:
+            - "Três: free só avisa o sistema"
+            - "Nenhum: o sistema recolhe o que sobrou"
+            - "Um: o de b"
+          certa: [[2]]
+          certa_texto: "Um: o de b"
+          erros:
+            - exata: [1]
+              retorno: "Enquanto o programa roda, ninguém recolhe por você. Os blocos de a e de c voltaram com free; o de b continua alugado."
+            - exata: [0]
+              retorno: "free devolve o bloco na hora: os de a e de c não são mais seus. Sobra um alugado, o de b."
+          retorno_geral: "Os blocos de a e de c foram devolvidos com free. O de b continua alugado: um."
+
+I1:
+  revisao:
+    frases:
+      - "São dois jeitos de acabar: a variável local acaba sozinha, quando a chamada termina."
+      - "O bloco do malloc só acaba quando alguém chama free."
+    codigo: |
+      int *faz(void) { int *p = malloc(sizeof(int)); *p = 9; return p; }
+
+      int *q;
+
+      q = faz();
+      printf("%d\n", *q);
+      free(q);
+    saida: "9"
+  # A multiplicação, em malloc(10 * sizeof(int)).
+  fora_da_trilha: [ciu_kc01_t11]
+  provas:
+    - crenca: heap_dies_with_function
+      programa: |
+        int *faz(void) { int *p = malloc(sizeof(int)); *p = 7; return p; }
+
+        int *q;
+
+        q = faz();
+        printf("%d\n", *q);
+        free(q);
+      previsao:
+        pergunta: >
+          A função pede um bloco, escreve 7 nele, devolve o endereço e
+          termina. Depois dela, o trecho lê o bloco. O que aparece?
+        opcoes:
+          - "7"
+          - "Um valor qualquer: o bloco sumiu junto com a função"
+        real: 0
+        crenca: 1
+      espera: "7"
+      afirma: >
+        Saiu 7. A variável p acabou com a função, mas o bloco não: ele
+        continua valendo até alguém chamar free. Foi por isso que o
+        endereço devolvido ainda servia.
+  degraus:
+    - id: esc_kc01_I1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "A variável local acaba sozinha, quando a chamada termina."
+        - "O bloco do malloc não: ele só acaba quando alguém chama free."
+      versoes:
+        - pede: "A função termina. O que acontece com n e com o bloco?"
+          antes: "int *guarda(void) { int n = 7; int *p = malloc(sizeof(int)); *p = n; return p; }"
+          pecas:
+            - "n acaba; o bloco continua"
+            - "Os dois acabam: o bloco do malloc também some quando a função termina"
+            - "Os dois continuam até o programa terminar"
+          certa: [[0]]
+          certa_texto: "n acaba; o bloco continua"
+          erros:
+            - exata: [1]
+              crenca: heap_dies_with_function
+              retorno: "Quem some com a função são as variáveis dela, n e p. O bloco foi pedido com malloc, e não é da função: continua valendo até alguém chamar free."
+            - exata: [2]
+              retorno: "n é local, e acaba quando a chamada termina. Quem continua é só o bloco, que foi pedido com malloc."
+          retorno_geral: "n é local e acaba com a chamada. O bloco continua até alguém chamar free."
+        - pede: "A função termina. O que acontece com v e com o bloco?"
+          antes: "int *anota(void) { int v = 9; int *q = malloc(sizeof(int)); *q = v; return q; }"
+          pecas:
+            - "Os dois continuam até o programa terminar"
+            - "Os dois acabam: o bloco do malloc também some quando a função termina"
+            - "v acaba; o bloco continua"
+          certa: [[2]]
+          certa_texto: "v acaba; o bloco continua"
+          erros:
+            - exata: [1]
+              crenca: heap_dies_with_function
+              retorno: "Quem some com a função são as variáveis dela, v e q. O bloco foi pedido com malloc, e não é da função: continua valendo até alguém chamar free."
+            - exata: [0]
+              retorno: "v é local, e acaba quando a chamada termina. Quem continua é só o bloco, que foi pedido com malloc."
+          retorno_geral: "v é local e acaba com a chamada. O bloco continua até alguém chamar free."
+
+    - id: esc_kc01_I1_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "O valor copiado para o bloco continua lá, mesmo depois de a variável local acabar."
+      versoes:
+        - pede: "A função copia o valor de n para o bloco e devolve o endereço. Que número aparece?"
+          mostra: |-
+            int *guarda(void) { int n = 7; int *p = malloc(sizeof(int)); *p = n; return p; }
+
+            int *q;
+
+            q = guarda();
+            printf("%d\n", *q);
+            free(q);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "0"
+              retorno: "O bloco não some com a função: o 7 copiado para ele continua lá, e q guarda o endereço."
+          retorno_geral: "n acabou com a função, mas o 7 foi copiado para o bloco, que continua: 7."
+        - pede: "A função copia o valor de v para o bloco e devolve o endereço. Que número aparece?"
+          mostra: |-
+            int *anota(void) { int v = 9; int *q = malloc(sizeof(int)); *q = v; return q; }
+
+            int *p;
+
+            p = anota();
+            printf("%d\n", *p);
+            free(p);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "0"
+              retorno: "O bloco não some com a função: o 9 copiado para ele continua lá, e p guarda o endereço."
+          retorno_geral: "v acabou com a função, mas o 9 foi copiado para o bloco, que continua: 9."
+
+    - id: esc_kc01_I1_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "A variável que guarda o endereço e o bloco são duas coisas, com dois fins diferentes."
+        - "q acaba sozinha, como toda variável local; o bloco, só com free(q);"
+      versoes:
+        - pede: "Destas três coisas, qual só acaba quando alguém chama free?"
+          antes: |-
+            int nota;
+            int *q;
+
+            q = malloc(sizeof(int));
+          pecas:
+            - "O bloco que q aponta"
+            - "A variável q"
+            - "A variável nota"
+          certa: [[0]]
+          certa_texto: "O bloco que q aponta"
+          erros:
+            - exata: [1]
+              retorno: "q é uma variável como as outras: acaba sozinha. O que só acaba com free é o bloco que ela aponta."
+            - exata: [2]
+              retorno: "nota é uma variável comum: acaba sozinha. O que só acaba com free é o bloco pedido com malloc."
+          retorno_geral: "As variáveis acabam sozinhas. Só o bloco pedido com malloc espera o free."
+        - pede: "Destas três coisas, qual só acaba quando alguém chama free?"
+          antes: |-
+            int *p;
+            int idade;
+
+            p = malloc(sizeof(int));
+          pecas:
+            - "A variável idade"
+            - "A variável p"
+            - "O bloco que p aponta"
+          certa: [[2]]
+          certa_texto: "O bloco que p aponta"
+          erros:
+            - exata: [1]
+              retorno: "p é uma variável como as outras: acaba sozinha. O que só acaba com free é o bloco que ela aponta."
+            - exata: [0]
+              retorno: "idade é uma variável comum: acaba sozinha. O que só acaba com free é o bloco pedido com malloc."
+          retorno_geral: "As variáveis acabam sozinhas. Só o bloco pedido com malloc espera o free."
+
+    - id: esc_kc01_I1_4
+      nome: "A variável e o bloco acabam em horas diferentes"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "O trecho devolve o bloco e depois pede outro, com o mesmo ponteiro. Que número aparece?"
+          mostra: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            *q = 7;
+            free(q);
+            q = malloc(sizeof(int));
+            *q = 9;
+            printf("%d\n", *q);
+            free(q);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "7"
+              retorno: "O primeiro bloco foi devolvido com free. q, a variável, continuou existindo, e recebeu o endereço de outro bloco, onde foi escrito 9."
+          retorno_geral: "O primeiro bloco acabou no free; q continuou, e aponta agora para outro bloco, com 9."
+        - pede: "O trecho devolve o bloco e depois pede outro, com o mesmo ponteiro. Que número aparece?"
+          mostra: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            *p = 15;
+            free(p);
+            p = malloc(sizeof(int));
+            *p = 20;
+            printf("%d\n", *p);
+            free(p);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "15"
+              retorno: "O primeiro bloco foi devolvido com free. p, a variável, continuou existindo, e recebeu o endereço de outro bloco, onde foi escrito 20."
+          retorno_geral: "O primeiro bloco acabou no free; p continuou, e aponta agora para outro bloco, com 20."
+
+    - id: esc_kc01_I1_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Qual das duas funções devolve um endereço que ainda vale depois que ela termina?"
+          antes: |-
+            int *um(void) { int n = 7; return &n; }
+            int *dois(void) { int *p = malloc(sizeof(int)); *p = 7; return p; }
+          pecas:
+            - "dois: o bloco continua até o free"
+            - "um: a variável n continua lá"
+            - "Nenhuma: tudo o que a função criou acaba com ela"
+          certa: [[0]]
+          certa_texto: "dois: o bloco continua até o free"
+          erros:
+            - exata: [1]
+              retorno: "n é local, e acaba quando um termina: o endereço dela não vale mais. Quem continua é o bloco de dois, pedido com malloc."
+            - exata: [2]
+              retorno: "O que acaba com a função são as variáveis dela. O bloco pedido com malloc não é da função: continua até o free."
+          retorno_geral: "O endereço de n não vale depois da função. O do bloco vale, até o free."
+        - pede: "Qual das duas funções devolve um endereço que ainda vale depois que ela termina?"
+          antes: |-
+            int *a(void) { int *q = malloc(sizeof(int)); *q = 9; return q; }
+            int *b(void) { int v = 9; return &v; }
+          pecas:
+            - "b: a variável v continua lá"
+            - "Nenhuma: tudo o que a função criou acaba com ela"
+            - "a: o bloco continua até o free"
+          certa: [[2]]
+          certa_texto: "a: o bloco continua até o free"
+          erros:
+            - exata: [0]
+              retorno: "v é local, e acaba quando b termina: o endereço dela não vale mais. Quem continua é o bloco de a, pedido com malloc."
+            - exata: [1]
+              retorno: "O que acaba com a função são as variáveis dela. O bloco pedido com malloc não é da função: continua até o free."
+          retorno_geral: "O endereço de v não vale depois da função. O do bloco vale, até o free."
+
+I2:
+  revisao:
+    frases:
+      - "A memória do programa tem duas áreas. A pilha guarda as variáveis locais, e o compilador a arruma sozinho."
+      - "O monte guarda os blocos do malloc, e quem arruma é você, com free."
+    codigo: |
+      int nota;
+      int *p;
+
+      nota = 7;
+      p = malloc(sizeof(int));
+      *p = nota;
+      printf("%d\n", *p);
+      free(p);
+    saida: "7"
+  # Vetor de um milhão de posições, a multiplicação, e o tamanho da
+  # pilha, que a escada não diz.
+  fora_da_trilha: [ciu_kc01_t15]
+  provas:
+    - crenca: memory_is_uniform
+      programa: |
+        int nota;
+        int *p;
+
+        nota = 7;
+        p = malloc(sizeof(int));
+        free(p);
+        free(&nota);
+      previsao:
+        pergunta: >
+          O trecho chama free duas vezes: para o bloco que p aponta, e
+          para a variável nota. De qual das duas o compilador reclama?
+        opcoes:
+          - "De nenhuma: memória é uma só, e free serve para qualquer lugar"
+          - "Da última: nota não foi pedida com malloc"
+        real: 1
+        crenca: 0
+      reclama: "'free' called on unallocated object 'nota'"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa
+        não é executado: devolver o que não foi pedido não tem resultado
+        definido.
+      afirma: >
+        O compilador aceita free(p); e reclama de free(&nota);: nota não
+        é um bloco pedido ("unallocated object"). As duas áreas têm
+        regras diferentes: o que é da pilha acaba sozinho, e free só
+        serve para o que veio do monte.
+  degraus:
+    - id: esc_kc01_I2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "As variáveis locais ficam numa área chamada pilha. Quem arruma a pilha é o compilador, a cada chamada."
+        - "Os blocos do malloc ficam em outra área, o monte. Quem arruma o monte é você, com free."
+      versoes:
+        - pede: "Onde fica cada coisa?"
+          antes: |-
+            int nota;
+            int *p;
+
+            p = malloc(sizeof(int));
+          pecas:
+            - "nota e p na pilha; o bloco no monte"
+            - "Tudo no mesmo lugar: memória é uma só, com uma regra só"
+            - "nota na pilha; p e o bloco no monte"
+          certa: [[0]]
+          certa_texto: "nota e p na pilha; o bloco no monte"
+          erros:
+            - exata: [1]
+              crenca: memory_is_uniform
+              retorno: "A memória do programa tem duas áreas, com regras diferentes. nota e p são variáveis locais, e ficam na pilha; o bloco pedido com malloc fica no monte."
+            - exata: [2]
+              retorno: "p é uma variável local como nota: fica na pilha. No monte está só o bloco que p aponta."
+          retorno_geral: "As variáveis nota e p ficam na pilha. O bloco pedido com malloc fica no monte."
+        - pede: "Onde fica cada coisa?"
+          antes: |-
+            int *q;
+            int idade;
+
+            q = malloc(sizeof(int));
+          pecas:
+            - "idade na pilha; q e o bloco no monte"
+            - "idade e q na pilha; o bloco no monte"
+            - "Tudo no mesmo lugar: memória é uma só, com uma regra só"
+          certa: [[1]]
+          certa_texto: "idade e q na pilha; o bloco no monte"
+          erros:
+            - exata: [2]
+              crenca: memory_is_uniform
+              retorno: "A memória do programa tem duas áreas, com regras diferentes. idade e q são variáveis locais, e ficam na pilha; o bloco pedido com malloc fica no monte."
+            - exata: [0]
+              retorno: "q é uma variável local como idade: fica na pilha. No monte está só o bloco que q aponta."
+          retorno_geral: "As variáveis idade e q ficam na pilha. O bloco pedido com malloc fica no monte."
+
+    - id: esc_kc01_I2_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "As regras são diferentes: o que está na pilha acaba sozinho; o que está no monte, só com free."
+        - "Por isso free só serve para bloco do monte."
+      versoes:
+        - pede: "Qual destas linhas devolve memória do jeito certo?"
+          antes: |-
+            int nota;
+            int *p;
+
+            p = malloc(sizeof(int));
+          pecas: ["free(p);", "free(&nota);", "free(nota);"]
+          certa: [[0]]
+          certa_texto: "free(p);"
+          erros:
+            - exata: [1]
+              retorno: "nota fica na pilha, e acaba sozinha: não foi pedida com malloc, e free não serve para ela. O compilador reclama. Quem se devolve é o bloco: free(p);"
+            - exata: [2]
+              retorno: "free recebe o endereço de um bloco do monte, e nota é um número, de uma variável da pilha: o compilador reclama. Quem se devolve é o bloco: free(p);"
+          retorno_geral: "free serve para o bloco do monte, pelo endereço dele: free(p);"
+        - pede: "Qual destas linhas devolve memória do jeito certo?"
+          antes: |-
+            int *q;
+            int idade;
+
+            q = malloc(sizeof(int));
+          pecas: ["free(&idade);", "free(idade);", "free(q);"]
+          certa: [[2]]
+          certa_texto: "free(q);"
+          erros:
+            - exata: [0]
+              retorno: "idade fica na pilha, e acaba sozinha: não foi pedida com malloc, e free não serve para ela. O compilador reclama. Quem se devolve é o bloco: free(q);"
+            - exata: [1]
+              retorno: "free recebe o endereço de um bloco do monte, e idade é um número, de uma variável da pilha: o compilador reclama. Quem se devolve é o bloco: free(q);"
+          retorno_geral: "free serve para o bloco do monte, pelo endereço dele: free(q);"
+
+    - id: esc_kc01_I2_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "As duas áreas trabalham juntas: a variável da pilha guarda o endereço, e o valor fica no bloco do monte."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota;
+            int *p;
+
+            nota = 7;
+            p = malloc(sizeof(int));
+            *p = nota + 1;
+            printf("%d\n", *p);
+            free(p);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "7"
+              retorno: "O bloco recebeu nota + 1: 7 mais 1. nota, na pilha, continua com 7; *p, no monte, vale 8."
+          retorno_geral: "nota, na pilha, vale 7. O bloco, no monte, recebeu 7 mais 1: 8."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade;
+            int *q;
+
+            idade = 15;
+            q = malloc(sizeof(int));
+            *q = idade + 5;
+            printf("%d\n", *q);
+            free(q);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "15"
+              retorno: "O bloco recebeu idade + 5: 15 mais 5. idade, na pilha, continua com 15; *q, no monte, vale 20."
+          retorno_geral: "idade, na pilha, vale 15. O bloco, no monte, recebeu 15 mais 5: 20."
+
+    - id: esc_kc01_I2_4
+      nome: "Pilha e monte têm regras diferentes"
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Cada função é chamada mil vezes. Em qual das duas a memória vai se enchendo?"
+          antes: |-
+            void local(void) { int n = 7; printf("%d\n", n); }
+            void aluga(void) { int *p = malloc(sizeof(int)); *p = 7; }
+          pecas:
+            - "Na aluga: cada chamada pede um bloco do monte e não devolve"
+            - "Na local: cada chamada cria mais um n na pilha"
+            - "Em nenhuma: a memória é uma só, e o sistema arruma"
+          certa: [[0]]
+          certa_texto: "Na aluga: cada chamada pede um bloco do monte e não devolve"
+          erros:
+            - exata: [1]
+              retorno: "O n da pilha acaba sozinho no fim de cada chamada: não sobra nada. Quem acumula é a aluga, que pede um bloco do monte a cada chamada e não devolve."
+            - exata: [2]
+              retorno: "As duas áreas têm regras diferentes. A pilha se arruma sozinha a cada chamada; o monte, só com free — e a aluga nunca chama."
+          retorno_geral: "A pilha se arruma sozinha. O monte, não: os blocos da aluga vão se acumulando."
+        - pede: "Cada função é chamada mil vezes. Em qual das duas a memória vai se enchendo?"
+          antes: |-
+            void pede(void) { int *q = malloc(sizeof(int)); *q = 9; }
+            void conta(void) { int v = 9; printf("%d\n", v); }
+          pecas:
+            - "Em nenhuma: a memória é uma só, e o sistema arruma"
+            - "Na conta: cada chamada cria mais um v na pilha"
+            - "Na pede: cada chamada pede um bloco do monte e não devolve"
+          certa: [[2]]
+          certa_texto: "Na pede: cada chamada pede um bloco do monte e não devolve"
+          erros:
+            - exata: [1]
+              retorno: "O v da pilha acaba sozinho no fim de cada chamada: não sobra nada. Quem acumula é a pede, que pede um bloco do monte a cada chamada e não devolve."
+            - exata: [0]
+              retorno: "As duas áreas têm regras diferentes. A pilha se arruma sozinha a cada chamada; o monte, só com free — e a pede nunca chama."
+          retorno_geral: "A pilha se arruma sozinha. O monte, não: os blocos da pede vão se acumulando."
+
+    - id: esc_kc01_I2_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "O valor de nota é copiado para o bloco, e depois nota muda. Que número aparece?"
+          mostra: |-
+            int nota;
+            int *p;
+
+            nota = 7;
+            p = malloc(sizeof(int));
+            *p = nota;
+            nota = 0;
+            printf("%d\n", *p);
+            free(p);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "0"
+              retorno: "nota e o bloco são dois lugares, em áreas diferentes. O 7 foi copiado para o bloco antes de nota mudar: *p continua 7."
+          retorno_geral: "O 7 foi copiado para o bloco, no monte. Mudar nota, na pilha, não muda o bloco."
+        - pede: "O valor de idade é copiado para o bloco, e depois idade muda. Que número aparece?"
+          mostra: |-
+            int idade;
+            int *q;
+
+            idade = 15;
+            q = malloc(sizeof(int));
+            *q = idade;
+            idade = 1;
+            printf("%d\n", *q);
+            free(q);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "1"
+              retorno: "idade e o bloco são dois lugares, em áreas diferentes. O 15 foi copiado para o bloco antes de idade mudar: *q continua 15."
+          retorno_geral: "O 15 foi copiado para o bloco, no monte. Mudar idade, na pilha, não muda o bloco."

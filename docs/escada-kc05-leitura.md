@@ -446,21 +446,21 @@ _Nome do passo, no fechamento: Aceitar no ponteiro só o 0 escrito no código_
 Já está escrito:
 
 ```c
-int n;
+int idade;
 int *p;
 
-n = 0;
+idade = 0;
 ```
 
-Opções: `p = NULL;`  `p = 0;`  `p = n;`
+Opções: `p = NULL;`  `p = 0;`  `p = idade;`
 
-Resposta certa: `p = n;`
+Resposta certa: `p = idade;`
 
 Se errar:
 
-- respondeu `p = NULL;` → p = NULL; escreve o ponteiro nulo, e é aceita. A que não é: p = n;, que põe um inteiro comum num ponteiro.
-- respondeu `p = 0;` → p = 0; usa o 0 escrito no código, que vira o ponteiro nulo. A que não é aceita: p = n;
-- qualquer outro erro → n é um inteiro comum, mesmo valendo zero: p = n; faz o compilador reclamar.
+- respondeu `p = NULL;` → p = NULL; escreve o ponteiro nulo, e é aceita. A que não é: p = idade;, que põe um inteiro comum num ponteiro.
+- respondeu `p = 0;` → p = 0; usa o 0 escrito no código, que vira o ponteiro nulo. A que não é aceita: p = idade;
+- qualquer outro erro → idade é um inteiro comum, mesmo valendo zero: p = idade; faz o compilador reclamar.
 
 **Versão 2.** Uma destas linhas faz o compilador reclamar. Qual?
 

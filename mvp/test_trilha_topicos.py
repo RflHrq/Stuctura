@@ -148,6 +148,30 @@ def test_o_passo_de_pratica_da_subida_tem_nome(topico):
 
 
 @cada_topico
+def test_o_treino_nao_repete_o_trecho_da_prova(topico):
+    """Quem diz a crença vê a prova e vai direto para os passos de prática
+    da mesma premissa. Um passo que mostre o trecho que a prova acabou de
+    mostrar é a mesma tela duas vezes seguidas — foi o que apareceu no
+    ensaio do kc_01, com a função que devolve o endereço de uma local."""
+    def limpo(codigo):
+        return " ".join(codigo.split())
+
+    for e in _escadas(topico).values():
+        provas = [limpo(p.programa) for p in e.provas]
+        for g in e.pratica:
+            for k, v in enumerate(g.versoes):
+                trecho = "\n".join(x for x in (v.antes, v.mostra) if x.strip())
+                linhas = [x for x in trecho.split("\n") if x.strip()]
+                # Uma declaração solta todo trecho do tópico tem. Conta
+                # como repetição a função inteira, ou três linhas ou mais.
+                if not (len(linhas) >= 3 or any(
+                        confere_escada.FUNCAO.match(x) for x in linhas)):
+                    continue
+                assert not any(limpo(trecho) in p for p in provas), (
+                    g.id, k + 1)
+
+
+@cada_topico
 def test_ninguem_digita_endereco(topico):
     """O número de um lugar muda a cada máquina e a cada execução: não é
     resposta que se confira. Degrau de `digitar` pede valor guardado."""
@@ -689,6 +713,90 @@ def test_o_kc_07_diz_as_palavras_que_as_questoes_dele_usam():
     apresenta = [g.id for g in escadas["B1"].degraus
                  if g.guiado and any("sizeof" in f for f in g.frases)]
     assert apresenta == ["esc_kc07_B1_3"]
+
+
+def test_no_kc_01_ficam_fora_cinco_e_toda_premissa_abre_com_codigo():
+    """O banco do kc_01 não foi mexido. É o tópico em que a escada mais
+    acompanha o banco: ensina `return`, `malloc`, `free` e a função em
+    várias linhas, e só cinco das 30 questões ficam fora."""
+    fora, quantas, abre = _selecao("kc_01")
+    assert fora == {
+        "B1": ("ciu_kc01_t03",), "B2": ("ciu_kc01_t06",),
+        "B3": ("ciu_kc01_t08",), "I1": ("ciu_kc01_t11",),
+        "I2": ("ciu_kc01_t15",),
+    }
+    assert quantas == {"B1": 5, "B2": 5, "B3": 5, "I1": 5, "I2": 5}
+    assert abre == {
+        "B1": "ciu_kc01_002", "B2": "ciu_kc01_005", "B3": "ciu_kc01_008",
+        "I1": "ciu_kc01_011", "I2": "ciu_kc01_014"}
+    d = _dominio("kc_01")
+    por_id = {a.id: a for a in d.atividades}
+    assert all(por_id[i].codigo for i in abre.values())
+    # O que escada nenhuma ensinou até aqui: o +=, a multiplicação (que
+    # neste banco só aparece em `100 * sizeof(int)`) e variável global.
+    ruim = re.compile(r"\+=|\d \* sizeof")
+
+    def fora_da_regua(i):
+        a = por_id[i]
+        return (bool(ruim.search(a.codigo or ""))
+                or "variável global" in a.enunciado)
+
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_01", no):
+            assert not fora_da_regua(i), i
+    assert all(fora_da_regua(i) for ids in fora.values() for i in ids)
+
+
+def test_o_kc_01_apresenta_o_que_o_banco_dele_usa():
+    """`return`, a função em várias linhas, `malloc`, `free`, pilha e
+    monte: cada um é apresentado num passo guiado. Sete questões servidas
+    trazem a função em várias linhas, que a escada não mostrava."""
+    d, escadas = _dominio("kc_01"), _escadas("kc_01")
+    por_id = {a.id: a for a in d.atividades}
+    varias = re.compile(r"\)\s*\{[ \t]*\n")
+    assert {i for no in d.ordem for i in _servidas_pela_trilha("kc_01", no)
+            if varias.search(por_id[i].codigo or "")} == {
+        "ciu_kc01_005", "ciu_kc01_006", "ciu_kc01_t05", "ciu_kc01_008",
+        "ciu_kc01_009", "ciu_kc01_t12", "ciu_kc01_014"}
+
+    def apresenta(no, trecho):
+        """O primeiro passo guiado da premissa cujas frases dizem o trecho."""
+        return next(g.id for g in escadas[no].degraus
+                    if g.guiado and any(trecho in f for f in g.frases))
+
+    assert apresenta("B2", "return") == "esc_kc01_B2_1"
+    assert apresenta("B2", "(void)") == "esc_kc01_B2_2"
+    assert apresenta("B2", "várias linhas") == "esc_kc01_B2_3"
+    assert apresenta("B3", "malloc(sizeof(int))") == "esc_kc01_B3_1"
+    assert apresenta("B3", "free(p);") == "esc_kc01_B3_2"
+    assert apresenta("I2", "pilha") == "esc_kc01_I2_1"
+    assert apresenta("I2", "monte") == "esc_kc01_I2_1"
+    # E o passo que diz "várias linhas" MOSTRA uma, conferida pelo
+    # compilador: a função de fora do `main`, linha por linha.
+    g = next(g for g in escadas["B2"].degraus if g.id == "esc_kc01_B2_3")
+    assert g.codigo and all(varias.search(v.mostra) for v in g.versoes)
+
+
+def test_a_prova_do_b1_do_kc_01_diz_o_que_ela_nao_mostra():
+    """A premissa é sobre OUTRO programa, e de dentro de um não se vê
+    outro — o grafo do tópico já dizia. A prova mostra a consequência (o
+    C não garante o que há onde esta execução não escreveu), e a nota de
+    ambiente diz o limite com todas as letras."""
+    p = _escadas("kc_01")["B1"].prova("memoria_e_do_computador")
+    assert p.reclama == "'nota' is used uninitialized"
+    assert "programa nenhum mostra sozinho" in p.ambiente
+
+
+def test_a_prova_do_vazamento_tem_a_funcao_que_devolve_e_a_que_esquece():
+    """O que desmente "o sistema recolhe sozinho" é o compilador apontar o
+    bloco que vazou — e só ele: no mesmo trecho, da função que chama free
+    ele não reclama. Isso pede o analisador de fluxo, e a nota diz."""
+    p = _escadas("kc_01")["B3"].prova("system_frees_auto")
+    assert p.reclama == "leak of 'p'" and p.avisos == ("-fanalyzer",)
+    assert "-fanalyzer" in p.ambiente
+    funcoes = [x for x in p.programa.split("\n") if "malloc" in x]
+    assert len(funcoes) == 2
+    assert sum(1 for x in funcoes if "free(p)" in x) == 1
 
 
 def test_sem_a_questao_de_degrau_2_a_premissa_abre_com_a_de_codigo():

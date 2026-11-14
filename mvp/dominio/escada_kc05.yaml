@@ -507,20 +507,20 @@ B2:
       versoes:
         - pede: "Uma destas linhas faz o compilador reclamar. Qual?"
           antes: |-
-            int n;
+            int idade;
             int *p;
 
-            n = 0;
-          pecas: ["p = NULL;", "p = 0;", "p = n;"]
+            idade = 0;
+          pecas: ["p = NULL;", "p = 0;", "p = idade;"]
           certa: [[2]]
-          certa_texto: "p = n;"
+          certa_texto: "p = idade;"
           invalidas: [2]
           erros:
             - exata: [0]
-              retorno: "p = NULL; escreve o ponteiro nulo, e é aceita. A que não é: p = n;, que põe um inteiro comum num ponteiro."
+              retorno: "p = NULL; escreve o ponteiro nulo, e é aceita. A que não é: p = idade;, que põe um inteiro comum num ponteiro."
             - exata: [1]
-              retorno: "p = 0; usa o 0 escrito no código, que vira o ponteiro nulo. A que não é aceita: p = n;"
-          retorno_geral: "n é um inteiro comum, mesmo valendo zero: p = n; faz o compilador reclamar."
+              retorno: "p = 0; usa o 0 escrito no código, que vira o ponteiro nulo. A que não é aceita: p = idade;"
+          retorno_geral: "idade é um inteiro comum, mesmo valendo zero: p = idade; faz o compilador reclamar."
         - pede: "Uma destas linhas faz o compilador reclamar. Qual?"
           antes: |-
             int pontos;

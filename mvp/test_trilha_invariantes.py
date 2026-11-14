@@ -195,10 +195,13 @@ def test_a_medida_sai_para_todas_as_personas(capsys):
     assert direto_completo[3:6] == ["12", "2", "0"]   # telas, maior, reconferências
 
 
-def test_a_medida_recusa_topico_sem_escada(capsys):
-    # Era o kc_02, até ele ganhar escada em 13/11/2026. O kc_01 é o que
-    # está sem; quando ganhar a dele, este teste pede outro tópico.
-    assert not (RAIZ / "dominio" / "escada_kc01.yaml").exists()
+def test_a_medida_recusa_topico_sem_escada(capsys, monkeypatch, tmp_path):
+    # O exemplo era um tópico de verdade ainda sem escada: o kc_02, e
+    # depois o kc_01. Os dois ganharam a sua (13 e 14/11/2026), e os outros
+    # vão ganhar. A medida passa a ser apontada para uma pasta em que
+    # escada nenhuma foi escrita: o que o teste confere — recusar, dizendo
+    # por quê — deixa de depender de qual tópico ainda falta.
+    monkeypatch.setattr(trilha_alunos, "RAIZ", tmp_path)
     assert trilha_alunos.main(["kc_01"]) == 2
     assert "escada" in capsys.readouterr().err
 

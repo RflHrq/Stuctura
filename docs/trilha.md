@@ -1001,6 +1001,58 @@ toques (9 e 15 no rápido); quem não sabe e aprende, 30 e 51; quem erra
 todo passo, 44 e 108; quem diz a crença de cada ideia e depois acerta,
 44 e 43.
 
+**O kc_01, em 13/11/2026 — modelo de memória**
+
+É o segundo tópico do curso, mas na trilha vem depois do kc_07: fala de
+função e de `malloc`, e só faz sentido para quem já chamou função
+(kc_06) e já viu `sizeof` (kc_07). Cinco premissas, 25 degraus, uma
+prova por crença (`mvp/dominio/escada_kc01.yaml`,
+`docs/escada-kc01-leitura.md`). Entram o `return` e a função que devolve
+valor, o `(void)`, a função escrita em várias linhas, `malloc` e `free`,
+e as palavras "bloco", "pilha" e "monte".
+
+- **O que a prova do B1 mostra, e o que não mostra.** A premissa é "a
+  memória é do programa, e outro programa não mexe nela", e de dentro de
+  um programa não se vê outro — o grafo do tópico já dizia. A prova
+  mostra a consequência: o C não garante nada sobre o que há num lugar
+  em que esta execução não escreveu, e o compilador reclama de quem lê
+  ali. A nota de ambiente diz o limite com todas as letras: "que um não
+  alcança a memória do outro, programa nenhum mostra sozinho".
+- **Quatro das cinco provas são o que o compilador diz**: de ler sem
+  valor, de devolver o endereço de uma variável local, do bloco que
+  vazou, e de `free(&nota)`. A quinta é o bloco lido depois que a função
+  que o pediu terminou.
+- **O bloco que vaza pede o analisador de fluxo** (`-fanalyzer`, que
+  entra na lista fechada de `avisos`). O trecho tem duas funções, a que
+  chama `free` e a que esquece, e o compilador reclama de uma só.
+- **O conferidor mudou em quatro pontos**, cada um com teste antes: o
+  trecho passa a ser embrulhado também com `<stdlib.h>`, onde moram
+  `malloc` e `free`; a função escrita em várias linhas vai para fora do
+  `main`, como já ia a de uma linha; `-fanalyzer` é aceito em `avisos`;
+  e o que o compilador diz é lido como UTF-8, porque o analisador
+  desenha o caminho do programa com caracteres que o Windows não lê na
+  codificação dele. As sete escadas anteriores continuam com zero
+  problema.
+- **O banco não foi mexido**, e é o tópico em que a escada mais o
+  acompanha: cinco das 30 questões ficam fora (variável global, o `+=`,
+  a multiplicação em `100 * sizeof(int)`, o tamanho da pilha), e as
+  cinco premissas abrem com questão de código.
+
+Os alunos simulados, no ritmo completo: quem acerta tudo, 12 telas e 16
+toques (7 e 11 no rápido); quem não sabe e aprende, 22 e 36; quem erra
+todo passo, 32 e 76; quem diz a crença de cada ideia e depois acerta, 32
+e 31.
+
+**O treino não repete o trecho da prova.** Quem diz a crença vê a prova
+e vai direto para os passos de prática da mesma premissa. No ensaio do
+kc_01 o primeiro passo depois da prova do B2 mostrava a mesma função que
+a prova tinha acabado de mostrar. Um teste por tópico passou a recusar
+isso — o trecho de um passo de prática dentro do programa da prova, se
+for uma função inteira ou três linhas ou mais —, e achou o mesmo em dois
+passos já escritos, um do kc_05 e um do kc_06. Os três trocaram de
+cenário. O teste vê o trecho repetido ao pé da letra; a mesma ideia com
+outros nomes continua sendo o que o treino é.
+
 **Novo, e opcional — a trilha funciona sem**
 
 1. **A previsão.** Os programas de demonstração imprimem frases ("o
