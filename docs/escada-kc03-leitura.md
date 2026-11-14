@@ -131,6 +131,8 @@ Se errar:
 
 ### Degrau 4 — prática, montar
 
+_Nome do passo, no fechamento: Pegar o endereço de uma variável ainda sem valor_
+
 **Versão 1.** Declare um inteiro chamado nota e, sem dar valor a ele, guarde o endereço dele em q.
 
 Já está escrito:
@@ -358,6 +360,8 @@ Se errar:
 - qualquer outro erro → Cada nome leva o seu *: char *c, *d;
 
 ### Degrau 4 — prática, escolher
+
+_Nome do passo, no fechamento: Declarar dois ponteiros na mesma linha_
 
 **Versão 1.** Qual linha declara dois ponteiros?
 
@@ -596,6 +600,8 @@ Se errar:
 - qualquer outro erro → O zero entra por uma linha que escreve: idade = 0;
 
 ### Degrau 4 — prática, montar
+
+_Nome do passo, no fechamento: Escrever na variável antes de ler_
 
 **Versão 1.** Ponha as linhas na ordem em que nota só é lida depois de receber valor.
 
@@ -844,6 +850,8 @@ Se errar:
 - qualquer outro erro → q aponta para nota. *q = 4; escreveu em nota: o trecho mostra 4.
 
 ### Degrau 4 — prática, escolher
+
+_Nome do passo, no fechamento: Dar ao ponteiro um lugar de verdade para apontar_
 
 **Versão 1.** Em qual trecho *p tem um lugar de verdade?
 
@@ -1098,6 +1106,8 @@ Se errar:
 
 ### Degrau 4 — prática, escolher
 
+_Nome do passo, no fechamento: Saber qual ponteiro vale NULL_
+
 **Versão 1.** Depois destas linhas, qual ponteiro vale NULL?
 
 Já está escrito:
@@ -1335,6 +1345,8 @@ Se errar:
 - qualquer outro erro → q aponta para idade desde a linha q = &idade;. *q = 16; escreveu nela: o trecho mostra 16.
 
 ### Degrau 4 — prática, montar
+
+_Nome do passo, no fechamento: Dar o endereço ao ponteiro antes de usar *p_
 
 **Versão 1.** Ponha as quatro linhas numa ordem em que *q não é usado cedo demais.
 

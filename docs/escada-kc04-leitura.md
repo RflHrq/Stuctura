@@ -140,6 +140,8 @@ Se errar:
 
 ### Degrau 4 — prática, completar
 
+_Nome do passo, no fechamento: Pedir endereço só do que ocupa um lugar_
+
 **Versão 1.** Complete com algo que tem endereço.
 
 Já está escrito:
@@ -408,6 +410,8 @@ Se errar:
 - qualquer outro erro → &pontos entrega o endereço. A função escreveu na própria pontos: o trecho mostra 0.
 
 ### Degrau 4 — prática, digitar
+
+_Nome do passo, no fechamento: Distinguir a cópia do valor do endereço_
 
 **Versão 1.** Que número este trecho mostra na tela?
 
@@ -706,6 +710,8 @@ Se errar:
 
 ### Degrau 4 — prática, digitar
 
+_Nome do passo, no fechamento: Copiar um ponteiro é copiar o endereço_
+
 **Versão 1.** Que número este trecho mostra na tela?
 
 ```c
@@ -991,6 +997,8 @@ Se errar:
 - qualquer outro erro → q guarda o endereço de pontos. *q = 8; escreveu lá, e ano continua com 2026.
 
 ### Degrau 4 — prática, digitar
+
+_Nome do passo, no fechamento: Seguir *p quando o ponteiro troca de alvo_
 
 **Versão 1.** Que número este trecho mostra na tela?
 
@@ -1291,6 +1299,8 @@ Se errar:
 
 ### Degrau 4 — prática, digitar
 
+_Nome do passo, no fechamento: Escrever em *p sem mexer no ponteiro_
+
 **Versão 1.** Que número este trecho mostra na tela?
 
 ```c
@@ -1565,6 +1575,8 @@ Se errar:
 - qualquer outro erro → O endereço fica guardado no ponteiro, sem o *: em q.
 
 ### Degrau 4 — prática, escolher
+
+_Nome do passo, no fechamento: Guardar o endereço no ponteiro, e não em *p_
 
 **Versão 1.** Uma destas linhas faz o compilador reclamar. Qual?
 

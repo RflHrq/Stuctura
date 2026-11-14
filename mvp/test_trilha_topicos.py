@@ -137,6 +137,17 @@ def test_todo_exercicio_tem_erro_previsto_e_retorno_que_explica(topico):
 
 
 @cada_topico
+def test_o_passo_de_pratica_da_subida_tem_nome(topico):
+    """É o passo em que a pessoa mais tropeça, e o enunciado dele pode ser
+    só "Que número este trecho mostra na tela?". O fechamento diz o NOME
+    do passo, que é a ideia dele — e por isso ele não é uma pergunta."""
+    for e in _escadas(topico).values():
+        g = e.pratica[0]
+        assert g.nome, g.id
+        assert "?" not in g.nome and len(g.nome.split()) <= 10, g.id
+
+
+@cada_topico
 def test_ninguem_digita_endereco(topico):
     """O número de um lugar muda a cada máquina e a cada execução: não é
     resposta que se confira. Degrau de `digitar` pede valor guardado."""

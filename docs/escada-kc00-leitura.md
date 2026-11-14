@@ -103,6 +103,8 @@ Se errar:
 
 ### Degrau 4 — prática, montar
 
+_Nome do passo, no fechamento: Declarar cada variável com o tipo certo_
+
 **Versão 1.** Declare duas variáveis: um inteiro chamado idade e um caractere chamado turma.
 
 Peças: `int`  `idade;`  `char`  `turma;`
@@ -316,6 +318,8 @@ Se errar:
 - qualquer outro erro → A variável declarada neste trecho é pontos: pontos = 10;
 
 ### Degrau 4 — prática, montar
+
+_Nome do passo, no fechamento: Declarar e depois guardar um valor_
 
 **Versão 1.** Monte o trecho: declare um inteiro chamado nota e depois guarde 7 nele.
 
@@ -588,6 +592,8 @@ nota = 7;` → Aqui o printf vem antes de nota = 7; — ele lê a variável quan
 
 ### Degrau 4 — prática, montar
 
+_Nome do passo, no fechamento: Escrever na variável antes de ler_
+
 **Versão 1.** Ponha as linhas em ordem, para que nota tenha valor quando for lida.
 
 Peças: `int nota;`  `nota = 7;`  `printf("%d\n", nota);`
@@ -849,6 +855,8 @@ Se errar:
 - qualquer outro erro → Trocar o valor é escrever de novo no mesmo nome: nota = 9;
 
 ### Degrau 4 — prática, digitar
+
+_Nome do passo, no fechamento: Ficar só com o último valor escrito_
 
 **Versão 1.** Que número este trecho mostra na tela?
 
@@ -1178,6 +1186,8 @@ Se errar:
 - qualquer outro erro → À direita vai a variável de onde o valor vem: idade = ano;
 
 ### Degrau 6 — prática, montar
+
+_Nome do passo, no fechamento: Declarar já com o valor, numa linha_
 
 **Versão 1.** Escreva em uma linha só o que este trecho faz em duas.
 

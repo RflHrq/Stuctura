@@ -45,6 +45,7 @@ MIN_PRATICA = 2
 MIN_VERSOES = 2
 MAX_FRASES, MAX_PALAVRAS = 2, 30
 MAX_FRASES_DA_REVISAO = 3
+MAX_PALAVRAS_DO_NOME = 12
 
 LACUNA = "___"
 
@@ -111,6 +112,10 @@ class Degrau:
     codigo: bool
     frases: tuple[str, ...]
     versoes: tuple[Versao, ...]
+    # O nome curto do passo, que diz a IDEIA dele. É o que o fechamento
+    # mostra quando a pessoa tropeça ali: o enunciado de um exercício de
+    # prever a saída não diz qual ideia foi.
+    nome: str = ""
 
 
 @dataclass(frozen=True)
@@ -329,6 +334,11 @@ def _escada(premissa: str, cru: Any, d: Dominio, vistos: set[str],
         codigo = bool(b.get("codigo", False))
         frases = tuple(f.strip() for f in _strs(b.get("frases")))
         versoes = tuple(_versao(v) for v in (b.get("versoes") or ()))
+        nome = " ".join(_str(b.get("nome")).split())
+        if len(nome.split()) > MAX_PALAVRAS_DO_NOME:
+            problemas.append("%s: o nome do passo tem mais de %d palavras — "
+                             "é um nome, e não uma frase"
+                             % (onde, MAX_PALAVRAS_DO_NOME))
 
         if guiado and ja_teve_pratica:
             problemas.append("%s: degrau guiado depois de prática — os "
@@ -359,7 +369,8 @@ def _escada(premissa: str, cru: Any, d: Dominio, vistos: set[str],
             for k, v in enumerate(versoes):
                 _confere_versao("%s/versão %d" % (onde, k + 1), forma, codigo,
                                 v, d, problemas)
-        degraus.append(Degrau(did, guiado, forma, codigo, frases, versoes))
+        degraus.append(Degrau(did, guiado, forma, codigo, frases, versoes,
+                              nome))
 
     if len(degraus) < MIN_DEGRAUS:
         problemas.append("%s: ao menos %d degraus, e há %d"

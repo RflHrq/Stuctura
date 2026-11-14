@@ -252,8 +252,7 @@ def test_o_resumo_diz_em_que_passos_a_pessoa_tropecou():
     c = caminha(D, ESC, "tropeca_na_pratica", "explique")
     for linha in trilha.resumo(D, ESC, c.estado):
         g = ESC[linha["no"]].pratica[0]
-        assert linha["tropecos"] == [
-            {"degrau": g.id, "texto": g.versoes[0].pede}]
+        assert linha["tropecos"] == [{"degrau": g.id, "texto": g.nome}]
         assert linha["degraus"] == len(ESC[linha["no"]].guiados) + 1
         assert linha["degrau"] == linha["degraus"] - 1
 
@@ -319,7 +318,7 @@ def test_o_fechamento_diz_cada_lacuna_e_em_que_passos():
     assert [x["no"] for x in s["lacunas"]] == list(D.ordem)
     for x in s["lacunas"]:
         g = ESC[x["no"]].pratica[0]
-        assert x["passos"] == [g.versoes[0].pede]
+        assert x["passos"] == [g.nome] and g.nome
         assert x["fechou"] is True          # aprendeu pelos passos
     assert s["ideias_erradas"] == [] and s["firmes"] == []
 
@@ -378,3 +377,44 @@ def test_sessao_de_antes_da_mudanca_das_regras_nao_e_refeita(tmp_path):
     with pytest.raises(trilha_log.RegistroNaoReexecutavel) as erro:
         trilha_log.reconstroi(D, ESC, destino, "P40")
     assert "mudou" in str(erro.value) and "P40" in str(erro.value)
+
+
+# --------------------------------------------------------------------------
+# O nome do passo
+# --------------------------------------------------------------------------
+
+def test_o_passo_pode_ter_nome_e_o_fechamento_usa_o_nome(tmp_path):
+    """O fechamento diz em que passo a pessoa tropeçou. O enunciado de um
+    exercício de prever a saída — "Que número este trecho mostra na
+    tela?" — não diz QUAL ideia foi; o nome curto do passo, sim."""
+    from mvp.test_trilha_escada import _escreve, _valida
+    bloco = _valida()
+    bloco["degraus"][1]["nome"] = "Achar a declaração inválida"
+    e = trilha_escada.le(_escreve(tmp_path, {"B1": bloco}), D)["B1"]
+    assert e.degraus[1].nome == "Achar a declaração inválida"
+    assert e.degraus[0].nome == ""
+    assert trilha._rotulo(e.degraus[1]) == "Achar a declaração inválida"
+    # Sem nome: a frase do passo guiado, ou o que o exercício pede.
+    assert trilha._rotulo(e.degraus[0]) == e.degraus[0].frases[0]
+    assert trilha._rotulo(e.degraus[2]) == e.degraus[2].versoes[0].pede
+
+
+def test_nome_de_passo_e_curto(tmp_path):
+    from mvp.test_trilha_escada import _escreve, _valida
+    bloco = _valida()
+    bloco["degraus"][1]["nome"] = " ".join(["palavra"] * 13)
+    with pytest.raises(trilha_escada.EscadaInvalida) as erro:
+        trilha_escada.le(_escreve(tmp_path, {"B1": bloco}), D)
+    assert any("nome" in p and "12" in p for p in erro.value.problemas)
+
+
+def test_o_passo_de_pratica_do_kc_00_aparece_pelo_nome_no_fechamento():
+    c = caminha(D, ESC, "tropeca_na_pratica", "explique")
+    lacunas = c.telas[-1].dados["sumario"]["lacunas"]
+    assert [x["passos"] for x in lacunas] == [
+        ["Declarar cada variável com o tipo certo"],
+        ["Declarar e depois guardar um valor"],
+        ["Escrever na variável antes de ler"],
+        ["Ficar só com o último valor escrito"],
+        ["Declarar já com o valor, numa linha"],
+    ]

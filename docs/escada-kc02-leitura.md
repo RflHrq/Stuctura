@@ -143,6 +143,8 @@ Se errar:
 
 ### Degrau 4 — prática, montar
 
+_Nome do passo, no fechamento: Mostrar na tela o endereço de uma variável_
+
 **Versão 1.** Monte a linha que mostra na tela o endereço de nota.
 
 Já está escrito:
@@ -390,6 +392,8 @@ Se errar:
 - qualquer outro erro → São dois lugares: o de nota e o de q. O ponteiro é uma variável, e ocupa o dele.
 
 ### Degrau 4 — prática, completar
+
+_Nome do passo, no fechamento: Pedir o endereço do próprio ponteiro_
 
 **Versão 1.** Complete para mostrar o endereço do próprio ponteiro.
 
@@ -701,6 +705,8 @@ Se errar:
 
 ### Degrau 5 — prática, digitar
 
+_Nome do passo, no fechamento: Ler o valor pelo endereço guardado no ponteiro_
+
 **Versão 1.** Que número este trecho mostra na tela?
 
 ```c
@@ -985,6 +991,8 @@ Se errar:
 - qualquer outro erro → Com o *, a linha escreve na variável apontada: *q = 16;
 
 ### Degrau 4 — prática, digitar
+
+_Nome do passo, no fechamento: Separar mexer no ponteiro de mexer no alvo_
 
 **Versão 1.** Que número este trecho mostra na tela?
 
@@ -1284,6 +1292,8 @@ Se errar:
 - qualquer outro erro → n é int e q é ponteiro. São tipos diferentes, e o compilador reclama de quem troca um pelo outro.
 
 ### Degrau 4 — prática, escolher
+
+_Nome do passo, no fechamento: Combinar o tipo do ponteiro com o do endereço_
 
 **Versão 1.** Uma destas linhas faz o compilador reclamar. Qual?
 
@@ -1598,6 +1608,8 @@ Se errar:
 - qualquer outro erro → Com o endereço, a função alcança a variável de fora e escreve nela.
 
 ### Degrau 5 — prática, digitar
+
+_Nome do passo, no fechamento: Saber qual variável a função alcança pelo endereço_
 
 **Versão 1.** Que número este trecho mostra na tela?
 

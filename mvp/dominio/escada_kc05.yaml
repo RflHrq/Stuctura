@@ -257,6 +257,7 @@ B1:
           retorno_geral: "O valor guardado em c se copia sem o *: d = c;"
 
     - id: esc_kc05_B1_5
+      nome: "Copiar NULL de um ponteiro para outro"
       guiado: false
       forma: digitar
       codigo: true
@@ -498,6 +499,7 @@ B2:
           retorno_geral: "Com certeza, só q: a garantia é do 0 escrito no código."
 
     - id: esc_kc05_B2_4
+      nome: "Aceitar no ponteiro só o 0 escrito no código"
       guiado: false
       forma: escolher
       codigo: true
@@ -719,6 +721,7 @@ B3:
           retorno_geral: "p e q guardam o mesmo valor, NULL. A pergunta p == q dá 1."
 
     - id: esc_kc05_B3_4
+      nome: "Endereço de variável nunca é NULL"
       guiado: false
       forma: digitar
       codigo: true
@@ -972,6 +975,7 @@ I1:
           retorno_geral: "p vale NULL. A pergunta é falsa, o *p não é usado, e idade continua com 15."
 
     - id: esc_kc05_I1_4
+      nome: "Perguntar pelo ponteiro antes de usar *p"
       guiado: false
       forma: digitar
       codigo: true
@@ -1210,6 +1214,7 @@ I2:
           retorno_geral: "O mesmo 0 do código vira coisas diferentes: número zero em pontos, ponteiro nulo em q."
 
     - id: esc_kc05_I2_4
+      nome: "Comparar com 0 o ponteiro, e não o valor apontado"
       guiado: false
       forma: digitar
       codigo: true
@@ -1442,6 +1447,7 @@ I3:
           retorno_geral: "p aponta para idade: a pergunta é verdadeira, e *p = 20; escreve nela."
 
     - id: esc_kc05_I3_4
+      nome: "Só ir a *q quando q aponta para algum lugar"
       guiado: false
       forma: montar
       codigo: true

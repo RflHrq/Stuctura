@@ -197,6 +197,7 @@ B1:
           retorno_geral: "O lugar de pontos existe desde a declaração. *q = 3; escreveu nele: o trecho mostra 3."
 
     - id: esc_kc03_B1_4
+      nome: "Pegar o endereço de uma variável ainda sem valor"
       guiado: false
       forma: montar
       codigo: true
@@ -408,6 +409,7 @@ B2:
           retorno_geral: "Cada nome leva o seu *: char *c, *d;"
 
     - id: esc_kc03_B2_4
+      nome: "Declarar dois ponteiros na mesma linha"
       guiado: false
       forma: escolher
       codigo: true
@@ -622,6 +624,7 @@ B3:
           retorno_geral: "O zero entra por uma linha que escreve: idade = 0;"
 
     - id: esc_kc03_B3_4
+      nome: "Escrever na variável antes de ler"
       guiado: false
       forma: montar
       codigo: true
@@ -853,6 +856,7 @@ I1:
           retorno_geral: "q aponta para nota. *q = 4; escreveu em nota: o trecho mostra 4."
 
     - id: esc_kc03_I1_4
+      nome: "Dar ao ponteiro um lugar de verdade para apontar"
       guiado: false
       forma: escolher
       codigo: true
@@ -1071,6 +1075,7 @@ I2:
           retorno_geral: "c só vale NULL com certeza onde uma linha escreveu: char *c = NULL;"
 
     - id: esc_kc03_I2_4
+      nome: "Saber qual ponteiro vale NULL"
       guiado: false
       forma: escolher
       codigo: false
@@ -1293,6 +1298,7 @@ I3:
           retorno_geral: "q aponta para idade desde a linha q = &idade;. *q = 16; escreveu nela: o trecho mostra 16."
 
     - id: esc_kc03_I3_4
+      nome: "Dar o endereço ao ponteiro antes de usar *p"
       guiado: false
       forma: montar
       codigo: true

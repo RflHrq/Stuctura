@@ -220,6 +220,7 @@ B1:
           retorno_geral: 'O endereço de nota é &nota: printf("%p\n", (void *)&nota);'
 
     - id: esc_kc02_B1_4
+      nome: "Mostrar na tela o endereço de uma variável"
       guiado: false
       forma: montar
       codigo: true
@@ -457,6 +458,7 @@ B2:
           retorno_geral: "São dois lugares: o de nota e o de q. O ponteiro é uma variável, e ocupa o dele."
 
     - id: esc_kc02_B2_4
+      nome: "Pedir o endereço do próprio ponteiro"
       guiado: false
       forma: completar
       codigo: true
@@ -728,6 +730,7 @@ B3:
           retorno_geral: "*q = 9; escreve em nota, pelo endereço. O trecho mostra 9."
 
     - id: esc_kc02_B3_5
+      nome: "Ler o valor pelo endereço guardado no ponteiro"
       guiado: false
       forma: digitar
       codigo: true
@@ -990,6 +993,7 @@ I1:
           retorno_geral: "Com o *, a linha escreve na variável apontada: *q = 16;"
 
     - id: esc_kc02_I1_4
+      nome: "Separar mexer no ponteiro de mexer no alvo"
       guiado: false
       forma: digitar
       codigo: true
@@ -1245,6 +1249,7 @@ I2:
           retorno_geral: "n é int e q é ponteiro. São tipos diferentes, e o compilador reclama de quem troca um pelo outro."
 
     - id: esc_kc02_I2_4
+      nome: "Combinar o tipo do ponteiro com o do endereço"
       guiado: false
       forma: escolher
       codigo: true
@@ -1527,6 +1532,7 @@ I3:
           retorno_geral: "Com o endereço, a função alcança a variável de fora e escreve nela."
 
     - id: esc_kc02_I3_5
+      nome: "Saber qual variável a função alcança pelo endereço"
       guiado: false
       forma: digitar
       codigo: true

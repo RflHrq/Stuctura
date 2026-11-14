@@ -215,6 +215,7 @@ B1:
           retorno_geral: "Para guardar um número inteiro, o tipo é int: int idade;"
 
     - id: esc_kc00_B1_4
+      nome: "Declarar cada variável com o tipo certo"
       guiado: false
       forma: montar
       codigo: true
@@ -424,6 +425,7 @@ B2:
           retorno_geral: "A variável declarada neste trecho é pontos: pontos = 10;"
 
     - id: esc_kc00_B2_4
+      nome: "Declarar e depois guardar um valor"
       guiado: false
       forma: montar
       codigo: true
@@ -654,6 +656,7 @@ B3:
           retorno_geral: "O trecho certo é o que tem nota = 7; antes do printf."
 
     - id: esc_kc00_B3_4
+      nome: "Escrever na variável antes de ler"
       guiado: false
       forma: montar
       codigo: true
@@ -892,6 +895,7 @@ B4:
           retorno_geral: "Trocar o valor é escrever de novo no mesmo nome: nota = 9;"
 
     - id: esc_kc00_B4_4
+      nome: "Ficar só com o último valor escrito"
       guiado: false
       forma: digitar
       codigo: true
@@ -1187,6 +1191,7 @@ I1:
           retorno_geral: "À direita vai a variável de onde o valor vem: idade = ano;"
 
     - id: esc_kc00_I1_6
+      nome: "Declarar já com o valor, numa linha"
       guiado: false
       forma: montar
       codigo: true

@@ -405,9 +405,14 @@ def _da_subida(escada: Escada) -> tuple[Degrau, ...]:
 
 
 def _rotulo(g: Degrau) -> str:
-    """O nome de um passo, para dizer onde a pessoa tropeçou: a primeira
-    frase do passo guiado, ou o que o exercício de prática pede."""
-    return g.frases[0] if g.frases else g.versoes[0].pede
+    """O nome de um passo, para dizer onde a pessoa tropeçou.
+
+    O nome que o conteúdo deu, quando deu; sem ele, a primeira frase do
+    passo guiado, ou o que o exercício de prática pede. O passo de
+    prática da subida tem nome sempre (mvp/test_trilha_topicos.py): o
+    enunciado dele pode ser só "Que número este trecho mostra na tela?".
+    """
+    return g.nome or (g.frases[0] if g.frases else g.versoes[0].pede)
 
 
 def _de_produzir(escada: Escada) -> tuple[Degrau, ...]:

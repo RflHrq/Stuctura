@@ -359,6 +359,8 @@ def leitura(d: Dominio, escadas: Mapping[str, Escada]) -> str:
         for i, g in enumerate(e.degraus):
             saida += ["", "### Degrau %d — %s, %s"
                       % (i + 1, "guiado" if g.guiado else "prática", g.forma)]
+            if g.nome:
+                saida += ["", "_Nome do passo, no fechamento: %s_" % g.nome]
             if g.frases:
                 saida += [""] + ["> %s" % f for f in g.frases]
             for k, v in enumerate(g.versoes):

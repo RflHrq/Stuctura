@@ -733,10 +733,12 @@ em telas diferentes. A linha de abertura diz a versão das regras
 (`mvp/trilha_log.VERSAO`, agora 2), e a de outra versão é recusada com a
 frase de quem está na tela.
 
-**O que fica dito e não resolvido:** o nome do passo, no fechamento, é
-pouco quando o exercício de prática é de prever a saída — "Que número
-este trecho mostra na tela?" não diz QUAL ideia a pessoa tropeçou.
-Resolve com um nome curto por degrau, escrito no conteúdo.
+**O nome do passo.** No fechamento, o passo em que a pessoa tropeçou
+aparece pelo NOME dele (`nome`, no degrau): a ideia do passo, em poucas
+palavras. Sem isso, o tropeço num exercício de prever a saída aparecia
+como "Que número este trecho mostra na tela?", que não diz qual ideia
+foi — era assim em 13 dos 29 passos de prática da subida. Os 29 têm
+nome; o passo guiado continua aparecendo pela primeira frase dele.
 
 ## 7. O conteúdo
 

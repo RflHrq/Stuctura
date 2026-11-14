@@ -176,6 +176,8 @@ Se errar:
 
 ### Degrau 5 — prática, digitar
 
+_Nome do passo, no fechamento: Copiar NULL de um ponteiro para outro_
+
 **Versão 1.** Que número este trecho mostra na tela?
 
 ```c
@@ -437,6 +439,8 @@ Se errar:
 
 ### Degrau 4 — prática, escolher
 
+_Nome do passo, no fechamento: Aceitar no ponteiro só o 0 escrito no código_
+
 **Versão 1.** Uma destas linhas faz o compilador reclamar. Qual?
 
 Já está escrito:
@@ -692,6 +696,8 @@ Se errar:
 - qualquer outro erro → p e q guardam o mesmo valor, NULL. A pergunta p == q dá 1.
 
 ### Degrau 4 — prática, digitar
+
+_Nome do passo, no fechamento: Endereço de variável nunca é NULL_
 
 **Versão 1.** Que número este trecho mostra na tela?
 
@@ -973,6 +979,8 @@ Se errar:
 
 ### Degrau 4 — prática, digitar
 
+_Nome do passo, no fechamento: Perguntar pelo ponteiro antes de usar *p_
+
 **Versão 1.** Que número este trecho mostra na tela?
 
 ```c
@@ -1236,6 +1244,8 @@ Se errar:
 
 ### Degrau 4 — prática, digitar
 
+_Nome do passo, no fechamento: Comparar com 0 o ponteiro, e não o valor apontado_
+
 **Versão 1.** Que número este trecho mostra na tela?
 
 ```c
@@ -1494,6 +1504,8 @@ Se errar:
 - qualquer outro erro → p aponta para idade: a pergunta é verdadeira, e *p = 20; escreve nela.
 
 ### Degrau 4 — prática, montar
+
+_Nome do passo, no fechamento: Só ir a *q quando q aponta para algum lugar_
 
 **Versão 1.** Monte a linha que só lê *q quando q aponta para algum lugar.
 
