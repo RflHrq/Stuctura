@@ -565,6 +565,132 @@ def test_o_kc_06_ensina_o_que_as_questoes_dele_usam():
         assert palavra in dito, palavra
 
 
+def test_no_kc_07_ficam_fora_dezesseis_e_toda_premissa_abre_com_codigo():
+    """O banco do kc_07 não foi mexido. É o tópico que mais apresenta
+    coisa nova, e mesmo assim dezesseis das 48 questões usam o que escada
+    nenhuma ensinou."""
+    fora, quantas, abre = _selecao("kc_07")
+    assert fora == {
+        "B1": ("ciu_kc07_003", "ciu_kc07_t03",
+               "mol_kc07_B1_treino_1__achar_o_erro_05",
+               "mol_kc07_B1_treino_1__comparar_casos_06"),
+        "B2": ("ciu_kc07_t06",),
+        "B3": ("ciu_kc07_t09",),
+        "B4": ("ciu_kc07_012", "ciu_kc07_t11", "ciu_kc07_t12"),
+        "I1": ("ciu_kc07_015", "ciu_kc07_t14"),
+        "I2": ("ciu_kc07_018", "ciu_kc07_t17", "ciu_kc07_t18"),
+        "I3": ("ciu_kc07_020", "ciu_kc07_t21"),
+    }
+    assert quantas == {"B1": 8, "B2": 5, "B3": 5, "B4": 3,
+                       "I1": 4, "I2": 3, "I3": 4}
+    assert abre == {
+        "B1": "ciu_kc07_002", "B2": "ciu_kc07_005", "B3": "ciu_kc07_008",
+        "B4": "ciu_kc07_011", "I1": "ciu_kc07_014", "I2": "ciu_kc07_017",
+        "I3": "ciu_kc07_021"}
+    d = _dominio("kc_07")
+    por_id = {a.id: a for a in d.atividades}
+    assert all(por_id[i].codigo for i in abre.values())
+    # O que escada nenhuma ensinou até aqui: malloc, strcpy, extern,
+    # return, laço, double e long, ponteiro para ponteiro, a conta com
+    # endereço (a + 1), a conversão para (void *), o protótipo sem corpo,
+    # escrever num texto entre aspas (p[0] = 'E') e variável global.
+    ruim = re.compile(
+        r"\b(malloc|strcpy|extern|return|for|double|long)\b"
+        r"|\*\*|\+ 1|\(void \*\)|= 'E'"
+        r"|^\s*(?:void|int)\s+\w+\([^)]*\);", re.M)
+
+    def fora_da_regua(i):
+        codigo = por_id[i].codigo or ""
+        return bool(ruim.search(codigo)) or _tem_global(codigo)
+
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_07", no):
+            assert not fora_da_regua(i), i
+    # A régua morde: as dezesseis de fora são pegas por ela, todas.
+    assert all(fora_da_regua(i) for ids in fora.values() for i in ids)
+
+
+def test_o_b1_do_kc_07_tem_duas_crencas_e_cada_uma_a_sua_prova():
+    """É a primeira premissa com duas crenças que a negam: "uma caixa com
+    os valores dentro" e "char * e char [] guardam do mesmo jeito". Cada
+    uma tem a sua prova, e cada uma é dita num passo guiado diferente."""
+    d, e = _dominio("kc_07"), _escadas("kc_07")["B1"]
+    duas = {c.id for c in d.crencas.values() if c.nega == "B1"}
+    assert duas == {"array_confused_with_cell", "string_literal_is_array"}
+    assert {p.crenca for p in e.provas} == duas
+    onde = {x.crenca: g.id for g in e.degraus for v in g.versoes
+            for x in v.erros if x.crenca}
+    assert set(onde) == duas and len(set(onde.values())) == 2
+
+
+def test_cada_crenca_do_b1_do_kc_07_leva_a_prova_dela():
+    """As duas crenças do B1 chegam à prova por caminhos diferentes: a das
+    letras pela pergunta de abertura, que é sobre elas; a da caixa única
+    pelo primeiro passo de quem não sabe e sobe."""
+    d, escadas = _dominio("kc_07"), _escadas("kc_07")
+    c = _sessao("kc_07", "crente_aprende", "direto", "rapido")
+    primeira = next(e.dados for e in c.eventos if e.tipo == "prova_apresentada")
+    assert (primeira["no"], primeira["crenca"]) == (
+        "B1", "string_literal_is_array")
+
+    t = trilha.inicia(d, escadas, "s-kc07")
+    t = trilha.avanca(d, escadas, t.estado,
+                      trilha.Entrada(acao="comecar", ritmo="completo"))
+    t = trilha.avanca(d, escadas, t.estado, trilha.Entrada(acao="nao_sei"))
+    assert t.tela.dados["degrau"] == "esc_kc07_B1_1"
+    assert t.tela.dados["pede_certeza"] is True
+    passo, g = t.estado.passo, escadas["B1"].degraus[0]
+    v = g.versoes[passo.versao]
+    erro = next(x for x in v.erros if x.crenca)
+    ordem = trilha_escada.ordem_das_pecas(t.estado.semente, g.id, passo.versao,
+                                          g.forma, len(v.pecas))
+    r = trilha.avanca(d, escadas, t.estado, trilha.Entrada(
+        acao="responder", confianca="tenho certeza",
+        pecas=tuple(ordem.index(i) for i in erro.exata)))
+    assert r.tela.tipo == "voce_disse"
+    assert r.estado.premissa("B1").crenca == "array_confused_with_cell"
+    assert r.tela.dados["programa"] == escadas["B1"].prova(
+        "array_confused_with_cell").programa
+
+
+def test_no_kc_07_ninguem_digita_tamanho_que_muda_de_maquina():
+    """O tamanho de um int e o de um ponteiro mudam de máquina para
+    máquina. Passo de `digitar` só mede array de char, em que o número é
+    o de caixas, ou divide o conjunto por uma caixa. O tamanho de um
+    ponteiro só aparece em prova, e a nota de ambiente diz que é desta
+    máquina."""
+    com_sizeof = 0
+    for e, g, k, v in _versoes("kc_07"):
+        if g.forma == "digitar" and "sizeof" in v.mostra:
+            com_sizeof += 1
+            medidos = re.findall(r"sizeof (\w+)", v.mostra)
+            assert "/ sizeof" in v.mostra or all(
+                re.search(r"char %s\[" % m, v.mostra) for m in medidos), g.id
+    assert com_sizeof >= 6
+    provas = [p for e in _escadas("kc_07").values() for p in e.provas
+              if "sizeof" in p.programa]
+    assert len(provas) == 3
+    for p in provas:
+        assert "nesta máquina" in p.ambiente, p.crenca
+        # O número que NÃO é o do ponteiro nunca coincide com ele.
+        assert not {"4"} & set(p.espera.split()), p.crenca
+        assert p.espera.split().count("8") == 1, p.crenca
+
+
+def test_o_kc_07_diz_as_palavras_que_as_questoes_dele_usam():
+    """"Item", "expressão", "terminador" e "tipos" estão nas questões de
+    marcar; cada uma é dita num passo guiado. E o sizeof, que quatro
+    premissas usam, é apresentado na primeira."""
+    escadas = _escadas("kc_07")
+    dito = " ".join(f for e in escadas.values() for g in e.degraus
+                    for f in g.frases)
+    for palavra in ("item", "expressão", "terminador", "tipos diferentes"):
+        assert palavra in dito, palavra
+    apresenta = [g.id for g in escadas["B1"].degraus
+                 if g.guiado and any("sizeof" in f for f in g.frases)]
+    assert apresenta == ["esc_kc07_B1_3"]
+
+
 def test_sem_a_questao_de_degrau_2_a_premissa_abre_com_a_de_codigo():
     """A abertura é a questão de código de degrau 2: é a que APLICA a
     ideia. Quando ela fica fora da trilha, quem abre é outra de código, e

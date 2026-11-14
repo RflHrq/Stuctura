@@ -952,6 +952,55 @@ toques (8 e 13 no rápido); quem não sabe e aprende, 26 e 44; quem erra
 todo passo, 37 e 91; quem diz a crença de cada ideia e depois acerta, 38
 e 37.
 
+**O kc_07, em 13/11/2026 — ponteiro e array**
+
+O tópico que mais apresenta coisa nova: quem chega aqui nunca viu um
+array. Sete premissas, 36 degraus, oito provas
+(`mvp/dominio/escada_kc07.yaml`, `docs/escada-kc07-leitura.md`). Entram,
+nesta ordem, o array, a lista entre chaves e o índice, o `sizeof` com
+`%zu`, o texto entre aspas, o índice num ponteiro, o nome do array
+virando endereço, o parâmetro `int v[]` e o `&` do conjunto.
+
+- **A palavra é "caixa".** As escadas anteriores falam em variável e em
+  lugar. Aqui o grafo, as razões e as 48 questões falam em caixa, e é a
+  palavra que deixa dizer que o array são várias e o ponteiro é uma só.
+  O primeiro passo faz a ponte: cada caixa é uma variável.
+- **Ninguém digita um tamanho que muda de máquina.** O `sizeof` entra
+  com array de `char`, em que o número é o de caixas, e com a conta
+  `sizeof notas / sizeof notas[0]`. O tamanho de um ponteiro (8 aqui, 4
+  em outras) só aparece em prova, com a nota de ambiente dizendo isso, e
+  os arrays dessas provas têm 6 e 10 caixas, para o número nunca
+  coincidir com o de um ponteiro. É a resposta ao que o kc_02 tinha
+  deixado em aberto: o `sizeof` passa a ser ensinado, no tópico em que
+  quatro premissas dependem dele.
+- **O B1 tem duas crenças**, e é a primeira premissa assim: "uma caixa
+  com os valores dentro" e "`char *` e `char []` guardam do mesmo
+  jeito". Cada uma tem a sua prova e o seu passo guiado. A das letras
+  chega à prova pela pergunta de abertura, que é sobre elas; a da caixa
+  única, pelo primeiro passo de quem não sabe e sobe. Como cada ideia
+  recebe um trabalho só (decisão 4 da seção 10), numa mesma sessão a
+  pessoa vê a prova de uma das duas; a outra, se aparecer, fica anotada.
+- **Três provas são o que o compilador diz** — de `p[0]` sem endereço,
+  de `q = &v;` e de `copia = notas;` —, três são tamanhos, uma são dois
+  endereços, e uma é o `v = NULL` dentro da função, que deixa o array de
+  quem chamou intacto.
+- **O banco não foi mexido.** Dezesseis das 48 questões ficam fora:
+  escrever num texto entre aspas, `double` e `long`, `malloc`,
+  protótipo, função de várias linhas, laço, `strcpy`, `extern`, ponteiro
+  para ponteiro, a conta com endereço (`a + 1`) e variável global. As
+  sete premissas abrem com questão de código; o B4 e o I2 ficam com
+  três questões cada.
+
+Fica para o Rafael decidir: as duas questões do B1 sobre escrever num
+texto entre aspas (`p[0] = 'E'`) estão fora porque a escada não diz que
+esse texto não se escreve. Dizer custa um passo a mais numa premissa que
+já tem seis.
+
+Os alunos simulados, no ritmo completo: quem acerta tudo, 16 telas e 22
+toques (9 e 15 no rápido); quem não sabe e aprende, 30 e 51; quem erra
+todo passo, 44 e 108; quem diz a crença de cada ideia e depois acerta,
+44 e 43.
+
 **Novo, e opcional — a trilha funciona sem**
 
 1. **A previsão.** Os programas de demonstração imprimem frases ("o

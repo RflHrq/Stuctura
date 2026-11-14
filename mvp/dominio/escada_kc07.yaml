@@ -1,0 +1,1747 @@
+# A escada do kc_07 — ponteiro e array.
+#
+# O QUE É. Para cada premissa do tópico, os degraus do mais mecânico até
+# a ideia, e a prova de cada crença que nega a premissa. Segue o molde
+# do kc_00, e a mesma régua do texto (docs/trilha.md, 6.16).
+#
+# QUEM CHEGA AQUI nunca viu um array. Os tópicos anteriores trabalharam
+# com variáveis soltas (`idade`, `nota`), ponteiros para elas e funções
+# de uma linha. Este é o tópico que mais apresenta coisa nova, e a ordem
+# em que cada uma entra é esta:
+#
+#   int notas[3];              o array: caixas grudadas       B1, degrau 1
+#   {10, 20, 30} e notas[1]    a lista e o índice              B1, degrau 2
+#   sizeof e %zu               quanto espaço ocupa             B1, degrau 3
+#   char nome[] = "ana";       o texto entre aspas             B1, degrau 4
+#   p[1] num ponteiro                                          B2, degrau 3
+#   p = notas;                 o nome vira endereço            B3, degrau 1
+#   *notas                                                     B3, degrau 2
+#   int v[] no parâmetro                                       B3, degrau 3
+#   &v, o endereço do conjunto                                 B4, degrau 2
+#
+# A PALAVRA É "CAIXA". As escadas anteriores falam em variável e em
+# lugar. Aqui o grafo, as razões e as 48 questões do banco falam em
+# caixa ("cinco caixas de int, grudadas"), e é a palavra que deixa dizer
+# que o array são várias e o ponteiro é uma só. O primeiro degrau faz a
+# ponte: cada caixa é uma variável.
+#
+# NENHUM DEGRAU PEDE PARA DIGITAR UM TAMANHO QUE MUDA DE MÁQUINA. O
+# `sizeof` entra com array de `char`, em que o número é o de caixas (um
+# char ocupa 1, por definição da linguagem), e com a conta
+# `sizeof notas / sizeof notas[0]`, que dá o número de caixas em
+# qualquer máquina. O tamanho de um ponteiro (8 aqui, 4 em outras) só
+# aparece em prova, com a nota de ambiente dizendo isso — e os arrays
+# das provas têm 6 e 10 caixas, para o número nunca coincidir com o de
+# um ponteiro.
+#
+# O B1 TEM DUAS CRENÇAS, e por isso duas provas e dois degraus guiados
+# com a crença dita: "uma caixa com os valores dentro" (degrau 1) e
+# "char *s e char s[] guardam do mesmo jeito" (degrau 4).
+#
+# AS PROVAS, e o que cada uma usa:
+#
+#   B1  uma caixa só             os endereços de notas[0] e notas[1]
+#   B1  char * e char []         sizeof dos dois: 6 e 8
+#   B2  int *p cria o dado       o compilador reclama de p[0]
+#   B3  array vai por referência v = NULL na função, e notas intacto
+#   B4  v e &v são o mesmo       o compilador aceita p = v; e reclama
+#                                de q = &v;
+#   I1  o nome recebe atribuição o compilador reclama de copia = notas;
+#   I2  sizeof na função         sai 8, e não 10
+#   I3  array é ponteiro         sizeof dos dois: 10 e 8
+#
+# AS QUESTÕES DE MARCAR. O banco do kc_07 não foi mexido. Dezesseis das
+# 48 questões de diagnóstico e de treino usam o que as escadas não
+# ensinam — escrever num texto entre aspas, `double` e `long`, `malloc`,
+# protótipo, função de várias linhas, laço, `strcpy`, `extern`, ponteiro
+# para ponteiro, a conta com endereço (`a + 1`) — e estão em
+# `fora_da_trilha`, com o motivo em cada premissa.
+#
+# A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
+# alternativa de um degrau guiado, e só ali o erro leva `crenca`.
+#
+# gerado_por: Claude Fable 5.2, em 13/11/2026
+# revisado_por:
+#   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
+#   principal)
+
+B1:
+  revisao:
+    frases:
+      - "int notas[3]; cria três caixas de int, grudadas uma na outra."
+      - "O nome notas vale para o conjunto. Cada caixa se alcança pelo número: notas[0], notas[1], notas[2]."
+    codigo: |
+      int notas[3] = {7, 8, 9};
+
+      printf("%d\n", notas[2]);
+    saida: "9"
+  # Escrever num texto entre aspas (a escada não diz que ele não se
+  # escreve); double e long.
+  fora_da_trilha:
+    - ciu_kc07_003
+    - ciu_kc07_t03
+    - mol_kc07_B1_treino_1__achar_o_erro_05
+    - mol_kc07_B1_treino_1__comparar_casos_06
+  provas:
+    - crenca: array_confused_with_cell
+      programa: |
+        int notas[3] = {7, 8, 9};
+
+        printf("%p\n", (void *)&notas[0]);
+        printf("%p\n", (void *)&notas[1]);
+      previsao:
+        pergunta: >
+          Os dois printf mostram o endereço de notas[0] e o de notas[1].
+          O que aparece?
+        opcoes:
+          - "O mesmo endereço: os valores ficam todos numa caixa só"
+          - "Dois endereços diferentes"
+        real: 1
+        crenca: 0
+      espera: "0x1000\n0x1004"
+      ambiente: >
+        Os números dos lugares mudam de máquina para máquina; aqui eles
+        aparecem como números de exemplo. O que foi conferido é que as
+        duas linhas saem com endereços diferentes.
+      afirma: >
+        Saíram dois endereços diferentes. Cada valor do array tem a sua
+        caixa, com o seu lugar: são três caixas, lado a lado, e não uma
+        caixa com três valores dentro.
+    - crenca: string_literal_is_array
+      programa: |
+        char nome[] = "maria";
+        char *p = "maria";
+
+        printf("%zu\n", sizeof nome);
+        printf("%zu\n", sizeof p);
+      previsao:
+        pergunta: >
+          sizeof diz quanto espaço cada variável ocupa, contado em caixas
+          de char. O que os dois printf mostram?
+        opcoes:
+          - "Dois números diferentes"
+          - "O mesmo número: as duas guardam as letras do mesmo jeito"
+        real: 0
+        crenca: 1
+      espera: "6\n8"
+      ambiente: >
+        O 8 é o tamanho de um ponteiro nesta máquina; em outra pode ser
+        4. O 6 não muda: são as cinco letras e a marca de fim.
+      afirma: >
+        Saíram 6 e 8. nome é o conjunto das seis caixas, com as letras
+        dentro. p é uma caixa só, do tamanho de um endereço: as letras
+        dele estão guardadas em outro lugar.
+  degraus:
+    - id: esc_kc07_B1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "int notas[3]; cria três caixas de int, grudadas uma na outra. Cada caixa é uma variável."
+        - "O nome notas vale para o conjunto das três, e não para uma caixa só."
+      versoes:
+        - pede: "O que esta linha cria?"
+          antes: "int notas[3];"
+          pecas:
+            - "Três caixas de int, lado a lado"
+            - "Uma caixa só, com os três valores dentro"
+            - "Um ponteiro, que depois aponta para três valores"
+          certa: [[0]]
+          certa_texto: "Três caixas de int, lado a lado"
+          erros:
+            - exata: [1]
+              crenca: array_confused_with_cell
+              retorno: "Não é uma caixa com três valores: são três caixas, cada uma com o seu lugar e o seu valor. notas é o nome do conjunto."
+            - exata: [2]
+              retorno: "Ponteiro nenhum nasce aqui. A linha cria as três caixas de int, e notas é o nome do conjunto delas."
+          retorno_geral: "A linha cria três caixas de int, lado a lado. notas é o nome do conjunto."
+        - pede: "O que esta linha cria?"
+          antes: "int idades[5];"
+          pecas:
+            - "Cinco caixas de int, lado a lado"
+            - "Uma caixa só, com os cinco valores dentro"
+            - "Um ponteiro, que depois aponta para cinco valores"
+          certa: [[0]]
+          certa_texto: "Cinco caixas de int, lado a lado"
+          erros:
+            - exata: [1]
+              crenca: array_confused_with_cell
+              retorno: "Não é uma caixa com cinco valores: são cinco caixas, cada uma com o seu lugar e o seu valor. idades é o nome do conjunto."
+            - exata: [2]
+              retorno: "Ponteiro nenhum nasce aqui. A linha cria as cinco caixas de int, e idades é o nome do conjunto delas."
+          retorno_geral: "A linha cria cinco caixas de int, lado a lado. idades é o nome do conjunto."
+
+    - id: esc_kc07_B1_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "int notas[3] = {10, 20, 30}; cria as três caixas já com um valor em cada uma."
+        - "Cada caixa, ou item, tem um número, e a contagem começa em 0: notas[0] é a primeira."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int notas[3] = {10, 20, 30};
+
+            notas[0] = 7;
+            printf("%d\n", notas[1]);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "7"
+              retorno: "A contagem começa em 0: o 7 foi para notas[0], a primeira caixa. notas[1] é a segunda, e continua com 20."
+            - texto: "10"
+              retorno: "notas[1] é a segunda caixa, e não a primeira: a contagem começa em 0. Ela guarda 20."
+          retorno_geral: "notas[0] é a primeira caixa e notas[1] a segunda. A segunda guarda 20."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idades[3] = {15, 16, 17};
+
+            idades[0] = 9;
+            printf("%d\n", idades[1]);
+          aceitas: ["16"]
+          certa_texto: "16"
+          erros:
+            - texto: "9"
+              retorno: "A contagem começa em 0: o 9 foi para idades[0], a primeira caixa. idades[1] é a segunda, e continua com 16."
+            - texto: "15"
+              retorno: "idades[1] é a segunda caixa, e não a primeira: a contagem começa em 0. Ela guarda 16."
+          retorno_geral: "idades[0] é a primeira caixa e idades[1] a segunda. A segunda guarda 16."
+
+    - id: esc_kc07_B1_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "sizeof diz quanto espaço uma variável ocupa, contado em caixas de char."
+        - "No printf, o formato desse número é %zu."
+      versoes:
+        - pede: "v tem cinco caixas de char. Que número aparece?"
+          mostra: |-
+            char v[5];
+
+            printf("%zu\n", sizeof v);
+          aceitas: ["5"]
+          certa_texto: "5"
+          erros:
+            - texto: "1"
+              retorno: "sizeof v não mede uma caixa: mede v inteiro, que é o conjunto das cinco. Aparece 5."
+          retorno_geral: "v é o conjunto das cinco caixas de char, e sizeof v mede o conjunto: 5."
+        - pede: "letras tem oito caixas de char. Que número aparece?"
+          mostra: |-
+            char letras[8];
+
+            printf("%zu\n", sizeof letras);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "1"
+              retorno: "sizeof letras não mede uma caixa: mede letras inteiro, que é o conjunto das oito. Aparece 8."
+          retorno_geral: "letras é o conjunto das oito caixas de char, e sizeof letras mede o conjunto: 8."
+
+    - id: esc_kc07_B1_4
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - 'char nome[] = "ana"; cria quatro caixas de char: a, n, a e uma marca de fim, o terminador.'
+        - 'char *p = "ana"; cria só a caixa de p, com o endereço de letras guardadas em outro lugar.'
+      versoes:
+        - pede: "As duas linhas guardam as letras do mesmo jeito?"
+          antes: |-
+            char nome[] = "ana";
+            char *p = "ana";
+          pecas:
+            - "Não: nome tem as quatro caixas, e p só um endereço"
+            - "Sim: char nome[] e char *p guardam as letras do mesmo jeito"
+            - "Não: p tem as quatro caixas, e nome só um endereço"
+          certa: [[0]]
+          certa_texto: "Não: nome tem as quatro caixas, e p só um endereço"
+          erros:
+            - exata: [1]
+              crenca: string_literal_is_array
+              retorno: "A escrita é parecida, mas o que nasce é diferente: nome é o conjunto das quatro caixas, com as letras dentro; p é uma caixa só, que guarda um endereço."
+            - exata: [2]
+              retorno: "É o contrário: quem tem as caixas com as letras é nome. p é um ponteiro: uma caixa só, com o endereço das letras."
+          retorno_geral: "nome é o conjunto das quatro caixas, com as letras dentro. p é uma caixa só, com um endereço."
+        - pede: "As duas linhas guardam as letras do mesmo jeito?"
+          antes: |-
+            char *q = "ufv";
+            char sigla[] = "ufv";
+          pecas:
+            - "Sim: char *q e char sigla[] guardam as letras do mesmo jeito"
+            - "Não: sigla tem as quatro caixas, e q só um endereço"
+            - "Não: q tem as quatro caixas, e sigla só um endereço"
+          certa: [[1]]
+          certa_texto: "Não: sigla tem as quatro caixas, e q só um endereço"
+          erros:
+            - exata: [0]
+              crenca: string_literal_is_array
+              retorno: "A escrita é parecida, mas o que nasce é diferente: sigla é o conjunto das quatro caixas, com as letras dentro; q é uma caixa só, que guarda um endereço."
+            - exata: [2]
+              retorno: "É o contrário: quem tem as caixas com as letras é sigla. q é um ponteiro: uma caixa só, com o endereço das letras."
+          retorno_geral: "sigla é o conjunto das quatro caixas, com as letras dentro. q é uma caixa só, com um endereço."
+
+    - id: esc_kc07_B1_5
+      nome: "Mexer numa caixa não mexe nas outras"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "O trecho zera uma das caixas e depois soma as três. Que número aparece?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+
+            notas[1] = 0;
+            printf("%d\n", notas[0] + notas[1] + notas[2]);
+          aceitas: ["16"]
+          certa_texto: "16"
+          erros:
+            - texto: "0"
+              retorno: "O 0 foi para uma caixa só, notas[1]. As outras duas continuam com 7 e 9, e a soma dá 16."
+            - texto: "24"
+              retorno: "notas[1] deixou de valer 8: recebeu 0 na linha de cima. A soma é 7 mais 0 mais 9: 16."
+          retorno_geral: "Só notas[1] mudou. A soma é 7 mais 0 mais 9: 16."
+        - pede: "O trecho zera uma das caixas e depois soma as três. Que número aparece?"
+          mostra: |-
+            int idades[3] = {15, 16, 17};
+
+            idades[0] = 0;
+            printf("%d\n", idades[0] + idades[1] + idades[2]);
+          aceitas: ["33"]
+          certa_texto: "33"
+          erros:
+            - texto: "0"
+              retorno: "O 0 foi para uma caixa só, idades[0]. As outras duas continuam com 16 e 17, e a soma dá 33."
+            - texto: "48"
+              retorno: "idades[0] deixou de valer 15: recebeu 0 na linha de cima. A soma é 0 mais 16 mais 17: 33."
+          retorno_geral: "Só idades[0] mudou. A soma é 0 mais 16 mais 17: 33."
+
+    - id: esc_kc07_B1_6
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Quantas caixas de char esta linha cria?"
+          antes: 'char nome[] = "sol";'
+          pecas:
+            - "Quatro: as três letras e a marca de fim"
+            - "Três: uma para cada letra"
+            - "Uma: a de nome, com as letras dentro"
+          certa: [[0]]
+          certa_texto: "Quatro: as três letras e a marca de fim"
+          erros:
+            - exata: [1]
+              retorno: "As letras são três, mas o texto entre aspas ganha uma caixa a mais, a da marca de fim. São quatro."
+            - exata: [2]
+              retorno: "Um array não é uma caixa com tudo dentro: cada letra tem a sua caixa, e a marca de fim também. São quatro."
+          retorno_geral: "Uma caixa para cada letra, e mais a da marca de fim: quatro."
+        - pede: "Quantas caixas de char esta linha cria?"
+          antes: 'char cidade[] = "minas";'
+          pecas:
+            - "Cinco: uma para cada letra"
+            - "Seis: as cinco letras e a marca de fim"
+            - "Uma: a de cidade, com as letras dentro"
+          certa: [[1]]
+          certa_texto: "Seis: as cinco letras e a marca de fim"
+          erros:
+            - exata: [0]
+              retorno: "As letras são cinco, mas o texto entre aspas ganha uma caixa a mais, a da marca de fim. São seis."
+            - exata: [2]
+              retorno: "Um array não é uma caixa com tudo dentro: cada letra tem a sua caixa, e a marca de fim também. São seis."
+          retorno_geral: "Uma caixa para cada letra, e mais a da marca de fim: seis."
+
+B2:
+  revisao:
+    frases:
+      - "int *p; cria uma caixa só, a de p. Caixa de int, nenhuma."
+      - "Para usar p[0], p recebe antes o endereço de caixas que existem: p = &notas[0];"
+    codigo: |
+      int notas[3] = {7, 8, 9};
+      int *p;
+
+      p = &notas[0];
+      printf("%d\n", p[0]);
+    saida: "7"
+  # malloc.
+  fora_da_trilha: [ciu_kc07_t06]
+  provas:
+    - crenca: declaration_allocates
+      programa: |
+        int notas[3];
+        int *p;
+
+        notas[0] = 1;
+        p[0] = 1;
+      previsao:
+        pergunta: >
+          As duas últimas linhas escrevem 1: uma em notas[0], a outra em
+          p[0]. De qual delas o compilador reclama?
+        opcoes:
+          - "De nenhuma: int *p; já criou a caixa em que p[0] escreve"
+          - "Da última: p não aponta para caixa nenhuma"
+        real: 1
+        crenca: 0
+      reclama: "'p' is used uninitialized"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa
+        não é executado: onde esse 1 iria parar, ninguém sabe.
+      afirma: >
+        O compilador reclama da última linha: p é usado sem ter recebido
+        endereço ("used uninitialized"). int *p; criou a caixa do
+        ponteiro, e mais nenhuma — não há caixa de int para p[0]
+        escrever.
+  degraus:
+    - id: esc_kc07_B2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "int notas[3]; cria três caixas de int. int *p; cria uma caixa só: a de p."
+        - "Com o ponteiro não nasce caixa de int nenhuma."
+      versoes:
+        - pede: "Depois destas duas linhas, quantas caixas de int existem?"
+          antes: |-
+            int notas[3];
+            int *p;
+          pecas:
+            - "Três: as de notas"
+            - "Quatro: as três de notas, e uma que nasceu para p apontar"
+            - "Seis: p também ganha três"
+          certa: [[0]]
+          certa_texto: "Três: as de notas"
+          erros:
+            - exata: [1]
+              crenca: declaration_allocates
+              retorno: "int *p; cria só a caixa do ponteiro, que guarda um endereço. Caixa de int para ele apontar não nasce: são só as três de notas."
+            - exata: [2]
+              retorno: "p não é um array: é uma caixa só, a do ponteiro. Caixas de int, só as três de notas."
+          retorno_geral: "As caixas de int são as três de notas. Com p nasce só a caixa do ponteiro."
+        - pede: "Depois destas duas linhas, quantas caixas de int existem?"
+          antes: |-
+            int *q;
+            int idades[5];
+          pecas:
+            - "Seis: as cinco de idades, e uma que nasceu para q apontar"
+            - "Cinco: as de idades"
+            - "Dez: q também ganha cinco"
+          certa: [[1]]
+          certa_texto: "Cinco: as de idades"
+          erros:
+            - exata: [0]
+              crenca: declaration_allocates
+              retorno: "int *q; cria só a caixa do ponteiro, que guarda um endereço. Caixa de int para ele apontar não nasce: são só as cinco de idades."
+            - exata: [2]
+              retorno: "q não é um array: é uma caixa só, a do ponteiro. Caixas de int, só as cinco de idades."
+          retorno_geral: "As caixas de int são as cinco de idades. Com q nasce só a caixa do ponteiro."
+
+    - id: esc_kc07_B2_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Para servir, o ponteiro recebe o endereço de uma caixa que já existe: p = &notas[0];"
+        - "Daí *p chega nela."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+            int *p;
+
+            p = &notas[0];
+            printf("%d\n", *p);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "0"
+              retorno: "p não ficou vazio: recebeu o endereço de notas[0], a primeira caixa. *p chega nela, e acha 7."
+            - texto: "8"
+              retorno: "A contagem começa em 0: notas[0] é a primeira caixa, a do 7. É o endereço dela que p recebeu."
+          retorno_geral: "p recebeu o endereço da primeira caixa de notas, e *p chega nela: 7."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idades[3] = {15, 16, 17};
+            int *q;
+
+            q = &idades[0];
+            printf("%d\n", *q);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "q não ficou vazio: recebeu o endereço de idades[0], a primeira caixa. *q chega nela, e acha 15."
+            - texto: "16"
+              retorno: "A contagem começa em 0: idades[0] é a primeira caixa, a do 15. É o endereço dela que q recebeu."
+          retorno_geral: "q recebeu o endereço da primeira caixa de idades, e *q chega nela: 15."
+
+    - id: esc_kc07_B2_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "No ponteiro também se escreve o índice: p[0] é a caixa apontada, e p[1] a seguinte."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+            int *p;
+
+            p = &notas[0];
+            printf("%d\n", p[1]);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "7"
+              retorno: "p[0] é a caixa que p aponta, a do 7. p[1] é a seguinte: 8."
+          retorno_geral: "p aponta para a primeira caixa de notas. p[1] é a caixa seguinte: 8."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idades[3] = {15, 16, 17};
+            int *q;
+
+            q = &idades[0];
+            printf("%d\n", q[1]);
+          aceitas: ["16"]
+          certa_texto: "16"
+          erros:
+            - texto: "15"
+              retorno: "q[0] é a caixa que q aponta, a do 15. q[1] é a seguinte: 16."
+          retorno_geral: "q aponta para a primeira caixa de idades. q[1] é a caixa seguinte: 16."
+
+    - id: esc_kc07_B2_4
+      nome: "O ponteiro não tem caixas: usa as do array"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "O trecho escreve 0 por p, e depois mostra uma caixa de notas. Que número aparece?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+            int *p;
+
+            p = &notas[0];
+            p[2] = 0;
+            printf("%d\n", notas[2]);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "9"
+              retorno: "p não tem caixas próprias: p[2] é a terceira caixa de notas. O 0 foi escrito nela."
+          retorno_geral: "p[2] e notas[2] são a mesma caixa: p só guarda o endereço. Aparece 0."
+        - pede: "O trecho escreve 0 por q, e depois mostra uma caixa de idades. Que número aparece?"
+          mostra: |-
+            int idades[3] = {15, 16, 17};
+            int *q;
+
+            q = &idades[0];
+            q[1] = 0;
+            printf("%d\n", idades[1]);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "16"
+              retorno: "q não tem caixas próprias: q[1] é a segunda caixa de idades. O 0 foi escrito nela."
+          retorno_geral: "q[1] e idades[1] são a mesma caixa: q só guarda o endereço. Aparece 0."
+
+    - id: esc_kc07_B2_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "A última linha escreve numa caixa que existe?"
+          antes: |-
+            int *p;
+
+            p[0] = 7;
+          pecas:
+            - "Não: p ainda não recebeu endereço nenhum"
+            - "Sim: a caixa de int nasceu junto com p"
+            - "Sim: p[0] é a própria caixa de p"
+          certa: [[0]]
+          certa_texto: "Não: p ainda não recebeu endereço nenhum"
+          erros:
+            - exata: [1]
+              retorno: "Com int *p; nasce só a caixa do ponteiro. Caixa de int para p[0] escrever não existe, enquanto p não receber o endereço de uma."
+            - exata: [2]
+              retorno: "p[0] não é a caixa de p: é a caixa que p APONTA. E p ainda não aponta para nenhuma."
+          retorno_geral: "p foi declarado e mais nada: ainda não aponta para caixa nenhuma."
+        - pede: "A última linha escreve numa caixa que existe?"
+          antes: |-
+            int *q;
+
+            q[1] = 3;
+          pecas:
+            - "Sim: as caixas de int nasceram junto com q"
+            - "Sim: q[1] é a própria caixa de q"
+            - "Não: q ainda não recebeu endereço nenhum"
+          certa: [[2]]
+          certa_texto: "Não: q ainda não recebeu endereço nenhum"
+          erros:
+            - exata: [0]
+              retorno: "Com int *q; nasce só a caixa do ponteiro. Caixa de int para q[1] escrever não existe, enquanto q não receber o endereço de uma."
+            - exata: [1]
+              retorno: "q[1] não é a caixa de q: é a caixa seguinte à que q APONTA. E q ainda não aponta para nenhuma."
+          retorno_geral: "q foi declarado e mais nada: ainda não aponta para caixa nenhuma."
+
+B3:
+  revisao:
+    frases:
+      - "Usado numa conta, o nome do array vira o endereço da primeira caixa: p = notas; é p = &notas[0];"
+      - "Na chamada é igual: zera(notas); copia esse endereço para o parâmetro. O array não viaja."
+    codigo: |
+      void zera(int v[]) { v[0] = 0; }
+
+      int notas[3] = {7, 8, 9};
+
+      zera(notas);
+      printf("%d\n", notas[0]);
+    saida: "0"
+  # Protótipo de função, sem corpo.
+  fora_da_trilha: [ciu_kc07_t09]
+  provas:
+    - crenca: array_passed_by_reference
+      programa: |
+        void solta(int v[]) { v = NULL; }
+
+        int notas[3] = {7, 8, 9};
+
+        solta(notas);
+        printf("%d\n", notas[0]);
+      previsao:
+        pergunta: >
+          Dentro da função, v recebe NULL. Depois da chamada, o trecho
+          mostra notas[0]. O que aparece?
+        opcoes:
+          - "7"
+          - "Não dá para saber: v é o próprio notas, e ele foi apagado"
+        real: 0
+        crenca: 1
+      espera: "7"
+      afirma: >
+        Saiu 7. Se o array viajasse por referência, v seria o próprio
+        notas, e apagar v mexeria nele. O que viajou foi uma cópia do
+        endereço da primeira caixa — a mesma regra do resto de C —, e a
+        função só apagou a cópia.
+  degraus:
+    - id: esc_kc07_B3_1
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Usado numa conta — numa expressão —, o nome do array vira o endereço da primeira caixa."
+        - "Por isso p = notas; faz o mesmo que p = &notas[0];"
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+            int *p;
+
+            p = notas;
+            printf("%d\n", *p);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "9"
+              retorno: "notas, usado ali, vira o endereço da PRIMEIRA caixa, e não da última. *p chega nela: 7."
+            - texto: "3"
+              retorno: "3 é o número de caixas. O que p recebe é o endereço da primeira, e *p acha o valor dela: 7."
+          retorno_geral: "notas virou o endereço da primeira caixa, p o recebeu, e *p chega nela: 7."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idades[3] = {15, 16, 17};
+            int *q;
+
+            q = idades;
+            printf("%d\n", *q);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "17"
+              retorno: "idades, usado ali, vira o endereço da PRIMEIRA caixa, e não da última. *q chega nela: 15."
+            - texto: "3"
+              retorno: "3 é o número de caixas. O que q recebe é o endereço da primeira, e *q acha o valor dela: 15."
+          retorno_geral: "idades virou o endereço da primeira caixa, q o recebeu, e *q chega nela: 15."
+
+    - id: esc_kc07_B3_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "A troca acontece em toda conta em que o nome aparece."
+        - "Em *notas, notas vira o endereço da primeira caixa, e o * chega nela."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+
+            *notas = 5;
+            printf("%d\n", notas[0]);
+          aceitas: ["5"]
+          certa_texto: "5"
+          erros:
+            - texto: "7"
+              retorno: "*notas é a primeira caixa: notas virou o endereço dela, e o * chegou lá. O 5 foi escrito em notas[0]."
+          retorno_geral: "*notas e notas[0] são a mesma caixa. Ela recebeu 5."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idades[3] = {15, 16, 17};
+
+            *idades = 20;
+            printf("%d\n", idades[0]);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "15"
+              retorno: "*idades é a primeira caixa: idades virou o endereço dela, e o * chegou lá. O 20 foi escrito em idades[0]."
+          retorno_geral: "*idades e idades[0] são a mesma caixa. Ela recebeu 20."
+
+    - id: esc_kc07_B3_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Na chamada zera(notas); acontece a mesma troca: o que é copiado para o parâmetro é o endereço da primeira caixa."
+        - "O parâmetro int v[] é um ponteiro, como int *v."
+      versoes:
+        - pede: "Na última linha, o que a função recebe?"
+          antes: |-
+            void zera(int v[]) { v[0] = 0; }
+
+            int notas[3] = {7, 8, 9};
+
+            zera(notas);
+          pecas:
+            - "Uma cópia do endereço da primeira caixa"
+            - "O array inteiro, por referência: com array o C não copia"
+            - "Uma cópia das três caixas"
+          certa: [[0]]
+          certa_texto: "Uma cópia do endereço da primeira caixa"
+          erros:
+            - exata: [1]
+              crenca: array_passed_by_reference
+              retorno: "Com array o C faz o de sempre: copia um valor para o parâmetro. O valor é o endereço da primeira caixa, porque notas, usado na chamada, virou esse endereço."
+            - exata: [2]
+              retorno: "As caixas não são copiadas: notas, usado na chamada, vira o endereço da primeira, e é esse endereço que é copiado."
+          retorno_geral: "A função recebe uma cópia do endereço da primeira caixa de notas."
+        - pede: "Na última linha, o que a função recebe?"
+          antes: |-
+            void marca(int v[]) { v[0] = 1; }
+
+            int idades[3] = {15, 16, 17};
+
+            marca(idades);
+          pecas:
+            - "O array inteiro, por referência: com array o C não copia"
+            - "Uma cópia das três caixas"
+            - "Uma cópia do endereço da primeira caixa"
+          certa: [[2]]
+          certa_texto: "Uma cópia do endereço da primeira caixa"
+          erros:
+            - exata: [0]
+              crenca: array_passed_by_reference
+              retorno: "Com array o C faz o de sempre: copia um valor para o parâmetro. O valor é o endereço da primeira caixa, porque idades, usado na chamada, virou esse endereço."
+            - exata: [1]
+              retorno: "As caixas não são copiadas: idades, usado na chamada, vira o endereço da primeira, e é esse endereço que é copiado."
+          retorno_geral: "A função recebe uma cópia do endereço da primeira caixa de idades."
+
+    - id: esc_kc07_B3_4
+      nome: "A função escreve nas caixas de quem chamou"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            void marca(int v[]) { v[1] = 0; }
+
+            int notas[3] = {7, 8, 9};
+
+            marca(notas);
+            printf("%d\n", notas[1]);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "8"
+              retorno: "A função recebeu o endereço da primeira caixa de notas. v[1] é a segunda caixa DELA, de notas: o 0 foi escrito ali."
+          retorno_geral: "v guarda o endereço das caixas de notas. v[1] é notas[1], que recebeu 0."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            void marca(int v[]) { v[2] = 1; }
+
+            int idades[3] = {15, 16, 17};
+
+            marca(idades);
+            printf("%d\n", idades[2]);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "17"
+              retorno: "A função recebeu o endereço da primeira caixa de idades. v[2] é a terceira caixa DELA, de idades: o 1 foi escrito ali."
+          retorno_geral: "v guarda o endereço das caixas de idades. v[2] é idades[2], que recebeu 1."
+
+    - id: esc_kc07_B3_5
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Qual destas linhas faz o mesmo que p = notas;?"
+          antes: |-
+            int notas[3] = {7, 8, 9};
+            int *p;
+          pecas: ["p = &notas[0];", "p = notas[0];", "p = &notas[1];"]
+          certa: [[0]]
+          certa_texto: "p = &notas[0];"
+          invalidas: [1]
+          erros:
+            - exata: [1]
+              retorno: "notas[0] é o valor da primeira caixa, o 7, e não o endereço dela: o compilador reclama. O endereço é &notas[0]."
+            - exata: [2]
+              retorno: "&notas[1] é o endereço da segunda caixa. notas, sozinho numa conta, vira o endereço da primeira: &notas[0]."
+          retorno_geral: "notas, numa conta, vira o endereço da primeira caixa: p = &notas[0];"
+        - pede: "Qual destas linhas faz o mesmo que q = idades;?"
+          antes: |-
+            int idades[3] = {15, 16, 17};
+            int *q;
+          pecas: ["q = idades[0];", "q = &idades[2];", "q = &idades[0];"]
+          certa: [[2]]
+          certa_texto: "q = &idades[0];"
+          invalidas: [0]
+          erros:
+            - exata: [0]
+              retorno: "idades[0] é o valor da primeira caixa, o 15, e não o endereço dela: o compilador reclama. O endereço é &idades[0]."
+            - exata: [1]
+              retorno: "&idades[2] é o endereço da terceira caixa. idades, sozinho numa conta, vira o endereço da primeira: &idades[0]."
+          retorno_geral: "idades, numa conta, vira o endereço da primeira caixa: q = &idades[0];"
+
+B4:
+  revisao:
+    frases:
+      - "Em quase toda conta, v vira o endereço da primeira caixa. Em dois lugares, não."
+      - "sizeof v mede o conjunto inteiro, e &v é o endereço do conjunto: outro tipo de endereço."
+    codigo: |
+      char v[10];
+
+      printf("%zu\n", sizeof v);
+    saida: "10"
+  # A conta com endereço (a + 1), ponteiro para ponteiro, e comparação
+  # impressa com conversão para (void *).
+  fora_da_trilha: [ciu_kc07_012, ciu_kc07_t11, ciu_kc07_t12]
+  provas:
+    - crenca: arr_equals_addr_of_arr
+      programa: |
+        char v[10];
+        char *p;
+        char *q;
+
+        p = v;
+        q = &v;
+      previsao:
+        pergunta: >
+          p e q apontam para char. Uma linha entrega v, a outra entrega
+          &v. De qual delas o compilador reclama?
+        opcoes:
+          - "Da última: &v não é o mesmo que v"
+          - "De nenhuma: v e &v são a mesma coisa"
+        real: 0
+        crenca: 1
+      reclama: "incompatible pointer type"
+      ambiente: >
+        Mensagem do gcc 16.2. Nele a reclamação é um erro; em versões
+        mais antigas, um aviso. Nos dois casos ele reclama da última
+        linha, e só dela.
+      afirma: >
+        O compilador aceita p = v; e reclama de q = &v;. Se v e &v fossem
+        a mesma coisa, as duas linhas valeriam. v vira o endereço de uma
+        caixa de char; &v é o endereço do conjunto das dez.
+  degraus:
+    - id: esc_kc07_B4_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Em sizeof v, o nome não vira endereço: ali v é o conjunto inteiro."
+        - "É por isso que sizeof v mede as dez caixas, e não um ponteiro."
+      versoes:
+        - pede: "Em qual destes lugares v continua sendo o conjunto das dez caixas?"
+          antes: |-
+            char v[10];
+            char *p;
+          pecas:
+            - "Em sizeof v"
+            - "Em p = v;"
+            - "Em *v"
+          certa: [[0]]
+          certa_texto: "Em sizeof v"
+          erros:
+            - exata: [1]
+              retorno: "Em p = v; o nome vira o endereço da primeira caixa, e é esse endereço que p recebe. Quem fica com o conjunto inteiro é sizeof v."
+            - exata: [2]
+              retorno: "Em *v o nome vira o endereço da primeira caixa, e o * chega nela. Quem fica com o conjunto inteiro é sizeof v."
+          retorno_geral: "Em sizeof v o nome não vira endereço: é o conjunto das dez caixas."
+        - pede: "Em qual destes lugares letras continua sendo o conjunto das oito caixas?"
+          antes: |-
+            char letras[8];
+            char *q;
+          pecas:
+            - "Em q = letras;"
+            - "Em *letras"
+            - "Em sizeof letras"
+          certa: [[2]]
+          certa_texto: "Em sizeof letras"
+          erros:
+            - exata: [0]
+              retorno: "Em q = letras; o nome vira o endereço da primeira caixa, e é esse endereço que q recebe. Quem fica com o conjunto inteiro é sizeof letras."
+            - exata: [1]
+              retorno: "Em *letras o nome vira o endereço da primeira caixa, e o * chega nela. Quem fica com o conjunto inteiro é sizeof letras."
+          retorno_geral: "Em sizeof letras o nome não vira endereço: é o conjunto das oito caixas."
+
+    - id: esc_kc07_B4_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O outro lugar é o &: &v é o endereço do conjunto inteiro, e não o de uma caixa."
+        - "v e &v marcam o mesmo ponto da memória, mas têm tipos diferentes: um aponta uma caixa, o outro o conjunto."
+      versoes:
+        - pede: "v e &v são a mesma coisa?"
+          antes: "char v[10];"
+          pecas:
+            - "Não: v vira o endereço de uma caixa; &v é o do conjunto"
+            - "São: v e &v são a mesma coisa"
+            - "Não: &v é o valor da primeira caixa"
+          certa: [[0]]
+          certa_texto: "Não: v vira o endereço de uma caixa; &v é o do conjunto"
+          erros:
+            - exata: [1]
+              crenca: arr_equals_addr_of_arr
+              retorno: "Marcam o mesmo ponto, e por isso parecem iguais. Mas v, numa conta, é o endereço de UMA caixa de char; &v é o endereço do conjunto das dez. São endereços de coisas diferentes."
+            - exata: [2]
+              retorno: "O & nunca dá o valor de uma caixa: dá um endereço. &v é o endereço do conjunto inteiro."
+          retorno_geral: "v vira o endereço de uma caixa; &v é o endereço do conjunto das dez."
+        - pede: "letras e &letras são a mesma coisa?"
+          antes: "char letras[8];"
+          pecas:
+            - "São: letras e &letras são a mesma coisa"
+            - "Não: &letras é o valor da primeira caixa"
+            - "Não: letras vira o endereço de uma caixa; &letras é o do conjunto"
+          certa: [[2]]
+          certa_texto: "Não: letras vira o endereço de uma caixa; &letras é o do conjunto"
+          erros:
+            - exata: [0]
+              crenca: arr_equals_addr_of_arr
+              retorno: "Marcam o mesmo ponto, e por isso parecem iguais. Mas letras, numa conta, é o endereço de UMA caixa de char; &letras é o endereço do conjunto das oito. São endereços de coisas diferentes."
+            - exata: [1]
+              retorno: "O & nunca dá o valor de uma caixa: dá um endereço. &letras é o endereço do conjunto inteiro."
+          retorno_geral: "letras vira o endereço de uma caixa; &letras é o endereço do conjunto das oito."
+
+    - id: esc_kc07_B4_3
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "Como são endereços de tipos diferentes, o compilador não aceita um no lugar do outro."
+      versoes:
+        - pede: "p aponta para um char. Qual destas linhas o compilador aceita?"
+          antes: |-
+            char v[10];
+            char *p;
+          pecas: ["p = v;", "p = &v;", "p = *v;"]
+          certa: [[0]]
+          certa_texto: "p = v;"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "&v é o endereço do conjunto inteiro, e p aponta para UM char: o compilador reclama. v, sozinho, vira o endereço da primeira caixa: p = v;"
+            - exata: [2]
+              retorno: "*v é o valor da primeira caixa, uma letra, e não um endereço: o compilador reclama. O endereço da primeira caixa é o que v vira sozinho: p = v;"
+          retorno_geral: "v, sozinho, vira o endereço de uma caixa de char, que é o que p guarda: p = v;"
+        - pede: "q aponta para um char. Qual destas linhas o compilador aceita?"
+          antes: |-
+            char letras[8];
+            char *q;
+          pecas: ["q = &letras;", "q = letras;", "q = *letras;"]
+          certa: [[1]]
+          certa_texto: "q = letras;"
+          invalidas: [0, 2]
+          erros:
+            - exata: [0]
+              retorno: "&letras é o endereço do conjunto inteiro, e q aponta para UM char: o compilador reclama. letras, sozinho, vira o endereço da primeira caixa: q = letras;"
+            - exata: [2]
+              retorno: "*letras é o valor da primeira caixa, uma letra, e não um endereço: o compilador reclama. O endereço da primeira caixa é o que letras vira sozinho: q = letras;"
+          retorno_geral: "letras, sozinho, vira o endereço de uma caixa de char, que é o que q guarda: q = letras;"
+
+    - id: esc_kc07_B4_4
+      nome: "Em sizeof, o nome do array é o conjunto"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "p recebeu o endereço da primeira caixa de v. Que número aparece?"
+          mostra: |-
+            char v[10];
+            char *p;
+
+            p = v;
+            printf("%zu\n", sizeof v);
+          aceitas: ["10"]
+          certa_texto: "10"
+          erros:
+            - texto: "1"
+              retorno: "sizeof v não mede uma caixa nem um endereço: em sizeof o nome continua sendo o conjunto. São as dez caixas: 10."
+            - texto: "8"
+              retorno: "8 seria o tamanho de um ponteiro nesta máquina. Em sizeof v o nome não vira endereço: mede o conjunto das dez caixas, 10."
+          retorno_geral: "Em sizeof v o nome é o conjunto inteiro: dez caixas de char, 10."
+        - pede: "q recebeu o endereço da primeira caixa de letras. Que número aparece?"
+          mostra: |-
+            char letras[6];
+            char *q;
+
+            q = letras;
+            printf("%zu\n", sizeof letras);
+          aceitas: ["6"]
+          certa_texto: "6"
+          erros:
+            - texto: "1"
+              retorno: "sizeof letras não mede uma caixa nem um endereço: em sizeof o nome continua sendo o conjunto. São as seis caixas: 6."
+            - texto: "8"
+              retorno: "8 seria o tamanho de um ponteiro nesta máquina. Em sizeof letras o nome não vira endereço: mede o conjunto das seis caixas, 6."
+          retorno_geral: "Em sizeof letras o nome é o conjunto inteiro: seis caixas de char, 6."
+
+    - id: esc_kc07_B4_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "sizeof notas mede o conjunto; sizeof notas[0], uma caixa só. O trecho divide um pelo outro. Que número aparece?"
+          mostra: |-
+            int notas[5];
+
+            printf("%zu\n", sizeof notas / sizeof notas[0]);
+          aceitas: ["5"]
+          certa_texto: "5"
+          erros:
+            - texto: "1"
+              retorno: "Daria 1 se sizeof notas medisse uma caixa só. Ele mede o conjunto das cinco: cinco caixas dividido por uma caixa dá 5."
+          retorno_geral: "O conjunto dividido por uma caixa dá o número de caixas: 5."
+        - pede: "sizeof idades mede o conjunto; sizeof idades[0], uma caixa só. O trecho divide um pelo outro. Que número aparece?"
+          mostra: |-
+            int idades[8];
+
+            printf("%zu\n", sizeof idades / sizeof idades[0]);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "1"
+              retorno: "Daria 1 se sizeof idades medisse uma caixa só. Ele mede o conjunto das oito: oito caixas dividido por uma caixa dá 8."
+          retorno_geral: "O conjunto dividido por uma caixa dá o número de caixas: 8."
+
+I1:
+  revisao:
+    frases:
+      - "Cada caixa do array recebe valor quando você quiser: notas[1] = 10; vale."
+      - "O conjunto, não: de copia = notas; o compilador reclama. Copiar é caixa por caixa."
+    codigo: |
+      int notas[3] = {7, 8, 9};
+      int copia[3];
+
+      copia[0] = notas[0];
+      printf("%d\n", copia[0]);
+    saida: "7"
+  # strcpy; função de várias linhas, com return.
+  fora_da_trilha: [ciu_kc07_015, ciu_kc07_t14]
+  provas:
+    - crenca: array_is_assignable
+      programa: |
+        int notas[3] = {7, 8, 9};
+        int copia[3];
+
+        copia = notas;
+      previsao:
+        pergunta: >
+          A última linha tenta passar notas para copia de uma vez. O que
+          o compilador faz?
+        opcoes:
+          - "Aceita, e copia fica com 7, 8 e 9"
+          - "Reclama: o nome de um array não recebe atribuição"
+        real: 1
+        crenca: 0
+      reclama: "assignment to expression with array type"
+      ambiente: >
+        Mensagem do gcc 16.2. O programa não chega a existir: com essa
+        linha, o compilador não o monta.
+      afirma: >
+        O compilador reclama da última linha: copia é um array, e o nome
+        de um array não recebe atribuição. O que recebe valor é cada
+        caixa, uma por vez.
+  degraus:
+    - id: esc_kc07_I1_1
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Cada caixa do array é uma variável: recebe valor quando você quiser."
+      versoes:
+        - pede: "Complete para a segunda caixa passar a valer 10."
+          antes: "int notas[3] = {7, 8, 9};"
+          mostra: "___ = 10;"
+          pecas: ["notas[1]", "notas", "notas[3]"]
+          certa: [[0]]
+          certa_texto: "notas[1] = 10;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "notas é o nome do conjunto inteiro, e o conjunto não recebe atribuição: o compilador reclama. A segunda caixa é notas[1]."
+            - exata: [2]
+              retorno: "A contagem começa em 0 e vai até 2: notas[3] seria uma quarta caixa, que não existe. A segunda é notas[1]."
+          retorno_geral: "A contagem começa em 0: a segunda caixa é notas[1]."
+        - pede: "Complete para a primeira caixa passar a valer 20."
+          antes: "int idades[3] = {15, 16, 17};"
+          mostra: "___ = 20;"
+          pecas: ["idades", "idades[1]", "idades[0]"]
+          certa: [[2]]
+          certa_texto: "idades[0] = 20;"
+          erros:
+            - exata: [0]
+              invalida: true
+              retorno: "idades é o nome do conjunto inteiro, e o conjunto não recebe atribuição: o compilador reclama. A primeira caixa é idades[0]."
+            - exata: [1]
+              retorno: "A contagem começa em 0: idades[1] é a segunda caixa. A primeira é idades[0]."
+          retorno_geral: "A contagem começa em 0: a primeira caixa é idades[0]."
+
+    - id: esc_kc07_I1_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O nome do array não recebe atribuição: de copia = notas; o compilador reclama."
+        - "As caixas não mudam de lugar, e o conjunto não é trocado por outro."
+      versoes:
+        - pede: "O que o compilador faz com a última linha?"
+          antes: |-
+            int notas[3] = {7, 8, 9};
+            int copia[3];
+
+            copia = notas;
+          pecas:
+            - "Reclama: o nome de um array não recebe atribuição"
+            - "Aceita: dá para atribuir ao nome de um array, e copia fica igual a notas"
+            - "Aceita: copia passa a apontar para notas"
+          certa: [[0]]
+          certa_texto: "Reclama: o nome de um array não recebe atribuição"
+          erros:
+            - exata: [1]
+              crenca: array_is_assignable
+              retorno: "O nome do array vale para o conjunto, e o conjunto não é trocado por outro: o compilador reclama da linha. O que recebe valor é cada caixa, uma por vez."
+            - exata: [2]
+              retorno: "copia não é um ponteiro: é o conjunto das três caixas dela, que não muda de lugar. O compilador reclama da linha."
+          retorno_geral: "O compilador reclama: o nome de um array não recebe atribuição."
+        - pede: "O que o compilador faz com a última linha?"
+          antes: |-
+            int idades[3] = {15, 16, 17};
+            int outra[3];
+
+            outra = idades;
+          pecas:
+            - "Aceita: outra passa a apontar para idades"
+            - "Aceita: dá para atribuir ao nome de um array, e outra fica igual a idades"
+            - "Reclama: o nome de um array não recebe atribuição"
+          certa: [[2]]
+          certa_texto: "Reclama: o nome de um array não recebe atribuição"
+          erros:
+            - exata: [1]
+              crenca: array_is_assignable
+              retorno: "O nome do array vale para o conjunto, e o conjunto não é trocado por outro: o compilador reclama da linha. O que recebe valor é cada caixa, uma por vez."
+            - exata: [0]
+              retorno: "outra não é um ponteiro: é o conjunto das três caixas dela, que não muda de lugar. O compilador reclama da linha."
+          retorno_geral: "O compilador reclama: o nome de um array não recebe atribuição."
+
+    - id: esc_kc07_I1_3
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "Para copiar, é caixa por caixa: copia[0] = notas[0]; e assim por diante."
+      versoes:
+        - pede: "Monte a linha que copia a primeira caixa de notas para a primeira de copia."
+          antes: |-
+            int notas[3] = {7, 8, 9};
+            int copia[3];
+          pecas: ["copia[0]", "=", "notas[0]", ";", "copia", "notas"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "copia[0] = notas[0];"
+          erros:
+            - exata: [4, 1, 5, 3]
+              invalida: true
+              retorno: "De copia = notas; o compilador reclama: o nome do array não recebe atribuição. A cópia é de caixa para caixa: copia[0] = notas[0];"
+            - exata: [2, 1, 0, 3]
+              retorno: "Essa linha copia ao contrário, de copia para notas. Quem recebe fica à esquerda do sinal de igual: copia[0] = notas[0];"
+          retorno_geral: "Quem recebe fica à esquerda, e é uma caixa de cada vez: copia[0] = notas[0];"
+        - pede: "Monte a linha que copia a segunda caixa de idades para a segunda de outra."
+          antes: |-
+            int idades[3] = {15, 16, 17};
+            int outra[3];
+          pecas: ["outra[1]", "=", "idades[1]", ";", "outra", "idades"]
+          certa: [[0, 1, 2, 3]]
+          certa_texto: "outra[1] = idades[1];"
+          erros:
+            - exata: [4, 1, 5, 3]
+              invalida: true
+              retorno: "De outra = idades; o compilador reclama: o nome do array não recebe atribuição. A cópia é de caixa para caixa: outra[1] = idades[1];"
+            - exata: [2, 1, 0, 3]
+              retorno: "Essa linha copia ao contrário, de outra para idades. Quem recebe fica à esquerda do sinal de igual: outra[1] = idades[1];"
+          retorno_geral: "Quem recebe fica à esquerda, e é uma caixa de cada vez: outra[1] = idades[1];"
+
+    - id: esc_kc07_I1_4
+      nome: "Copiar é caixa por caixa, e são dois conjuntos"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "O trecho copia uma caixa de notas para copia, e depois muda a cópia. Que número aparece?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+            int copia[3];
+
+            copia[0] = notas[0];
+            copia[0] = 1;
+            printf("%d\n", notas[0]);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "1"
+              retorno: "copia tem as caixas dela. O 1 foi para copia[0]; notas[0] é outra caixa, e continua com 7."
+          retorno_geral: "São dois conjuntos de caixas. Mudar copia[0] não muda notas[0], que vale 7."
+        - pede: "O trecho copia uma caixa de idades para outra, e depois muda a cópia. Que número aparece?"
+          mostra: |-
+            int idades[3] = {15, 16, 17};
+            int outra[3];
+
+            outra[2] = idades[2];
+            outra[2] = 0;
+            printf("%d\n", idades[2]);
+          aceitas: ["17"]
+          certa_texto: "17"
+          erros:
+            - texto: "0"
+              retorno: "outra tem as caixas dela. O 0 foi para outra[2]; idades[2] é outra caixa, e continua com 17."
+          retorno_geral: "São dois conjuntos de caixas. Mudar outra[2] não muda idades[2], que vale 17."
+
+    - id: esc_kc07_I1_5
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int notas[3] = {7, 8, 9};
+            int copia[3];
+          pecas: ["copia[1] = notas[1];", "copia = notas;", "copia = {7, 8, 9};"]
+          certa: [[0]]
+          certa_texto: "copia[1] = notas[1];"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "O nome do array não recebe atribuição: o compilador reclama. O que recebe valor é a caixa: copia[1] = notas[1];"
+            - exata: [2]
+              retorno: "A lista entre chaves só vale na declaração. Depois dela, o nome do array não recebe atribuição: é caixa por caixa."
+          retorno_geral: "O que recebe valor é a caixa, e não o conjunto: copia[1] = notas[1];"
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int idades[3] = {15, 16, 17};
+            int outra[3];
+          pecas: ["outra = idades;", "outra[2] = idades[2];", "outra = {15, 16, 17};"]
+          certa: [[1]]
+          certa_texto: "outra[2] = idades[2];"
+          invalidas: [0, 2]
+          erros:
+            - exata: [0]
+              retorno: "O nome do array não recebe atribuição: o compilador reclama. O que recebe valor é a caixa: outra[2] = idades[2];"
+            - exata: [2]
+              retorno: "A lista entre chaves só vale na declaração. Depois dela, o nome do array não recebe atribuição: é caixa por caixa."
+          retorno_geral: "O que recebe valor é a caixa, e não o conjunto: outra[2] = idades[2];"
+
+I2:
+  revisao:
+    frases:
+      - "O parâmetro int v[] é um ponteiro: recebe o endereço da primeira caixa, e mais nada."
+      - "Lá dentro, sizeof v mede o ponteiro. O número de caixas tem de ir junto, em outro parâmetro."
+    codigo: |
+      void ultimo(int v[], int n) { printf("%d\n", v[n - 1]); }
+
+      int notas[3] = {7, 8, 9};
+
+      ultimo(notas, 3);
+    saida: "9"
+  # Laço e função de várias linhas; protótipo de função; variável
+  # declarada fora da função.
+  fora_da_trilha: [ciu_kc07_018, ciu_kc07_t17, ciu_kc07_t18]
+  provas:
+    - crenca: sizeof_array_via_pointer
+      programa: |
+        void mede(char v[10]) { printf("%zu\n", sizeof v); }
+
+        char nome[10];
+
+        mede(nome);
+      previsao:
+        pergunta: >
+          nome tem dez caixas de char, e o parâmetro está escrito
+          char v[10]. O que o sizeof de dentro da função mostra?
+        opcoes:
+          - "10"
+          - "Outro número: o tamanho de um ponteiro"
+        real: 1
+        crenca: 0
+      espera: "8"
+      ambiente: >
+        O 8 é o tamanho de um ponteiro nesta máquina; em outra pode ser
+        4. Em nenhuma sai 10. O próprio compilador avisa, ao ler a
+        função, que esse sizeof devolve o tamanho de um ponteiro.
+      afirma: >
+        Saiu 8, e não 10. Dentro da função, v é um ponteiro: o que chegou
+        foi o endereço da primeira caixa, e sizeof mede esse ponteiro. As
+        dez caixas ficaram com quem chamou.
+  degraus:
+    - id: esc_kc07_I2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O parâmetro escrito char v[10] é um ponteiro: o mesmo que char *v."
+        - "O 10 dali não cria caixa nenhuma, e a função não fica sabendo dele."
+      versoes:
+        - pede: "Dentro desta função, o que v é?"
+          antes: "void marca(char v[10]) { v[0] = 'a'; }"
+          pecas:
+            - "Um ponteiro para char"
+            - "Um array de dez caixas de char"
+            - "Uma cópia das dez caixas"
+          certa: [[0]]
+          certa_texto: "Um ponteiro para char"
+          erros:
+            - exata: [1]
+              retorno: "No parâmetro, char v[10] é só outro jeito de escrever char *v. As dez caixas ficam com quem chamou; a função recebe o endereço da primeira."
+            - exata: [2]
+              retorno: "As caixas não são copiadas na chamada: o que chega é o endereço da primeira. v é um ponteiro."
+          retorno_geral: "No parâmetro, char v[10] é um ponteiro para char."
+        - pede: "Dentro desta função, o que v é?"
+          antes: "void zera(int v[5]) { v[0] = 0; }"
+          pecas:
+            - "Um array de cinco caixas de int"
+            - "Um ponteiro para int"
+            - "Uma cópia das cinco caixas"
+          certa: [[1]]
+          certa_texto: "Um ponteiro para int"
+          erros:
+            - exata: [0]
+              retorno: "No parâmetro, int v[5] é só outro jeito de escrever int *v. As cinco caixas ficam com quem chamou; a função recebe o endereço da primeira."
+            - exata: [2]
+              retorno: "As caixas não são copiadas na chamada: o que chega é o endereço da primeira. v é um ponteiro."
+          retorno_geral: "No parâmetro, int v[5] é um ponteiro para int."
+
+    - id: esc_kc07_I2_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Fora da função, sizeof notas mede as cinco caixas. Dentro dela, sizeof v mede o ponteiro."
+        - "Quantas caixas havia, lá dentro não dá mais para saber."
+      versoes:
+        - pede: "notas tem cinco caixas. O que o sizeof v de dentro da função mede?"
+          antes: |-
+            void mede(int v[]) { printf("%zu\n", sizeof v); }
+
+            int notas[5];
+
+            mede(notas);
+          pecas:
+            - "O tamanho de um ponteiro"
+            - "As cinco caixas: dentro da função, sizeof ainda mede o array inteiro"
+            - "Uma caixa de int"
+          certa: [[0]]
+          certa_texto: "O tamanho de um ponteiro"
+          erros:
+            - exata: [1]
+              crenca: sizeof_array_via_pointer
+              retorno: "Dentro da função não há array: v é um ponteiro, com o endereço da primeira caixa. sizeof v mede esse ponteiro. As cinco caixas ficaram com quem chamou."
+            - exata: [2]
+              retorno: "v não é uma caixa de int: é um ponteiro, que guarda um endereço. sizeof v mede o ponteiro."
+          retorno_geral: "Dentro da função v é um ponteiro, e sizeof v mede o ponteiro."
+        - pede: "idades tem oito caixas. O que o sizeof v de dentro da função mede?"
+          antes: |-
+            void mede(int v[]) { printf("%zu\n", sizeof v); }
+
+            int idades[8];
+
+            mede(idades);
+          pecas:
+            - "As oito caixas: dentro da função, sizeof ainda mede o array inteiro"
+            - "Uma caixa de int"
+            - "O tamanho de um ponteiro"
+          certa: [[2]]
+          certa_texto: "O tamanho de um ponteiro"
+          erros:
+            - exata: [0]
+              crenca: sizeof_array_via_pointer
+              retorno: "Dentro da função não há array: v é um ponteiro, com o endereço da primeira caixa. sizeof v mede esse ponteiro. As oito caixas ficaram com quem chamou."
+            - exata: [1]
+              retorno: "v não é uma caixa de int: é um ponteiro, que guarda um endereço. sizeof v mede o ponteiro."
+          retorno_geral: "Dentro da função v é um ponteiro, e sizeof v mede o ponteiro."
+
+    - id: esc_kc07_I2_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "A saída é mandar o número de caixas junto, em outro parâmetro."
+      versoes:
+        - pede: "A função recebe o endereço e o número de caixas, e mostra a última. Que número aparece?"
+          mostra: |-
+            void ultimo(int v[], int n) { printf("%d\n", v[n - 1]); }
+
+            int notas[3] = {7, 8, 9};
+
+            ultimo(notas, 3);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "3"
+              retorno: "3 é o número de caixas, que foi em n. A função mostra v[n - 1], que é v[2]: a última caixa, 9."
+            - texto: "8"
+              retorno: "Com n valendo 3, v[n - 1] é v[2]. A contagem começa em 0, e v[2] é a terceira caixa: 9."
+          retorno_geral: "Com n valendo 3, v[n - 1] é v[2], a última caixa de notas: 9."
+        - pede: "A função recebe o endereço e o número de caixas, e mostra a última. Que número aparece?"
+          mostra: |-
+            void ultimo(int v[], int n) { printf("%d\n", v[n - 1]); }
+
+            int idades[4] = {15, 16, 17, 18};
+
+            ultimo(idades, 4);
+          aceitas: ["18"]
+          certa_texto: "18"
+          erros:
+            - texto: "4"
+              retorno: "4 é o número de caixas, que foi em n. A função mostra v[n - 1], que é v[3]: a última caixa, 18."
+            - texto: "17"
+              retorno: "Com n valendo 4, v[n - 1] é v[3]. A contagem começa em 0, e v[3] é a quarta caixa: 18."
+          retorno_geral: "Com n valendo 4, v[n - 1] é v[3], a última caixa de idades: 18."
+
+    - id: esc_kc07_I2_4
+      nome: "O tamanho não viaja: vai em outro parâmetro"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "notas tem três caixas, mas a chamada diz que são 2. Que número aparece?"
+          mostra: |-
+            void ultimo(int v[], int n) { printf("%d\n", v[n - 1]); }
+
+            int notas[3] = {7, 8, 9};
+
+            ultimo(notas, 2);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "9"
+              retorno: "A função não sabe quantas caixas notas tem: só sabe o n que recebeu. Com n valendo 2, ela mostra v[1]: 8."
+          retorno_geral: "A função só conhece o n que recebeu. Com 2, a última para ela é v[1]: 8."
+        - pede: "idades tem quatro caixas, mas a chamada diz que são 3. Que número aparece?"
+          mostra: |-
+            void ultimo(int v[], int n) { printf("%d\n", v[n - 1]); }
+
+            int idades[4] = {15, 16, 17, 18};
+
+            ultimo(idades, 3);
+          aceitas: ["17"]
+          certa_texto: "17"
+          erros:
+            - texto: "18"
+              retorno: "A função não sabe quantas caixas idades tem: só sabe o n que recebeu. Com n valendo 3, ela mostra v[2]: 17."
+          retorno_geral: "A função só conhece o n que recebeu. Com 3, a última para ela é v[2]: 17."
+
+    - id: esc_kc07_I2_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "O que uma função precisa receber para ir até a última caixa de um array?"
+          pecas:
+            - "O endereço da primeira caixa e o número de caixas"
+            - "Só o array: o tamanho viaja junto"
+            - "Só o array: ela mede com sizeof lá dentro"
+          certa: [[0]]
+          certa_texto: "O endereço da primeira caixa e o número de caixas"
+          erros:
+            - exata: [1]
+              retorno: "O tamanho não viaja: o que chega é só o endereço da primeira caixa. O número de caixas vai em outro parâmetro."
+            - exata: [2]
+              retorno: "Lá dentro, sizeof mede o ponteiro, e não o array. O número de caixas tem de ir em outro parâmetro."
+          retorno_geral: "O endereço da primeira caixa, e o número de caixas em outro parâmetro."
+        - pede: "Uma função recebe um array. Como ela fica sabendo quantas caixas ele tem?"
+          pecas:
+            - "Pelo sizeof, lá dentro"
+            - "Por outro parâmetro, com o número"
+            - "Não precisa: o array chega inteiro"
+          certa: [[1]]
+          certa_texto: "Por outro parâmetro, com o número"
+          erros:
+            - exata: [0]
+              retorno: "Lá dentro, sizeof mede o ponteiro, e não o array. O número de caixas tem de ir em outro parâmetro."
+            - exata: [2]
+              retorno: "O array não chega inteiro: o que chega é só o endereço da primeira caixa. O número de caixas vai em outro parâmetro."
+          retorno_geral: "O número de caixas vai em outro parâmetro: a função não tem como medir."
+
+I3:
+  revisao:
+    frases:
+      - "notas[1] e p[1] se escrevem igual, mas notas e p não são a mesma coisa."
+      - "notas é o conjunto das caixas, e não muda de lugar. p é uma caixa só, com um endereço que pode ser trocado."
+    codigo: |
+      int notas[3] = {7, 8, 9};
+      int *p;
+
+      p = notas;
+      printf("%d\n", p[1]);
+    saida: "8"
+  # extern, em dois arquivos; protótipo de função e ponteiro para
+  # ponteiro.
+  fora_da_trilha: [ciu_kc07_020, ciu_kc07_t21]
+  provas:
+    - crenca: array_is_pointer
+      programa: |
+        char v[10];
+        char *p;
+
+        p = v;
+        printf("%zu\n", sizeof v);
+        printf("%zu\n", sizeof p);
+      previsao:
+        pergunta: >
+          p recebeu o endereço da primeira caixa de v. sizeof diz quanto
+          espaço cada um ocupa. O que os dois printf mostram?
+        opcoes:
+          - "O mesmo número: array e ponteiro são a mesma coisa"
+          - "Dois números diferentes"
+        real: 1
+        crenca: 0
+      espera: "10\n8"
+      ambiente: >
+        O 8 é o tamanho de um ponteiro nesta máquina; em outra pode ser
+        4. O 10 não muda: são as dez caixas de v.
+      afirma: >
+        Saíram 10 e 8. v é o conjunto das dez caixas; p é uma caixa só,
+        do tamanho de um endereço. p[1] e v[1] chegam na mesma caixa, mas
+        v e p não são a mesma coisa.
+  degraus:
+    - id: esc_kc07_I3_1
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com p = notas; as duas escritas chegam na mesma caixa: notas[1] e p[1]."
+      versoes:
+        - pede: "O trecho escreve por notas e lê por p. Que número aparece?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+            int *p;
+
+            p = notas;
+            notas[1] = 0;
+            printf("%d\n", p[1]);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "8"
+              retorno: "p guarda o endereço da primeira caixa de notas, e p[1] é a segunda caixa DELA. O 0 escrito em notas[1] é o que p[1] encontra."
+          retorno_geral: "notas[1] e p[1] são a mesma caixa, que recebeu 0."
+        - pede: "O trecho escreve por idades e lê por q. Que número aparece?"
+          mostra: |-
+            int idades[3] = {15, 16, 17};
+            int *q;
+
+            q = idades;
+            idades[2] = 1;
+            printf("%d\n", q[2]);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "17"
+              retorno: "q guarda o endereço da primeira caixa de idades, e q[2] é a terceira caixa DELA. O 1 escrito em idades[2] é o que q[2] encontra."
+          retorno_geral: "idades[2] e q[2] são a mesma caixa, que recebeu 1."
+
+    - id: esc_kc07_I3_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "A escrita é igual, mas os tipos são diferentes: notas é o conjunto das três caixas de int."
+        - "p é uma caixa só, que guarda um endereço."
+      versoes:
+        - pede: "notas e p são a mesma coisa?"
+          antes: |-
+            int notas[3] = {7, 8, 9};
+            int *p;
+
+            p = notas;
+          pecas:
+            - "Não: notas são três caixas; p é uma só, com um endereço"
+            - "São: array e ponteiro são a mesma coisa"
+            - "Não: p é uma cópia das três caixas"
+          certa: [[0]]
+          certa_texto: "Não: notas são três caixas; p é uma só, com um endereço"
+          erros:
+            - exata: [1]
+              crenca: array_is_pointer
+              retorno: "Parecem a mesma coisa porque notas[1] e p[1] se escrevem igual. Mas notas é o conjunto das três caixas de int; p é outra caixa, que guarda o endereço da primeira."
+            - exata: [2]
+              retorno: "p = notas; não copia caixa nenhuma: p recebe o endereço da primeira. p é uma caixa só, com esse endereço."
+          retorno_geral: "notas é o conjunto das três caixas. p é uma caixa só, com o endereço da primeira."
+        - pede: "idades e q são a mesma coisa?"
+          antes: |-
+            int idades[3] = {15, 16, 17};
+            int *q;
+
+            q = idades;
+          pecas:
+            - "São: array e ponteiro são a mesma coisa"
+            - "Não: q é uma cópia das três caixas"
+            - "Não: idades são três caixas; q é uma só, com um endereço"
+          certa: [[2]]
+          certa_texto: "Não: idades são três caixas; q é uma só, com um endereço"
+          erros:
+            - exata: [0]
+              crenca: array_is_pointer
+              retorno: "Parecem a mesma coisa porque idades[1] e q[1] se escrevem igual. Mas idades é o conjunto das três caixas de int; q é outra caixa, que guarda o endereço da primeira."
+            - exata: [1]
+              retorno: "q = idades; não copia caixa nenhuma: q recebe o endereço da primeira. q é uma caixa só, com esse endereço."
+          retorno_geral: "idades é o conjunto das três caixas. q é uma caixa só, com o endereço da primeira."
+
+    - id: esc_kc07_I3_3
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "p pode receber outro endereço quando você quiser."
+        - "notas não: o conjunto das caixas não muda de lugar."
+      versoes:
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int notas[3] = {7, 8, 9};
+            int idades[3] = {15, 16, 17};
+            int *p;
+
+            p = notas;
+          pecas: ["p = idades;", "notas = idades;", "notas = p;"]
+          certa: [[0]]
+          certa_texto: "p = idades;"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "notas é um array, e o nome dele não recebe atribuição: o conjunto não muda de lugar, e o compilador reclama. Quem pode receber outro endereço é p."
+            - exata: [2]
+              retorno: "notas não é um ponteiro: não dá para guardar nele o endereço que está em p, e o compilador reclama. Quem pode receber outro endereço é p."
+          retorno_geral: "O ponteiro pode receber outro endereço: p = idades;"
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int notas[3] = {7, 8, 9};
+            int idades[3] = {15, 16, 17};
+            int *q;
+
+            q = idades;
+          pecas: ["idades = notas;", "idades = q;", "q = notas;"]
+          certa: [[2]]
+          certa_texto: "q = notas;"
+          invalidas: [0, 1]
+          erros:
+            - exata: [0]
+              retorno: "idades é um array, e o nome dele não recebe atribuição: o conjunto não muda de lugar, e o compilador reclama. Quem pode receber outro endereço é q."
+            - exata: [1]
+              retorno: "idades não é um ponteiro: não dá para guardar nele o endereço que está em q, e o compilador reclama. Quem pode receber outro endereço é q."
+          retorno_geral: "O ponteiro pode receber outro endereço: q = notas;"
+
+    - id: esc_kc07_I3_4
+      nome: "O ponteiro muda de endereço; o array não"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "p começa na primeira caixa e depois recebe outro endereço. Que número aparece?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+            int *p;
+
+            p = notas;
+            p = &notas[1];
+            printf("%d\n", p[0]);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "7"
+              retorno: "p trocou de endereço: passou a apontar para notas[1]. p[0] é a caixa que p aponta agora: 8."
+          retorno_geral: "p agora aponta para notas[1], e p[0] é essa caixa: 8."
+        - pede: "q começa na primeira caixa e depois recebe outro endereço. Que número aparece?"
+          mostra: |-
+            int idades[3] = {15, 16, 17};
+            int *q;
+
+            q = idades;
+            q = &idades[2];
+            printf("%d\n", q[0]);
+          aceitas: ["17"]
+          certa_texto: "17"
+          erros:
+            - texto: "15"
+              retorno: "q trocou de endereço: passou a apontar para idades[2]. q[0] é a caixa que q aponta agora: 17."
+          retorno_geral: "q agora aponta para idades[2], e q[0] é essa caixa: 17."
+
+    - id: esc_kc07_I3_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Qual das duas variáveis ocupa mais espaço na memória?"
+          antes: |-
+            char v[10];
+            char *p;
+          pecas:
+            - "v: são dez caixas de char"
+            - "As duas ocupam o mesmo: array e ponteiro são iguais"
+            - "p: ele guarda as dez caixas e mais o endereço"
+          certa: [[0]]
+          certa_texto: "v: são dez caixas de char"
+          erros:
+            - exata: [1]
+              retorno: "v é o conjunto das dez caixas; p é uma caixa só, do tamanho de um endereço. Não ocupam o mesmo espaço, e v ocupa mais."
+            - exata: [2]
+              retorno: "p não guarda caixa de char nenhuma: é uma caixa só, do tamanho de um endereço. Quem tem as dez caixas é v."
+          retorno_geral: "v é o conjunto das dez caixas, e ocupa mais que p, que é uma caixa só."
+        - pede: "Qual das duas variáveis ocupa mais espaço na memória?"
+          antes: |-
+            char *q;
+            char letras[12];
+          pecas:
+            - "As duas ocupam o mesmo: array e ponteiro são iguais"
+            - "q: ele guarda as doze caixas e mais o endereço"
+            - "letras: são doze caixas de char"
+          certa: [[2]]
+          certa_texto: "letras: são doze caixas de char"
+          erros:
+            - exata: [0]
+              retorno: "letras é o conjunto das doze caixas; q é uma caixa só, do tamanho de um endereço. Não ocupam o mesmo espaço, e letras ocupa mais."
+            - exata: [1]
+              retorno: "q não guarda caixa de char nenhuma: é uma caixa só, do tamanho de um endereço. Quem tem as doze caixas é letras."
+          retorno_geral: "letras é o conjunto das doze caixas, e ocupa mais que q, que é uma caixa só."
