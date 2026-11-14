@@ -871,6 +871,76 @@ def test_tres_provas_do_kc_08_pedem_o_analisador_e_a_nota_diz():
     assert provas["system_frees_auto"].programa != do_kc_01.programa
 
 
+def test_no_kc_09_ficam_fora_sete_e_toda_premissa_abre_com_codigo():
+    """O banco do kc_09 não foi mexido, e o tópico não apresenta construto
+    novo. Ficam fora as sete questões com ponteiro para ponteiro (que é o
+    tópico seguinte), `struct` e variável global."""
+    fora, quantas, abre = _selecao("kc_09")
+    assert fora == {
+        "B2": ("ciu_kc09_006", "ciu_kc09_t06"),
+        "B3": ("ciu_kc09_009",),
+        "B4": ("ciu_kc09_t12",),
+        "I1": ("ciu_kc09_t15",),
+        "I3": ("ciu_kc09_021", "ciu_kc09_t21"),
+    }
+    assert quantas == {"B1": 6, "B2": 4, "B3": 5, "B4": 5,
+                       "I1": 5, "I2": 6, "I3": 4, "I4": 6}
+    assert abre == {
+        "B1": "ciu_kc09_002", "B2": "ciu_kc09_005", "B3": "ciu_kc09_008",
+        "B4": "ciu_kc09_011", "I1": "ciu_kc09_014", "I2": "ciu_kc09_017",
+        "I3": "ciu_kc09_020", "I4": "ciu_kc09_023"}
+    d = _dominio("kc_09")
+    por_id = {a.id: a for a in d.atividades}
+    assert all(por_id[i].codigo for i in abre.values())
+    ruim = re.compile(r"\*\*|\bstruct\b")
+
+    def fora_da_regua(i):
+        codigo = por_id[i].codigo or ""
+        return bool(ruim.search(codigo)) or _tem_global(codigo)
+
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_09", no):
+            assert not fora_da_regua(i), i
+    assert all(fora_da_regua(i) for ids in fora.values() for i in ids)
+
+
+def test_as_oito_provas_do_kc_09_e_o_limite_da_comparacao():
+    """Oito premissas, oito crenças, oito provas. Três são o que o
+    compilador diz. As duas que imprimem p == NULL depois do free dizem,
+    na nota de ambiente, que o padrão do C não garante essa comparação —
+    que é o que a última premissa do tópico ensina."""
+    escadas = _escadas("kc_09")
+    provas = {p.crenca: p for e in escadas.values() for p in e.provas}
+    assert len(provas) == 8
+    assert {c for c, p in provas.items() if p.reclama} == {
+        "pointer_knows_block_size", "heap_persists", "double_free_is_safe"}
+    assert provas["double_free_is_safe"].avisos == ("-fanalyzer",)
+    for crenca in ("free_nullifies", "null_after_free_redundant"):
+        p = provas[crenca]
+        assert "== NULL" in p.programa and "não garante" in p.ambiente, crenca
+    # E um passo guiado do I4 diz que aquelas comparações valem nesta
+    # máquina, para a pessoa não sair achando que pode contar com elas.
+    assert _onde_se_apresenta("kc_09", "I4", "nesta máquina") == "esc_kc09_I4_3"
+    # A prova de "a função recebe o original" não usa p depois do free:
+    # a função só escreve NULL na cópia.
+    assert "free(x)" not in provas["function_gets_original"].programa
+
+
+def test_o_kc_09_diz_pendente_e_o_free_de_null_e_separa_as_ideias_vizinhas():
+    """Entra uma palavra, "pendente", e um fato, free(NULL) não faz nada.
+    E o I1, o I2 e o I3, que ficam muito perto um do outro, têm cada um o
+    seu passo de prática com outro nome — outra ideia."""
+    assert _onde_se_apresenta("kc_09", "I2", "pendente") == "esc_kc09_I2_1"
+    assert _onde_se_apresenta("kc_09", "I4", "free(NULL)") == "esc_kc09_I4_2"
+    escadas = _escadas("kc_09")
+    nomes = [escadas[no].pratica[0].nome for no in _dominio("kc_09").ordem]
+    assert len(set(nomes)) == 8
+    assert [escadas[no].pratica[0].nome for no in ("I1", "I2", "I3")] == [
+        "free não muda o valor de p",
+        "Depois do free, p continua existindo",
+        "Escrever NULL depois do free"]
+
+
 def test_sem_a_questao_de_degrau_2_a_premissa_abre_com_a_de_codigo():
     """A abertura é a questão de código de degrau 2: é a que APLICA a
     ideia. Quando ela fica fora da trilha, quem abre é outra de código, e

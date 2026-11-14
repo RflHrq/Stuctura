@@ -1,0 +1,2078 @@
+# A escada do kc_09 — free() e ponteiro pendente.
+#
+# O QUE É. Para cada premissa do tópico, os degraus do mais mecânico até
+# a ideia, e a prova de cada crença que nega a premissa. Segue o molde
+# do kc_00, e a mesma régua do texto (docs/trilha.md, 6.16).
+#
+# QUEM CHEGA AQUI já pede bloco, confere o NULL e devolve com free
+# (kc_01, kc_08), e já sabe que a chamada de função copia o que recebe
+# (kc_06). Este tópico junta as duas coisas num lugar só: a linha
+# free(p); — o que entra nela, o que ela devolve, e o que sobra em p.
+#
+# O QUE ESTE TÓPICO APRESENTA: nenhum construto novo. Entra uma palavra,
+# "pendente" (I2, degrau 1), e um fato sobre o free: free(NULL) não faz
+# nada (I4, degrau 2).
+#
+# SÃO OITO PREMISSAS, e três delas ficam muito perto uma da outra: o I1
+# (free não muda p), o I2 (p continua lá) e o I3 (o NULL é você que
+# escreve). Para não ser a mesma pergunta três vezes, cada uma tem o seu
+# ângulo: o I1 olha o VALOR de p (igual à cópia feita antes); o I2 olha
+# a VARIÁVEL (dá para usar de novo, e não dá para declarar outra vez); o
+# I3 olha o REGISTRO (com o NULL escrito, a pergunta de sempre volta a
+# valer).
+#
+# COMPARAR p DEPOIS DO free. Os passos e as provas do I1 e do I3
+# imprimem p == NULL depois do free, para mostrar que free não escreveu
+# NULL. A última premissa do tópico diz que o padrão do C não garante nem
+# essa comparação. As duas coisas são ditas: a nota de ambiente dessas
+# provas avisa, e o I4 tem um passo guiado que diz que aquelas
+# comparações valem nesta máquina.
+#
+# AS PROVAS, e o que cada uma usa:
+#
+#   B1  o ponteiro carrega o tamanho  o compilador reclama de
+#                                     sizeof p / sizeof p[0]
+#   B2  a função recebe o original    x = NULL na função, e p intacto: 0
+#   B3  o ponteiro mora no monte      o endereço da caixa e o do bloco
+#   B4  o bloco vale depois do free   o compilador reclama de ler o bloco
+#   I1  p vira NULL                   p == NULL depois do free: 0
+#   I2  free apaga a variável p       p recebe outro bloco, e sai 9
+#   I3  o NULL é redundante           com o NULL e sem ele: 1 e 0
+#   I4  dois free são seguros         o analisador aponta o segundo
+#
+# AS QUESTÕES DE MARCAR. O banco do kc_09 não foi mexido. Sete das 48
+# questões de diagnóstico e de treino usam o que as escadas não ensinam —
+# ponteiro para ponteiro (que é o tópico seguinte), `struct` e variável
+# global — e estão em `fora_da_trilha`.
+#
+# A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
+# alternativa de um degrau guiado, e só ali o erro leva `crenca`.
+#
+# gerado_por: Claude Fable 5.2, em 14/11/2026
+# revisado_por:
+#   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
+#   principal)
+
+B1:
+  revisao:
+    frases:
+      - "free(p) recebe só o endereço do bloco. O tamanho, quem anotou foi o alocador, quando entregou."
+      - "O ponteiro não carrega tamanho: guarda um endereço, e mais nada."
+    codigo: |
+      int *p;
+
+      p = malloc(3 * sizeof(int));
+      p[2] = 9;
+      printf("%d\n", p[2]);
+      free(p);
+    saida: "9"
+  provas:
+    - crenca: pointer_knows_block_size
+      programa: |
+        int *p;
+
+        p = malloc(10 * sizeof(int));
+        printf("%zu\n", sizeof p / sizeof p[0]);
+        free(p);
+      previsao:
+        pergunta: >
+          Com um array, a conta sizeof v / sizeof v[0] dá o número de
+          itens. Aqui ela é feita com p, um ponteiro para um bloco de dez
+          ints. O compilador reclama de alguma coisa?
+        opcoes:
+          - "Não: o ponteiro carrega o tamanho do bloco, e a conta dá 10"
+          - "Sim: avisa que essa conta não dá o número de itens"
+        real: 1
+        crenca: 0
+      reclama: "does not compute the number of array elements"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall): a divisão
+        "não calcula o número de elementos". O programa não é executado.
+      afirma: >
+        O compilador avisa que a conta não dá o número de itens: sizeof p
+        mede o ponteiro, e não o bloco. p guarda só um endereço. O
+        tamanho do bloco ficou anotado com o alocador, e é por isso que
+        free(p) não precisa que você diga.
+  degraus:
+    - id: esc_kc09_B1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "free(p) recebe só o endereço do bloco. O tamanho, quem anotou foi o alocador, na hora de entregar."
+        - "O ponteiro não carrega tamanho nenhum: guarda um endereço, e mais nada."
+      versoes:
+        - pede: "Depois da última linha, o que está guardado em p?"
+          antes: |-
+            int *p;
+
+            p = malloc(10 * sizeof(int));
+          pecas:
+            - "Só o endereço do bloco"
+            - "O endereço e o tamanho: o ponteiro carrega o tamanho do bloco"
+            - "Os dez ints"
+          certa: [[0]]
+          certa_texto: "Só o endereço do bloco"
+          erros:
+            - exata: [1]
+              crenca: pointer_knows_block_size
+              retorno: "Em p cabe um endereço, e mais nada. Quantos bytes o bloco tem ficou anotado com o alocador, que foi quem entregou."
+            - exata: [2]
+              retorno: "Os dez ints ficam no bloco, no monte. Em p fica só o endereço dele."
+          retorno_geral: "p guarda só o endereço do bloco. O tamanho ficou com o alocador."
+        - pede: "Depois da última linha, o que está guardado em q?"
+          antes: |-
+            int *q;
+
+            q = malloc(6 * sizeof(int));
+          pecas:
+            - "Os seis ints"
+            - "Só o endereço do bloco"
+            - "O endereço e o tamanho: o ponteiro carrega o tamanho do bloco"
+          certa: [[1]]
+          certa_texto: "Só o endereço do bloco"
+          erros:
+            - exata: [2]
+              crenca: pointer_knows_block_size
+              retorno: "Em q cabe um endereço, e mais nada. Quantos bytes o bloco tem ficou anotado com o alocador, que foi quem entregou."
+            - exata: [0]
+              retorno: "Os seis ints ficam no bloco, no monte. Em q fica só o endereço dele."
+          retorno_geral: "q guarda só o endereço do bloco. O tamanho ficou com o alocador."
+
+    - id: esc_kc09_B1_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "sizeof v mede o array inteiro, porque v é o conjunto das caixas."
+        - "sizeof p mede só o ponteiro: quantas caixas há no bloco, p não sabe."
+      versoes:
+        - pede: "v é um array de dez; p aponta para um bloco de dez. Qual dos dois sizeof dá 10?"
+          antes: |-
+            char v[10];
+            char *p;
+
+            p = malloc(10);
+          pecas:
+            - "Só sizeof v: v é o conjunto; p é um endereço"
+            - "Os dois: p também sabe o tamanho do bloco"
+            - "Só sizeof p: é ele que aponta para o bloco"
+          certa: [[0]]
+          certa_texto: "Só sizeof v: v é o conjunto; p é um endereço"
+          erros:
+            - exata: [1]
+              retorno: "p guarda um endereço, e sizeof p mede o ponteiro, e não o bloco. Só v, que é o conjunto das dez caixas, dá 10."
+            - exata: [2]
+              retorno: "Apontar para o bloco não é saber o tamanho dele: sizeof p mede o ponteiro. Quem dá 10 é sizeof v."
+          retorno_geral: "sizeof v dá 10, as dez caixas. sizeof p mede só o ponteiro."
+        - pede: "letras é um array de seis; q aponta para um bloco de seis. Qual dos dois sizeof dá 6?"
+          antes: |-
+            char *q;
+            char letras[6];
+
+            q = malloc(6);
+          pecas:
+            - "Os dois: q também sabe o tamanho do bloco"
+            - "Só sizeof q: é ele que aponta para o bloco"
+            - "Só sizeof letras: letras é o conjunto; q é um endereço"
+          certa: [[2]]
+          certa_texto: "Só sizeof letras: letras é o conjunto; q é um endereço"
+          erros:
+            - exata: [0]
+              retorno: "q guarda um endereço, e sizeof q mede o ponteiro, e não o bloco. Só letras, que é o conjunto das seis caixas, dá 6."
+            - exata: [1]
+              retorno: "Apontar para o bloco não é saber o tamanho dele: sizeof q mede o ponteiro. Quem dá 6 é sizeof letras."
+          retorno_geral: "sizeof letras dá 6, as seis caixas. sizeof q mede só o ponteiro."
+
+    - id: esc_kc09_B1_3
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Por isso free recebe uma coisa só, o endereço. O tamanho não se diz: o alocador já tem."
+      versoes:
+        - pede: "Complete a chamada que devolve o bloco de dez ints."
+          antes: |-
+            int *p;
+
+            p = malloc(10 * sizeof(int));
+          mostra: "free(___);"
+          pecas: ["p", "p, 10", "10"]
+          certa: [[0]]
+          certa_texto: "free(p);"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "free recebe uma coisa só, o endereço: com dois valores o compilador reclama. O tamanho o alocador já anotou: free(p);"
+            - exata: [2]
+              invalida: true
+              retorno: "10 é quantos ints foram pedidos, e não um endereço: o compilador reclama. free recebe o endereço do bloco: free(p);"
+          retorno_geral: "free recebe só o endereço do bloco: free(p);"
+        - pede: "Complete a chamada que devolve o bloco de seis ints."
+          antes: |-
+            int *q;
+
+            q = malloc(6 * sizeof(int));
+          mostra: "free(___);"
+          pecas: ["6", "q", "q, 6"]
+          certa: [[1]]
+          certa_texto: "free(q);"
+          erros:
+            - exata: [2]
+              invalida: true
+              retorno: "free recebe uma coisa só, o endereço: com dois valores o compilador reclama. O tamanho o alocador já anotou: free(q);"
+            - exata: [0]
+              invalida: true
+              retorno: "6 é quantos ints foram pedidos, e não um endereço: o compilador reclama. free recebe o endereço do bloco: free(q);"
+          retorno_geral: "free recebe só o endereço do bloco: free(q);"
+
+    - id: esc_kc09_B1_4
+      nome: "O ponteiro guarda o endereço, não o tamanho"
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "A função recebe p. Ela consegue descobrir quantos ints o bloco tem?"
+          antes: "void usa(int *p) { p[0] = 7; }"
+          pecas:
+            - "Não: p é só um endereço, e o número tem de vir em outro parâmetro"
+            - "Consegue: o ponteiro carrega o tamanho do bloco"
+            - "Consegue, com sizeof p"
+          certa: [[0]]
+          certa_texto: "Não: p é só um endereço, e o número tem de vir em outro parâmetro"
+          erros:
+            - exata: [1]
+              retorno: "Em p cabe um endereço, e mais nada. O tamanho ficou com o alocador, e a função não tem como perguntar a ele."
+            - exata: [2]
+              retorno: "sizeof p mede o ponteiro, e não o bloco. Quantos ints há, só quem pediu sabe: o número vai em outro parâmetro."
+          retorno_geral: "p é só um endereço. Quantos ints o bloco tem, a função recebe em outro parâmetro."
+        - pede: "A função recebe q. Ela consegue descobrir quantos ints o bloco tem?"
+          antes: "void zera(int *q) { q[0] = 0; }"
+          pecas:
+            - "Consegue, com sizeof q"
+            - "Não: q é só um endereço, e o número tem de vir em outro parâmetro"
+            - "Consegue: o ponteiro carrega o tamanho do bloco"
+          certa: [[1]]
+          certa_texto: "Não: q é só um endereço, e o número tem de vir em outro parâmetro"
+          erros:
+            - exata: [2]
+              retorno: "Em q cabe um endereço, e mais nada. O tamanho ficou com o alocador, e a função não tem como perguntar a ele."
+            - exata: [0]
+              retorno: "sizeof q mede o ponteiro, e não o bloco. Quantos ints há, só quem pediu sabe: o número vai em outro parâmetro."
+          retorno_geral: "q é só um endereço. Quantos ints o bloco tem, a função recebe em outro parâmetro."
+
+    - id: esc_kc09_B1_5
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Qual destas linhas devolve o bloco de p?"
+          antes: |-
+            int *p;
+
+            p = malloc(5 * sizeof(int));
+          pecas: ["free(p);", "free(p, 5);", "free(5 * sizeof(int));"]
+          certa: [[0]]
+          certa_texto: "free(p);"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "free recebe uma coisa só: com dois valores o compilador reclama. O tamanho não se diz, porque o alocador anotou: free(p);"
+            - exata: [2]
+              retorno: "Essa conta é um tamanho, e free recebe um endereço: o compilador reclama. O endereço do bloco está em p: free(p);"
+          retorno_geral: "free recebe o endereço do bloco, e só: free(p);"
+        - pede: "Qual destas linhas devolve o bloco de q?"
+          antes: |-
+            int *q;
+
+            q = malloc(8 * sizeof(int));
+          pecas: ["free(8 * sizeof(int));", "free(q, 8);", "free(q);"]
+          certa: [[2]]
+          certa_texto: "free(q);"
+          invalidas: [0, 1]
+          erros:
+            - exata: [1]
+              retorno: "free recebe uma coisa só: com dois valores o compilador reclama. O tamanho não se diz, porque o alocador anotou: free(q);"
+            - exata: [0]
+              retorno: "Essa conta é um tamanho, e free recebe um endereço: o compilador reclama. O endereço do bloco está em q: free(q);"
+          retorno_geral: "free recebe o endereço do bloco, e só: free(q);"
+
+B2:
+  revisao:
+    frases:
+      - "free é uma função como as outras: em free(p) o que entra é uma cópia do valor de p."
+      - "A variável p fica com quem chamou. A função não tem como escrever nela."
+    codigo: |
+      void esvazia(int *x) { x = NULL; }
+
+      int *p;
+
+      p = malloc(sizeof(int));
+      *p = 7;
+      esvazia(p);
+      printf("%d\n", *p);
+      free(p);
+    saida: "7"
+  # Ponteiro para ponteiro, que é o tópico seguinte.
+  fora_da_trilha: [ciu_kc09_006, ciu_kc09_t06]
+  provas:
+    - crenca: function_gets_original
+      programa: |
+        void esvazia(int *x) { x = NULL; }
+
+        int *p;
+
+        p = malloc(sizeof(int));
+        esvazia(p);
+        printf("%d\n", p == NULL);
+        free(p);
+      previsao:
+        pergunta: >
+          A função escreve NULL no parâmetro dela. Depois da chamada, o
+          trecho pergunta se p vale NULL. O que aparece?
+        opcoes:
+          - "1: a função recebeu o próprio p, e o apagou"
+          - "0"
+        real: 1
+        crenca: 0
+      espera: "0"
+      afirma: >
+        Saiu 0. A função recebeu uma cópia do endereço e escreveu NULL na
+        cópia. O p de quem chamou é outra variável, e continua com o
+        endereço do bloco. Com free(p) é igual: entra uma cópia.
+  degraus:
+    - id: esc_kc09_B2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "free é uma função como as outras: na chamada free(p), o que entra nela é uma cópia do valor de p."
+        - "O valor de p é um endereço. A variável p fica com quem chamou."
+      versoes:
+        - pede: "Na última linha, o que entra na função free?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+          pecas:
+            - "Uma cópia do endereço que está em p"
+            - "A própria variável p: a função recebe a original, e não uma cópia"
+            - "O bloco inteiro"
+          certa: [[0]]
+          certa_texto: "Uma cópia do endereço que está em p"
+          erros:
+            - exata: [1]
+              crenca: function_gets_original
+              retorno: "Em C toda chamada copia, e free não é exceção. O que entra nela é uma cópia do endereço guardado em p; a variável p fica com quem chamou."
+            - exata: [2]
+              retorno: "O bloco fica no monte, onde estava. O que viaja na chamada é um endereço: uma cópia do que está em p."
+          retorno_geral: "Em free(p) entra uma cópia do endereço que está em p."
+        - pede: "Na última linha, o que entra na função free?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+          pecas:
+            - "O bloco inteiro"
+            - "Uma cópia do endereço que está em q"
+            - "A própria variável q: a função recebe a original, e não uma cópia"
+          certa: [[1]]
+          certa_texto: "Uma cópia do endereço que está em q"
+          erros:
+            - exata: [2]
+              crenca: function_gets_original
+              retorno: "Em C toda chamada copia, e free não é exceção. O que entra nela é uma cópia do endereço guardado em q; a variável q fica com quem chamou."
+            - exata: [0]
+              retorno: "O bloco fica no monte, onde estava. O que viaja na chamada é um endereço: uma cópia do que está em q."
+          retorno_geral: "Em free(q) entra uma cópia do endereço que está em q."
+
+    - id: esc_kc09_B2_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "A cópia do endereço leva ao mesmo bloco: é por ela que a função chega lá."
+        - "Mas apagar a cópia, x = NULL;, não mexe no p de quem chamou."
+      versoes:
+        - pede: "A função escreve 9 no bloco e depois apaga o parâmetro dela. Que número aparece?"
+          mostra: |-
+            void marca(int *x) { *x = 9; x = NULL; }
+
+            int *p;
+
+            p = malloc(sizeof(int));
+            *p = 7;
+            marca(p);
+            printf("%d\n", *p);
+            free(p);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "7"
+              retorno: "A função recebeu uma cópia do endereço, e por ela chegou ao bloco: o 9 foi escrito lá."
+            - texto: "0"
+              retorno: "x = NULL; apagou só a cópia. O p de quem chamou continua com o endereço do bloco, que agora guarda 9."
+          retorno_geral: "O 9 chegou ao bloco pela cópia do endereço. Apagar a cópia não mexeu em p."
+        - pede: "A função escreve 20 no bloco e depois apaga o parâmetro dela. Que número aparece?"
+          mostra: |-
+            void marca(int *x) { *x = 20; x = NULL; }
+
+            int *q;
+
+            q = malloc(sizeof(int));
+            *q = 15;
+            marca(q);
+            printf("%d\n", *q);
+            free(q);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "15"
+              retorno: "A função recebeu uma cópia do endereço, e por ela chegou ao bloco: o 20 foi escrito lá."
+            - texto: "0"
+              retorno: "x = NULL; apagou só a cópia. O q de quem chamou continua com o endereço do bloco, que agora guarda 20."
+          retorno_geral: "O 20 chegou ao bloco pela cópia do endereço. Apagar a cópia não mexeu em q."
+
+    - id: esc_kc09_B2_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Com free é igual: ela usa a cópia para achar o bloco e devolvê-lo."
+        - "No p de quem chamou ela não tem como tocar."
+      versoes:
+        - pede: "O que free consegue fazer com a cópia que recebeu?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+          pecas:
+            - "Achar o bloco e devolvê-lo"
+            - "Mudar o que está guardado em p"
+            - "Apagar a variável p"
+          certa: [[0]]
+          certa_texto: "Achar o bloco e devolvê-lo"
+          erros:
+            - exata: [1]
+              retorno: "free recebeu uma cópia do endereço, e não a variável p. Com a cópia ela acha o bloco; em p, ela não escreve."
+            - exata: [2]
+              retorno: "A variável p é de quem chamou, e free nem sabe onde ela fica: recebeu só uma cópia do endereço. Com ela, acha o bloco e o devolve."
+          retorno_geral: "Com a cópia do endereço, free acha o bloco e o devolve. Em p ela não toca."
+        - pede: "O que free consegue fazer com a cópia que recebeu?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+          pecas:
+            - "Apagar a variável q"
+            - "Mudar o que está guardado em q"
+            - "Achar o bloco e devolvê-lo"
+          certa: [[2]]
+          certa_texto: "Achar o bloco e devolvê-lo"
+          erros:
+            - exata: [1]
+              retorno: "free recebeu uma cópia do endereço, e não a variável q. Com a cópia ela acha o bloco; em q, ela não escreve."
+            - exata: [0]
+              retorno: "A variável q é de quem chamou, e free nem sabe onde ela fica: recebeu só uma cópia do endereço. Com ela, acha o bloco e o devolve."
+          retorno_geral: "Com a cópia do endereço, free acha o bloco e o devolve. Em q ela não toca."
+
+    - id: esc_kc09_B2_4
+      nome: "A função recebe uma cópia do ponteiro"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "A função apaga o parâmetro dela. Depois, o trecho lê o bloco por p. Que número aparece?"
+          mostra: |-
+            void larga(int *x) { x = NULL; }
+
+            int *p;
+
+            p = malloc(sizeof(int));
+            *p = 7;
+            larga(p);
+            printf("%d\n", *p);
+            free(p);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "0"
+              retorno: "x é uma cópia do endereço. Apagar x não apaga p: p continua apontando para o bloco, que guarda 7."
+          retorno_geral: "A função apagou a cópia. p continua com o endereço, e o bloco com 7."
+        - pede: "A função apaga o parâmetro dela. Depois, o trecho lê o bloco por q. Que número aparece?"
+          mostra: |-
+            void larga(int *x) { x = NULL; }
+
+            int *q;
+
+            q = malloc(sizeof(int));
+            *q = 15;
+            larga(q);
+            printf("%d\n", *q);
+            free(q);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "x é uma cópia do endereço. Apagar x não apaga q: q continua apontando para o bloco, que guarda 15."
+          retorno_geral: "A função apagou a cópia. q continua com o endereço, e o bloco com 15."
+
+    - id: esc_kc09_B2_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Qual das duas funções consegue mudar o que está no bloco de quem chamou?"
+          antes: |-
+            void a(int *x) { *x = 0; }
+            void b(int *x) { x = NULL; }
+          pecas:
+            - "A a: pela cópia do endereço ela chega ao bloco"
+            - "A b: ela apaga o ponteiro de quem chamou"
+            - "Nenhuma: as duas só têm uma cópia"
+          certa: [[0]]
+          certa_texto: "A a: pela cópia do endereço ela chega ao bloco"
+          erros:
+            - exata: [1]
+              retorno: "A b escreve NULL em x, a cópia dela, e mais nada: nem o bloco nem o ponteiro de quem chamou mudam. Quem chega ao bloco é a a, com *x."
+            - exata: [2]
+              retorno: "A cópia é de um endereço, e endereço copiado leva ao mesmo bloco. Com *x = 0; a função a escreve lá."
+          retorno_geral: "Com *x a função chega ao bloco, pela cópia do endereço. x = NULL; só apaga a cópia."
+        - pede: "Qual das duas funções consegue mudar o que está no bloco de quem chamou?"
+          antes: |-
+            void a(int *x) { x = NULL; }
+            void b(int *x) { *x = 9; }
+          pecas:
+            - "Nenhuma: as duas só têm uma cópia"
+            - "A a: ela apaga o ponteiro de quem chamou"
+            - "A b: pela cópia do endereço ela chega ao bloco"
+          certa: [[2]]
+          certa_texto: "A b: pela cópia do endereço ela chega ao bloco"
+          erros:
+            - exata: [1]
+              retorno: "A a escreve NULL em x, a cópia dela, e mais nada: nem o bloco nem o ponteiro de quem chamou mudam. Quem chega ao bloco é a b, com *x."
+            - exata: [0]
+              retorno: "A cópia é de um endereço, e endereço copiado leva ao mesmo bloco. Com *x = 9; a função b escreve lá."
+          retorno_geral: "Com *x a função chega ao bloco, pela cópia do endereço. x = NULL; só apaga a cópia."
+
+B3:
+  revisao:
+    frases:
+      - "São duas coisas: o bloco, no monte, e a caixa de p, que é uma variável sua."
+      - "free devolve o bloco. A caixa de p não está dentro dele, e fica onde foi declarada."
+    codigo: |
+      int *p;
+
+      p = malloc(sizeof(int));
+      free(p);
+      p = NULL;
+      printf("%d\n", p == NULL);
+    saida: "1"
+  # Variável declarada fora da função.
+  fora_da_trilha: [ciu_kc09_009]
+  provas:
+    - crenca: pointer_lives_in_heap
+      programa: |
+        int *p;
+
+        p = malloc(sizeof(int));
+        printf("%p\n", (void *)&p);
+        printf("%p\n", (void *)p);
+        free(p);
+      previsao:
+        pergunta: >
+          O primeiro printf mostra o endereço da caixa p. O segundo
+          mostra o endereço do bloco, que é o que p guarda. O que
+          aparece?
+        opcoes:
+          - "Dois endereços diferentes"
+          - "O mesmo endereço: a caixa de p fica dentro do bloco"
+        real: 0
+        crenca: 1
+      espera: "0x1000\n0x2A00"
+      ambiente: >
+        Os números dos lugares mudam de máquina para máquina; aqui eles
+        aparecem como números de exemplo. O que foi conferido é que as
+        duas linhas saem com endereços diferentes.
+      afirma: >
+        Saíram dois endereços diferentes. A caixa de p está num lugar; o
+        bloco, em outro. p aponta para o monte, mas não mora nele — e é
+        por isso que devolver o bloco não leva a caixa junto.
+  degraus:
+    - id: esc_kc09_B3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "São duas coisas: o bloco, no monte, e a caixa de p, que é uma variável sua e fica onde foi declarada."
+        - "free devolve o bloco. A caixa de p não está dentro dele, e não vai junto."
+      versoes:
+        - pede: "A última linha devolve o bloco. O que acontece com a caixa de p?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+          pecas:
+            - "Continua onde estava: é uma variável de quem chamou"
+            - "Vai junto: o ponteiro mora no monte, dentro do bloco que aponta"
+            - "Passa a ser da função free"
+          certa: [[0]]
+          certa_texto: "Continua onde estava: é uma variável de quem chamou"
+          erros:
+            - exata: [1]
+              crenca: pointer_lives_in_heap
+              retorno: "Apontar para o monte não é morar nele. A caixa de p foi declarada como qualquer variável, e fica onde estava; o que voltou ao alocador foi só o bloco."
+            - exata: [2]
+              retorno: "free recebeu uma cópia do endereço, e não a caixa. A caixa de p continua sendo de quem a declarou."
+          retorno_geral: "O bloco voltou ao alocador. A caixa de p continua onde foi declarada."
+        - pede: "A última linha devolve o bloco. O que acontece com a caixa de q?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+          pecas:
+            - "Passa a ser da função free"
+            - "Continua onde estava: é uma variável de quem chamou"
+            - "Vai junto: o ponteiro mora no monte, dentro do bloco que aponta"
+          certa: [[1]]
+          certa_texto: "Continua onde estava: é uma variável de quem chamou"
+          erros:
+            - exata: [2]
+              crenca: pointer_lives_in_heap
+              retorno: "Apontar para o monte não é morar nele. A caixa de q foi declarada como qualquer variável, e fica onde estava; o que voltou ao alocador foi só o bloco."
+            - exata: [0]
+              retorno: "free recebeu uma cópia do endereço, e não a caixa. A caixa de q continua sendo de quem a declarou."
+          retorno_geral: "O bloco voltou ao alocador. A caixa de q continua onde foi declarada."
+
+    - id: esc_kc09_B3_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "A caixa de p acaba como toda variável local: no fim da função em que foi declarada."
+        - "O free não tem nada com isso."
+      versoes:
+        - pede: "Quando a caixa de p deixa de existir?"
+          antes: "void usa(void) { int *p = malloc(sizeof(int)); free(p); }"
+          pecas:
+            - "No fim de usa, como toda variável local"
+            - "No free, junto com o bloco"
+            - "Nunca: ela é do monte"
+          certa: [[0]]
+          certa_texto: "No fim de usa, como toda variável local"
+          erros:
+            - exata: [1]
+              retorno: "O free devolve o bloco, e só. A caixa de p é variável local de usa: existe até a função terminar."
+            - exata: [2]
+              retorno: "A caixa de p não é do monte: foi declarada dentro de usa, e acaba quando usa termina."
+          retorno_geral: "p é variável local de usa: a caixa dela acaba no fim da função."
+        - pede: "Quando a caixa de q deixa de existir?"
+          antes: "void anota(void) { int *q = malloc(sizeof(int)); free(q); }"
+          pecas:
+            - "Nunca: ela é do monte"
+            - "No free, junto com o bloco"
+            - "No fim de anota, como toda variável local"
+          certa: [[2]]
+          certa_texto: "No fim de anota, como toda variável local"
+          erros:
+            - exata: [1]
+              retorno: "O free devolve o bloco, e só. A caixa de q é variável local de anota: existe até a função terminar."
+            - exata: [0]
+              retorno: "A caixa de q não é do monte: foi declarada dentro de anota, e acaba quando anota termina."
+          retorno_geral: "q é variável local de anota: a caixa dela acaba no fim da função."
+
+    - id: esc_kc09_B3_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Como a caixa continua sendo sua, você escreve nela quando quiser — inclusive depois do free."
+      versoes:
+        - pede: "Depois do free, o trecho escreve NULL em p e pergunta se p vale NULL. Que número aparece?"
+          mostra: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+            p = NULL;
+            printf("%d\n", p == NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "A caixa de p continuou existindo depois do free, e recebeu NULL na linha seguinte. A pergunta é verdadeira: 1."
+          retorno_geral: "A caixa de p é sua: recebeu NULL depois do free, e a pergunta dá 1."
+        - pede: "Depois do free, o trecho escreve NULL em q e pergunta se q é diferente de NULL. Que número aparece?"
+          mostra: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+            q = NULL;
+            printf("%d\n", q != NULL);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "A caixa de q continuou existindo depois do free, e recebeu NULL na linha seguinte. q não é diferente de NULL: 0."
+          retorno_geral: "A caixa de q é sua: recebeu NULL depois do free, e a pergunta dá 0."
+
+    - id: esc_kc09_B3_4
+      nome: "A caixa de p não vai embora com o bloco"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Depois de devolver o bloco, o trecho usa a mesma caixa para outro. Que número aparece?"
+          mostra: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            *p = 7;
+            free(p);
+            p = malloc(sizeof(int));
+            *p = 15;
+            printf("%d\n", *p);
+            free(p);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "7"
+              retorno: "O bloco do 7 foi devolvido. A caixa de p continuou, recebeu o endereço de outro bloco, e nele foi escrito 15."
+          retorno_geral: "A caixa de p sobreviveu ao free e guardou outro endereço: o do bloco com 15."
+        - pede: "Depois de devolver o bloco, o trecho usa a mesma caixa para outro. Que número aparece?"
+          mostra: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            *q = 9;
+            free(q);
+            q = malloc(sizeof(int));
+            *q = 20;
+            printf("%d\n", *q);
+            free(q);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "9"
+              retorno: "O bloco do 9 foi devolvido. A caixa de q continuou, recebeu o endereço de outro bloco, e nele foi escrito 20."
+          retorno_geral: "A caixa de q sobreviveu ao free e guardou outro endereço: o do bloco com 20."
+
+    - id: esc_kc09_B3_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "No fim deste trecho, o que ainda existe?"
+          antes: |-
+            int *p;
+            int *q;
+
+            p = malloc(sizeof(int));
+            q = p;
+            free(p);
+          pecas:
+            - "As caixas de p e de q; o bloco foi devolvido"
+            - "Só a caixa de q: a de p foi junto com o bloco"
+            - "Nada: free levou tudo"
+          certa: [[0]]
+          certa_texto: "As caixas de p e de q; o bloco foi devolvido"
+          erros:
+            - exata: [1]
+              retorno: "A caixa de p não fica dentro do bloco, e não vai junto com ele. As duas caixas continuam; só o bloco voltou ao alocador."
+            - exata: [2]
+              retorno: "free devolve o bloco, e mais nada. As caixas de p e de q são variáveis de quem as declarou, e continuam lá."
+          retorno_geral: "O bloco foi devolvido. As duas caixas, p e q, continuam existindo."
+        - pede: "No fim deste trecho, o que ainda existe?"
+          antes: |-
+            int *a;
+            int *b;
+
+            a = malloc(sizeof(int));
+            b = malloc(sizeof(int));
+            free(a);
+          pecas:
+            - "Só a caixa de b e o bloco dela"
+            - "Nada: free levou tudo"
+            - "As caixas de a e de b, e o bloco de b"
+          certa: [[2]]
+          certa_texto: "As caixas de a e de b, e o bloco de b"
+          erros:
+            - exata: [0]
+              retorno: "A caixa de a não foi junto com o bloco: continua onde foi declarada. Sobram as duas caixas, e o bloco de b."
+            - exata: [1]
+              retorno: "free devolveu um bloco só, o de a. As duas caixas continuam, e o bloco de b também."
+          retorno_geral: "free devolveu o bloco de a. Continuam as duas caixas, e o bloco de b."
+
+B4:
+  revisao:
+    frases:
+      - "Devolvido, o bloco deixa de ser seu: o alocador pode entregá-lo ao próximo malloc."
+      - "O último uso do bloco vem antes do free. Depois dele, não se lê nem se escreve ali."
+    codigo: |
+      int *p;
+      int nota;
+
+      p = malloc(sizeof(int));
+      *p = 7;
+      nota = *p;
+      free(p);
+      printf("%d\n", nota);
+    saida: "7"
+  # struct, que nenhuma escada ensinou.
+  fora_da_trilha: [ciu_kc09_t12]
+  provas:
+    - crenca: heap_persists
+      programa: |
+        int *p;
+
+        p = malloc(sizeof(int));
+        *p = 7;
+        free(p);
+        printf("%d\n", *p);
+      previsao:
+        pergunta: >
+          O trecho escreve 7 no bloco, devolve o bloco, e depois lê o que
+          há nele. O compilador reclama de alguma coisa?
+        opcoes:
+          - "Não: o 7 continua no bloco, que ainda é válido"
+          - "Sim: o bloco é usado depois de devolvido"
+        real: 1
+        crenca: 0
+      reclama: "pointer 'p' used after 'free'"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall): "used after
+        free" é "usado depois do free". O programa não é executado: o
+        que apareceria, ninguém sabe.
+      afirma: >
+        O compilador reclama da última linha: p é usado depois do free.
+        O bloco voltou ao alocador, que pode entregá-lo a outro pedido a
+        qualquer momento. O 7 não está guardado para você.
+  degraus:
+    - id: esc_kc09_B4_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Devolvido, o bloco deixa de ser seu: free(p); entrega o lugar de volta ao alocador."
+        - "O alocador pode dá-lo ao próximo malloc. O que você deixou lá não está guardado para você."
+      versoes:
+        - pede: "Depois da última linha, o bloco é de quem?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            *p = 7;
+            free(p);
+          pecas:
+            - "Do alocador, que pode entregá-lo a outro pedido"
+            - "Seu ainda: o bloco continua válido depois do free, com o 7"
+            - "De ninguém: aquele lugar deixa de existir"
+          certa: [[0]]
+          certa_texto: "Do alocador, que pode entregá-lo a outro pedido"
+          erros:
+            - exata: [1]
+              crenca: heap_persists
+              retorno: "free é devolver: dali em diante o bloco é do alocador, que pode entregá-lo ao próximo malloc. O 7 não fica guardado para você."
+            - exata: [2]
+              retorno: "O lugar continua existindo na memória; o que mudou é o dono. Ele voltou ao alocador, que pode entregá-lo a outro pedido."
+          retorno_geral: "Depois do free o bloco é do alocador, que pode entregá-lo a outro pedido."
+        - pede: "Depois da última linha, o bloco é de quem?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            *q = 15;
+            free(q);
+          pecas:
+            - "De ninguém: aquele lugar deixa de existir"
+            - "Do alocador, que pode entregá-lo a outro pedido"
+            - "Seu ainda: o bloco continua válido depois do free, com o 15"
+          certa: [[1]]
+          certa_texto: "Do alocador, que pode entregá-lo a outro pedido"
+          erros:
+            - exata: [2]
+              crenca: heap_persists
+              retorno: "free é devolver: dali em diante o bloco é do alocador, que pode entregá-lo ao próximo malloc. O 15 não fica guardado para você."
+            - exata: [0]
+              retorno: "O lugar continua existindo na memória; o que mudou é o dono. Ele voltou ao alocador, que pode entregá-lo a outro pedido."
+          retorno_geral: "Depois do free o bloco é do alocador, que pode entregá-lo a outro pedido."
+
+    - id: esc_kc09_B4_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Usar o bloco depois do free — ler ou escrever — é usar o que não é seu."
+        - "O compilador reclama quando consegue ver."
+      versoes:
+        - pede: "Qual linha deste trecho usa um bloco que já não é seu?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            *p = 7;
+            free(p);
+            *p = 9;
+          pecas:
+            - "A última: escreve no bloco depois de devolvê-lo"
+            - "A que escreve 7: o bloco ainda não tinha valor"
+            - "Nenhuma: o bloco continua lá"
+          certa: [[0]]
+          certa_texto: "A última: escreve no bloco depois de devolvê-lo"
+          erros:
+            - exata: [1]
+              retorno: "Escrever num bloco que é seu sempre vale, com ou sem valor antes. O problema é a última linha, que escreve depois do free."
+            - exata: [2]
+              retorno: "O lugar continua lá, mas já não é seu: voltou ao alocador no free. A última linha escreve no que é de outro."
+          retorno_geral: "Depois do free o bloco não é seu. A última linha escreve nele mesmo assim."
+        - pede: "Qual linha deste trecho usa um bloco que já não é seu?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            *q = 15;
+            free(q);
+            printf("%d\n", *q);
+          pecas:
+            - "Nenhuma: o bloco continua lá"
+            - "A que escreve 15: o bloco ainda não tinha valor"
+            - "A última: lê o bloco depois de devolvê-lo"
+          certa: [[2]]
+          certa_texto: "A última: lê o bloco depois de devolvê-lo"
+          erros:
+            - exata: [1]
+              retorno: "Escrever num bloco que é seu sempre vale, com ou sem valor antes. O problema é a última linha, que lê depois do free."
+            - exata: [0]
+              retorno: "O lugar continua lá, mas já não é seu: voltou ao alocador no free. A última linha lê o que é de outro."
+          retorno_geral: "Depois do free o bloco não é seu. A última linha lê nele mesmo assim."
+
+    - id: esc_kc09_B4_3
+      guiado: true
+      forma: montar
+      codigo: true
+      frases:
+        - "O último uso do bloco vem antes do free. Depois dele, não há mais uso."
+      versoes:
+        - pede: "Ponha as duas linhas na ordem certa: primeiro usa, depois devolve."
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            *p = 7;
+          pecas: ['printf("%d\n", *p);', "free(p);"]
+          certa: [[0, 1]]
+          certa_texto: 'printf("%d\n", *p); free(p);'
+          erros:
+            - exata: [1, 0]
+              retorno: "Nessa ordem o printf lê o bloco depois de devolvido, quando ele já não é seu. Primeiro se usa, depois se devolve."
+          retorno_geral: "Primeiro o uso, depois o free: o printf vem antes."
+        - pede: "Ponha as duas linhas na ordem certa: primeiro usa, depois devolve."
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+          pecas: ["free(q);", "*q = 15;"]
+          certa: [[1, 0]]
+          certa_texto: "*q = 15; free(q);"
+          erros:
+            - exata: [0, 1]
+              retorno: "Nessa ordem a escrita vai para o bloco depois de devolvido, quando ele já não é seu. Primeiro se usa, depois se devolve."
+          retorno_geral: "Primeiro o uso, depois o free: a escrita vem antes."
+
+    - id: esc_kc09_B4_4
+      nome: "Depois do free, o bloco não é mais seu"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "O valor do bloco é copiado para nota antes do free. Que número aparece?"
+          mostra: |-
+            int *p;
+            int nota;
+
+            p = malloc(sizeof(int));
+            *p = 7;
+            nota = *p;
+            free(p);
+            printf("%d\n", nota);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "0"
+              retorno: "O free devolveu o bloco, mas nota é uma variável sua, e já tinha recebido o 7 antes. Ela continua com ele."
+          retorno_geral: "O 7 foi copiado para nota antes do free. nota é sua, e continua com 7."
+        - pede: "O valor do bloco é copiado para idade antes do free. Que número aparece?"
+          mostra: |-
+            int *q;
+            int idade;
+
+            q = malloc(sizeof(int));
+            *q = 15;
+            idade = *q;
+            free(q);
+            printf("%d\n", idade);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "O free devolveu o bloco, mas idade é uma variável sua, e já tinha recebido o 15 antes. Ela continua com ele."
+          retorno_geral: "O 15 foi copiado para idade antes do free. idade é sua, e continua com 15."
+
+    - id: esc_kc09_B4_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Depois do free, o trecho pede outro bloco, para q. O que pode acontecer?"
+          antes: |-
+            int *p;
+            int *q;
+
+            p = malloc(sizeof(int));
+            free(p);
+            q = malloc(sizeof(int));
+          pecas:
+            - "q pode receber o mesmo lugar que era de p"
+            - "Nada: o lugar de p fica reservado para p"
+            - "O malloc falha: aquele lugar ainda está ocupado"
+          certa: [[0]]
+          certa_texto: "q pode receber o mesmo lugar que era de p"
+          erros:
+            - exata: [1]
+              retorno: "Depois do free o lugar não é mais de p: voltou ao alocador, que pode entregá-lo a qualquer pedido — inclusive ao de q."
+            - exata: [2]
+              retorno: "O free desocupou o lugar: ele está livre para o alocador entregar de novo. Pode até ser o que q recebe."
+          retorno_geral: "O lugar voltou ao alocador, que pode entregá-lo ao malloc seguinte: o de q."
+        - pede: "Depois do free, o trecho pede outro bloco, para b. O que pode acontecer?"
+          antes: |-
+            int *a;
+            int *b;
+
+            a = malloc(sizeof(int));
+            free(a);
+            b = malloc(sizeof(int));
+          pecas:
+            - "O malloc falha: aquele lugar ainda está ocupado"
+            - "b pode receber o mesmo lugar que era de a"
+            - "Nada: o lugar de a fica reservado para a"
+          certa: [[1]]
+          certa_texto: "b pode receber o mesmo lugar que era de a"
+          erros:
+            - exata: [2]
+              retorno: "Depois do free o lugar não é mais de a: voltou ao alocador, que pode entregá-lo a qualquer pedido — inclusive ao de b."
+            - exata: [0]
+              retorno: "O free desocupou o lugar: ele está livre para o alocador entregar de novo. Pode até ser o que b recebe."
+          retorno_geral: "O lugar voltou ao alocador, que pode entregá-lo ao malloc seguinte: o de b."
+
+I1:
+  revisao:
+    frases:
+      - "free recebeu só uma cópia do endereço. No p de quem chamou ela não tem como escrever."
+      - "Por isso, depois do free, p não vira NULL: continua com o endereço de antes."
+    codigo: |
+      int *p;
+      int *q;
+
+      p = malloc(sizeof(int));
+      q = p;
+      free(p);
+      printf("%d\n", p == q);
+    saida: "1"
+  # Ponteiro para ponteiro.
+  fora_da_trilha: [ciu_kc09_t15]
+  provas:
+    - crenca: free_nullifies
+      programa: |
+        int *p;
+
+        p = malloc(sizeof(int));
+        free(p);
+        printf("%d\n", p == NULL);
+      previsao:
+        pergunta: >
+          O trecho devolve o bloco e, logo depois, pergunta se p vale
+          NULL. O que aparece?
+        opcoes:
+          - "1: p vira NULL depois do free"
+          - "0: p continua com o endereço de antes"
+        real: 1
+        crenca: 0
+      espera: "0"
+      ambiente: >
+        Foi o que saiu nesta máquina. O padrão do C não garante nem essa
+        comparação depois do free — é a última ideia deste tópico. Aqui
+        ela foi feita para mostrar que free não escreveu NULL.
+      afirma: >
+        Saiu 0. free não escreveu NULL em p, e nem teria como: recebeu só
+        uma cópia do endereço. p continua com o endereço de antes — de um
+        bloco que já não é seu.
+  degraus:
+    - id: esc_kc09_I1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "free recebeu só uma cópia do endereço. No p de quem chamou ela não tem como escrever."
+        - "Por isso, depois do free, p não vira NULL: continua com o endereço de antes."
+      versoes:
+        - pede: "Depois da última linha, o que está guardado em p?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+          pecas:
+            - "O mesmo endereço de antes"
+            - "NULL: p vira NULL depois do free"
+            - "Nada: p fica vazio"
+          certa: [[0]]
+          certa_texto: "O mesmo endereço de antes"
+          erros:
+            - exata: [1]
+              crenca: free_nullifies
+              retorno: "Para pôr NULL em p, free teria de escrever na variável de quem chamou — e ela só recebeu uma cópia do endereço. p continua como estava."
+            - exata: [2]
+              retorno: "Variável não fica vazia: p continua guardando o que tinha, o endereço de antes. free só recebeu uma cópia dele."
+          retorno_geral: "free não escreve em p. Depois dela, p guarda o mesmo endereço de antes."
+        - pede: "Depois da última linha, o que está guardado em q?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+          pecas:
+            - "Nada: q fica vazio"
+            - "O mesmo endereço de antes"
+            - "NULL: q vira NULL depois do free"
+          certa: [[1]]
+          certa_texto: "O mesmo endereço de antes"
+          erros:
+            - exata: [2]
+              crenca: free_nullifies
+              retorno: "Para pôr NULL em q, free teria de escrever na variável de quem chamou — e ela só recebeu uma cópia do endereço. q continua como estava."
+            - exata: [0]
+              retorno: "Variável não fica vazia: q continua guardando o que tinha, o endereço de antes. free só recebeu uma cópia dele."
+          retorno_geral: "free não escreve em q. Depois dela, q guarda o mesmo endereço de antes."
+
+    - id: esc_kc09_I1_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Dá para ver: guardando uma cópia de p antes do free, as duas continuam iguais depois."
+      versoes:
+        - pede: "q guarda uma cópia do endereço, feita antes do free. A última linha pergunta se p e q são iguais. Que número aparece?"
+          mostra: |-
+            int *p;
+            int *q;
+
+            p = malloc(sizeof(int));
+            q = p;
+            free(p);
+            printf("%d\n", p == q);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "free não mudou o que está em p: ela só recebeu uma cópia. p continua com o endereço que q copiou, e os dois são iguais."
+          retorno_geral: "free não escreveu em p. p e q continuam com o mesmo endereço: 1."
+        - pede: "p guarda uma cópia do endereço, feita antes do free. A última linha pergunta se p e q são diferentes. Que número aparece?"
+          mostra: |-
+            int *p;
+            int *q;
+
+            q = malloc(sizeof(int));
+            p = q;
+            free(q);
+            printf("%d\n", p != q);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "free não mudou o que está em q: ela só recebeu uma cópia. q continua com o endereço que p copiou, e os dois não são diferentes."
+          retorno_geral: "free não escreveu em q. p e q continuam com o mesmo endereço: a resposta é 0."
+
+    - id: esc_kc09_I1_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Se alguém vai escrever NULL em p, é você, numa linha sua: p = NULL;"
+      versoes:
+        - pede: "Depois do free(p);, quem pode pôr NULL em p?"
+          pecas:
+            - "Você, com a linha p = NULL;"
+            - "O próprio free, um instante depois"
+            - "Ninguém: p não aceita mais valor"
+          certa: [[0]]
+          certa_texto: "Você, com a linha p = NULL;"
+          erros:
+            - exata: [1]
+              retorno: "free não tem como escrever em p, nem na hora nem depois: recebeu só uma cópia do endereço. O NULL é uma linha sua."
+            - exata: [2]
+              retorno: "p é uma variável sua, e aceita valor como sempre. Quem quiser NULL nela escreve: p = NULL;"
+          retorno_geral: "free não escreve em p. O NULL é você que escreve: p = NULL;"
+        - pede: "Depois do free(q);, quem pode pôr NULL em q?"
+          pecas:
+            - "Ninguém: q não aceita mais valor"
+            - "O próprio free, um instante depois"
+            - "Você, com a linha q = NULL;"
+          certa: [[2]]
+          certa_texto: "Você, com a linha q = NULL;"
+          erros:
+            - exata: [1]
+              retorno: "free não tem como escrever em q, nem na hora nem depois: recebeu só uma cópia do endereço. O NULL é uma linha sua."
+            - exata: [0]
+              retorno: "q é uma variável sua, e aceita valor como sempre. Quem quiser NULL nela escreve: q = NULL;"
+          retorno_geral: "free não escreve em q. O NULL é você que escreve: q = NULL;"
+
+    - id: esc_kc09_I1_4
+      nome: "free não muda o valor de p"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Depois do free, a última linha pergunta se p é diferente de NULL. Que número aparece?"
+          mostra: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+            printf("%d\n", p != NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "free não pôs NULL em p: ela só recebeu uma cópia do endereço. p continua com o endereço de antes, que é diferente de NULL."
+          retorno_geral: "p continua com o endereço de antes, que não é NULL: 1."
+        - pede: "A função só chama free. Depois dela, a última linha pergunta se q é diferente de NULL. Que número aparece?"
+          mostra: |-
+            void libera(int *x) { free(x); }
+
+            int *q;
+
+            q = malloc(sizeof(int));
+            libera(q);
+            printf("%d\n", q != NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "Nem libera nem free escreveram em q: as duas receberam cópias do endereço. q continua com o endereço de antes, diferente de NULL."
+          retorno_geral: "q continua com o endereço de antes, que não é NULL: 1."
+
+    - id: esc_kc09_I1_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Qual dos dois trechos deixa p valendo NULL?"
+          antes: |-
+            /* A */  free(p);
+            /* B */  free(p);  p = NULL;
+          pecas:
+            - "O B: é a linha p = NULL; que escreve"
+            - "Os dois: free já deixa p em NULL"
+            - "Nenhum: depois do free, p não aceita valor"
+          certa: [[0]]
+          certa_texto: "O B: é a linha p = NULL; que escreve"
+          erros:
+            - exata: [1]
+              retorno: "free recebe só uma cópia do endereço, e não escreve em p. No A, p fica com o endereço antigo; no B, quem escreve o NULL é a sua linha."
+            - exata: [2]
+              retorno: "p continua sendo uma variável sua, e aceita valor. No B ela recebe NULL, pela linha que você escreveu."
+          retorno_geral: "free não escreve em p. Só no B há uma linha que põe NULL: p = NULL;"
+        - pede: "Qual dos dois trechos deixa q valendo NULL?"
+          antes: |-
+            /* A */  free(q);  q = NULL;
+            /* B */  free(q);
+          pecas:
+            - "Nenhum: depois do free, q não aceita valor"
+            - "Os dois: free já deixa q em NULL"
+            - "O A: é a linha q = NULL; que escreve"
+          certa: [[2]]
+          certa_texto: "O A: é a linha q = NULL; que escreve"
+          erros:
+            - exata: [1]
+              retorno: "free recebe só uma cópia do endereço, e não escreve em q. No B, q fica com o endereço antigo; no A, quem escreve o NULL é a sua linha."
+            - exata: [0]
+              retorno: "q continua sendo uma variável sua, e aceita valor. No A ela recebe NULL, pela linha que você escreveu."
+          retorno_geral: "free não escreve em q. Só no A há uma linha que põe NULL: q = NULL;"
+
+I2:
+  revisao:
+    frases:
+      - "free devolve o bloco, e só. A variável p continua declarada, com o mesmo endereço dentro."
+      - "Esse endereço leva agora a um lugar que não é seu: p ficou pendente."
+    codigo: |
+      int *p;
+
+      p = malloc(sizeof(int));
+      free(p);
+      p = malloc(sizeof(int));
+      *p = 15;
+      printf("%d\n", *p);
+      free(p);
+    saida: "15"
+  provas:
+    - crenca: free_kills_pointer
+      programa: |
+        int *p;
+
+        p = malloc(sizeof(int));
+        free(p);
+        p = malloc(sizeof(int));
+        *p = 9;
+        printf("%d\n", *p);
+        free(p);
+      previsao:
+        pergunta: >
+          Depois do free, o trecho usa a variável p de novo: guarda nela
+          o endereço de outro bloco, e escreve 9 nele. O que aparece?
+        opcoes:
+          - "9"
+          - "Nada: free apagou a variável p, e ela não pode mais ser usada"
+        real: 0
+        crenca: 1
+      espera: "9"
+      afirma: >
+        Saiu 9. free devolveu o bloco, e a variável p continuou
+        existindo: recebeu o endereço de outro bloco e serviu de novo.
+        Quem acaba no free é o bloco, e não o ponteiro.
+  degraus:
+    - id: esc_kc09_I2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "free devolve o bloco, e só. A variável p não é apagada: continua declarada, com o mesmo endereço dentro."
+        - "Esse endereço leva agora a um lugar que não é mais seu. Um ponteiro assim se chama pendente."
+      versoes:
+        - pede: "Depois da última linha, o que é verdade sobre a variável p?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+          pecas:
+            - "Continua existindo, com o endereço antigo"
+            - "Foi apagada: free(p) apaga a variável p"
+            - "Continua existindo, e sem valor nenhum"
+          certa: [[0]]
+          certa_texto: "Continua existindo, com o endereço antigo"
+          erros:
+            - exata: [1]
+              crenca: free_kills_pointer
+              retorno: "free devolve o bloco, e não apaga variável nenhuma. p continua declarada, guardando o endereço antigo — agora de um lugar que não é seu."
+            - exata: [2]
+              retorno: "Variável não fica sem valor: p guarda o que tinha, o endereço antigo. Ela ficou pendente, apontando para um lugar que não é seu."
+          retorno_geral: "p continua existindo, com o endereço antigo: é um ponteiro pendente."
+        - pede: "Depois da última linha, o que é verdade sobre a variável q?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+          pecas:
+            - "Continua existindo, e sem valor nenhum"
+            - "Continua existindo, com o endereço antigo"
+            - "Foi apagada: free(q) apaga a variável q"
+          certa: [[1]]
+          certa_texto: "Continua existindo, com o endereço antigo"
+          erros:
+            - exata: [2]
+              crenca: free_kills_pointer
+              retorno: "free devolve o bloco, e não apaga variável nenhuma. q continua declarada, guardando o endereço antigo — agora de um lugar que não é seu."
+            - exata: [0]
+              retorno: "Variável não fica sem valor: q guarda o que tinha, o endereço antigo. Ela ficou pendente, apontando para um lugar que não é seu."
+          retorno_geral: "q continua existindo, com o endereço antigo: é um ponteiro pendente."
+
+    - id: esc_kc09_I2_2
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "Como p continua declarada, dá para usá-la de novo."
+        - "E não dá para declará-la outra vez: o nome já existe."
+      versoes:
+        - pede: "Depois do free(p);, qual destas linhas o compilador aceita?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+          pecas: ["p = malloc(sizeof(int));", "int *p = malloc(sizeof(int));", "int p;"]
+          certa: [[0]]
+          certa_texto: "p = malloc(sizeof(int));"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "Essa linha declara p outra vez, e p nunca deixou de existir: o compilador reclama. Para dar outro bloco a ela, basta p = malloc(sizeof(int));"
+            - exata: [2]
+              retorno: "O nome p continua em uso: free não apagou a variável. Declarar outro p faz o compilador reclamar."
+          retorno_geral: "p continua declarada. Usa-se de novo, sem declarar outra vez: p = malloc(sizeof(int));"
+        - pede: "Depois do free(q);, qual destas linhas o compilador aceita?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+          pecas: ["int q;", "q = malloc(sizeof(int));", "int *q = malloc(sizeof(int));"]
+          certa: [[1]]
+          certa_texto: "q = malloc(sizeof(int));"
+          invalidas: [0, 2]
+          erros:
+            - exata: [2]
+              retorno: "Essa linha declara q outra vez, e q nunca deixou de existir: o compilador reclama. Para dar outro bloco a ela, basta q = malloc(sizeof(int));"
+            - exata: [0]
+              retorno: "O nome q continua em uso: free não apagou a variável. Declarar outro q faz o compilador reclamar."
+          retorno_geral: "q continua declarada. Usa-se de novo, sem declarar outra vez: q = malloc(sizeof(int));"
+
+    - id: esc_kc09_I2_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "A mesma variável pode receber o endereço de outro bloco, e voltar a servir."
+      versoes:
+        - pede: "Depois do free, p recebe outro bloco. Que número aparece?"
+          mostra: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+            p = malloc(sizeof(int));
+            *p = 15;
+            printf("%d\n", *p);
+            free(p);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "p não foi apagada no free: recebeu o endereço de outro bloco, e nele foi escrito 15."
+          retorno_geral: "p continuou existindo, recebeu outro bloco, e nele está o 15."
+        - pede: "Depois do free, q recebe outro bloco. Que número aparece?"
+          mostra: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+            q = malloc(sizeof(int));
+            *q = 20;
+            printf("%d\n", *q);
+            free(q);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "0"
+              retorno: "q não foi apagada no free: recebeu o endereço de outro bloco, e nele foi escrito 20."
+          retorno_geral: "q continuou existindo, recebeu outro bloco, e nele está o 20."
+
+    - id: esc_kc09_I2_4
+      nome: "Depois do free, p continua existindo"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "O trecho devolve o bloco, escreve NULL em p e pergunta se p vale NULL. Que número aparece?"
+          mostra: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            *p = 7;
+            free(p);
+            p = NULL;
+            printf("%d\n", p == NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "A variável p continuou existindo depois do free, e recebeu NULL na linha seguinte. A pergunta é verdadeira: 1."
+            - texto: "7"
+              retorno: "7 estava no bloco, que foi devolvido. O printf mostra a resposta da pergunta p == NULL, e p recebeu NULL: 1."
+          retorno_geral: "p continua existindo: recebeu NULL depois do free, e a pergunta dá 1."
+        - pede: "O trecho devolve o bloco, escreve NULL em q e pergunta se q é diferente de NULL. Que número aparece?"
+          mostra: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            *q = 15;
+            free(q);
+            q = NULL;
+            printf("%d\n", q != NULL);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "A variável q continuou existindo depois do free, e recebeu NULL na linha seguinte. Ela não é diferente de NULL: 0."
+            - texto: "15"
+              retorno: "15 estava no bloco, que foi devolvido. O printf mostra a resposta da pergunta q != NULL, e q recebeu NULL: 0."
+          retorno_geral: "q continua existindo: recebeu NULL depois do free, e a pergunta dá 0."
+
+    - id: esc_kc09_I2_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "O que é um ponteiro pendente?"
+          pecas:
+            - "Uma variável que ainda guarda o endereço de um bloco já devolvido"
+            - "Uma variável que o free apagou"
+            - "Um ponteiro que vale NULL"
+          certa: [[0]]
+          certa_texto: "Uma variável que ainda guarda o endereço de um bloco já devolvido"
+          erros:
+            - exata: [1]
+              retorno: "free não apaga variável: devolve o bloco. O ponteiro continua lá, com o endereço antigo — é isso que o deixa pendente."
+            - exata: [2]
+              retorno: "O ponteiro que vale NULL diz que não aponta para nada. O pendente é o contrário: guarda um endereço com cara de bom, de um bloco já devolvido."
+          retorno_geral: "Pendente é o ponteiro que continua com o endereço de um bloco já devolvido."
+        - pede: "Depois de qual destas linhas p fica pendente?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+          pecas:
+            - "p = NULL;"
+            - "free(p);"
+            - "*p = 0;"
+          certa: [[1]]
+          certa_texto: "free(p);"
+          erros:
+            - exata: [0]
+              retorno: "Com p = NULL; o ponteiro passa a dizer que não aponta para nada. Pendente ele fica depois de free(p);, guardando o endereço de um bloco devolvido."
+            - exata: [2]
+              retorno: "*p = 0; escreve no bloco, que ainda é seu. Pendente p fica depois de free(p);, guardando o endereço de um bloco devolvido."
+          retorno_geral: "Depois de free(p); p continua com o endereço de um bloco devolvido: pendente."
+
+I3:
+  revisao:
+    frases:
+      - "Depois do free, nada avisa que o endereço em p ficou ruim: ele tem a mesma cara de antes."
+      - "Escrever p = NULL; logo depois é o registro de que p não aponta mais para nada."
+    codigo: |
+      int *p;
+
+      p = malloc(sizeof(int));
+      free(p);
+      p = NULL;
+      if (p != NULL) *p = 7;
+      printf("%d\n", p == NULL);
+    saida: "1"
+  # struct.
+  fora_da_trilha: [ciu_kc09_021, ciu_kc09_t21]
+  provas:
+    - crenca: null_after_free_redundant
+      programa: |
+        int *p = malloc(sizeof(int));
+        int *q = malloc(sizeof(int));
+
+        free(p);
+        p = NULL;
+        free(q);
+        printf("%d\n", p == NULL);
+        printf("%d\n", q == NULL);
+      previsao:
+        pergunta: >
+          Os dois blocos são devolvidos, e só p recebe NULL depois. O
+          trecho pergunta, de cada um, se vale NULL. O que aparece?
+        opcoes:
+          - "1 e 1: free já deixa os dois em NULL, e a linha p = NULL; é redundante"
+          - "1 e 0"
+        real: 1
+        crenca: 0
+      espera: "1\n0"
+      ambiente: >
+        Foi o que saiu nesta máquina. O padrão do C não garante a
+        comparação de q, que ficou pendente — é a última ideia deste
+        tópico. Aqui ela foi feita para mostrar a diferença que a linha
+        p = NULL; faz.
+      afirma: >
+        Saíram 1 e 0. Só o ponteiro em que você escreveu NULL responde
+        "sim, não aponto para nada". O outro continua com um endereço de
+        cara boa. A linha não é redundante: é o único registro.
+  degraus:
+    - id: esc_kc09_I3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Depois do free, nada no programa avisa que o endereço em p ficou ruim: ele tem a mesma cara de antes."
+        - "Escrever p = NULL; logo depois é o registro de que p não aponta mais para nada."
+      versoes:
+        - pede: "Para que serve a última linha?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+            p = NULL;
+          pecas:
+            - "Para registrar que p não aponta mais para nada"
+            - "Para nada: é redundante, porque free já cuida disso"
+            - "Para devolver o bloco de vez"
+          certa: [[0]]
+          certa_texto: "Para registrar que p não aponta mais para nada"
+          erros:
+            - exata: [1]
+              crenca: null_after_free_redundant
+              retorno: "free não escreve em p: depois dela p continua com o endereço antigo, e nada avisa que ele ficou ruim. O NULL é o único registro, e é você que escreve."
+            - exata: [2]
+              retorno: "O bloco já foi devolvido no free, inteiro. A linha p = NULL; não devolve nada: só registra que p não aponta mais para lá."
+          retorno_geral: "p = NULL; registra que p não aponta mais para nada. free não faz isso."
+        - pede: "Para que serve a última linha?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+            q = NULL;
+          pecas:
+            - "Para devolver o bloco de vez"
+            - "Para registrar que q não aponta mais para nada"
+            - "Para nada: é redundante, porque free já cuida disso"
+          certa: [[1]]
+          certa_texto: "Para registrar que q não aponta mais para nada"
+          erros:
+            - exata: [2]
+              crenca: null_after_free_redundant
+              retorno: "free não escreve em q: depois dela q continua com o endereço antigo, e nada avisa que ele ficou ruim. O NULL é o único registro, e é você que escreve."
+            - exata: [0]
+              retorno: "O bloco já foi devolvido no free, inteiro. A linha q = NULL; não devolve nada: só registra que q não aponta mais para lá."
+          retorno_geral: "q = NULL; registra que q não aponta mais para nada. free não faz isso."
+
+    - id: esc_kc09_I3_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com o NULL escrito, a pergunta de sempre volta a funcionar: if (p != NULL) ..."
+      versoes:
+        - pede: "Depois do free e do NULL, a escrita só acontece se p não for NULL. Que número aparece?"
+          mostra: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+            p = NULL;
+            if (p != NULL) *p = 7;
+            printf("%d\n", p == NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "p recebeu NULL depois do free. A pergunta if (p != NULL) deu não, a escrita foi pulada, e p == NULL é verdade: 1."
+            - texto: "7"
+              retorno: "A escrita do 7 não aconteceu: p vale NULL, e a pergunta do if deu não. O printf mostra que p == NULL é verdade: 1."
+          retorno_geral: "p vale NULL: o if pula a escrita, e p == NULL dá 1."
+        - pede: "Depois do free e do NULL, a escrita só acontece se q não for NULL. Que número aparece?"
+          mostra: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+            q = NULL;
+            if (q != NULL) *q = 9;
+            printf("%d\n", q != NULL);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "q recebeu NULL depois do free. A pergunta if (q != NULL) deu não, a escrita foi pulada, e q != NULL é falso: 0."
+            - texto: "9"
+              retorno: "A escrita do 9 não aconteceu: q vale NULL, e a pergunta do if deu não. O printf mostra que q != NULL é falso: 0."
+          retorno_geral: "q vale NULL: o if pula a escrita, e q != NULL dá 0."
+
+    - id: esc_kc09_I3_3
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "O costume é uma linha só, logo depois do free: p = NULL;"
+      versoes:
+        - pede: "Complete com a linha que deixa registrado que p não aponta mais para nada."
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+          mostra: "___;"
+          pecas: ["p = NULL", "*p = NULL", "free(p)"]
+          certa: [[0]]
+          certa_texto: "p = NULL;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "*p é o bloco, que já foi devolvido — e NULL é um endereço, não um int: o compilador reclama. O registro vai no ponteiro: p = NULL;"
+            - exata: [2]
+              retorno: "Um segundo free devolveria de novo um bloco que já não é seu. O que falta é o registro, no ponteiro: p = NULL;"
+          retorno_geral: "O registro vai no ponteiro, logo depois do free: p = NULL;"
+        - pede: "Complete com a linha que deixa registrado que q não aponta mais para nada."
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+          mostra: "___;"
+          pecas: ["free(q)", "q = NULL", "*q = NULL"]
+          certa: [[1]]
+          certa_texto: "q = NULL;"
+          erros:
+            - exata: [2]
+              invalida: true
+              retorno: "*q é o bloco, que já foi devolvido — e NULL é um endereço, não um int: o compilador reclama. O registro vai no ponteiro: q = NULL;"
+            - exata: [0]
+              retorno: "Um segundo free devolveria de novo um bloco que já não é seu. O que falta é o registro, no ponteiro: q = NULL;"
+          retorno_geral: "O registro vai no ponteiro, logo depois do free: q = NULL;"
+
+    - id: esc_kc09_I3_4
+      nome: "Escrever NULL depois do free"
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Depois de qual dos dois trechos a pergunta p == NULL diz a verdade sobre p?"
+          antes: |-
+            /* A */  free(p);
+            /* B */  free(p);  p = NULL;
+          pecas:
+            - "Do B: nele você escreveu o NULL"
+            - "Dos dois: free já deixa o registro"
+            - "Do A: free deixa p em NULL"
+          certa: [[0]]
+          certa_texto: "Do B: nele você escreveu o NULL"
+          erros:
+            - exata: [1]
+              retorno: "free não deixa registro nenhum em p. No A, p continua com o endereço antigo, e a pergunta responde que ele não é NULL — embora não aponte para nada seu."
+            - exata: [2]
+              retorno: "free não escreve em p. No A a pergunta diria que p não é NULL, com p apontando para um bloco devolvido. Só o B registra."
+          retorno_geral: "Só no B há o registro: a linha p = NULL; é sua."
+        - pede: "Depois de qual dos dois trechos a pergunta q == NULL diz a verdade sobre q?"
+          antes: |-
+            /* A */  free(q);  q = NULL;
+            /* B */  free(q);
+          pecas:
+            - "Do B: free deixa q em NULL"
+            - "Dos dois: free já deixa o registro"
+            - "Do A: nele você escreveu o NULL"
+          certa: [[2]]
+          certa_texto: "Do A: nele você escreveu o NULL"
+          erros:
+            - exata: [1]
+              retorno: "free não deixa registro nenhum em q. No B, q continua com o endereço antigo, e a pergunta responde que ele não é NULL — embora não aponte para nada seu."
+            - exata: [0]
+              retorno: "free não escreve em q. No B a pergunta diria que q não é NULL, com q apontando para um bloco devolvido. Só o A registra."
+          retorno_geral: "Só no A há o registro: a linha q = NULL; é sua."
+
+    - id: esc_kc09_I3_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Os dois blocos são devolvidos, e só p recebe NULL. A última linha pergunta se q vale NULL. Que número aparece?"
+          mostra: |-
+            int *p;
+            int *q;
+
+            p = malloc(sizeof(int));
+            q = malloc(sizeof(int));
+            free(p);
+            p = NULL;
+            free(q);
+            printf("%d\n", q == NULL);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "Quem recebeu NULL foi p, pela linha p = NULL;. Em q ninguém escreveu: ele continua com o endereço antigo, e q == NULL é falso."
+          retorno_geral: "Só p recebeu NULL. q continua com o endereço antigo: a resposta é 0."
+        - pede: "Os dois blocos são devolvidos, e só q recebe NULL. A última linha pergunta se p é diferente de NULL. Que número aparece?"
+          mostra: |-
+            int *p;
+            int *q;
+
+            p = malloc(sizeof(int));
+            q = malloc(sizeof(int));
+            free(q);
+            q = NULL;
+            free(p);
+            printf("%d\n", p != NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "Quem recebeu NULL foi q, pela linha q = NULL;. Em p ninguém escreveu: ele continua com o endereço antigo, diferente de NULL."
+          retorno_geral: "Só q recebeu NULL. p continua com o endereço antigo: a resposta é 1."
+
+I4:
+  revisao:
+    frases:
+      - "Depois do free, p guarda um endereço com cara de bom, de um lugar que já não é seu."
+      - "Devolver de novo, ler, escrever, até copiar ou comparar: nada disso tem garantia. O seguro é dar a p um valor novo."
+    codigo: |
+      int *p;
+
+      p = malloc(sizeof(int));
+      free(p);
+      p = NULL;
+      free(p);
+      printf("%d\n", p == NULL);
+    saida: "1"
+  provas:
+    - crenca: double_free_is_safe
+      programa: |
+        int *p;
+
+        p = malloc(sizeof(int));
+        free(p);
+        free(p);
+      previsao:
+        pergunta: >
+          O trecho chama free duas vezes, com o mesmo ponteiro. Seguindo
+          o programa, o compilador reclama de alguma coisa?
+        opcoes:
+          - "Não: o segundo free não acha nada para devolver, e é seguro"
+          - "Sim: o mesmo bloco é devolvido duas vezes"
+        real: 1
+        crenca: 0
+      reclama: "double-'free' of 'p'"
+      avisos: "-fanalyzer"
+      ambiente: >
+        Mensagem do gcc 16.2 com o analisador de fluxo ligado
+        (-fanalyzer): "double-free" é "free duas vezes". O programa não
+        é executado: devolver duas vezes não tem resultado definido.
+      afirma: >
+        O compilador reclama do segundo free: o bloco de p é devolvido
+        duas vezes ("double-free"). Depois do primeiro, p continuou com o
+        endereço antigo, e o segundo free devolve o que já não é seu.
+  degraus:
+    - id: esc_kc09_I4_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Depois do free, p guarda um endereço com cara de bom, de um lugar que já não é seu."
+        - "Chamar free(p) de novo é devolver o que não é seu: não é seguro, e o compilador reclama quando vê."
+      versoes:
+        - pede: "O que a última linha faz?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+            free(p);
+          pecas:
+            - "Devolve de novo um bloco que já não é seu: é inválido"
+            - "Nada: chamar free duas vezes no mesmo ponteiro é seguro"
+            - "Devolve a variável p"
+          certa: [[0]]
+          certa_texto: "Devolve de novo um bloco que já não é seu: é inválido"
+          erros:
+            - exata: [1]
+              crenca: double_free_is_safe
+              retorno: "Depois do primeiro free, p continua com o endereço antigo. O segundo recebe esse endereço e devolve de novo um lugar que pode até já ser de outro pedido."
+            - exata: [2]
+              retorno: "free nunca devolve variável: recebe um endereço e devolve o bloco de lá. Aqui é o mesmo bloco, pela segunda vez."
+          retorno_geral: "O segundo free devolve de novo um bloco que já não é seu: é inválido."
+        - pede: "O que a última linha faz?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+            free(q);
+          pecas:
+            - "Devolve a variável q"
+            - "Devolve de novo um bloco que já não é seu: é inválido"
+            - "Nada: chamar free duas vezes no mesmo ponteiro é seguro"
+          certa: [[1]]
+          certa_texto: "Devolve de novo um bloco que já não é seu: é inválido"
+          erros:
+            - exata: [2]
+              crenca: double_free_is_safe
+              retorno: "Depois do primeiro free, q continua com o endereço antigo. O segundo recebe esse endereço e devolve de novo um lugar que pode até já ser de outro pedido."
+            - exata: [0]
+              retorno: "free nunca devolve variável: recebe um endereço e devolve o bloco de lá. Aqui é o mesmo bloco, pela segunda vez."
+          retorno_geral: "O segundo free devolve de novo um bloco que já não é seu: é inválido."
+
+    - id: esc_kc09_I4_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "A exceção é o NULL: free(NULL) não faz nada."
+        - "Por isso p = NULL; depois do free protege também de um segundo free."
+      versoes:
+        - pede: "Qual dos dois trechos é válido?"
+          antes: |-
+            /* A */  free(p);  free(p);
+            /* B */  free(p);  p = NULL;  free(p);
+          pecas:
+            - "O B: o segundo free recebe NULL, e não faz nada"
+            - "O A: o segundo free não acha nada para devolver"
+            - "Os dois"
+          certa: [[0]]
+          certa_texto: "O B: o segundo free recebe NULL, e não faz nada"
+          erros:
+            - exata: [1]
+              retorno: "No A, p continua com o endereço antigo, e o segundo free devolve de novo o mesmo bloco. No B, p vale NULL, e free(NULL) não faz nada."
+            - exata: [2]
+              retorno: "No A o mesmo bloco é devolvido duas vezes, e isso é inválido. Só o B é válido: o segundo free recebe NULL."
+          retorno_geral: "free(NULL) não faz nada. No B o segundo free recebe NULL, e o trecho é válido."
+        - pede: "Qual dos dois trechos é válido?"
+          antes: |-
+            /* A */  free(q);  q = NULL;  free(q);
+            /* B */  free(q);  free(q);
+          pecas:
+            - "Os dois"
+            - "O B: o segundo free não acha nada para devolver"
+            - "O A: o segundo free recebe NULL, e não faz nada"
+          certa: [[2]]
+          certa_texto: "O A: o segundo free recebe NULL, e não faz nada"
+          erros:
+            - exata: [1]
+              retorno: "No B, q continua com o endereço antigo, e o segundo free devolve de novo o mesmo bloco. No A, q vale NULL, e free(NULL) não faz nada."
+            - exata: [0]
+              retorno: "No B o mesmo bloco é devolvido duas vezes, e isso é inválido. Só o A é válido: o segundo free recebe NULL."
+          retorno_geral: "free(NULL) não faz nada. No A o segundo free recebe NULL, e o trecho é válido."
+
+    - id: esc_kc09_I4_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Com p pendente, o padrão do C não garante nem copiar nem comparar o valor dele: as comparações que você viu aqui valem nesta máquina."
+        - "O único uso seguro é dar a p um valor novo."
+      versoes:
+        - pede: "Depois do free(p);, qual destas linhas é segura?"
+          pecas:
+            - "p = NULL;"
+            - "q = p;"
+            - "*p = 0;"
+          certa: [[0]]
+          certa_texto: "p = NULL;"
+          erros:
+            - exata: [1]
+              retorno: "Copiar p é ler um endereço que não vale mais, e o padrão do C não garante o que acontece. Seguro é dar a p um valor novo: p = NULL;"
+            - exata: [2]
+              retorno: "*p = 0; escreve num bloco que já foi devolvido, e pode ser de outro pedido. Seguro é dar a p um valor novo: p = NULL;"
+          retorno_geral: "Com p pendente, o seguro é dar a ele um valor novo: p = NULL;"
+        - pede: "Depois do free(q);, qual destas linhas é segura?"
+          pecas:
+            - "*q = 0;"
+            - "q = malloc(sizeof(int));"
+            - "p = q;"
+          certa: [[1]]
+          certa_texto: "q = malloc(sizeof(int));"
+          erros:
+            - exata: [2]
+              retorno: "Copiar q é ler um endereço que não vale mais, e o padrão do C não garante o que acontece. Seguro é dar a q um valor novo, como o de outro bloco."
+            - exata: [0]
+              retorno: "*q = 0; escreve num bloco que já foi devolvido, e pode ser de outro pedido. Seguro é dar a q um valor novo, como o de outro bloco."
+          retorno_geral: "Com q pendente, o seguro é dar a ele um valor novo: q = malloc(sizeof(int));"
+
+    - id: esc_kc09_I4_4
+      nome: "Depois do free, só resta dar outro valor a p"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "O trecho chama free duas vezes, com um p = NULL; no meio. Que número aparece?"
+          mostra: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+            p = NULL;
+            free(p);
+            printf("%d\n", p == NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "p recebeu NULL depois do primeiro free. O segundo recebeu NULL e não fez nada; p continua valendo NULL, e a pergunta dá 1."
+          retorno_geral: "O segundo free recebeu NULL e não fez nada. p vale NULL: 1."
+        - pede: "O trecho chama free duas vezes, com um q = NULL; no meio. A última linha pergunta se q é diferente de NULL. Que número aparece?"
+          mostra: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+            q = NULL;
+            free(q);
+            printf("%d\n", q != NULL);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "q recebeu NULL depois do primeiro free. O segundo recebeu NULL e não fez nada; q continua valendo NULL, e não é diferente dele."
+          retorno_geral: "O segundo free recebeu NULL e não fez nada. q vale NULL: a resposta é 0."
+
+    - id: esc_kc09_I4_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Quantas das duas últimas linhas são inválidas?"
+          antes: |-
+            int *p;
+
+            p = malloc(sizeof(int));
+            free(p);
+            free(p);
+            *p = 1;
+          pecas:
+            - "As duas"
+            - "Uma: o segundo free é seguro"
+            - "Uma: só o segundo free; a escrita ainda vale"
+          certa: [[0]]
+          certa_texto: "As duas"
+          erros:
+            - exata: [1]
+              retorno: "O segundo free devolve de novo um bloco que já não é seu, e isso é inválido. A escrita também: são as duas."
+            - exata: [2]
+              retorno: "Depois do primeiro free o bloco não é mais seu: escrever nele é tão inválido quanto devolvê-lo de novo. São as duas."
+          retorno_geral: "Depois do primeiro free, p está pendente: devolver de novo e escrever são os dois inválidos."
+        - pede: "Quantas das duas últimas linhas são inválidas?"
+          antes: |-
+            int *q;
+
+            q = malloc(sizeof(int));
+            free(q);
+            printf("%d\n", *q);
+            free(q);
+          pecas:
+            - "Uma: só a leitura; o segundo free é seguro"
+            - "Uma: só o segundo free; a leitura ainda vale"
+            - "As duas"
+          certa: [[2]]
+          certa_texto: "As duas"
+          erros:
+            - exata: [0]
+              retorno: "O segundo free devolve de novo um bloco que já não é seu, e isso é inválido. A leitura também: são as duas."
+            - exata: [1]
+              retorno: "Depois do primeiro free o bloco não é mais seu: ler dele é tão inválido quanto devolvê-lo de novo. São as duas."
+          retorno_geral: "Depois do primeiro free, q está pendente: ler e devolver de novo são os dois inválidos."

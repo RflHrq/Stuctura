@@ -1080,6 +1080,44 @@ toques (8 e 13 no rápido); quem não sabe e aprende, 26 e 43; quem erra
 todo passo, 38 e 91; quem diz a crença de cada ideia e depois acerta, 38
 e 37.
 
+**O kc_09, em 14/11/2026 — free() e ponteiro pendente**
+
+Quem chega aqui já pede bloco, confere o `NULL` e devolve com `free`
+(kc_01, kc_08), e já sabe que a chamada de função copia o que recebe
+(kc_06). Este tópico junta as duas coisas numa linha só, `free(p);`: o
+que entra nela, o que ela devolve, e o que sobra em `p`. Oito premissas,
+40 degraus, uma prova por crença (`mvp/dominio/escada_kc09.yaml`,
+`docs/escada-kc09-leitura.md`). Não entra construto novo: entra a
+palavra "pendente" e um fato, `free(NULL)` não faz nada.
+
+- **Três premissas ficam muito perto uma da outra**: o I1 (`free` não
+  muda `p`), o I2 (`p` continua lá) e o I3 (o `NULL` é você que
+  escreve). Para não ser a mesma pergunta três vezes, cada uma tem o seu
+  ângulo: o I1 olha o valor de `p` (igual à cópia feita antes); o I2
+  olha a variável (dá para usar de novo, e não dá para declarar outra
+  vez); o I3 olha o registro (com o `NULL` escrito, a pergunta de sempre
+  volta a valer).
+- **Comparar `p` depois do `free`.** Os passos e as provas do I1 e do I3
+  imprimem `p == NULL` depois do `free`, para mostrar que `free` não
+  escreveu `NULL`. A última premissa do tópico diz que o padrão do C não
+  garante nem essa comparação. As duas coisas são ditas: a nota de
+  ambiente dessas provas avisa, e um passo guiado do I4 diz que aquelas
+  comparações valem nesta máquina. É uma tensão do próprio domínio — o
+  banco tem questões dos dois lados —, e fica para o Rafael ver se a
+  forma de dizer está boa.
+- **As provas**: três são o que o compilador diz (da conta
+  `sizeof p / sizeof p[0]` com ponteiro, de ler o bloco depois do
+  `free`, e do segundo `free`, este com o analisador); cinco são saídas,
+  uma delas com endereços de exemplo.
+- **O banco não foi mexido.** Sete das 48 questões ficam fora: ponteiro
+  para ponteiro, que é o tópico seguinte, `struct` e variável global. As
+  oito premissas abrem com questão de código.
+
+É o tópico mais longo: quem acerta tudo faz 18 telas e 25 toques (10 e
+17 no rápido); quem não sabe e aprende, 34 e 57; quem erra todo passo,
+50 e 121; quem diz a crença de cada ideia e depois acerta, 50 e 49. São
+oito ideias, e a sessão cresce com elas.
+
 **O treino não repete o trecho da prova.** Quem diz a crença vê a prova
 e vai direto para os passos de prática da mesma premissa. No ensaio do
 kc_01 o primeiro passo depois da prova do B2 mostrava a mesma função que
