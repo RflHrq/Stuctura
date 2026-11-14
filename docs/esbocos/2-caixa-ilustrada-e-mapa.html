@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Superpowers Brainstorming</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span style="font-weight:700">Structura — esboços da interface (14/11/2026)</span>
+    <div class="status">Connecting…</div>
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <style>
+  .anim .st1 { animation: st1 9s infinite; }
+  .anim .st2 { animation: st2 9s infinite; }
+  .anim .st3 { animation: st3 9s infinite; transform-box: fill-box; transform-origin: center; }
+  .anim .st4 { animation: st4 9s infinite; }
+  .anim .traco { stroke-dasharray: 420; animation: traco 9s infinite; }
+  .anim .brilho { animation: brilho 9s infinite; }
+  .anim .hl { animation: linha 9s infinite; }
+  .anim .pulso { animation: pulso 2.4s infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes st1 { 0%,4% {opacity:0} 10%,93% {opacity:1} 100% {opacity:0} }
+  @keyframes st2 { 0%,22% {opacity:0} 28%,93% {opacity:1} 100% {opacity:0} }
+  @keyframes st3 { 0%,44% {opacity:0; transform:translateY(14px) scale(.5)} 52% {opacity:1; transform:translateY(-4px) scale(1.1)} 56%,62% {opacity:1; transform:none} 66%,100% {opacity:0} }
+  @keyframes st4 { 0%,63% {opacity:0} 66%,84% {opacity:1} 88%,100% {opacity:0} }
+  @keyframes traco { 0%,63% {stroke-dashoffset:420; opacity:0} 64% {stroke-dashoffset:420; opacity:.9} 84%,93% {stroke-dashoffset:0; opacity:.9} 100% {stroke-dashoffset:0; opacity:0} }
+  @keyframes brilho { 0%,82% {opacity:0} 86% {opacity:.9} 93% {opacity:.5} 100% {opacity:0} }
+  @keyframes linha { 0%,40% {transform:translateY(0)} 44%,100% {transform:translateY(18px)} }
+  @keyframes pulso { 0%,100% {transform:scale(1); opacity:.9} 50% {transform:scale(1.35); opacity:.25} }
+  @media (prefers-reduced-motion: reduce) {
+    .anim * { animation: none !important; opacity: 1 !important; stroke-dashoffset: 0 !important; }
+  }
+  .cod { font-family: ui-monospace, Consolas, monospace; font-size: 13px; fill: #23313a; }
+  .rot { font-family: system-ui, sans-serif; font-weight: 700; }
+  .mapa-txt { font-family: system-ui, sans-serif; font-size: 8.6px; fill: #2b3438; }
+  .mapa-num { font-family: system-ui, sans-serif; font-size: 9px; font-weight: 800; }
+  .bloco-entendi { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 2rem; }
+  .bloco-entendi .texto { padding: 1rem 1.25rem; line-height: 1.55; font-size: .95rem; }
+  .bloco-entendi .texto ul { margin: .4rem 0 0 1.1rem; }
+  .cards .card-image { aspect-ratio: auto; }
+</style>
+
+<h2>1. O que entendi das ilustrações</h2>
+<p class="subtitle">Não é escolha: é para você conferir. A caixa do conteúdo, desenhada como caixa de verdade, e o ponteiro como um bilhete que vira aviãozinho e voa até o endereço.</p>
+
+<div class="bloco-entendi">
+  <svg class="anim" viewBox="0 0 640 230" width="100%" role="img" aria-label="Duas caixas de papelão numeradas. Da caixa p sai um bilhete com o número 1000, que vira um aviãozinho de papel e voa até a caixa idade, que guarda o 15">
+    <defs>
+      <linearGradient id="paredeK" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f6efe3"/><stop offset="1" stop-color="#efe3cf"/>
+      </linearGradient>
+    </defs>
+    <rect width="640" height="230" fill="url(#paredeK)"/>
+    <rect y="188" width="640" height="42" fill="#caa173"/>
+    <path d="M0 196 H640 M0 212 H640" stroke="#b88d5f" stroke-width="1.5"/>
+    <!-- o código -->
+    <rect x="16" y="14" width="196" height="50" rx="9" fill="#fff" opacity=".95"/>
+    <rect class="hl" x="20" y="18" width="188" height="19" rx="4" fill="#fde3cf"/>
+    <text class="cod" x="28" y="32">int idade = 15;</text>
+    <text class="cod" x="28" y="50">int *p = &amp;idade;</text>
+
+    <!-- caixa idade -->
+    <g class="st1">
+      <polygon points="430,104 470,92 556,92 516,104" fill="#7d4f28"/>
+      <polygon points="430,104 516,104 506,82 420,82" fill="#e7b57b" stroke="#a8733f" stroke-width="1.2"/>
+      <polygon points="516,104 556,92 566,74 526,86" fill="#dca66a" stroke="#a8733f" stroke-width="1.2"/>
+      <circle cx="482" cy="94" r="17" fill="#f4d35e" stroke="#c9a227" stroke-width="2"/>
+      <text x="482" y="99.5" text-anchor="middle" font-size="15" font-weight="800" font-family="system-ui" fill="#6b4e00">15</text>
+      <rect x="430" y="104" width="86" height="84" fill="#d99c5d" stroke="#a8733f" stroke-width="1.5"/>
+      <polygon points="516,104 556,92 556,176 516,188" fill="#c4874b" stroke="#a8733f" stroke-width="1.5"/>
+      <rect x="444" y="134" width="58" height="22" rx="3" fill="#fffaf0" stroke="#a8733f"/>
+      <text class="rot" x="473" y="149.5" text-anchor="middle" font-size="12" fill="#3a2a1a">idade</text>
+      <g transform="rotate(-8 536 140)">
+        <rect x="521" y="128" width="31" height="20" rx="4" fill="none" stroke="#9c2f2f" stroke-width="1.6" stroke-dasharray="3 2"/>
+        <text x="536.5" y="142" text-anchor="middle" font-size="8.5" font-weight="800" font-family="system-ui" fill="#9c2f2f">1000</text>
+      </g>
+    </g>
+    <ellipse class="brilho" cx="490" cy="98" rx="62" ry="16" fill="#ffd166"/>
+
+    <!-- caixa p -->
+    <g class="st2">
+      <polygon points="190,104 230,92 316,92 276,104" fill="#4a3320"/>
+      <polygon points="190,104 276,104 266,82 180,82" fill="#e7b57b" stroke="#a8733f" stroke-width="1.2"/>
+      <polygon points="276,104 316,92 326,74 286,86" fill="#dca66a" stroke="#a8733f" stroke-width="1.2"/>
+      <rect x="190" y="104" width="86" height="84" fill="#d99c5d" stroke="#a8733f" stroke-width="1.5"/>
+      <polygon points="276,104 316,92 316,176 276,188" fill="#c4874b" stroke="#a8733f" stroke-width="1.5"/>
+      <rect x="204" y="134" width="58" height="22" rx="3" fill="#fffaf0" stroke="#a8733f"/>
+      <text class="rot" x="233" y="149.5" text-anchor="middle" font-size="12" fill="#3a2a1a">p</text>
+      <g transform="rotate(-8 296 140)">
+        <rect x="281" y="128" width="31" height="20" rx="4" fill="none" stroke="#9c2f2f" stroke-width="1.6" stroke-dasharray="3 2"/>
+        <text x="296.5" y="142" text-anchor="middle" font-size="8.5" font-weight="800" font-family="system-ui" fill="#9c2f2f">2000</text>
+      </g>
+    </g>
+
+    <!-- o bilhete sai da caixa p -->
+    <g class="st3">
+      <rect x="226" y="52" width="54" height="34" rx="3" fill="#fffbe6" stroke="#cfae4a" stroke-width="1.4" transform="rotate(-6 253 69)"/>
+      <text x="253" y="66" text-anchor="middle" font-size="8" font-family="system-ui" fill="#7a6420" transform="rotate(-6 253 69)">vá até a</text>
+      <text x="253" y="79" text-anchor="middle" font-size="11" font-weight="800" font-family="system-ui" fill="#7a5a10" transform="rotate(-6 253 69)">nº 1000</text>
+    </g>
+
+    <!-- e voa até lá -->
+    <path class="traco" d="M262 70 C 330 10, 420 10, 476 82" fill="none" stroke="#e07a3f" stroke-width="2.4" stroke-dasharray="5 7" stroke-linecap="round"/>
+    <g class="st4">
+      <g>
+        <polygon points="-14,-7 14,0 -14,7 -8,0" fill="#fff" stroke="#7a8a92" stroke-width="1.2"/>
+        <polygon points="-8,0 14,0 -14,7" fill="#e3e9ec"/>
+        <animateMotion dur="9s" repeatCount="indefinite" calcMode="linear" rotate="auto" keyPoints="0;0;1;1" keyTimes="0;0.64;0.84;1" path="M262 70 C 330 10, 420 10, 476 82"/>
+      </g>
+    </g>
+  </svg>
+  <div class="texto">
+    Cada ideia ganha uma cena assim, desenhada e animada, que anda junto com o código, linha por linha. A analogia é a que o texto daquela ideia já usa:
+    <ul>
+      <li>a <b>caixa</b>, que está nos 13 tópicos (com etiqueta = nome, carimbo = endereço);</li>
+      <li>o <b>bilhete com o número</b> para o ponteiro, e a <b>viagem</b> até lá para o <code>*</code>;</li>
+      <li>a <b>rua e as casas</b>, o <b>pedaço alugado</b> do malloc, as <b>duas quadras</b> da pilha e do monte, onde o tópico fala assim.</li>
+    </ul>
+    As figuras antigas, do hotel, saem. Onde nenhuma analogia ajuda, a cena mostra só as caixas, desenhadas no mesmo estilo.
+  </div>
+</div>
+
+<h2>2. Como desenhar o caminho na página inicial?</h2>
+<p class="subtitle">A ordem é sugerida, e todos os tópicos ficam abertos. Nos três: verde é o que você já fez, o laranja que pulsa é o próximo sugerido. No fim, o caminho se abre em três, porque esses três não dependem um do outro.</p>
+
+<div class="cards">
+
+  <!-- M1: trilha sinuosa -->
+  <div class="card" data-choice="trilha">
+    <div class="card-image" style="background:none">
+      <svg class="anim" viewBox="0 0 320 440" width="100%" role="img" aria-label="Uma trilha sinuosa de cima para baixo, com uma parada redonda por tópico, que no fim se divide em três">
+        <rect width="320" height="440" fill="#eaf4ea"/>
+        <g fill="#b9d8b4"><circle cx="20" cy="120" r="9"/><circle cx="300" cy="200" r="11"/><circle cx="24" cy="300" r="8"/><circle cx="300" cy="380" r="9"/><circle cx="210" cy="20" r="7"/></g>
+        <polyline points="60,40 160,62 262,92 200,140 100,166 52,216 140,250 240,272 268,322 170,346 170,372" fill="none" stroke="#f3e7cf" stroke-width="20" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M170 372 L70 402 M170 372 L170 412 M170 372 L270 402" fill="none" stroke="#f3e7cf" stroke-width="20" stroke-linecap="round"/>
+        <polyline points="60,40 160,62 262,92 200,140 100,166 52,216 140,250 240,272 268,322 170,346 170,372" fill="none" stroke="#d9c39a" stroke-width="2" stroke-dasharray="5 6"/>
+        <path d="M170 372 L70 402 M170 372 L170 412 M170 372 L270 402" fill="none" stroke="#d9c39a" stroke-width="2" stroke-dasharray="5 6"/>
+        <!-- paradas -->
+        <g>
+          <circle cx="60" cy="40" r="15" fill="#2f8f6b"/><path d="M53 40 l5 5 l9 -10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <text class="mapa-txt" x="80" y="31">Variáveis</text>
+          <circle cx="160" cy="62" r="15" fill="#2f8f6b"/><path d="M153 62 l5 5 l9 -10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <text class="mapa-txt" x="138" y="91">O que é ponteiro</text>
+          <circle class="pulso" cx="262" cy="92" r="20" fill="#f2a541"/>
+          <circle cx="262" cy="92" r="15" fill="#e07a3f"/><text class="mapa-num" x="262" y="95.5" text-anchor="middle" fill="#fff">03</text>
+          <text class="mapa-txt" x="226" y="122" font-weight="700" fill="#b0562a">próximo</text>
+          <g fill="#fff" stroke="#9fb6ad" stroke-width="2">
+            <circle cx="200" cy="140" r="14"/><circle cx="100" cy="166" r="14"/><circle cx="52" cy="216" r="14"/><circle cx="140" cy="250" r="14"/><circle cx="240" cy="272" r="14"/><circle cx="268" cy="322" r="14"/><circle cx="170" cy="346" r="14"/><circle cx="70" cy="402" r="14"/><circle cx="170" cy="412" r="14"/><circle cx="270" cy="402" r="14"/>
+          </g>
+          <g class="mapa-num" fill="#3c5a52" text-anchor="middle">
+            <text x="200" y="143.5">04</text><text x="100" y="169.5">05</text><text x="52" y="219.5">06</text><text x="140" y="253.5">07</text><text x="240" y="275.5">01</text><text x="268" y="325.5">08</text><text x="170" y="349.5">09</text><text x="70" y="405.5">10</text><text x="170" y="415.5">11</text><text x="270" y="405.5">12</text>
+          </g>
+          <g class="mapa-txt">
+            <text x="218" y="150">&amp; e *</text><text x="118" y="182">NULL</text><text x="70" y="236">Função e ponteiro</text><text x="158" y="244">Array</text><text x="196" y="296">Memória</text><text x="284" y="344" text-anchor="end">malloc</text><text x="190" y="350">free</text>
+            <text x="70" y="430" text-anchor="middle">Ponteiro de ponteiro</text><text x="170" y="436" text-anchor="middle">Aritmética</text><text x="270" y="430" text-anchor="middle">Pendente</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>A — Trilha de jogo</h3>
+      <p>Um caminho só, de cima para baixo, com uma parada por tópico. Fica muito claro qual é o próximo. Esconde um pouco quem depende de quem.</p>
+    </div>
+  </div>
+
+  <!-- M2: mapa do bairro -->
+  <div class="card" data-choice="bairro">
+    <div class="card-image" style="background:none">
+      <svg class="anim" viewBox="0 0 320 440" width="100%" role="img" aria-label="O mapa de um bairro visto de cima, com um prédio por tópico e um caminho pontilhado passando por eles, que no fim se divide em três ruas">
+        <rect width="320" height="440" fill="#e9e4d8"/>
+        <!-- quadras -->
+        <g fill="#f6f1e6" stroke="#ddd3bf">
+          <rect x="14" y="14" width="136" height="96" rx="10"/><rect x="170" y="14" width="136" height="96" rx="10"/>
+          <rect x="14" y="128" width="136" height="96" rx="10"/><rect x="170" y="128" width="136" height="96" rx="10"/>
+          <rect x="14" y="242" width="136" height="80" rx="10"/><rect x="170" y="242" width="136" height="80" rx="10"/>
+          <rect x="14" y="340" width="90" height="86" rx="10"/><rect x="115" y="340" width="90" height="86" rx="10"/><rect x="216" y="340" width="90" height="86" rx="10"/>
+        </g>
+        <g fill="#b9d8b4"><circle cx="34" cy="96" r="7"/><circle cx="286" cy="34" r="8"/><circle cx="130" cy="210" r="7"/><circle cx="190" cy="308" r="7"/><circle cx="290" cy="208" r="7"/><circle cx="96" cy="412" r="6"/></g>
+        <!-- prédios: um por tópico -->
+        <g>
+          <g transform="translate(40 34)"><rect width="34" height="28" rx="3" fill="#2f8f6b"/><polygon points="-3,0 17,-12 37,0" fill="#24705a"/></g>
+          <g transform="translate(96 54)"><rect width="34" height="28" rx="3" fill="#2f8f6b"/><polygon points="-3,0 17,-12 37,0" fill="#24705a"/></g>
+          <g transform="translate(200 36)"><rect width="34" height="28" rx="3" fill="#e07a3f"/><polygon points="-3,0 17,-12 37,0" fill="#b65c2a"/></g>
+          <g fill="#c9d6dc"><rect x="252" y="62" width="34" height="28" rx="3"/><rect x="250" y="150" width="34" height="28" rx="3"/><rect x="190" y="176" width="34" height="28" rx="3"/><rect x="94" y="150" width="34" height="28" rx="3"/><rect x="34" y="180" width="34" height="28" rx="3"/><rect x="40" y="262" width="34" height="28" rx="3"/><rect x="100" y="282" width="34" height="28" rx="3"/><rect x="196" y="262" width="34" height="28" rx="3"/><rect x="252" y="282" width="34" height="28" rx="3"/><rect x="42" y="360" width="34" height="28" rx="3"/><rect x="143" y="360" width="34" height="28" rx="3"/><rect x="244" y="360" width="34" height="28" rx="3"/></g>
+        </g>
+        <!-- caminho pontilhado em ordem -->
+        <path d="M57 72 Q 80 118 113 90 Q 160 70 217 74 Q 270 74 269 98 Q 270 140 267 160 Q 240 200 207 190 Q 160 170 111 166 Q 70 170 51 196 Q 40 240 57 278 Q 80 300 117 298 Q 160 300 213 278 Q 250 270 269 298 Q 268 320 160 332" fill="none" stroke="#e07a3f" stroke-width="2.6" stroke-dasharray="1 6" stroke-linecap="round"/>
+        <path d="M160 332 Q 90 336 59 372 M160 332 L160 372 M160 332 Q 230 336 261 372" fill="none" stroke="#e07a3f" stroke-width="2.6" stroke-dasharray="1 6" stroke-linecap="round"/>
+        <!-- alfinete do próximo -->
+        <g transform="translate(217 22)">
+          <circle class="pulso" cx="0" cy="0" r="11" fill="#f2a541"/>
+          <path d="M0 14 C -9 3, -9 -9, 0 -9 C 9 -9, 9 3, 0 14 z" fill="#e07a3f" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="0" cy="-2" r="3" fill="#fff"/>
+        </g>
+        <g class="mapa-txt" text-anchor="middle">
+          <text x="57" y="74" fill="#fff" font-weight="700">00</text><text x="113" y="94" fill="#fff" font-weight="700">02</text><text x="217" y="76" fill="#fff" font-weight="700">03</text>
+          <text x="269" y="80" font-weight="700">04</text><text x="267" y="168" font-weight="700">05</text><text x="207" y="194" font-weight="700">06</text><text x="111" y="168" font-weight="700">07</text><text x="51" y="198" font-weight="700">01</text><text x="57" y="280" font-weight="700">08</text><text x="117" y="300" font-weight="700">09</text><text x="213" y="280" font-weight="700" fill="#2b3438"> </text><text x="59" y="378" font-weight="700">10</text><text x="160" y="378" font-weight="700">11</text><text x="261" y="378" font-weight="700">12</text>
+          <text x="57" y="102">Variáveis</text><text x="113" y="120">Ponteiro</text><text x="230" y="102">Declarar</text><text x="270" y="122">&amp; e *</text><text x="267" y="192">NULL</text><text x="207" y="218">Função</text><text x="111" y="192">Array</text><text x="51" y="222">Memória</text><text x="57" y="304">malloc</text><text x="117" y="324">free</text>
+          <text x="59" y="404">Ponteiro de</text><text x="59" y="414">ponteiro</text><text x="160" y="404">Aritmética</text><text x="261" y="404">Pendente</text>
+        </g>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>B — Mapa do bairro</h3>
+      <p>Cada tópico é um prédio de uma cidade, e um caminho pontilhado passa por eles na ordem sugerida. Combina com a rua e as casas das ilustrações. É o mais trabalhoso de desenhar bem.</p>
+    </div>
+  </div>
+
+  <!-- M3: linhas de metrô -->
+  <div class="card" data-choice="metro">
+    <div class="card-image" style="background:none">
+      <svg class="anim" viewBox="0 0 320 440" width="100%" role="img" aria-label="Um mapa de metrô: três linhas coloridas, uma por assunto, com uma estação por tópico e baldeações onde um tópico depende de outro">
+        <rect width="320" height="440" fill="#fbfbf8"/>
+        <!-- linha azul: ponteiros -->
+        <path d="M40 40 H150 V120 H40 V190" fill="none" stroke="#2e6fb5" stroke-width="7" stroke-linejoin="round"/>
+        <!-- linha verde: função e array -->
+        <path d="M150 120 H260 V200 H200 V290 H150 V370" fill="none" stroke="#2f8f6b" stroke-width="7" stroke-linejoin="round"/>
+        <path d="M200 290 V370 H260" fill="none" stroke="#2f8f6b" stroke-width="7" stroke-linejoin="round"/>
+        <!-- linha laranja: memória -->
+        <path d="M260 200 V250 H90 V330 H40 V370" fill="none" stroke="#e07a3f" stroke-width="7" stroke-linejoin="round"/>
+        <path d="M90 330 V400 H150" fill="none" stroke="#e07a3f" stroke-width="7" stroke-linejoin="round"/>
+        <!-- estações -->
+        <g stroke-width="3">
+          <circle cx="40" cy="40" r="9" fill="#2f8f6b" stroke="#fff"/>
+          <circle cx="150" cy="40" r="9" fill="#2f8f6b" stroke="#fff"/>
+          <circle class="pulso" cx="150" cy="80" r="13" fill="#f2a541" stroke="none"/>
+          <circle cx="150" cy="80" r="9" fill="#e07a3f" stroke="#fff"/>
+          <circle cx="150" cy="120" r="11" fill="#fff" stroke="#3b4a52"/>
+          <circle cx="40" cy="120" r="9" fill="#fff" stroke="#2e6fb5"/>
+          <circle cx="40" cy="190" r="9" fill="#fff" stroke="#2e6fb5"/>
+          <circle cx="260" cy="120" r="9" fill="#fff" stroke="#2f8f6b"/>
+          <circle cx="260" cy="200" r="11" fill="#fff" stroke="#3b4a52"/>
+          <circle cx="150" cy="250" r="9" fill="#fff" stroke="#e07a3f"/>
+          <circle cx="90" cy="250" r="9" fill="#fff" stroke="#e07a3f"/>
+          <circle cx="90" cy="330" r="11" fill="#fff" stroke="#3b4a52"/>
+          <circle cx="40" cy="370" r="9" fill="#fff" stroke="#e07a3f"/>
+          <circle cx="150" cy="370" r="9" fill="#fff" stroke="#2f8f6b"/>
+          <circle cx="260" cy="370" r="9" fill="#fff" stroke="#2f8f6b"/>
+          <circle cx="150" cy="400" r="9" fill="#fff" stroke="#e07a3f"/>
+          <circle cx="200" cy="290" r="9" fill="#fff" stroke="#2f8f6b"/>
+        </g>
+        <g class="mapa-txt">
+          <text x="34" y="26">00 Variáveis</text><text x="160" y="36">02 Ponteiro</text><text x="162" y="84" font-weight="700" fill="#b0562a">03 próximo</text>
+          <text x="162" y="134">04 &amp; e *</text><text x="54" y="114">05 NULL</text><text x="54" y="194">06 Função</text><text x="232" y="110">07 Array</text>
+          <text x="232" y="220">01 Memória</text><text x="140" y="240">08 malloc</text><text x="66" y="244">09 free</text>
+          <text x="210" y="294">10</text><text x="104" y="334">12</text>
+          <text x="34" y="390">Pendente</text><text x="232" y="390">Aritmética</text><text x="160" y="414">Pont. de pont.</text>
+        </g>
+        <!-- legenda -->
+        <g class="mapa-txt" transform="translate(16 420)">
+          <rect width="12" height="5" y="-4" fill="#2e6fb5"/><text x="16" y="1">Ponteiros</text>
+          <rect x="74" width="12" height="5" y="-4" fill="#2f8f6b"/><text x="90" y="1">Função e array</text>
+          <rect x="168" width="12" height="5" y="-4" fill="#e07a3f"/><text x="184" y="1">Memória</text>
+        </g>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>C — Linhas de metrô</h3>
+      <p>Cada linha é um assunto, e cada estação um tópico; a baldeação é onde um depende do outro. É o mais fiel ao grafo de pré-requisitos, e o menos “desenho”.</p>
+    </div>
+  </div>
+
+</div>
+
+    </div>
+  </div>
+
+</body>
+</html>

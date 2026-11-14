@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Superpowers Brainstorming</title>
+  <style>
+    /*
+     * BRAINSTORM COMPANION FRAME TEMPLATE
+     *
+     * This template provides a consistent frame with:
+     * - OS-aware light/dark theming
+     * - Header branding and connection status
+     * - Scrollable main content area
+     * - CSS helpers for common UI patterns
+     *
+     * Content is injected via placeholder comment in #frame-content.
+     */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ===== THEME VARIABLES ===== */
+    :root {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5e7;
+      --border: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-tertiary: #aeaeb2;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --selected-bg: #e8f4fd;
+      --selected-border: #0071e3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1d1d1f;
+        --bg-secondary: #2d2d2f;
+        --bg-tertiary: #3d3d3f;
+        --border: #424245;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --text-tertiary: #636366;
+        --accent: #0a84ff;
+        --accent-hover: #409cff;
+        --selected-bg: rgba(10, 132, 255, 0.15);
+        --selected-border: #0a84ff;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* ===== FRAME STRUCTURE ===== */
+    .brand { display: flex; align-items: center; min-width: 0; overflow: hidden; color: var(--text-secondary); line-height: 1; }
+    .brand a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; min-width: 0; max-width: 100%; line-height: 1; }
+    .brand-copy { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; transform: translateY(-1px); }
+    .brand-logo { display: block; height: 1em; width: auto; max-width: 180px; flex-shrink: 0; filter: invert(1); }
+    @media (prefers-color-scheme: dark) {
+      .brand-logo { filter: none; }
+    }
+    .status { font-size: 0.7rem; color: var(--status-color, var(--success)); display: flex; align-items: center; gap: 0.4rem; justify-self: end; white-space: nowrap; line-height: 1; }
+    .status::before { content: ''; width: 6px; height: 6px; background: var(--status-color, var(--success)); border-radius: 50%; }
+
+    .main { flex: 1; overflow-y: auto; }
+    #frame-content { padding: 2rem; min-height: 100%; }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 42px;
+    }
+    .header .brand { justify-self: start; width: 100%; font-size: 0.75rem; line-height: 1; }
+    .header .status { grid-column: 2; line-height: 1; }
+    .header span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .header .selected-text {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    /* ===== OPTIONS (for A/B/C choices) ===== */
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .option .letter {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      width: 1.75rem; height: 1.75rem;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .option.selected .letter { background: var(--accent); color: white; }
+    .option .content { flex: 1; }
+    .option .content h3 { font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .option .content p { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+    /* ===== CARDS (for showing designs/mockups) ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card.selected { border-color: var(--selected-border); border-width: 2px; }
+    .card-image { background: var(--bg-tertiary); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+    .card-body { padding: 1rem; }
+    .card-body h3 { margin-bottom: 0.25rem; }
+    .card-body p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* ===== MOCKUP CONTAINER ===== */
+    .mockup {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .mockup-header {
+      background: var(--bg-tertiary);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-body { padding: 1.5rem; }
+
+    /* ===== SPLIT VIEW (side-by-side comparison) ===== */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .split { grid-template-columns: 1fr; } }
+
+    /* ===== PROS/CONS ===== */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .pros, .cons { background: var(--bg-secondary); border-radius: 8px; padding: 1rem; }
+    .pros h4 { color: var(--success); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .cons h4 { color: var(--error); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .pros ul, .cons ul { margin-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .pros li, .cons li { margin-bottom: 0.25rem; }
+
+    /* ===== PLACEHOLDER (for mockup areas) ===== */
+    .placeholder {
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+
+    /* ===== INLINE MOCKUP ELEMENTS ===== */
+    .mock-nav { background: var(--accent); color: white; padding: 0.75rem 1rem; display: flex; gap: 1.5rem; font-size: 0.9rem; }
+    .mock-sidebar { background: var(--bg-tertiary); padding: 1rem; min-width: 180px; }
+    .mock-content { padding: 1.5rem; flex: 1; }
+    .mock-button { background: var(--accent); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; }
+    .mock-input { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span style="font-weight:700">Structura — esboços da interface (14/11/2026)</span>
+    <div class="status">Connecting…</div>
+  </div>
+
+  <div class="main">
+    <div id="frame-content">
+      <style>
+  /* a identidade proposta */
+  .ui { --petroleo:#1f5668; --petroleo2:#2b6f85; --laranja:#e07a3f; --amarelo:#f2c14e;
+        --verde:#2f8f6b; --vermelho:#c0533f; --creme:#f7f4ee; --tinta:#1f2a30; --tinta2:#5e6a70;
+        --linha:#e6e0d4; --cartao:#ffffff;
+        background: var(--creme); color: var(--tinta);
+        font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; line-height: 1.45;
+        border-radius: 0 0 10px 10px; overflow: hidden; }
+  .ui h1, .ui h2, .ui h3, .ui .titulo { font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; font-weight: 800; letter-spacing: -.3px; margin: 0; }
+  .ui-topo { display: flex; align-items: center; gap: 14px; padding: 10px 18px; background: #fff; border-bottom: 1px solid var(--linha); }
+  .ui-marca { display: flex; align-items: center; gap: 8px; font-family: "Segoe UI Variable Display","Segoe UI",system-ui; font-weight: 800; font-size: 17px; color: var(--tinta); }
+  .ui-topo .direita { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .ui-pilula { border: 1px solid var(--linha); border-radius: 999px; padding: 5px 12px; font-size: 12.5px; color: var(--tinta2); background: #fff; }
+  .ui-pilula input { border: 0; outline: 0; width: 70px; font: inherit; color: var(--tinta); background: transparent; }
+  .ui-paradas { display: flex; align-items: center; gap: 6px; margin: 0 auto; }
+  .ui-paradas .p { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; }
+  .ui-paradas .ok { background: var(--verde); } .ui-paradas .agora { background: var(--laranja); box-shadow: 0 0 0 4px #fbe0cd; }
+  .ui-paradas .depois { background: #fff; color: #9aa8ad; border: 2px solid #d3dcdf; }
+  .ui-paradas .fio { width: 18px; height: 3px; background: #d3dcdf; border-radius: 2px; }
+  .ui-paradas .fio.ok { background: var(--verde); }
+  .ui-palco { padding: 26px 18px 30px; display: flex; justify-content: center; }
+  .ui-cartao { background: var(--cartao); border: 1px solid var(--linha); border-radius: 18px; box-shadow: 0 6px 22px rgba(60,40,10,.07); padding: 22px 24px; width: 100%; max-width: 640px; }
+  .ui-etiqueta { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--petroleo2); }
+  .ui-editor { background: #1b2630; border-radius: 12px; padding: 0 0 12px; margin: 12px 0 14px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: #e6edf0; overflow: hidden; }
+  .ui-editor .barra { display: flex; gap: 6px; padding: 9px 12px; }
+  .ui-editor .barra i { width: 9px; height: 9px; border-radius: 50%; background: #3c4b55; display: inline-block; }
+  .ui-editor pre { margin: 0; padding: 0 16px; white-space: pre; line-height: 1.6; }
+  .k { color: #7cc4e0; } .n { color: #f2c14e; } .f { color: #f5a97f; } .s { color: #9fd38a; } .c { color: #7d8c95; }
+  .ui-pergunta { font-size: 16px; font-weight: 700; margin: 4px 0 10px; }
+  .ui-opcao { display: block; border: 2px solid #e8e2d6; border-radius: 12px; padding: 10px 14px; margin: 7px 0; background: #fff; }
+  .ui-opcao.marcada { border-color: var(--petroleo); background: #eaf3f6; }
+  .ui-sub { font-weight: 700; margin: 16px 0 6px; font-size: 13.5px; }
+  .ui-certeza { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ui-certeza span { border: 2px solid #e8e2d6; border-radius: 999px; padding: 6px 12px; font-size: 13px; background: #fff; }
+  .ui-certeza span.marcada { border-color: var(--laranja); background: #fdf0e6; }
+  .ui-acoes { display: flex; gap: 10px; margin-top: 18px; align-items: center; }
+  .ui-btn { background: var(--petroleo); color: #fff; border-radius: 12px; padding: 10px 20px; font-weight: 700; box-shadow: 0 3px 0 #163f4c; }
+  .ui-btn2 { border: 2px solid #d9d2c4; border-radius: 12px; padding: 8px 16px; color: var(--tinta2); font-weight: 600; background: #fff; }
+  /* página inicial */
+  .ui-casa { display: grid; grid-template-columns: 1fr 1.05fr; gap: 22px; padding: 26px 22px; align-items: start; }
+  .ui-ola h1 { font-size: 27px; line-height: 1.15; }
+  .ui-ola p { color: var(--tinta2); margin: 8px 0 18px; font-size: 14.5px; }
+  .ui-proximo { background: #fff; border: 1px solid var(--linha); border-radius: 18px; padding: 16px 18px; box-shadow: 0 6px 22px rgba(60,40,10,.07); }
+  .ui-proximo .titulo { font-size: 18px; margin: 4px 0 2px; }
+  .ui-proximo .meta { color: var(--tinta2); font-size: 13px; margin-bottom: 12px; }
+  .ui-legenda { display: flex; gap: 14px; margin-top: 14px; font-size: 12.5px; color: var(--tinta2); }
+  .ui-legenda b { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+  /* prova */
+  .ui-disse { background: #fdf3ea; border: 1px solid #f3d7c0; border-radius: 14px; padding: 10px 14px; margin: 8px 0 14px; }
+  .ui-disse small { color: #9a5a2e; font-weight: 700; }
+  .ui-resultado { display: flex; gap: 12px; align-items: center; margin-top: 12px; }
+  .ui-saida { font-family: ui-monospace, Consolas, monospace; background: #1b2630; color: #f2c14e; border-radius: 10px; padding: 8px 14px; font-size: 18px; font-weight: 700; }
+  .ui-errou { color: var(--vermelho); font-weight: 700; font-size: 13.5px; }
+  .ui-mostra { margin-top: 12px; background: #eef6f2; border-radius: 12px; padding: 10px 14px; font-size: 13.5px; }
+  .ui-mostra b { color: var(--verde); }
+  .mockup { margin-bottom: 2rem; }
+  /* animação da cena */
+  .anim .st1 { animation: st1 10s infinite; } .anim .st2 { animation: st2 10s infinite; }
+  .anim .st3 { animation: st3 10s infinite; } .anim .st3b { animation: st3b 10s infinite; transform-box: fill-box; transform-origin: center; }
+  .anim .st4 { animation: st4 10s infinite; } .anim .hl3 { animation: hl3 10s infinite; }
+  .anim .pulso { animation: pulso 2.4s infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes st1 { 0%,3% {opacity:0} 9%,94% {opacity:1} 100% {opacity:0} }
+  @keyframes st2 { 0%,24% {opacity:0} 28%,44% {opacity:1} 46%,100% {opacity:0} }
+  @keyframes st3 { 0%,25% {opacity:0} 30%,52% {opacity:1} 55%,100% {opacity:0} }
+  @keyframes st3b { 0%,53% {opacity:0; transform:scale(.3)} 58% {opacity:1; transform:scale(1.25)} 62%,94% {opacity:1; transform:scale(1)} 100% {opacity:0} }
+  @keyframes st4 { 0%,72% {opacity:0} 78%,94% {opacity:1} 100% {opacity:0} }
+  @keyframes hl3 { 0%,22% {transform:translateY(0)} 26%,68% {transform:translateY(19px)} 72%,100% {transform:translateY(38px)} }
+  @keyframes pulso { 0%,100% {transform:scale(1); opacity:.9} 50% {transform:scale(1.35); opacity:.25} }
+  @media (prefers-reduced-motion: reduce) { .anim * { animation: none !important; opacity: 1 !important; } }
+</style>
+
+<h2>4. A interface, com a identidade nova</h2>
+<p class="subtitle">Logo B no topo, o azul-petróleo com o laranja da caixa e o amarelo do bilhete, cantos redondos, código com cores. Conteúdo de verdade, do kc_06. São esboços: o desenho final sai daqui.</p>
+
+<!-- 1. página inicial -->
+<div class="mockup">
+  <div class="mockup-header">Página inicial — o caminho</div>
+  <div class="ui">
+    <div class="ui-topo">
+      <div class="ui-marca">
+        <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1f5668"/><path d="M22 9 C 19 6, 10 6, 10 12 C 10 17, 22 15, 22 21 C 22 25, 16 26, 13 25" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><rect x="5" y="23" width="7" height="6" rx="1.5" fill="#f2a541"/></svg>
+        Structura
+      </div>
+      <div class="direita"><span class="ui-pilula">Código do participante <input placeholder="opcional"></span></div>
+    </div>
+    <div class="ui-casa">
+      <div class="ui-ola">
+        <h1>Ponteiros em C,<br>uma ideia de cada vez</h1>
+        <p>Treze tópicos, numa ordem sugerida. Cada ideia começa com uma pergunta: o sistema descobre o que você já sabe, o que falta e o que você acha que sabe — e mostra, rodando, o que a máquina faz.</p>
+        <div class="ui-proximo">
+          <span class="ui-etiqueta">Próximo sugerido</span>
+          <div class="titulo">Passagem por referência</div>
+          <div class="meta">6 ideias · depende de “Dereferência: &amp; e *”</div>
+          <div class="ui-acoes" style="margin-top:0"><span class="ui-btn">Começar</span><span class="ui-btn2">Ver todos os tópicos</span></div>
+        </div>
+        <div class="ui-legenda"><span><b style="background:#2f8f6b"></b>já feito</span><span><b style="background:#e07a3f"></b>próximo</span><span><b style="background:#fff;border:2px solid #c9d4d8"></b>aberto</span></div>
+      </div>
+      <svg class="anim" viewBox="0 0 330 420" width="100%" role="img" aria-label="A trilha dos treze tópicos, de cima para baixo, com os já feitos em verde e o próximo em laranja">
+        <rect width="330" height="420" rx="18" fill="#eaf2e6"/>
+        <g fill="#c4dcbd"><circle cx="300" cy="40" r="10"/><circle cx="24" cy="150" r="9"/><circle cx="306" cy="250" r="11"/><circle cx="22" cy="330" r="8"/></g>
+        <polyline points="70,36 170,52 262,82 205,130 105,152 58,200 150,232 250,250 270,298 172,320 172,346" fill="none" stroke="#f6ecd8" stroke-width="22" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M172 346 L80 378 M172 346 L172 390 M172 346 L264 378" stroke="#f6ecd8" stroke-width="22" stroke-linecap="round"/>
+        <polyline points="70,36 170,52 262,82 205,130 105,152 58,200 150,232" fill="none" stroke="#9ccbb6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <g font-family="Segoe UI, system-ui" font-size="9.5">
+          <g fill="#2f8f6b">
+            <circle cx="70" cy="36" r="15"/><circle cx="170" cy="52" r="15"/><circle cx="262" cy="82" r="15"/><circle cx="205" cy="130" r="15"/><circle cx="105" cy="152" r="15"/>
+          </g>
+          <g stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round">
+            <path d="M63 36 l5 5 l9 -10"/><path d="M163 52 l5 5 l9 -10"/><path d="M255 82 l5 5 l9 -10"/><path d="M198 130 l5 5 l9 -10"/><path d="M98 152 l5 5 l9 -10"/>
+          </g>
+          <circle class="pulso" cx="58" cy="200" r="21" fill="#f2a541"/>
+          <circle cx="58" cy="200" r="16" fill="#e07a3f"/>
+          <text x="58" y="204" text-anchor="middle" fill="#fff" font-weight="800" font-size="10.5">06</text>
+          <g fill="#fff" stroke="#c9d4d8" stroke-width="2.5">
+            <circle cx="150" cy="232" r="14"/><circle cx="250" cy="250" r="14"/><circle cx="270" cy="298" r="14"/><circle cx="172" cy="320" r="14"/><circle cx="80" cy="378" r="14"/><circle cx="172" cy="390" r="14"/><circle cx="264" cy="378" r="14"/>
+          </g>
+          <g fill="#6b7d84" font-weight="800" text-anchor="middle">
+            <text x="150" y="235.5">07</text><text x="250" y="253.5">01</text><text x="270" y="301.5">08</text><text x="172" y="323.5">09</text><text x="80" y="381.5">10</text><text x="172" y="393.5">11</text><text x="264" y="381.5">12</text>
+          </g>
+          <g fill="#2b3438">
+            <text x="92" y="24">Variáveis</text><text x="150" y="80">O que é um ponteiro</text><text x="236" y="112">Declarar</text><text x="222" y="158">&amp; e *</text><text x="124" y="176">NULL</text>
+            <text x="82" y="204" font-weight="800" fill="#b0562a">Passagem por referência</text>
+            <text x="170" y="236">Ponteiro e array</text><text x="196" y="274">Memória</text><text x="290" y="320" text-anchor="end">malloc</text><text x="194" y="324">free</text>
+            <text x="80" y="406" text-anchor="middle">Ponteiro de ponteiro</text><text x="172" y="414" text-anchor="middle">Aritmética</text><text x="264" y="406" text-anchor="middle">Pendente</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- 2. a pergunta -->
+<div class="mockup">
+  <div class="mockup-header">Dentro do tópico — a pergunta que abre cada ideia</div>
+  <div class="ui">
+    <div class="ui-topo">
+      <div class="ui-marca">
+        <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1f5668"/><path d="M22 9 C 19 6, 10 6, 10 12 C 10 17, 22 15, 22 21 C 22 25, 16 26, 13 25" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><rect x="5" y="23" width="7" height="6" rx="1.5" fill="#f2a541"/></svg>
+        <span style="font-weight:600;font-size:13px;color:#5e6a70">Passagem por referência</span>
+      </div>
+      <div class="ui-paradas" aria-label="Ideias do tópico">
+        <span class="p agora">1</span><span class="fio"></span><span class="p depois">2</span><span class="fio"></span><span class="p depois">3</span><span class="fio"></span><span class="p depois">4</span><span class="fio"></span><span class="p depois">5</span><span class="fio"></span><span class="p depois">6</span>
+      </div>
+      <div class="direita"><span class="ui-pilula">Ajustes</span></div>
+    </div>
+    <div class="ui-palco">
+      <div class="ui-cartao">
+        <span class="ui-etiqueta">Ideia 1 de 6 · Pergunta</span>
+        <div class="ui-editor"><div class="barra"><i></i><i></i><i></i></div><pre><span class="k">void</span> <span class="f">f</span>(<span class="k">int</span> n) { n = <span class="n">99</span>; <span class="f">printf</span>(<span class="s">"%d\n"</span>, n); }
+<span class="k">int</span> x = <span class="n">1</span>;
+<span class="f">f</span>(x);
+<span class="f">printf</span>(<span class="s">"%d\n"</span>, x);</pre></div>
+        <div class="ui-pergunta">O que sai, nas duas linhas?</div>
+        <span class="ui-opcao">99 e 99: n é outro nome de x</span>
+        <span class="ui-opcao marcada">99 e 1: são duas variáveis</span>
+        <span class="ui-opcao">99 e 99: f mexeu em x</span>
+        <div class="ui-sub">Por quê?</div>
+        <span class="ui-opcao marcada">A função ganha uma casa nova, só dela, para o parâmetro.</span>
+        <span class="ui-opcao">A função recebe a variável original, não uma cópia.</span>
+        <div class="ui-sub">Quanta certeza você tem?</div>
+        <div class="ui-certeza"><span>Chutei</span><span class="marcada">Acho que sei</span><span>Tenho certeza</span></div>
+        <div class="ui-acoes"><span class="ui-btn">Responder</span><span class="ui-btn2">Não sei</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. a prova -->
+<div class="mockup">
+  <div class="mockup-header">Quando a pessoa diz a ideia errada com convicção — a prova, com a cena</div>
+  <div class="ui">
+    <div class="ui-topo">
+      <div class="ui-marca">
+        <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1f5668"/><path d="M22 9 C 19 6, 10 6, 10 12 C 10 17, 22 15, 22 21 C 22 25, 16 26, 13 25" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><rect x="5" y="23" width="7" height="6" rx="1.5" fill="#f2a541"/></svg>
+        <span style="font-weight:600;font-size:13px;color:#5e6a70">Passagem por referência</span>
+      </div>
+      <div class="ui-paradas">
+        <span class="p ok">1</span><span class="fio ok"></span><span class="p ok">2</span><span class="fio ok"></span><span class="p agora">3</span><span class="fio"></span><span class="p depois">4</span><span class="fio"></span><span class="p depois">5</span><span class="fio"></span><span class="p depois">6</span>
+      </div>
+      <div class="direita"><span class="ui-pilula">Ajustes</span></div>
+    </div>
+    <div class="ui-palco">
+      <div class="ui-cartao">
+        <span class="ui-etiqueta">A máquina respondeu</span>
+        <div class="ui-disse"><small>VOCÊ DISSE</small><br>A função recebe a variável original, não uma cópia.</div>
+        <svg class="anim" viewBox="0 0 600 230" width="100%" role="img" aria-label="Cena: a caixa pontos guarda 3; uma cópia do 3 viaja até a caixa n, dentro da função zera; lá o 3 vira 0; a caixa pontos continua com 3">
+          <rect width="600" height="230" rx="14" fill="#f6efe3"/>
+          <rect y="192" width="600" height="38" fill="#caa173"/>
+          <rect x="14" y="12" width="232" height="66" rx="9" fill="#1b2630"/>
+          <rect class="hl3" x="18" y="16" width="224" height="19" rx="4" fill="#2f4a58"/>
+          <g font-family="ui-monospace, Consolas, monospace" font-size="12">
+            <text x="26" y="30"><tspan fill="#7cc4e0">int</tspan><tspan fill="#e6edf0"> pontos = </tspan><tspan fill="#f2c14e">3</tspan><tspan fill="#e6edf0">;</tspan></text>
+            <text x="26" y="49"><tspan fill="#f5a97f">zera</tspan><tspan fill="#e6edf0">(pontos);</tspan></text>
+            <text x="26" y="68"><tspan fill="#f5a97f">printf</tspan><tspan fill="#e6edf0">(</tspan><tspan fill="#9fd38a">"%d\n"</tspan><tspan fill="#e6edf0">, pontos);</tspan></text>
+          </g>
+          <!-- a função, como uma bancada à parte -->
+          <rect x="350" y="70" width="230" height="122" rx="14" fill="#fff" fill-opacity=".55" stroke="#1f5668" stroke-width="2" stroke-dasharray="6 5"/>
+          <text x="465" y="90" text-anchor="middle" font-family="Segoe UI, system-ui" font-size="12" font-weight="700" fill="#1f5668">dentro de zera(int n)</text>
+          <!-- caixa pontos -->
+          <g class="st1">
+            <polygon points="100,124 186,124 176,102 90,102" fill="#e7b57b" stroke="#a8733f" stroke-width="1.2"/>
+            <circle cx="140" cy="116" r="16" fill="#f4d35e" stroke="#c9a227" stroke-width="2"/>
+            <text x="140" y="121.5" text-anchor="middle" font-size="15" font-weight="800" font-family="system-ui" fill="#6b4e00">3</text>
+            <rect x="100" y="124" width="86" height="68" fill="#d99c5d" stroke="#a8733f" stroke-width="1.5"/>
+            <polygon points="186,124 216,114 216,182 186,192" fill="#c4874b" stroke="#a8733f" stroke-width="1.5"/>
+            <rect x="112" y="148" width="62" height="22" rx="3" fill="#fffaf0" stroke="#a8733f"/>
+            <text x="143" y="163.5" text-anchor="middle" font-family="Segoe UI, system-ui" font-weight="700" font-size="12" fill="#3a2a1a">pontos</text>
+          </g>
+          <!-- caixa n -->
+          <g class="st1">
+            <polygon points="420,134 496,134 488,116 412,116" fill="#e7b57b" stroke="#a8733f" stroke-width="1.2"/>
+            <rect x="420" y="134" width="76" height="58" fill="#d99c5d" stroke="#a8733f" stroke-width="1.5"/>
+            <polygon points="496,134 522,126 522,184 496,192" fill="#c4874b" stroke="#a8733f" stroke-width="1.5"/>
+            <rect x="436" y="152" width="44" height="20" rx="3" fill="#fffaf0" stroke="#a8733f"/>
+            <text x="458" y="166.5" text-anchor="middle" font-family="Segoe UI, system-ui" font-weight="700" font-size="12" fill="#3a2a1a">n</text>
+          </g>
+          <!-- a cópia viaja -->
+          <g class="st2">
+            <circle r="15" fill="#f4d35e" stroke="#c9a227" stroke-width="2"/>
+            <text y="5.5" text-anchor="middle" font-size="14" font-weight="800" font-family="system-ui" fill="#6b4e00">3</text>
+            <animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.25;0.44;1" path="M140 116 C 220 40, 380 40, 456 126"/>
+          </g>
+          <g class="st3" font-family="Segoe UI, system-ui"><text x="300" y="58" text-anchor="middle" font-size="12" font-weight="700" fill="#b0562a">uma cópia do 3</text></g>
+          <g class="st3">
+            <circle cx="456" cy="126" r="15" fill="#f4d35e" stroke="#c9a227" stroke-width="2" opacity="0"/>
+          </g>
+          <!-- lá dentro, a cópia vira 0 -->
+          <g class="st3b">
+            <circle cx="456" cy="126" r="15" fill="#f6b0a0" stroke="#c0533f" stroke-width="2"/>
+            <text x="456" y="131.5" text-anchor="middle" font-size="14" font-weight="800" font-family="system-ui" fill="#7a2416">0</text>
+          </g>
+          <!-- e pontos continua com 3 -->
+          <g class="st4">
+            <circle cx="140" cy="116" r="24" fill="none" stroke="#2f8f6b" stroke-width="4"/>
+            <rect x="72" y="62" width="136" height="24" rx="12" fill="#2f8f6b"/>
+            <text x="140" y="78" text-anchor="middle" font-family="Segoe UI, system-ui" font-size="12" font-weight="700" fill="#fff">continua com 3</text>
+          </g>
+        </svg>
+        <div class="ui-resultado"><span class="ui-saida">3</span><span class="ui-errou">Você previu 0.</span></div>
+        <div class="ui-mostra"><b>O que isto mostra:</b> a função recebeu uma cópia do valor e zerou a cópia. Se recebesse a variável original, pontos teria virado 0.</div>
+        <div class="ui-acoes"><span class="ui-btn">Continuar</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</body>
+</html>
