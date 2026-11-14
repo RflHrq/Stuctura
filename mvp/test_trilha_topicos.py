@@ -799,6 +799,78 @@ def test_a_prova_do_vazamento_tem_a_funcao_que_devolve_e_a_que_esquece():
     assert sum(1 for x in funcoes if "free(p)" in x) == 1
 
 
+def _onde_se_apresenta(topico, no, trecho):
+    """O primeiro passo guiado da premissa cujas frases dizem o trecho."""
+    return next(g.id for g in _escadas(topico)[no].degraus
+                if g.guiado and any(trecho in f for f in g.frases))
+
+
+def test_no_kc_08_ficam_fora_nove_e_toda_premissa_abre_com_codigo():
+    """O banco do kc_08 não foi mexido. Ficam fora as nove questões que
+    usam laço, `+=`, `strlen` e `strcpy`, `%s`, a conversão para
+    `(void *)`, o `int main` e o `return` solto no trecho."""
+    fora, quantas, abre = _selecao("kc_08")
+    assert fora == {
+        "B1": ("ciu_kc08_t02",),
+        "B2": ("ciu_kc08_006", "ciu_kc08_t06"),
+        "B3": ("ciu_kc08_008", "ciu_kc08_t09"),
+        "I2": ("ciu_kc08_t14", "ciu_kc08_t15"),
+        "I3": ("ciu_kc08_017", "ciu_kc08_t17"),
+    }
+    assert quantas == {"B1": 5, "B2": 4, "B3": 4, "I1": 6, "I2": 4, "I3": 4}
+    assert abre == {
+        "B1": "ciu_kc08_002", "B2": "ciu_kc08_005", "B3": "ciu_kc08_009",
+        "I1": "ciu_kc08_011", "I2": "ciu_kc08_014", "I3": "ciu_kc08_018"}
+    d = _dominio("kc_08")
+    por_id = {a.id: a for a in d.atividades}
+    assert all(por_id[i].codigo for i in abre.values())
+    # O `return` que fica fora é o solto no trecho (`return;`, `return 1;`):
+    # o que devolve um valor de dentro da função o kc_01 ensinou.
+    ruim = re.compile(r"\b(for|strlen|strcpy|main)\b|\+=|%s|\(void \*\)"
+                      r"|\breturn\s*(1\s*)?;")
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_08", no):
+            assert not ruim.search(por_id[i].codigo or ""), i
+    assert all(ruim.search(por_id[i].codigo or "")
+               for ids in fora.values() for i in ids)
+
+
+def test_o_kc_08_apresenta_o_byte_a_multiplicacao_e_o_calloc():
+    """O banco fala em bytes desde a primeira questão, multiplica por
+    sizeof(int) e cita o calloc. Cada coisa é dita num passo guiado."""
+    assert _onde_se_apresenta("kc_08", "B1", "byte") == "esc_kc08_B1_1"
+    assert _onde_se_apresenta("kc_08", "B1", "sinal de vezes") == "esc_kc08_B1_2"
+    assert _onde_se_apresenta("kc_08", "B3", "calloc") == "esc_kc08_B3_3"
+    assert _onde_se_apresenta("kc_08", "I2", "NULL") == "esc_kc08_I2_1"
+
+
+def test_no_kc_08_ninguem_digita_o_tamanho_de_um_int():
+    """Quanto vale sizeof(int) muda de máquina para máquina. Os passos de
+    `digitar` usam o bloco — escrevem e leem valores — e nenhum imprime
+    um tamanho."""
+    digitar = [v for e, g, k, v in _versoes("kc_08") if g.forma == "digitar"]
+    assert len(digitar) >= 16
+    for v in digitar:
+        assert "%zu" not in v.mostra, v.mostra
+
+
+def test_tres_provas_do_kc_08_pedem_o_analisador_e_a_nota_diz():
+    """O tamanho que não fecha, a escrita sem conferir o NULL e o bloco
+    que vaza são coisas que o gcc só aponta seguindo o caminho do
+    programa. As outras três provas são avisos e erros comuns."""
+    provas = {p.crenca: p for e in _escadas("kc_08").values() for p in e.provas}
+    com = {c for c, p in provas.items() if p.avisos == ("-fanalyzer",)}
+    assert com == {"malloc_conta_elementos", "malloc_always_succeeds",
+                   "system_frees_auto"}
+    assert all("-fanalyzer" in provas[c].ambiente for c in com)
+    # Cinco das seis são o que o compilador diz; a outra é uma saída.
+    assert [c for c, p in provas.items() if p.espera] == ["pointer_is_data"]
+    # A crença do I3 é a do B3 do kc_01, e a evidência é a mesma — o
+    # bloco que vaza. O trecho não é.
+    do_kc_01 = _escadas("kc_01")["B3"].prova("system_frees_auto")
+    assert provas["system_frees_auto"].programa != do_kc_01.programa
+
+
 def test_sem_a_questao_de_degrau_2_a_premissa_abre_com_a_de_codigo():
     """A abertura é a questão de código de degrau 2: é a que APLICA a
     ideia. Quando ela fica fora da trilha, quem abre é outra de código, e

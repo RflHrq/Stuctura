@@ -1043,6 +1043,43 @@ toques (7 e 11 no rápido); quem não sabe e aprende, 22 e 36; quem erra
 todo passo, 32 e 76; quem diz a crença de cada ideia e depois acerta, 32
 e 31.
 
+**O kc_08, em 14/11/2026 — alocação dinâmica**
+
+Quem chega aqui já pediu um bloco com `malloc(sizeof(int))`, já o
+devolveu com `free`, e sabe que há pilha e monte (kc_01). Este tópico
+olha o `malloc` de perto: o que o número dele conta, o que ele devolve,
+o que vem dentro do bloco, e o que acontece quando ele não consegue.
+Seis premissas, 30 degraus, uma prova por crença
+(`mvp/dominio/escada_kc08.yaml`, `docs/escada-kc08-leitura.md`). Entram
+a palavra "byte", a multiplicação (`3 * sizeof(int)`), o bloco de vários
+ints usado com índice, o `calloc`, e conferir o `NULL` depois do
+`malloc`.
+
+- **Ninguém digita o tamanho de um int.** Quanto vale `sizeof(int)` muda
+  de máquina para máquina. Os passos de digitar usam o bloco — escrevem
+  e leem valores —, e a conta dos bytes fica nos de escolher.
+- **Cinco das seis provas são o que o compilador diz**, e três delas
+  pedem o analisador de fluxo: `malloc(5)` para ints ("o tamanho pedido
+  não é múltiplo do tamanho do que o ponteiro aponta"), a escrita sem
+  conferir o `NULL`, e o bloco que vaza. As outras duas são ler o bloco
+  sem ter escrito nele e `free(&p)`. A sexta é uma saída: dois
+  ponteiros, um bloco.
+- **O I3 tem a mesma crença do B3 do kc_01** ("o sistema libera
+  sozinho") e por isso a mesma evidência, o bloco que vaza. O trecho é
+  outro: lá, duas funções, uma que devolve e uma que esquece; aqui, uma
+  função chamada duas vezes. Um teste confere que não é o mesmo.
+- **O banco não foi mexido.** Nove das 36 questões ficam fora: laço,
+  `+=`, `strlen` e `strcpy`, `%s`, a conversão para `(void *)`, o
+  `int main` e o `return` solto no trecho. As seis premissas abrem com
+  questão de código. O `calloc` entrou numa frase de passo guiado para
+  duas questões do B3 não ficarem fora; sem ela a premissa ficaria com
+  duas questões.
+
+Os alunos simulados, no ritmo completo: quem acerta tudo, 14 telas e 19
+toques (8 e 13 no rápido); quem não sabe e aprende, 26 e 43; quem erra
+todo passo, 38 e 91; quem diz a crença de cada ideia e depois acerta, 38
+e 37.
+
 **O treino não repete o trecho da prova.** Quem diz a crença vê a prova
 e vai direto para os passos de prática da mesma premissa. No ensaio do
 kc_01 o primeiro passo depois da prova do B2 mostrava a mesma função que
