@@ -210,7 +210,10 @@ def test_o_registro_traz_a_entrada_antes_do_que_ela_provocou(cliente, destino):
     sessao, _ = _abre(cliente)
     linhas = trilha_log.le(destino, sessao)
     assert linhas[0]["tipo"] == "trilha_iniciada"
-    assert all(l["v"] == trilha_log.VERSAO == 1 for l in linhas)
+    # A versão é também a das REGRAS da trilha: passou a 2 em 13/11/2026
+    # (mvp/test_trilha_diagnostico.py), e uma sessão de outra versão não
+    # é refeita.
+    assert all(l["v"] == trilha_log.VERSAO == 2 for l in linhas)
     assert all(l["sessao"] == sessao and l["ts"] for l in linhas)
     i = next(k for k, l in enumerate(linhas) if l["tipo"] == "entrada_recebida")
     assert (linhas[i]["acao"], linhas[i]["modo"]) == ("comecar", "direto")

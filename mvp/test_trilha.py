@@ -96,7 +96,9 @@ def test_a_primeira_tela_e_a_entrada():
     t = trilha.inicia(D, ESC, "s1")
     assert t.tela.tipo == "entrada" and t.tela.dados["premissas"] == 5
     assert t.tela.dados["titulo"] == D.titulo
-    assert t.tela.dados["modos"] == ["direto", "explique"]
+    # A entrada não pergunta mais como começar: toda ideia abre com a
+    # pergunta de diagnóstico (mvp/test_trilha_diagnostico.py).
+    assert "modos" not in t.tela.dados
     assert t.tela.dados["ritmos"] == ["completo", "rapido"]
     assert t.tela.dados["ritmo_padrao"] == "completo"
     assert [e.tipo for e in t.eventos] == ["trilha_iniciada"]
@@ -226,15 +228,18 @@ def test_entrada_que_nao_cabe_na_tela_e_recusada_e_nada_muda():
 
 
 def test_comecar_pede_um_modo_que_existe():
+    """Modo DITO tem de existir. Sem modo dito é o de sempre — a pergunta
+    primeiro —, que é o que a página manda desde 13/11/2026."""
     e = trilha.inicia(D, ESC, "s1").estado
-    for ruim in (trilha.Entrada(acao="comecar"),
-                 trilha.Entrada(acao="comecar", modo="devagar"),
+    for ruim in (trilha.Entrada(acao="comecar", modo="devagar"),
                  trilha.Entrada(acao="comecar", modo="direto", ritmo="lento"),
                  trilha.Entrada(acao="responder", escolha=0)):
         with pytest.raises(trilha.EntradaInvalida):
             trilha.avanca(D, ESC, e, ruim)
     t = trilha.avanca(D, ESC, e, trilha.Entrada(acao="comecar", modo="direto"))
     assert t.estado.ritmo == "completo"
+    sem = trilha.avanca(D, ESC, e, trilha.Entrada(acao="comecar"))
+    assert sem.estado.modo == "direto" and sem.tela == t.tela
 
 
 def test_depois_do_mapa_nada_e_aceito():
@@ -252,17 +257,22 @@ def test_quem_nao_sabe_sobe_a_escada_do_primeiro_degrau():
     b1 = _da_premissa(c, "B1")
     assert [t.tipo for t in b1[:2]] == ["pergunta", "degrau"]
     subida = [t for t in b1 if t.tipo == "degrau" and t.dados["papel"] == "subida"]
-    assert [t.dados["indice"] for t in subida] == list(
-        range(1, len(ESC["B1"].degraus) + 1))
-    assert all(t.dados["total"] == len(ESC["B1"].degraus) for t in subida)
+    assert [t.dados["indice"] for t in subida] == list(range(1, _passos("B1") + 1))
+    assert all(t.dados["total"] == _passos("B1") for t in subida)
     assert c.estado.premissa("B1").trabalho == "lacuna"
+
+
+def _passos(no):
+    """Quantos passos tem a SUBIDA: os guiados e um de prática. Os outros
+    de prática ficam para o treino e para a reconferência."""
+    return len(ESC[no].guiados) + 1
 
 
 def test_o_degrau_guiado_leva_as_frases_e_o_de_pratica_nao():
     c = caminha(D, ESC, "nao_sabe_aprende")
     subidas = [t for t in c.telas if t.tipo == "degrau"
                and t.dados["papel"] == "subida"]
-    assert len(subidas) == sum(len(ESC[n].degraus) for n in D.ordem)
+    assert len(subidas) == sum(_passos(n) for n in D.ordem)
     for t in subidas:
         g = next(x for x in ESC[t.dados["premissa"]].degraus
                  if x.id == t.dados["degrau"])
@@ -296,7 +306,7 @@ def test_a_medida_da_escada_e_o_degrau_certo_de_primeira():
     sobe_bem = caminha(D, ESC, "nao_sabe_aprende")
     sobe_mal = caminha(D, ESC, "nao_sabe_erra")
     for n in D.ordem:
-        assert sobe_bem.estado.premissa(n).degrau == len(ESC[n].degraus)
+        assert sobe_bem.estado.premissa(n).degrau == _passos(n)
         assert sobe_mal.estado.premissa(n).degrau == 0
 
 
@@ -312,34 +322,31 @@ def test_o_topo_depois_da_escada_nao_repete_a_abertura():
         assert perguntas[1].dados["pede_razao"]
 
 
-def test_degrau_errado_volta_com_outros_valores_uma_vez_e_segue():
+def test_degrau_errado_nao_volta_e_a_subida_segue():
+    """ERA "volta com outros valores uma vez e segue". O Rafael jogou e
+    viu questão repetida demais: desde 13/11/2026 o passo errado mostra a
+    correção e a subida segue. A outra versão dele fica para a
+    reconferência do fim (mvp/test_trilha_diagnostico.py)."""
     c = caminha(D, ESC, "nao_sabe_erra")
     b1 = [t for t in c.telas if t.tipo == "degrau"
           and t.dados["premissa"] == "B1" and t.dados["papel"] == "subida"]
-    assert [t.dados["tentativa"] for t in b1[:2]] == [1, 2]
-    assert b1[0].dados["degrau"] == b1[1].dados["degrau"]
-
-    def cara(t):
-        return sorted(t.dados["pecas"]), t.dados["mostra"], t.dados["pede"]
-
-    assert cara(b1[0]) != cara(b1[1])
-    assert (b1[2].dados["indice"], b1[2].dados["tentativa"]) == (2, 1)
-    assert all(t.dados["tentativa"] <= 2 for t in b1)
+    assert [t.dados["tentativa"] for t in b1] == [1] * _passos("B1")
+    assert [t.dados["indice"] for t in b1] == list(range(1, _passos("B1") + 1))
+    assert len({t.dados["degrau"] for t in b1}) == len(b1)
 
 
-def test_o_primeiro_erro_traz_o_retorno_e_o_segundo_mostra_a_certa():
+def test_o_erro_traz_o_retorno_com_a_resposta_certa_e_o_passo_seguinte():
+    """ERA em duas tentativas: a certa só aparecia no segundo erro. Sem a
+    segunda tentativa, a correção vem inteira no primeiro."""
     e = _comeca("explique").estado
     g = ESC["B1"].degraus[0]
     t1 = _anda(e, "nao_sabe_erra")
     assert t1.tela.tipo == "retorno" and t1.tela.dados["veredito"] == "errada"
     assert t1.tela.texto in [x.retorno for x in g.versoes[0].erros]
-    assert t1.tela.dados["mostra_certa"] == ""
-    t2 = _anda(t1.estado, "nao_sabe_erra")          # continuar: o mesmo degrau
-    assert (t2.tela.tipo, t2.tela.dados["tentativa"]) == ("degrau", 2)
-    t3 = _anda(t2.estado, "nao_sabe_erra")
-    assert t3.tela.dados["mostra_certa"] == g.versoes[1].certa_texto
-    t4 = _anda(t3.estado, "nao_sabe_erra")          # continuar: o seguinte
-    assert (t4.tela.tipo, t4.tela.dados["indice"]) == ("degrau", 2)
+    assert t1.tela.dados["mostra_certa"] == g.versoes[0].certa_texto
+    t2 = _anda(t1.estado, "nao_sabe_erra")          # continuar: o seguinte
+    assert (t2.tela.tipo, t2.tela.dados["indice"],
+            t2.tela.dados["tentativa"]) == ("degrau", 2, 1)
 
 
 def test_quem_nao_aprende_ve_a_revisao_e_fecha_em_aberto_em_cinco_telas():
@@ -907,10 +914,15 @@ def test_quem_erra_no_fim_nao_se_manteve_e_nao_abre_laco():
 
 
 def test_sem_exercicio_de_produzir_a_reconferencia_e_de_marcar():
-    """`nao_sabe_erra` vê as duas versões de todo degrau ao subir: não
-    sobra exercício de produzir, e a reconferência cai numa questão de
-    marcar ainda não usada — com razão, sem certeza."""
-    c = caminha(D, ESC, "nao_sabe_erra")
+    """Quando não sobra exercício de produzir, a reconferência cai numa
+    questão de marcar ainda não usada — com razão, sem certeza.
+
+    O cenário ERA o de quem errava tudo na subida, que via as duas
+    versões de cada degrau. A subida não repete mais passo, e quem erra
+    nela é reconferido no próprio passo. O caso em que os exercícios
+    acabam passou a ser o de escadas com uma versão só, depois do treino
+    da refutação, que gasta os dois de prática."""
+    c = caminha(D, _com_uma_versao_so(), "crente_aprende")
     marcar = [t for t in _reconferencias(c) if t.tipo == "pergunta"]
     assert marcar and not [t for t in _reconferencias(c) if t.tipo == "degrau"]
     assert all(t.dados["pede_razao"] and not t.dados["pede_certeza"]
@@ -922,13 +934,24 @@ def test_sem_exercicio_de_produzir_a_reconferencia_e_de_marcar():
 
 
 def test_sem_questao_nenhuma_o_mapa_diz_que_nao_deu_para_reconferir():
-    """O B1 do kc_00 tem três questões de marcar com razão. Quem gasta as
-    três e todos os exercícios fica sem reconferência — e o mapa diz."""
-    c = caminha(D, ESC, "nao_sabe_erra")
+    """Quem gasta todas as questões de marcar e todos os exercícios de uma
+    ideia fica sem reconferência dela — e o mapa diz, em vez de repetir
+    uma pergunta já vista e chamar a resposta de assimilação.
+
+    O cenário ERA o de quem errava tudo na subida do B1 (duas versões de
+    cada degrau, e as três questões). Sem a repetição dos passos isso não
+    esgota mais nada; o caso passou a ser montado: uma versão por
+    degrau, e o B1 só com a questão de abertura."""
+    from dataclasses import replace
+    escadas = _com_uma_versao_so()
+    escadas["B1"] = replace(escadas["B1"],
+                            fora=("ciu_kc00_001", "ciu_kc00_t01"))
+    c = caminha(D, escadas, "crente_teimoso")
     assert c.estado.premissa("B1").reconferencia == "sem_questao"
     assert not [t for t in _reconferencias(c) if t.dados["premissa"] == "B1"]
-    assert {c.estado.premissa(n).reconferencia for n in D.ordem[1:]} == {
-        "nao_se_manteve"}
+    # Nas outras ideias sobrou questão, e a reconferência aconteceu.
+    outras = {c.estado.premissa(n).reconferencia for n in D.ordem[1:]}
+    assert outras and "sem_questao" not in outras and "" not in outras
 
 
 def _com_crenca_na_pratica(no):
@@ -995,8 +1018,9 @@ def test_o_mapa_traz_resultado_degrau_e_reconferencia():
     p = c.telas[-1].dados["premissas"][0]
     assert set(p) == {"no", "texto", "resultado", "trabalho", "degrau",
                       "degraus", "reconferencia", "telas", "crenca",
-                      "apareceu", "frases", "codigo"}
-    assert p["degrau"] == p["degraus"] == len(ESC["B1"].degraus)
+                      "apareceu", "tropecos", "frases", "codigo"}
+    assert p["degrau"] == p["degraus"] == _passos("B1")
+    assert p["tropecos"] == []
     assert (p["resultado"], p["trabalho"], p["reconferencia"]) == (
         "aprendeu_agora", "lacuna", "assimilou")
     assert p["texto"] == D.nos["B1"].simples

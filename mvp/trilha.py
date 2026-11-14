@@ -139,6 +139,9 @@ class EstadoPremissa:
     treinos: int = 0                 # perguntas de treino já feitas
     # Crenças que apareceram sem abrir prova. Vão para o mapa.
     apareceu: tuple[str, ...] = ()
+    # Os passos da subida que a pessoa errou: é a LACUNA localizada. Vão
+    # para o fechamento, e é a eles que a reconferência volta.
+    tropecos: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -259,7 +262,8 @@ def resumo(d: Dominio, escadas: Mapping[str, Escada], e: Estado) -> list[dict]:
     saida = []
     for no in d.ordem:
         ep, escada = e.premissa(no), escadas[no]
-        total = len(escada.degraus)
+        total = len(_da_subida(escada))
+        por_id = {g.id: g for g in escada.degraus}
         saida.append({
             "no": no,
             "texto": d.nos[no].simples,
@@ -275,6 +279,9 @@ def resumo(d: Dominio, escadas: Mapping[str, Escada], e: Estado) -> list[dict]:
                        if ep.crenca in d.crencas else ""),
             "apareceu": [d.crencas[c].afirma for c in ep.apareceu
                          if c in d.crencas],
+            # A lacuna localizada: os passos que a pessoa errou na subida.
+            "tropecos": [{"degrau": i, "texto": _rotulo(por_id[i])}
+                         for i in ep.tropecos if i in por_id],
             "frases": [f for g in escada.guiados for f in g.frases],
             "codigo": escada.revisao.codigo,
         })
@@ -315,9 +322,17 @@ def _degrau(escadas: Mapping[str, Escada], e: Estado, no: str, g: Degrau,
     soma = 1 if (conta and papel in ("produzir", "treino", "subida")) else 0
     e = e.com(no, telas=ep.telas + soma,
               mostrados=ep.mostrados + ((g.id, versao),))
+    # Na subida, "passo 2 de 4" conta os passos DA SUBIDA. Fora dela o
+    # exercício é avulso, e a posição é a dele na escada inteira.
+    fila = _da_subida(escada) if papel == "subida" else escada.degraus
+    # O passo em que uma alternativa É a crença pede a certeza: é ela que
+    # separa quem acredita de quem chutou, como na pergunta de abertura.
+    diz_crenca = papel == "subida" and any(x.crenca for x in v.erros)
     tela = Tela("degrau", dados={
         "premissa": no, "papel": papel, "degrau": g.id,
-        "indice": escada.degraus.index(g) + 1, "total": len(escada.degraus),
+        "indice": fila.index(g) + 1, "total": len(fila),
+        "pede_certeza": diz_crenca,
+        "escala": list(motor.CONFIANCAS) if diz_crenca else [],
         "guiado": g.guiado,
         # Se as peças são C ou são frases. A tela desenha código com cara
         # de código, e não tem como adivinhar: uma opção de `escolher`
@@ -378,6 +393,23 @@ def _explicacao(d: Dominio, escadas: Mapping[str, Escada], no: str) -> dict:
             "codigo": escada.revisao.codigo}
 
 
+def _da_subida(escada: Escada) -> tuple[Degrau, ...]:
+    """Os passos que a pessoa sobe: os guiados, e UM de prática.
+
+    A escada tem mais um ou dois de prática, e eles não entram na subida:
+    ficam para o treino depois da refutação, para a segunda resposta de
+    quem acerta firme e para a reconferência. Subir todos era onde a
+    sessão ficava longa, e foi o que o Rafael pediu para encurtar.
+    """
+    return escada.guiados + escada.pratica[:1]
+
+
+def _rotulo(g: Degrau) -> str:
+    """O nome de um passo, para dizer onde a pessoa tropeçou: a primeira
+    frase do passo guiado, ou o que o exercício de prática pede."""
+    return g.frases[0] if g.frases else g.versoes[0].pede
+
+
 def _de_produzir(escada: Escada) -> tuple[Degrau, ...]:
     """Os degraus de prática, do mais alto para o mais baixo, com os de
     PRODUZIR na frente.
@@ -409,9 +441,14 @@ def _versao_livre(ep: EstadoPremissa, g: Degrau, fora: int = -1) -> int:
 
 def inicia(d: Dominio, escadas: Mapping[str, Escada],
            semente: str = "") -> Transicao:
+    # A entrada não pergunta mais "como você quer começar". Toda ideia
+    # abre com a pergunta de diagnóstico: é dela que saem a misconception
+    # e a lacuna, e quem não sabe chega aos passos com um toque em "Não
+    # sei". O caminho que começa pelos passos (`modo="explique"`)
+    # continua no motor, e não é oferecido a ninguém.
     tela = Tela("entrada", dados={
         "titulo": d.titulo, "premissas": len(d.ordem),
-        "modos": list(MODOS), "ritmos": list(RITMOS),
+        "ritmos": list(RITMOS),
         "ritmo_padrao": RITMO_PADRAO,
     })
     return _mostra(Estado(semente=semente), tela, Passo("entrada"),
@@ -427,14 +464,16 @@ def _comeca(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
             r: Entrada) -> Transicao:
     if e.passo.tipo != "entrada":
         raise EntradaInvalida("a trilha já começou")
-    if r.modo not in MODOS:
+    # Sem modo dito, é o de sempre: a pergunta primeiro.
+    modo = r.modo or MODOS[0]
+    if modo not in MODOS:
         raise EntradaInvalida("modo desconhecido: %r" % r.modo)
     ritmo = r.ritmo or RITMO_PADRAO
     if ritmo not in RITMOS:
         raise EntradaInvalida("ritmo desconhecido: %r" % r.ritmo)
-    e = replace(e, modo=r.modo, ritmo=ritmo)
+    e = replace(e, modo=modo, ritmo=ritmo)
     return _abre_proxima(d, escadas, e,
-                         [_ev("trilha_comecada", modo=r.modo, ritmo=ritmo)])
+                         [_ev("trilha_comecada", modo=modo, ritmo=ritmo)])
 
 
 def _abre_proxima(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
@@ -466,7 +505,12 @@ def _reconfere(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         ep = e.premissa(no)
         if not ep.trabalho or ep.reconferencia:
             continue
-        livre = next(((g, k) for g in _de_produzir(escadas[no])
+        # Primeiro o passo em que a pessoa TROPEÇOU, na versão que ela
+        # ainda não viu: é a lacuna dela que a reconferência confere.
+        por_id = {g.id: g for g in escadas[no].degraus}
+        candidatos = ([por_id[i] for i in ep.tropecos if i in por_id]
+                      + list(_de_produzir(escadas[no])))
+        livre = next(((g, k) for g in candidatos
                       for k in range(len(g.versoes))
                       if (g.id, k) not in ep.mostrados), None)
         if livre is not None:
@@ -525,8 +569,8 @@ def _inicia_lacuna(escadas: Mapping[str, Escada], e: Estado, no: str,
 
 def _sobe(escadas: Mapping[str, Escada], e: Estado, no: str, i: int,
           eventos: list, primeiro: bool = False) -> Transicao:
-    """O degrau `i` da escada. A subida inteira conta UMA tela."""
-    g = escadas[no].degraus[i]
+    """O passo `i` da subida. A subida inteira conta UMA tela."""
+    g = _da_subida(escadas[no])[i]
     return _degrau(escadas, e, no, g, _versao_livre(e.premissa(no), g),
                    "subida", eventos, conta=primeiro)
 
@@ -584,8 +628,43 @@ def _mapa(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
     premissas = resumo(d, escadas, e)
     eventos.append(_ev("trilha_encerrada", resultados={
         p["no"]: p["resultado"] for p in premissas}))
-    tela = Tela("mapa", dados={"premissas": premissas})
+    tela = Tela("mapa", dados={"premissas": premissas,
+                               "sumario": sumario(d, escadas, e)})
     return _mostra(replace(e, fim=True), tela, Passo("mapa"), eventos)
+
+
+def sumario(d: Dominio, escadas: Mapping[str, Escada], e: Estado) -> dict:
+    """O que a sessão ACHOU nesta pessoa, em quatro listas.
+
+    É o que o sistema existe para dizer, e o mapa por ideia não dizia de
+    uma vez: quais ideias erradas apareceram e se foram corrigidas, onde
+    estão as lacunas e em que passos, e o que já estava firme. Cada ideia
+    aparece num lugar só.
+
+        ideias_erradas   a ideia passou pela refutação
+        lacunas          a ideia passou pelos passos
+        firmes           fechou sem trabalho nenhum
+        em_aberto        nem trabalho, nem fechou bem
+    """
+    saida = {"ideias_erradas": [], "lacunas": [], "firmes": [],
+             "em_aberto": []}
+    for linha in resumo(d, escadas, e):
+        no, ep = linha["no"], e.premissa(linha["no"])
+        base = {"no": no, "texto": linha["texto"]}
+        if ep.trabalho == "crenca":
+            saida["ideias_erradas"].append(dict(
+                base, crenca=linha["crenca"],
+                corrigida=ep.resultado == CORRIGIU,
+                voltou=ep.reconferencia == A_IDEIA_VOLTOU))
+        elif ep.trabalho == "lacuna":
+            saida["lacunas"].append(dict(
+                base, passos=[t["texto"] for t in linha["tropecos"]],
+                fechou=ep.resultado == APRENDEU))
+        elif ep.resultado in (JA_SABIA, FIRMOU, APRENDEU):
+            saida["firmes"].append(base)
+        else:
+            saida["em_aberto"].append(base)
+    return saida
 
 
 # --------------------------------------------------------------------------
@@ -995,15 +1074,35 @@ def _responde_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         resposta = [ordem[_indice(i, len(ordem), "peça")] for i in r.pecas]
         c = corrige(v, g.forma, pecas=tuple(resposta))
 
+    # O passo em que uma alternativa É a crença pede a certeza.
+    pede_certeza = bool(e.tela.dados.get("pede_certeza"))
+    if pede_certeza and r.confianca not in motor.CONFIANCAS:
+        raise EntradaInvalida("certeza fora da escala: %r" % r.confianca)
+    confianca = r.confianca if pede_certeza else ""
+
     eventos = [_ev("degrau_respondido", no=no, degrau=g.id, versao=p.versao,
                    papel=p.papel, certa=c.certa, tentativa=p.tentativa,
                    # A resposta em índices do ARQUIVO (ou o texto digitado):
                    # na tela as peças vão embaralhadas pela semente, e o
                    # registro tem de ser legível sem refazer a ordem.
-                   resposta=resposta, ms=r.ms)]
+                   resposta=resposta, confianca=confianca, ms=r.ms)]
+
+    # O PASSO TAMBÉM DETECTA A MISCONCEPTION. A alternativa marcada é a
+    # crença dita com todas as letras; se a pessoa a marca com convicção
+    # — qualquer coisa que não "chutei" —, é o mesmo episódio que na
+    # pergunta de abertura: resposta errada, pela razão da crença, com
+    # certeza. A refutação abre NA HORA, e o trabalho da ideia deixa de
+    # ser o da lacuna. Com "chutei" é lacuna, e fica só anotada.
+    if (p.papel == "subida" and not c.certa and c.crenca
+            and confianca and confianca != motor.CONFIANCAS[0]
+            and c.crenca in d.crencas and d.crencas[c.crenca].nega == no):
+        eventos.append(_ev("episodio_classificado", no=no,
+                           estado=motor.CRENCA_EP, degrau=g.id, papel=p.papel))
+        return _inicia_prova(d, escadas, e, no, c.crenca, eventos,
+                             volta="lacuna", troca=True)
+
     # Uma resposta errada que o conteúdo liga a uma crença: a pessoa disse
-    # a crença, e isso é dado em QUALQUER degrau — na subida também, que é
-    # onde os degraus guiados a oferecem com todas as letras.
+    # a crença, e isso é dado em QUALQUER degrau.
     if not c.certa and c.crenca:
         e = _registra(e, no, c.crenca, eventos)
 
@@ -1037,13 +1136,14 @@ def _responde_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
             if p.tentativa == 1:
                 e = e.com(no, degrau=e.premissa(no).degrau + 1)
             return _depois_do_degrau(d, escadas, e, no, g, eventos)
-        if p.tentativa == 1:
-            # Primeiro erro: o retorno daquele erro, e o MESMO degrau com
-            # outros valores. A resposta certa ainda não aparece.
-            return _retorno(d, e, no, "errada", "degrau_de_novo", eventos,
-                            texto=c.retorno, degrau=g.id, versao=p.versao)
-        # Segundo erro: mostra a certa, e a escada segue. Ninguém fica
-        # preso num degrau.
+        # ERROU: a correção daquele erro, com a resposta certa, e a subida
+        # SEGUE. O mesmo passo não volta com outros valores — era onde a
+        # sessão se repetia. O erro não se perde: fica registrado como a
+        # lacuna daquele passo, vai para o fechamento, e é a ele que a
+        # reconferência do fim volta, com a outra versão.
+        ep = e.premissa(no)
+        if g.id not in ep.tropecos:
+            e = e.com(no, tropecos=ep.tropecos + (g.id,))
         return _retorno(d, e, no, "errada", "degrau_seguinte", eventos,
                         texto=c.retorno, mostra_certa=c.mostra_certa,
                         degrau=g.id, versao=p.versao)
@@ -1053,9 +1153,9 @@ def _responde_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
 
 def _depois_do_degrau(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
                       no: str, g: Degrau, eventos: list) -> Transicao:
-    degraus = escadas[no].degraus
-    i = degraus.index(g) + 1
-    if i < len(degraus):
+    subida = _da_subida(escadas[no])
+    i = subida.index(g) + 1
+    if i < len(subida):
         return _sobe(escadas, e, no, i, eventos)
     return _topo(d, escadas, e, no, eventos)
 

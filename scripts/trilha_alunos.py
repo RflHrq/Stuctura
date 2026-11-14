@@ -32,6 +32,7 @@ achou defeito eram os que nenhuma das oito primeiras fazia.
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import pathlib
 import sys
@@ -181,6 +182,33 @@ def _degrau(escadas, tela, persona: str, estado) -> "trilha.Entrada":
     return trilha.Entrada(acao="responder", pecas=na_tela((errada,)))
 
 
+def _com_certeza(entrada, escadas, tela, persona: str, estado):
+    """A certeza, no passo que a pede — o que oferece a crença.
+
+    Quem ACREDITA marca a alternativa que é a crença, e com convicção: é
+    o que abre a refutação dentro do passo. Quem só não sabe erra
+    dizendo que chutou. Os outros respondem o que iam responder, certos.
+    """
+    if not tela.dados.get("pede_certeza"):
+        return entrada
+    if persona == "nao_sabe_erra":
+        return dataclasses.replace(entrada, confianca="chutei")
+    if persona == "crente_teimoso":
+        g = next(x for x in escadas[tela.dados["premissa"]].degraus
+                 if x.id == tela.dados["degrau"])
+        k = estado.passo.versao
+        v = g.versoes[k]
+        da_crenca = next((x.exata for x in v.erros if x.crenca and x.exata),
+                         None)
+        if da_crenca is not None:
+            ordem = ordem_das_pecas(estado.semente, g.id, k, g.forma,
+                                    len(v.pecas))
+            return dataclasses.replace(
+                entrada, confianca="tenho certeza",
+                pecas=tuple(ordem.index(i) for i in da_crenca))
+    return dataclasses.replace(entrada, confianca="tenho certeza")
+
+
 def responde(d, escadas, tela, persona: str, estado) -> "trilha.Entrada":
     """A entrada daquela persona para aquela tela."""
     if persona not in PERSONAS:
@@ -188,7 +216,8 @@ def responde(d, escadas, tela, persona: str, estado) -> "trilha.Entrada":
     if tela.tipo == "pergunta":
         return _pergunta(d, tela, persona, estado)
     if tela.tipo == "degrau":
-        return _degrau(escadas, tela, persona, estado)
+        return _com_certeza(_degrau(escadas, tela, persona, estado),
+                            escadas, tela, persona, estado)
     if tela.tipo == "voce_disse" and tela.dados.get("previsao"):
         return trilha.Entrada(acao="responder",
                               escolha=_previsao(d, escadas, tela, persona))

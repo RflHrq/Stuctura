@@ -669,6 +669,75 @@ revisado:
    o certo.
 7. Analogia é opcional e vem depois do passo, nunca no lugar dele.
 
+### 6.17 O diagnóstico dentro dos passos (13/11/2026)
+
+O Rafael jogou o kc_00 na trilha e disse o que faltava. O texto e os
+exercícios passo a passo ficaram bons — "ficou muito mais fácil de
+entender como é que funciona a declaração de variável" —, mas com eles a
+sessão **saía do escopo do sistema**: o Structura existe para detectar a
+misconception e a lacuna de cada pessoa, e para corrigir. As duas
+sessões dele foram pelo "nunca vi, ou não lembro": cada ideia abria
+direto pelos passos, a pergunta de resposta, razão e certeza só vinha
+no fim, e a refutação não apareceu nenhuma vez. Ele viu também questão
+repetida demais, e pediu um fechamento que resuma melhor.
+
+Os exercícios passo a passo, do jeito que estão, são o material do modo
+**Praticar** (exercício rápido, só certo e errado), que continua por
+fazer. A **sessão** é do diagnóstico. Cinco mudanças, e cada uma
+substitui o que este documento dizia antes:
+
+1. **Toda ideia abre com a pergunta de diagnóstico.** A entrada não
+   pergunta mais "como você quer começar" (6.2): é um botão, e a escolha
+   do ritmo. Quem não sabe toca em "Não sei" e vai para os passos — e o
+   "Não sei" também é dado. O caminho que começa pelos passos
+   (`modo="explique"`) continua no motor e não é oferecido a ninguém.
+2. **O passo também detecta a misconception.** Cada escada tem um passo
+   guiado em que uma alternativa é a crença, dita com todas as letras.
+   Esse passo passa a pedir a certeza. Marcada com convicção ("acho que
+   sei" ou "tenho certeza"), a alternativa é o mesmo episódio da
+   pergunta de abertura — resposta errada, pela razão da crença, com
+   certeza — e abre a refutação na hora; o trabalho da ideia deixa de
+   ser o da lacuna. Com "chutei" é lacuna, e a crença fica anotada. A
+   decisão da revisão do ramo era só anotar (item 5 de
+   `mvp/test_trilha_revisao.py`); o Rafael pediu que a misconception
+   estivesse DENTRO dos exercícios.
+3. **O passo localiza a lacuna.** O passo errado fica registrado, com o
+   nome dele — a frase do passo guiado, ou o que o exercício pede.
+4. **Menos repetição.** O passo errado mostra a correção, com a resposta
+   certa, e a subida segue: não volta o mesmo passo com outros valores
+   (6.6 dizia uma vez). A subida são os passos guiados e **um** de
+   prática; os outros de prática ficam para o treino depois da
+   refutação, para a segunda resposta de quem acerta firme e para a
+   reconferência. O passo errado volta uma vez, na reconferência do
+   fim, com a outra versão.
+5. **O fechamento resume.** Antes da lista ideia por ideia, quatro
+   blocos: as ideias erradas encontradas e se foram corrigidas, as
+   lacunas e em que passos, o que já estava firme, e o que ficou em
+   aberto. Cada ideia aparece num só.
+
+O que isso deu, com os alunos simulados, no kc_00:
+
+| quem | antes | agora |
+| --- | --- | --- |
+| acerta tudo, firme | 12 telas, 16 toques | igual |
+| não sabe, e aprende | 17 a 22 telas, 38 a 43 toques | 22 telas, 38 toques, sempre com a pergunta antes |
+| erra todo passo | 31 telas, 142 toques | 32 telas, 80 toques |
+| diz a crença de cada ideia | 32 telas, 31 toques | igual |
+
+A subida do tópico foi de 27 para 22 passos. No kc_02, quem erra tudo
+foi de 165 para 95 toques.
+
+**Sessão começada pelas regras antigas não é refeita pelas novas.** O
+registro reexecuta as respostas gravadas, e as mesmas respostas cairiam
+em telas diferentes. A linha de abertura diz a versão das regras
+(`mvp/trilha_log.VERSAO`, agora 2), e a de outra versão é recusada com a
+frase de quem está na tela.
+
+**O que fica dito e não resolvido:** o nome do passo, no fechamento, é
+pouco quando o exercício de prática é de prever a saída — "Que número
+este trecho mostra na tela?" não diz QUAL ideia a pessoa tropeçou.
+Resolve com um nome curto por degrau, escrito no conteúdo.
+
 ## 7. O conteúdo
 
 **Já existe, e basta para a trilha funcionar nos treze tópicos**

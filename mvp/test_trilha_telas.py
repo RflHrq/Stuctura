@@ -82,10 +82,14 @@ def test_o_cliente_le_o_que_vem_dentro_do_mapa_e_do_progresso():
     for chave in ("progresso", "feitas", "explicacao", "simples", "veredito",
                   "sessao"):
         assert re.search(r"\b%s\b" % chave, js), chave
-    # O modo e o ritmo da sessão vêm na resposta: quem reabre a página com
-    # o código não passou pela tela de entrada, e os ajustes precisam
-    # saber o que marcar.
-    assert "j.modo" in js and "j.ritmo" in js
+    # O ritmo da sessão vem na resposta: quem reabre a página com o código
+    # não passou pela tela de entrada, e os ajustes precisam saber o que
+    # marcar. O modo também vinha, e a página o lia; desde 13/11/2026 ela
+    # não oferece mais a escolha (mvp/test_trilha_diagnostico.py).
+    assert "j.ritmo" in js and "j.modo" not in js
+    # O fechamento: o que vem dentro do sumário também é lido.
+    for chave in mapa["sumario"]:
+        assert re.search(r"\b%s\b" % re.escape(chave), js), chave
 
 
 def test_o_cliente_desenha_as_cinco_formas_e_os_oito_tipos_de_tela():
@@ -96,10 +100,17 @@ def test_o_cliente_desenha_as_cinco_formas_e_os_oito_tipos_de_tela():
         assert '"%s"' % nome in js, nome
 
 
-def test_o_cliente_manda_as_sete_acoes():
+def test_o_cliente_manda_as_acoes_que_a_pagina_oferece():
+    """ERAM as sete do motor. A sétima, `modo`, trocava entre começar pela
+    pergunta e começar pelos passos; a página não oferece mais essa
+    escolha, e o motor guarda a ação sem ninguém para mandá-la."""
     js = _js()
+    assert "modo" in trilha.ACOES
     for acao in trilha.ACOES:
-        assert '"%s"' % acao in js, acao
+        if acao == "modo":
+            assert 'acao: "modo"' not in js and '"modo"' not in js
+        else:
+            assert '"%s"' % acao in js, acao
 
 
 def test_o_cliente_conhece_todo_veredito_resultado_e_reconferencia():

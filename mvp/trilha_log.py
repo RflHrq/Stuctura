@@ -33,7 +33,17 @@ from mvp.log import agora
 from mvp.motor import Evento
 from mvp.trilha_escada import assinatura
 
-VERSAO = 1
+# A versão do registro E DAS REGRAS sob as quais a linha foi gravada. Uma
+# sessão só é refeita se começou na versão de hoje: reexecutar respostas
+# gravadas sob outras regras cai em telas diferentes, e dá um estado
+# plausível e errado.
+#
+#   1  a primeira trilha: passo errado voltava com outros valores, a
+#      subida tinha todos os degraus, a entrada perguntava o modo
+#   2  13/11/2026: toda ideia abre com a pergunta de diagnóstico; o passo
+#      errado não se repete; a subida são os guiados e um de prática; o
+#      passo que oferece a crença pede a certeza e pode abrir a refutação
+VERSAO = 2
 
 # O tipo da linha de entrada. Não é evento do motor: o motor não sabe que
 # existe registro.
@@ -155,6 +165,10 @@ def reconstroi(d, escadas, destino: Path, sessao: str) -> "trilha.Transicao":
             % sessao)
     linhas = le(destino, sessao)
     abertura = next((l for l in linhas if l["tipo"] == "trilha_iniciada"), None)
+    if abertura is not None and abertura.get("v") != VERSAO:
+        raise RegistroNaoReexecutavel(
+            "Não foi possível retomar a sessão %s: a trilha mudou desde que "
+            "ela começou. Use outro código para começar de novo." % sessao)
     if abertura is None or abertura.get("escada") != assinatura(escadas):
         raise RegistroNaoReexecutavel(
             "Não foi possível retomar a sessão %s: o conteúdo deste tópico "

@@ -88,6 +88,20 @@
         background:var(--aviso-fundo); border-radius:0 8px 8px 0; font-size:17px}
 .t-caixa{padding:10px 14px; border-radius:8px; margin:0 0 14px;
          border:1px solid var(--erro); background:var(--erro-fundo)}
+/* O fechamento: o que a sessão achou, antes da lista ideia por ideia. */
+.t-sumario{padding:12px 16px; border-radius:10px; margin:0 0 14px;
+           border:1px solid var(--linha); background:var(--cartao)}
+.t-sumario h3{margin:0 0 8px; font-size:16px}
+.t-sumario > ul{margin:0; padding:0; list-style:none}
+.t-sumario > ul > li{padding:8px 0; border-top:1px solid var(--linha)}
+.t-sumario > ul > li:first-child{border-top:0; padding-top:0}
+.t-sumario .nota{margin:4px 0 0}
+.t-sumario .t-fala{margin:0 0 6px; font-size:15.5px}
+.t-sumario .apoio{margin:4px 0 0 18px; padding:0; font-size:14px}
+.t-sumario.t-ideia-errada{border-color:var(--aviso)}
+.t-sumario.t-firme{border-color:var(--ok)}
+.t-sub{margin:20px 0 10px; font-size:15px; color:var(--tinta2)}
+
 /* A previsão da pessoa, ao lado do que a máquina fez. */
 .t-previu{padding:10px 14px; border-radius:8px; margin:0 0 16px;
           border:1px solid var(--linha); background:var(--cartao)}

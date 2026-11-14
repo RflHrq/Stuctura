@@ -28,8 +28,8 @@ from trilha_alunos import caminha  # noqa: E402
 from mvp import (  # noqa: E402
     motor, portal, trilha, trilha_app, trilha_escada, trilha_log)
 from mvp.test_trilha import (  # noqa: E402
-    D, ESC, SEM_PROVA, _anda, _ate_a_abertura, _comeca, _marca,
-    _tela_voce_disse_de)
+    D, ESC, SEM_PROVA, _anda, _ate_a_abertura, _com_uma_versao_so, _comeca,
+    _marca, _tela_voce_disse_de)
 from mvp.test_trilha_app import _abre, _age, _tela  # noqa: E402
 
 
@@ -174,34 +174,70 @@ def _treina_certo(t, no="B1"):
 
 
 def test_com_um_erro_na_pratica_o_treino_ainda_fecha():
-    """Um erro na subida gasta as duas versões daquele degrau. Sobrava UM
-    exercício, e um não fecha o treino: a premissa ficava em aberto
-    mesmo com a pessoa acertando tudo depois da prova."""
+    """O treino depois da escada tem de poder fechar.
+
+    Quando este teste nasceu, um erro na subida gastava as duas versões
+    daquele degrau, sobrava UM exercício, e o treino caía numa questão de
+    marcar para fechar. Desde 13/11/2026 a subida não repete passo: o
+    erro gasta uma versão só, e sobram exercícios para o treino inteiro.
+    """
     t = _prova_depois_da_escada(erra=(ESC["B1"].pratica[0].id,))
     fim, treinos = _treina_certo(t)
     assert [x.dados["papel"] for x in treinos] == ["treino", "treino"]
-    assert [x.tipo for x in treinos] == ["degrau", "pergunta"]
+    assert [x.tipo for x in treinos] == ["degrau", "degrau"]
     assert fim.estado.premissa("B1").resultado == "corrigiu"
+
+
+def _anda_em(esc, t, persona="sabe"):
+    return trilha.avanca(D, esc, t.estado,
+                         trilha_alunos.responde(D, esc, t.tela, persona,
+                                                t.estado))
+
+
+def _prova_no_topo(esc):
+    """Com as escadas `esc`: sobe o B1 acertando, diz a crença no topo, e
+    devolve a primeira tela depois da máquina."""
+    t = trilha.inicia(D, esc, "s1")
+    t = trilha.avanca(D, esc, t.estado,
+                      trilha.Entrada(acao="comecar", modo="explique"))
+    while t.tela.tipo != "pergunta":
+        t = _anda_em(esc, t)
+    t = trilha.avanca(D, esc, t.estado,
+                      _marca(t.estado, crenca="type_is_a_hint"))
+    assert t.tela.tipo == "voce_disse"
+    while t.tela.tipo in ("voce_disse", "maquina"):
+        t = _anda_em(esc, t)
+    return t
 
 
 def test_sem_exercicio_livre_o_treino_cai_nas_questoes_de_marcar():
-    """Errou os dois degraus de prática: não sobra exercício. O botão
-    "Treinar esta ideia" levava direto à premissa seguinte, sem treino
-    nenhum. A spec 6.5 manda cair nas questões de marcar."""
-    t = _prova_depois_da_escada(erra=tuple(g.id for g in ESC["B1"].pratica))
+    """Acabaram os exercícios: o botão "Treinar esta ideia" levava direto
+    à premissa seguinte, sem treino nenhum. A spec 6.5 manda cair nas
+    questões de marcar.
+
+    O cenário era errar os dois degraus de prática na subida. A subida
+    não gasta mais as duas versões, e o caso em que os exercícios acabam
+    é o de escadas com uma versão por degrau: sobra um exercício para o
+    treino, e a segunda resposta tem de vir de uma questão."""
+    esc = _com_uma_versao_so()
+    t = _prova_no_topo(esc)
+    assert (t.tela.tipo, t.tela.dados["papel"]) == ("degrau", "treino")
+    t = _anda_em(esc, t)
     assert (t.tela.tipo, t.tela.dados["papel"]) == ("pergunta", "treino")
     assert t.tela.dados["pede_razao"] and not t.tela.dados["pede_certeza"]
-    fim, treinos = _treina_certo(t)
-    assert len(treinos) == 2
-    assert fim.estado.premissa("B1").resultado == "corrigiu"
+    t = _anda_em(esc, t)
+    ep = t.estado.premissa("B1")
+    assert (ep.resultado, ep.treinos) == ("corrigiu", 2)
 
 
 def test_errar_a_questao_de_treino_zera_a_sequencia_e_traz_o_retorno():
-    t = _prova_depois_da_escada(erra=tuple(g.id for g in ESC["B1"].pratica))
-    errada = trilha.avanca(D, ESC, t.estado, trilha.Entrada(acao="nao_sei"))
+    esc = _com_uma_versao_so()
+    t = _anda_em(esc, _prova_no_topo(esc))        # o exercício, certo
+    assert t.tela.tipo == "pergunta" and t.estado.premissa("B1").streak == 1
+    errada = trilha.avanca(D, esc, t.estado, trilha.Entrada(acao="nao_sei"))
     assert (errada.tela.tipo, errada.tela.dados["veredito"]) == ("retorno", "errada")
     assert errada.estado.premissa("B1").streak == 0
-    assert errada.estado.premissa("B1").treinos == 1
+    assert errada.estado.premissa("B1").treinos == 2
 
 
 # --------------------------------------------------------------------------
@@ -250,7 +286,7 @@ def test_na_reconferencia_a_explicacao_nao_abre():
 # (5) A crença dita num degrau é registrada
 # --------------------------------------------------------------------------
 
-def _escolhe_no_degrau(estado, arquivo):
+def _escolhe_no_degrau(estado, arquivo, confianca=""):
     """A entrada que toca a peça de índice `arquivo` (do YAML) no degrau."""
     g = next(x for x in ESC[estado.tela.dados["premissa"]].degraus
              if x.id == estado.tela.dados["degrau"])
@@ -258,16 +294,22 @@ def _escolhe_no_degrau(estado, arquivo):
     ordem = trilha_escada.ordem_das_pecas(estado.semente, g.id,
                                           estado.passo.versao, g.forma,
                                           len(v.pecas))
-    return trilha.Entrada(acao="responder", pecas=(ordem.index(arquivo),))
+    return trilha.Entrada(acao="responder", pecas=(ordem.index(arquivo),),
+                          confianca=confianca)
 
 
 def test_a_crenca_dita_num_degrau_guiado_vai_para_o_registro_e_para_o_mapa():
     """O B1_3 oferece "Tanto faz: o tipo é só um aviso". O YAML liga essa
-    alternativa à crença, e o motor jogava a ligação fora."""
+    alternativa à crença, e o motor jogava a ligação fora.
+
+    Desde 13/11/2026 esse passo pede a certeza. Dita como CHUTE, a crença
+    fica anotada, que é o que este teste guarda; dita com convicção, ela
+    abre a refutação ali mesmo (mvp/test_trilha_diagnostico.py)."""
     t = _comeca("explique")
     while t.tela.dados["degrau"] != "esc_kc00_B1_3":
         t = _anda(t.estado)
-    t = trilha.avanca(D, ESC, t.estado, _escolhe_no_degrau(t.estado, 2))
+    t = trilha.avanca(D, ESC, t.estado,
+                      _escolhe_no_degrau(t.estado, 2, "chutei"))
     assert [e.dados for e in t.eventos if e.tipo == "crenca_registrada"] == [
         {"no": "B1", "crenca": "type_is_a_hint"}]
     assert t.estado.premissa("B1").apareceu == ("type_is_a_hint",)
@@ -476,10 +518,11 @@ def test_a_leitura_no_repositorio_e_a_do_conteudo_de_hoje():
 def test_ha_aluno_que_tropeca_na_pratica_e_aluno_que_abre_a_explicacao():
     assert {"tropeca_na_pratica", "abre_a_explicacao"} <= set(trilha_alunos.PERSONAS)
     tropeca = caminha(D, ESC, "tropeca_na_pratica")
-    tentativas = [t.dados["tentativa"] for t in tropeca.telas
-                  if t.tipo == "degrau" and t.dados["papel"] == "subida"
-                  and not t.dados["guiado"]]
-    assert 2 in tentativas and tropeca.estado.fim
+    # Tropeçar ERA ganhar uma segunda tentativa. Sem ela, é o passo de
+    # prática da subida ficar registrado como a lacuna da ideia.
+    assert tropeca.estado.fim
+    assert all(tropeca.estado.premissa(n).tropecos == (ESC[n].pratica[0].id,)
+               for n in D.ordem)
     abre = caminha(D, ESC, "abre_a_explicacao")
     assert {abre.estado.premissa(n).resultado for n in D.ordem} == {
         "aprendeu_agora"}

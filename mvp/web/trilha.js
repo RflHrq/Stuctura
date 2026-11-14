@@ -36,16 +36,11 @@
     cartao: null,       // o cartão na tela, para o retorno entrar ABAIXO dele
     inicio: 0,
     ocupado: false,     // um pedido no ar: os botões não agem de novo
-    modo: "",
     ritmo: ""
   };
 
   /* ------------------------------------------------------ frases fixas */
 
-  var MODO = {
-    "direto": { nome: "Me pergunte direto", detalhe: "já vi isso antes" },
-    "explique": { nome: "Me explique antes", detalhe: "nunca vi, ou não lembro" }
-  };
   var RITMO = {
     "completo": { nome: "Completo",
                   detalhe: "duas perguntas por ideia: uma de marcar, uma de escrever" },
@@ -213,10 +208,9 @@
   function recebe(j, mesmaTela) {
     S.tela = j.tela;
     S.passo = j.passo;
-    /* O modo e o ritmo vêm do servidor a cada resposta. Quem reabre a
-     * página com o código não passou pela tela de entrada, e sem isto
-     * os ajustes abririam vazios. */
-    S.modo = j.modo || S.modo;
+    /* O ritmo vem do servidor a cada resposta. Quem reabre a página com
+     * o código não passou pela tela de entrada, e sem isto os ajustes
+     * abririam vazios. */
     S.ritmo = j.ritmo || S.ritmo;
     desenhaAjustes();
     desenhaProgresso(j.progresso, j.tela);
@@ -294,7 +288,6 @@
         caixa.appendChild(b);
       });
     }
-    linha("ajuste-modo", MODO, S.modo, "modo");
     linha("ajuste-ritmo", RITMO, S.ritmo, "ritmo");
   }
 
@@ -389,22 +382,19 @@
     c.appendChild(linha);
     c.appendChild(nota);
 
-    c.appendChild(p("t-pede", "Como você quer começar?"));
-    var modos = el("div", { "class": "opcoes" });
-    t.modos.forEach(function (m) {
-      var b = el("button", { type: "button", "class": "opcao" }, [
-        el("strong", { texto: MODO[m].nome }),
-        el("span", { texto: " — " + MODO[m].detalhe })
-      ]);
-      b.addEventListener("click", function () {
-        S.modo = m;
+    /* Um botão só. Toda ideia abre com uma pergunta, e a entrada diz o
+     * que fazer com ela quando a pessoa não sabe: o "Não sei" leva aos
+     * passos, e também é resposta. */
+    c.appendChild(p("t-frase",
+      "Cada ideia começa com uma pergunta. Se você não souber, toque em " +
+      "“Não sei”: a ideia é construída passo a passo, e segue."));
+    c.appendChild(el("div", { "class": "t-acoes" }, [
+      botao("Começar", function () {
         S.ritmo = ritmo;
         desenhaAjustes();
-        age({ acao: "comecar", modo: m, ritmo: ritmo });
-      });
-      modos.appendChild(b);
-    });
-    c.appendChild(modos);
+        age({ acao: "comecar", ritmo: ritmo });
+      })
+    ]));
   };
 
   DESENHA["pergunta"] = function (c, t) {
@@ -585,19 +575,36 @@
       c.appendChild(bloco(t.antes));
     }
 
+    /* O passo em que uma alternativa é a crença pede também a certeza:
+     * é ela que separa quem acredita de quem chutou. Sem ela marcada, o
+     * botão não responde. */
     var resposta = null;
+    var certeza = "";
+    function completo() {
+      return !!resposta && (!t.pede_certeza || !!certeza);
+    }
     function envia() {
-      if (!resposta) return;
+      if (!completo()) return;
       age({ acao: "responder", pecas: resposta.pecas || [],
-            texto: resposta.texto || "" });
+            texto: resposta.texto || "", confianca: certeza });
     }
     var enviar = botao("Responder", envia);
     enviar.disabled = true;
     function pronto(r) {
       resposta = r;
-      enviar.disabled = !r;
+      enviar.disabled = !completo();
     }
-    (FORMA[t.forma] || FORMA["escolher"])(c, t, pronto, envia);
+    (FORMA[t.forma] || FORMA["escolher"])(c, t, pronto, function () {
+      /* O "enter" de quem digita só responde com tudo marcado. */
+      envia();
+    });
+    if (t.pede_certeza) {
+      c.appendChild(p("t-pede", "Quanta certeza você tem?"));
+      c.appendChild(grupo("confianca", "conf", t.escala, function (i) {
+        certeza = t.escala[i];
+        enviar.disabled = !completo();
+      }));
+    }
     c.appendChild(el("div", { "class": "t-acoes" }, [
       enviar, explicacaoSe(t)
     ]));
@@ -755,9 +762,62 @@
     ]));
   };
 
+  /* O FECHAMENTO. Antes da lista ideia por ideia, o que a sessão achou
+   * nesta pessoa: as ideias erradas e se foram corrigidas, as lacunas e
+   * em que passos, e o que já estava firme. É o resumo que o Rafael
+   * pediu — e é o que o sistema existe para dizer. */
+  function grupoDoSumario(titulo, classe, itens, monta) {
+    if (!itens.length) return null;
+    var caixa = el("section", { "class": "t-sumario " + classe });
+    caixa.appendChild(el("h3", { texto: titulo + " (" + itens.length + ")" }));
+    var ul = el("ul", {});
+    itens.forEach(function (x) { ul.appendChild(monta(x)); });
+    caixa.appendChild(ul);
+    return caixa;
+  }
+
+  function desenhaSumario(c, s) {
+    var blocos = [
+      grupoDoSumario("Ideias erradas encontradas", "t-ideia-errada",
+                     s.ideias_erradas, function (x) {
+        var estado = x.corrigida ? "corrigida nesta sessão" : "ainda em aberto";
+        if (x.voltou) estado += ", e voltou na reconferência do fim";
+        return el("li", {}, [
+          el("blockquote", { "class": "t-fala", texto: x.crenca }),
+          p("nota", "Situação: " + estado + "."),
+          p("nota", "A ideia que fica de pé: " + x.texto)
+        ]);
+      }),
+      grupoDoSumario("Lacunas", "t-lacuna", s.lacunas, function (x) {
+        var li = el("li", {}, [p("frase", x.texto)]);
+        if (x.passos.length) {
+          li.appendChild(p("nota", "Você tropeçou " +
+                           (x.passos.length === 1 ? "neste passo:" : "nestes passos:")));
+          li.appendChild(el("ul", { "class": "apoio" }, x.passos.map(function (f) {
+            return el("li", { texto: f });
+          })));
+        } else {
+          li.appendChild(p("nota", "Você subiu os passos sem tropeçar."));
+        }
+        li.appendChild(p("nota", x.fechou ? "Situação: aprendida pelos passos."
+                                          : "Situação: ainda em aberto."));
+        return li;
+      }),
+      grupoDoSumario("Já estava firme", "t-firme", s.firmes, function (x) {
+        return el("li", { texto: x.texto });
+      }),
+      grupoDoSumario("Ficou em aberto", "t-lacuna", s.em_aberto, function (x) {
+        return el("li", { texto: x.texto });
+      })
+    ];
+    blocos.forEach(function (b) { if (b) c.appendChild(b); });
+  }
+
   DESENHA["mapa"] = function (c, t) {
-    c.appendChild(el("h2", { texto: "O que você assimilou nesta sessão" }));
+    c.appendChild(el("h2", { texto: "O que esta sessão encontrou" }));
     c.appendChild(p("nota", "Isto fala desta sessão. Manter com o tempo pede voltar ao assunto em outros dias."));
+    desenhaSumario(c, t.sumario);
+    c.appendChild(el("h3", { "class": "t-sub", texto: "Ideia por ideia" }));
     var lista = el("div", { "class": "mapa" });
     t.premissas.forEach(function (x) {
       var classe = x.resultado === "em_aberto" ? " t-aberto" : " t-bem";
@@ -771,8 +831,11 @@
         }));
       }
       if (x.trabalho === "lacuna") {
-        corpo.appendChild(p("nota", "Degraus certos de primeira: " + x.degrau +
+        corpo.appendChild(p("nota", "Passos certos: " + x.degrau +
                             " de " + x.degraus + "."));
+        (x.tropecos || []).forEach(function (tr) {
+          corpo.appendChild(p("nota", "Tropeçou em: " + tr.texto));
+        });
       }
       if (x.crenca) corpo.appendChild(p("nota", "A ideia corrigida: “" + x.crenca + "”"));
       (x.apareceu || []).forEach(function (fala) {
