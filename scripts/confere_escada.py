@@ -60,9 +60,16 @@ def arquivo_da_escada(topico: str) -> pathlib.Path:
     return DOMINIO / ("escada_%s.yaml" % topico.replace("_", ""))
 
 
-# Uma função inteira numa linha só: `void zera(int *q) { *q = 0; }`. É a
-# única forma de função que a escada mostra.
+# Uma função inteira numa linha só: `void zera(int *q) { *q = 0; }`. Foi
+# a única forma de função da escada até o kc_07.
 FUNCAO = re.compile(r"^\s*(void|int|char)\s+\*?\s*\w+\s*\([^;{]*\)\s*\{.*\}\s*$")
+
+# A mesma função escrita em várias linhas, que entrou com o kc_01: vai da
+# linha que começa na margem com o tipo e termina em `{` até o `}`
+# sozinho, também na margem. O `if` e o que mais abrir chave dentro do
+# trecho não casa: não começa com tipo e nome de função.
+ABRE_FUNCAO = re.compile(r"^(void|int|char)\s+\*?\s*\w+\s*\([^;{]*\)\s*\{\s*$")
+FECHA_FUNCAO = re.compile(r"^\}\s*$")
 
 
 def programa_de(antes: str, linhas: str) -> str:
@@ -75,9 +82,22 @@ def programa_de(antes: str, linhas: str) -> str:
     """
     corpo = "\n".join(parte.strip("\n") for parte in (antes, linhas)
                       if parte and parte.strip())
-    fora = [l for l in corpo.split("\n") if FUNCAO.match(l)]
-    dentro = [l for l in corpo.split("\n") if not FUNCAO.match(l)]
-    return ("#include <stdio.h>\n%sint main(void) {\n%s\nreturn 0;\n}\n"
+    fora, dentro, aberta = [], [], False
+    for l in corpo.split("\n"):
+        if aberta:
+            fora.append(l)
+            aberta = not FECHA_FUNCAO.match(l)
+        elif FUNCAO.match(l):
+            fora.append(l)
+        elif ABRE_FUNCAO.match(l):
+            fora.append(l)
+            aberta = True
+        else:
+            dentro.append(l)
+    # <stdlib.h> entrou com o kc_01: é onde moram `malloc` e `free`. O
+    # trecho que a pessoa lê não traz `#include` nenhum, nem este.
+    return ("#include <stdio.h>\n#include <stdlib.h>\n"
+            "%sint main(void) {\n%s\nreturn 0;\n}\n"
             % ("".join(l + "\n" for l in fora), "\n".join(dentro)))
 
 
@@ -123,11 +143,14 @@ def diz(programa: str, avisos: tuple[str, ...] = ()) -> str:
         pasta = pathlib.Path(tmp)
         (pasta / "o.c").write_text(programa, encoding="utf-8")
         try:
+            # A saída é lida como UTF-8, e não na codificação da máquina: o
+            # analisador de fluxo desenha o caminho do programa com
+            # caracteres que o cp1252 do Windows não tem.
             saiu = subprocess.run(
                 [str(gcc), "-std=c17", "-Wall", *avisos,
                  "-c", "-o", "o.o", "o.c"],
-                capture_output=True, text=True, timeout=oraculo.TEMPO,
-                cwd=str(pasta))
+                capture_output=True, text=True, encoding="utf-8",
+                errors="replace", timeout=oraculo.TEMPO, cwd=str(pasta))
         except subprocess.TimeoutExpired:
             return ""
     return saiu.stderr

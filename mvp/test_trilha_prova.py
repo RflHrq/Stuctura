@@ -600,3 +600,107 @@ def test_cala_e_avisos_malformados_sao_recusados(tmp_path, estraga, diz):
     with pytest.raises(trilha_escada.EscadaInvalida) as erro:
         _le(tmp_path, _com_prova(prova))
     assert any(diz in p for p in erro.value.problemas), erro.value.problemas
+
+
+# --------------------------------------------------------------------------
+# O que o kc_01 pediu ao conferidor: malloc e free, e o bloco que vaza
+# --------------------------------------------------------------------------
+
+# Uma função pede um bloco e termina sem devolver.
+VAZA = ("void usa(void) { int *p = malloc(sizeof(int)); "
+        "if (p != NULL) *p = 7; }\n\nusa();\n")
+
+
+@tem_gcc
+def test_o_trecho_com_malloc_e_free_compila_e_roda():
+    """A escada não mostra `#include`: o conferidor embrulha o trecho. Com
+    o kc_01 entram `malloc` e `free`, que moram em <stdlib.h> — sem ele o
+    gcc não aceita o trecho, por função que ninguém declarou."""
+    programa = confere_escada.programa_de(
+        "", "int *p;\n\np = malloc(sizeof(int));\n*p = 7;\n"
+            "printf(\"%d\\n\", *p);\nfree(p);\n")
+    ok, nota = confere_escada.compila(programa)
+    assert ok, nota
+    assert confere_escada._saida(programa) == (True, "7")
+
+
+VARIAS_LINHAS = ("int conta(void) {\n"
+                 "    int n = 0;\n"
+                 "    n = n + 1;\n"
+                 "    return n;\n"
+                 "}\n"
+                 "\n"
+                 "conta();\n"
+                 "printf(\"%d\\n\", conta());\n")
+
+
+def test_a_funcao_de_varias_linhas_tambem_fica_fora_do_main():
+    """O banco do kc_01 escreve as funções em várias linhas, que é como
+    elas aparecem em qualquer programa. O trecho de um passo pode trazer
+    uma assim: da linha que termina em `{` até o `}` sozinho, na margem,
+    tudo vai para fora do `main`."""
+    p = confere_escada.programa_de("", VARIAS_LINHAS)
+    fora, dentro = p.split("int main(void) {")
+    for linha in ("int conta(void) {", "    int n = 0;", "    return n;",
+                  "\n}\n"):
+        assert linha in fora, linha
+    assert "conta();" in dentro and "printf(" in dentro
+    assert "int n = 0;" not in dentro
+
+
+def test_chave_de_dentro_do_main_nao_abre_funcao():
+    """Só abre função a linha que começa na margem com o tipo e termina em
+    `{`. O `if` de uma linha, que a escada já usa, continua onde estava."""
+    p = confere_escada.programa_de(
+        "", "int *p;\n\np = NULL;\nif (p == NULL) printf(\"%d\\n\", 1);\n")
+    assert p.index("int main(void)") < p.index("if (p == NULL)")
+
+
+def _e_c_padrao(programa: str) -> bool:
+    """Função definida dentro do `main` o gcc aceita, por extensão — e por
+    isso rodar o programa não diz se ela ficou fora. Com -pedantic-errors
+    ele só aceita o que é C padrão."""
+    import subprocess
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        (pathlib.Path(tmp) / "o.c").write_text(programa, encoding="utf-8")
+        saiu = subprocess.run(
+            [str(oraculo.GCC), "-std=c17", "-pedantic-errors",
+             "-fsyntax-only", "o.c"],
+            capture_output=True, cwd=tmp, timeout=oraculo.TEMPO)
+    return saiu.returncode == 0
+
+
+@tem_gcc
+def test_o_trecho_com_funcao_de_varias_linhas_e_c_padrao_e_roda():
+    programa = confere_escada.programa_de("", VARIAS_LINHAS)
+    assert _e_c_padrao(programa)
+    assert oraculo.roda(programa, "1") == (True, "1")
+    # A de uma linha, que já ficava fora, continua C padrão.
+    assert _e_c_padrao(confere_escada.programa_de(
+        "", "int dobro(int n) { return n + n; }\n\n"
+            "printf(\"%d\\n\", dobro(4));\n"))
+
+
+@tem_gcc
+def test_o_que_o_compilador_diz_e_lido_como_utf_8():
+    """O analisador de fluxo desenha o caminho do programa com caracteres
+    que não existem no cp1252. No Windows, ler a saída na codificação da
+    máquina quebrava a leitura, e o que o compilador disse se perdia."""
+    dito = confere_escada.diz(confere_escada.programa_de("", VAZA),
+                              ("-fanalyzer",))
+    assert isinstance(dito, str) and "leak of 'p'" in dito
+
+
+@tem_gcc
+def test_a_prova_pode_pedir_o_analisador_de_fluxo(tmp_path):
+    """Bloco pedido e nunca devolvido é coisa que o gcc só aponta seguindo
+    o caminho do programa (-fanalyzer). A opção entra na lista fechada; sem
+    ela, a mesma prova não se confirma."""
+    com = _prova_de_uma_linha_so(VAZA, "leak of 'p'", avisos="-fanalyzer")
+    escadas = _le(tmp_path, _com_prova(com))
+    assert escadas["B1"].provas[0].avisos == ("-fanalyzer",)
+    assert confere_escada.confere(escadas) == []
+
+    sem = _prova_de_uma_linha_so(VAZA, "leak of 'p'")
+    assert len(confere_escada.confere(_le(tmp_path, _com_prova(sem)))) == 1
