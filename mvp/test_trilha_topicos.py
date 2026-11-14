@@ -490,6 +490,81 @@ def test_no_kc_05_ficam_fora_doze_e_so_o_i2_abre_com_conceito():
             assert not ruim.search(por_id[i].codigo or ""), i
 
 
+FUNCAO_NO_TRECHO = re.compile(r"^\s*(?:/\*.*?\*/\s*)?(?:void|int)\s+\w+\(", re.M)
+
+
+def _tem_global(codigo):
+    """Variável declarada ANTES da linha de uma função: no trecho de uma
+    questão, é a variável global — a que a função enxerga sem receber."""
+    linhas = [x for x in codigo.split("\n") if x.strip()]
+    funcoes = [i for i, x in enumerate(linhas) if FUNCAO_NO_TRECHO.match(x)]
+    return bool(funcoes) and any(
+        re.match(r"\s*int\b[^()]*;", x) for x in linhas[:funcoes[-1]])
+
+
+def test_no_kc_06_ficam_fora_sete_e_so_o_b2_abre_com_conceito():
+    """O banco do kc_06 não foi mexido. Ficam fora as sete questões que
+    usam o que escada nenhuma ensinou até aqui: variável global, `return`,
+    o `++`, ponteiro para ponteiro, `malloc`."""
+    fora, quantas, abre = _selecao("kc_06")
+    assert fora == {
+        "B1": ("ciu_kc06_003",),
+        "B2": ("ciu_kc06_005", "ciu_kc06_t05", "ciu_kc06_006", "ciu_kc06_t06"),
+        "I3": ("ciu_kc06_015", "ciu_kc06_t15"),
+    }
+    # O custo, dito: o B2 fica com as duas questões de conceito, e é a
+    # única premissa do tópico que não abre com código.
+    assert quantas == {"B1": 5, "B2": 2, "I1": 6, "I2": 6, "I3": 4, "I4": 6}
+    assert abre == {
+        "B1": "ciu_kc06_002", "B2": "ciu_kc06_004", "I1": "ciu_kc06_008",
+        "I2": "ciu_kc06_011", "I3": "ciu_kc06_014", "I4": "ciu_kc06_017"}
+    d = _dominio("kc_06")
+    por_id = {a.id: a for a in d.atividades}
+    assert [no for no, i in abre.items() if not por_id[i].codigo] == ["B2"]
+    ruim = re.compile(r"\b(malloc|sizeof|return)\b|\+\+|\*\*|\(void\)")
+
+    def fora_da_regua(i):
+        codigo = por_id[i].codigo or ""
+        return bool(ruim.search(codigo)) or _tem_global(codigo)
+
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_06", no):
+            assert not fora_da_regua(i), i
+    # A régua morde: as sete de fora são pegas por ela, todas.
+    assert all(fora_da_regua(i) for ids in fora.values() for i in ids)
+
+
+def test_o_kc_06_ensina_o_que_as_questoes_dele_usam():
+    """Sete questões servidas usam função com mais de um parâmetro, ou
+    variável declarada dentro da função — a troca de dois valores entre
+    elas. As duas coisas são apresentadas num passo guiado do B1, a
+    primeira premissa, antes de qualquer questão que as use no treino."""
+    d, escadas = _dominio("kc_06"), _escadas("kc_06")
+    por_id = {a.id: a for a in d.atividades}
+    dois = re.compile(r"\w+\((?:int\s*\*?\s*\w+\s*,\s*)+int\s*\*?\s*\w+\)\s*\{")
+    local = re.compile(r"\{[^}]*\bint\s*\*?\s*\w+\s*=")
+    usam = {i for no in d.ordem for i in _servidas_pela_trilha("kc_06", no)
+            if dois.search(por_id[i].codigo or "")
+            or local.search(por_id[i].codigo or "")}
+    assert usam == {"ciu_kc06_t02", "ciu_kc06_t03", "ciu_kc06_t09",
+                    "ciu_kc06_t12", "ciu_kc06_014", "ciu_kc06_t17",
+                    "ciu_kc06_t18"}
+    guiados = [g for g in escadas["B1"].degraus if g.guiado]
+    apresenta = [g for g in guiados
+                 if any(dois.search(v.mostra) and local.search(v.mostra)
+                        for v in g.versoes)]
+    assert len(apresenta) == 1
+    frases = " ".join(apresenta[0].frases)
+    assert "mais de um parâmetro" in frases and "dentro das chaves" in frases
+    # E as palavras que as questões de conceito usam estão ditas num passo
+    # guiado: argumento, local, por valor, por referência.
+    dito = " ".join(f for e in escadas.values() for g in e.degraus
+                    for f in g.frases)
+    for palavra in ("argumento", "local", "passagem por valor",
+                    "passagem por referência"):
+        assert palavra in dito, palavra
+
+
 def test_sem_a_questao_de_degrau_2_a_premissa_abre_com_a_de_codigo():
     """A abertura é a questão de código de degrau 2: é a que APLICA a
     ideia. Quando ela fica fora da trilha, quem abre é outra de código, e

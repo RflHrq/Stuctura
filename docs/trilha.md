@@ -900,6 +900,58 @@ cada uma diz: a do I2 (guardar NULL num `int` faz o gcc reclamar, porque
 nele NULL é escrito como ponteiro) e a do I3 (o aviso de fluxo). O que
 elas mostram é o que esta máquina diz, e não o que a linguagem obriga.
 
+**O kc_06, em 13/11/2026 — passagem por referência**
+
+O sexto na ordem dos pré-requisitos, e o primeiro escrito depois de o
+diagnóstico voltar para dentro dos passos (6.17). Seis premissas, 31
+degraus, uma prova por crença (`mvp/dominio/escada_kc06.yaml`,
+`docs/escada-kc06-leitura.md`). Quem chega aqui já chamou função de uma
+linha, recebendo valor e recebendo endereço (kc_02, kc_04); o tópico
+para em cima da chamada e diz o que acontece nela: nasce uma variável
+nova, entra nela uma cópia, e o que muda tudo é o que foi copiado.
+
+- **As palavras das questões estão ditas nos passos.** As questões de
+  conceito do banco falam em "argumento", "variável local" e "passagem
+  por referência", e a escada, na primeira redação, não usava nenhuma
+  das três. Cada uma entra numa frase de passo guiado, e um teste
+  confere.
+- **O B1 tem um passo guiado a mais.** Sete questões servidas usam
+  função com mais de um parâmetro ou variável declarada dentro da função
+  — a troca de dois valores entre elas. As duas coisas são apresentadas
+  juntas, num passo só ("as variáveis da função são os parâmetros e as
+  que ela declara"); sem ele, as sete ficariam fora da trilha.
+- **O B1 e o I1 se medem pelo mesmo experimento** — a função muda o
+  parâmetro, e a variável de quem chamou fica como estava. Para não ser a
+  mesma pergunta duas vezes, a prática do B1 pergunta pela identidade do
+  parâmetro (tem o mesmo nome da variável de fora, e ainda assim é
+  outra; é variável de verdade mesmo quando a chamada entrega só um
+  número), e a do I1 pela consequência.
+- **Duas provas mostram endereço**, a do B1 e a do I4, com endereços de
+  exemplo e a forma conferida: o que desmente "o parâmetro é a variável
+  de quem chamou" é cada um ter o seu lugar.
+- **A prova do B2 troca a variável global por um ponteiro.** O que
+  desmente "o que se passa é a conta escrita na chamada" é a variável da
+  conta mudar depois da chamada e o parâmetro não acompanhar. No banco
+  isso é feito com variável declarada fora da função; na escada, a
+  função recebe também o endereço e muda a variável por ele.
+- **O banco não foi mexido.** Sete das 36 questões ficam fora (variável
+  global, `return`, `++`, ponteiro para ponteiro, `malloc`). O custo
+  está no B2: ficam as duas questões de conceito, e é com uma delas que
+  a premissa abre — a única do tópico que não abre com código.
+  Reescrever a `ciu_kc06_005` e a `ciu_kc06_t06` com o ponteiro no lugar
+  da variável global, ou ensinar variável global na escada, é decisão do
+  Rafael.
+
+Fica dito, como no kc_02: as questões deste banco usam `x` e `f`, e a
+escada `idade`, `nota` e `zera`; e as razões que a pessoa escolhe falam
+em "casa" e "bilhete", que é o vocabulário do grafo, enquanto os passos
+falam em "variável" e "lugar".
+
+Os alunos simulados, no ritmo completo: quem acerta tudo, 14 telas e 19
+toques (8 e 13 no rápido); quem não sabe e aprende, 26 e 44; quem erra
+todo passo, 37 e 91; quem diz a crença de cada ideia e depois acerta, 38
+e 37.
+
 **Novo, e opcional — a trilha funciona sem**
 
 1. **A previsão.** Os programas de demonstração imprimem frases ("o
