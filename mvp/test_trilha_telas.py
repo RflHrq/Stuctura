@@ -45,15 +45,16 @@ def test_a_raiz_serve_a_pagina_da_trilha(tmp_path):
     cliente = TestClient(trilha_app.cria_app(D, ESC, tmp_path / "t.jsonl"))
     r = cliente.get("/")
     assert r.status_code == 200
-    assert "/web/trilha.js?v=20261113" in r.text
+    assert "/web/trilha.js?v=20261116" in r.text
     assert cliente.get("/web/trilha.js").status_code == 200
     assert cliente.get("/web/trilha.css").status_code == 200
 
 
 def test_os_assets_da_pagina_sao_versionados():
     html = _html()
-    for nome in ("trilha.js", "trilha.css", "figuras.js", "style.css"):
-        assert re.search(r"/web/%s\?v=2026111[23]" % re.escape(nome), html), nome
+    for nome in ("trilha.js", "trilha.css", "figuras.js", "style.css",
+                 "tema.js", "tema.css", "marca.svg"):
+        assert re.search(r"/web/%s\?v=20261116" % re.escape(nome), html), nome
     # Nenhum asset sem versão: o navegador guardaria o antigo.
     soltos = re.findall(r"""(?:src|href)="(/web/[^"?]+)\"""", html)
     assert soltos == []

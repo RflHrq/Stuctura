@@ -1,0 +1,157 @@
+/* Os dois temas da trilha e da página inicial (docs/interface.md).
+
+   Escuro, "noite de editor": fundo pontilhado, um brilho azul no alto,
+   código em cores de editor. Claro, "moldura de terminal": fundo
+   quadriculado, topo escuro como a barra de um terminal, botão laranja.
+
+   Vem DEPOIS de style.css e trilha.css e só redefine: os nomes de
+   variável que elas já usam (--papel, --tinta, --acento...) ganham os
+   valores do tema, e as novas (--editor, --sx-*, --topo, --botao...)
+   servem às peças da roupa nova. O tema vem de `data-tema` em <html>,
+   posto por tema.js antes de a página aparecer. Sem JavaScript não há
+   atributo: vale o claro, ou o escuro se o sistema estiver no escuro.
+
+   Contraste: cada par de texto sobre fundo passa em 4,5:1 — conferido
+   por mvp/test_interface.py, que lê as cores deste arquivo. */
+
+@font-face {
+  font-family: "Nunito";
+  src: url("/web/fontes/nunito.woff2?v=20261116") format("woff2");
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/web/fontes/jetbrains-mono.woff2?v=20261116") format("woff2");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---- claro: moldura de terminal (e o padrão sem JavaScript) ---- */
+html[data-tema="claro"], html:not([data-tema]) {
+  color-scheme: light;
+  --papel: #e9eff1; --cartao: #ffffff; --tinta: #1f2a30; --tinta2: #4c5b62;
+  --linha: #d6dfe3; --linha2: #c3cfd4;
+  --acento: #17708a; --acento-fundo: #e8f5f9;
+  --ok: #1b6647; --ok-fundo: #e0efe7;
+  --erro: #94372a; --erro-fundo: #f8e6e2;
+  --aviso: #7a560f; --aviso-fundo: #f7eedc;
+  --destaque: #b8500f; --destaque-fundo: #fdf0e6;
+  --bilhete: #fff3c4;
+  --editor: #1b2630; --editor-tinta: #e6edf0;
+  --sx-palavra: #7cc4e0; --sx-numero: #f2c14e; --sx-funcao: #f5a97f;
+  --sx-texto: #9fd38a; --sx-comentario: #94a3ab;
+  --topo: #12303a; --topo-tinta: #eaf4f7; --topo-tinta2: #cfe3ea;
+  --topo-linha: #3d6574; --topo-realce: #7cc4e0;
+  --botao: #b8500f; --botao-tinta: #ffffff;
+  --marca-fundo: #1f8fae; --marca-traco: #ffffff; --marca-caixa: #f2a541;
+  --padrao: #d8e2e6;
+  --brilho: rgba(184, 80, 15, .25);
+  --botao-relevo: 0 3px 0 #8a3c0b;
+  --fundo-desenho: linear-gradient(var(--padrao) 1px, transparent 1px),
+                   linear-gradient(90deg, var(--padrao) 1px, transparent 1px);
+  --fundo-passo: 22px 22px;
+}
+
+/* ---- escuro: noite de editor ---- */
+html[data-tema="escuro"] {
+  color-scheme: dark;
+  --papel: #0d1520; --cartao: #152233; --tinta: #e6edf3; --tinta2: #a8b8c6;
+  --linha: #22344a; --linha2: #2b3f56;
+  --acento: #38bdf8; --acento-fundo: #0f3047;
+  --ok: #34d399; --ok-fundo: #0c2a20;
+  --erro: #f87171; --erro-fundo: #2e1517;
+  --aviso: #fbbf24; --aviso-fundo: #2b2410;
+  --destaque: #fb923c; --destaque-fundo: #3a2414;
+  --bilhete: #fcd9a0;
+  --editor: #0a1119; --editor-tinta: #e2e8f0;
+  --sx-palavra: #7dd3fc; --sx-numero: #fcd34d; --sx-funcao: #fdba74;
+  --sx-texto: #86efac; --sx-comentario: #7b8ba3;
+  --topo: #0b1420; --topo-tinta: #dbe6ee; --topo-tinta2: #a8b8c6;
+  --topo-linha: #2b3f56; --topo-realce: #38bdf8;
+  --botao: #38bdf8; --botao-tinta: #051a24;
+  --marca-fundo: #1f5668; --marca-traco: #ffffff; --marca-caixa: #f2a541;
+  --padrao: #1b2a3b;
+  --brilho: rgba(56, 189, 248, .35);
+  --botao-relevo: 0 0 18px rgba(56, 189, 248, .35);
+  --fundo-desenho: radial-gradient(var(--padrao) 1px, transparent 1px),
+                   radial-gradient(1200px 300px at 80% -10%, rgba(56, 189, 248, .12), transparent);
+  --fundo-passo: 18px 18px, 100% 100%;
+}
+
+/* O mesmo escuro, para quem está sem JavaScript com o sistema no escuro.
+   O CSS não deixa reaproveitar o bloco de cima; o teste
+   test_sem_javascript_o_sistema_escuro_usa_o_mesmo_escuro confere que a
+   cópia é igual. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-tema]) {
+    color-scheme: dark;
+    --papel: #0d1520; --cartao: #152233; --tinta: #e6edf3; --tinta2: #a8b8c6;
+    --linha: #22344a; --linha2: #2b3f56;
+    --acento: #38bdf8; --acento-fundo: #0f3047;
+    --ok: #34d399; --ok-fundo: #0c2a20;
+    --erro: #f87171; --erro-fundo: #2e1517;
+    --aviso: #fbbf24; --aviso-fundo: #2b2410;
+    --destaque: #fb923c; --destaque-fundo: #3a2414;
+    --bilhete: #fcd9a0;
+    --editor: #0a1119; --editor-tinta: #e2e8f0;
+    --sx-palavra: #7dd3fc; --sx-numero: #fcd34d; --sx-funcao: #fdba74;
+    --sx-texto: #86efac; --sx-comentario: #7b8ba3;
+    --topo: #0b1420; --topo-tinta: #dbe6ee; --topo-tinta2: #a8b8c6;
+    --topo-linha: #2b3f56; --topo-realce: #38bdf8;
+    --botao: #38bdf8; --botao-tinta: #051a24;
+    --marca-fundo: #1f5668; --marca-traco: #ffffff; --marca-caixa: #f2a541;
+    --padrao: #1b2a3b;
+    --brilho: rgba(56, 189, 248, .35);
+    --botao-relevo: 0 0 18px rgba(56, 189, 248, .35);
+    --fundo-desenho: radial-gradient(var(--padrao) 1px, transparent 1px),
+                     radial-gradient(1200px 300px at 80% -10%, rgba(56, 189, 248, .12), transparent);
+    --fundo-passo: 18px 18px, 100% 100%;
+  }
+}
+
+/* ---- o que vale nos dois ---- */
+body {
+  background-color: var(--papel);
+  background-image: var(--fundo-desenho);
+  background-size: var(--fundo-passo);
+  background-attachment: fixed;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.codigo, code, kbd, pre, .etiqueta {
+  font-family: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+
+/* O topo é a barra do terminal: escura nos dois temas. */
+.topo {
+  background: var(--topo);
+  color: var(--topo-tinta);
+  border-bottom-color: var(--topo-linha);
+}
+.topo .trilha { color: var(--topo-tinta2); }
+.topo .btn-topo { color: var(--topo-tinta); border-color: var(--topo-linha); }
+.topo .btn-topo:hover,
+.topo .btn-topo:focus-visible { color: var(--topo-tinta); border-color: var(--topo-realce); }
+#btn-tema[aria-pressed="true"] { border-color: var(--topo-realce); }
+
+/* O botão principal: branco sobre o acento do tema escuro não passaria
+   no contraste, então ele ganha cor própria. */
+.btn {
+  background: var(--botao);
+  color: var(--botao-tinta);
+  box-shadow: var(--botao-relevo);
+}
+.btn.secundario { box-shadow: none; }
+.btn:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+.topo .btn-topo:focus-visible { outline: 3px solid var(--topo-realce); outline-offset: 2px; }
+
+/* Quem pediu menos movimento não vê animação nem transição. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

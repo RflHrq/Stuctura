@@ -4,7 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Structura — os tópicos</title>
-<link rel="stylesheet" href="/web/style.css?v=20261112">
+<link rel="icon" type="image/svg+xml" href="/web/marca.svg?v=20261116">
+<!-- O tema é escolhido antes de a página ser desenhada (tema.js, sem
+     defer); a folha do tema vem depois de tudo, até do estilo abaixo. -->
+<script src="/web/tema.js?v=20261116"></script>
+<link rel="stylesheet" href="/web/style.css?v=20261116">
 <style>
   .portal { max-width: 760px; margin: 0 auto; padding: 28px 20px 56px; }
   .portal h1 { font-size: 1.5rem; margin: 0 0 6px; }
@@ -42,8 +46,15 @@
   #lista a.anterior:hover, #lista a.anterior:focus-visible {
                       color: var(--acento); }
 </style>
+<link rel="stylesheet" href="/web/tema.css?v=20261116">
 </head>
 <body>
+<header class="topo">
+  <img src="/web/marca.svg?v=20261116" alt="" width="28" height="28">
+  <!-- tema.js liga este botão quando a página termina de chegar. -->
+  <button class="btn-topo" id="btn-tema" type="button"
+          aria-pressed="false">Tema escuro</button>
+</header>
 <main class="portal">
   <h1>Structura</h1>
   <p class="sub">Treze tópicos sobre ponteiros em C. Escolha um para entrar;
