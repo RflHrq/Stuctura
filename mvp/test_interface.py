@@ -79,7 +79,11 @@ PARES = [("tinta", "papel"), ("tinta", "cartao"), ("tinta2", "cartao"),
          # o topo e as paradas (Task 4)
          ("topo-tinta2", "topo"), ("parada-ok-tinta", "parada-ok"),
          ("parada-agora-tinta", "parada-agora"),
-         ("parada-aberta-tinta", "parada-aberta")]
+         ("parada-aberta-tinta", "parada-aberta"),
+         # as peças das telas (Task 5)
+         ("etiqueta", "cartao"), ("etiqueta", "cartao-baixo"), ("tinta", "campo"),
+         ("tinta", "acento-fundo"), ("tinta", "destaque-fundo"),
+         ("terminal-tinta", "terminal"), ("botao-tinta", "botao-fim")]
 
 
 def cores_do_tema(tema: str) -> dict[str, str]:
@@ -375,3 +379,42 @@ def test_o_topo_tem_o_logo_o_topico_as_paradas_e_o_tema():
     # as classes de antes continuam: os testes do ramo e trilha.css as usam
     for classe in ("t-bem", "t-aberto", "t-atual"):
         assert classe in progresso, classe
+
+
+# --------------------------------------------------------------------------
+# As telas da trilha na roupa nova
+# --------------------------------------------------------------------------
+
+def test_o_tema_veste_cada_peca_das_telas():
+    css = (WEB / "tema.css").read_text(encoding="utf-8")
+    for seletor in (".cartao", ".etiqueta", ".codigo", ".terminal", ".opcao", ".conf",
+                    ".t-peca", ".btn", ".t-retorno", ".t-previu", ".t-sumario", ".t-painel"):
+        assert seletor in css, seletor
+    assert re.search(r'data-tema="escuro"\][^{]*\.etiqueta::before\s*\{[^}]*content:\s*"// "', css)
+    assert re.search(r'data-tema="claro"\][^{]*\.etiqueta::before\s*\{[^}]*content:\s*"/\* "', css)
+    assert re.search(r'data-tema="claro"\][^{]*\.etiqueta::after\s*\{[^}]*content:\s*" \*/"', css)
+    # O cabeçalho do cartão era flex com space-between: o "/* " e o " */"
+    # iriam parar nas pontas do cartão.
+    assert re.search(r"\.t-cartao > \.etiqueta \{[^}]*display: block", css)
+
+
+@pytest.mark.parametrize("tema", ["claro", "escuro"])
+def test_o_buraco_do_completar_se_le_dentro_do_editor(tema):
+    """O buraco fica dentro do bloco de código, no fundo de editor; com a
+    cor do acento, no claro, ele quase sumia (#17708a sobre #1b2630)."""
+    css = (WEB / "tema.css").read_text(encoding="utf-8")
+    regra = re.search(r"\.codigo \.t-buraco \{([^}]*)\}", css)
+    assert regra, "tema.css não dá cor ao buraco dentro do código"
+    cor = re.search(r"(?<!-)color: var\(--([a-z0-9-]+)\)", regra.group(1)).group(1)
+    cores = cores_do_tema(tema)
+    assert contraste(cores[cor], cores["editor"]) >= 4.5, (tema, cor)
+
+
+def test_o_sinal_de_certo_so_anima_com_movimento_permitido():
+    css = (WEB / "tema.css").read_text(encoding="utf-8")
+    assert "@keyframes" in css
+    fora = re.sub(r"@media \(prefers-reduced-motion: no-preference\) \{.*?\n\}", "", css,
+                  flags=re.S)
+    fora = re.sub(r"@media \(prefers-reduced-motion: reduce\) \{.*?\n\}", "", fora, flags=re.S)
+    assert not re.search(r"animation(-name)?\s*:", fora), "animação fora do bloco permitido"
+    assert re.search(r"no-preference\) \{.*?\.t-retorno\.certo .*?animation:", css, re.S)

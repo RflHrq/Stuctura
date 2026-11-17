@@ -49,7 +49,12 @@ html[data-tema="claro"], html:not([data-tema]) {
   --parada-agora: #ff9f5a; --parada-agora-tinta: #3a1600;
   --parada-aberta: #f2c14e; --parada-aberta-tinta: #3a2a00;
   --parada-brilho: 0 0 0 4px rgba(255, 159, 90, .25);
-  --botao: #b8500f; --botao-tinta: #ffffff;
+  --botao: #b8500f; --botao-tinta: #ffffff; --botao-fim: #b8500f;
+  --cartao-baixo: #ffffff; --campo: #ffffff; --etiqueta: #b8500f;
+  --terminal: #0f1a20; --terminal-tinta: #c9f2d6;
+  --cartao-sombra: 0 10px 28px rgba(18, 48, 58, .12);
+  --marcado-brilho: none;
+  --veu: rgba(18, 48, 58, .45);
   --marca-fundo: #1f8fae; --marca-traco: #ffffff; --marca-caixa: #f2a541;
   --padrao: #d8e2e6;
   --brilho: rgba(184, 80, 15, .25);
@@ -79,7 +84,12 @@ html[data-tema="escuro"] {
   --parada-agora: #fb923c; --parada-agora-tinta: #2a1200;
   --parada-aberta: #fbbf24; --parada-aberta-tinta: #2b2410;
   --parada-brilho: 0 0 0 4px rgba(251, 146, 60, .25), 0 0 14px rgba(251, 146, 60, .6);
-  --botao: #38bdf8; --botao-tinta: #051a24;
+  --botao: #38bdf8; --botao-tinta: #051a24; --botao-fim: #2aa3c4;
+  --cartao-baixo: #121d2b; --campo: #172536; --etiqueta: #34d399;
+  --terminal: #05090e; --terminal-tinta: #b9f6ca;
+  --cartao-sombra: 0 14px 40px rgba(0, 0, 0, .45);
+  --marcado-brilho: 0 0 0 3px rgba(56, 189, 248, .16);
+  --veu: rgba(2, 6, 12, .7);
   --marca-fundo: #1f5668; --marca-traco: #ffffff; --marca-caixa: #f2a541;
   --padrao: #1b2a3b;
   --brilho: rgba(56, 189, 248, .35);
@@ -113,7 +123,12 @@ html[data-tema="escuro"] {
     --parada-agora: #fb923c; --parada-agora-tinta: #2a1200;
     --parada-aberta: #fbbf24; --parada-aberta-tinta: #2b2410;
     --parada-brilho: 0 0 0 4px rgba(251, 146, 60, .25), 0 0 14px rgba(251, 146, 60, .6);
-    --botao: #38bdf8; --botao-tinta: #051a24;
+    --botao: #38bdf8; --botao-tinta: #051a24; --botao-fim: #2aa3c4;
+    --cartao-baixo: #121d2b; --campo: #172536; --etiqueta: #34d399;
+    --terminal: #05090e; --terminal-tinta: #b9f6ca;
+    --cartao-sombra: 0 14px 40px rgba(0, 0, 0, .45);
+    --marcado-brilho: 0 0 0 3px rgba(56, 189, 248, .16);
+    --veu: rgba(2, 6, 12, .7);
     --marca-fundo: #1f5668; --marca-traco: #ffffff; --marca-caixa: #f2a541;
     --padrao: #1b2a3b;
     --brilho: rgba(56, 189, 248, .35);
@@ -132,7 +147,8 @@ body {
   background-attachment: fixed;
   font-family: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
-.codigo, code, kbd, pre, .etiqueta {
+.codigo, code, kbd, pre, .etiqueta, .terminal, .comando, .t-peca, .t-digita,
+.t-buraco, .premissa .id, .opcao .t-linhas, .t-codigo .opcao {
   font-family: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
 }
 
@@ -231,13 +247,119 @@ body {
 /* O botão principal: branco sobre o acento do tema escuro não passaria
    no contraste, então ele ganha cor própria. */
 .btn {
-  background: var(--botao);
+  background: linear-gradient(135deg, var(--botao), var(--botao-fim));
   color: var(--botao-tinta);
   box-shadow: var(--botao-relevo);
+  border-radius: 10px;
+  font-weight: 700;
 }
 .btn.secundario { box-shadow: none; }
 .btn:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 .topo .btn-topo:focus-visible { outline: 3px solid var(--topo-realce); outline-offset: 2px; }
+
+/* ==================================================================
+   As peças das telas (esboços 4 e 5)
+   ================================================================== */
+
+/* O cartão: cantos 18 e sombra. No escuro, um degradê de cima para
+   baixo; no claro, uma faixa na esquerda, do acento ao destaque. */
+.cartao {
+  border-radius: 18px;
+  border-color: var(--linha);
+  box-shadow: var(--cartao-sombra);
+}
+html[data-tema="escuro"] .cartao {
+  background: linear-gradient(180deg, var(--cartao), var(--cartao-baixo));
+}
+html[data-tema="claro"] .cartao {
+  background: linear-gradient(var(--acento), var(--destaque)) left top / 6px 100% no-repeat,
+              var(--cartao);
+}
+
+/* A etiqueta vira um comentário de código. O texto do elemento não
+   muda: os sinais vêm de pseudo-elementos. */
+.etiqueta { text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--etiqueta); }
+.t-cartao > .etiqueta { display: block; }
+.t-ajustes .etiqueta { color: var(--tinta2); }   /* fora do cartão, sobre o fundo */
+html[data-tema="escuro"] .etiqueta::before { content: "// "; }
+html[data-tema="claro"] .etiqueta::before { content: "/* "; }
+html[data-tema="claro"] .etiqueta::after { content: " */"; }
+
+/* O código numa moldura de editor. Os três pontinhos são desenhados no
+   fundo do próprio bloco, e o fundo não rola: a linha comprida rola por
+   baixo deles, dentro da moldura, e nunca a página. */
+pre.codigo, .t-retorno pre.codigo {
+  padding: 34px 16px 14px;
+  border-radius: 12px;
+  background-image:
+    radial-gradient(circle at 5px 5px, #f87171 3.5px, transparent 4px),
+    radial-gradient(circle at 5px 5px, #fbbf24 3.5px, transparent 4px),
+    radial-gradient(circle at 5px 5px, #34d399 3.5px, transparent 4px);
+  background-size: 10px 10px;
+  background-position: 14px 12px, 30px 12px, 46px 12px;
+  background-repeat: no-repeat;
+}
+/* Num grid, a coluna cresceria até caber a linha comprida. */
+.premissa > * { min-width: 0; }
+
+/* A saída do programa e o que o compilador disse: um terminal. */
+.terminal {
+  background: var(--terminal);
+  color: var(--terminal-tinta);
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+}
+
+/* O que se marca e o que se monta: borda de 2 px; o marcado ganha o
+   acento (e um brilho, no escuro); a certeza marcada, o destaque. */
+.opcao, .conf, .t-peca, .t-digita {
+  border-width: 2px;
+  background: var(--campo);
+}
+.t-peca { border-bottom-width: 3px; }
+.t-toque .t-peca { border-bottom-width: 2px; }
+.opcao[aria-pressed="true"], .t-peca[aria-pressed="true"] {
+  border-color: var(--acento);
+  background: var(--acento-fundo);
+  box-shadow: var(--marcado-brilho);
+}
+.conf[aria-pressed="true"] {
+  border-color: var(--destaque);
+  background: var(--destaque-fundo);
+}
+.t-montada { border-radius: 12px; }
+/* O buraco do completar fica dentro do código, no fundo de editor: com
+   a cor do acento ele sumia no claro. */
+.codigo .t-buraco { color: var(--sx-palavra); border-bottom-color: var(--sx-palavra); }
+
+/* O retorno, e o sinal de certo, que entra numa animação curta. */
+.t-retorno { border-radius: 14px; border-width: 1.5px; }
+.t-retorno.certo .veredito::before {
+  content: "✓";
+  display: inline-grid; place-items: center;
+  width: 1.4em; height: 1.4em; margin-right: 8px; border-radius: 50%;
+  background: var(--ok); color: var(--ok-fundo);
+  font-size: .9em; vertical-align: .05em;
+}
+@keyframes t-certo {
+  from { transform: scale(.3); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* As outras caixas das telas, nos cantos e nas cores do tema. */
+.t-previu, .t-sumario, .t-caixa, .premissa { border-radius: 12px; }
+.t-fala { border-radius: 0 12px 12px 0; }
+.t-fundo { background: var(--veu); backdrop-filter: blur(3px); }
+.t-painel { box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
+.t-aviso { border-radius: 999px; box-shadow: var(--cartao-sombra); }
+.t-aviso.ok { color: var(--ok-fundo); }
+
+/* Movimento só para quem não pediu menos. */
+@media (prefers-reduced-motion: no-preference) {
+  .t-retorno.certo .veredito::before {
+    animation: t-certo .4s cubic-bezier(.2, 1.4, .4, 1) both;
+  }
+}
 
 /* Quem pediu menos movimento não vê animação nem transição. */
 @media (prefers-reduced-motion: reduce) {
