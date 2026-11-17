@@ -298,6 +298,55 @@ def test_sessao_desconhecida_da_404(cliente):
     assert r.status_code == 404
 
 
+def test_sessao_sem_codigo_continua_depois_de_o_servidor_reiniciar(destino):
+    """O que aconteceu com o Rafael em 14/11/2026: o servidor caiu no meio
+    de uma sessão aberta sem código, e a página disse que a sessão se
+    perdera — com o registro inteiro dela em disco. O registro guarda as
+    entradas e o motor é puro: a sessão é refeita pelo número dela, como
+    já era pelo código."""
+    antes = TestClient(trilha_app.cria_app(D, ESC, destino))
+    sessao, j = _abre(antes)
+    assert len(sessao) == 12          # aberta sem código: o número sorteado
+    passo = j["passo"]
+
+    depois = TestClient(trilha_app.cria_app(D, ESC, destino))   # reiniciou
+    assert sessao not in depois.app.state.sessoes
+    r = depois.post("/sessoes/%s/agir" % sessao,
+                    json={"acao": "nao_sei", "passo": passo})
+    assert r.status_code == 200, r.text
+
+    # A tela é a que o motor daria, a partir do estado refeito.
+    refeita = trilha_log.reconstroi(D, ESC, destino, sessao)
+    assert r.json()["passo"] == refeita.estado.n
+    assert r.json()["tela"] == refeita.estado.tela.json()
+    tipos = [l["tipo"] for l in trilha_log.le(destino, sessao)]
+    assert "sessao_reconstruida" in tipos
+
+
+def test_sessao_que_nao_da_para_refazer_diz_por_que(destino):
+    """Se o conteúdo do tópico mudou depois de a sessão começar, as mesmas
+    respostas cairiam em telas diferentes. A página recebe 410, com a
+    frase de quem está na tela — e não um 404 mudo."""
+    antes = TestClient(trilha_app.cria_app(D, ESC, destino))
+    sessao, j = _abre(antes)
+    outra = dict(ESC)
+    no = next(iter(outra))
+    outra[no] = dataclasses.replace(
+        outra[no], revisao=dataclasses.replace(
+            outra[no].revisao, frases=outra[no].revisao.frases + ("mudou",)))
+    depois = TestClient(trilha_app.cria_app(D, outra, destino))
+    r = depois.post("/sessoes/%s/agir" % sessao,
+                    json={"acao": "nao_sei", "passo": j["passo"]})
+    assert r.status_code == 410
+    assert "mudou" in r.json()["detail"]
+    assert sessao not in depois.app.state.sessoes
+
+
+def test_a_pagina_mostra_a_frase_da_sessao_que_nao_volta():
+    js = (RAIZ / "web" / "trilha.js").read_text(encoding="utf-8")
+    assert "r.status === 410" in js and "perdeu(r.json && r.json.detail)" in js
+
+
 @pytest.mark.parametrize("codigo", ["9abc", "a b", "a/b", "x" * 17, "ç"])
 def test_codigo_fora_do_formato_da_400(cliente, codigo):
     assert cliente.post("/sessoes", json={"codigo": codigo}).status_code == 400

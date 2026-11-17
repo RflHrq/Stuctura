@@ -178,6 +178,22 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
     @app.post("/sessoes/{sessao}/agir")
     def age(sessao: str, body: AcaoBody):
         estado = sessoes.get(sessao)
+        if estado is None and trilha_log.existe(destino, sessao):
+            # Está no registro e não na memória: o servidor reiniciou com a
+            # página aberta. Vale também para a sessão aberta SEM código,
+            # cujo número só a página conhece — foi o que se perdeu em
+            # 14/11/2026, quando o Docker caiu no meio de uma sessão. Ela
+            # é refeita como a de código, em `abre`.
+            try:
+                t = trilha_log.reconstroi(d, escadas, destino, sessao)
+            except trilha_log.RegistroNaoReexecutavel as erro:
+                # 410: a sessão existiu e não dá para continuar. A página
+                # mostra a frase, que é para quem está na tela.
+                raise HTTPException(status_code=410, detail=str(erro)) from erro
+            estado = sessoes[sessao] = t.estado
+            trilha_log.grava(destino, sessao, [Evento(
+                "sessao_reconstruida", {"tela": t.tela.tipo,
+                                        "passo": t.estado.n})])
         if estado is None:
             raise HTTPException(status_code=404, detail="sessão desconhecida")
         entrada = trilha.Entrada(

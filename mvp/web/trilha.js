@@ -189,6 +189,9 @@
 
     if (r.status === 200) { recebe(r.json, mesmaTela); return; }
     if (r.status === 404) { perdeu(); return; }
+    /* A sessão existiu, mas este servidor não consegue refazê-la: o
+     * conteúdo do tópico mudou. A frase vem do servidor. */
+    if (r.status === 410) { perdeu(r.json && r.json.detail); return; }
     if (r.status === 409 && r.json && r.json.tela) {
       /* A tela já tinha mudado. O servidor manda a atual, e é ela que
        * passa a valer: nada de adivinhar onde a sessão está. */

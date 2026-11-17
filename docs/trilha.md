@@ -1187,7 +1187,13 @@ Cada fatia deixa o sistema funcionando.
    a previsão, que era da fatia 4, passou a vir junto com a escada.
 3. Parar e voltar para quem não informou código, e o progresso na
    página inicial. (A retomada pelo código, depois de um reinício, já
-   entrou com a revisão da fatia 1.)
+   entrou com a revisão da fatia 1. Em 16/11/2026 entrou também a da
+   sessão SEM código com a página aberta: o Docker caiu no meio de uma
+   sessão do Rafael em 14/11, e a página dizia que a sessão se perdera
+   com o registro inteiro em disco. Agora o servidor a refaz pelo número
+   dela, que só a página conhece; se o conteúdo mudou desde que ela
+   começou, a página recebe 410 e mostra a frase. Falta o resto deste
+   item: quem fecha a página e volta depois, sem código.)
 4. O porquê do acerto, por questão, tópico a tópico.
 
 ## 10. Decisões minhas, para o Rafael conferir
