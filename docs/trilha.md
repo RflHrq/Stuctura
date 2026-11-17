@@ -730,8 +730,24 @@ foi de 165 para 95 toques.
 **Sessão começada pelas regras antigas não é refeita pelas novas.** O
 registro reexecuta as respostas gravadas, e as mesmas respostas cairiam
 em telas diferentes. A linha de abertura diz a versão das regras
-(`mvp/trilha_log.VERSAO`, agora 2), e a de outra versão é recusada com a
+(`mvp/trilha_log.VERSAO`, agora 3), e a de outra versão é recusada com a
 frase de quem está na tela.
+
+**A reconferência não repete o que a pessoa acabou de fazer (versão 3,
+16/11/2026).** O ensaio do kc_08 mostrou que quem diz a crença faz os
+dois passos de prática como treino, e no fim a reconferência trazia um
+deles de novo, com outros valores. Com o Rafael de acordo, a
+reconferência de cada ideia passou a usar, nesta ordem: o passo do
+tropeço, na versão não vista (é a lacuna da pessoa); um passo de
+produzir ainda não visto; uma questão do banco ainda não usada, com
+razão e sem certeza; e só então um passo já visto, com outros valores.
+A questão do banco ganhou uma coisa que o passo não tinha: a razão
+mostra se a ideia errada voltou — o aluno simulado que insiste na
+crença, que antes fechava "não se manteve" em todas as ideias, agora
+aparece como "a ideia voltou" onde a questão oferece a razão dela. A
+medida não muda (a reconferência continua sendo uma tela por ideia). O
+B2 do kc_06, com duas questões só no banco, ainda cai num passo visto
+quando as duas já saíram.
 
 **O nome do passo.** No fechamento, o passo em que a pessoa tropeçou
 aparece pelo NOME dele (`nome`, no degrau): a ideia do passo, em poucas

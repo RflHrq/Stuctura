@@ -43,7 +43,10 @@ from mvp.trilha_escada import assinatura
 #   2  13/11/2026: toda ideia abre com a pergunta de diagnóstico; o passo
 #      errado não se repete; a subida são os guiados e um de prática; o
 #      passo que oferece a crença pede a certeza e pode abrir a refutação
-VERSAO = 2
+#   3  16/11/2026: a reconferência prefere um passo de produzir ainda não
+#      visto, e depois uma questão do banco não usada, a repetir um passo
+#      já visto com outros valores
+VERSAO = 3
 
 # O tipo da linha de entrada. Não é evento do motor: o motor não sabe que
 # existe registro.

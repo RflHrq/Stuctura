@@ -499,10 +499,19 @@ def _reconfere(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
     """Uma pergunta por premissa TRABALHADA, depois que todas passaram.
 
     É o que separa "acertou logo depois de ler" de "assimilou": a
-    pergunta chega com outras premissas no meio. E é de produzir sempre
-    que sobra exercício — o último degrau de prática numa versão que a
-    pessoa ainda não viu; depois os outros, do mais alto para o mais
-    baixo; só então uma questão de marcar não usada.
+    pergunta chega com outras premissas no meio.
+
+    O QUE ELA USA, NESTA ORDEM (regras versão 3, 16/11/2026):
+      1. o passo em que a pessoa TROPEÇOU, na versão que ela não viu — é
+         a lacuna dela que se confere;
+      2. um passo de PRODUZIR (montar, completar, digitar) que ela ainda
+         não viu em versão nenhuma;
+      3. uma questão do banco ainda não usada, de marcar, com razão e sem
+         certeza — a razão é o que mostra se a ideia errada voltou;
+      4. só então um passo já visto, na versão que ela não viu.
+    Até a versão 2 o passo já visto vinha antes da questão nova, e quem
+    passava pela refutação via no fim, com outros valores, um dos dois
+    passos de prática que tinha acabado de fazer no treino.
 
     Não abre trabalho novo. Errou: o mapa diz, e a trilha segue.
     """
@@ -510,21 +519,29 @@ def _reconfere(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
         ep = e.premissa(no)
         if not ep.trabalho or ep.reconferencia:
             continue
-        # Primeiro o passo em que a pessoa TROPEÇOU, na versão que ela
-        # ainda não viu: é a lacuna dela que a reconferência confere.
         por_id = {g.id: g for g in escadas[no].degraus}
-        candidatos = ([por_id[i] for i in ep.tropecos if i in por_id]
-                      + list(_de_produzir(escadas[no])))
-        livre = next(((g, k) for g in candidatos
-                      for k in range(len(g.versoes))
-                      if (g.id, k) not in ep.mostrados), None)
-        if livre is not None:
-            return _degrau(escadas, e, no, livre[0], livre[1],
+        vistos = {i for i, _ in ep.mostrados}
+
+        def livre(degraus):
+            return next(((g, k) for g in degraus
+                         for k in range(len(g.versoes))
+                         if (g.id, k) not in ep.mostrados), None)
+
+        escolha = (
+            livre([por_id[i] for i in ep.tropecos if i in por_id])
+            or livre([g for g in _de_produzir(escadas[no])
+                      if g.forma in PRODUZEM and g.id not in vistos]))
+        if escolha is not None:
+            return _degrau(escadas, e, no, escolha[0], escolha[1],
                            "reconferencia", eventos)
         a = _proxima_pergunta(d, escadas, e, no)
         if a is not None:
             return _pergunta(d, e, no, a, "reconferencia", eventos,
                              certeza=False)
+        escolha = livre(list(_de_produzir(escadas[no])))
+        if escolha is not None:
+            return _degrau(escadas, e, no, escolha[0], escolha[1],
+                           "reconferencia", eventos)
         # O banco da premissa acabou. O mapa diz que não deu para
         # reconferir — é melhor do que repetir uma pergunta já vista e
         # chamar a resposta de assimilação.

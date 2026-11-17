@@ -283,6 +283,82 @@ def test_a_reconferencia_volta_ao_passo_em_que_a_pessoa_tropecou():
 
 
 # --------------------------------------------------------------------------
+# 4b. A reconferência não repete o que a pessoa acabou de fazer (16/11/2026)
+# --------------------------------------------------------------------------
+#
+# O ensaio do kc_08 mostrou: quem diz a crença faz os dois passos de
+# prática como treino, e no fim a reconferência trazia um deles de novo,
+# com outros valores. O Rafael pediu menos repetição, e aprovou a regra:
+# o passo do tropeço; um passo de produzir ainda não visto; uma questão do
+# banco ainda não vista; só então um passo já visto, com outros valores.
+
+def _vistos_antes(c, tela):
+    antes = c.telas[:c.telas.index(tela)]
+    passos = {t.dados["degrau"] for t in antes if t.tipo == "degrau"}
+    questoes = {t.dados["atividade"] for t in antes if t.tipo == "pergunta"}
+    return passos, questoes
+
+
+def _escadas_de(topico):
+    from mvp.dominio import carrega
+    d = carrega(topico=topico)
+    return d, trilha_escada.le(
+        RAIZ / "dominio" / ("escada_%s.yaml" % topico.replace("_", "")), d)
+
+
+def test_quem_corrigiu_a_ideia_e_reconferido_por_questao_nova():
+    """O treino da refutação gasta os dois passos de prática: a
+    reconferência é uma questão do banco que a pessoa ainda não viu —
+    com razão, que é o que mostra se a ideia errada voltou."""
+    c = caminha(D, ESC, "crente_aprende")
+    rec = [t for t in c.telas if t.dados.get("papel") == "reconferencia"]
+    assert len(rec) == len(D.ordem)
+    for t in rec:
+        assert t.tipo == "pergunta", t.dados["premissa"]
+        assert t.dados["pede_razao"] and not t.dados["pede_certeza"]
+        _, questoes = _vistos_antes(c, t)
+        assert t.dados["atividade"] not in questoes
+
+
+@pytest.mark.parametrize("topico", ["kc_00", "kc_06", "kc_09"])
+@pytest.mark.parametrize("persona", ["nao_sabe_aprende", "crente_aprende",
+                                     "nao_sabe_erra", "chuta_com_certeza"])
+def test_a_reconferencia_so_repete_passo_quando_e_o_do_tropeco(topico, persona):
+    """Passo já visto, na reconferência, só o do tropeço — ou quando o
+    banco da ideia não tem mais questão nova. É o caso do B2 do kc_06,
+    que fica com duas questões de marcar (as outras usam variável
+    global), e as duas já saíram."""
+    d, escadas = _escadas_de(topico)
+    c = caminha(d, escadas, persona)
+    for t in (t for t in c.telas if t.dados.get("papel") == "reconferencia"):
+        if t.tipo != "degrau":
+            continue
+        no = t.dados["premissa"]
+        passos, questoes = _vistos_antes(c, t)
+        tropecou = t.dados["degrau"] in c.estado.premissa(no).tropecos
+        servidas = {a.id for uso in ("diagnostico", "treino")
+                    for a in d.atividades_do_no(no, uso)
+                    if a.id not in escadas[no].fora
+                    and len(motor.razoes_de(d, a)) >= 2}
+        banco_acabou = servidas <= questoes
+        assert tropecou or banco_acabou or t.dados["degrau"] not in passos, (
+            no, t.dados["degrau"])
+
+
+def test_sem_questao_nova_a_reconferencia_volta_a_um_passo_visto():
+    """Quando o banco da ideia acabou, vale a regra de antes: um passo já
+    visto, na versão que a pessoa ainda não viu — é melhor que deixar a
+    ideia sem reconferência."""
+    import dataclasses
+    sem_banco = dataclasses.replace(D, atividades=tuple(
+        a for a in D.atividades if a.nivel == 2 and a.uso == "diagnostico"
+        and a.codigo))
+    c = caminha(sem_banco, ESC, "crente_aprende")
+    rec = [t for t in c.telas if t.dados.get("papel") == "reconferencia"]
+    assert rec and all(t.tipo == "degrau" for t in rec)
+
+
+# --------------------------------------------------------------------------
 # 5. O fechamento resume
 # --------------------------------------------------------------------------
 

@@ -867,18 +867,28 @@ def test_a_reconferencia_vem_depois_de_todas_as_premissas():
     assert fechos == 5
 
 
-def test_a_reconferencia_e_de_produzir_e_nao_repete_exercicio():
+def test_a_reconferencia_nao_repete_exercicio():
+    """ERA "a reconferência é de produzir e não repete exercício": quem
+    subia a escada era reconferido no passo de prática que acabara de
+    fazer, com outros valores. Desde 16/11/2026 (regras versão 3) a
+    reconferência usa um passo de produzir ainda não visto, ou uma
+    questão do banco ainda não usada — e só então um passo já visto."""
     c = caminha(D, ESC, "nao_sabe_aprende")
-    vistos = set()
-    for t in (t for t in c.telas if t.tipo == "degrau"):
-        chave = (t.dados["degrau"], tuple(t.dados["pecas"]), t.dados["mostra"])
-        if t.dados["papel"] == "reconferencia":
-            assert chave not in vistos
-            assert t.dados["forma"] in trilha.PRODUZEM
-            assert t.dados["frases"] == []
-        vistos.add(chave)
+    passos, questoes = set(), set()
+    for t in c.telas:
+        if t.dados.get("papel") == "reconferencia":
+            if t.tipo == "degrau":
+                assert t.dados["degrau"] not in passos
+                assert t.dados["forma"] in trilha.PRODUZEM
+                assert t.dados["frases"] == []
+            else:
+                assert t.tipo == "pergunta"
+                assert t.dados["atividade"] not in questoes
+        if t.tipo == "degrau":
+            passos.add(t.dados["degrau"])
+        elif t.tipo == "pergunta":
+            questoes.add(t.dados["atividade"])
     assert len(_reconferencias(c)) == 5
-    assert {t.tipo for t in _reconferencias(c)} == {"degrau"}
 
 
 def test_a_reconferencia_nao_conta_nas_telas_da_premissa():
@@ -902,9 +912,14 @@ def test_quem_corrigiu_a_crenca_e_acerta_no_fim_assimilou():
 
 
 def test_quem_erra_no_fim_nao_se_manteve_e_nao_abre_laco():
+    """ERA {"nao_se_manteve"} para as cinco ideias: a reconferência era um
+    passo de prática, sem razão, e não tinha como ver a crença. Desde
+    16/11/2026 ela é uma questão do banco com razão sempre que há uma
+    nova, e quem insiste na ideia errada aparece como "a ideia voltou"."""
     c = caminha(D, ESC, "crente_teimoso")
-    assert {c.estado.premissa(n).reconferencia for n in D.ordem} == {
-        "nao_se_manteve"}
+    resultados = {c.estado.premissa(n).reconferencia for n in D.ordem}
+    assert resultados <= {"nao_se_manteve", "a_ideia_voltou"}
+    assert "a_ideia_voltou" in resultados
     rec = _reconferencias(c)
     assert len(rec) == 5
     depois = c.telas[c.telas.index(rec[0]):]
@@ -971,8 +986,17 @@ def _com_crenca_na_pratica(no):
 
 
 def test_a_crenca_de_novo_no_fim_e_a_ideia_voltou():
+    """A crença dita num passo de prática, na reconferência, é "a ideia
+    voltou". Desde 16/11/2026 a reconferência só volta a um passo de
+    prática já visto quando o banco da ideia não tem questão nova: o
+    cenário é montado sem as questões que sobrariam (antes ele usava o
+    banco inteiro)."""
+    import dataclasses
     escadas = _com_crenca_na_pratica("B1")
-    c = caminha(D, escadas, "crente_teimoso")
+    sem_banco = dataclasses.replace(D, atividades=tuple(
+        a for a in D.atividades if a.nivel == 2 and a.uso == "diagnostico"
+        and a.codigo))
+    c = caminha(sem_banco, escadas, "crente_teimoso")
     assert c.estado.premissa("B1").reconferencia == "a_ideia_voltou"
     assert c.estado.premissa("B2").reconferencia == "nao_se_manteve"
 
