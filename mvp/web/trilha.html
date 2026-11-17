@@ -36,10 +36,14 @@
   <ol class="t-progresso" id="progresso" aria-label="Ideias deste tópico"></ol>
   <!-- tema.js liga este botão quando a página termina de chegar. -->
   <button class="btn-topo" id="btn-tema" type="button" aria-pressed="false"><span
-    class="t-tema-icone" aria-hidden="true">◐</span><span
-    class="t-tema-texto">Tema escuro</span></button>
+    class="t-btn-icone" aria-hidden="true">◐</span><span
+    class="t-btn-texto">Tema escuro</span></button>
+  <!-- Em tela estreita os dois botões ficam só com o desenho: o kc_09 tem
+       8 ideias, e com o texto o topo não caberia em 360 px. -->
   <button class="btn-topo" id="btn-ajustes" type="button"
-          aria-expanded="false" aria-controls="ajustes" hidden>Ajustes</button>
+          aria-expanded="false" aria-controls="ajustes" hidden><span
+    class="t-btn-icone" aria-hidden="true">&#9881;&#xFE0E;</span><span
+    class="t-btn-texto">Ajustes</span></button>
 </header>
 
 <!-- O ritmo, que a pessoa troca quando quiser. A troca vale a partir da

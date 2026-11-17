@@ -381,6 +381,21 @@ def test_o_topo_tem_o_logo_o_topico_as_paradas_e_o_tema():
         assert classe in progresso, classe
 
 
+def test_em_tela_estreita_o_topo_cabe_ate_com_oito_paradas():
+    """O kc_09 tem 8 ideias. Em 360 px, com o botão Ajustes à mostra, o
+    topo só cabe se os dois botões ficarem só com o desenho — o texto
+    continua neles, escondido da vista, para o leitor de tela."""
+    html = (WEB / "trilha.html").read_text(encoding="utf-8")
+    css = (WEB / "tema.css").read_text(encoding="utf-8")
+    for id_ in ("btn-tema", "btn-ajustes"):
+        botao = re.search(r'<button[^>]*id="%s"[^>]*>(.*?)</button>' % id_, html, re.S)
+        assert botao, id_
+        assert 'class="t-btn-icone" aria-hidden="true"' in botao.group(1), id_
+        assert 'class="t-btn-texto"' in botao.group(1), id_
+    estreita = re.search(r"@media \(max-width: 560px\) \{(.*?)\n\}", css, re.S).group(1)
+    assert re.search(r"\.t-btn-texto \{[^}]*clip-path: inset\(50%\)", estreita)
+
+
 # --------------------------------------------------------------------------
 # As telas da trilha na roupa nova
 # --------------------------------------------------------------------------
