@@ -334,6 +334,36 @@ Cada fatia deixa o sistema funcionando e passa pela suíte inteira.
    inicial (ainda em lista) na roupa nova. As figuras antigas ficam até a
    fatia 3 de cada tópico **(decisão minha)**: tirá-las antes deixaria
    tópicos sem desenho nenhum.
+
+   **Feita em 17/11/2026** (plano em `docs/plano-interface.md`, commits
+   `f3091e3..` até o fechamento). Fica assim:
+   - `mvp/web/tema.css` tem os dois temas e veste todas as peças;
+     `style.css` e `trilha.css` não mudaram (o fluxo anterior segue com a
+     cara antiga). `tema.js` escolhe o tema no `<head>`, antes de a página
+     ser desenhada, e liga o botão sozinho. `realce.js` colore o código.
+   - O que mudou do plano, e por quê:
+     - o botão de tema é de alternância, com texto fixo "Tema escuro" e
+       `aria-pressed` (texto que mudasse junto se contradiria para o
+       leitor de tela); em tela estreita fica só o desenho ◐, com o
+       texto ainda lá para quem não vê;
+     - os três pontinhos do editor são desenhados no fundo do bloco, e
+       não num `::before`: o fundo não rola, e a linha comprida rola por
+       baixo deles, dentro da moldura;
+     - o código fica no fundo de editor (escuro) também no tema claro:
+       as cores do realce só passam no contraste ali;
+     - a frase da página inicial perdeu "numa ordem sugerida": a ordem
+       é desta fatia 2;
+     - a régua de contraste cresceu: além dos pares do plano, as paradas
+       do topo, a etiqueta, o campo, o terminal e o fim do degradê do
+       botão; todos passam em 4,5:1 nos dois temas.
+   - Achados na conferência e corrigidos com teste: o buraco do
+     "completar", dentro do código, sumia no claro com a cor do acento; e,
+     na revisão final, o topo do kc_09 (8 ideias) passava de 360 px com
+     o botão Ajustes à mostra — em tela estreita os dois botões do topo
+     ficam só com o desenho.
+   - Testes do ramo alterados de propósito: os dois que fixavam a versão
+     dos assets (agora `?v=20261116`). Nenhum teste anterior ao ramo foi
+     tocado.
 2. **O caminho.** `caminho.yaml`, o teste da ordem, `/topicos` mandando
    a ordem, e a trilha desenhada na página inicial com o estado de cada
    parada.
