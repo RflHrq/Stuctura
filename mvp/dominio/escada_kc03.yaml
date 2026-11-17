@@ -32,13 +32,18 @@
 # AS QUESTÕES DE MARCAR. O banco do kc_03 foi escrito para o fluxo
 # anterior, em que um cartão ensinava cada construto, e NÃO foi mexido:
 # os cartões do tópico foram escritos contando com o cenário de cada
-# questão. Onze das 36 questões de diagnóstico e de treino usam o que
+# questão. Onze das 36 questões de diagnóstico e de treino usavam o que
 # esta escada não ensina — `sizeof`, vetor, laço, `malloc`, `if`, função
 # de várias linhas —, e estão em `fora_da_trilha`, na premissa de cada
 # uma. Em quatro premissas a que ficou de fora é justamente a de código
 # de degrau 2, que abriria a premissa; nelas a trilha abre com a de
-# código que sobrou (B1, I2 e I3) ou, no B3, com a de conceito — é a
-# única premissa do tópico que fica com duas questões só.
+# código que sobrou (B1, I2 e I3).
+#
+# A EXCEÇÃO, DE 16/11/2026: a `ciu_kc03_008`, do B3, foi reescrita com o
+# Rafael de acordo — sem a função de várias linhas, só `int nota;` lida
+# sem valor —, e voltou para a trilha. O B3 ficava com duas questões só
+# e abria com a de conceito; agora tem três e abre com ela. Ficam fora
+# dez.
 #
 # A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
 # alternativa de um degrau guiado, e só ali o erro leva `crenca`.
@@ -487,9 +492,9 @@ B3:
       nota = 0;
       p = &nota;
     saida: ""
-  # Função de várias linhas, variável fora de função, laço e vetor: a
-  # escada não ensina nenhum deles.
-  fora_da_trilha: [ciu_kc03_008, ciu_kc03_009, ciu_kc03_t08, ciu_kc03_t09]
+  # Variável fora de função, laço e vetor: a escada não ensina nenhum
+  # deles. (A 008 saiu daqui em 16/11/2026: foi reescrita sem a função.)
+  fora_da_trilha: [ciu_kc03_009, ciu_kc03_t08, ciu_kc03_t09]
   provas:
     - crenca: declaration_zeroes
       programa: |

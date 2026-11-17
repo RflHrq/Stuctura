@@ -668,15 +668,18 @@ activities:
     nivel: 2
     formato: prever_saida
     tipo: codigo
+    # Reescrita em 16/11/2026, com o Rafael de acordo: a versão anterior
+    # usava variável global, que escada nenhuma ensina. A função recebe
+    # também o endereço e zera n por ele; cada crença dá um número.
     codigo: |
+      void f(int v, int *p) { *p = 0; printf("%d\n", v); }
       int n = 2;
-      void f(int v) { n = 100; printf("%d\n", v); }
-      f(n + 1);
+      f(n + 1, &n);
     enunciado: "O que sai?"
     alternativas:
       a: "3: a conta foi feita antes"
-      b: "101: f resolve a conta lá"
-      c: "101: v acompanha o n"
+      b: "1: f resolve a conta lá"
+      c: "0: v acompanha o n"
     gabarito: a
     crencas:
       b: passa_a_expressao
@@ -744,10 +747,11 @@ activities:
     uso: treino
     formato: achar_o_erro
     tipo: codigo
+    # Reescrita em 16/11/2026: o endereço no lugar da variável global.
     codigo: |
+      void f(int v, int *p) { *p = 50; printf("%d\n", v); }
       int x = 1;
-      void f(int v) { x = 50; printf("%d\n", v); }
-      f(x);
+      f(x, &x);
     enunciado: "Por que sai 1, e não 50?"
     alternativas:
       a: "v levou uma cópia do 1"

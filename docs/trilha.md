@@ -881,7 +881,10 @@ ele tem de próprio:
   abrir, nesse caso, com outra questão de CÓDIGO (B1, I2, I3); só o B3
   abre com a de conceito, e é a única premissa que fica com duas
   questões de marcar. É o custo de não mexer no banco, e fica para o
-  Rafael decidir se vale reescrever a `ciu_kc03_008`.
+  Rafael decidir se vale reescrever a `ciu_kc03_008`. **Decidido em
+  16/11/2026:** reescrita sem a função de várias linhas (só `int nota;`
+  lida sem valor), ela voltou para a trilha; o B3 tem três questões e
+  abre com código, como as outras cinco premissas.
 
 **O kc_04 e o kc_05, em 13/11/2026**
 
@@ -956,7 +959,12 @@ nova, entra nela uma cópia, e o que muda tudo é o que foi copiado.
   a premissa abre — a única do tópico que não abre com código.
   Reescrever a `ciu_kc06_005` e a `ciu_kc06_t06` com o ponteiro no lugar
   da variável global, ou ensinar variável global na escada, é decisão do
-  Rafael.
+  Rafael. **Decidido em 16/11/2026:** as duas foram reescritas com o
+  endereço no lugar da variável global, como a prova do B2. A 005 ficou
+  melhor do que era: cada crença leva a um número diferente (a conta
+  feita na chamada dá 3; feita dentro da função, 1; o parâmetro sendo a
+  variável, 0). O B2 tem quatro questões e abre com código; ficam fora
+  cinco.
 
 Fica dito, como no kc_02: as questões deste banco usam `x` e `f`, e a
 escada `idade`, `nota` e `zera`; e as razões que a pessoa escolhe falam

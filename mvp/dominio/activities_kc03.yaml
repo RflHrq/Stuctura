@@ -752,16 +752,19 @@ activities:
     nivel: 2
     formato: prever_saida
     tipo: codigo
+    # Reescrita em 16/11/2026, com o Rafael de acordo: a versão anterior
+    # usava função de várias linhas, que a escada do kc_03 não ensina, e
+    # a ideia ficava com duas questões na trilha. A alternativa da crença
+    # do B1 deixou de dizer "Erro", que se confundia com o aviso do
+    # compilador mostrado na escada.
     codigo: |
-      void f(void) {
-          int n;
-          printf("%d\n", n);
-      }
-    enunciado: "Chamando f duas vezes, o que é razoável esperar?"
+      int nota;
+      printf("%d\n", nota);
+    enunciado: "O que é razoável esperar que apareça?"
     alternativas:
-      a: "Valores imprevisíveis, que podem diferir"
-      b: "Zero nas duas: C limpa a variável nova"
-      c: "Erro: n não pode ser lida sem valor"
+      a: "Um valor que ninguém escolheu"
+      b: "Zero: C limpa a variável nova"
+      c: "Nada: nota ainda nem existe na memória"
     gabarito: a
     crencas:
       b: declaration_zeroes

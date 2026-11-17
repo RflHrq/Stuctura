@@ -48,11 +48,15 @@
 # função altera — e variável global nenhuma escada ensinou. Aqui a função
 # recebe também o endereço, e muda a variável por ele.
 #
-# AS QUESTÕES DE MARCAR. O banco do kc_06 não foi mexido. Sete das 36
-# questões de diagnóstico e de treino usam o que as escadas não ensinam
-# — variável global, `return`, `++`, ponteiro para ponteiro, `malloc` —
-# e estão em `fora_da_trilha`. O B2 é a premissa que mais perde: ficam
-# duas questões, as de conceito, e é com uma delas que ele abre.
+# AS QUESTÕES DE MARCAR. Sete das 36 questões de diagnóstico e de
+# treino usavam o que as escadas não ensinam — variável global,
+# `return`, `++`, ponteiro para ponteiro, `malloc` — e ficaram em
+# `fora_da_trilha`. O B2 era a premissa que mais perdia: ficava com as
+# duas de conceito, e abria com uma delas. Em 16/11/2026, com o Rafael
+# de acordo, as duas que usavam variável global (`ciu_kc06_005` e
+# `ciu_kc06_t06`) foram reescritas com o endereço no lugar dela, como a
+# prova do B2, e voltaram: o B2 fica com quatro e abre com código. Ficam
+# fora cinco.
 #
 # A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
 # alternativa de um degrau guiado, e só ali o erro leva `crenca`.
@@ -356,8 +360,9 @@ B2:
       idade = 15;
       mostra(idade + 1);
     saida: "16"
-  # Variável global alterada dentro da função; return e (void); o ++.
-  fora_da_trilha: [ciu_kc06_005, ciu_kc06_t05, ciu_kc06_006, ciu_kc06_t06]
+  # return e (void); o ++. (A 005 e a t06 saíram daqui em 16/11/2026:
+  # foram reescritas sem a variável global.)
+  fora_da_trilha: [ciu_kc06_t05, ciu_kc06_006]
   provas:
     - crenca: passa_a_expressao
       programa: |

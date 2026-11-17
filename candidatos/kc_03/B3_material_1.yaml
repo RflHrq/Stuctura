@@ -67,7 +67,9 @@
 #
 # O QUE FICA FORA, e os sete itens deste nó cobrem quase tudo:
 #
-#   `int n;` lido duas vezes em chamadas  -> `ciu_kc03_008`
+#   `int nota;` lida sem valor            -> `ciu_kc03_008` (reescrita
+#                                            em 16/11/2026; antes, `int n;`
+#                                            lido duas vezes em chamadas)
 #   global contra local, qual começa em
 #     zero                                -> `ciu_kc03_009`
 #   `int t;` como acumulador quebrado     -> `ciu_kc03_t08`

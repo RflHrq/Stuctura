@@ -408,13 +408,18 @@ def _servidas_pela_trilha(topico, no):
             if a.id not in fora and len(motor.razoes_de(d, a)) >= 2]
 
 
-def test_no_kc_03_ficam_fora_as_onze_que_usam_o_que_a_escada_nao_ensina():
-    """O banco do kc_03 não foi mexido: os cartões do tópico contam com o
-    cenário de cada questão. O que a escada não ensina fica fora."""
+def test_no_kc_03_ficam_fora_as_dez_que_usam_o_que_a_escada_nao_ensina():
+    """O banco do kc_03 não foi mexido, com uma exceção: os cartões do
+    tópico contam com o cenário de cada questão. O que a escada não
+    ensina fica fora.
+
+    ERAM ONZE, e o B3 ficava com duas questões e abria com a de conceito.
+    Em 16/11/2026 a `ciu_kc03_008` foi reescrita sem a função de várias
+    linhas, com o Rafael de acordo, e voltou para a trilha."""
     escadas = _escadas("kc_03")
     assert {no: e.fora for no, e in escadas.items() if e.fora} == {
         "B1": ("ciu_kc03_002", "ciu_kc03_t03"),
-        "B3": ("ciu_kc03_008", "ciu_kc03_009", "ciu_kc03_t08", "ciu_kc03_t09"),
+        "B3": ("ciu_kc03_009", "ciu_kc03_t08", "ciu_kc03_t09"),
         "I1": ("ciu_kc03_t11",),
         "I2": ("ciu_kc03_014", "ciu_kc03_t14", "ciu_kc03_t15"),
         "I3": ("ciu_kc03_017",),
@@ -427,16 +432,16 @@ def test_no_kc_03_ficam_fora_as_onze_que_usam_o_que_a_escada_nao_ensina():
         for i in _servidas_pela_trilha("kc_03", no):
             a = por_id[i]
             assert not ruim.search((a.codigo or "") + a.enunciado), i
-    # O custo, dito: o B3 fica com duas questões de marcar, e é a única
-    # premissa do tópico que abre com a de conceito.
+    # Com a 008 de volta, o B3 tem três questões e abre com ela — e toda
+    # premissa do tópico abre com código.
     assert {no: len(_servidas_pela_trilha("kc_03", no)) for no in d.ordem} == {
-        "B1": 4, "B2": 6, "B3": 2, "I1": 5, "I2": 3, "I3": 5}
+        "B1": 4, "B2": 6, "B3": 3, "I1": 5, "I2": 3, "I3": 5}
     aberturas = {no: trilha.abertura(d, no, fora=escadas[no].fora)
                  for no in d.ordem}
     assert {no: a.id for no, a in aberturas.items()} == {
-        "B1": "ciu_kc03_003", "B2": "ciu_kc03_005", "B3": "ciu_kc03_007",
+        "B1": "ciu_kc03_003", "B2": "ciu_kc03_005", "B3": "ciu_kc03_008",
         "I1": "ciu_kc03_011", "I2": "ciu_kc03_015", "I3": "ciu_kc03_018"}
-    assert [no for no, a in aberturas.items() if not a.codigo] == ["B3"]
+    assert [no for no, a in aberturas.items() if not a.codigo] == []
 
 
 def _selecao(topico):
@@ -526,25 +531,28 @@ def _tem_global(codigo):
         re.match(r"\s*int\b[^()]*;", x) for x in linhas[:funcoes[-1]])
 
 
-def test_no_kc_06_ficam_fora_sete_e_so_o_b2_abre_com_conceito():
-    """O banco do kc_06 não foi mexido. Ficam fora as sete questões que
-    usam o que escada nenhuma ensinou até aqui: variável global, `return`,
-    o `++`, ponteiro para ponteiro, `malloc`."""
+def test_no_kc_06_ficam_fora_cinco_e_toda_premissa_abre_com_codigo():
+    """Ficam fora as cinco questões que usam o que escada nenhuma ensinou
+    até aqui: variável global, `return`, o `++`, ponteiro para ponteiro,
+    `malloc`.
+
+    ERAM SETE, e o B2 ficava com as duas de conceito e abria com uma
+    delas. Em 16/11/2026 a `ciu_kc06_005` e a `ciu_kc06_t06` foram
+    reescritas com o endereço no lugar da variável global, com o Rafael
+    de acordo, e voltaram para a trilha."""
     fora, quantas, abre = _selecao("kc_06")
     assert fora == {
         "B1": ("ciu_kc06_003",),
-        "B2": ("ciu_kc06_005", "ciu_kc06_t05", "ciu_kc06_006", "ciu_kc06_t06"),
+        "B2": ("ciu_kc06_t05", "ciu_kc06_006"),
         "I3": ("ciu_kc06_015", "ciu_kc06_t15"),
     }
-    # O custo, dito: o B2 fica com as duas questões de conceito, e é a
-    # única premissa do tópico que não abre com código.
-    assert quantas == {"B1": 5, "B2": 2, "I1": 6, "I2": 6, "I3": 4, "I4": 6}
+    assert quantas == {"B1": 5, "B2": 4, "I1": 6, "I2": 6, "I3": 4, "I4": 6}
     assert abre == {
-        "B1": "ciu_kc06_002", "B2": "ciu_kc06_004", "I1": "ciu_kc06_008",
+        "B1": "ciu_kc06_002", "B2": "ciu_kc06_005", "I1": "ciu_kc06_008",
         "I2": "ciu_kc06_011", "I3": "ciu_kc06_014", "I4": "ciu_kc06_017"}
     d = _dominio("kc_06")
     por_id = {a.id: a for a in d.atividades}
-    assert [no for no, i in abre.items() if not por_id[i].codigo] == ["B2"]
+    assert [no for no, i in abre.items() if not por_id[i].codigo] == []
     ruim = re.compile(r"\b(malloc|sizeof|return)\b|\+\+|\*\*|\(void\)")
 
     def fora_da_regua(i):
@@ -554,15 +562,17 @@ def test_no_kc_06_ficam_fora_sete_e_so_o_b2_abre_com_conceito():
     for no in d.ordem:
         for i in _servidas_pela_trilha("kc_06", no):
             assert not fora_da_regua(i), i
-    # A régua morde: as sete de fora são pegas por ela, todas.
+    # A régua morde: as cinco de fora são pegas por ela, todas.
     assert all(fora_da_regua(i) for ids in fora.values() for i in ids)
 
 
 def test_o_kc_06_ensina_o_que_as_questoes_dele_usam():
-    """Sete questões servidas usam função com mais de um parâmetro, ou
+    """Nove questões servidas usam função com mais de um parâmetro, ou
     variável declarada dentro da função — a troca de dois valores entre
     elas. As duas coisas são apresentadas num passo guiado do B1, a
-    primeira premissa, antes de qualquer questão que as use no treino."""
+    primeira premissa, antes de qualquer questão que as use no treino.
+    (ERAM SETE: a 005 e a t06, reescritas em 16/11/2026 com o endereço
+    no lugar da variável global, passaram a ter dois parâmetros.)"""
     d, escadas = _dominio("kc_06"), _escadas("kc_06")
     por_id = {a.id: a for a in d.atividades}
     dois = re.compile(r"\w+\((?:int\s*\*?\s*\w+\s*,\s*)+int\s*\*?\s*\w+\)\s*\{")
@@ -570,9 +580,9 @@ def test_o_kc_06_ensina_o_que_as_questoes_dele_usam():
     usam = {i for no in d.ordem for i in _servidas_pela_trilha("kc_06", no)
             if dois.search(por_id[i].codigo or "")
             or local.search(por_id[i].codigo or "")}
-    assert usam == {"ciu_kc06_t02", "ciu_kc06_t03", "ciu_kc06_t09",
-                    "ciu_kc06_t12", "ciu_kc06_014", "ciu_kc06_t17",
-                    "ciu_kc06_t18"}
+    assert usam == {"ciu_kc06_005", "ciu_kc06_t02", "ciu_kc06_t03",
+                    "ciu_kc06_t06", "ciu_kc06_t09", "ciu_kc06_t12",
+                    "ciu_kc06_014", "ciu_kc06_t17", "ciu_kc06_t18"}
     guiados = [g for g in escadas["B1"].degraus if g.guiado]
     apresenta = [g for g in guiados
                  if any(dois.search(v.mostra) and local.search(v.mostra)
