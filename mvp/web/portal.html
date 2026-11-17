@@ -10,61 +10,104 @@
 <script src="/web/tema.js?v=20261116"></script>
 <link rel="stylesheet" href="/web/style.css?v=20261116">
 <style>
-  .portal { max-width: 760px; margin: 0 auto; padding: 28px 20px 56px; }
-  .portal h1 { font-size: 1.5rem; margin: 0 0 6px; }
-  .portal .sub { color: var(--tinta2); margin: 0 0 22px; line-height: 1.5; }
-  .codigo-linha { display: flex; gap: 10px; align-items: center;
-                  flex-wrap: wrap; margin: 0 0 8px; }
-  .codigo-linha label { font-weight: 600; }
-  .codigo-linha input { font: inherit; padding: 8px 10px; width: 9.5em;
-                        border: 1px solid var(--linha2); border-radius: 8px;
-                        background: var(--cartao); color: var(--tinta); }
-  .codigo-nota { color: var(--tinta2); font-size: .9rem; margin: 0 0 24px;
+  /* As cores vêm do tema (tema.css, carregado depois deste bloco). */
+
+  /* O topo: o logo e o nome, o código do participante e a troca de tema. */
+  .p-topo { gap: 12px; padding: 10px 16px; position: sticky; top: 0; z-index: 5; }
+  .p-marca { display: flex; align-items: center; gap: 10px; margin-right: auto;
+             font-weight: 800; letter-spacing: -.01em; }
+  .p-codigo { display: flex; align-items: center; gap: 8px; }
+  .p-codigo label { font-size: 13px; color: var(--topo-tinta2); white-space: nowrap; }
+  .p-codigo input { font: 14px/1.2 "JetBrains Mono", ui-monospace, Consolas, monospace;
+                    width: 9.5em; padding: 7px 10px; border-radius: 8px;
+                    background: transparent; color: var(--topo-tinta);
+                    border: 1px solid var(--topo-linha); }
+  .p-codigo input::placeholder { color: var(--topo-tinta2); opacity: 1; }
+  .p-codigo input:focus-visible { outline: 3px solid var(--topo-realce); outline-offset: 1px; }
+
+  .portal { max-width: 760px; margin: 0 auto; padding: 40px 20px 56px; }
+  .portal h1 { font-size: 2rem; line-height: 1.15; letter-spacing: -.02em;
+               font-weight: 800; margin: 0 0 12px; }
+  .portal .sub { color: var(--tinta2); margin: 0 0 10px; line-height: 1.55;
+                 max-width: 60ch; font-size: 1.05rem; }
+  .codigo-nota { color: var(--tinta2); font-size: .9rem; margin: 0 0 26px;
                  min-height: 1.3em; }
   .codigo-nota.erro { color: var(--erro); }
-  #lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-  #lista a { display: grid; grid-template-columns: 3.2em 1fr auto;
-             gap: 12px; align-items: center; padding: 14px 16px;
-             background: var(--cartao); border: 1px solid var(--linha);
-             border-radius: 12px; color: var(--tinta); text-decoration: none; }
-  #lista a:hover, #lista a:focus-visible { border-color: var(--acento);
-             outline: none; }
-  .num { font-variant-numeric: tabular-nums; color: var(--tinta2);
-         font-weight: 600; }
-  .titulo { font-weight: 600; }
+
+  /* Os tópicos, em cartões, na ordem de sempre. O caminho desenhado é
+     a fatia 2. */
+  #lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  #lista a { display: grid; grid-template-columns: 2.6em 1fr auto;
+             gap: 14px; align-items: center; padding: 14px 16px;
+             background: var(--cartao); border: 1.5px solid var(--linha);
+             border-radius: 14px; color: var(--tinta); text-decoration: none;
+             box-shadow: var(--cartao-sombra); }
+  #lista a:hover { border-color: var(--acento); }
+  #lista a:focus-visible { border-color: var(--acento);
+             outline: 3px solid var(--acento); outline-offset: 2px; }
+  .num { display: grid; place-items: center; width: 2.4em; height: 2.4em;
+         border-radius: 50%; border: 2px solid var(--linha2); color: var(--acento);
+         font: 700 .9rem/1 "JetBrains Mono", ui-monospace, Consolas, monospace; }
+  .titulo { font-weight: 700; }
   .meta { display: block; color: var(--tinta2); font-size: .88rem;
           font-weight: 400; margin-top: 2px; }
   .marcas { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-  .marca { font-size: .78rem; padding: 3px 8px; border-radius: 999px;
+  .marca { font-size: .78rem; font-weight: 700; padding: 3px 9px; border-radius: 999px;
            white-space: nowrap; }
   .marca.aberto { background: var(--ok-fundo); color: var(--ok); }
   .falha { color: var(--erro); }
   /* O caminho de sempre, para o tópico que já abre pela trilha. */
   #lista a.anterior { display: inline; padding: 0; border: 0; background: none;
-                      color: var(--tinta2); font-size: .82rem;
-                      text-decoration: underline; margin-left: 16px; }
+                      box-shadow: none; color: var(--tinta2); font-size: .82rem;
+                      text-decoration: underline; margin-left: 18px; }
   #lista a.anterior:hover, #lista a.anterior:focus-visible {
                       color: var(--acento); }
+
+  /* Tela estreita: o nome sai do topo (o logo fica), o rótulo encurta. */
+  @media (max-width: 560px) {
+    .p-topo { gap: 8px; padding: 10px 12px; }
+    .p-nome, .p-longo { display: none; }
+    .p-codigo input { width: 7.5em; }
+    .portal { padding: 26px 14px 48px; }
+    .portal h1 { font-size: 1.6rem; }
+    #lista a { grid-template-columns: 2.4em 1fr; gap: 12px; }
+    .marcas { grid-column: 2; justify-content: flex-start; }
+  }
 </style>
 <link rel="stylesheet" href="/web/tema.css?v=20261116">
 </head>
 <body>
-<header class="topo">
-  <img src="/web/marca.svg?v=20261116" alt="" width="28" height="28">
+<header class="topo p-topo">
+  <!-- O logo B (o S que é um ponteiro). As cores de verdade vêm do tema;
+       as daqui são a reserva. -->
+  <span class="p-marca">
+    <span class="t-marca">
+      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true" focusable="false">
+        <rect class="m-fundo" width="32" height="32" rx="8" fill="#1f5668"/>
+        <path class="m-traco" d="M22 9 C 19 6, 10 6, 10 12 C 10 17, 22 15, 22 21 C 22 25, 16 26, 13 25"
+              fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+        <rect class="m-caixa" x="5" y="23" width="7" height="6" rx="1.5" fill="#f2a541"/>
+      </svg>
+    </span>
+    <span class="p-nome">Structura</span>
+  </span>
+  <!-- O mesmo campo de sempre, com a mesma validação (no script abaixo);
+       a nota que explica o código fica logo abaixo do título. -->
+  <div class="p-codigo">
+    <label for="codigo">Código<span class="p-longo"> do participante</span></label>
+    <input id="codigo" autocomplete="off" spellcheck="false"
+           placeholder="opcional" maxlength="16" aria-describedby="nota">
+  </div>
   <!-- tema.js liga este botão quando a página termina de chegar. -->
-  <button class="btn-topo" id="btn-tema" type="button"
-          aria-pressed="false">Tema escuro</button>
+  <button class="btn-topo" id="btn-tema" type="button" aria-pressed="false"><span
+    class="t-tema-icone" aria-hidden="true">◐</span><span
+    class="t-tema-texto">Tema escuro</span></button>
 </header>
 <main class="portal">
-  <h1>Structura</h1>
-  <p class="sub">Treze tópicos sobre ponteiros em C. Escolha um para entrar;
-    ao terminar, volte aqui e entre no próximo.</p>
-
-  <div class="codigo-linha">
-    <label for="codigo">Código do participante</label>
-    <input id="codigo" autocomplete="off" spellcheck="false"
-           placeholder="opcional" maxlength="16">
-  </div>
+  <h1>Ponteiros em C, uma ideia de cada vez</h1>
+  <p class="sub">Treze tópicos. Cada ideia começa com uma pergunta: o sistema
+    descobre o que você já sabe, o que falta e o que você acha que sabe — e
+    mostra, rodando, o que a máquina faz.</p>
   <p class="codigo-nota" id="nota">Sem código, a sessão sai anônima. Com
     código, o mesmo código vale uma vez em cada tópico.</p>
 

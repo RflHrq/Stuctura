@@ -410,6 +410,18 @@ def test_o_buraco_do_completar_se_le_dentro_do_editor(tema):
     assert contraste(cores[cor], cores["editor"]) >= 4.5, (tema, cor)
 
 
+def test_a_pagina_inicial_tem_o_logo_o_titulo_e_o_tema():
+    html = (WEB / "portal.html").read_text(encoding="utf-8")
+    assert "<svg" in html and 'id="btn-tema"' in html and 'id="codigo"' in html
+    assert "Ponteiros em C, uma ideia de cada vez" in html
+    # o campo do código vai para o topo, com o rótulo e a nota de antes
+    topo = re.search(r'<header class="topo[^"]*">(.*?)</header>', html, re.S).group(1)
+    assert 'id="codigo"' in topo and 'for="codigo"' in topo
+    assert 'aria-describedby="nota"' in topo and 'id="nota"' in html
+    # a ordem sugerida é a fatia 2: a frase não promete o que a lista não faz
+    assert "ordem sugerida" not in html
+
+
 def test_o_sinal_de_certo_so_anima_com_movimento_permitido():
     css = (WEB / "tema.css").read_text(encoding="utf-8")
     assert "@keyframes" in css
