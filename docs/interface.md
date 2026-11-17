@@ -348,19 +348,28 @@ Cada fatia deixa o sistema funcionando e passa pela suíte inteira.
 As escadas que faltam (kc_10, kc_11, kc_12) seguem em paralelo, no
 formato de sempre, e ganham cena quando chegar a vez delas na fatia 4.
 
-## 10. Para o Rafael decidir
+## 10. O que o Rafael decidiu em 16/11/2026, e o que ficou em aberto
 
-1. **A ordem do kc_01.** O arquivo do tópico diz que ele depende só do
-   kc_00; a escada dele, escrita em 13/11, usa função, `return`, `malloc`
-   e `sizeof`, e por isso o caminho o põe depois do kc_07. A proposta é
-   acertar `prerequisites` do kc_01 para `[kc_00, kc_06, kc_07]` — é
-   dado do domínio, e é você quem muda.
-2. **Baixar as fontes.** Nunito e JetBrains Mono, licença OFL, do
-   repositório oficial de cada uma, cerca de 200 KB no total, para
-   `mvp/web/fontes/`. Sem autorização, fica a pilha de fontes do sistema
-   (Segoe UI no Windows), e o visual muda pouco.
-3. **O estilo do caminho.** Fiquei com a trilha de jogo (opção A do
-   esboço 2); você não chegou a escolher entre as três.
+1. **O estilo do caminho: a trilha de jogo** — "porque é uma
+   familiaridade". Decidido.
+2. **As fontes: baixar as livres.** Autorizado: Nunito e JetBrains Mono,
+   licença OFL, para `mvp/web/fontes/`, com o arquivo de licença de cada
+   uma ao lado.
+3. **O kc_01 depois do kc_06 e do kc_07.** Decidido para o CAMINHO: em
+   `caminho.yaml` o kc_01 vem depois do kc_07, e isso já é compatível com
+   o grafo de hoje (o kc_01 declara só o kc_00). **Em aberto: mudar
+   também o `prerequisites` do kc_01** para `[kc_00, kc_06, kc_07]`, como
+   o Rafael aprovou antes de saber de dois efeitos, achados depois:
+   - `mvp/test_arquitetura.py::test_os_treze_topicos_declaram_o_prerequisito`
+     fixa o grafo inteiro, e é anterior ao ramo `trilha` — mudar o grafo
+     é mudar esse teste, o que só acontece com o Rafael avisado;
+   - o grafo alimenta o portão de exibição (`conceitos.anteriores`): com
+     a mudança, o kc_01 passa a contar kc_02, kc_03, kc_04, kc_06 e kc_07
+     como já ensinados; o kc_08 ganha kc_06 e kc_07; o kc_09 e o kc_12
+     ganham kc_07. Mais demonstrações passam a poder aparecer nesses
+     tópicos, no fluxo anterior e na reserva de prova da trilha.
+   O caminho não depende disso. A fatia 2 entra sem mexer no grafo, e a
+   mudança vira uma tarefa à parte quando ele decidir.
 
 ## 11. Como saber que funcionou
 
