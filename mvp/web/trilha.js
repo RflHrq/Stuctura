@@ -260,18 +260,23 @@
 
   /* --------------------------------------------------------- progresso */
 
+  /* As paradas do topo: um círculo numerado por ideia. O estado vai no
+     aria-label, para quem não vê a cor. */
   function desenhaProgresso(progresso, tela) {
     var lista = $("progresso");
     lista.textContent = "";
     if (!progresso) return;
-    progresso.premissas.forEach(function (x) {
-      var classe = "";
-      if (x.resultado === "em_aberto") classe = "t-aberto";
-      else if (x.resultado) classe = "t-bem";
-      else if (tela && tela.premissa === x.no) classe = "t-atual";
+    progresso.premissas.forEach(function (x, i) {
+      var classe = "", estado = "ainda não";
+      if (x.resultado === "em_aberto") { classe = "t-aberto"; estado = "em aberto"; }
+      else if (x.resultado) { classe = "t-bem"; estado = "feita"; }
+      else if (tela && tela.premissa === x.no) { classe = "t-atual"; estado = "agora"; }
       lista.appendChild(el("li", {
         "class": classe,
-        title: x.resultado ? RESULTADO[x.resultado] : ""
+        "aria-label": "Ideia " + (i + 1) + ": " + estado,
+        "aria-current": classe === "t-atual" ? "step" : null,
+        title: x.resultado ? RESULTADO[x.resultado] : "",
+        texto: String(i + 1)
       }));
     });
     lista.setAttribute("aria-label", "Ideias deste tópico: " +
@@ -883,7 +888,10 @@
   fetch(BASE + "/saude").then(function (r) { return r.json(); })
     .then(function (s) {
       if (s && s.topico && window.Figuras) window.Figuras.topico(s.topico);
-      if (s && s.titulo) document.title = "Structura — " + s.titulo;
+      if (s && s.titulo) {
+        document.title = "Structura — " + s.titulo;
+        $("topico-nome").textContent = s.titulo;
+      }
     })
     .catch(function () { /* sem saúde, a sessão ainda abre */ });
 

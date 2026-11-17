@@ -45,6 +45,10 @@ html[data-tema="claro"], html:not([data-tema]) {
   --sx-texto: #9fd38a; --sx-comentario: #94a3ab;
   --topo: #12303a; --topo-tinta: #eaf4f7; --topo-tinta2: #cfe3ea;
   --topo-linha: #3d6574; --topo-realce: #7cc4e0;
+  --parada-ok: #3ddc97; --parada-ok-tinta: #06301f;
+  --parada-agora: #ff9f5a; --parada-agora-tinta: #3a1600;
+  --parada-aberta: #f2c14e; --parada-aberta-tinta: #3a2a00;
+  --parada-brilho: 0 0 0 4px rgba(255, 159, 90, .25);
   --botao: #b8500f; --botao-tinta: #ffffff;
   --marca-fundo: #1f8fae; --marca-traco: #ffffff; --marca-caixa: #f2a541;
   --padrao: #d8e2e6;
@@ -71,6 +75,10 @@ html[data-tema="escuro"] {
   --sx-texto: #86efac; --sx-comentario: #7b8ba3;
   --topo: #0b1420; --topo-tinta: #dbe6ee; --topo-tinta2: #a8b8c6;
   --topo-linha: #2b3f56; --topo-realce: #38bdf8;
+  --parada-ok: #34d399; --parada-ok-tinta: #062218;
+  --parada-agora: #fb923c; --parada-agora-tinta: #2a1200;
+  --parada-aberta: #fbbf24; --parada-aberta-tinta: #2b2410;
+  --parada-brilho: 0 0 0 4px rgba(251, 146, 60, .25), 0 0 14px rgba(251, 146, 60, .6);
   --botao: #38bdf8; --botao-tinta: #051a24;
   --marca-fundo: #1f5668; --marca-traco: #ffffff; --marca-caixa: #f2a541;
   --padrao: #1b2a3b;
@@ -101,6 +109,10 @@ html[data-tema="escuro"] {
     --sx-texto: #86efac; --sx-comentario: #7b8ba3;
     --topo: #0b1420; --topo-tinta: #dbe6ee; --topo-tinta2: #a8b8c6;
     --topo-linha: #2b3f56; --topo-realce: #38bdf8;
+    --parada-ok: #34d399; --parada-ok-tinta: #062218;
+    --parada-agora: #fb923c; --parada-agora-tinta: #2a1200;
+    --parada-aberta: #fbbf24; --parada-aberta-tinta: #2b2410;
+    --parada-brilho: 0 0 0 4px rgba(251, 146, 60, .25), 0 0 14px rgba(251, 146, 60, .6);
     --botao: #38bdf8; --botao-tinta: #051a24;
     --marca-fundo: #1f5668; --marca-traco: #ffffff; --marca-caixa: #f2a541;
     --padrao: #1b2a3b;
@@ -149,6 +161,72 @@ body {
 .topo .btn-topo:hover,
 .topo .btn-topo:focus-visible { color: var(--topo-tinta); border-color: var(--topo-realce); }
 #btn-tema[aria-pressed="true"] { border-color: var(--topo-realce); }
+
+/* O topo da trilha: logo (que leva aos tópicos), nome do tópico,
+   paradas, tema e ajustes. */
+.t-topo { gap: 10px; padding: 10px 16px; }
+.t-marca { display: flex; flex: 0 0 auto; border-radius: 9px; }
+.t-marca svg { display: block; }
+.t-marca .m-fundo { fill: var(--marca-fundo); }
+.t-marca .m-traco { stroke: var(--marca-traco); }
+.t-marca .m-caixa { fill: var(--marca-caixa); }
+.t-marca:focus-visible { outline: 3px solid var(--topo-realce); outline-offset: 2px; }
+.t-topico {
+  font-weight: 800; letter-spacing: -.01em;
+  min-width: 0; max-width: 26ch;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* As paradas: um círculo numerado por ideia, ligados por um fio; o fio
+   fica verde depois de uma ideia feita. O estado vai também no
+   aria-label de cada uma (trilha.js), para quem não vê a cor. */
+.t-progresso {
+  flex: 1 0 auto; justify-content: center; align-items: center;
+  gap: 0; max-width: none;
+}
+.t-progresso li {
+  flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; position: relative;
+  font: 700 12px/1 "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color: var(--topo-tinta2); background: transparent;
+  border: 2px solid var(--topo-linha);
+}
+.t-progresso li + li { margin-left: 16px; }
+.t-progresso li + li::before {
+  content: ""; position: absolute; top: calc(50% - 1px);
+  right: calc(100% + 2px); width: 16px; height: 2px;
+  background: var(--topo-linha);
+}
+.t-progresso li.t-bem + li::before { background: var(--parada-ok); }
+.t-progresso li.t-bem {
+  background: var(--parada-ok); border-color: var(--parada-ok); color: var(--parada-ok-tinta);
+}
+.t-progresso li.t-aberto {
+  background: var(--parada-aberta); border-color: var(--parada-aberta);
+  color: var(--parada-aberta-tinta);
+}
+.t-progresso li.t-atual {
+  background: var(--parada-agora); border-color: var(--parada-agora);
+  color: var(--parada-agora-tinta); box-shadow: var(--parada-brilho);
+}
+.t-tema-icone { margin-right: 6px; }
+
+@media (max-width: 720px) {
+  .t-topico { display: none; }
+}
+/* Tela estreita: paradas menores, e o botão de tema só com o desenho —
+   o texto continua no botão, escondido da vista, para o leitor de tela. */
+@media (max-width: 560px) {
+  .t-topo { gap: 8px; padding: 10px 12px; }
+  .t-progresso li { width: 20px; height: 20px; font-size: 11px; }
+  .t-progresso li + li { margin-left: 6px; }
+  .t-progresso li + li::before { width: 6px; }
+  .t-tema-icone { margin-right: 0; }
+  .t-tema-texto {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
+}
 
 /* O botão principal: branco sobre o acento do tema escuro não passaria
    no contraste, então ele ganha cor própria. */

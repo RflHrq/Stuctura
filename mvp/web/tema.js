@@ -53,13 +53,16 @@
     return raiz && raiz.getAttribute("data-tema") === "escuro" ? "escuro" : "claro";
   }
 
-  /* O botão é de alternância: o texto fica "Tema escuro" e
-     `aria-pressed` diz se ele está ligado. Texto que mudasse junto com
-     `aria-pressed` se contradiria para quem usa leitor de tela. */
+  /* O botão é de alternância: o texto, que a página escreve, fica
+     "Tema escuro", e `aria-pressed` diz se ele está ligado. Texto que
+     mudasse junto com `aria-pressed` se contradiria para quem usa leitor
+     de tela. Ligar o mesmo botão duas vezes não põe outro ouvinte: com
+     dois, cada clique trocaria duas vezes e nada mudaria. */
+  var ligados = [];
   function liga(botao) {
-    if (!botao) return;
+    if (!botao || ligados.indexOf(botao) >= 0) return;
+    ligados.push(botao);
     function mostra() {
-      botao.textContent = "Tema escuro";
       botao.setAttribute("aria-pressed", atual() === "escuro" ? "true" : "false");
     }
     mostra();

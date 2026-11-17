@@ -18,13 +18,26 @@
 <body>
 
 <header class="topo t-topo">
-  <a class="btn-topo" id="lnk-topicos" href="/">← tópicos</a>
-  <!-- Uma marca por ideia do tópico. O servidor manda o estado de cada
+  <!-- O logo B (o S que é um ponteiro) leva de volta aos tópicos. As
+       cores de verdade vêm do tema (tema.css); as daqui são a reserva. -->
+  <a class="t-marca" id="lnk-topicos" href="/"
+     aria-label="Structura — voltar aos tópicos">
+    <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true" focusable="false">
+      <rect class="m-fundo" width="32" height="32" rx="8" fill="#1f5668"/>
+      <path class="m-traco" d="M22 9 C 19 6, 10 6, 10 12 C 10 17, 22 15, 22 21 C 22 25, 16 26, 13 25"
+            fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+      <rect class="m-caixa" x="5" y="23" width="7" height="6" rx="1.5" fill="#f2a541"/>
+    </svg>
+  </a>
+  <!-- O nome do tópico chega de /saude, uma vez, ao abrir. -->
+  <span class="t-topico" id="topico-nome"></span>
+  <!-- Uma parada por ideia do tópico. O servidor manda o estado de cada
        uma a cada resposta. -->
   <ol class="t-progresso" id="progresso" aria-label="Ideias deste tópico"></ol>
   <!-- tema.js liga este botão quando a página termina de chegar. -->
-  <button class="btn-topo" id="btn-tema" type="button"
-          aria-pressed="false">Tema escuro</button>
+  <button class="btn-topo" id="btn-tema" type="button" aria-pressed="false"><span
+    class="t-tema-icone" aria-hidden="true">◐</span><span
+    class="t-tema-texto">Tema escuro</span></button>
   <button class="btn-topo" id="btn-ajustes" type="button"
           aria-expanded="false" aria-controls="ajustes" hidden>Ajustes</button>
 </header>

@@ -75,7 +75,11 @@ PARES = [("tinta", "papel"), ("tinta", "cartao"), ("tinta2", "cartao"),
          ("aviso", "aviso-fundo"), ("botao-tinta", "botao"),
          ("topo-tinta", "topo"), ("editor-tinta", "editor"),
          ("sx-palavra", "editor"), ("sx-numero", "editor"), ("sx-funcao", "editor"),
-         ("sx-texto", "editor"), ("sx-comentario", "editor")]
+         ("sx-texto", "editor"), ("sx-comentario", "editor"),
+         # o topo e as paradas (Task 4)
+         ("topo-tinta2", "topo"), ("parada-ok-tinta", "parada-ok"),
+         ("parada-agora-tinta", "parada-agora"),
+         ("parada-aberta-tinta", "parada-aberta")]
 
 
 def cores_do_tema(tema: str) -> dict[str, str]:
@@ -172,6 +176,46 @@ def roda_tema_js(guardado, sistema_escuro: bool, armazenamento: str) -> str:
 def test_o_tema_e_escolhido_antes_da_pagina(guardado, sistema_escuro,
                                             armazenamento, esperado):
     assert roda_tema_js(guardado, sistema_escuro, armazenamento) == esperado
+
+
+@tem_node
+def test_o_botao_de_tema_troca_uma_vez_por_clique():
+    """tema.js liga #btn-tema sozinho quando a página chega. Ligar de novo
+    o mesmo botão não pode pôr um segundo ouvinte: com dois, cada clique
+    trocaria duas vezes e o tema não mudaria. E o texto do botão, que a
+    página escreve, fica como está."""
+    programa = """
+    const atributos = {};
+    const ouvintes = {};
+    const guardados = [];
+    global.window = global;
+    const botao = { atributos: {}, textContent: "Tema escuro", cliques: [],
+        setAttribute(k, v) { this.atributos[k] = v; },
+        getAttribute(k) { return this.atributos[k]; },
+        addEventListener(e, f) { if (e === "click") this.cliques.push(f); } };
+    global.document = {
+        documentElement: { setAttribute(k, v) { atributos[k] = v; },
+                           getAttribute(k) { return atributos[k]; } },
+        addEventListener(e, f) { ouvintes[e] = f; },
+        getElementById: (id) => (id === "btn-tema" ? botao : null) };
+    global.matchMedia = () => ({ matches: false });
+    Object.defineProperty(global, "localStorage", { configurable: true, get() {
+        return { getItem: () => null, setItem: (k, v) => guardados.push([k, v]) }; } });
+    require(require("path").join(WEB, "tema.js"));
+    ouvintes.DOMContentLoaded();
+    window.Tema.liga(botao);
+    const antes = [atributos["data-tema"], botao.atributos["aria-pressed"]];
+    botao.cliques.forEach((f) => f());
+    console.log(JSON.stringify({ antes, ouvintes: botao.cliques.length, guardados,
+        depois: [atributos["data-tema"], botao.atributos["aria-pressed"]],
+        texto: botao.textContent }));
+    """
+    r = json.loads(_roda_node(programa))
+    assert r["antes"] == ["claro", "false"]
+    assert r["ouvintes"] == 1
+    assert r["depois"] == ["escuro", "true"]
+    assert r["guardados"] == [["structura-tema", "escuro"]]
+    assert r["texto"] == "Tema escuro"
 
 
 def test_as_duas_paginas_carregam_o_tema_no_head():
@@ -308,3 +352,26 @@ def test_a_trilha_carrega_o_realce_antes_do_proprio_script():
     html = (WEB / "trilha.html").read_text(encoding="utf-8")
     assert "/web/realce.js?v=20261116" in html
     assert html.index("realce.js") < html.index("trilha.js")
+
+
+# --------------------------------------------------------------------------
+# O topo da trilha
+# --------------------------------------------------------------------------
+
+def test_o_topo_tem_o_logo_o_topico_as_paradas_e_o_tema():
+    html = (WEB / "trilha.html").read_text(encoding="utf-8")
+    js = (WEB / "trilha.js").read_text(encoding="utf-8")
+    topo = re.search(r'<header class="topo t-topo">(.*?)</header>', html, re.S).group(1)
+    assert 'class="t-marca"' in topo and 'href="/"' in topo and "<svg" in topo
+    assert 'aria-label="Structura — voltar aos tópicos"' in topo
+    assert 'id="topico-nome"' in topo and 'id="btn-tema"' in topo
+    assert "← tópicos" not in html
+    # O botão de tema é ligado por tema.js (test_o_botao_de_tema_troca_uma_vez_por_clique).
+    assert '"/saude"' in js and '$("topico-nome")' in js
+    progresso = re.search(r"function desenhaProgresso\(.*?\n  \}", js, re.S).group(0)
+    for estado in ("feita", "em aberto", "agora", "ainda não"):
+        assert estado in progresso, estado
+    assert "aria-label" in progresso and "Ideia " in progresso
+    # as classes de antes continuam: os testes do ramo e trilha.css as usam
+    for classe in ("t-bem", "t-aberto", "t-atual"):
+        assert classe in progresso, classe
