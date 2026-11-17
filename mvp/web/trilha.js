@@ -101,8 +101,15 @@
 
   function p(classe, texto) { return el("p", { "class": classe, texto: texto }); }
 
+  /* O código sai em cores (realce.js). A saída do programa e o que o
+     compilador disse vêm com a classe "terminal" e saem como texto puro,
+     assim como tudo, se o realce não tiver carregado. */
   function bloco(texto, classe) {
-    return el("pre", { "class": classe || "codigo", texto: texto });
+    var tipo = classe || "codigo";
+    var pre = el("pre", { "class": tipo });
+    if (tipo === "codigo" && window.Realce) window.Realce.preenche(pre, texto);
+    else pre.textContent = texto;
+    return pre;
   }
 
   function botao(texto, aoClicar, classe) {

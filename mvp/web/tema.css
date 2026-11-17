@@ -124,6 +124,20 @@ body {
   font-family: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
 }
 
+/* O código fica num editor escuro, nos dois temas: as cores do realce
+   (realce.js) foram medidas contra --editor. Vale também para o código
+   dentro do retorno, que trilha.css punha sobre o cartão. */
+.codigo, .t-retorno .codigo {
+  background: var(--editor);
+  color: var(--editor-tinta);
+  border-color: var(--editor);
+}
+.sx-palavra { color: var(--sx-palavra); }
+.sx-numero { color: var(--sx-numero); }
+.sx-funcao { color: var(--sx-funcao); }
+.sx-texto { color: var(--sx-texto); }
+.sx-comentario { color: var(--sx-comentario); font-style: italic; }
+
 /* O topo é a barra do terminal: escura nos dois temas. */
 .topo {
   background: var(--topo);

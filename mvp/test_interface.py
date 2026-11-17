@@ -17,6 +17,7 @@ import pathlib
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 
 import pytest
@@ -24,6 +25,10 @@ import pytest
 RAIZ = pathlib.Path(__file__).resolve().parent
 WEB = RAIZ / "web"
 FONTES = WEB / "fontes"
+sys.path.insert(0, str(RAIZ.parent))
+
+from mvp import trilha_escada  # noqa: E402
+from mvp.dominio import carrega, topicos  # noqa: E402
 
 NODE = shutil.which("node")
 tem_node = pytest.mark.skipif(NODE is None, reason="sem node para rodar o JavaScript")
@@ -179,3 +184,127 @@ def test_as_duas_paginas_carregam_o_tema_no_head():
         assert cabeca.index("tema.css") > cabeca.index("style.css"), pagina
         assert 'rel="icon"' in cabeca and "/web/marca.svg?v=20261116" in cabeca, pagina
         assert 'id="btn-tema"' in html, pagina
+
+
+# --------------------------------------------------------------------------
+# O realce de código
+# --------------------------------------------------------------------------
+
+def _todos_os_trechos() -> list[str]:
+    """Todo código que a trilha mostra: revisão, passos e provas, nos
+    tópicos com escada."""
+    trechos: list[str] = []
+    for topico in topicos():
+        arquivo = RAIZ / "dominio" / ("escada_%s.yaml" % topico.replace("_", ""))
+        if not arquivo.exists():
+            continue
+        for esc in trilha_escada.le(arquivo, carrega(topico=topico)).values():
+            trechos.append(esc.revisao.codigo)
+            for degrau in esc.degraus:
+                for v in degrau.versoes:
+                    trechos += [v.mostra, v.antes, v.programa, v.certa_texto]
+            trechos += [prova.programa for prova in esc.provas]
+    return [t for t in trechos if t.strip()]
+
+
+def roda_realce_js(trechos: list[str]) -> list[str]:
+    """Passa cada trecho por `Realce.pedacos` no Node e devolve os pedaços
+    de cada um juntados de volta."""
+    programa = """
+    global.window = global;
+    require(require("path").join(WEB, "realce.js"));
+    const entrada = %s;
+    console.log(JSON.stringify(entrada.map(
+        (t) => window.Realce.pedacos(t).map((p) => p.texto).join(""))));
+    """ % json.dumps(trechos)
+    return json.loads(_roda_node(programa))
+
+
+def roda_pedacos(texto: str) -> list[tuple[str, str]]:
+    """Os pedaços com tipo de um trecho; os de tipo "" ficam de fora."""
+    programa = """
+    global.window = global;
+    require(require("path").join(WEB, "realce.js"));
+    console.log(JSON.stringify(window.Realce.pedacos(%s)
+        .filter((p) => p.tipo).map((p) => [p.tipo, p.texto])));
+    """ % json.dumps(texto)
+    return [tuple(p) for p in json.loads(_roda_node(programa))]
+
+
+@tem_node
+def test_o_realce_devolve_o_texto_identico():
+    trechos = _todos_os_trechos()
+    assert len(trechos) > 500
+    assert roda_realce_js(trechos) == trechos
+
+
+@tem_node
+def test_o_realce_reconhece_cada_peca():
+    pedacos = roda_pedacos('void f(int n) { n = 99; printf("%d\\n", n); } // fim')
+    assert ("palavra", "void") in pedacos and ("funcao", "f") in pedacos
+    assert ("numero", "99") in pedacos and ("texto", '"%d\\n"') in pedacos
+    assert ("funcao", "printf") in pedacos and ("comentario", "// fim") in pedacos
+    assert roda_pedacos('"a // b"') == [("texto", '"a // b"')]
+
+
+@tem_node
+def test_o_realce_nao_ve_nada_dentro_de_comentario_nem_de_texto():
+    assert roda_pedacos("/* int 5 f() */ x") == [("comentario", "/* int 5 f() */")]
+    assert roda_pedacos("'\\''") == [("texto", "'\\''")]
+    assert roda_pedacos('"a\\"b" 0x1F') == [("texto", '"a\\"b"'), ("numero", "0x1F")]
+    # palavra-chave dentro de um nome maior não é palavra-chave
+    assert roda_pedacos("inteiro = sizeof (x);") == [("palavra", "sizeof")]
+    assert roda_pedacos("print (x)") == [("funcao", "print")]
+
+
+@tem_node
+def test_preenche_monta_o_bloco_com_nos_de_texto():
+    """Código tem `<` e `&`: o bloco é montado com nós, nunca com HTML."""
+    js = (WEB / "realce.js").read_text(encoding="utf-8")
+    assert "innerHTML" not in js
+    programa = """
+    global.window = global;
+    const no = (tag) => ({ tag, className: "", textContent: "", filhos: [],
+        appendChild(f) { this.filhos.push(f); return f; } });
+    global.document = { createElement: no,
+        createTextNode: (t) => ({ tag: "#texto", textContent: t }) };
+    require(require("path").join(WEB, "realce.js"));
+    const pre = no("pre");
+    pre.textContent = "velho";
+    window.Realce.preenche(pre, %s);
+    console.log(JSON.stringify(pre.filhos.map((f) => [f.tag, f.className || "", f.textContent])));
+    """ % json.dumps("int *p = &x; // a<b")
+    filhos = json.loads(_roda_node(programa))
+    assert "".join(f[2] for f in filhos) == "int *p = &x; // a<b"
+    assert ["span", "sx-palavra", "int"] in filhos
+    assert ["span", "sx-comentario", "// a<b"] in filhos
+    assert all(f[0] in ("span", "#texto") for f in filhos)
+
+
+def test_o_codigo_colorido_fica_no_fundo_de_editor():
+    """O contraste das cores do realce foi medido contra --editor; então
+    todo bloco de código, inclusive o do retorno, fica nesse fundo."""
+    css = (WEB / "tema.css").read_text(encoding="utf-8")
+    regra = re.search(r"\.codigo, \.t-retorno \.codigo \{([^}]*)\}", css)
+    assert regra, "tema.css não põe o código no fundo de editor"
+    assert "background: var(--editor)" in regra.group(1)
+    assert "color: var(--editor-tinta)" in regra.group(1)
+    for tipo in ("palavra", "numero", "funcao", "texto", "comentario"):
+        assert re.search(r"\.sx-%s \{[^}]*color: var\(--sx-%s\)" % (tipo, tipo), css), tipo
+
+
+def test_so_o_codigo_e_colorido_e_a_saida_nao():
+    js = (WEB / "trilha.js").read_text(encoding="utf-8")
+    corpo = re.search(r"function bloco\(texto, classe\) \{(.*?)\n  \}", js, re.S).group(1)
+    assert "Realce.preenche" in corpo          # o código é colorido
+    assert "textContent" in corpo              # a saída, e a falta do realce, não
+    assert '"codigo"' in corpo                 # quem decide é a classe do bloco
+    # e as saídas continuam chegando com a classe delas
+    assert js.count('bloco(t.espera, "terminal")') == 1
+    assert js.count('bloco(t.saida, "terminal")') == 1
+
+
+def test_a_trilha_carrega_o_realce_antes_do_proprio_script():
+    html = (WEB / "trilha.html").read_text(encoding="utf-8")
+    assert "/web/realce.js?v=20261116" in html
+    assert html.index("realce.js") < html.index("trilha.js")
