@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import copy
 import pathlib
+import subprocess
 import sys
 from dataclasses import replace
 
@@ -511,6 +512,52 @@ def test_prova_com_endereco_de_exemplo_tem_de_dizer_que_e_exemplo(tmp_path):
     with pytest.raises(trilha_escada.EscadaInvalida) as erro:
         _le(tmp_path, _com_prova(prova))
     assert any("endereço de exemplo" in p for p in erro.value.problemas)
+
+
+# --------------------------------------------------------------------------
+# O tempo que o conferidor espera
+# --------------------------------------------------------------------------
+
+@tem_gcc
+@pytest.mark.parametrize("prova", [
+    _prova_que_imprime,                                  # oraculo.roda
+    _prova_que_reclama,                                  # diz
+    lambda: _prova_de_enderecos("0x1000\n0x2A00"),       # _saida
+], ids=["imprime", "reclama", "enderecos"])
+def test_o_conferidor_espera_mais_que_o_oraculo_e_nao_para_sempre(
+        tmp_path, monkeypatch, prova):
+    """Na suíte inteira, com a máquina carregada, um programa de três
+    linhas (`malloc`, `printf`, `free`) chegou a passar dos 10 s do
+    oráculo — no kc_01 e no kc_06 —, e o conferidor acusou "não
+    terminou". Não era laço: era o Windows olhando o executável novo.
+
+    O conferidor é verificação de autoria, e tem limite próprio, mais
+    folgado que o do oráculo. Mas ainda é limite: programa que não para
+    continua acusado. Vale para TODO processo que ele abre — compilar,
+    só compilar, rodar —, inclusive os que abre pelo `oraculo.roda`.
+    """
+    bloco = _com_prova(prova())
+    # A revisão com saída é o caminho que roda pelo oráculo; os degraus
+    # de `digitar` da escada de teste são outro, e os de montar e
+    # escolher, o que só compila.
+    bloco["revisao"] = {"frases": ["Toda variável tem um nome e um tipo."],
+                        "codigo": "int idade;\n\nidade = 20;\n"
+                                  "printf(\"%d\\n\", idade);\n",
+                        "saida": "20"}
+    escadas = _le(tmp_path, bloco)
+
+    tempos = []
+    de_verdade = subprocess.run
+
+    def espia(*a, **k):
+        tempos.append(k.get("timeout"))
+        return de_verdade(*a, **k)
+
+    monkeypatch.setattr(subprocess, "run", espia)
+    assert confere_escada.confere(escadas) == []
+    assert tempos
+    assert all(t is not None and t > oraculo.TEMPO for t in tempos), tempos
+    assert set(tempos) == {confere_escada.TEMPO_CONFERE}
 
 
 # --------------------------------------------------------------------------

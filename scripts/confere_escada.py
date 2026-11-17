@@ -54,6 +54,15 @@ from mvp.trilha_escada import (  # noqa: E402
 
 DOMINIO = RAIZ / "mvp" / "dominio"
 
+# O limite de cada processo que o conferidor abre: compilar, só compilar,
+# rodar — inclusive os que ele abre pelo `oraculo.roda`. É próprio, e
+# mais folgado que os 10 s do oráculo: na suíte inteira, com a máquina
+# carregada, um programa de três linhas (`malloc`, `printf`, `free`)
+# passou dos 10 s no kc_01 e no kc_06, e não era laço — era o Windows
+# olhando o executável novo. O conferidor é verificação de autoria, não
+# espera de ninguém; 60 s ainda acusa o programa que não para.
+TEMPO_CONFERE = 60
+
 
 def arquivo_da_escada(topico: str) -> pathlib.Path:
     """`kc_00` -> `mvp/dominio/escada_kc00.yaml`."""
@@ -114,10 +123,10 @@ def compila(programa: str) -> tuple[bool, str]:
         try:
             saiu = subprocess.run(
                 [str(gcc), "-std=c17", "-Wall", "-fsyntax-only", "o.c"],
-                capture_output=True, text=True, timeout=oraculo.TEMPO,
+                capture_output=True, text=True, timeout=TEMPO_CONFERE,
                 cwd=str(pasta))
         except subprocess.TimeoutExpired:
-            return False, "o compilador não voltou em %ds" % oraculo.TEMPO
+            return False, "o compilador não voltou em %ds" % TEMPO_CONFERE
     linhas = [l.strip() for l in saiu.stderr.splitlines() if l.strip()]
     nota = next((l for l in linhas if "error:" in l),
                 linhas[0] if linhas else "")
@@ -150,7 +159,7 @@ def diz(programa: str, avisos: tuple[str, ...] = ()) -> str:
                 [str(gcc), "-std=c17", "-Wall", *avisos,
                  "-c", "-o", "o.o", "o.c"],
                 capture_output=True, text=True, encoding="utf-8",
-                errors="replace", timeout=oraculo.TEMPO, cwd=str(pasta))
+                errors="replace", timeout=TEMPO_CONFERE, cwd=str(pasta))
         except subprocess.TimeoutExpired:
             return ""
     return saiu.stderr
@@ -169,15 +178,15 @@ def _saida(programa: str) -> tuple[bool, str]:
         try:
             compilou = subprocess.run(
                 [str(gcc), "-std=c17", "-Wall", "-o", "o.exe", "o.c"],
-                capture_output=True, text=True, timeout=oraculo.TEMPO,
+                capture_output=True, text=True, timeout=TEMPO_CONFERE,
                 cwd=str(pasta))
             if compilou.returncode != 0:
                 return False, "não compilou"
             rodou = subprocess.run(
                 [str(pasta / "o.exe")], capture_output=True, text=True,
-                timeout=oraculo.TEMPO, cwd=str(pasta))
+                timeout=TEMPO_CONFERE, cwd=str(pasta))
         except subprocess.TimeoutExpired:
-            return False, "não terminou em %ds" % oraculo.TEMPO
+            return False, "não terminou em %ds" % TEMPO_CONFERE
     return True, rodou.stdout.strip()
 
 
@@ -217,7 +226,8 @@ def _confere_prova(onde: str, p: Prova, problemas: list[str]) -> None:
                              % (onde, saiu, p.espera))
         return
     if p.espera:
-        ok, nota = oraculo.roda(programa, p.espera)
+        ok, nota = oraculo.roda(programa, p.espera,
+                                timeout=TEMPO_CONFERE)
         if not ok:
             problemas.append("%s: o programa não imprime o que a prova diz "
                              "— %s" % (onde, nota))
@@ -275,7 +285,8 @@ def _deve(compilar: bool, onde: str, v: Versao, linha: str,
 def _confere_versao(onde: str, g: Degrau, v: Versao,
                     problemas: list[str]) -> None:
     if g.forma == "digitar":
-        ok, nota = oraculo.roda(programa_do_digitar(v), v.aceitas[0])
+        ok, nota = oraculo.roda(programa_do_digitar(v), v.aceitas[0],
+                                timeout=TEMPO_CONFERE)
         if not ok:
             problemas.append("%s: a resposta aceita não é o que o programa "
                              "imprime — %s" % (onde, nota))
@@ -309,7 +320,8 @@ def confere(escadas: Mapping[str, Escada]) -> list[str]:
         r = e.revisao
         programa = programa_de("", r.codigo)
         if r.saida:
-            ok, nota = oraculo.roda(programa, r.saida)
+            ok, nota = oraculo.roda(programa, r.saida,
+                                    timeout=TEMPO_CONFERE)
             if not ok:
                 problemas.append("%s: a revisão não imprime o que diz — %s"
                                  % (premissa, nota))
