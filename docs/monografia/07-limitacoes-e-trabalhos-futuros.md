@@ -16,11 +16,12 @@ o que um programa faz; não confirma que a ideia ensinada é a certa para um
 iniciante, que a ordem dos passos é a mais fácil, nem que a frase de um
 passo é clara (5.7).
 
-**As questões do banco não são conferidas contra o compilador.** O
-conferidor cobre as escadas e as demonstrações; das 560 questões, a
-revisão mecânica confere a ligação com o catálogo e a forma, mas não que
-a resposta marcada como certa seja o que o programa faz (5.2). Uma
-questão do kc_12 errava exatamente nisso (6.4).
+**Só parte do banco é conferida contra o compilador.** O conferidor
+cobre as escadas e as demonstrações; no banco, só as 70 questões de
+prever a saída com resposta em valor são comparadas com o que o programa
+imprime (5.2). Nas outras, a alternativa certa — "não dá para saber", o
+que está errado num trecho, a diferença entre dois casos — depende da
+revisão mecânica da forma e da leitura.
 
 **O conteúdo foi escrito com assistência de um modelo de linguagem**, e
 as escadas aguardam a revisão do autor. A verificação reduz o risco de
@@ -64,9 +65,9 @@ mas outro compilador, ou outra versão, pode dar outra mensagem.
    e a submissão ao comitê de ética, se exigida.
 2. **A revisão das escadas por especialistas**, com o registro de quem
    revisou cada uma.
-3. **O banco contra o compilador**: rodar o código de cada questão e
-   comparar com a alternativa marcada como certa, como o conferidor já
-   faz com as escadas.
+3. **O resto do banco contra o compilador**: nas questões de achar o
+   erro e de comparar casos, montar cada caso e conferir se o compilador
+   reclama dele, como o conferidor já faz com os passos de completar.
 4. **O caminho desenhado na página inicial**, com a ordem sugerida dos
    tópicos e o estado de cada um, e as **cenas animadas** que ilustram
    cada premissa com analogias visuais (a caixa, o bilhete), já

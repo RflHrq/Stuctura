@@ -94,13 +94,17 @@ def test_so_confere_a_questao_que_imprime():
 def test_a_resposta_certa_de_prever_a_saida_e_a_que_o_gcc_imprime():
     """Toda questão de prever a saída cuja alternativa certa é um valor
     imprime esse valor no gcc 16.2; a que não imprime está fora da trilha
-    (a escada do tópico a declara em `fora_da_trilha`)."""
+    (a escada do tópico a declara em `fora_da_trilha`). Hoje é uma só, de
+    70 — o número que o capítulo 6 da monografia diz."""
+    todos = []
     for t in topicos():
         d = carrega(topico=t)
         arquivo = RAIZ / "dominio" / ("escada_%s.yaml" % t.replace("_", ""))
         fora = {i for e in trilha_escada.le(arquivo, d).values() for i in e.fora}
         for problema in confere_banco.confere(d):
             assert problema.id in fora, problema
+            todos.append(problema.id)
+    assert todos == ["ciu_kc12_t12"]
 
 
 @tem_gcc

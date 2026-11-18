@@ -28,6 +28,11 @@ do compilador — sete o analisador de fluxo (`-fanalyzer`), uma
 `-Wnull-dereference` —, e as que dependem do ambiente trazem nota que
 diz isso.
 
+No banco, das 70 questões de prever a saída conferidas, 69 imprimem o
+valor da alternativa certa; a outra é a do kc_12 relatada em 6.4, que
+está fora da trilha. Nenhum trecho das 321 questões com código parte uma
+string entre duas linhas, depois do conserto das oito do kc_02 (6.4).
+
 A seleção de questões deixa 94 questões do banco fora da trilha, por
 usarem construções que nenhum tópico ensinou até ali ou, num caso, por
 afirmarem o que o compilador do laboratório não confirma (6.4). Com
@@ -82,6 +87,13 @@ mas os defeitos que ela encontrou no caminho. Alguns exemplos — corrigidos
 antes da versão descrita, menos as questões do kc_11 e do kc_12, que
 ficaram fora da trilha até serem revistas:
 
+- **Oito questões com o código partido na tela.** No kc_02, oito questões
+  tinham o `\n` do `printf` gravado como quebra de linha de verdade: a
+  pessoa via o `printf` cortado em duas linhas, e o código não compilava.
+  Uma delas abria a premissa B3. A leitura não as tinha notado; a
+  conferência do banco achou as oito na primeira rodada, e o conserto
+  juntou a string de volta, sem mexer em mais nada das questões. As que
+  pedem um valor passaram a imprimir o da alternativa certa.
 - **Uma resposta que não vale no compilador do laboratório.** Uma questão
   do kc_12 pergunta o que imprime `p == NULL` depois de `p` receber o
   endereço de uma variável local de uma função que já retornou, e dá

@@ -150,6 +150,26 @@ def test_o_quadro_da_medida(contagens):
         assert "| %s | %s |" % (t, " | ".join(celulas)) in texto, (t, celulas)
 
 
+def test_a_conferencia_do_banco_no_texto():
+    """O que `confere_banco.py` cobre: 321 questões com código; 70 de
+    prever a saída comparadas com o que o programa imprime. Que só a t12
+    não bate é `test_banco_compilador` que prende."""
+    import confere_banco
+    com_codigo = conferidas = 0
+    for t in topicos():
+        for a in carrega(topico=t).atividades:
+            com_codigo += bool(a.codigo.strip())
+            if (a.formato == "prever_saida" and confere_banco.imprime(a.codigo)
+                    and confere_banco.valor(next(o.texto for o in a.opcoes
+                                                 if o.correta))):
+                conferidas += 1
+    assert (com_codigo, conferidas) == (321, 70)
+    assert "Nas 321 questões que têm código" in _texto(
+        "05-construcao-e-verificacao.md")
+    assert "das 70 questões de prever a saída conferidas, 69" in _texto(
+        "06-resultados-da-verificacao.md")
+
+
 def test_os_trechos_de_codigo_do_realce():
     from mvp import test_interface
     n = len(test_interface._todos_os_trechos())

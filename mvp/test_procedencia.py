@@ -442,3 +442,29 @@ def test_o_capitulo_existe_e_afirma_o_que_o_catalogo_diz(contagens):
     assert not fora, (
         "o capítulo e o catálogo divergiram: %s\nContagens de agora: %s"
         % (fora, contagens))
+
+
+# --------------------------------------------------------------------------
+# A mesma crença, o mesmo lugar na obra
+# --------------------------------------------------------------------------
+
+def test_a_mesma_crenca_cita_o_mesmo_item_do_sorva_em_todo_topico():
+    """A cauda da fonte muda com o tópico; o item da obra, não.
+
+    Em 18/11/2026 a `pointer_is_data` citava o item 65 no kc_02 — com a
+    nota de correção — e ainda o item 14 no kc_04, no kc_08 e no kc_12:
+    a correção tinha sido feita só no tópico piloto. Conferido no texto
+    integral de Sorva (2012), repositório da Aalto: o item 14 (p. 360) é
+    sobre variável ser um par nome-valor; o 65 (p. 362) é a crença.
+    """
+    import re
+
+    itens = collections.defaultdict(dict)
+    for p in sorted(DOMINIO.glob("beliefs_kc*.yaml")):
+        for b in yaml.safe_load(p.read_text(encoding="utf-8")) or ():
+            fonte = " ".join(str(b.get("source", "")).split())
+            m = re.search(r"Sorva \(2012\),\s*p\.\s*\d+,\s*item\s+(\d+)", fonte)
+            if m:
+                itens[b["id"]][p.stem] = m.group(1)
+    divergem = {cid: t for cid, t in itens.items() if len(set(t.values())) > 1}
+    assert not divergem, divergem

@@ -31,12 +31,14 @@
   provenance: T
   label_pt: "O ponteiro é o próprio dado: o que malloc devolve é o bloco, não o endereço."
   source: >
-    Sorva (2012), p. 360, item 14: "A variable is (merely) a pairing of a
-    name to a changeable value (with a type). It is not stored inside the
-    computer" (Sorva 2008; Doukakis et al. 2007). A mesma crença está nos
-    catálogos do kc_02 e do kc_04. Aqui ela nega a premissa de que o que
-    volta é um ENDEREÇO: quem acha que o ponteiro é o dado acha que malloc
-    entregou o pedaço na mão.
+    Sorva (2012), p. 362, item 65: "A (non-primitive Java) variable does
+    not hold a reference but a set of object properties" (Sorva 2008;
+    Ma 2007). A mesma crença está nos catálogos do kc_02 e do kc_04. Aqui
+    ela nega a premissa de que o que volta é um ENDEREÇO: quem acha que o
+    ponteiro é o dado acha que malloc entregou o pedaço na mão.
+    CORREÇÃO DE CITAÇÃO (18/11/2026): aqui ainda constava o item 14, que o
+    kc_02 já tinha corrigido; o 14 é sobre variável ser um par nome-valor.
+    Conferido no texto integral da obra.
 
 - id: malloc_initializes_zero
   negates: kc_08:B3

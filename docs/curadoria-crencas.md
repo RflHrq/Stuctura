@@ -201,7 +201,7 @@ Achado abrindo a obra. Não há como achar isso sem abrir.
 
 ### 3. Três crenças citam o FAQ numa pergunta cuja resposta tem duas metades
 
-`pointer_has_no_address` e `pointer_is_data` saem das duas frases do
+`memory_is_by_name` e `pointer_has_no_address` saem das duas frases do
 **mesmo** item 14. A FAQ 7.21 sustenta três crenças do kc_09, a 7.22
 duas do kc_08, a 4.9 duas do kc_10.
 

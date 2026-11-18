@@ -254,8 +254,8 @@ mediadora — não basta reconhecer o sobrenome e o ano.
 
 ### 3. Uma resposta de FAQ costuma responder a duas confusões
 
-`pointer_has_no_address` e `pointer_is_data` saem das duas frases do **mesmo
-item 14** do Sorva. No FAQ, a pergunta 7.21 sustenta três concepções de um
+`memory_is_by_name` e `pointer_has_no_address` saem das duas frases do
+**mesmo item 14** do Sorva. No FAQ, a pergunta 7.21 sustenta três concepções de um
 tópico, a 7.22 duas de outro, a 4.9 duas de um terceiro.
 
 Isso não é economia de fonte: é que uma resposta de FAQ costuma responder a

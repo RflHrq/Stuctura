@@ -51,8 +51,9 @@
     itens afirma que a referência não ocupa espaço." A busca procurava
     por REFERÊNCIA e por ESPAÇO, e o item 14 fala de VARIÁVEL e de "not
     stored inside the computer" — passou batido por vocabulário, não por
-    ausência. O item já era citado neste mesmo catálogo, para
-    `pointer_is_data`, usando a PRIMEIRA frase dele.
+    ausência. O item já era citado neste mesmo catálogo, usando a
+    PRIMEIRA frase dele — hoje para `memory_is_by_name`; antes, por
+    engano, para `pointer_is_data`, que foi corrigida para o item 65.
 
     É o mesmo padrão de uma fonte com duas metades que já apareceu três
     vezes no projeto: FAQ 7.21 sustenta três crenças do kc_09, a 7.22

@@ -61,16 +61,26 @@ O conferidor roda dentro da suíte de testes, sobre os 13 tópicos: uma
 escada cujo texto deixou de corresponder ao que o compilador faz derruba
 a suíte.
 
-As **questões do banco** não passam por esse conferidor. A revisão
-mecânica do banco confere outras coisas — que toda alternativa errada
-aponta uma concepção do catálogo, que a certa não é visivelmente a mais
-longa, que o enunciado não afirma a severidade de uma mensagem que o
-compilador pode rebaixar a aviso —, e os testes da trilha conferem que
-as questões servidas não usam construções ainda não ensinadas (5.3).
-Nenhuma dessas conferências compara a resposta marcada como certa com o
-que o programa faz. A questão do kc_12 relatada em 6.4 mostra o custo: o
-defeito foi achado ao conferir, para escrever a escada do tópico, o que
-o gcc faz com aquele programa, e não por uma conferência do banco.
+As **questões do banco** passam por uma conferência mais estreita, que
+também roda na suíte. Nas 321 questões que têm código, ela procura
+string partida entre duas linhas — uma linha com aspas ímpares, que na
+tela é o código cortado ao meio. Nas questões de prever a saída que
+imprimem e cuja alternativa certa começa por um valor ("30: só o último
+valor escrito"), ela monta o programa, compila, roda e exige aquele
+valor; a questão que não bate tem de estar fora da trilha. O resto do
+banco não se confere comparando texto: a alternativa certa que diz "não
+dá para saber", e as questões de achar o erro e de comparar casos, que
+muitas vezes são fragmentos que não formam programa. Para elas fica a
+revisão mecânica da forma — toda alternativa errada aponta uma concepção
+do catálogo, a certa não é visivelmente a mais longa, o enunciado não
+afirma a severidade de uma mensagem que o compilador pode rebaixar a
+aviso, e as questões servidas não usam construções ainda não ensinadas
+(5.3) — e a leitura.
+
+Essa conferência do banco foi escrita depois que a revisão deste texto
+notou a falta dela. Na primeira rodada, achou de novo a questão do kc_12
+que já estava fora da trilha, e achou oito questões do kc_02 com o código
+partido (6.4).
 
 ## 5.3 A régua do texto, em teste
 

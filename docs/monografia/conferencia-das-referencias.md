@@ -76,6 +76,15 @@ na citação indireta.
 - **Aberta em:** texto integral, repositório institucional da Universidade
   Aalto (handle 123456789/3534), conforme o Capítulo 4.
 - **Sustenta:** Capítulo 2 (2.1), que só remete ao Capítulo 4.
+- **Reaberta em 18/11/2026**, para uma divergência achada na revisão: o
+  texto extraído pelo próprio repositório (bundle TEXT,
+  `isbn9789526046266.pdf.txt`), lido no navegador pela API do DSpace. Na
+  Tabela A.1, o item 14 (p. 360) é sobre variável ser um par nome-valor
+  que não fica guardado no computador; o item 65 (p. 362) é sobre a
+  variável de objeto guardar as propriedades do objeto, e não a
+  referência. A concepção `pointer_is_data` é a do item 65: o catálogo do
+  kc_02 já dizia isso; os do kc_04, kc_08 e kc_12 ainda citavam o 14, e
+  foram corrigidos, com a seção 3 dos achados do Capítulo 4.
 
 ### GARDNER-MEDWIN (2006)
 

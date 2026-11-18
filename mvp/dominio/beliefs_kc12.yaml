@@ -65,12 +65,15 @@
   provenance: T
   label_pt: "O ponteiro é o próprio dado: retornar &local devolve a variável."
   source: >
-    Sorva (2012), p. 360, item 14: "A variable is (merely) a pairing of a
-    name to a changeable value (with a type). It is not stored inside the
-    computer" (Sorva 2008; Doukakis et al. 2007). A mesma crença está nos
-    catálogos do kc_02, do kc_04 e do kc_08. Aqui ela nega a premissa de
-    que o que o retorno copia é um ENDEREÇO: quem acha que o ponteiro é o
-    dado acha que a caixa veio junto, e aí não há o que ficar para trás.
+    Sorva (2012), p. 362, item 65: "A (non-primitive Java) variable does
+    not hold a reference but a set of object properties" (Sorva 2008;
+    Ma 2007). A mesma crença está nos catálogos do kc_02, do kc_04 e do
+    kc_08. Aqui ela nega a premissa de que o que o retorno copia é um
+    ENDEREÇO: quem acha que o ponteiro é o dado acha que a caixa veio
+    junto, e aí não há o que ficar para trás.
+    CORREÇÃO DE CITAÇÃO (18/11/2026): aqui ainda constava o item 14, que o
+    kc_02 já tinha corrigido; o 14 é sobre variável ser um par nome-valor.
+    Conferido no texto integral da obra.
 
 - id: static_is_scope
   negates: kc_12:I2

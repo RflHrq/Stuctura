@@ -44,10 +44,13 @@
   provenance: T
   label_pt: "O ponteiro é o próprio dado: o que está dentro dele é o valor, não o endereço."
   source: >
-    Sorva (2012), p. 360, item 14: "A variable is (merely) a pairing of a
-    name to a changeable value (with a type). It is not stored inside the
-    computer" (Sorva 2008; Doukakis et al. 2007). A mesma crença está no
-    catálogo do kc_02, negando lá a premissa equivalente.
+    Sorva (2012), p. 362, item 65: "A (non-primitive Java) variable does
+    not hold a reference but a set of object properties" (Sorva 2008;
+    Ma 2007). A mesma crença está no catálogo do kc_02, negando lá a
+    premissa equivalente.
+    CORREÇÃO DE CITAÇÃO (18/11/2026): aqui ainda constava o item 14, que o
+    kc_02 já tinha corrigido; o 14 é sobre variável ser um par nome-valor.
+    Conferido no texto integral da obra.
 
 - id: pointer_is_just_a_name
   negates: kc_04:I1
