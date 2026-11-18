@@ -43,7 +43,7 @@ from mvp.motor import Evento, Tela
 # Duas regras de exibição divergem em silêncio; uma só não tem como.
 from mvp.motor import _prova as provas_exibiveis
 from mvp.trilha_escada import (
-    Degrau, Escada, assinatura, corrige, ordem_das_pecas)
+    Degrau, Escada, assinatura, cena_json, corrige, ordem_das_pecas)
 
 MODOS = ("direto", "explique")
 RITMOS = ("completo", "rapido")
@@ -376,6 +376,9 @@ def _revisao(escadas: Mapping[str, Escada], e: Estado, no: str,
     tela = Tela("revisao", dados={
         "premissa": no, "frases": list(r.frases), "codigo": r.codigo,
         "saida": r.saida,
+        # A cena que anima este código, linha a linha (docs/interface.md,
+        # seção 8). `None` na ideia que ainda não tem cena.
+        "cena": cena_json(escadas[no].cena),
     })
     return _mostra(e, tela, Passo("revisao", premissa=no,
                                   adiante="confirmacao"), eventos)
@@ -391,7 +394,9 @@ def _explicacao(d: Dominio, escadas: Mapping[str, Escada], no: str) -> dict:
     escada = escadas[no]
     return {"premissa": no, "no": no, "simples": d.nos[no].simples,
             "frases": [f for g in escada.guiados for f in g.frases],
-            "codigo": escada.revisao.codigo}
+            "codigo": escada.revisao.codigo,
+            "saida": escada.revisao.saida,
+            "cena": cena_json(escada.cena)}
 
 
 def _da_subida(escada: Escada) -> tuple[Degrau, ...]:

@@ -407,10 +407,15 @@ def test_abrir_a_explicacao_devolve_a_mesma_tela_e_tira_o_ja_sabia():
     t0 = _comeca("direto")
     t1 = trilha.avanca(D, ESC, t0.estado, trilha.Entrada(acao="explicacao"))
     assert t1.tela == t0.tela
+    # Desde 18/11/2026 a explicação leva também a saída da revisão e a
+    # cena (docs/plano-cenas.md): o painel desenha a cena no lugar da
+    # figura antiga.
     assert t1.explicacao == {
         "premissa": "B1", "no": "B1", "simples": D.nos["B1"].simples,
         "frases": [f for g in ESC["B1"].guiados for f in g.frases],
-        "codigo": ESC["B1"].revisao.codigo}
+        "codigo": ESC["B1"].revisao.codigo,
+        "saida": ESC["B1"].revisao.saida,
+        "cena": trilha_escada.cena_json(ESC["B1"].cena)}
     assert [e.tipo for e in t1.eventos] == ["explicacao_aberta"]
     assert t1.estado.premissa("B1").abriu_explicacao
     fim = _responde_firme_ate_fechar(t1.estado, "B1")

@@ -371,7 +371,8 @@ Cada fatia deixa o sistema funcionando e passa pela suíte inteira.
 3. **O desenhista e as cenas do kc_00**, o tópico-modelo, como foi com
    as escadas: o formato da cena, a conferência, os personagens da
    primeira leva, e as cinco cenas do kc_00. O Rafael olha antes de
-   seguir.
+   seguir. **Feita em 18/11/2026** (`docs/plano-cenas.md`), com caixa,
+   ponteiro e NULL; fileira, bancada e bloco alugado ficam para a fatia 4.
 4. **As cenas dos outros tópicos**, um de cada vez, na ordem do caminho.
    Ao entrar a cena de um tópico, a figura antiga dele sai.
 5. **As cenas das provas** (8.4).

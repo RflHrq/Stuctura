@@ -65,6 +65,8 @@ html[data-tema="claro"], html:not([data-tema]) {
   /* a trilha da página inicial: o fundo, o chão, o chão já andado e os enfeites */
   --trilha-fundo: #f2f7ef; --trilha-chao: #f1e3c6; --trilha-feito: #9ccbb6;
   --trilha-enfeite: #d3e5cc;
+  /* a tinta de quem escreve no bilhete da cena */
+  --bilhete-tinta: #3a2a00;
 }
 
 /* ---- escuro: noite de editor ---- */
@@ -103,6 +105,8 @@ html[data-tema="escuro"] {
   /* a trilha da página inicial: o fundo, o chão, o chão já andado e os enfeites */
   --trilha-fundo: #11202e; --trilha-chao: #1d3246; --trilha-feito: #1f6b52;
   --trilha-enfeite: #182b3d;
+  /* a tinta de quem escreve no bilhete da cena */
+  --bilhete-tinta: #2b1d00;
 }
 
 /* O mesmo escuro, para quem está sem JavaScript com o sistema no escuro.
@@ -145,6 +149,8 @@ html[data-tema="escuro"] {
     /* a trilha da página inicial: o fundo, o chão, o chão já andado e os enfeites */
     --trilha-fundo: #11202e; --trilha-chao: #1d3246; --trilha-feito: #1f6b52;
     --trilha-enfeite: #182b3d;
+    /* a tinta de quem escreve no bilhete da cena */
+    --bilhete-tinta: #2b1d00;
   }
 }
 
@@ -379,4 +385,37 @@ pre.codigo, .t-retorno pre.codigo {
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ---- a cena (cena.js; docs/interface.md, seção 8) ---- */
+.cena { margin: 14px 0 6px; display: grid; gap: 10px; }
+.cena .cn-codigo { margin: 0; }
+.cena .cn-linha { display: inline-block; min-width: 100%; border-radius: 4px;
+                  padding: 0 4px; margin: 0 -4px; }
+.cena .cn-agora { background: rgba(255, 255, 255, .10);
+                  box-shadow: inset 3px 0 0 var(--destaque); }
+.cena .cn-palco { width: 100%; height: auto; max-height: 220px; display: block;
+                  background: var(--papel); border: 1.5px solid var(--linha);
+                  border-radius: 12px; }
+.cena .cn-tela { margin: 0; }
+.cena .cn-frase { margin: 0; color: var(--tinta); font-size: .95rem; min-height: 1.4em; }
+.cena .cn-botoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.cn-caixa .cn-corpo { fill: var(--cartao); stroke: var(--linha2); stroke-width: 2; }
+.cn-caixa .cn-aba { fill: var(--linha); stroke: var(--linha2); stroke-width: 1.5; }
+.cn-caixa.cn-ativa .cn-corpo { stroke: var(--destaque); stroke-width: 3; }
+.cn-caixa .cn-tipo { fill: var(--tinta2); font: 600 11px/1 "JetBrains Mono", ui-monospace, monospace; }
+.cn-caixa .cn-etiqueta { fill: var(--acento-fundo); stroke: var(--acento); stroke-width: 1; }
+.cn-caixa .cn-nome { fill: var(--tinta); font: 700 12px/1 "JetBrains Mono", ui-monospace, monospace; }
+.cn-caixa .cn-bola { fill: var(--destaque-fundo); stroke: var(--destaque); stroke-width: 2; }
+.cn-caixa .cn-valor { fill: var(--tinta); font: 800 14px/1 "JetBrains Mono", ui-monospace, monospace; }
+.cn-caixa .cn-sobra { fill: var(--tinta2); font: 700 20px/1 Nunito, system-ui, sans-serif; }
+.cn-caixa .cn-bilhete { fill: var(--bilhete); stroke: var(--linha2); stroke-width: 1; }
+.cn-caixa .cn-bilhete-txt { fill: var(--bilhete-tinta); font: 700 12px/1 "JetBrains Mono", ui-monospace, monospace; }
+.cn-seta { fill: none; stroke: var(--acento); stroke-width: 2.5; stroke-dasharray: 5 4; }
+.cn-vazio { fill: var(--tinta2); font: 600 12px/1 Nunito, system-ui, sans-serif; }
+@media (prefers-reduced-motion: no-preference) {
+  /* Só a caixa que a linha mexeu: o palco é redesenhado a cada passo, e
+     animar todas faria os valores parados piscarem. */
+  .cn-caixa.cn-ativa .cn-bola, .cn-caixa.cn-ativa .cn-valor { animation: cn-entra .35s ease-out both; }
+  @keyframes cn-entra { from { opacity: 0; } to { opacity: 1; } }
 }

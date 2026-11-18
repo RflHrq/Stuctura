@@ -333,7 +333,100 @@ def confere(escadas: Mapping[str, Escada]) -> list[str]:
         for p in e.provas:
             _confere_prova("%s/prova de %s" % (premissa, p.crenca), p,
                            problemas)
+        if e.cena is not None:
+            _confere_cena("%s/cena" % premissa, r, e.cena, problemas)
     return problemas
+
+
+def _afirmacoes(estado: dict) -> list[tuple[str, str]]:
+    """O que a cena afirma naquele ponto, em C: (condição, como se lê).
+
+    Valor de caixa que tem valor, ponteiro apontando para quem, NULL.
+    Caixa sem valor não é lida (ler seria o que o tópico ensina a não
+    fazer), e endereço nunca é conferido pelo número."""
+    saida = []
+    for nome, (valor, aponta) in estado.items():
+        if aponta is not None:
+            alvo = "NULL" if aponta == "" else "&%s" % aponta
+            saida.append(("(%s) == %s" % (nome, alvo),
+                          "%s == %s" % (nome, alvo)))
+        elif valor is not None:
+            saida.append(("(%s) == (%s)" % (nome, valor),
+                          "%s == %s" % (nome, valor)))
+    return saida
+
+
+def programa_da_cena(r, cena) -> str:
+    """O código da revisão com, depois de cada linha, as afirmações da cena
+    naquele passo. A que falha sai em stderr, com a linha e o que dizia."""
+    linhas = r.codigo.rstrip("\n").split("\n")
+    estado: dict = {}
+    depois: dict[int, list[tuple[str, str]]] = {}
+    for p in cena.passos:
+        for acao, arg in p.faz:
+            if acao == "cria":
+                estado.setdefault(arg, (None, None))
+            elif acao == "guarda":
+                estado[arg[0]] = (arg[1], None)
+            elif acao == "aponta":
+                estado[arg[0]] = (None, arg[1])
+            elif acao == "nulo":
+                estado[arg] = (None, "")
+            elif acao == "some":
+                estado.pop(arg, None)
+        depois[p.linha] = _afirmacoes(estado)
+    corpo = []
+    for i, linha in enumerate(linhas, 1):
+        corpo.append(linha)
+        for cond, diz in depois.get(i, ()):
+            corpo.append('if (!(%s)) fprintf(stderr, "@@ linha %d: a cena diz '
+                         '%s, e o programa não\\n");'
+                         % (cond, i, diz.replace('"', '\\"')))
+    return ("#include <stdio.h>\n#include <stdlib.h>\n"
+            "int main(void) {\n%s\nreturn 0;\n}\n" % "\n".join(corpo))
+
+
+def _confere_cena(onde: str, r, cena, problemas: list[str]) -> None:
+    """A cena contra o compilador (docs/interface.md, seção 8.3)."""
+    linhas = r.codigo.rstrip("\n").split("\n")
+    if any(FUNCAO.match(l) or ABRE_FUNCAO.match(l) for l in linhas):
+        problemas.append("%s: o código tem função, e a conferência da cena "
+                         "dentro de função (a bancada) ainda não existe" % onde)
+        return
+    mostra = "\n".join(arg for p in cena.passos for acao, arg in p.faz
+                       if acao == "mostra")
+    if mostra.strip() != r.saida.strip():
+        problemas.append("%s: o que a cena mostra (%r) não é a saída da "
+                         "revisão (%r)" % (onde, mostra, r.saida))
+    gcc = oraculo.GCC
+    if not gcc.exists():
+        raise oraculo.SemCompilador(
+            "não achei o compilador em %s — aponte STRUCTURA_GCC para ele"
+            % gcc)
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = pathlib.Path(tmp)
+        (pasta / "o.c").write_text(programa_da_cena(r, cena), encoding="utf-8")
+        try:
+            compilou = subprocess.run(
+                [str(gcc), "-std=c17", "-Wall", "-o", "o.exe", "o.c"],
+                capture_output=True, text=True, timeout=TEMPO_CONFERE,
+                cwd=str(pasta))
+            if compilou.returncode != 0:
+                problemas.append("%s: o programa da cena não compila — %s"
+                                 % (onde, compilou.stderr.strip()[:200]))
+                return
+            rodou = subprocess.run(
+                [str(pasta / "o.exe")], capture_output=True, text=True,
+                timeout=TEMPO_CONFERE, cwd=str(pasta))
+        except subprocess.TimeoutExpired:
+            problemas.append("%s: o programa da cena não terminou" % onde)
+            return
+    for l in rodou.stderr.splitlines():
+        if l.startswith("@@ "):
+            problemas.append("%s: %s" % (onde, l[3:]))
+    if rodou.stdout.strip() != r.saida.strip():
+        problemas.append("%s: com as afirmações no meio, a saída mudou: %r"
+                         % (onde, rodou.stdout))
 
 
 # --------------------------------------------------------------------------

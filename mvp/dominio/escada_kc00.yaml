@@ -84,6 +84,15 @@ B1:
       int idade;
       char turma;
     saida: ""
+  # A cena (docs/interface.md, seção 8): cada linha da revisão, e o que
+  # ela fez. Conferida contra o compilador por scripts/confere_escada.py.
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: turma, tipo: caixa, de: char}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: turma}]}
   provas:
     - crenca: type_is_a_hint
       programa: |
@@ -290,6 +299,12 @@ B2:
       int idade;
       idade = 20;
     saida: ""
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{guarda: {em: idade, valor: 20}}]}
   provas:
     - crenca: no_value_no_memory
       programa: |
@@ -517,6 +532,13 @@ B3:
       idade = 20;
       printf("%d\n", idade);
     saida: "20"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{guarda: {em: idade, valor: 20}}]}
+      - {linha: 3, faz: [{le: idade}, {mostra: "20"}]}
   provas:
     - crenca: declaration_zeroes
       programa: |
@@ -767,6 +789,14 @@ B4:
       idade = 21;
       printf("%d\n", idade);
     saida: "21"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{guarda: {em: idade, valor: 20}}]}
+      - {linha: 3, faz: [{guarda: {em: idade, valor: 21}}]}
+      - {linha: 4, faz: [{le: idade}, {mostra: "21"}]}
   provas:
     - crenca: variable_remembers
       programa: |
@@ -987,6 +1017,16 @@ I1:
       printf("%d\n", nota);
       printf("%d\n", pontos);
     saida: "7\n7"
+  cena:
+    atores:
+      - {nome: nota, tipo: caixa, de: int}
+      - {nome: pontos, tipo: caixa, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: nota}]}
+      - {linha: 2, faz: [{guarda: {em: nota, valor: 7}}]}
+      - {linha: 3, faz: [{cria: pontos}, {guarda: {em: pontos, valor: 7}}]}
+      - {linha: 4, faz: [{le: nota}, {mostra: "7"}]}
+      - {linha: 5, faz: [{le: pontos}, {mostra: "7"}]}
   provas:
     - crenca: assignment_symmetric
       programa: |

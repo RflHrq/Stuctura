@@ -330,6 +330,12 @@
     var caixa = el("div", {});
     if (x.simples) caixa.appendChild(p("ideia", x.simples));
     (x.frases || []).forEach(function (f) { caixa.appendChild(p("t-frase", f)); });
+    if (x.cena && window.Cena) {
+      /* A ideia com cena: a cena toma o lugar do código e da figura
+       * antiga (docs/interface.md, 8.1). */
+      caixa.appendChild(Cena.desenha(x.cena, x.codigo));
+      return caixa;
+    }
     if (x.codigo) caixa.appendChild(bloco(x.codigo));
     var figura = el("div", { "class": "figura" });
     caixa.appendChild(figura);
@@ -794,10 +800,16 @@
   DESENHA["revisao"] = function (c, t) {
     c.appendChild(cabeca("Vamos rever"));
     t.frases.forEach(function (f) { c.appendChild(p("t-frase", f)); });
-    c.appendChild(bloco(t.codigo));
-    if (t.saida) {
-      c.appendChild(p("t-rotulo", "A máquina imprime:"));
-      c.appendChild(bloco(t.saida, "terminal"));
+    if (t.cena && window.Cena) {
+      /* A cena traz o código com a linha que roda marcada, e a tela do
+       * programa: toma o lugar dos dois blocos (docs/interface.md, 8). */
+      c.appendChild(Cena.desenha(t.cena, t.codigo));
+    } else {
+      c.appendChild(bloco(t.codigo));
+      if (t.saida) {
+        c.appendChild(p("t-rotulo", "A máquina imprime:"));
+        c.appendChild(bloco(t.saida, "terminal"));
+      }
     }
     c.appendChild(el("div", { "class": "t-acoes" }, [
       botao("Continuar", function () { age({ acao: "continuar" }); })

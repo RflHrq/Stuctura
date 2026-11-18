@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import hashlib
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -172,6 +172,30 @@ class Prova:
 
 
 @dataclass(frozen=True)
+class Ator:
+    """Quem aparece na cena: uma caixa (variável) ou um ponteiro (a caixa
+    com o bilhete). `de` é o tipo do C, para a etiqueta."""
+    nome: str
+    tipo: str
+    de: str = ""
+
+
+@dataclass(frozen=True)
+class PassoCena:
+    """O que a linha `linha` da revisão faz, ação por ação: (ação, argumento)."""
+    linha: int
+    faz: tuple[tuple[str, Any], ...]
+
+
+@dataclass(frozen=True)
+class Cena:
+    """A cena da ideia (docs/interface.md, seção 8): anima o código da
+    revisão linha a linha. O conferidor a confere contra o compilador."""
+    atores: tuple[Ator, ...]
+    passos: tuple[PassoCena, ...]
+
+
+@dataclass(frozen=True)
 class Escada:
     premissa: str
     degraus: tuple[Degrau, ...]
@@ -181,6 +205,10 @@ class Escada:
     # que a escada do tópico não ensina. O banco não muda — o fluxo
     # anterior, que tem cartão para cada construto, continua servindo.
     fora: tuple[str, ...] = ()
+    # A cena da revisão. FORA DO `repr`, e por isso fora da assinatura: a
+    # assinatura protege a reexecução das sessões, e a cena não muda
+    # entrada nenhuma (docs/plano-cenas.md).
+    cena: Cena | None = field(default=None, repr=False)
 
     @property
     def guiados(self) -> tuple[Degrau, ...]:
@@ -403,7 +431,119 @@ def _escada(premissa: str, cru: Any, d: Dominio, vistos: set[str],
         problemas.append("%s: revisão sem código" % premissa)
     provas = _provas(premissa, cru.get("provas"), d, problemas)
     fora = _fora_da_trilha(premissa, cru.get("fora_da_trilha"), d, problemas)
-    return Escada(premissa, tuple(degraus), revisao, provas, fora)
+    cena = _cena(premissa, cru.get("cena"), revisao.codigo, problemas)
+    return Escada(premissa, tuple(degraus), revisao, provas, fora, cena)
+
+
+def cena_json(cena: Cena | None) -> dict | None:
+    """A cena como a tela a recebe: atores, e passos com ações nomeadas."""
+    if cena is None:
+        return None
+
+    def acao(nome: str, arg: Any) -> dict:
+        if nome == "guarda":
+            return {"acao": nome, "em": arg[0], "valor": arg[1]}
+        if nome == "aponta":
+            return {"acao": nome, "de": arg[0], "para": arg[1]}
+        if nome == "mostra":
+            return {"acao": nome, "texto": arg}
+        return {"acao": nome, "nome": arg}
+
+    return {"atores": [{"nome": a.nome, "tipo": a.tipo, "de": a.de}
+                       for a in cena.atores],
+            "passos": [{"linha": p.linha, "faz": [acao(n, a) for n, a in p.faz]}
+                       for p in cena.passos]}
+
+
+# As ações de uma cena, e o que cada uma recebe.
+ACOES_DA_CENA = ("cria", "guarda", "le", "mostra", "aponta", "nulo",
+                 "segue", "some")
+TIPOS_DE_ATOR = ("caixa", "ponteiro")
+
+
+def _cena(premissa: str, cru: Any, codigo: str,
+          problemas: list[str]) -> Cena | None:
+    """A cena da premissa, conferida na ESTRUTURA. O que ela afirma sobre
+    os valores é o conferidor (`confere_escada.py`) que confere, contra o
+    compilador."""
+    if cru is None:
+        return None
+    onde = "%s/cena" % premissa
+    if not isinstance(cru, Mapping):
+        problemas.append("%s: a cena não é um mapa" % onde)
+        return None
+    atores = []
+    for a in cru.get("atores") or ():
+        a = a if isinstance(a, Mapping) else {}
+        nome, tipo = _str(a.get("nome")), _str(a.get("tipo"))
+        if not re.fullmatch(r"[A-Za-z_]\w*", nome):
+            problemas.append("%s: ator sem nome de variável: %r" % (onde, nome))
+        if tipo not in TIPOS_DE_ATOR:
+            problemas.append("%s: tipo de ator desconhecido: %r" % (onde, tipo))
+        atores.append(Ator(nome, tipo, _str(a.get("de"))))
+    nomes = {a.nome for a in atores}
+
+    linhas = codigo.rstrip("\n").split("\n")
+    passos, cobertas = [], set()
+    valor, aponta = {}, {}
+    for p in cru.get("passos") or ():
+        p = p if isinstance(p, Mapping) else {}
+        n = _inteiro(p.get("linha"))
+        if not 1 <= n <= len(linhas):
+            problemas.append("%s: passo da linha %s, que o código não tem"
+                             % (onde, p.get("linha")))
+        cobertas.add(n)
+        faz = []
+        for acao in p.get("faz") or ():
+            if not isinstance(acao, Mapping) or len(acao) != 1:
+                problemas.append("%s: linha %d: cada ação é um mapa de uma "
+                                 "chave" % (onde, n))
+                continue
+            (nome_acao, arg), = acao.items()
+            nome_acao = str(nome_acao)
+            if nome_acao not in ACOES_DA_CENA:
+                problemas.append("%s: linha %d: ação desconhecida: %s"
+                                 % (onde, n, nome_acao))
+                continue
+            if nome_acao == "guarda":
+                arg = arg if isinstance(arg, Mapping) else {}
+                # O valor é escrito como no C, e o YAML lê 20 como número.
+                cru_v = arg.get("valor")
+                alvo = _str(arg.get("em"))
+                v = "" if cru_v is None or isinstance(cru_v, bool) else str(cru_v).strip()
+                if not v:
+                    problemas.append("%s: linha %d: guarda sem valor" % (onde, n))
+                valor[alvo] = v
+                citados, arg = [alvo], (alvo, v)
+            elif nome_acao == "aponta":
+                arg = arg if isinstance(arg, Mapping) else {}
+                de, para = _str(arg.get("de")), _str(arg.get("para"))
+                aponta[de] = para
+                citados, arg = [de, para], (de, para)
+            elif nome_acao == "mostra":
+                citados, arg = [], ("" if arg is None else str(arg))
+            else:
+                arg = _str(arg)
+                citados = [arg]
+                if nome_acao == "le" and arg not in valor:
+                    problemas.append("%s: linha %d: lê %s, que não tem valor "
+                                     "— ler a sobra é o que o tópico ensina a "
+                                     "não fazer" % (onde, n, arg))
+                if nome_acao == "segue" and arg not in aponta:
+                    problemas.append("%s: linha %d: segue %s, que não aponta "
+                                     "para nada" % (onde, n, arg))
+                if nome_acao == "nulo":
+                    aponta[arg] = None
+            for c in citados:
+                if c not in nomes:
+                    problemas.append("%s: linha %d: ator desconhecido: %s"
+                                     % (onde, n, c))
+            faz.append((nome_acao, arg))
+        passos.append(PassoCena(n, tuple(faz)))
+    for i, l in enumerate(linhas, 1):
+        if l.strip() and i not in cobertas:
+            problemas.append("%s: linha %d sem passo" % (onde, i))
+    return Cena(tuple(atores), tuple(passos))
 
 
 def _fora_da_trilha(premissa: str, cru: Any, d: Dominio,
