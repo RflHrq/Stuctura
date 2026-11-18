@@ -51,7 +51,8 @@ na citação indireta.
 - **Atenção ao termo:** "assimilação", em Posner et al., é encaixar o novo
   na concepção antiga — o contrário do que o sistema chama de "assimilou"
   no fechamento (acertar de novo, com outras premissas no meio). O
-  Capítulo 2 avisa isso uma vez.
+  Capítulo 2 avisa isso uma vez. O autor decidiu, em 18/11/2026, manter o
+  rótulo do sistema como está.
 
 ### QIAN e LEHMAN (2017)
 
