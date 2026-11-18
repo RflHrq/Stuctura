@@ -1,0 +1,1481 @@
+# A escada do kc_12 — ponteiro pendente por escopo.
+#
+# O QUE É. Para cada premissa do tópico, os degraus do mais mecânico até
+# a ideia, e a prova de cada crença que nega a premissa. Segue o molde
+# do kc_00, e a mesma régua do texto (docs/trilha.md, 6.16).
+#
+# QUEM CHEGA AQUI já viu `return`, a função em várias linhas, pilha e
+# monte, `malloc` e `free` (kc_01), a função que recebe um endereço e
+# escreve por ele (kc_06), e o ponteiro pendente que sobra do `free`
+# (kc_09). Este tópico mostra o outro jeito de ficar com um ponteiro
+# para o nada: sem `free` nenhum.
+#
+# O QUE ESTE TÓPICO APRESENTA, e onde:
+#
+#   static int n                 a local que dura o programa      B1, degrau 3
+#   "pendente", sem free         o endereço de uma local          I3, degrau 1
+#   quem chama dá a caixa        void poe(int *destino)           I3, degrau 2
+#
+# O resto — return &n, a cópia do valor que volta, o endereço de uma
+# local entregue a outra função — usa o que os tópicos anteriores já
+# apresentaram.
+#
+# AS PROVAS, e o que cada uma usa. Três são o que o compilador diz, e
+# três são saídas:
+#
+#   B1  a memória é uma só       aceita devolver o bloco de malloc e
+#                                reclama de devolver &n
+#   B2  &n entrega uma cópia     poe(&n) dentro de f escreve na própria
+#                                n: 9
+#   B3  o retorno fica guardado  x = dobro(2); dobro(10); x continua 4
+#   I1  retornar &n devolve a    p == NULL depois de p = f(): 1 (nota
+#       variável                 de ambiente: o gcc 16.2 devolve NULL no
+#                                lugar do endereço de uma local)
+#   I2  static muda o escopo     o compilador reclama de usar n fora de
+#                                f, mesmo com static
+#   I3  a local continua lá      o analisador reclama de *p, com p vindo
+#                                de return &n
+#
+# O GCC E O ENDEREÇO DE UMA LOCAL. Ao ver return &n, o gcc 16.2 avisa
+# ("function returns address of local variable") e devolve NULL no lugar.
+# O padrão do C não diz o que esse endereço vale depois do retorno; o gcc
+# escolheu NULL. Por isso a prova do I1 imprime 1, e por isso a questão
+# ciu_kc12_t12, que diz que ali sai 0, fica fora da trilha (ver abaixo).
+# A premissa do I2 diz que o erro "às vezes parece funcionar": é verdade
+# em C, quando o lugar ainda guarda o valor, mas não neste gcc com
+# return &n. A escada diz a ideia sem prometer que a pessoa vai ver.
+#
+# AS QUESTÕES DE MARCAR. Sete das 36 questões de diagnóstico e de treino
+# ficam fora: seis usam o que as escadas não ensinam — variável global,
+# `n++` e `++n`, protótipo sem corpo, `%s`, `snprintf` e o `?:` — e a
+# t12 afirma uma saída que este gcc não dá. O banco não foi mexido. Todas
+# as premissas abrem com questão de código.
+#
+# A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
+# alternativa de um degrau guiado, e só ali o erro leva `crenca`.
+#
+# gerado_por: Claude Opus 5.5, em 18/11/2026
+# revisado_por:
+#   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
+#   principal)
+
+B1:
+  revisao:
+    frases:
+      - "As caixas criadas dentro de uma função existem enquanto ela roda. Quando ela retorna, deixam de existir, sozinhas."
+      - "Cada chamada cria caixas novas: a anterior não deixa nada para a seguinte."
+    codigo: |
+      int dobra(void) {
+          int n = 3;
+          n = n + n;
+          return n;
+      }
+
+      dobra();
+      printf("%d\n", dobra());
+    saida: "6"
+  # Variável global.
+  fora_da_trilha: [ciu_kc12_002]
+  provas:
+    - crenca: memory_is_uniform
+      programa: |
+        int *a(void) { int *p = malloc(sizeof(int)); return p; }
+        int *b(void) { int n = 1; return &n; }
+
+        free(a());
+        b();
+      previsao:
+        pergunta: >
+          a devolve o endereço de um bloco de malloc, e b o endereço da
+          sua local n. De qual das duas o compilador reclama?
+        opcoes:
+          - "De b: n sai no retorno, e o bloco de malloc fica"
+          - "De nenhuma: memória é uma só, e as duas devolvem um endereço"
+        real: 0
+        crenca: 1
+      reclama: "function returns address of local variable"
+      ambiente: >
+        Mensagem do gcc 16.2 com os avisos ligados (-Wall). O programa não
+        é executado.
+      afirma: >
+        O compilador aceita a, que devolve o endereço do bloco, e reclama
+        de b, que devolve &n. As duas caixas seguem regras de vida
+        diferentes: o bloco de malloc fica até o free; a local sai,
+        sozinha, no retorno.
+  degraus:
+    - id: esc_kc12_B1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "As caixas criadas dentro de uma função existem enquanto ela roda."
+        - "Quando a função retorna, essas caixas deixam de existir, sozinhas: ninguém precisa mandar apagar."
+      versoes:
+        - pede: "conta terminou. O que aconteceu com a caixa n?"
+          antes: |-
+            int conta(void) { int n = 7; return n; }
+
+            conta();
+          pecas:
+            - "Deixou de existir, sozinha, no retorno"
+            - "Nada: memória é uma região única, sem distinção de regras de vida"
+            - "Continua lá até alguém chamar free"
+          certa: [[0]]
+          certa_texto: "Deixou de existir, sozinha, no retorno"
+          erros:
+            - exata: [1]
+              crenca: memory_is_uniform
+              retorno: "A memória tem regras de vida diferentes: uma caixa criada dentro da função dura só enquanto ela roda. n saiu, sozinha, no retorno."
+            - exata: [2]
+              retorno: "free é para blocos de malloc. n é uma caixa da função: sai sozinha no retorno, sem ninguém mandar."
+          retorno_geral: "n é uma caixa da função: deixou de existir, sozinha, quando conta retornou."
+        - pede: "soma terminou. O que aconteceu com a caixa total?"
+          antes: |-
+            int soma(void) { int total = 4; return total; }
+
+            soma();
+          pecas:
+            - "Continua lá até alguém chamar free"
+            - "Deixou de existir, sozinha, no retorno"
+            - "Nada: memória é uma região única, sem distinção de regras de vida"
+          certa: [[1]]
+          certa_texto: "Deixou de existir, sozinha, no retorno"
+          erros:
+            - exata: [2]
+              crenca: memory_is_uniform
+              retorno: "A memória tem regras de vida diferentes: uma caixa criada dentro da função dura só enquanto ela roda. total saiu, sozinha, no retorno."
+            - exata: [0]
+              retorno: "free é para blocos de malloc. total é uma caixa da função: sai sozinha no retorno, sem ninguém mandar."
+          retorno_geral: "total é uma caixa da função: deixou de existir, sozinha, quando soma retornou."
+
+    - id: esc_kc12_B1_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Cada chamada cria caixas novas. O que a chamada anterior deixou nas dela não está mais lá."
+      versoes:
+        - pede: "A função é chamada duas vezes, e só a segunda é mostrada. Que número aparece?"
+          mostra: |-
+            int passo(void) {
+                int n = 1;
+                n = n + 1;
+                return n;
+            }
+
+            passo();
+            printf("%d\n", passo());
+          aceitas: ["2"]
+          certa_texto: "2"
+          erros:
+            - texto: "3"
+              retorno: "A primeira chamada levou o seu n a 2, mas essa caixa saiu no retorno. A segunda cria outro n, que começa em 1: 2."
+            - texto: "1"
+              retorno: "Dentro de passo, n começa em 1 e vira 2 antes do return. A chamada mostrada devolve 2."
+          retorno_geral: "Cada chamada cria o seu n, que começa em 1 e vira 2. A segunda devolve 2."
+        - pede: "A função é chamada duas vezes, e só a segunda é mostrada. Que número aparece?"
+          mostra: |-
+            int soma(void) {
+                int total = 5;
+                total = total + 5;
+                return total;
+            }
+
+            soma();
+            printf("%d\n", soma());
+          aceitas: ["10"]
+          certa_texto: "10"
+          erros:
+            - texto: "15"
+              retorno: "A primeira chamada levou o seu total a 10, mas essa caixa saiu no retorno. A segunda cria outro total, que começa em 5: 10."
+            - texto: "5"
+              retorno: "Dentro de soma, total começa em 5 e vira 10 antes do return. A chamada mostrada devolve 10."
+          retorno_geral: "Cada chamada cria o seu total, que começa em 5 e vira 10. A segunda devolve 10."
+
+    - id: esc_kc12_B1_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Um bloco de malloc segue outra regra: fica até o free. Uma local marcada static também: dura o programa inteiro."
+      versoes:
+        - pede: "Qual das duas devolve um endereço que ainda vale depois do retorno?"
+          antes: |-
+            int *a(void) { int *p = malloc(sizeof(int)); return p; }
+            int *b(void) { int n = 1; return &n; }
+          pecas:
+            - "a: o bloco de malloc fica até o free"
+            - "b: n continua lá depois do retorno"
+            - "As duas: memória é uma região única, sem distinção de regras de vida"
+          certa: [[0]]
+          certa_texto: "a: o bloco de malloc fica até o free"
+          erros:
+            - exata: [2]
+              crenca: memory_is_uniform
+              retorno: "As duas caixas seguem regras diferentes: o bloco de malloc fica até o free; a local n sai no retorno de b. Só o endereço de a ainda vale."
+            - exata: [1]
+              retorno: "n é local de b: sai no retorno. O endereço que b devolve leva a uma caixa que não existe mais."
+          retorno_geral: "Só o bloco de malloc dura depois do retorno: a devolve um endereço que vale."
+        - pede: "Qual das duas devolve um endereço que ainda vale depois do retorno?"
+          antes: |-
+            int *a(void) { int n = 2; return &n; }
+            int *b(void) { static int n = 2; return &n; }
+          pecas:
+            - "a: o n dela continua lá depois do retorno"
+            - "As duas: memória é uma região única, sem distinção de regras de vida"
+            - "b: o n marcado static dura o programa inteiro"
+          certa: [[2]]
+          certa_texto: "b: o n marcado static dura o programa inteiro"
+          erros:
+            - exata: [1]
+              crenca: memory_is_uniform
+              retorno: "As duas caixas seguem regras diferentes: a local comum sai no retorno; a marcada static dura o programa. Só o endereço de b ainda vale."
+            - exata: [0]
+              retorno: "O n de a é uma local comum: sai no retorno. O endereço que a devolve leva a uma caixa que não existe mais."
+          retorno_geral: "Só a local marcada static dura depois do retorno: b devolve um endereço que vale."
+
+    - id: esc_kc12_B1_4
+      nome: "As locais saem sozinhas no retorno"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "A função é chamada três vezes, e só a terceira é mostrada. Que número aparece?"
+          mostra: |-
+            int marca(void) {
+                int pontos = 10;
+                pontos = pontos + 1;
+                return pontos;
+            }
+
+            marca();
+            marca();
+            printf("%d\n", marca());
+          aceitas: ["11"]
+          certa_texto: "11"
+          erros:
+            - texto: "13"
+              retorno: "Cada chamada cria o seu pontos, que começa em 10. O das chamadas anteriores saiu no retorno: a terceira devolve 11."
+            - texto: "10"
+              retorno: "Dentro de marca, pontos começa em 10 e vira 11 antes do return: 11."
+          retorno_geral: "Cada chamada cria o seu pontos, que começa em 10 e vira 11. A terceira devolve 11."
+        - pede: "A função é chamada três vezes, e só a terceira é mostrada. Que número aparece?"
+          mostra: |-
+            int vez(void) {
+                int n = 0;
+                n = n + 2;
+                return n;
+            }
+
+            vez();
+            vez();
+            printf("%d\n", vez());
+          aceitas: ["2"]
+          certa_texto: "2"
+          erros:
+            - texto: "6"
+              retorno: "Cada chamada cria o seu n, que começa em 0. O das chamadas anteriores saiu no retorno: a terceira devolve 2."
+            - texto: "0"
+              retorno: "Dentro de vez, n começa em 0 e vira 2 antes do return: 2."
+          retorno_geral: "Cada chamada cria o seu n, que começa em 0 e vira 2. A terceira devolve 2."
+
+    - id: esc_kc12_B1_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "É preciso chamar free para a caixa n deixar de existir?"
+          antes: "void f(void) { int n = 7; }"
+          pecas:
+            - "Não: n sai sozinha quando f retorna"
+            - "Sim: sem free, n fica para sempre"
+            - "Sim: toda caixa segue a mesma regra"
+          certa: [[0]]
+          certa_texto: "Não: n sai sozinha quando f retorna"
+          erros:
+            - exata: [1]
+              retorno: "free é para blocos de malloc. n é uma caixa de f: sai sozinha quando f retorna."
+            - exata: [2]
+              retorno: "As caixas não seguem todas a mesma regra: a local sai no retorno, e o bloco de malloc fica até o free."
+          retorno_geral: "n é uma caixa de f: sai sozinha no retorno, sem free."
+        - pede: "É preciso chamar free para a caixa total deixar de existir?"
+          antes: "int g(void) { int total = 0; return total; }"
+          pecas:
+            - "Sim: toda caixa segue a mesma regra"
+            - "Sim: sem free, total fica para sempre"
+            - "Não: total sai sozinha quando g retorna"
+          certa: [[2]]
+          certa_texto: "Não: total sai sozinha quando g retorna"
+          erros:
+            - exata: [1]
+              retorno: "free é para blocos de malloc. total é uma caixa de g: sai sozinha quando g retorna."
+            - exata: [0]
+              retorno: "As caixas não seguem todas a mesma regra: a local sai no retorno, e o bloco de malloc fica até o free."
+          retorno_geral: "total é uma caixa de g: sai sozinha no retorno, sem free."
+
+B2:
+  revisao:
+    frases:
+      - "Enquanto a função roda, o endereço de uma caixa dela é um endereço como outro qualquer."
+      - "Por ele dá para escrever na própria caixa, ali dentro ou em outra função."
+    codigo: |
+      void f(void) {
+          int n = 5;
+          int *p = &n;
+          *p = 8;
+          printf("%d\n", n);
+      }
+
+      f();
+    saida: "8"
+  provas:
+    - crenca: ampersand_copies
+      programa: |
+        void poe(int *d) { *d = 9; }
+        void f(void) { int n = 7; poe(&n); printf("%d\n", n); }
+
+        f();
+      previsao:
+        pergunta: >
+          f entrega &n a poe, que escreve 9 pelo endereço recebido. Depois
+          f mostra n. O que aparece?
+        opcoes:
+          - "7: &n entregou uma cópia de n, e poe escreveu na cópia"
+          - "9"
+        real: 1
+        crenca: 0
+      espera: "9"
+      afirma: >
+        Saiu 9. &n não é uma cópia de n: é o endereço da própria caixa n,
+        e enquanto f roda ele vale como qualquer outro. Por ele, poe
+        escreveu na n de f.
+  degraus:
+    - id: esc_kc12_B2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Enquanto a função roda, &n é o endereço da caixa n: um endereço como outro qualquer."
+        - "&n não é uma cópia de n: é onde a própria n está."
+      versoes:
+        - pede: "f está rodando. O que &n dá?"
+          antes: |-
+            void f(void) {
+                int n = 7;
+                int *p = &n;
+            }
+          pecas:
+            - "O endereço da caixa n, que vale enquanto f roda"
+            - "Uma cópia de n: &x entrega uma cópia de x, e é a cópia que viaja"
+            - "Um endereço que vale para sempre"
+          certa: [[0]]
+          certa_texto: "O endereço da caixa n, que vale enquanto f roda"
+          erros:
+            - exata: [1]
+              crenca: ampersand_copies
+              retorno: "O & nunca copia: &n é o endereço da própria caixa n. Enquanto f roda, ele vale como qualquer outro endereço."
+            - exata: [2]
+              retorno: "Vale enquanto f roda: quando f retorna, a caixa n sai, e o endereço fica sem caixa."
+          retorno_geral: "&n é o endereço da caixa n, e vale enquanto f roda."
+        - pede: "g está rodando. O que &total dá?"
+          antes: |-
+            void g(void) {
+                int total = 3;
+                int *q = &total;
+            }
+          pecas:
+            - "Um endereço que vale para sempre"
+            - "O endereço da caixa total, que vale enquanto g roda"
+            - "Uma cópia de total: &x entrega uma cópia de x, e é a cópia que viaja"
+          certa: [[1]]
+          certa_texto: "O endereço da caixa total, que vale enquanto g roda"
+          erros:
+            - exata: [2]
+              crenca: ampersand_copies
+              retorno: "O & nunca copia: &total é o endereço da própria caixa total. Enquanto g roda, ele vale como qualquer outro endereço."
+            - exata: [0]
+              retorno: "Vale enquanto g roda: quando g retorna, a caixa total sai, e o endereço fica sem caixa."
+          retorno_geral: "&total é o endereço da caixa total, e vale enquanto g roda."
+
+    - id: esc_kc12_B2_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Por p, dá para escrever na própria n enquanto f roda."
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            void f(void) {
+                int n = 1;
+                int *p = &n;
+                *p = 4;
+                printf("%d\n", n);
+            }
+
+            f();
+          aceitas: ["4"]
+          certa_texto: "4"
+          erros:
+            - texto: "1"
+              retorno: "p guarda o endereço da própria n, e não de uma cópia. *p = 4 escreveu em n: 4."
+          retorno_geral: "*p = 4 escreveu na própria n, pelo endereço: 4."
+        - pede: "Que número aparece?"
+          mostra: |-
+            void g(void) {
+                int total = 2;
+                int *q = &total;
+                *q = 6;
+                printf("%d\n", total);
+            }
+
+            g();
+          aceitas: ["6"]
+          certa_texto: "6"
+          erros:
+            - texto: "2"
+              retorno: "q guarda o endereço da própria total, e não de uma cópia. *q = 6 escreveu em total: 6."
+          retorno_geral: "*q = 6 escreveu na própria total, pelo endereço: 6."
+
+    - id: esc_kc12_B2_3
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Esse endereço pode ir para outra função enquanto a dona da caixa roda: zera(&n) entrega a caixa n, e zera escreve nela."
+      versoes:
+        - pede: "Complete a chamada para zera escrever em n."
+          antes: |-
+            void zera(int *d) { *d = 0; }
+
+            int n = 7;
+          mostra: "zera(___);"
+          pecas: ["&n", "n", "*n"]
+          certa: [[0]]
+          certa_texto: "zera(&n);"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "n é um int, e zera quer um endereço: o compilador reclama. A caixa n vai pelo endereço: zera(&n)."
+            - exata: [2]
+              invalida: true
+              retorno: "*n não existe: n é um int, e não um ponteiro. O compilador reclama. O que serve é zera(&n)."
+          retorno_geral: "zera recebe o endereço da caixa: zera(&n);"
+        - pede: "Complete a chamada para zera escrever em total."
+          antes: |-
+            void zera(int *d) { *d = 0; }
+
+            int total = 3;
+          mostra: "zera(___);"
+          pecas: ["*total", "&total", "total"]
+          certa: [[1]]
+          certa_texto: "zera(&total);"
+          erros:
+            - exata: [2]
+              invalida: true
+              retorno: "total é um int, e zera quer um endereço: o compilador reclama. A caixa total vai pelo endereço: zera(&total)."
+            - exata: [0]
+              invalida: true
+              retorno: "*total não existe: total é um int, e não um ponteiro. O compilador reclama. O que serve é zera(&total)."
+          retorno_geral: "zera recebe o endereço da caixa: zera(&total);"
+
+    - id: esc_kc12_B2_4
+      nome: "Enquanto a função roda, o endereço da local vale"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            void soma1(int *d) { *d = *d + 1; }
+            void f(void) { int n = 4; soma1(&n); printf("%d\n", n); }
+
+            f();
+          aceitas: ["5"]
+          certa_texto: "5"
+          erros:
+            - texto: "4"
+              retorno: "f entregou &n, o endereço da própria n. soma1 escreveu por ele: n passou a 5."
+          retorno_geral: "soma1 escreveu na n de f, pelo endereço: 5."
+        - pede: "Que número aparece?"
+          mostra: |-
+            void dobra(int *d) { *d = *d + *d; }
+            void g(void) { int total = 3; dobra(&total); printf("%d\n", total); }
+
+            g();
+          aceitas: ["6"]
+          certa_texto: "6"
+          erros:
+            - texto: "3"
+              retorno: "g entregou &total, o endereço da própria total. dobra escreveu por ele: total passou a 6."
+          retorno_geral: "dobra escreveu na total de g, pelo endereço: 6."
+
+    - id: esc_kc12_B2_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "f entrega &n a zera, enquanto roda. O que viaja?"
+          antes: "void f(void) { int n = 7; zera(&n); }"
+          pecas:
+            - "O endereço da caixa n"
+            - "Uma cópia de n"
+            - "A caixa n inteira"
+          certa: [[0]]
+          certa_texto: "O endereço da caixa n"
+          erros:
+            - exata: [1]
+              retorno: "O & não copia: o que viaja é o endereço da própria n. Por ele, zera chega na caixa de f."
+            - exata: [2]
+              retorno: "A caixa fica onde está, em f. O que viaja é o endereço dela."
+          retorno_geral: "Viaja o endereço da caixa n; a caixa fica em f."
+        - pede: "g entrega &total a dobra, enquanto roda. O que viaja?"
+          antes: "void g(void) { int total = 3; dobra(&total); }"
+          pecas:
+            - "A caixa total inteira"
+            - "Uma cópia de total"
+            - "O endereço da caixa total"
+          certa: [[2]]
+          certa_texto: "O endereço da caixa total"
+          erros:
+            - exata: [1]
+              retorno: "O & não copia: o que viaja é o endereço da própria total. Por ele, dobra chega na caixa de g."
+            - exata: [0]
+              retorno: "A caixa fica onde está, em g. O que viaja é o endereço dela."
+          retorno_geral: "Viaja o endereço da caixa total; a caixa fica em g."
+
+B3:
+  revisao:
+    frases:
+      - "O que a função retorna é copiado para quem chamou, no lugar da chamada."
+      - "Se ninguém guardar numa variável, o valor se perde."
+    codigo: |
+      int dobro(int n) { return n + n; }
+
+      int x = dobro(3);
+      printf("%d\n", x);
+    saida: "6"
+  # n++; protótipo sem corpo e %s.
+  fora_da_trilha: [ciu_kc12_t08, ciu_kc12_t09]
+  provas:
+    - crenca: retorno_fica_guardado
+      programa: |
+        int dobro(int n) { return n + n; }
+
+        int x = dobro(2);
+        dobro(10);
+        printf("%d\n", x);
+      previsao:
+        pergunta: >
+          x guarda o que dobro(2) retornou. Depois dobro(10) é chamada, e
+          ninguém guarda o retorno dela. O que aparece?
+        opcoes:
+          - "4"
+          - "20: o último retorno fica guardado, e x mostra ele"
+        real: 0
+        crenca: 1
+      espera: "4"
+      afirma: >
+        Saiu 4. O 20 de dobro(10) foi copiado para o lugar da chamada, e
+        ali ninguém o guardou: perdeu-se. O retorno não fica guardado em
+        lugar nenhum; x tem o que recebeu, e só isso.
+  degraus:
+    - id: esc_kc12_B3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O valor do return é copiado para o lugar da chamada. int x = dobro(3); guarda essa cópia em x."
+        - "Se ninguém guardar, a cópia se perde."
+      versoes:
+        - pede: "O que acontece com o 6 que dobro(3) retorna, na última linha?"
+          antes: |-
+            int dobro(int n) { return n + n; }
+
+            dobro(3);
+          pecas:
+            - "Se perde: ninguém guardou"
+            - "O valor retornado fica guardado em algum lugar; não é preciso copiá-lo"
+            - "Vai para a caixa n de dobro"
+          certa: [[0]]
+          certa_texto: "Se perde: ninguém guardou"
+          erros:
+            - exata: [1]
+              crenca: retorno_fica_guardado
+              retorno: "O retorno não fica guardado em lugar nenhum: é copiado para o lugar da chamada, e ali ninguém o guardou. O 6 se perdeu."
+            - exata: [2]
+              retorno: "n é local de dobro e saiu no retorno. O 6 foi copiado para o lugar da chamada, e ninguém o guardou."
+          retorno_geral: "Ninguém guardou o 6: ele se perdeu."
+        - pede: "O que acontece com o 6 que triplo(2) retorna, na última linha?"
+          antes: |-
+            int triplo(int n) { return n + n + n; }
+
+            triplo(2);
+          pecas:
+            - "Vai para a caixa n de triplo"
+            - "Se perde: ninguém guardou"
+            - "O valor retornado fica guardado em algum lugar; não é preciso copiá-lo"
+          certa: [[1]]
+          certa_texto: "Se perde: ninguém guardou"
+          erros:
+            - exata: [2]
+              crenca: retorno_fica_guardado
+              retorno: "O retorno não fica guardado em lugar nenhum: é copiado para o lugar da chamada, e ali ninguém o guardou. O 6 se perdeu."
+            - exata: [0]
+              retorno: "n é local de triplo e saiu no retorno. O 6 foi copiado para o lugar da chamada, e ninguém o guardou."
+          retorno_geral: "Ninguém guardou o 6: ele se perdeu."
+
+    - id: esc_kc12_B3_2
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Para usar depois o que a função retornou, guarde numa variável: int x = dobro(3);"
+      versoes:
+        - pede: "Complete para x guardar o que dobro(3) retorna."
+          antes: "int dobro(int n) { return n + n; }"
+          mostra: "int x = ___;"
+          pecas: ["dobro(3)", "dobro", "n"]
+          certa: [[0]]
+          certa_texto: "int x = dobro(3);"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "dobro sozinho é a função, e não o que ela retorna: o compilador reclama. O valor vem da chamada: dobro(3)."
+            - exata: [2]
+              invalida: true
+              retorno: "n é local de dobro: fora dela esse nome não existe, e o compilador reclama. O valor vem da chamada: dobro(3)."
+          retorno_geral: "O valor vem da chamada, e x guarda a cópia: int x = dobro(3);"
+        - pede: "Complete para y guardar o que triplo(2) retorna."
+          antes: "int triplo(int n) { return n + n + n; }"
+          mostra: "int y = ___;"
+          pecas: ["n", "triplo(2)", "triplo"]
+          certa: [[1]]
+          certa_texto: "int y = triplo(2);"
+          erros:
+            - exata: [2]
+              invalida: true
+              retorno: "triplo sozinho é a função, e não o que ela retorna: o compilador reclama. O valor vem da chamada: triplo(2)."
+            - exata: [0]
+              invalida: true
+              retorno: "n é local de triplo: fora dela esse nome não existe, e o compilador reclama. O valor vem da chamada: triplo(2)."
+          retorno_geral: "O valor vem da chamada, e y guarda a cópia: int y = triplo(2);"
+
+    - id: esc_kc12_B3_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Cada chamada devolve uma cópia nova. A que não foi guardada se perde, e a variável fica com o que recebeu."
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            int mais1(int n) { return n + 1; }
+
+            int x = mais1(5);
+            mais1(20);
+            printf("%d\n", x);
+          aceitas: ["6"]
+          certa_texto: "6"
+          erros:
+            - texto: "21"
+              retorno: "mais1(20) devolveu 21, mas ninguém guardou: o valor se perdeu. x ficou com o 6 da primeira chamada."
+            - texto: "5"
+              retorno: "x guardou o que mais1(5) retornou, e não o 5 que foi passado: 6."
+          retorno_geral: "x guardou o 6 da primeira chamada; o 21 da segunda se perdeu."
+        - pede: "Que número aparece?"
+          mostra: |-
+            int mais1(int n) { return n + 1; }
+
+            int y = mais1(8);
+            mais1(1);
+            printf("%d\n", y);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "2"
+              retorno: "mais1(1) devolveu 2, mas ninguém guardou: o valor se perdeu. y ficou com o 9 da primeira chamada."
+            - texto: "8"
+              retorno: "y guardou o que mais1(8) retornou, e não o 8 que foi passado: 9."
+          retorno_geral: "y guardou o 9 da primeira chamada; o 2 da segunda se perdeu."
+
+    - id: esc_kc12_B3_4
+      nome: "O que ninguém guardou se perde"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            int triplo(int n) { return n + n + n; }
+
+            int t = triplo(2);
+            triplo(3);
+            printf("%d\n", t);
+          aceitas: ["6"]
+          certa_texto: "6"
+          erros:
+            - texto: "9"
+              retorno: "triplo(3) devolveu 9, mas ninguém guardou: o valor se perdeu. t ficou com o 6 de triplo(2)."
+            - texto: "2"
+              retorno: "t guardou o que triplo(2) retornou, e não o 2 que foi passado: 6."
+          retorno_geral: "t guardou o 6 de triplo(2); o 9 de triplo(3) se perdeu."
+        - pede: "Que número aparece?"
+          mostra: |-
+            int menos1(int n) { return n - 1; }
+
+            int r = menos1(9);
+            menos1(4);
+            printf("%d\n", r);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "3"
+              retorno: "menos1(4) devolveu 3, mas ninguém guardou: o valor se perdeu. r ficou com o 8 de menos1(9)."
+            - texto: "9"
+              retorno: "r guardou o que menos1(9) retornou, e não o 9 que foi passado: 8."
+          retorno_geral: "r guardou o 8 de menos1(9); o 3 de menos1(4) se perdeu."
+
+    - id: esc_kc12_B3_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Para usar depois o que conta() retorna, o que é preciso?"
+          antes: "int conta(void) { int n = 3; return n; }"
+          pecas:
+            - "Guardar numa variável: int x = conta();"
+            - "Nada: o valor fica guardado em conta"
+            - "Nada: a caixa n continua com ele"
+          certa: [[0]]
+          certa_texto: "Guardar numa variável: int x = conta();"
+          erros:
+            - exata: [1]
+              retorno: "O retorno não fica guardado em conta: é copiado para o lugar da chamada. Sem uma variável ali, ele se perde."
+            - exata: [2]
+              retorno: "n é local de conta e saiu no retorno. O valor foi copiado para quem chamou: é preciso guardar a cópia."
+          retorno_geral: "É preciso guardar a cópia: int x = conta();"
+        - pede: "Para usar depois o que quadrado(5) retorna, o que é preciso?"
+          antes: "int quadrado(int n) { return n * n; }"
+          pecas:
+            - "Nada: a caixa n continua com ele"
+            - "Guardar numa variável: int x = quadrado(5);"
+            - "Nada: o valor fica guardado em quadrado"
+          certa: [[1]]
+          certa_texto: "Guardar numa variável: int x = quadrado(5);"
+          erros:
+            - exata: [2]
+              retorno: "O retorno não fica guardado em quadrado: é copiado para o lugar da chamada. Sem uma variável ali, ele se perde."
+            - exata: [0]
+              retorno: "n é local de quadrado e saiu no retorno. O valor foi copiado para quem chamou: é preciso guardar a cópia."
+          retorno_geral: "É preciso guardar a cópia: int x = quadrado(5);"
+
+I1:
+  revisao:
+    frases:
+      - "return n; copia o valor de n para quem chamou, e a cópia chega inteira."
+      - "return &n; copia só o endereço: a caixa n fica para trás e sai no retorno."
+    codigo: |
+      int f(void) {
+          int n = 7;
+          return n;
+      }
+
+      printf("%d\n", f());
+    saida: "7"
+  # Diz que ali sai 0; este gcc devolve NULL no lugar do endereço da
+  # local, e sai 1.
+  fora_da_trilha: [ciu_kc12_t12]
+  provas:
+    - crenca: pointer_is_data
+      programa: |
+        int *f(void) { int n = 7; return &n; }
+
+        int *p = f();
+        printf("%d\n", p == NULL);
+      previsao:
+        pergunta: >
+          f devolve &n, e p recebe o que voltou. A última linha pergunta se
+          p é NULL. O que aparece?
+        opcoes:
+          - "0: p trouxe a própria variável n, com o 7 dentro"
+          - "1"
+        real: 1
+        crenca: 0
+      espera: "1"
+      ambiente: >
+        Resultado do gcc 16.2. Ao ver return &n, ele avisa ("function
+        returns address of local variable") e devolve NULL no lugar do
+        endereço da caixa que vai sair. O padrão do C não diz o que esse
+        endereço vale depois do retorno; o gcc escolheu NULL.
+      afirma: >
+        Saiu 1. O que f devolveu foi um endereço, e não a variável: neste
+        gcc, NULL, porque a caixa de n saiu no retorno e o endereço dela de
+        nada serviria. A variável não viaja; só o endereço.
+  degraus:
+    - id: esc_kc12_I1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "return &n copia o endereço de n. A caixa n não vai junto: fica para trás e sai no retorno."
+        - "Retornar &local devolve um endereço, e não a variável."
+      versoes:
+        - pede: "O que f entrega a quem chamou?"
+          antes: |-
+            int *f(void) {
+                int n = 7;
+                return &n;
+            }
+          pecas:
+            - "Uma cópia do endereço de n; a caixa n fica para trás"
+            - "A variável n, com o 7: o ponteiro é o próprio dado, e retornar &local devolve a variável"
+            - "Uma cópia do 7"
+          certa: [[0]]
+          certa_texto: "Uma cópia do endereço de n; a caixa n fica para trás"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_data
+              retorno: "O ponteiro não é o dado: é o endereço dele. return &n copia o endereço, e a caixa n fica para trás, saindo no retorno."
+            - exata: [2]
+              retorno: "Quem devolve uma cópia do 7 é return n;. return &n devolve o endereço de n, e a caixa fica para trás."
+          retorno_geral: "f entrega o endereço de n; a caixa n fica para trás e sai no retorno."
+        - pede: "O que g entrega a quem chamou?"
+          antes: |-
+            int *g(void) {
+                int total = 3;
+                return &total;
+            }
+          pecas:
+            - "Uma cópia do 3"
+            - "A variável total, com o 3: o ponteiro é o próprio dado, e retornar &local devolve a variável"
+            - "Uma cópia do endereço de total; a caixa total fica para trás"
+          certa: [[2]]
+          certa_texto: "Uma cópia do endereço de total; a caixa total fica para trás"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_data
+              retorno: "O ponteiro não é o dado: é o endereço dele. return &total copia o endereço, e a caixa total fica para trás, saindo no retorno."
+            - exata: [0]
+              retorno: "Quem devolve uma cópia do 3 é return total;. return &total devolve o endereço de total, e a caixa fica para trás."
+          retorno_geral: "g entrega o endereço de total; a caixa total fica para trás e sai no retorno."
+
+    - id: esc_kc12_I1_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Quando quem chamou recebe esse endereço, a caixa n já sumiu: sumiu no mesmo instante do retorno."
+      versoes:
+        - pede: "Na última linha, p recebe o endereço de n. Onde está a caixa n nesse momento?"
+          antes: |-
+            int *f(void) { int n = 7; return &n; }
+
+            int *p = f();
+          pecas:
+            - "Não existe mais: saiu no retorno de f"
+            - "Em p: retornar &local devolve a variável, e p é a própria n"
+            - "Ainda em f, esperando o free"
+          certa: [[0]]
+          certa_texto: "Não existe mais: saiu no retorno de f"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_data
+              retorno: "p não é a variável: guarda um endereço. A caixa n ficou em f e saiu no mesmo instante do retorno."
+            - exata: [2]
+              retorno: "free é para blocos de malloc. n é local de f: saiu sozinha no retorno."
+          retorno_geral: "Quando p recebe o endereço, a caixa n já saiu: sumiu no retorno de f."
+        - pede: "Na última linha, q recebe o endereço de total. Onde está a caixa total nesse momento?"
+          antes: |-
+            int *g(void) { int total = 3; return &total; }
+
+            int *q = g();
+          pecas:
+            - "Ainda em g, esperando o free"
+            - "Não existe mais: saiu no retorno de g"
+            - "Em q: retornar &local devolve a variável, e q é a própria total"
+          certa: [[1]]
+          certa_texto: "Não existe mais: saiu no retorno de g"
+          erros:
+            - exata: [2]
+              crenca: pointer_is_data
+              retorno: "q não é a variável: guarda um endereço. A caixa total ficou em g e saiu no mesmo instante do retorno."
+            - exata: [0]
+              retorno: "free é para blocos de malloc. total é local de g: saiu sozinha no retorno."
+          retorno_geral: "Quando q recebe o endereço, a caixa total já saiu: sumiu no retorno de g."
+
+    - id: esc_kc12_I1_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Para entregar o valor, devolva o valor: com return n; a cópia do 7 chega inteira a quem chamou."
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            int f(void) { int n = 7; return n; }
+
+            int x = f();
+            printf("%d\n", x);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "0"
+              retorno: "return n; copia o 7 para quem chamou. A caixa n sai, mas a cópia já está em x: 7."
+          retorno_geral: "return n; entregou uma cópia do 7, que x guardou: 7."
+        - pede: "Que número aparece?"
+          mostra: |-
+            int g(void) { int total = 12; return total; }
+
+            int y = g();
+            printf("%d\n", y);
+          aceitas: ["12"]
+          certa_texto: "12"
+          erros:
+            - texto: "0"
+              retorno: "return total; copia o 12 para quem chamou. A caixa total sai, mas a cópia já está em y: 12."
+          retorno_geral: "return total; entregou uma cópia do 12, que y guardou: 12."
+
+    - id: esc_kc12_I1_4
+      nome: "Retornar &n devolve um endereço, e não n"
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Depois da última linha, o que p tem?"
+          antes: |-
+            int *f(void) { int n = 5; return &n; }
+
+            int *p = f();
+          pecas:
+            - "Um endereço que não leva a caixa nenhuma"
+            - "A variável n, com o 5"
+            - "Uma cópia do 5"
+          certa: [[0]]
+          certa_texto: "Um endereço que não leva a caixa nenhuma"
+          erros:
+            - exata: [1]
+              retorno: "p não recebe a variável: recebe um endereço. E a caixa n saiu no retorno de f, então esse endereço não leva a lugar nenhum."
+            - exata: [2]
+              retorno: "Uma cópia do 5 viria de return n;. f devolve &n: um endereço, de uma caixa que já saiu."
+          retorno_geral: "p tem um endereço, e a caixa dele já saiu: não leva a lugar nenhum."
+        - pede: "Depois da última linha, o que q tem?"
+          antes: |-
+            int *g(void) { int m = 8; return &m; }
+
+            int *q = g();
+          pecas:
+            - "Uma cópia do 8"
+            - "Um endereço que não leva a caixa nenhuma"
+            - "A variável m, com o 8"
+          certa: [[1]]
+          certa_texto: "Um endereço que não leva a caixa nenhuma"
+          erros:
+            - exata: [2]
+              retorno: "q não recebe a variável: recebe um endereço. E a caixa m saiu no retorno de g, então esse endereço não leva a lugar nenhum."
+            - exata: [0]
+              retorno: "Uma cópia do 8 viria de return m;. g devolve &m: um endereço, de uma caixa que já saiu."
+          retorno_geral: "q tem um endereço, e a caixa dele já saiu: não leva a lugar nenhum."
+
+    - id: esc_kc12_I1_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            int g(void) { int total = 3; total = total + 4; return total; }
+
+            int x = g();
+            printf("%d\n", x);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "3"
+              retorno: "Dentro de g, total começa em 3 e vira 7 antes do return. return total; copia o 7: x guarda 7."
+          retorno_geral: "return total; copiou o 7 para quem chamou, e x guardou: 7."
+        - pede: "Que número aparece?"
+          mostra: |-
+            int h(void) { int n = 2; n = n + n; return n; }
+
+            int y = h();
+            printf("%d\n", y);
+          aceitas: ["4"]
+          certa_texto: "4"
+          erros:
+            - texto: "2"
+              retorno: "Dentro de h, n começa em 2 e vira 4 antes do return. return n; copia o 4: y guarda 4."
+          retorno_geral: "return n; copiou o 4 para quem chamou, e y guardou: 4."
+
+I2:
+  revisao:
+    frases:
+      - "static faz a caixa durar o programa inteiro, e o endereço dela vale depois do retorno."
+      - "Mas o nome continua só de dentro da função: fora dela, n não existe."
+    codigo: |
+      int *f(void) { static int n = 7; return &n; }
+
+      int *p = f();
+      printf("%d\n", *p);
+    saida: "7"
+  # ++n.
+  fora_da_trilha: [ciu_kc12_t15]
+  provas:
+    - crenca: static_is_scope
+      programa: |
+        void f(void) { static int n = 7; }
+
+        f();
+        printf("%d\n", n);
+      previsao:
+        pergunta: >
+          n é uma local de f marcada static. Depois de chamar f, a última
+          linha usa n fora de f. O que o compilador faz?
+        opcoes:
+          - "Aceita: static muda o escopo, e o nome n passa a valer fora de f"
+          - "Reclama: o nome n continua só de dentro de f"
+        real: 1
+        crenca: 0
+      reclama: "'n' undeclared"
+      ambiente: >
+        Mensagem do gcc 16.2. É um erro: o nome não existe ali. O programa
+        não é executado.
+      afirma: >
+        O compilador reclama: fora de f, n não existe ("undeclared"). static
+        muda a duração da caixa — ela dura o programa inteiro —, e não o
+        escopo do nome. Por isso f pode devolver &n e o endereço vale, mas
+        o nome n continua sendo só de dentro de f.
+  degraus:
+    - id: esc_kc12_I2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "static muda a duração: a caixa dura o programa inteiro, e o endereço dela vale depois do retorno."
+        - "O nome não muda de lugar: n continua sendo um nome só de dentro da função."
+      versoes:
+        - pede: "O que static muda em n?"
+          antes: "int *f(void) { static int n = 7; return &n; }"
+          pecas:
+            - "A duração: a caixa dura o programa, e o nome segue só de dentro de f"
+            - "O escopo: static muda o escopo da variável, e por isso retornar o endereço passa a valer"
+            - "Nada: sem static seria igual"
+          certa: [[0]]
+          certa_texto: "A duração: a caixa dura o programa, e o nome segue só de dentro de f"
+          erros:
+            - exata: [1]
+              crenca: static_is_scope
+              retorno: "static não mexe no escopo: o nome n continua só de dentro de f. O que muda é a duração — a caixa dura o programa, e por isso &n vale depois do retorno."
+            - exata: [2]
+              retorno: "Sem static, n sairia no retorno, e &n levaria a lugar nenhum. Com static, a caixa dura o programa."
+          retorno_geral: "static muda a duração da caixa, e não o escopo do nome."
+        - pede: "O que static muda em total?"
+          antes: "int *g(void) { static int total = 3; return &total; }"
+          pecas:
+            - "Nada: sem static seria igual"
+            - "A duração: a caixa dura o programa, e o nome segue só de dentro de g"
+            - "O escopo: static muda o escopo da variável, e por isso retornar o endereço passa a valer"
+          certa: [[1]]
+          certa_texto: "A duração: a caixa dura o programa, e o nome segue só de dentro de g"
+          erros:
+            - exata: [2]
+              crenca: static_is_scope
+              retorno: "static não mexe no escopo: o nome total continua só de dentro de g. O que muda é a duração — a caixa dura o programa, e por isso &total vale depois do retorno."
+            - exata: [0]
+              retorno: "Sem static, total sairia no retorno, e &total levaria a lugar nenhum. Com static, a caixa dura o programa."
+          retorno_geral: "static muda a duração da caixa, e não o escopo do nome."
+
+    - id: esc_kc12_I2_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com static, a caixa não é criada de novo a cada chamada: o valor que a chamada anterior deixou continua lá."
+      versoes:
+        - pede: "A função é chamada três vezes, e só a terceira é mostrada. Que número aparece?"
+          mostra: |-
+            int conta(void) { static int n = 0; n = n + 1; return n; }
+
+            conta();
+            conta();
+            printf("%d\n", conta());
+          aceitas: ["3"]
+          certa_texto: "3"
+          erros:
+            - texto: "1"
+              retorno: "Sem static seria 1. Com static, a caixa n dura entre as chamadas: 1, depois 2, e a terceira devolve 3."
+            - texto: "0"
+              retorno: "n começa em 0 uma vez só, e cada chamada soma 1 antes do return. A terceira devolve 3."
+          retorno_geral: "Com static, n dura entre as chamadas: a terceira devolve 3."
+        - pede: "A função é chamada duas vezes, e só a segunda é mostrada. Que número aparece?"
+          mostra: |-
+            int soma(void) { static int total = 10; total = total + 5; return total; }
+
+            soma();
+            printf("%d\n", soma());
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "15"
+              retorno: "Sem static seria 15. Com static, a caixa total dura entre as chamadas: a primeira deixou 15, e a segunda soma mais 5: 20."
+            - texto: "10"
+              retorno: "total começa em 10 uma vez só, e cada chamada soma 5 antes do return. A segunda devolve 20."
+          retorno_geral: "Com static, total dura entre as chamadas: a segunda devolve 20."
+
+    - id: esc_kc12_I2_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Sem static, o erro às vezes parece funcionar: o lugar onde a caixa ficava ainda guarda o valor antigo. Parecer funcionar não é funcionar."
+      versoes:
+        - pede: "Um colega diz: retornei &n sem static e o programa mostrou o 7, então está certo. O que dizer a ele?"
+          antes: "int *f(void) { int n = 7; return &n; }"
+          pecas:
+            - "Parecer funcionar não é funcionar: o lugar só ainda guardava o valor"
+            - "Está certo: static muda o escopo da variável, e sem ele dá no mesmo"
+            - "Está certo: se mostrou o 7, a caixa n estava lá"
+          certa: [[0]]
+          certa_texto: "Parecer funcionar não é funcionar: o lugar só ainda guardava o valor"
+          erros:
+            - exata: [1]
+              crenca: static_is_scope
+              retorno: "static não muda o escopo: muda a duração. Sem ele, n sai no retorno, e o 7 que apareceu era só o que o lugar ainda guardava."
+            - exata: [2]
+              retorno: "A caixa n saiu no retorno. O 7 que apareceu era o que o lugar ainda guardava, por acaso: parecer funcionar não é funcionar."
+          retorno_geral: "Sem static, n saiu no retorno: o 7 era só o que o lugar ainda guardava."
+        - pede: "Uma colega diz: retornei &total sem static e o programa mostrou o 3, então está certo. O que dizer a ela?"
+          antes: "int *g(void) { int total = 3; return &total; }"
+          pecas:
+            - "Está certo: se mostrou o 3, a caixa total estava lá"
+            - "Está certo: static muda o escopo da variável, e sem ele dá no mesmo"
+            - "Parecer funcionar não é funcionar: o lugar só ainda guardava o valor"
+          certa: [[2]]
+          certa_texto: "Parecer funcionar não é funcionar: o lugar só ainda guardava o valor"
+          erros:
+            - exata: [1]
+              crenca: static_is_scope
+              retorno: "static não muda o escopo: muda a duração. Sem ele, total sai no retorno, e o 3 que apareceu era só o que o lugar ainda guardava."
+            - exata: [0]
+              retorno: "A caixa total saiu no retorno. O 3 que apareceu era o que o lugar ainda guardava, por acaso: parecer funcionar não é funcionar."
+          retorno_geral: "Sem static, total saiu no retorno: o 3 era só o que o lugar ainda guardava."
+
+    - id: esc_kc12_I2_4
+      nome: "static muda a duração, e não o escopo"
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Depois de h ter rodado, o nome vezes vale fora de h?"
+          antes: "void h(void) { static int vezes = 0; }"
+          pecas:
+            - "Não: o nome continua só de dentro de h"
+            - "Vale: o static levou o nome para fora"
+            - "Vale, porque a caixa durou"
+          certa: [[0]]
+          certa_texto: "Não: o nome continua só de dentro de h"
+          erros:
+            - exata: [1]
+              retorno: "static não leva o nome para fora: muda só a duração da caixa. Fora de h, vezes não existe, e o compilador reclama."
+            - exata: [2]
+              retorno: "A caixa dura o programa, mas o nome não sai de h. Durar e ter nome fora são coisas diferentes."
+          retorno_geral: "O nome vezes continua só de dentro de h, mesmo com static."
+        - pede: "Depois de g ter rodado, o nome total vale fora de g?"
+          antes: "void g(void) { static int total = 3; }"
+          pecas:
+            - "Vale, porque a caixa durou"
+            - "Vale: o static levou o nome para fora"
+            - "Não: o nome continua só de dentro de g"
+          certa: [[2]]
+          certa_texto: "Não: o nome continua só de dentro de g"
+          erros:
+            - exata: [1]
+              retorno: "static não leva o nome para fora: muda só a duração da caixa. Fora de g, total não existe, e o compilador reclama."
+            - exata: [0]
+              retorno: "A caixa dura o programa, mas o nome não sai de g. Durar e ter nome fora são coisas diferentes."
+          retorno_geral: "O nome total continua só de dentro de g, mesmo com static."
+
+    - id: esc_kc12_I2_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "A função é chamada duas vezes, e só a segunda é mostrada. Que número aparece?"
+          mostra: |-
+            int vez(void) { static int n = 0; n = n + 2; return n; }
+
+            vez();
+            printf("%d\n", vez());
+          aceitas: ["4"]
+          certa_texto: "4"
+          erros:
+            - texto: "2"
+              retorno: "Com static, a caixa n dura entre as chamadas: a primeira deixou 2, e a segunda soma mais 2: 4."
+            - texto: "0"
+              retorno: "n começa em 0 uma vez só, e cada chamada soma 2 antes do return. A segunda devolve 4."
+          retorno_geral: "Com static, n dura entre as chamadas: a segunda devolve 4."
+        - pede: "A função é chamada três vezes, e só a terceira é mostrada. Que número aparece?"
+          mostra: |-
+            int marca(void) { static int pontos = 1; pontos = pontos + pontos; return pontos; }
+
+            marca();
+            marca();
+            printf("%d\n", marca());
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "2"
+              retorno: "Sem static seria 2. Com static, pontos dura entre as chamadas e dobra a cada uma: 2, 4 e a terceira devolve 8."
+            - texto: "4"
+              retorno: "4 é o que a segunda chamada devolve. A terceira dobra de novo: 8."
+          retorno_geral: "Com static, pontos dobra a cada chamada: a terceira devolve 8."
+
+I3:
+  revisao:
+    frases:
+      - "Dá para ficar com um ponteiro apontando para o nada sem chamar free nenhuma vez: basta guardar o endereço de uma local."
+      - "O jeito certo é quem chama criar a caixa e passar o endereço dela para a função preencher."
+    codigo: |
+      void poe(int *destino) { *destino = 7; }
+
+      int n;
+      poe(&n);
+      printf("%d\n", n);
+    saida: "7"
+  # snprintf e %s; o operador ?:.
+  fora_da_trilha: [ciu_kc12_t17, ciu_kc12_t18]
+  provas:
+    - crenca: local_survives_return
+      programa: |
+        int *f(void) { int n = 7; return &n; }
+
+        int *p = f();
+        printf("%d\n", *p);
+      previsao:
+        pergunta: >
+          f devolve o endereço da sua local n, e o trecho lê o que p
+          alcança. O que acontece?
+        opcoes:
+          - "O compilador reclama: n saiu no retorno, e p não leva a caixa nenhuma"
+          - "7: retornar o endereço de uma local funciona, e n continua lá"
+        real: 0
+        crenca: 1
+      reclama: "dereference of NULL 'p'"
+      avisos: "-fanalyzer"
+      ambiente: >
+        Mensagem do gcc 16.2 com o analisador de fluxo ligado (-fanalyzer).
+        Ao ver return &n, o gcc avisa e devolve NULL no lugar do endereço
+        da caixa que vai sair; por isso o analisador fala em NULL. O padrão
+        do C não diz o que esse endereço vale depois do retorno. O programa
+        não é executado.
+      afirma: >
+        O compilador reclama: *p iria a lugar nenhum. n saiu no retorno de
+        f, e o endereço dela não leva a caixa junto — p ficou pendente sem
+        free nenhum. O jeito certo é quem chama dar a caixa.
+  degraus:
+    - id: esc_kc12_I3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Ponteiro pendente não vem só do free: o endereço de uma local, guardado depois do retorno, também aponta para o nada."
+      versoes:
+        - pede: "Nenhum free foi chamado. p aponta para uma caixa viva?"
+          antes: |-
+            int *f(void) { int n = 7; return &n; }
+
+            int *p = f();
+          pecas:
+            - "Não: n saiu no retorno, e p ficou pendente"
+            - "Sim: retornar o endereço de uma variável local funciona; ela continua lá"
+            - "Sim: sem free, nada se perde"
+          certa: [[0]]
+          certa_texto: "Não: n saiu no retorno, e p ficou pendente"
+          erros:
+            - exata: [1]
+              crenca: local_survives_return
+              retorno: "A local não continua lá: n saiu no retorno de f. O endereço que voltou leva a lugar nenhum, e p ficou pendente."
+            - exata: [2]
+              retorno: "free não é o único jeito de perder uma caixa: a local sai sozinha no retorno. p ficou pendente sem free nenhum."
+          retorno_geral: "n saiu no retorno: p ficou pendente, sem free nenhum."
+        - pede: "Nenhum free foi chamado. q aponta para uma caixa viva?"
+          antes: |-
+            int *g(void) { int total = 3; return &total; }
+
+            int *q = g();
+          pecas:
+            - "Sim: sem free, nada se perde"
+            - "Sim: retornar o endereço de uma variável local funciona; ela continua lá"
+            - "Não: total saiu no retorno, e q ficou pendente"
+          certa: [[2]]
+          certa_texto: "Não: total saiu no retorno, e q ficou pendente"
+          erros:
+            - exata: [1]
+              crenca: local_survives_return
+              retorno: "A local não continua lá: total saiu no retorno de g. O endereço que voltou leva a lugar nenhum, e q ficou pendente."
+            - exata: [0]
+              retorno: "free não é o único jeito de perder uma caixa: a local sai sozinha no retorno. q ficou pendente sem free nenhum."
+          retorno_geral: "total saiu no retorno: q ficou pendente, sem free nenhum."
+
+    - id: esc_kc12_I3_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "O jeito certo: quem chama cria a caixa e passa o endereço dela; a função preenche por ele, e a caixa continua viva."
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            void enche(int *destino) { *destino = 42; }
+
+            int total = 0;
+            enche(&total);
+            printf("%d\n", total);
+          aceitas: ["42"]
+          certa_texto: "42"
+          erros:
+            - texto: "0"
+              retorno: "enche recebeu o endereço de total e escreveu 42 nela. total é de quem chamou, e continua viva: 42."
+          retorno_geral: "Quem chamou deu a caixa, e enche preencheu: 42."
+        - pede: "Que número aparece?"
+          mostra: |-
+            void poe(int *destino) { *destino = 5; }
+
+            int n = 1;
+            poe(&n);
+            printf("%d\n", n);
+          aceitas: ["5"]
+          certa_texto: "5"
+          erros:
+            - texto: "1"
+              retorno: "poe recebeu o endereço de n e escreveu 5 nela. n é de quem chamou, e continua viva: 5."
+          retorno_geral: "Quem chamou deu a caixa, e poe preencheu: 5."
+
+    - id: esc_kc12_I3_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Para consertar sem malloc, entregue o valor, ou receba de quem chama a caixa para preencher."
+      versoes:
+        - pede: "Como consertar f para quem chama receber o 7, sem malloc?"
+          antes: "int *f(void) { int n = 7; return &n; }"
+          pecas:
+            - "Devolver o valor: int f(void) { int n = 7; return n; }"
+            - "Nada: retornar o endereço de uma variável local funciona; ela continua lá"
+            - "Chamar free(&n) antes do return"
+          certa: [[0]]
+          certa_texto: "Devolver o valor: int f(void) { int n = 7; return n; }"
+          erros:
+            - exata: [1]
+              crenca: local_survives_return
+              retorno: "A local não continua lá: sai no retorno. Devolver o valor copia o 7, e a cópia chega inteira a quem chamou."
+            - exata: [2]
+              retorno: "free é para blocos de malloc, e n não é um. O conserto é devolver o valor: return n;"
+          retorno_geral: "Devolva o valor: return n; copia o 7 para quem chamou."
+        - pede: "Como consertar g para quem chama receber o 3, sem malloc?"
+          antes: "int *g(void) { int total = 3; return &total; }"
+          pecas:
+            - "Chamar free(&total) antes do return"
+            - "Receber a caixa de quem chama: void g(int *destino) { *destino = 3; }"
+            - "Nada: retornar o endereço de uma variável local funciona; ela continua lá"
+          certa: [[1]]
+          certa_texto: "Receber a caixa de quem chama: void g(int *destino) { *destino = 3; }"
+          erros:
+            - exata: [2]
+              crenca: local_survives_return
+              retorno: "A local não continua lá: sai no retorno. Com a caixa de quem chama, g preenche algo que continua vivo."
+            - exata: [0]
+              retorno: "free é para blocos de malloc, e total não é um. O conserto é quem chama dar a caixa."
+          retorno_geral: "Quem chama dá a caixa, e g preenche: void g(int *destino)."
+
+    - id: esc_kc12_I3_4
+      nome: "Quem chama dá a caixa para a função preencher"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            void preenche(int *d) { *d = 10; }
+
+            int x = 3;
+            preenche(&x);
+            printf("%d\n", x + 1);
+          aceitas: ["11"]
+          certa_texto: "11"
+          erros:
+            - texto: "4"
+              retorno: "preenche escreveu 10 em x, pelo endereço. Depois disso, x + 1 é 11."
+            - texto: "10"
+              retorno: "x vale 10 depois de preenche, mas o printf mostra x + 1: 11."
+          retorno_geral: "preenche escreveu 10 em x; o printf mostra x + 1: 11."
+        - pede: "Que número aparece?"
+          mostra: |-
+            void zera(int *d) { *d = 0; }
+
+            int y = 8;
+            zera(&y);
+            printf("%d\n", y);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "8"
+              retorno: "zera recebeu o endereço de y e escreveu 0 nela. y é de quem chamou, e continua viva: 0."
+          retorno_geral: "zera escreveu na caixa de quem chamou: 0."
+
+    - id: esc_kc12_I3_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Nenhum free aparece. Qual destes ponteiros fica pendente?"
+          antes: |-
+            int *a(void) { static int n = 1; return &n; }
+            int *b(void) { int n = 1; return &n; }
+
+            int *p = a();
+            int *q = b();
+          pecas:
+            - "q, que veio de b"
+            - "p, que veio de a"
+            - "Nenhum: sem free não há pendente"
+          certa: [[0]]
+          certa_texto: "q, que veio de b"
+          erros:
+            - exata: [1]
+              retorno: "O n de a é static: dura o programa, e p aponta para uma caixa viva. O de b saiu no retorno: q ficou pendente."
+            - exata: [2]
+              retorno: "Há pendente sem free: o n de b saiu no retorno, e q ficou apontando para o nada."
+          retorno_geral: "q ficou pendente: o n de b saiu no retorno."
+        - pede: "Nenhum free aparece. Qual destes ponteiros fica pendente?"
+          antes: |-
+            int *c(void) { int *b = malloc(sizeof(int)); return b; }
+            int *d(void) { int m = 2; return &m; }
+
+            int *p = c();
+            int *q = d();
+          pecas:
+            - "Nenhum: sem free não há pendente"
+            - "p, que veio de c"
+            - "q, que veio de d"
+          certa: [[2]]
+          certa_texto: "q, que veio de d"
+          erros:
+            - exata: [1]
+              retorno: "O bloco de malloc fica até o free: p aponta para uma caixa viva. O m de d saiu no retorno: q ficou pendente."
+            - exata: [0]
+              retorno: "Há pendente sem free: o m de d saiu no retorno, e q ficou apontando para o nada."
+          retorno_geral: "q ficou pendente: o m de d saiu no retorno."

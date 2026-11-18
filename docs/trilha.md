@@ -1227,6 +1227,54 @@ Quem acerta tudo faz 14 telas e 19 toques (8 e 13 no rápido); quem não
 sabe e aprende, 26 e 43; quem erra todo passo, 38 e 91; quem diz a
 crença de cada ideia e depois acerta, 38 e 37.
 
+**O kc_12, em 18/11/2026 — ponteiro pendente por escopo**
+
+Quem chega aqui já viu `return`, a função em várias linhas, pilha e
+monte (kc_01), a função que escreve por um endereço (kc_06) e o
+ponteiro pendente que sobra do `free` (kc_09). Este tópico mostra o
+outro jeito de ficar com um ponteiro para o nada: sem `free` nenhum.
+Seis premissas, 30 degraus, uma prova por crença
+(`mvp/dominio/escada_kc12.yaml`, `docs/escada-kc12-leitura.md`). Entram
+a local marcada `static` — já no B1, como exceção, porque três questões
+do B1 a usam —, a duração que não é escopo, o pendente sem `free` e a
+caixa que quem chama dá para a função preencher.
+
+- **O gcc e o endereço de uma local.** Ao ver `return &n`, o gcc 16.2
+  avisa ("function returns address of local variable") e devolve `NULL`
+  no lugar. O padrão do C não diz o que esse endereço vale depois do
+  retorno; o gcc escolheu `NULL`. A prova do I1 usa isso (`p == NULL`
+  sai 1, com nota de ambiente), e a do I3 também (o analisador reclama
+  de `*p` como "dereference of NULL").
+- **Uma tensão do domínio, para o Rafael ver.** A premissa do I2 diz que
+  sem `static` o erro "às vezes parece funcionar", porque o lugar ainda
+  guarda o valor; a questão 015 pergunta por isso. Em C é verdade, mas
+  não neste gcc com `return &n`, que devolve `NULL`. A escada diz a
+  ideia ("parecer funcionar não é funcionar") sem prometer que a pessoa
+  vai ver acontecer.
+- **As provas**: três do compilador, cada uma com outra mensagem (aceita
+  devolver o bloco de `malloc` e reclama de devolver `&n`; reclama de
+  usar `n` fora de `f`, mesmo com `static`; o analisador reclama de
+  `*p`) e três saídas (`poe(&n)` dentro de `f` escreve na própria `n`:
+  9; o retorno que ninguém guardou se perde, e `x` continua 4; o
+  `p == NULL` do gcc: 1).
+- **O banco não foi mexido.** Sete das 36 questões ficam fora: seis usam
+  o que as escadas não ensinam — variável global, `n++` e `++n`,
+  protótipo sem corpo, `%s`, `snprintf` e o `?:` —, e a **t12 afirma uma
+  saída que este gcc não dá** (diz que `p == NULL` dá 0; dá 1). A t12
+  fica para o Rafael rever. Todas as premissas abrem com questão de
+  código; o B1, com a de degrau 3.
+- **Um teste deste ramo mudou**, porque dependia de haver um tópico sem
+  escada: `test_trilha_portal.py::test_topico_sem_escada_nao_tem_trilha`
+  escolhia "o primeiro tópico sem escada", e com os treze na trilha
+  aquilo quebrava o arquivo inteiro na importação. Agora ele esconde do
+  portal a escada de um tópico e confere o mesmo de antes.
+
+Quem acerta tudo faz 14 telas e 19 toques (8 e 13 no rápido); quem não
+sabe e aprende, 26 e 43; quem erra todo passo, 38 e 91; quem diz a
+crença de cada ideia e depois acerta, 38 e 37.
+
+**Com o kc_12, os treze tópicos abrem na trilha.**
+
 **Novo, e opcional — a trilha funciona sem**
 
 1. **A previsão.** Os programas de demonstração imprimem frases ("o
@@ -1284,6 +1332,8 @@ Cada fatia deixa o sistema funcionando.
    (seção 7). A primeira redação desta fatia previa entrar com o
    conteúdo que existe; o Rafael pediu o caminho do kc_00 para todos, e
    a previsão, que era da fatia 4, passou a vir junto com a escada.
+   **Feita em 18/11/2026**: com o kc_10, o kc_11 e o kc_12, os treze
+   tópicos abrem na trilha.
 3. Parar e voltar para quem não informou código, e o progresso na
    página inicial. (A retomada pelo código, depois de um reinício, já
    entrou com a revisão da fatia 1. Em 16/11/2026 entrou também a da

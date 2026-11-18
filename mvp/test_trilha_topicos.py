@@ -1094,6 +1094,73 @@ def test_as_provas_do_kc_11_e_o_aviso_da_conta_em_void():
             assert "sizeof(int)" not in v.mostra and "sizeof *p" not in v.mostra, g.id
 
 
+def test_no_kc_12_ficam_fora_sete_e_toda_premissa_abre_com_codigo():
+    """O banco do kc_12 não foi mexido. Ficam fora seis questões que usam
+    o que as escadas não ensinam — variável global, `n++` e `++n`,
+    protótipo sem corpo, `%s`, `snprintf` e o `?:` — e a t12, que afirma
+    que `p == NULL` dá 0 depois de `p = f()`, com f devolvendo `&n`: o gcc
+    16.2 devolve NULL no lugar do endereço da local, e sai 1."""
+    fora, quantas, abre = _selecao("kc_12")
+    assert fora == {
+        "B1": ("ciu_kc12_002",),
+        "B3": ("ciu_kc12_t08", "ciu_kc12_t09"),
+        "I1": ("ciu_kc12_t12",),
+        "I2": ("ciu_kc12_t15",),
+        "I3": ("ciu_kc12_t17", "ciu_kc12_t18"),
+    }
+    assert quantas == {"B1": 5, "B2": 6, "B3": 4, "I1": 5, "I2": 5, "I3": 4}
+    assert abre == {
+        "B1": "ciu_kc12_003", "B2": "ciu_kc12_005", "B3": "ciu_kc12_008",
+        "I1": "ciu_kc12_011", "I2": "ciu_kc12_014", "I3": "ciu_kc12_017"}
+    d = _dominio("kc_12")
+    por_id = {a.id: a for a in d.atividades}
+    assert [no for no, i in abre.items() if not por_id[i].codigo] == []
+    # Variável global, ++, ?:, snprintf, %s e protótipo sem corpo.
+    ruim = re.compile(r"\A\s*int \*\w+;\s*\n|\+\+|\?|snprintf|%s"
+                      r"|^\s*(?:void|int|char)\s*\*?\s*\w+\([^)]*\);", re.M)
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_12", no):
+            assert not ruim.search(por_id[i].codigo or ""), i
+    # A régua morde: pega as seis de fora pelo que usam.
+    pela_regua = {i for ids in fora.values() for i in ids
+                  if ruim.search(por_id[i].codigo or "")}
+    assert pela_regua == {i for ids in fora.values() for i in ids} - {"ciu_kc12_t12"}
+    # E a t12 fica fora pelo que afirma: a alternativa certa diz que sai 0.
+    t12 = por_id["ciu_kc12_t12"]
+    assert next(o.texto for o in t12.opcoes if o.correta).startswith("0")
+
+
+def test_o_kc_12_apresenta_o_static_o_pendente_sem_free_e_a_caixa_de_quem_chama():
+    """Entram a local marcada static (como exceção já no B1, porque três
+    questões do B1 a usam), a duração que não é escopo, o "parece
+    funcionar", o pendente sem free e a caixa que quem chama dá. Cada
+    coisa é dita num passo guiado."""
+    assert _onde_se_apresenta("kc_12", "B1", "static") == "esc_kc12_B1_3"
+    assert _onde_se_apresenta("kc_12", "I2", "duração") == "esc_kc12_I2_1"
+    assert _onde_se_apresenta("kc_12", "I2", "parece funcionar") == "esc_kc12_I2_3"
+    assert _onde_se_apresenta("kc_12", "I3", "pendente") == "esc_kc12_I3_1"
+    assert _onde_se_apresenta(
+        "kc_12", "I3", "quem chama cria a caixa") == "esc_kc12_I3_2"
+    escadas = _escadas("kc_12")
+    nomes = [escadas[no].pratica[0].nome for no in _dominio("kc_12").ordem]
+    assert len(set(nomes)) == 6
+
+
+def test_as_provas_do_kc_12_e_o_null_do_gcc():
+    """Três provas são o que o compilador diz, cada uma com outra
+    mensagem, e três são saídas. A do I1 imprime 1 porque o gcc 16.2
+    devolve NULL no lugar do endereço da local, e a nota de ambiente diz
+    isso."""
+    provas = {p.crenca: p for e in _escadas("kc_12").values() for p in e.provas}
+    assert len(provas) == 6
+    assert {c for c, p in provas.items() if p.reclama} == {
+        "memory_is_uniform", "static_is_scope", "local_survives_return"}
+    assert len({p.reclama for p in provas.values() if p.reclama}) == 3
+    do_i1 = provas["pointer_is_data"]
+    assert do_i1.espera == "1" and "NULL" in do_i1.ambiente
+    assert provas["local_survives_return"].avisos == ("-fanalyzer",)
+
+
 def test_sem_a_questao_de_degrau_2_a_premissa_abre_com_a_de_codigo():
     """A abertura é a questão de código de degrau 2: é a que APLICA a
     ideia. Quando ela fica fora da trilha, quem abre é outra de código, e

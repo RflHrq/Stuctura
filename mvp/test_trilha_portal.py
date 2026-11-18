@@ -51,7 +51,6 @@ def cliente(pasta):
 COM_ESCADA = {t for t in topicos()
               if (RAIZ / "dominio" / ("escada_%s.yaml" % t.replace("_", ""))
                   ).exists()}
-SEM_ESCADA = next(t for t in topicos() if t not in COM_ESCADA)
 
 
 def test_so_tem_trilha_o_topico_que_tem_escada(cliente):
@@ -84,10 +83,26 @@ def test_a_trilha_serve_a_pagina_e_os_assets(cliente):
     assert cliente.get("/web/trilha.css").status_code == 200
 
 
-def test_topico_sem_escada_nao_tem_trilha(cliente):
-    assert cliente.get("/trilha/%s/saude" % SEM_ESCADA).status_code == 404
-    assert cliente.post("/trilha/%s/sessoes" % SEM_ESCADA,
+def test_topico_sem_escada_nao_tem_trilha(monkeypatch, tmp_path):
+    """ERA: escolhia um tópico de verdade ainda sem escada
+    (`SEM_ESCADA = next(t for t in topicos() if t not in COM_ESCADA)`).
+    Desde 18/11/2026 os treze têm escada, e aquele `next` quebrava este
+    arquivo inteiro já na importação. Agora o teste esconde do portal a
+    escada de um tópico — o arquivo existe, mas o portal não o vê — e
+    confere o mesmo de antes: sem escada não há trilha, e o tópico
+    continua pelo caminho de sempre."""
+    escondida = portal.AQUI / "dominio" / "escada_kc12.yaml"
+    existe = Path.exists
+    monkeypatch.setattr(
+        Path, "exists", lambda self: False if self == escondida else existe(self))
+    cliente = TestClient(portal.cria_portal(tmp_path))
+    assert cliente.get("/trilha/kc_12/saude").status_code == 404
+    assert cliente.post("/trilha/kc_12/sessoes",
                         json={}).status_code in (404, 405)
+    trilhas = {t["id"]: t["trilha"]
+               for t in cliente.get("/topicos").json()["topicos"]}
+    assert trilhas["kc_12"] is None and trilhas["kc_11"] == "/trilha/kc_11/"
+    assert cliente.get("/kc/kc_12/saude").json()["topico"] == "kc_12"
 
 
 def test_o_fluxo_atual_do_kc_00_continua_no_lugar(cliente):
