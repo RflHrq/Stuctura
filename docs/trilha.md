@@ -1346,7 +1346,9 @@ Cada fatia deixa o sistema funcionando.
    18/11/2026** (`docs/plano-caminho.md`): o navegador guarda a sessão de
    quem abriu sem código e volta à mesma tela; a página inicial mostra o
    andamento de cada tópico no caminho desenhado.
-4. O porquê do acerto, por questão, tópico a tópico.
+4. O porquê do acerto, por questão, tópico a tópico. **Feita em
+   18/11/2026** para as 79 questões de abertura, que são as únicas que
+   mostram retorno a quem acerta (`mvp/test_porque.py`).
 
 ## 10. Decisões minhas, para o Rafael conferir
 
