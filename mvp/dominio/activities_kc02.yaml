@@ -1359,9 +1359,7 @@ activities:
 
       int b = 5;
 
-      printf("%d
-
-      ", &a == &b);'
+      printf("%d\n", &a == &b);'
     alternativas:
       a: 0, porque são dois lugares diferentes
       b: 1, porque guardam o mesmo valor
@@ -1387,9 +1385,7 @@ activities:
 
       x = 20;
 
-      printf("%p
-
-      ", (void *)p);'
+      printf("%p\n", (void *)p);'
     alternativas:
       a: p guarda o lugar de x, e o lugar não mudou
       b: p guarda o valor de x, e o valor mudou
@@ -1430,9 +1426,7 @@ activities:
 
       int *p = &x;
 
-      printf("%zu
-
-      ", sizeof p);'
+      printf("%zu\n", sizeof p);'
     alternativas:
       a: O tamanho da variável p
       b: O tamanho de x, que é para onde p aponta
@@ -1495,9 +1489,7 @@ activities:
 
       int *p = &x;
 
-      printf("%d
-
-      ", p);'
+      printf("%d\n", p);'
     alternativas:
       a: '%d espera um int, e p é um endereço'
       b: 'Não está: p vale 42, que é int'
@@ -1521,9 +1513,7 @@ activities:
 
       *p = y;
 
-      printf("%d
-
-      ", x);'
+      printf("%d\n", x);'
     alternativas:
       a: 7, porque *p escreve no lugar de x
       b: 42, porque *p = y muda só o ponteiro
@@ -1568,9 +1558,7 @@ activities:
 
       *q = 9;
 
-      printf("%d
-
-      ", x);'
+      printf("%d\n", x);'
     alternativas:
       a: '9: p e q levam ao mesmo x'
       b: '1: q é cópia, e mexer nela não muda x'
@@ -1631,9 +1619,7 @@ activities:
 
       int *p = &x;
 
-      printf("%zu %zu
-
-      ", sizeof p, sizeof *p);'
+      printf("%zu %zu\n", sizeof p, sizeof *p);'
     alternativas:
       a: O do ponteiro e o do int apontado
       b: Os dois medem o int, de jeitos diferentes
@@ -1702,9 +1688,7 @@ activities:
 
       soma(&t, 3);
 
-      printf("%d
-
-      ", t);'
+      printf("%d\n", t);'
     alternativas:
       a: '8: as duas chamadas somaram no mesmo t'
       b: '0: a função soma numa cópia'
