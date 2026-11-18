@@ -751,3 +751,22 @@ def test_a_prova_pode_pedir_o_analisador_de_fluxo(tmp_path):
 
     sem = _prova_de_uma_linha_so(VAZA, "leak of 'p'")
     assert len(confere_escada.confere(_le(tmp_path, _com_prova(sem)))) == 1
+
+
+VOID_ANDA = "char letras[4] = \"sol\";\nvoid *v = letras;\n\nv = v + 1;\n"
+
+
+@tem_gcc
+def test_a_prova_pode_pedir_o_aviso_de_conta_em_void(tmp_path):
+    """Conta em void * o gcc aceita por extensão própria, andando 1 byte, e
+    só reclama dela com -Wpointer-arith (-Wall e -Wextra não ligam esse
+    aviso). É o que a prova do kc_11:I2 mostra. A opção entra na lista
+    fechada; sem ela, a mesma prova não se confirma."""
+    dito = "pointer of type 'void *' used in arithmetic"
+    com = _prova_de_uma_linha_so(VOID_ANDA, dito, avisos="-Wpointer-arith")
+    escadas = _le(tmp_path, _com_prova(com))
+    assert escadas["B1"].provas[0].avisos == ("-Wpointer-arith",)
+    assert confere_escada.confere(escadas) == []
+
+    sem = _prova_de_uma_linha_so(VOID_ANDA, dito)
+    assert len(confere_escada.confere(_le(tmp_path, _com_prova(sem)))) == 1

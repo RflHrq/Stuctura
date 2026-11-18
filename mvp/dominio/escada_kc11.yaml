@@ -1,0 +1,1382 @@
+# A escada do kc_11 — aritmética de ponteiros.
+#
+# O QUE É. Para cada premissa do tópico, os degraus do mais mecânico até
+# a ideia, e a prova de cada crença que nega a premissa. Segue o molde
+# do kc_00, e a mesma régua do texto (docs/trilha.md, 6.16).
+#
+# QUEM CHEGA AQUI usa ponteiro, `&` e `*` desde o kc_04, já viu que o nome
+# do array vira o endereço do primeiro elemento (kc_07), que um byte é o
+# espaço de uma caixa de char e que `sizeof` mede um tipo (kc_08), e já
+# conhece o `void *` e a conversão `*(int *)v` (kc_10). Falta a conta.
+#
+# O QUE ESTE TÓPICO APRESENTA, e onde:
+#
+#   p + 1, *(p + 1)          a caixa seguinte, pelo tipo         B1, degrau 3
+#   sizeof *c                o tamanho do destino, sem rodar     B2, degrau 2
+#   &notas[2] - &notas[0]    a distância entre duas caixas       B3, degrau 1
+#   char *t = "pai"          o ponteiro para um texto alheio     B3, degrau 2
+#   *(notas + 2), 2[notas]   o colchete é a soma                 I1, degraus 1 e 3
+#   (char *)v + 1            dar um tipo antes de andar          I2, degrau 2
+#   p + 2 * sizeof(int)      a escala feita duas vezes           I3, degrau 2
+#
+# AS PROVAS, e o que cada uma usa. Três são o que o compilador diz, e
+# três são saídas:
+#
+#   B1  ponteiro é só um número  aceita p = &idade; e reclama de
+#                                p = 1000;
+#   B2  o tamanho vem com o      sizeof *c, com c num bloco de 10: 1
+#       ponteiro
+#   B3  char *t = "pai" e        o analisador reclama de mudar uma
+#       char s[] = "pai" são     letra por t, e não por s
+#       o mesmo
+#   I1  o índice não é a soma    2[notas]: 9
+#   I2  void * anda como os      aceita c + 1 e reclama de v + 1 (com
+#       outros                   -Wpointer-arith; o gcc, sem ele, aceita
+#                                por extensão própria)
+#   I3  a conta é em bytes       *(p + 3), sem sizeof: 35
+#
+# Nenhuma prova nem passo de digitar depende do tamanho de um int: os
+# números são de caixas, e o tamanho de um char é 1 em qualquer máquina.
+#
+# A CRENÇA DO B3. O catálogo liga ao B3 (os elementos ficam grudados) a
+# crença string_literal_is_array: "char *s = "abc" e char s[] = "abc"
+# guardam do mesmo jeito". A escada diz a diferença com as caixas do
+# próprio B3: s são quatro caixas de char grudadas, que são de s; t é uma
+# caixa só, um ponteiro para letras grudadas que não são de t.
+#
+# AS QUESTÕES DE MARCAR. Cinco das 36 questões de diagnóstico e de treino
+# usam o que as escadas não ensinam — `struct`, `%c`, `for`, `double` e
+# uma função de várias linhas — e estão em `fora_da_trilha`. A t15, a da
+# função, diz ainda que o compilador "recusa" void * + n, o que o gcc não
+# faz sem -Wpointer-arith. O banco não foi mexido. O I3 perde a de código
+# de degrau 2 (a 017, com `for`) e abre com a de degrau 3; todas as
+# premissas abrem com questão de código.
+#
+# A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
+# alternativa de um degrau guiado, e só ali o erro leva `crenca`.
+#
+# gerado_por: Claude Opus 5.5, em 18/11/2026
+# revisado_por:
+#   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
+#   principal)
+
+B1:
+  revisao:
+    frases:
+      - "Um ponteiro guarda um endereço, e a declaração diz o tipo do que está lá: int *p aponta para um int."
+      - "Por isso o * lê um int inteiro, e p não aceita um número qualquer."
+    codigo: |
+      int idade = 15;
+      int *p = &idade;
+
+      printf("%d\n", *p + 1);
+    saida: "16"
+  provas:
+    - crenca: pointer_is_integer
+      programa: |
+        int idade = 15;
+        int *p;
+
+        p = &idade;
+        p = 1000;
+      previsao:
+        pergunta: >
+          p é um int *. As duas últimas linhas guardam alguma coisa em p.
+          De qual delas o compilador reclama?
+        opcoes:
+          - "De nenhuma: ponteiro é só um número, e 1000 é um número"
+          - "Da última: 1000 é um int, e p quer um endereço de int"
+        real: 1
+        crenca: 0
+      reclama: "makes pointer from integer without a cast"
+      ambiente: >
+        Mensagem do gcc 16.2. Nele a reclamação é um erro; em versões
+        mais antigas, um aviso. Nos dois casos ele reclama da última
+        linha, e só dela.
+      afirma: >
+        O compilador aceita p = &idade; e reclama de p = 1000;. Ponteiro
+        não é um número qualquer: guarda um endereço e sabe o tipo do que
+        está lá. 1000 é um int, e não o endereço de um int.
+  degraus:
+    - id: esc_kc11_B1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Um ponteiro guarda um endereço e sabe o tipo do que está lá: int *p aponta para um int, char *c para um char."
+        - "O tipo vem escrito na declaração. Ponteiro não é um número solto."
+      versoes:
+        - pede: "O que a declaração int *p; diz sobre p?"
+          antes: "int *p;"
+          pecas:
+            - "Que p guarda o endereço de um int"
+            - "Nada além de um número: ponteiro é só um número inteiro, e dá para trocar um pelo outro"
+            - "Que p guarda um int"
+          certa: [[0]]
+          certa_texto: "Que p guarda o endereço de um int"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_integer
+              retorno: "Ponteiro não é um número solto: a declaração diz que p guarda o endereço de um int. É assim que o * sabe o que ler lá."
+            - exata: [2]
+              retorno: "Quem guarda um int é int x;. A estrela de int *p diz outra coisa: p guarda o ENDEREÇO de um int."
+          retorno_geral: "int *p; diz que p guarda o endereço de um int: endereço, e com o tipo do destino."
+        - pede: "O que a declaração char *c; diz sobre c?"
+          antes: "char *c;"
+          pecas:
+            - "Que c guarda um char"
+            - "Que c guarda o endereço de um char"
+            - "Nada além de um número: ponteiro é só um número inteiro, e dá para trocar um pelo outro"
+          certa: [[1]]
+          certa_texto: "Que c guarda o endereço de um char"
+          erros:
+            - exata: [2]
+              crenca: pointer_is_integer
+              retorno: "Ponteiro não é um número solto: a declaração diz que c guarda o endereço de um char. É assim que o * sabe o que ler lá."
+            - exata: [0]
+              retorno: "Quem guarda um char é char x;. A estrela de char *c diz outra coisa: c guarda o ENDEREÇO de um char."
+          retorno_geral: "char *c; diz que c guarda o endereço de um char: endereço, e com o tipo do destino."
+
+    - id: esc_kc11_B1_2
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Por isso o compilador reclama de p = 1000;: 1000 é um int, e p quer o endereço de um int."
+      versoes:
+        - pede: "Complete com o que cabe em p."
+          antes: |-
+            int idade = 15;
+            int *p;
+          mostra: "p = ___;"
+          pecas: ["&idade", "idade", "1000"]
+          certa: [[0]]
+          certa_texto: "p = &idade;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "idade guarda um número, e p quer um endereço: o compilador reclama. O endereço de idade é &idade."
+            - exata: [2]
+              invalida: true
+              retorno: "1000 é um int, e não o endereço de um int: o compilador reclama. O que cabe em p é &idade."
+          retorno_geral: "Em p cabe o endereço de um int: p = &idade;"
+        - pede: "Complete com o que cabe em q."
+          antes: |-
+            int nota = 7;
+            int *q;
+          mostra: "q = ___;"
+          pecas: ["500", "&nota", "nota"]
+          certa: [[1]]
+          certa_texto: "q = &nota;"
+          erros:
+            - exata: [2]
+              invalida: true
+              retorno: "nota guarda um número, e q quer um endereço: o compilador reclama. O endereço de nota é &nota."
+            - exata: [0]
+              invalida: true
+              retorno: "500 é um int, e não o endereço de um int: o compilador reclama. O que cabe em q é &nota."
+          retorno_geral: "Em q cabe o endereço de um int: q = &nota;"
+
+    - id: esc_kc11_B1_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "p + 1 é o endereço da caixa seguinte. Quanto andar, p sabe pelo tipo: uma caixa de int inteira."
+      versoes:
+        - pede: "p aponta para notas[0]. Que número aparece?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+            int *p = notas;
+
+            printf("%d\n", *(p + 1));
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "7"
+              retorno: "7 está em notas[0], onde p aponta. p + 1 é a caixa seguinte, e o * lê o que está nela: 8."
+            - texto: "9"
+              retorno: "9 está duas caixas adiante, em notas[2]. p + 1 anda uma caixa só: 8."
+          retorno_geral: "p + 1 é a caixa seguinte a notas[0]: notas[1], que guarda 8."
+        - pede: "q aponta para pontos[0]. Que número aparece?"
+          mostra: |-
+            int pontos[3] = {3, 6, 9};
+            int *q = pontos;
+
+            printf("%d\n", *(q + 1));
+          aceitas: ["6"]
+          certa_texto: "6"
+          erros:
+            - texto: "3"
+              retorno: "3 está em pontos[0], onde q aponta. q + 1 é a caixa seguinte, e o * lê o que está nela: 6."
+            - texto: "9"
+              retorno: "9 está duas caixas adiante, em pontos[2]. q + 1 anda uma caixa só: 6."
+          retorno_geral: "q + 1 é a caixa seguinte a pontos[0]: pontos[1], que guarda 6."
+
+    - id: esc_kc11_B1_4
+      nome: "Ponteiro guarda endereço, e não um número qualquer"
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int nota = 7;
+            int *q;
+          pecas: ["q = 7;", "q = &nota;", "q = nota;"]
+          certa: [[1]]
+          certa_texto: "q = &nota;"
+          invalidas: [0, 2]
+          erros:
+            - exata: [0]
+              retorno: "7 é um int, e q quer o endereço de um int: o compilador reclama. O que serve é &nota."
+            - exata: [2]
+              retorno: "nota guarda um número, e q guarda endereço: o compilador reclama. O endereço de nota é &nota."
+          retorno_geral: "q guarda o endereço de um int: q = &nota;"
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int idade = 15;
+            int *p;
+          pecas: ["p = idade;", "p = 15;", "p = &idade;"]
+          certa: [[2]]
+          certa_texto: "p = &idade;"
+          invalidas: [0, 1]
+          erros:
+            - exata: [1]
+              retorno: "15 é um int, e p quer o endereço de um int: o compilador reclama. O que serve é &idade."
+            - exata: [0]
+              retorno: "idade guarda um número, e p guarda endereço: o compilador reclama. O endereço de idade é &idade."
+          retorno_geral: "p guarda o endereço de um int: p = &idade;"
+
+    - id: esc_kc11_B1_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            int dias[3] = {28, 30, 31};
+            int *q = dias;
+
+            printf("%d\n", *(q + 2));
+          aceitas: ["31"]
+          certa_texto: "31"
+          erros:
+            - texto: "28"
+              retorno: "28 está em dias[0], onde q aponta. q + 2 anda duas caixas de int: dias[2], que guarda 31."
+            - texto: "30"
+              retorno: "30 está em dias[1], uma caixa adiante. q + 2 anda duas: 31."
+          retorno_geral: "q + 2 fica duas caixas adiante de dias[0]: dias[2], que guarda 31."
+        - pede: "Que número aparece?"
+          mostra: |-
+            int notas[3] = {5, 10, 15};
+            int *p = notas;
+
+            printf("%d\n", *(p + 1));
+          aceitas: ["10"]
+          certa_texto: "10"
+          erros:
+            - texto: "5"
+              retorno: "5 está em notas[0], onde p aponta. p + 1 anda uma caixa de int: notas[1], que guarda 10."
+            - texto: "15"
+              retorno: "15 está duas caixas adiante, em notas[2]. p + 1 anda uma caixa só: 10."
+          retorno_geral: "p + 1 é a caixa seguinte a notas[0]: notas[1], que guarda 10."
+
+B2:
+  revisao:
+    frases:
+      - "Cada tipo tem um tamanho fixo, e o compilador o conhece pela declaração, antes de o programa rodar."
+      - "sizeof *c mede o tipo do destino de c: não precisa do bloco, nem de valor em c."
+    codigo: |
+      char letras[5] = "casa";
+      char *c = letras;
+
+      printf("%zu\n", sizeof *c);
+    saida: "1"
+  # struct.
+  fora_da_trilha: [ciu_kc11_t06]
+  provas:
+    - crenca: pointer_knows_block_size
+      programa: |
+        char *c = malloc(10);
+
+        printf("%zu\n", sizeof *c);
+        free(c);
+      previsao:
+        pergunta: >
+          c recebe um bloco de dez chars. O trecho mostra sizeof *c. O que
+          aparece?
+        opcoes:
+          - "1"
+          - "10: o ponteiro traz o tamanho do bloco que recebeu"
+        real: 0
+        crenca: 1
+      espera: "1"
+      afirma: >
+        Saiu 1. sizeof *c mede um char, o tipo que a declaração de c diz.
+        O tamanho do bloco, c não carrega: o compilador respondeu pela
+        declaração, sem olhar para o bloco.
+  degraus:
+    - id: esc_kc11_B2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O tamanho de um tipo é fixo: todo char ocupa 1 byte, e todo int ocupa o mesmo tanto, numa mesma máquina."
+        - "O compilador sabe esse tamanho pela declaração, antes de o programa rodar."
+      versoes:
+        - pede: "Quando o compilador fica sabendo quanto ocupa a caixa para onde c aponta?"
+          antes: "char *c;"
+          pecas:
+            - "Na declaração, antes de rodar: char *c diz que lá é um char"
+            - "Em execução: o tamanho vem com o ponteiro, e não da declaração"
+            - "Só depois que c recebe um bloco"
+          certa: [[0]]
+          certa_texto: "Na declaração, antes de rodar: char *c diz que lá é um char"
+          erros:
+            - exata: [1]
+              crenca: pointer_knows_block_size
+              retorno: "O ponteiro não traz tamanho nenhum: guarda um endereço. O tamanho do destino vem da declaração, char *c, e o compilador já o conhece antes de rodar."
+            - exata: [2]
+              retorno: "O bloco não muda o tipo: com bloco ou sem, char *c aponta para um char. O compilador sabe isso pela declaração."
+          retorno_geral: "O tamanho do destino vem da declaração: char *c diz que lá é um char, antes de rodar."
+        - pede: "Quando o compilador fica sabendo quanto ocupa a caixa para onde p aponta?"
+          antes: "int *p;"
+          pecas:
+            - "Só depois que p recebe um bloco"
+            - "Em execução: o tamanho vem com o ponteiro, e não da declaração"
+            - "Na declaração, antes de rodar: int *p diz que lá é um int"
+          certa: [[2]]
+          certa_texto: "Na declaração, antes de rodar: int *p diz que lá é um int"
+          erros:
+            - exata: [1]
+              crenca: pointer_knows_block_size
+              retorno: "O ponteiro não traz tamanho nenhum: guarda um endereço. O tamanho do destino vem da declaração, int *p, e o compilador já o conhece antes de rodar."
+            - exata: [0]
+              retorno: "O bloco não muda o tipo: com bloco ou sem, int *p aponta para um int. O compilador sabe isso pela declaração."
+          retorno_geral: "O tamanho do destino vem da declaração: int *p diz que lá é um int, antes de rodar."
+
+    - id: esc_kc11_B2_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "sizeof *c mede a caixa do destino de c. O compilador responde só pelo tipo, sem olhar o que há em c."
+      versoes:
+        - pede: "c ainda não recebeu valor. Que número aparece?"
+          mostra: |-
+            char *c;
+
+            printf("%zu\n", sizeof *c);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "c não recebeu valor, mas sizeof não precisa dele: mede o tipo do destino, um char. Sai 1."
+          retorno_geral: "sizeof *c mede um char, pelo tipo da declaração: 1."
+        - pede: "c aponta para letras, que tem vinte caixas. Que número aparece?"
+          mostra: |-
+            char letras[20];
+            char *c = letras;
+
+            printf("%zu\n", sizeof *c);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "20"
+              retorno: "letras tem vinte caixas, mas c não guarda esse tamanho. sizeof *c mede o tipo do destino, um char: 1."
+          retorno_geral: "sizeof *c mede um char, pelo tipo da declaração: 1."
+
+    - id: esc_kc11_B2_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Dois ponteiros do mesmo tipo têm o mesmo tamanho de destino, para onde quer que apontem: quem decide é o tipo, e não o bloco."
+      versoes:
+        - pede: "c aponta para um bloco de 10 chars, e d para um de 500. O que dão sizeof *c e sizeof *d?"
+          antes: |-
+            char *c = malloc(10);
+            char *d = malloc(500);
+          pecas:
+            - "O mesmo: o tamanho de um char, nos dois"
+            - "10 e 500: o tamanho vem com o ponteiro, e não da declaração"
+            - "Nada: sizeof não mede o destino de um ponteiro"
+          certa: [[0]]
+          certa_texto: "O mesmo: o tamanho de um char, nos dois"
+          erros:
+            - exata: [1]
+              crenca: pointer_knows_block_size
+              retorno: "Os blocos são de 10 e de 500, mas c e d não carregam esses números: guardam um endereço cada. sizeof *c e sizeof *d medem um char, nos dois."
+            - exata: [2]
+              retorno: "sizeof *c mede o destino de c pelo tipo da declaração: um char. Funciona com qualquer ponteiro."
+          retorno_geral: "Os dois medem um char: o tipo decide o tamanho do destino, e não o bloco."
+        - pede: "p aponta para um bloco de 3 ints, e q para um de 100 ints. O que dão sizeof *p e sizeof *q?"
+          antes: |-
+            int *p = malloc(3 * sizeof(int));
+            int *q = malloc(100 * sizeof(int));
+          pecas:
+            - "Nada: sizeof não mede o destino de um ponteiro"
+            - "O mesmo: o tamanho de um int, nos dois"
+            - "3 e 100 ints: o tamanho vem com o ponteiro, e não da declaração"
+          certa: [[1]]
+          certa_texto: "O mesmo: o tamanho de um int, nos dois"
+          erros:
+            - exata: [2]
+              crenca: pointer_knows_block_size
+              retorno: "Os blocos são de 3 e de 100 ints, mas p e q não carregam esses números: guardam um endereço cada. sizeof *p e sizeof *q medem um int, nos dois."
+            - exata: [0]
+              retorno: "sizeof *p mede o destino de p pelo tipo da declaração: um int. Funciona com qualquer ponteiro."
+          retorno_geral: "Os dois medem um int: o tipo decide o tamanho do destino, e não o bloco."
+
+    - id: esc_kc11_B2_4
+      nome: "O tamanho vem do tipo, e não do bloco"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            char nome[30] = "ana";
+            char *c = nome;
+
+            printf("%zu\n", sizeof *c);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "30"
+              retorno: "nome tem 30 caixas, mas c não carrega esse tamanho. sizeof *c mede o tipo do destino, um char: 1."
+            - texto: "4"
+              retorno: "O texto usa quatro caixas, contando a marca de fim, mas sizeof *c não olha o texto: mede um char, 1."
+          retorno_geral: "sizeof *c mede um char, pelo tipo da declaração de c: 1."
+        - pede: "Que número aparece?"
+          mostra: |-
+            char letras[8];
+            char *c = letras + 3;
+
+            printf("%zu\n", sizeof *c);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "5"
+              retorno: "De c até o fim de letras restam cinco caixas, mas c não carrega isso. sizeof *c mede o tipo do destino, um char: 1."
+            - texto: "8"
+              retorno: "letras tem oito caixas, mas c não carrega esse tamanho. sizeof *c mede um char: 1."
+          retorno_geral: "sizeof *c mede um char, pelo tipo da declaração de c: 1."
+
+    - id: esc_kc11_B2_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Para responder sizeof *p, o compilador precisa rodar o programa?"
+          antes: "int *p;"
+          pecas:
+            - "Não: o tipo está na declaração"
+            - "Precisa: o tamanho vem do bloco para onde p aponta"
+            - "Precisa: p ainda não tem valor"
+          certa: [[0]]
+          certa_texto: "Não: o tipo está na declaração"
+          erros:
+            - exata: [1]
+              retorno: "O bloco não entra na conta: sizeof *p mede o tipo do destino, que está escrito em int *p. O compilador responde sem rodar nada."
+            - exata: [2]
+              retorno: "sizeof não lê o valor de p: mede o tipo do destino, que está na declaração. O compilador responde sem rodar nada."
+          retorno_geral: "O tipo está na declaração: o compilador responde sizeof *p sem rodar o programa."
+        - pede: "Para responder sizeof *c, o compilador precisa rodar o programa?"
+          antes: "char *c;"
+          pecas:
+            - "Precisa: c ainda não tem valor"
+            - "Precisa: o tamanho vem do bloco para onde c aponta"
+            - "Não: o tipo está na declaração"
+          certa: [[2]]
+          certa_texto: "Não: o tipo está na declaração"
+          erros:
+            - exata: [1]
+              retorno: "O bloco não entra na conta: sizeof *c mede o tipo do destino, que está escrito em char *c. O compilador responde sem rodar nada."
+            - exata: [0]
+              retorno: "sizeof não lê o valor de c: mede o tipo do destino, que está na declaração. O compilador responde sem rodar nada."
+          retorno_geral: "O tipo está na declaração: o compilador responde sizeof *c sem rodar o programa."
+
+B3:
+  revisao:
+    frases:
+      - "Os elementos de um array ficam grudados: notas[1] fica logo depois de notas[0], sem buraco."
+      - "Por isso &notas[1] - &notas[0] é 1: uma caixa de distância."
+    codigo: |
+      int notas[3] = {7, 8, 9};
+
+      printf("%d\n", &notas[1] - &notas[0] == 1);
+    saida: "1"
+  provas:
+    - crenca: string_literal_is_array
+      programa: |
+        char s[] = "pai";
+        char *t = "pai";
+
+        s[0] = s[1];
+        t[0] = t[1];
+      previsao:
+        pergunta: >
+          s e t recebem o mesmo texto. As duas últimas linhas trocam a
+          primeira letra de cada um. De qual delas o compilador reclama?
+        opcoes:
+          - "De nenhuma: s e t guardam o texto do mesmo jeito"
+          - "Da última: as letras para onde t aponta não são de t"
+        real: 1
+        crenca: 0
+      reclama: "write to string literal"
+      avisos: "-fanalyzer"
+      ambiente: >
+        Mensagem do gcc 16.2 com o analisador de fluxo ligado
+        (-fanalyzer). O programa não é executado: mudar uma letra do
+        texto entre aspas é o que este degrau ensina a não fazer.
+      afirma: >
+        O compilador reclama só da última linha ("write to string
+        literal"). s são quatro caixas de char, cópia do texto, e são de
+        s. t é uma caixa só, um ponteiro para letras que não são dela: o
+        mesmo texto, guardado de outro jeito.
+  degraus:
+    - id: esc_kc11_B3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Os elementos de um array ficam grudados, um logo depois do outro, sem buraco entre eles."
+        - "Por isso a distância de &notas[0] a &notas[2] é de duas caixas: &notas[2] - &notas[0] dá 2."
+      versoes:
+        - pede: "Quantas caixas há de &notas[0] até &notas[2]?"
+          antes: "int notas[3];"
+          pecas:
+            - "Duas: as caixas são grudadas"
+            - "Não dá para saber: os elementos ficam espalhados"
+            - "Oito: a distância é contada em bytes"
+          certa: [[0]]
+          certa_texto: "Duas: as caixas são grudadas"
+          erros:
+            - exata: [1]
+              retorno: "Num array não há espalhado: as caixas ficam uma logo depois da outra. De notas[0] a notas[2] são duas caixas."
+            - exata: [2]
+              retorno: "A diferença entre dois endereços do mesmo array conta caixas, e não bytes: de notas[0] a notas[2], duas."
+          retorno_geral: "As caixas são grudadas: de &notas[0] até &notas[2] há duas caixas."
+        - pede: "Quantas caixas há de &letras[0] até &letras[3]?"
+          antes: "char letras[4];"
+          pecas:
+            - "Não dá para saber: os elementos ficam espalhados"
+            - "Três: as caixas são grudadas"
+            - "Quatro: conta-se a caixa de onde se sai"
+          certa: [[1]]
+          certa_texto: "Três: as caixas são grudadas"
+          erros:
+            - exata: [0]
+              retorno: "Num array não há espalhado: as caixas ficam uma logo depois da outra. De letras[0] a letras[3] são três caixas."
+            - exata: [2]
+              retorno: "A distância conta os passos, e não as caixas visitadas: de letras[0] a letras[3] são três passos."
+          retorno_geral: "As caixas são grudadas: de &letras[0] até &letras[3] há três caixas."
+
+    - id: esc_kc11_B3_2
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - 'char s[] = "pai"; cria quatro caixas de char grudadas, cópia do texto, e elas são de s.'
+        - 'char *t = "pai"; cria uma caixa só, um ponteiro para letras grudadas que não são de t.'
+      versoes:
+        - pede: "O que cada uma destas linhas cria?"
+          antes: |-
+            char s[] = "pai";
+            char *t = "pai";
+          pecas:
+            - "s são quatro caixas de char; t é um ponteiro para o texto"
+            - 'O mesmo: char *s = "abc" e char s[] = "abc" guardam do mesmo jeito'
+            - "s é um ponteiro para o texto; t são quatro caixas de char"
+          certa: [[0]]
+          certa_texto: "s são quatro caixas de char; t é um ponteiro para o texto"
+          erros:
+            - exata: [1]
+              crenca: string_literal_is_array
+              retorno: "O texto é o mesmo, mas guardado de outro jeito: s são quatro caixas de char, que são de s; t é uma caixa só, que aponta para letras de fora."
+            - exata: [2]
+              retorno: "É o contrário: os colchetes de s[] criam as caixas, e a estrela de *t cria um ponteiro."
+          retorno_geral: "s são quatro caixas de char, que são de s; t é um ponteiro para o texto."
+        - pede: "O que cada uma destas linhas cria?"
+          antes: |-
+            char *u = "ana";
+            char nome[] = "ana";
+          pecas:
+            - "u são quatro caixas de char; nome é um ponteiro para o texto"
+            - "u é um ponteiro para o texto; nome são quatro caixas de char"
+            - 'O mesmo: char *s = "abc" e char s[] = "abc" guardam do mesmo jeito'
+          certa: [[1]]
+          certa_texto: "u é um ponteiro para o texto; nome são quatro caixas de char"
+          erros:
+            - exata: [2]
+              crenca: string_literal_is_array
+              retorno: "O texto é o mesmo, mas guardado de outro jeito: nome são quatro caixas de char, que são de nome; u é uma caixa só, que aponta para letras de fora."
+            - exata: [0]
+              retorno: "É o contrário: os colchetes de nome[] criam as caixas, e a estrela de *u cria um ponteiro."
+          retorno_geral: "u é um ponteiro para o texto; nome são quatro caixas de char, que são de nome."
+
+    - id: esc_kc11_B3_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Grudadas, as caixas ficam em fila: de notas[1] a notas[3] há duas caixas de distância."
+      versoes:
+        - pede: "A última linha pergunta se a distância é 2. Que número aparece?"
+          mostra: |-
+            int notas[4];
+
+            printf("%d\n", &notas[3] - &notas[1] == 2);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "notas[1] e notas[3] ficam a duas caixas uma da outra, sem buraco: a pergunta é verdadeira, 1."
+            - texto: "2"
+              retorno: "O printf mostra a resposta da pergunta, e não a distância. A distância é 2, e a pergunta é verdadeira: 1."
+          retorno_geral: "De notas[1] a notas[3] há duas caixas: a pergunta é verdadeira, 1."
+        - pede: "A última linha pergunta se a distância é 4. Que número aparece?"
+          mostra: |-
+            char letras[5];
+
+            printf("%d\n", &letras[4] - &letras[0] == 4);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "letras[0] e letras[4] ficam a quatro caixas uma da outra, sem buraco: a pergunta é verdadeira, 1."
+            - texto: "4"
+              retorno: "O printf mostra a resposta da pergunta, e não a distância. A distância é 4, e a pergunta é verdadeira: 1."
+          retorno_geral: "De letras[0] a letras[4] há quatro caixas: a pergunta é verdadeira, 1."
+
+    - id: esc_kc11_B3_4
+      nome: "Os elementos do array ficam grudados"
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "O que dá &notas[2] - &notas[0]?"
+          antes: "int notas[5];"
+          pecas: ["2", "8: a conta é em bytes", "Depende de onde cada caixa caiu"]
+          certa: [[0]]
+          certa_texto: "2"
+          erros:
+            - exata: [1]
+              retorno: "A diferença entre dois endereços do mesmo array conta caixas, e não bytes: de notas[0] a notas[2], 2."
+            - exata: [2]
+              retorno: "As caixas de um array não caem em qualquer lugar: ficam grudadas, em fila. A distância é 2."
+          retorno_geral: "As caixas ficam grudadas: de notas[0] a notas[2] são 2."
+        - pede: "O que dá &letras[5] - &letras[1]?"
+          antes: "char letras[6];"
+          pecas: ["Depende de onde cada caixa caiu", "5: conta-se a caixa de onde se sai", "4"]
+          certa: [[2]]
+          certa_texto: "4"
+          erros:
+            - exata: [0]
+              retorno: "As caixas de um array não caem em qualquer lugar: ficam grudadas, em fila. A distância é 4."
+            - exata: [1]
+              retorno: "A distância conta os passos, e não as caixas visitadas: de letras[1] a letras[5] são 4."
+          retorno_geral: "As caixas ficam grudadas: de letras[1] a letras[5] são 4."
+
+    - id: esc_kc11_B3_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            char s[] = "sol";
+
+            printf("%zu\n", sizeof s);
+          aceitas: ["4"]
+          certa_texto: "4"
+          erros:
+            - texto: "3"
+              retorno: "sol tem três letras, mas s guarda também a marca de fim: são quatro caixas de char, e sizeof s mede todas."
+            - texto: "1"
+              retorno: "sizeof s mede o array inteiro, e não uma caixa: as três letras e a marca de fim, 4."
+          retorno_geral: "s são quatro caixas de char grudadas, as três letras e a marca de fim: 4."
+        - pede: "Que número aparece?"
+          mostra: |-
+            char nome[] = "rua";
+
+            printf("%zu\n", sizeof nome);
+          aceitas: ["4"]
+          certa_texto: "4"
+          erros:
+            - texto: "3"
+              retorno: "rua tem três letras, mas nome guarda também a marca de fim: são quatro caixas de char, e sizeof nome mede todas."
+            - texto: "1"
+              retorno: "sizeof nome mede o array inteiro, e não uma caixa: as três letras e a marca de fim, 4."
+          retorno_geral: "nome são quatro caixas de char grudadas, as três letras e a marca de fim: 4."
+
+I1:
+  revisao:
+    frases:
+      - "notas[2] é só outro jeito de escrever *(notas + 2): ande duas caixas a partir do começo e olhe lá."
+      - "Como a soma vale nos dois sentidos, 2[notas] é a mesma caixa."
+    codigo: |
+      int notas[3] = {4, 5, 6};
+
+      printf("%d\n", *(notas + 2));
+    saida: "6"
+  # %c.
+  fora_da_trilha: [ciu_kc11_t11]
+  provas:
+    - crenca: indice_nao_e_soma
+      programa: |
+        int notas[3] = {7, 8, 9};
+
+        printf("%d\n", 2[notas]);
+      previsao:
+        pergunta: >
+          O trecho escreve 2[notas], com o número fora dos colchetes. O que
+          acontece?
+        opcoes:
+          - "O compilador reclama: o índice é uma operação do array, e 2 não é array"
+          - "9"
+        real: 1
+        crenca: 0
+      espera: "9"
+      afirma: >
+        Saiu 9. notas[2] é *(notas + 2), e a soma vale nos dois sentidos:
+        2[notas] é *(2 + notas), a mesma caixa. O índice não é uma
+        operação própria do array: é a soma escrita curta.
+  degraus:
+    - id: esc_kc11_I1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "notas[i] é, por definição, *(notas + i): ande i caixas a partir do começo e olhe o que tem lá."
+        - "O colchete é a soma escrita curta."
+      versoes:
+        - pede: "O que notas[2] quer dizer?"
+          antes: "int notas[3] = {7, 8, 9};"
+          pecas:
+            - "*(notas + 2): a caixa duas adiante do começo"
+            - "Uma operação própria do array, e não a soma notas + 2"
+            - "O endereço notas + 2"
+          certa: [[0]]
+          certa_texto: "*(notas + 2): a caixa duas adiante do começo"
+          erros:
+            - exata: [1]
+              crenca: indice_nao_e_soma
+              retorno: "O colchete não é uma operação à parte: notas[2] é, por definição, *(notas + 2). Ande duas caixas e olhe lá."
+            - exata: [2]
+              retorno: "notas + 2 é o endereço da caixa. notas[2] é o que está nela: *(notas + 2), com o * na frente."
+          retorno_geral: "notas[2] é *(notas + 2): ande duas caixas a partir do começo e olhe lá."
+        - pede: "O que pontos[1] quer dizer?"
+          antes: "int pontos[3] = {3, 6, 9};"
+          pecas:
+            - "O endereço pontos + 1"
+            - "Uma operação própria do array, e não a soma pontos + 1"
+            - "*(pontos + 1): a caixa uma adiante do começo"
+          certa: [[2]]
+          certa_texto: "*(pontos + 1): a caixa uma adiante do começo"
+          erros:
+            - exata: [1]
+              crenca: indice_nao_e_soma
+              retorno: "O colchete não é uma operação à parte: pontos[1] é, por definição, *(pontos + 1). Ande uma caixa e olhe lá."
+            - exata: [0]
+              retorno: "pontos + 1 é o endereço da caixa. pontos[1] é o que está nela: *(pontos + 1), com o * na frente."
+          retorno_geral: "pontos[1] é *(pontos + 1): ande uma caixa a partir do começo e olhe lá."
+
+    - id: esc_kc11_I1_2
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Com um ponteiro vale o mesmo: p[1] é *(p + 1). A soma vem antes do *."
+        - "E dá para andar para trás: *(p - 1) é a caixa de trás, que também se escreve p[-1]."
+      versoes:
+        - pede: "Complete para mostrar notas[1], escrito como soma."
+          antes: |-
+            int notas[3] = {7, 9, 4};
+            int *p = notas;
+          mostra: 'printf("%d\n", ___);'
+          pecas: ["*(p + 1)", "*p + 1", "*(p + 2)"]
+          certa: [[0]]
+          certa_texto: 'printf("%d\n", *(p + 1));'
+          erros:
+            - exata: [1]
+              retorno: "*p + 1 lê notas[0] e soma 1 ao valor: dá 8. Para chegar em notas[1], a soma vem antes do *: *(p + 1)."
+            - exata: [2]
+              retorno: "*(p + 2) anda duas caixas e chega em notas[2]. notas[1] fica uma caixa adiante: *(p + 1)."
+          retorno_geral: "notas[1] escrito como soma é *(p + 1): a soma antes do *."
+        - pede: "q aponta para pontos[2]. Complete para mostrar pontos[1], a caixa de trás."
+          antes: |-
+            int pontos[3] = {3, 5, 2};
+            int *q = pontos + 2;
+          mostra: 'printf("%d\n", ___);'
+          pecas: ["*(q + 1)", "*(q - 1)", "*q - 1"]
+          certa: [[1]]
+          certa_texto: 'printf("%d\n", *(q - 1));'
+          erros:
+            - exata: [2]
+              retorno: "*q - 1 lê pontos[2] e tira 1 do valor: dá 1. Para chegar na caixa de trás, a conta vem antes do *: *(q - 1)."
+            - exata: [0]
+              retorno: "*(q + 1) anda para a frente, e depois de pontos[2] o array acabou. A caixa de trás é *(q - 1)."
+          retorno_geral: "A caixa de trás de pontos[2] é *(q - 1), que também se escreve q[-1]."
+
+    - id: esc_kc11_I1_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "A soma vale nos dois sentidos: pontos + 1 é 1 + pontos. Por isso 1[pontos] é a mesma caixa que pontos[1]."
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            int pontos[3] = {3, 6, 9};
+
+            printf("%d\n", 1[pontos]);
+          aceitas: ["6"]
+          certa_texto: "6"
+          erros:
+            - texto: "3"
+              retorno: "1[pontos] é *(1 + pontos): a caixa uma adiante do começo, pontos[1]. Sai 6."
+            - texto: "1"
+              retorno: "O 1 não é o valor: é quantas caixas andar. 1[pontos] é pontos[1]: 6."
+          retorno_geral: "1[pontos] é *(1 + pontos), a mesma caixa que pontos[1]: 6."
+        - pede: "Que número aparece?"
+          mostra: |-
+            int dias[4] = {10, 20, 30, 40};
+
+            printf("%d\n", 3[dias]);
+          aceitas: ["40"]
+          certa_texto: "40"
+          erros:
+            - texto: "30"
+              retorno: "3[dias] é *(3 + dias): três caixas adiante do começo, dias[3]. Sai 40."
+            - texto: "3"
+              retorno: "O 3 não é o valor: é quantas caixas andar. 3[dias] é dias[3]: 40."
+          retorno_geral: "3[dias] é *(3 + dias), a mesma caixa que dias[3]: 40."
+
+    - id: esc_kc11_I1_4
+      nome: "O colchete é a soma escrita curta"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "p começa em notas[1]. Que número aparece?"
+          mostra: |-
+            int notas[4] = {2, 4, 6, 8};
+            int *p = notas + 1;
+
+            printf("%d\n", p[2]);
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "6"
+              retorno: "6 está em notas[2]. p começa em notas[1], e p[2] anda duas caixas a partir dali: notas[3], que guarda 8."
+            - texto: "4"
+              retorno: "4 está em notas[1], onde p aponta. p[2] é *(p + 2), duas caixas adiante: 8."
+          retorno_geral: "p[2] é *(p + 2): duas caixas adiante de notas[1], em notas[3], que guarda 8."
+        - pede: "q começa em pontos[2]. Que número aparece?"
+          mostra: |-
+            int pontos[5] = {1, 3, 5, 7, 9};
+            int *q = pontos + 2;
+
+            printf("%d\n", q[1]);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "3"
+              retorno: "3 está em pontos[1]. q começa em pontos[2], e q[1] anda uma caixa a partir dali: pontos[3], que guarda 7."
+            - texto: "5"
+              retorno: "5 está em pontos[2], onde q aponta. q[1] é *(q + 1), uma caixa adiante: 7."
+          retorno_geral: "q[1] é *(q + 1): uma caixa adiante de pontos[2], em pontos[3], que guarda 7."
+
+    - id: esc_kc11_I1_5
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Qual expressão é o mesmo que notas[3]?"
+          antes: "int notas[5] = {1, 2, 3, 4, 5};"
+          pecas: ["*(notas + 3)", "*notas + 3", "notas + 3"]
+          certa: [[0]]
+          certa_texto: "*(notas + 3)"
+          erros:
+            - exata: [1]
+              retorno: "*notas + 3 lê notas[0] e soma 3 ao valor. notas[3] é *(notas + 3): a soma vem antes do *."
+            - exata: [2]
+              retorno: "notas + 3 é o endereço da caixa, e não o que está nela. notas[3] é *(notas + 3)."
+          retorno_geral: "notas[3] é *(notas + 3): ande três caixas e olhe lá."
+        - pede: "Qual expressão é o mesmo que 2[pontos]?"
+          antes: "int pontos[4] = {6, 7, 8, 9};"
+          pecas: ["pontos + 2", "*pontos + 2", "pontos[2]"]
+          certa: [[2]]
+          certa_texto: "pontos[2]"
+          erros:
+            - exata: [0]
+              retorno: "pontos + 2 é o endereço da caixa. 2[pontos] é *(2 + pontos), o que está nela: o mesmo que pontos[2]."
+            - exata: [1]
+              retorno: "*pontos + 2 lê pontos[0] e soma 2 ao valor. 2[pontos] é *(2 + pontos): pontos[2]."
+          retorno_geral: "2[pontos] é *(2 + pontos), a mesma caixa que pontos[2]."
+
+I2:
+  revisao:
+    frases:
+      - "Um void * não sabe o tamanho do destino, e sem tamanho não há quanto andar: o padrão do C não define v + 1."
+      - "Para andar, dê um tipo antes: (char *)v + 1 anda uma caixa de char."
+    codigo: |
+      char nome[4] = "ana";
+      void *v = nome;
+      char *c = (char *)v + 1;
+
+      printf("%d\n", c == &nome[1]);
+    saida: "1"
+  # Função de várias linhas (e o enunciado diz que o compilador "recusa"
+  # void * + n, o que o gcc não faz sem -Wpointer-arith).
+  fora_da_trilha: [ciu_kc11_t15]
+  provas:
+    - crenca: voidptr_arith_ok
+      programa: |
+        char letras[4] = "sol";
+        char *c = letras;
+        void *v = letras;
+
+        c = c + 1;
+        v = v + 1;
+      previsao:
+        pergunta: >
+          c é um char *, e v é um void *, os dois no começo de letras. As
+          duas últimas linhas somam 1 a cada um. De qual delas o
+          compilador reclama?
+        opcoes:
+          - "Da última: void * não tem tipo, e sem tipo não há quanto andar"
+          - "De nenhuma: void * anda de um em um, como qualquer ponteiro"
+        real: 0
+        crenca: 1
+      reclama: "pointer of type 'void *' used in arithmetic"
+      avisos: "-Wpointer-arith"
+      ambiente: >
+        Mensagem do gcc 16.2 com o aviso de aritmética de ponteiro ligado
+        (-Wpointer-arith). Sem esse aviso, o gcc aceita v + 1 por uma
+        extensão própria, andando 1 byte; o padrão do C não define essa
+        conta.
+      afirma: >
+        O compilador aceita c + 1 e reclama de v + 1. O void * não sabe o
+        tamanho do destino, e sem tamanho não há quanto andar. Quem quer
+        andar byte a byte dá o tipo antes: (char *)v + 1.
+  degraus:
+    - id: esc_kc11_I2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "Para andar, o ponteiro precisa saber o tamanho da caixa do destino. O void * não sabe: não tem tipo nenhum."
+        - "Por isso o padrão do C não define v + 1: não há quanto andar."
+      versoes:
+        - pede: "v é um void *. O que o padrão do C diz de v + 1?"
+          antes: "void *v;"
+          pecas:
+            - "Não define: sem tipo, não há quanto andar"
+            - "Anda uma caixa: dá para fazer aritmética em void * como em qualquer ponteiro"
+            - "Anda o tamanho de um int"
+          certa: [[0]]
+          certa_texto: "Não define: sem tipo, não há quanto andar"
+          erros:
+            - exata: [1]
+              crenca: voidptr_arith_ok
+              retorno: "O padrão do C não define v + 1: o void * não sabe o tamanho do destino, e sem tamanho não há quanto andar. O gcc aceita por conta própria, andando 1 byte, mas isso é dele."
+            - exata: [2]
+              retorno: "O void * não sabe que há um int lá: não tem tipo nenhum. Sem tipo, não há quanto andar."
+          retorno_geral: "Sem tipo, não há quanto andar: o padrão do C não define v + 1."
+        - pede: "w é um void *. O que o padrão do C diz de w + 2?"
+          antes: "void *w;"
+          pecas:
+            - "Anda o tamanho de dois ints"
+            - "Não define: sem tipo, não há quanto andar"
+            - "Anda duas caixas: dá para fazer aritmética em void * como em qualquer ponteiro"
+          certa: [[1]]
+          certa_texto: "Não define: sem tipo, não há quanto andar"
+          erros:
+            - exata: [2]
+              crenca: voidptr_arith_ok
+              retorno: "O padrão do C não define w + 2: o void * não sabe o tamanho do destino, e sem tamanho não há quanto andar. O gcc aceita por conta própria, andando 2 bytes, mas isso é dele."
+            - exata: [0]
+              retorno: "O void * não sabe que há um int lá: não tem tipo nenhum. Sem tipo, não há quanto andar."
+          retorno_geral: "Sem tipo, não há quanto andar: o padrão do C não define w + 2."
+
+    - id: esc_kc11_I2_2
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Para andar a partir de um void *, dê um tipo antes: (char *)v é o mesmo endereço, visto como char *."
+      versoes:
+        - pede: "Complete para c ficar uma caixa de char adiante do começo de letras."
+          antes: |-
+            char letras[4] = "sol";
+            void *v = letras;
+          mostra: "char *c = ___ + 1;"
+          pecas: ["(char *)v", "v", "*v"]
+          certa: [[0]]
+          certa_texto: "char *c = (char *)v + 1;"
+          erros:
+            - exata: [1]
+              retorno: "v + 1 é conta em void *, que o padrão não define; o gcc aceita por extensão própria. Dê o tipo antes: (char *)v + 1."
+            - exata: [2]
+              invalida: true
+              retorno: "*v tentaria ler o destino, e um void * não diz o que há lá: o compilador reclama. O que serve é (char *)v + 1."
+          retorno_geral: "Com o tipo dado antes, a conta existe: char *c = (char *)v + 1;"
+        - pede: "Complete para c ficar duas caixas de char adiante do começo de nome."
+          antes: |-
+            char nome[4] = "ana";
+            void *w = nome;
+          mostra: "char *c = ___ + 2;"
+          pecas: ["*w", "(char *)w", "w"]
+          certa: [[1]]
+          certa_texto: "char *c = (char *)w + 2;"
+          erros:
+            - exata: [2]
+              retorno: "w + 2 é conta em void *, que o padrão não define; o gcc aceita por extensão própria. Dê o tipo antes: (char *)w + 2."
+            - exata: [0]
+              invalida: true
+              retorno: "*w tentaria ler o destino, e um void * não diz o que há lá: o compilador reclama. O que serve é (char *)w + 2."
+          retorno_geral: "Com o tipo dado antes, a conta existe: char *c = (char *)w + 2;"
+
+    - id: esc_kc11_I2_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Convertido, o ponteiro anda pelo tipo novo: (char *)v + 2 fica duas caixas de char adiante."
+      versoes:
+        - pede: "A última linha pergunta se c chegou em letras[2]. Que número aparece?"
+          mostra: |-
+            char letras[4] = "sol";
+            void *v = letras;
+            char *c = (char *)v + 2;
+
+            printf("%d\n", c == &letras[2]);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "(char *)v + 2 anda duas caixas de char a partir de letras[0] e chega em letras[2]: a pergunta é verdadeira, 1."
+            - texto: "2"
+              retorno: "O printf mostra a resposta da pergunta c == &letras[2], e não a distância. A pergunta é verdadeira: 1."
+          retorno_geral: "(char *)v + 2 chega em letras[2]: a pergunta é verdadeira, 1."
+        - pede: "A última linha pergunta se c chegou em nome[3]. Que número aparece?"
+          mostra: |-
+            char nome[5] = "mesa";
+            void *w = nome;
+            char *c = (char *)w + 3;
+
+            printf("%d\n", c == &nome[3]);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "(char *)w + 3 anda três caixas de char a partir de nome[0] e chega em nome[3]: a pergunta é verdadeira, 1."
+            - texto: "3"
+              retorno: "O printf mostra a resposta da pergunta c == &nome[3], e não a distância. A pergunta é verdadeira: 1."
+          retorno_geral: "(char *)w + 3 chega em nome[3]: a pergunta é verdadeira, 1."
+
+    - id: esc_kc11_I2_4
+      nome: "void * não anda: falta o tipo"
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Qual destas somas o padrão do C define?"
+          antes: |-
+            char letras[4] = "sol";
+            void *v = letras;
+          pecas: ["(char *)v + 1", "v + 1", "v + 1 * sizeof(char)"]
+          certa: [[0]]
+          certa_texto: "(char *)v + 1"
+          erros:
+            - exata: [1]
+              retorno: "v + 1 é conta em void *, e o padrão não a define: falta o tamanho do destino. Dê o tipo antes: (char *)v + 1."
+            - exata: [2]
+              retorno: "Multiplicar não dá tipo ao v: continua sendo conta em void *. O que o padrão define é (char *)v + 1."
+          retorno_geral: "Só a conta com o tipo dado antes existe: (char *)v + 1."
+        - pede: "Qual destas somas o padrão do C define?"
+          antes: |-
+            char nome[4] = "ana";
+            void *w = nome;
+          pecas: ["w + 2", "w + 2 * sizeof(char)", "(char *)w + 2"]
+          certa: [[2]]
+          certa_texto: "(char *)w + 2"
+          erros:
+            - exata: [0]
+              retorno: "w + 2 é conta em void *, e o padrão não a define: falta o tamanho do destino. Dê o tipo antes: (char *)w + 2."
+            - exata: [1]
+              retorno: "Multiplicar não dá tipo ao w: continua sendo conta em void *. O que o padrão define é (char *)w + 2."
+          retorno_geral: "Só a conta com o tipo dado antes existe: (char *)w + 2."
+
+    - id: esc_kc11_I2_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            int notas[3] = {7, 8, 9};
+            void *v = notas;
+            int *p = (int *)v + 2;
+
+            printf("%d\n", *p);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "8"
+              retorno: "8 está em notas[1]. (int *)v + 2 anda duas caixas de int a partir de notas[0]: notas[2], que guarda 9."
+            - texto: "7"
+              retorno: "7 está em notas[0], onde v aponta. Com o tipo int dado, + 2 anda duas caixas: 9."
+          retorno_geral: "(int *)v + 2 anda duas caixas de int: notas[2], que guarda 9."
+        - pede: "Que número aparece?"
+          mostra: |-
+            int pontos[4] = {1, 3, 5, 7};
+            void *v = pontos;
+            int *q = (int *)v + 1;
+
+            printf("%d\n", *q);
+          aceitas: ["3"]
+          certa_texto: "3"
+          erros:
+            - texto: "1"
+              retorno: "1 está em pontos[0], onde v aponta. Com o tipo int dado, + 1 anda uma caixa: pontos[1], que guarda 3."
+            - texto: "5"
+              retorno: "5 está duas caixas adiante, em pontos[2]. (int *)v + 1 anda uma caixa só: 3."
+          retorno_geral: "(int *)v + 1 anda uma caixa de int: pontos[1], que guarda 3."
+
+I3:
+  revisao:
+    frases:
+      - "O compilador sabe o tamanho da caixa e faz a conta sozinho: p + 1 anda uma caixa de int inteira."
+      - "Multiplicar por sizeof na mão escala duas vezes, e o ponteiro pula longe demais."
+    codigo: |
+      int pontos[3] = {10, 20, 30};
+      int *p = pontos;
+
+      printf("%d\n", *(p + 1));
+    saida: "20"
+  # for; double.
+  fora_da_trilha: [ciu_kc11_017, ciu_kc11_t18]
+  provas:
+    - crenca: ptr_arith_is_bytes
+      programa: |
+        int notas[4] = {5, 15, 25, 35};
+        int *p = notas;
+
+        printf("%d\n", *(p + 3));
+      previsao:
+        pergunta: >
+          p aponta para notas[0]. O trecho soma 3 a p, sem multiplicar por
+          sizeof. O que aparece?
+        opcoes:
+          - "35"
+          - "Lixo: p + 3 anda três bytes, e faltou multiplicar por sizeof"
+        real: 0
+        crenca: 1
+      espera: "35"
+      afirma: >
+        Saiu 35, que está em notas[3]. p + 3 andou três caixas de int
+        inteiras: o compilador sabe o tamanho do int e faz a conta
+        sozinho. Multiplicar por sizeof na mão andaria longe demais.
+  degraus:
+    - id: esc_kc11_I3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "p + 1 anda um elemento do tipo de p, e não um byte: com int *p, uma caixa de int inteira."
+        - "Quem faz a conta do tamanho é o compilador."
+      versoes:
+        - pede: "p aponta para notas[0]. Para onde aponta p + 1?"
+          antes: |-
+            int notas[3];
+            int *p = notas;
+          pecas:
+            - "Para notas[1], a caixa seguinte"
+            - "Para o byte seguinte: a aritmética de ponteiro conta bytes, e é preciso multiplicar por sizeof na mão"
+            - "Para notas[0] de novo"
+          certa: [[0]]
+          certa_texto: "Para notas[1], a caixa seguinte"
+          erros:
+            - exata: [1]
+              crenca: ptr_arith_is_bytes
+              retorno: "A soma não conta bytes: p + 1 anda um int inteiro, e o compilador faz a conta do tamanho sozinho. Chega em notas[1]."
+            - exata: [2]
+              retorno: "p + 1 não fica onde p está: anda uma caixa. Chega em notas[1]."
+          retorno_geral: "p + 1 anda uma caixa de int inteira: notas[1]."
+        - pede: "q aponta para pontos[1]. Para onde aponta q + 2?"
+          antes: |-
+            int pontos[4];
+            int *q = pontos + 1;
+          pecas:
+            - "Para pontos[1] de novo"
+            - "Para dois bytes adiante: a aritmética de ponteiro conta bytes, e é preciso multiplicar por sizeof na mão"
+            - "Para pontos[3], duas caixas adiante"
+          certa: [[2]]
+          certa_texto: "Para pontos[3], duas caixas adiante"
+          erros:
+            - exata: [1]
+              crenca: ptr_arith_is_bytes
+              retorno: "A soma não conta bytes: q + 2 anda dois ints inteiros, e o compilador faz a conta do tamanho sozinho. Chega em pontos[3]."
+            - exata: [0]
+              retorno: "q + 2 não fica onde q está: anda duas caixas. Chega em pontos[3]."
+          retorno_geral: "q + 2 anda duas caixas de int a partir de pontos[1]: pontos[3]."
+
+    - id: esc_kc11_I3_2
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Multiplicar por sizeof na mão escala duas vezes: p + 3 * sizeof(int) não é notas[3], é muito mais longe."
+      versoes:
+        - pede: "Complete para q apontar para notas[3]."
+          antes: |-
+            int notas[8];
+            int *p = notas;
+          mostra: "int *q = p + ___;"
+          pecas: ["3", "3 * sizeof(int)", "sizeof(int)"]
+          certa: [[0]]
+          certa_texto: "int *q = p + 3;"
+          erros:
+            - exata: [1]
+              crenca: ptr_arith_is_bytes
+              retorno: "O compilador já multiplica pelo tamanho do int. Multiplicar de novo escala duas vezes, e q passa longe de notas[3]. O certo é p + 3."
+            - exata: [2]
+              retorno: "p + sizeof(int) anda tantas caixas quanto o tamanho de um int, e não três. Para notas[3], p + 3."
+          retorno_geral: "A escala já está feita: q = p + 3 chega em notas[3]."
+        - pede: "Complete para q apontar para pontos[2]."
+          antes: |-
+            int pontos[8];
+            int *p = pontos;
+          mostra: "int *q = p + ___;"
+          pecas: ["sizeof(int)", "2", "2 * sizeof(int)"]
+          certa: [[1]]
+          certa_texto: "int *q = p + 2;"
+          erros:
+            - exata: [2]
+              crenca: ptr_arith_is_bytes
+              retorno: "O compilador já multiplica pelo tamanho do int. Multiplicar de novo escala duas vezes, e q passa longe de pontos[2]. O certo é p + 2."
+            - exata: [0]
+              retorno: "p + sizeof(int) anda tantas caixas quanto o tamanho de um int, e não duas. Para pontos[2], p + 2."
+          retorno_geral: "A escala já está feita: q = p + 2 chega em pontos[2]."
+
+    - id: esc_kc11_I3_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com a escala feita pelo compilador, a soma conta caixas: de notas[1], p + 2 chega em notas[3]."
+      versoes:
+        - pede: "p começa em notas[1]. Que número aparece?"
+          mostra: |-
+            int notas[4] = {2, 4, 6, 8};
+            int *p = notas + 1;
+
+            printf("%d\n", *(p + 2));
+          aceitas: ["8"]
+          certa_texto: "8"
+          erros:
+            - texto: "6"
+              retorno: "6 está em notas[2]. p começa em notas[1], e p + 2 anda duas caixas a partir dali: notas[3], que guarda 8."
+            - texto: "4"
+              retorno: "4 está em notas[1], onde p aponta. p + 2 anda duas caixas: 8."
+          retorno_geral: "p + 2 anda duas caixas a partir de notas[1]: notas[3], que guarda 8."
+        - pede: "q começa em pontos[2]. Que número aparece?"
+          mostra: |-
+            int pontos[5] = {1, 2, 3, 4, 5};
+            int *q = pontos + 2;
+
+            printf("%d\n", *(q + 2));
+          aceitas: ["5"]
+          certa_texto: "5"
+          erros:
+            - texto: "3"
+              retorno: "3 está em pontos[2], onde q aponta. q + 2 anda duas caixas: pontos[4], que guarda 5."
+            - texto: "4"
+              retorno: "4 está em pontos[3], uma caixa adiante. q + 2 anda duas: 5."
+          retorno_geral: "q + 2 anda duas caixas a partir de pontos[2]: pontos[4], que guarda 5."
+
+    - id: esc_kc11_I3_4
+      nome: "O compilador escala a soma sozinho"
+      guiado: false
+      forma: escolher
+      codigo: false
+      frases: []
+      versoes:
+        - pede: "Quem multiplica pelo tamanho do int em p + 2?"
+          antes: "int *p;"
+          pecas:
+            - "O compilador"
+            - "Você, escrevendo p + 2 * sizeof(int)"
+            - "Ninguém: p + 2 anda dois bytes"
+          certa: [[0]]
+          certa_texto: "O compilador"
+          erros:
+            - exata: [1]
+              retorno: "Escrever 2 * sizeof(int) escala duas vezes: o compilador já multiplica pelo tamanho do int. Basta p + 2."
+            - exata: [2]
+              retorno: "p + 2 não anda bytes: anda dois ints inteiros. Quem multiplica pelo tamanho é o compilador."
+          retorno_geral: "O compilador multiplica sozinho: p + 2 anda dois ints."
+        - pede: "Quem multiplica pelo tamanho do int em q + 5?"
+          antes: "int *q;"
+          pecas:
+            - "Ninguém: q + 5 anda cinco bytes"
+            - "O compilador"
+            - "Você, escrevendo q + 5 * sizeof(int)"
+          certa: [[1]]
+          certa_texto: "O compilador"
+          erros:
+            - exata: [2]
+              retorno: "Escrever 5 * sizeof(int) escala duas vezes: o compilador já multiplica pelo tamanho do int. Basta q + 5."
+            - exata: [0]
+              retorno: "q + 5 não anda bytes: anda cinco ints inteiros. Quem multiplica pelo tamanho é o compilador."
+          retorno_geral: "O compilador multiplica sozinho: q + 5 anda cinco ints."
+
+    - id: esc_kc11_I3_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Que número aparece?"
+          mostra: |-
+            int pontos[5] = {1, 3, 5, 7, 9};
+            int *q = pontos;
+
+            printf("%d\n", *(q + 4));
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "7"
+              retorno: "7 está em pontos[3]. q + 4 anda quatro caixas de int a partir de pontos[0]: pontos[4], que guarda 9."
+            - texto: "1"
+              retorno: "1 está em pontos[0], onde q aponta. q + 4 anda quatro caixas inteiras: 9."
+          retorno_geral: "q + 4 anda quatro caixas de int: pontos[4], que guarda 9."
+        - pede: "Que número aparece?"
+          mostra: |-
+            int dias[3] = {28, 30, 31};
+            int *p = dias + 1;
+
+            printf("%d\n", *(p + 1));
+          aceitas: ["31"]
+          certa_texto: "31"
+          erros:
+            - texto: "30"
+              retorno: "30 está em dias[1], onde p aponta. p + 1 anda uma caixa de int: dias[2], que guarda 31."
+            - texto: "28"
+              retorno: "28 está em dias[0], antes de p. p + 1 anda para a frente, uma caixa: 31."
+          retorno_geral: "p + 1 anda uma caixa a partir de dias[1]: dias[2], que guarda 31."

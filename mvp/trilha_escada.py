@@ -57,9 +57,11 @@ ENDERECO_DE_EXEMPLO = re.compile(r"0x[0-9A-Fa-f]+")
 # As opções de compilador que uma prova pode pedir a mais. A lista é
 # fechada porque o que está em `avisos` vira argumento de comando.
 # `-fanalyzer` entrou com o kc_01: é o analisador de fluxo do gcc, o que
-# aponta o bloco pedido com malloc e nunca devolvido.
+# aponta o bloco pedido com malloc e nunca devolvido. `-Wpointer-arith`
+# entrou com o kc_11: conta em void * o gcc aceita por extensão própria,
+# e só reclama dela com esse aviso.
 AVISOS_PERMITIDOS = ("-O1", "-O2", "-Wextra", "-Wnull-dereference",
-                     "-fanalyzer")
+                     "-fanalyzer", "-Wpointer-arith")
 
 
 class EscadaInvalida(Exception):

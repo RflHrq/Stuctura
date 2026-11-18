@@ -1185,6 +1185,48 @@ Quem acerta tudo faz 14 telas e 19 toques (8 e 13 no rápido); quem não
 sabe e aprende, 26 e 43; quem erra todo passo, 38 e 91; quem diz a
 crença de cada ideia e depois acerta, 38 e 37.
 
+**O kc_11, em 18/11/2026 — aritmética de ponteiros**
+
+Quem chega aqui já sabe que o nome do array vira o endereço do primeiro
+elemento (kc_07), que um byte é o espaço de uma caixa de `char` (kc_08)
+e o que é um `void *` (kc_10). Falta a conta. Seis premissas, 30
+degraus, uma prova por crença (`mvp/dominio/escada_kc11.yaml`,
+`docs/escada-kc11-leitura.md`). Entram `p + 1` e `*(p + 1)`, `sizeof *c`
+respondido sem rodar, a distância `&notas[2] - &notas[0]`, o ponteiro
+para um texto alheio (`char *t = "pai"`), o colchete como soma — para a
+frente, para trás (`*(p - 1)`) e ao contrário (`2[notas]`) —, a
+conversão antes da conta (`(char *)v + 1`) e a escala feita duas vezes
+(`p + 3 * sizeof(int)`).
+
+- **Nenhum número depende do tamanho de um `int`**: as contas são de
+  caixas, e o tamanho de um `char` é 1 em qualquer máquina. Por isso
+  nenhuma prova precisa de nota de ambiente por causa disso.
+- **As provas**: três são o que o compilador diz (aceita `p = &idade;` e
+  reclama de `p = 1000;`; o analisador reclama de mudar uma letra por
+  `t`, e não por `s`; aceita `c + 1` e reclama de `v + 1`), três são
+  saídas (`sizeof *c` com `c` num bloco de 10 dá 1; `2[notas]` dá 9;
+  `*(p + 3)`, sem `sizeof`, chega em `notas[3]`).
+- **Uma opção de compilador nova na lista fechada, com teste**: conta em
+  `void *` o gcc aceita por extensão própria, andando 1 byte, e só
+  reclama dela com `-Wpointer-arith` (`-Wall` e `-Wextra` não ligam esse
+  aviso). A prova do I2 pede a opção, e a nota de ambiente diz que o gcc
+  aceita sem ela e que o padrão do C não define a conta.
+- **A crença do B3.** O catálogo liga ao B3 (os elementos ficam
+  grudados) a crença de que `char *s = "abc"` e `char s[] = "abc"`
+  guardam do mesmo jeito. A escada diz a diferença com as caixas do
+  próprio B3: `s` são quatro caixas de `char` grudadas, que são de `s`;
+  `t` é uma caixa só, um ponteiro para letras que não são dela.
+- **O banco não foi mexido.** Cinco das 36 questões ficam fora: `struct`,
+  `%c`, `for`, `double` e uma função de várias linhas (que diz ainda que
+  o compilador "recusa" conta em `void *`, o que o gcc não faz sem o
+  aviso). A t12, que usa `p[-1]`, fica: o passo guiado I1_2 mostra a
+  caixa de trás. Todas as premissas abrem com questão de código; o I3,
+  com a de degrau 3.
+
+Quem acerta tudo faz 14 telas e 19 toques (8 e 13 no rápido); quem não
+sabe e aprende, 26 e 43; quem erra todo passo, 38 e 91; quem diz a
+crença de cada ideia e depois acerta, 38 e 37.
+
 **Novo, e opcional — a trilha funciona sem**
 
 1. **A previsão.** Os programas de demonstração imprimem frases ("o

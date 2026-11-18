@@ -1026,6 +1026,74 @@ def test_as_provas_do_kc_10_e_a_matriz_de_char():
     assert provas["modify_pp_changes_p"].programa != do_kc_06.programa
 
 
+def test_no_kc_11_ficam_fora_cinco_e_toda_premissa_abre_com_codigo():
+    """O banco do kc_11 não foi mexido. Ficam fora as cinco questões que
+    usam `struct`, `%c`, `for`, `double` e uma função de várias linhas. O
+    I3 perde a de código de degrau 2 (a 017, com `for`) e abre com a de
+    degrau 3."""
+    fora, quantas, abre = _selecao("kc_11")
+    assert fora == {
+        "B2": ("ciu_kc11_t06",),
+        "I1": ("ciu_kc11_t11",),
+        "I2": ("ciu_kc11_t15",),
+        "I3": ("ciu_kc11_017", "ciu_kc11_t18"),
+    }
+    assert quantas == {"B1": 6, "B2": 5, "B3": 6, "I1": 5, "I2": 5, "I3": 4}
+    assert abre == {
+        "B1": "ciu_kc11_002", "B2": "ciu_kc11_005", "B3": "ciu_kc11_008",
+        "I1": "ciu_kc11_011", "I2": "ciu_kc11_014", "I3": "ciu_kc11_018"}
+    d = _dominio("kc_11")
+    por_id = {a.id: a for a in d.atividades}
+    assert [no for no, i in abre.items() if not por_id[i].codigo] == []
+    # struct, double, laço, %c e o corpo de função em várias linhas.
+    ruim = re.compile(r"\b(struct|double|for)\b|%c|\{\s*\n")
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_11", no):
+            assert not ruim.search(por_id[i].codigo or ""), i
+    # A régua morde: pega as cinco de fora.
+    assert all(ruim.search(por_id[i].codigo or "")
+               for ids in fora.values() for i in ids)
+
+
+def test_o_kc_11_apresenta_a_conta_o_tamanho_e_o_tipo_dado_antes():
+    """Entram a soma no ponteiro, o tamanho do destino sem rodar, a
+    distância entre caixas, o ponteiro para um texto alheio, o colchete
+    como soma (para a frente, para trás e ao contrário), a conversão
+    antes da conta e a escala feita duas vezes. Cada coisa é dita num
+    passo guiado."""
+    assert _onde_se_apresenta("kc_11", "B1", "p + 1") == "esc_kc11_B1_3"
+    assert _onde_se_apresenta("kc_11", "B2", "sizeof *c") == "esc_kc11_B2_2"
+    assert _onde_se_apresenta(
+        "kc_11", "B3", "&notas[2] - &notas[0]") == "esc_kc11_B3_1"
+    assert _onde_se_apresenta("kc_11", "B3", "char *t") == "esc_kc11_B3_2"
+    assert _onde_se_apresenta("kc_11", "I1", "*(notas + i)") == "esc_kc11_I1_1"
+    assert _onde_se_apresenta("kc_11", "I1", "*(p - 1)") == "esc_kc11_I1_2"
+    assert _onde_se_apresenta("kc_11", "I1", "1[pontos]") == "esc_kc11_I1_3"
+    assert _onde_se_apresenta("kc_11", "I2", "(char *)v") == "esc_kc11_I2_2"
+    assert _onde_se_apresenta("kc_11", "I3", "3 * sizeof(int)") == "esc_kc11_I3_2"
+    escadas = _escadas("kc_11")
+    nomes = [escadas[no].pratica[0].nome for no in _dominio("kc_11").ordem]
+    assert len(set(nomes)) == 6
+
+
+def test_as_provas_do_kc_11_e_o_aviso_da_conta_em_void():
+    """Três provas são o que o compilador diz e três são saídas. A do I2
+    precisa de -Wpointer-arith — sem ele o gcc aceita a conta em void *
+    por extensão própria —, e a nota de ambiente diz isso. Nenhuma prova
+    nem passo de digitar depende do tamanho de um int."""
+    provas = {p.crenca: p for e in _escadas("kc_11").values() for p in e.provas}
+    assert len(provas) == 6
+    assert {c for c, p in provas.items() if p.reclama} == {
+        "pointer_is_integer", "string_literal_is_array", "voidptr_arith_ok"}
+    do_void = provas["voidptr_arith_ok"]
+    assert do_void.avisos == ("-Wpointer-arith",)
+    assert "extensão" in do_void.ambiente
+    assert provas["pointer_knows_block_size"].espera == "1"
+    for e, g, k, v in _versoes("kc_11"):
+        if g.forma == "digitar":
+            assert "sizeof(int)" not in v.mostra and "sizeof *p" not in v.mostra, g.id
+
+
 def test_sem_a_questao_de_degrau_2_a_premissa_abre_com_a_de_codigo():
     """A abertura é a questão de código de degrau 2: é a que APLICA a
     ideia. Quando ela fica fora da trilha, quem abre é outra de código, e
