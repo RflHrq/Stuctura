@@ -1,0 +1,112 @@
+# 6. Resultados da verificação
+
+## 6.1 O que foi verificado
+
+O Quadro 6.1 resume o tamanho do que a verificação do Capítulo 5 cobre,
+na versão de 18/11/2026.
+
+**Quadro 6.1 — O sistema verificado**
+
+| | |
+| --- | --- |
+| Tópicos, todos na trilha | 13 |
+| Premissas | 79 |
+| Concepções errôneas no catálogo | 61 |
+| Questões no banco | 560 |
+| Passos de escada (versões) | 402 (804) |
+| Demonstrações com previsão | 80 (41 saídas, 39 do compilador) |
+| Trechos de código das escadas | 1 762 |
+| Testes automatizados | mais de 7 300 |
+
+## 6.2 O conteúdo contra o compilador
+
+O conferidor não acusa nenhum problema nos 13 tópicos: os 402 passos, os
+79 exemplos resolvidos e as 80 demonstrações fazem o que o texto afirma
+que fazem, no gcc 16.2. Das 80 demonstrações, nove pedem opções a mais
+do compilador — sete o analisador de fluxo (`-fanalyzer`), uma
+`-Wpointer-arith`, e uma, a do `NULL` no kc_05, `-O2` com
+`-Wnull-dereference` —, e as que dependem do ambiente trazem nota que
+diz isso.
+
+A seleção de questões deixa 94 questões do banco fora da trilha, por
+usarem construções que nenhum tópico ensinou até ali ou, num caso, por
+afirmarem o que o compilador do laboratório não confirma (6.4). Com
+elas fora, as 79 premissas abrem com uma questão de código.
+
+## 6.3 A medida, com os estudantes simulados
+
+O Quadro 6.2 mostra quantas telas e quantos toques cada perfil leva para
+atravessar cada tópico, no ritmo completo.
+
+**Quadro 6.2 — Telas e toques por tópico, no ritmo completo**
+
+| Tópico | Sabe tudo | Não sabe, aprende | Erra todo passo | Sustenta e muda | Sustenta e não muda |
+| --- | --- | --- | --- | --- | --- |
+| kc_00 | 12 / 16 | 22 / 38 | 32 / 80 | 32 / 31 | 37 / 56 |
+| kc_01 | 12 / 16 | 22 / 36 | 32 / 76 | 32 / 31 | 37 / 56 |
+| kc_02 | 14 / 19 | 26 / 45 | 38 / 95 | 38 / 37 | 44 / 67 |
+| kc_03 | 14 / 19 | 26 / 43 | 38 / 91 | 38 / 37 | 44 / 67 |
+| kc_04 | 14 / 19 | 26 / 43 | 38 / 91 | 38 / 37 | 44 / 67 |
+| kc_05 | 14 / 19 | 26 / 44 | 38 / 93 | 38 / 37 | 44 / 67 |
+| kc_06 | 14 / 19 | 26 / 44 | 38 / 93 | 38 / 37 | 44 / 67 |
+| kc_07 | 16 / 22 | 30 / 51 | 44 / 108 | 44 / 43 | 51 / 78 |
+| kc_08 | 14 / 19 | 26 / 43 | 38 / 91 | 38 / 37 | 44 / 67 |
+| kc_09 | 18 / 25 | 34 / 57 | 50 / 121 | 50 / 49 | 58 / 89 |
+| kc_10 | 14 / 19 | 26 / 43 | 38 / 91 | 38 / 37 | 44 / 67 |
+| kc_11 | 14 / 19 | 26 / 43 | 38 / 91 | 38 / 37 | 44 / 67 |
+| kc_12 | 14 / 19 | 26 / 43 | 38 / 91 | 38 / 37 | 44 / 67 |
+
+Três leituras do quadro:
+
+- **A sessão cresce com o que a pessoa precisa, e não com o tópico.**
+  Quem sabe tudo atravessa um tópico de seis premissas em 14 telas; quem
+  precisa de ensino ou de correção em todas, em 26 a 38. O tamanho do
+  tópico só pesa pelo número de premissas: o kc_09, com oito, é o mais
+  longo em todos os perfis.
+- **O teto vale.** Mesmo o perfil que erra todos os passos termina o
+  tópico, com as premissas em aberto, sem laço: o pior caso é finito e
+  previsível.
+- **A demonstração é curta.** Quem sustenta a concepção errônea e muda de
+  ideia gasta menos toques do que quem não sabe e aprende (37 contra 43
+  num tópico de seis premissas): a demonstração substitui a subida da
+  escada, e não se soma a ela.
+
+Os números são de perfis simulados, e servem para mostrar que o percurso
+se comporta como o desenho diz. Não dizem quanto tempo uma pessoa leva,
+nem se ela aprende — o que exigiria o estudo do Apêndice A.
+
+## 6.4 O que a verificação encontrou
+
+O resultado mais útil da verificação não foi o "zero problemas" final,
+mas os defeitos que ela encontrou no caminho. Alguns exemplos, todos
+corrigidos antes da versão descrita:
+
+- **Uma resposta que não vale no compilador do laboratório.** Uma questão
+  do kc_12 pergunta o que imprime `p == NULL` depois de `p` receber o
+  endereço de uma variável local de uma função que já retornou, e dá
+  como certa a resposta 0. No gcc 16.2, o compilador avisa e devolve
+  `NULL` no lugar daquele endereço, e sai 1. A questão ficou fora da
+  trilha, e o defeito foi registrado para revisão.
+- **Uma afirmação que depende da versão do compilador.** Uma questão do
+  kc_11 diz que o compilador "recusa" aritmética em `void *`; o gcc
+  aceita a conta por uma extensão própria, e só avisa com
+  `-Wpointer-arith`. A demonstração do tópico usa a opção e diz isso na
+  nota de ambiente.
+- **Uma alternativa certa que usava o que não foi ensinado.** Uma questão
+  do kc_10 dava como certa "a vira ponteiro para fileira", conceito que a
+  escada deixa de fora de propósito; foi reescrita com o vocabulário que
+  a escada ensina, com id, gabarito e concepções errôneas mantidos.
+- **O treino que repetia a demonstração.** Num ensaio, o primeiro passo
+  de prática depois de uma demonstração mostrava a mesma função que a
+  demonstração tinha acabado de mostrar: a mesma tela duas vezes
+  seguidas. A regra virou teste, e o teste encontrou o mesmo defeito em
+  passos de outros três tópicos.
+- **Uma nota de ambiente que afirmava o que não foi conferido** ("outros
+  compiladores reclamam") foi retirada antes de entrar.
+- **Na interface**, o teste de contraste e a conferência no navegador
+  encontraram uma lacuna de exercício ilegível no tema claro e um topo
+  que transbordava a tela do celular no tópico de oito premissas.
+
+São defeitos que uma leitura atenta deixa passar e que a verificação
+mecânica pega, porque compara o texto com o programa, e não com a
+memória de quem escreveu.
