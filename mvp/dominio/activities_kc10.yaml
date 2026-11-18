@@ -513,7 +513,7 @@ activities:
       int *p = &x;
       /* A */  int **pp = &p;
       /* B */  int **pp = p;
-    enunciado: "Qual das duas compila, e por quê?"
+    enunciado: "De qual das duas o compilador não reclama, e por quê?"
     alternativas:
       a: "A: &p é o endereço de uma caixa"
       b: "B: p já é um ponteiro duplo"
@@ -685,11 +685,11 @@ activities:
       int *p = &x;
       int **pp = &p;
       *pp = 9;
-    enunciado: "Por que a última linha não compila?"
+    enunciado: "Por que o compilador reclama da última linha?"
     alternativas:
       a: "*pp é int *, e 9 é int"
-      b: "Compila: *pp é o x"
-      c: "Compila: o 9 vai ao fim"
+      b: "Não reclama: *pp é o x"
+      c: "Não reclama: o 9 vai ao fim"
     gabarito: a
     crencas:
       b: pointer_is_just_a_name

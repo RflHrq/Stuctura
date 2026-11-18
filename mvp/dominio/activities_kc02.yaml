@@ -1636,7 +1636,7 @@ activities:
     nivel: 3
     formato: achar_o_erro
     tipo: codigo
-    enunciado: Por que o compilador recusa a terceira linha?
+    enunciado: Por que o compilador reclama da terceira linha?
     codigo: 'int   x = 42;
 
       int  *p = &x;

@@ -626,10 +626,10 @@ activities:
     codigo: |
       int* a, b;
       b = &a;
-    enunciado: "Por que a segunda linha não compila?"
+    enunciado: "Por que o compilador reclama da segunda linha?"
     alternativas:
       a: "b foi declarado int, não ponteiro: o * ficou só em a"
-      b: "Não deveria: int* vale para os dois nomes"
+      b: "Não deveria reclamar: int* vale para os dois nomes"
       c: "b é ponteiro, mas falta espaço para o apontado"
     gabarito: a
     crencas:

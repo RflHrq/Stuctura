@@ -107,6 +107,41 @@ def monta(codigo: str) -> str:
             + "\n".join(dentro) + "\nreturn 0;\n}\n")
 
 
+# As palavras que afirmam o que o compilador FAZ com o código. O verbo do
+# projeto é "reclama" (docs/linguagem.md): a severidade muda entre versões.
+_SEVERIDADE = re.compile(r"\b(recusa|recusam|não compila|nao compila|"
+                         r"nem compila|é erro de compilação)\b", re.I)
+
+
+def afirma_severidade(texto: str) -> bool:
+    """O texto diz que o compilador recusa, ou que o código não compila?"""
+    return bool(_SEVERIDADE.search(texto))
+
+
+def falha_mesmo_permissivo(codigo: str) -> bool:
+    """O trecho falha até com `-fpermissive -w`?
+
+    O gcc 14 passou a tratar como erro conversões que antes eram aviso
+    (`-Wint-conversion`, `-Wincompatible-pointer-types`), e `-fpermissive`
+    as devolve a aviso. O que falha mesmo assim — atribuir a array, `&` de
+    um número, nome não declarado — falha em qualquer gcc, e aí dizer
+    "recusa" é verdade.
+    """
+    gcc = oraculo.GCC
+    if not gcc.exists():
+        raise oraculo.SemCompilador(
+            "não achei o compilador em %s — aponte STRUCTURA_GCC para ele"
+            % gcc)
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = pathlib.Path(tmp)
+        (pasta / "o.c").write_text(monta(codigo), encoding="utf-8")
+        r = subprocess.run(
+            [str(gcc), "-std=c17", "-fpermissive", "-w", "-fsyntax-only",
+             "o.c"], capture_output=True, text=True, encoding="utf-8",
+            errors="replace", timeout=TEMPO_COMPILA, cwd=str(pasta))
+    return r.returncode != 0
+
+
 def imprime(codigo: str) -> bool:
     """O trecho escreve na tela? Só então a saída diz alguma coisa."""
     return bool(_IMPRIME.search(codigo))

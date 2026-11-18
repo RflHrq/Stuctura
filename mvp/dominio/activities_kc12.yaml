@@ -1177,11 +1177,11 @@ activities:
     codigo: |
       int *a(void) { static int n = 1; return &n; }
       int *b(void) {        int n = 1; return &n; }
-    enunciado: "A segunda às vezes parece funcionar. Por quê?"
+    enunciado: "A segunda é um erro. Se alguém a viu devolver o 1, como pode ter sido?"
     alternativas:
-      a: "O lugar ainda guarda o valor"
-      b: "Porque o escopo é o mesmo"
-      c: "Porque o n dela também dura"
+      a: "O lugar ainda guardava o valor"
+      b: "O escopo de n é o mesmo nas duas"
+      c: "O n dela também dura o programa"
     gabarito: a
     crencas:
       b: static_is_scope

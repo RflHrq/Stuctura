@@ -107,6 +107,44 @@ def test_a_resposta_certa_de_prever_a_saida_e_a_que_o_gcc_imprime():
     assert todos == []
 
 
+def test_a_afirmacao_de_severidade_e_reconhecida():
+    s = confere_banco.afirma_severidade
+    assert s("Por que o compilador recusa a terceira linha?")
+    assert s("Por que a segunda linha não compila?")
+    assert s("Recusa: b não é modificável")
+    assert not s("Por que o compilador reclama da segunda linha?")
+
+
+@tem_gcc
+def test_recusa_de_verdade_e_a_que_falha_ate_com_fpermissive():
+    """`-fpermissive` rebaixa a aviso o que o gcc 14 passou a tratar como
+    erro (e que antes era aviso). O que ainda falha com ela falha em
+    qualquer gcc: atribuir a array, & de um número, nome não declarado."""
+    assert confere_banco.falha_mesmo_permissivo('char s[10];\ns = "oi";')
+    assert not confere_banco.falha_mesmo_permissivo(
+        "int x = 42;\nint *p = &x;\nchar *c = p;")
+
+
+@tem_gcc
+def test_a_trilha_so_diz_recusa_onde_todo_gcc_recusa():
+    """Em 18/11/2026, quatro questões da trilha diziam "recusa" ou "não
+    compila" de conversões que um gcc anterior ao 14 só avisa; passaram a
+    dizer "reclama", como manda `docs/linguagem.md`."""
+    fora_da_regra = []
+    for t in topicos():
+        d = carrega(topico=t)
+        arquivo = RAIZ / "dominio" / ("escada_%s.yaml" % t.replace("_", ""))
+        fora = {i for e in trilha_escada.le(arquivo, d).values() for i in e.fora}
+        for a in d.atividades:
+            if a.id in fora or not a.codigo.strip():
+                continue
+            textos = [a.enunciado] + [o.texto for o in a.opcoes if o.correta]
+            if (any(confere_banco.afirma_severidade(x) for x in textos)
+                    and not confere_banco.falha_mesmo_permissivo(a.codigo)):
+                fora_da_regra.append(a.id)
+    assert fora_da_regra == []
+
+
 @tem_gcc
 def test_a_conferencia_acusa_uma_resposta_errada_de_proposito():
     """A versão antiga da t12, como ela era: a certa dizia 0, e sai 1."""
