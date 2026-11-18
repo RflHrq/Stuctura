@@ -58,8 +58,8 @@ com demonstrações conferidas por compilador.
    declarada, e a escolha do percurso a partir dele.
 3. Escrever, para cada premissa, uma escada de passos para quem não sabe
    e uma demonstração com previsão para cada concepção errônea.
-4. Verificar mecanicamente que todo trecho de código mostrado ao
-   estudante compila e faz o que o texto afirma.
+4. Verificar mecanicamente que todo trecho de código das escadas e das
+   demonstrações compila e faz o que o texto afirma.
 5. Verificar o comportamento do sistema com estudantes simulados, que
    respondem segundo perfis definidos, em todos os tópicos.
 
@@ -89,8 +89,9 @@ concepção errônea que ele afirma diagnosticar tem procedência declarada.
    com procedência declarada e ligada à premissa que nega (Capítulo 4).
 2. Um diagnóstico que usa a certeza declarada para **escolher o
    percurso**, e não para pontuar.
-3. Um conjunto de 80 demonstrações com previsão, uma por concepção
-   errônea, e 402 passos de escada, todos conferidos por compilador.
+3. Um conjunto de 80 demonstrações com previsão — uma para cada
+   concepção errônea em cada tópico em que ela aparece — e 402 passos de
+   escada, todos conferidos por compilador.
 4. Um método de verificação de conteúdo didático de programação em que o
    compilador é o árbitro: o texto que afirma o que um programa faz é
    testado contra o programa.

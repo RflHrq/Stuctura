@@ -78,8 +78,9 @@ nem se ela aprende — o que exigiria o estudo do Apêndice A.
 ## 6.4 O que a verificação encontrou
 
 O resultado mais útil da verificação não foi o "zero problemas" final,
-mas os defeitos que ela encontrou no caminho. Alguns exemplos, todos
-corrigidos antes da versão descrita:
+mas os defeitos que ela encontrou no caminho. Alguns exemplos — corrigidos
+antes da versão descrita, menos as questões do kc_11 e do kc_12, que
+ficaram fora da trilha até serem revistas:
 
 - **Uma resposta que não vale no compilador do laboratório.** Uma questão
   do kc_12 pergunta o que imprime `p == NULL` depois de `p` receber o
@@ -90,8 +91,9 @@ corrigidos antes da versão descrita:
 - **Uma afirmação que depende da versão do compilador.** Uma questão do
   kc_11 diz que o compilador "recusa" aritmética em `void *`; o gcc
   aceita a conta por uma extensão própria, e só avisa com
-  `-Wpointer-arith`. A demonstração do tópico usa a opção e diz isso na
-  nota de ambiente.
+  `-Wpointer-arith`. A questão já estava fora da trilha, por usar uma
+  função de várias linhas; a demonstração do tópico usa a opção e diz
+  isso na nota de ambiente.
 - **Uma alternativa certa que usava o que não foi ensinado.** Uma questão
   do kc_10 dava como certa "a vira ponteiro para fileira", conceito que a
   escada deixa de fora de propósito; foi reescrita com o vocabulário que

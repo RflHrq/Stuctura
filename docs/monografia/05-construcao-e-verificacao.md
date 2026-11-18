@@ -29,8 +29,9 @@ foi declarada no registro do controle de versão, com o motivo.
 
 ## 5.2 O compilador como árbitro do conteúdo
 
-Todo trecho de código que o sistema mostra passa por um **conferidor**
-automático antes de entrar no sistema. O conferidor monta cada trecho
+Todo trecho de código das escadas — passos, exemplos resolvidos e
+demonstrações — passa por um **conferidor** automático antes de entrar no
+sistema. O conferidor monta cada trecho
 dentro de um programa completo — com as bibliotecas padrão de entrada e
 saída e de alocação, e com as funções do trecho levadas para fora do
 `main` —, compila com o gcc 16.2 (`-std=c17 -Wall`) e confere o que o
@@ -60,6 +61,17 @@ O conferidor roda dentro da suíte de testes, sobre os 13 tópicos: uma
 escada cujo texto deixou de corresponder ao que o compilador faz derruba
 a suíte.
 
+As **questões do banco** não passam por esse conferidor. A revisão
+mecânica do banco confere outras coisas — que toda alternativa errada
+aponta uma concepção do catálogo, que a certa não é visivelmente a mais
+longa, que o enunciado não afirma a severidade de uma mensagem que o
+compilador pode rebaixar a aviso —, e os testes da trilha conferem que
+as questões servidas não usam construções ainda não ensinadas (5.3).
+Nenhuma dessas conferências compara a resposta marcada como certa com o
+que o programa faz. A questão do kc_12 relatada em 6.4 mostra o custo: o
+defeito foi achado ao conferir, para escrever a escada do tópico, o que
+o gcc faz com aquele programa, e não por uma conferência do banco.
+
 ## 5.3 A régua do texto, em teste
 
 As regras de escrita da escada (3.4) que podem ser decididas por programa
@@ -76,7 +88,7 @@ foram transformadas em testes, que rodam sobre todos os tópicos:
   compilador;
 - nenhum passo de digitar cuja resposta seja um endereço;
 - demonstrações de até nove linhas, sem pergunta embutida, uma por
-  concepção errônea, com a previsão em posições variadas;
+  concepção errônea do tópico, com a previsão em posições variadas;
 - a concepção errônea dita, numa alternativa marcada, só em passo guiado
   da premissa que ela nega;
 - todo primeiro passo de prática com um nome curto, que é o que o

@@ -182,13 +182,15 @@ cenário não muda.
 
 ## 3.5 A demonstração com previsão
 
-Para cada concepção errônea do catálogo há uma **demonstração**: um
+Para cada concepção errônea de cada tópico há uma **demonstração**: um
 programa curto, de no máximo nove linhas, escrito com os nomes do cenário
 do tópico, e uma pergunta de previsão com duas alternativas — a que a
 máquina confirma e a que a concepção errônea espera (Figuras 3.2a e
-3.2b). A
-pessoa prevê; depois vê o que aconteceu, e uma frase diz o que aquilo
-mostra e qual premissa fica de pé.
+3.2b). A pessoa prevê; depois vê o que aconteceu, e uma frase diz o que
+aquilo mostra e qual premissa fica de pé. As 61 concepções do catálogo dão
+80 demonstrações porque 14 delas aparecem em mais de um tópico — a de que
+o ponteiro é o próprio dado, por exemplo, em quatro —, e cada tópico tem a
+sua, com o cenário dele.
 
 O que a máquina "respondeu" é de dois tipos. Em 41 das 80 demonstrações é
 a **saída** do programa: no kc_11, por exemplo, quem acredita que a

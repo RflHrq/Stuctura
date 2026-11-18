@@ -45,6 +45,13 @@ tirados do sistema por script, e não de memória.
   `mvp/test_monografia.py` falha se aparecer uma marca de "conferir" nova
   no texto, ou se a lista e o registro discordarem. Falta juntar a lista à do
   capítulo de curadoria na formatação final.
+- **Uma contradição no capítulo de curadoria** (achada na revisão de
+  18/11/2026): a seção 2 dos achados diz que `pointer_is_data` citava o
+  item 14 de Sorva por engano, e que o certo é o item 65 (p. 362); a seção
+  3 diz que `pointer_is_data` sai do item 14. No catálogo, só o kc_02 traz
+  a correção para o item 65; kc_04, kc_08 e kc_12 ainda citam o item 14.
+  Corrigir pede o texto integral de Sorva, que fica fora do repositório
+  (`scripts/gera_curadoria.py`), e decidir com o autor.
 - **A revisão do conteúdo das escadas pelo autor.** As treze escadas
   estão com `revisado_por` em branco. O texto diz como o material foi
   escrito e conferido; dizer "revisado pelo autor" depende dessa leitura.

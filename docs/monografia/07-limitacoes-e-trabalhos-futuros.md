@@ -16,6 +16,12 @@ o que um programa faz; não confirma que a ideia ensinada é a certa para um
 iniciante, que a ordem dos passos é a mais fácil, nem que a frase de um
 passo é clara (5.7).
 
+**As questões do banco não são conferidas contra o compilador.** O
+conferidor cobre as escadas e as demonstrações; das 560 questões, a
+revisão mecânica confere a ligação com o catálogo e a forma, mas não que
+a resposta marcada como certa seja o que o programa faz (5.2). Uma
+questão do kc_12 errava exatamente nisso (6.4).
+
 **O conteúdo foi escrito com assistência de um modelo de linguagem**, e
 as escadas aguardam a revisão do autor. A verificação reduz o risco de
 afirmação errada sobre C, mas não substitui a leitura de quem conhece o
@@ -58,12 +64,15 @@ mas outro compilador, ou outra versão, pode dar outra mensagem.
    e a submissão ao comitê de ética, se exigida.
 2. **A revisão das escadas por especialistas**, com o registro de quem
    revisou cada uma.
-3. **O caminho desenhado na página inicial**, com a ordem sugerida dos
+3. **O banco contra o compilador**: rodar o código de cada questão e
+   comparar com a alternativa marcada como certa, como o conferidor já
+   faz com as escadas.
+4. **O caminho desenhado na página inicial**, com a ordem sugerida dos
    tópicos e o estado de cada um, e as **cenas animadas** que ilustram
    cada premissa com analogias visuais (a caixa, o bilhete), já
    desenhadas e planejadas.
-4. **Um modo de prática**, só com os exercícios da escada e retorno de
+5. **Um modo de prática**, só com os exercícios da escada e retorno de
    certo e errado, para uso fora da sessão de diagnóstico.
-5. **Retenção**: um reteste dias depois, para medir o que fica.
-6. **Outros compiladores**: conferir as demonstrações também no clang, e
+6. **Retenção**: um reteste dias depois, para medir o que fica.
+7. **Outros compiladores**: conferir as demonstrações também no clang, e
    marcar as que mudam.

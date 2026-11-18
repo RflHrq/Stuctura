@@ -74,7 +74,8 @@ def test_os_numeros_do_sistema_estao_no_texto(contagens):
     afirmado = {
         "01-introducao.md": [
             "catálogo de 61 concepções errôneas",
-            "80 demonstrações com previsão, uma por concepção errônea, e 402 passos",
+            "80 demonstrações com previsão — uma para cada concepção errônea "
+            "em cada tópico em que ela aparece — e 402 passos",
             "treze tópicos de ponteiros em C"],
         "03-sistema.md": [
             "organizado em **13 tópicos**", "somam **79 premissas**",
@@ -96,6 +97,23 @@ def test_os_numeros_do_sistema_estao_no_texto(contagens):
     assert (c["passos"], c["guiados"], c["pratica"], c["versoes"]) == (402, 244, 158, 804)
     assert (c["provas"], c["saidas"], c["do_compilador"]) == (80, 41, 39)
     assert c["fora"] == 94
+
+
+def test_por_que_61_concepcoes_dao_80_demonstracoes():
+    """Uma demonstração por concepção em cada tópico em que ela aparece:
+    14 das 61 aparecem em mais de um, e a soma por tópico é 80."""
+    vezes = collections.Counter()
+    provas = set()
+    for t in topicos():
+        d, escadas = _escadas(t)
+        vezes.update(set(d.crencas))
+        provas |= {(t, p.crenca) for e in escadas.values() for p in e.provas}
+    repetidas = sum(1 for n in vezes.values() if n > 1)
+    assert (len(vezes), repetidas, sum(vezes.values()), len(provas)) == (
+        61, 14, 80, 80)
+    texto = _texto("03-sistema.md")
+    assert "As 61 concepções do catálogo dão 80 demonstrações" in texto
+    assert "14 delas aparecem em mais de um tópico" in texto
 
 
 def test_o_quadro_dos_topicos_e_o_das_formas(contagens):
