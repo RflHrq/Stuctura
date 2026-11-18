@@ -1094,21 +1094,23 @@ def test_as_provas_do_kc_11_e_o_aviso_da_conta_em_void():
             assert "sizeof(int)" not in v.mostra and "sizeof *p" not in v.mostra, g.id
 
 
-def test_no_kc_12_ficam_fora_sete_e_toda_premissa_abre_com_codigo():
-    """O banco do kc_12 não foi mexido. Ficam fora seis questões que usam
-    o que as escadas não ensinam — variável global, `n++` e `++n`,
-    protótipo sem corpo, `%s`, `snprintf` e o `?:` — e a t12, que afirma
-    que `p == NULL` dá 0 depois de `p = f()`, com f devolvendo `&n`: o gcc
-    16.2 devolve NULL no lugar do endereço da local, e sai 1."""
+def test_no_kc_12_ficam_fora_seis_e_toda_premissa_abre_com_codigo():
+    """Ficam fora seis questões que usam o que as escadas não ensinam —
+    variável global, `n++` e `++n`, protótipo sem corpo, `%s`, `snprintf`
+    e o `?:`.
+
+    ERAM SETE: a t12 afirmava que `p == NULL` dava 0 depois de `p = f()`,
+    com f devolvendo `&n`, e o gcc 16.2 devolve NULL ali e sai 1. Em
+    18/11/2026 ela foi reescrita sem depender desse valor (o Rafael pediu
+    todos os problemas resolvidos) e voltou para a trilha."""
     fora, quantas, abre = _selecao("kc_12")
     assert fora == {
         "B1": ("ciu_kc12_002",),
         "B3": ("ciu_kc12_t08", "ciu_kc12_t09"),
-        "I1": ("ciu_kc12_t12",),
         "I2": ("ciu_kc12_t15",),
         "I3": ("ciu_kc12_t17", "ciu_kc12_t18"),
     }
-    assert quantas == {"B1": 5, "B2": 6, "B3": 4, "I1": 5, "I2": 5, "I3": 4}
+    assert quantas == {"B1": 5, "B2": 6, "B3": 4, "I1": 6, "I2": 5, "I3": 4}
     assert abre == {
         "B1": "ciu_kc12_003", "B2": "ciu_kc12_005", "B3": "ciu_kc12_008",
         "I1": "ciu_kc12_011", "I2": "ciu_kc12_014", "I3": "ciu_kc12_017"}
@@ -1124,10 +1126,12 @@ def test_no_kc_12_ficam_fora_sete_e_toda_premissa_abre_com_codigo():
     # A régua morde: pega as seis de fora pelo que usam.
     pela_regua = {i for ids in fora.values() for i in ids
                   if ruim.search(por_id[i].codigo or "")}
-    assert pela_regua == {i for ids in fora.values() for i in ids} - {"ciu_kc12_t12"}
-    # E a t12 fica fora pelo que afirma: a alternativa certa diz que sai 0.
+    assert pela_regua == {i for ids in fora.values() for i in ids}
+    # E a t12 reescrita não imprime o valor que o padrão não define.
     t12 = por_id["ciu_kc12_t12"]
-    assert next(o.texto for o in t12.opcoes if o.correta).startswith("0")
+    assert "NULL" not in t12.codigo and "printf" not in t12.codigo
+    assert next(o.texto for o in t12.opcoes if o.correta).startswith(
+        "A caixa de n já saiu")
 
 
 def test_o_kc_12_apresenta_o_static_o_pendente_sem_free_e_a_caixa_de_quem_chama():

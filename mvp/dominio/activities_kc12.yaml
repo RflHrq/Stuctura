@@ -1090,19 +1090,21 @@ activities:
     node: kc12:I1
     nivel: 3
     uso: treino
-    formato: prever_saida
+    formato: reconhecer_conceito
     tipo: codigo
+    # REESCRITA EM 18/11/2026. A versão anterior imprimia `p == NULL` e
+    # dava como certo o 0; o gcc 16.2 devolve NULL no lugar do endereço
+    # de uma local, e sai 1 — e o padrão do C não define esse valor. A
+    # pergunta agora não depende dele: em qualquer compilador, a caixa de
+    # n saiu quando f voltou, e p não leva ao 7.
     codigo: |
       int *f(void) { int n = 7; return &n; }
-      void g(void) {
-          int *p = f();
-          printf("%d\n", p == NULL);
-      }
-    enunciado: "O que sai, e o que isso diz sobre p?"
+      int *p = f();
+    enunciado: "Depois de p = f(), o que dá para dizer de p?"
     alternativas:
-      a: "0: p tem um endereço, mas ruim"
-      b: "0: p tem o 7 dentro"
-      c: "0: p aponta uma caixa viva"
+      a: "A caixa de n já saiu: p não leva ao 7"
+      b: "p tem o 7 dentro: o retorno copiou o valor"
+      c: "p leva ao 7: a caixa de n continua viva"
     gabarito: a
     crencas:
       b: pointer_is_data

@@ -94,8 +94,8 @@ def test_so_confere_a_questao_que_imprime():
 def test_a_resposta_certa_de_prever_a_saida_e_a_que_o_gcc_imprime():
     """Toda questão de prever a saída cuja alternativa certa é um valor
     imprime esse valor no gcc 16.2; a que não imprime está fora da trilha
-    (a escada do tópico a declara em `fora_da_trilha`). Hoje é uma só, de
-    70 — o número que o capítulo 6 da monografia diz."""
+    (a escada do tópico a declara em `fora_da_trilha`). Hoje não há
+    nenhuma: a única, a `ciu_kc12_t12`, foi reescrita em 18/11/2026."""
     todos = []
     for t in topicos():
         d = carrega(topico=t)
@@ -104,10 +104,22 @@ def test_a_resposta_certa_de_prever_a_saida_e_a_que_o_gcc_imprime():
         for problema in confere_banco.confere(d):
             assert problema.id in fora, problema
             todos.append(problema.id)
-    assert todos == ["ciu_kc12_t12"]
+    assert todos == []
 
 
 @tem_gcc
-def test_a_conferencia_acha_a_t12_do_kc_12():
-    problemas = confere_banco.confere(carrega(topico="kc_12"))
-    assert [(p.id, p.saiu) for p in problemas] == [("ciu_kc12_t12", "1")]
+def test_a_conferencia_acusa_uma_resposta_errada_de_proposito():
+    """A versão antiga da t12, como ela era: a certa dizia 0, e sai 1."""
+    from types import SimpleNamespace
+
+    from mvp.dominio import Atividade, Opcao
+    errada = Atividade(
+        id="t12_antiga", no="kc12:I1", tipo="codigo", formato="prever_saida",
+        enunciado="O que sai?",
+        codigo=("int *f(void) { int n = 7; return &n; }\n"
+                "void g(void) {\n    int *p = f();\n"
+                "    printf(\"%d\\n\", p == NULL);\n}"),
+        opcoes=(Opcao("0: p tem um endereço, mas ruim", correta=True),
+                Opcao("0: p tem o 7 dentro"), Opcao("0: p aponta uma caixa viva")))
+    problemas = confere_banco.confere(SimpleNamespace(atividades=[errada]))
+    assert [(p.id, p.saiu) for p in problemas] == [("t12_antiga", "1")]

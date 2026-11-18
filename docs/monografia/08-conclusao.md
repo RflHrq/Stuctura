@@ -16,7 +16,7 @@ sem depender da opinião de quem o escreveu. A resposta, nos limites do
 que foi feito, é sim. Os 13 tópicos, com 79 premissas, 402 passos e 80
 demonstrações, foram conferidos contra o compilador: o que cada passo e
 cada demonstração afirma sobre um programa é o que o programa faz. No
-banco, a conferência alcança as 70 questões de prever a saída com
+banco, a conferência alcança as 69 questões de prever a saída com
 resposta em valor; o resto depende de leitura (7.1). O comportamento foi
 conferido com dez perfis de estudante simulado em todos os tópicos: cada
 caso segue o percurso que o desenho promete, e a sessão tem teto. E a

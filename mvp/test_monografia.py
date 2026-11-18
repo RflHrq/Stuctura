@@ -86,7 +86,7 @@ def test_os_numeros_do_sistema_estao_no_texto(contagens):
             "| Premissas | 79 |", "| Concepções errôneas no catálogo | 61 |",
             "| Questões no banco | 560 |", "| Passos de escada (versões) | 402 (804) |",
             "| Demonstrações com previsão | 80 (41 saídas, 39 do compilador) |",
-            "deixa 94 questões do banco fora da trilha"],
+            "deixa 93 questões do banco fora da trilha"],
         "08-conclusao.md": ["Os 13 tópicos, com 79 premissas, 402 passos e 80 demonstrações"],
     }
     for nome, trechos in afirmado.items():
@@ -96,7 +96,7 @@ def test_os_numeros_do_sistema_estao_no_texto(contagens):
     assert (c["topicos"], c["premissas"], c["crencas"], c["questoes"]) == (13, 79, 61, 560)
     assert (c["passos"], c["guiados"], c["pratica"], c["versoes"]) == (402, 244, 158, 804)
     assert (c["provas"], c["saidas"], c["do_compilador"]) == (80, 41, 39)
-    assert c["fora"] == 94
+    assert c["fora"] == 93
 
 
 def test_por_que_61_concepcoes_dao_80_demonstracoes():
@@ -151,9 +151,9 @@ def test_o_quadro_da_medida(contagens):
 
 
 def test_a_conferencia_do_banco_no_texto():
-    """O que `confere_banco.py` cobre: 321 questões com código; 70 de
-    prever a saída comparadas com o que o programa imprime. Que só a t12
-    não bate é `test_banco_compilador` que prende."""
+    """O que `confere_banco.py` cobre: 321 questões com código; 69 de
+    prever a saída comparadas com o que o programa imprime. Que todas
+    batem é `test_banco_compilador` que prende."""
     import confere_banco
     com_codigo = conferidas = 0
     for t in topicos():
@@ -163,10 +163,10 @@ def test_a_conferencia_do_banco_no_texto():
                     and confere_banco.valor(next(o.texto for o in a.opcoes
                                                  if o.correta))):
                 conferidas += 1
-    assert (com_codigo, conferidas) == (321, 70)
+    assert (com_codigo, conferidas) == (321, 69)
     assert "Nas 321 questões que têm código" in _texto(
         "05-construcao-e-verificacao.md")
-    assert "das 70 questões de prever a saída conferidas, 69" in _texto(
+    assert "das 69 questões de prever a saída conferidas, todas" in _texto(
         "06-resultados-da-verificacao.md")
 
 

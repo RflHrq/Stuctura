@@ -39,17 +39,18 @@
 # O GCC E O ENDEREÇO DE UMA LOCAL. Ao ver return &n, o gcc 16.2 avisa
 # ("function returns address of local variable") e devolve NULL no lugar.
 # O padrão do C não diz o que esse endereço vale depois do retorno; o gcc
-# escolheu NULL. Por isso a prova do I1 imprime 1, e por isso a questão
-# ciu_kc12_t12, que diz que ali sai 0, fica fora da trilha (ver abaixo).
+# escolheu NULL. Por isso a prova do I1 imprime 1. A questão ciu_kc12_t12
+# dizia que ali saía 0 e ficava fora da trilha; em 18/11/2026 foi
+# reescrita sem imprimir esse valor, e voltou.
 # A premissa do I2 diz que o erro "às vezes parece funcionar": é verdade
 # em C, quando o lugar ainda guarda o valor, mas não neste gcc com
 # return &n. A escada diz a ideia sem prometer que a pessoa vai ver.
 #
-# AS QUESTÕES DE MARCAR. Sete das 36 questões de diagnóstico e de treino
-# ficam fora: seis usam o que as escadas não ensinam — variável global,
-# `n++` e `++n`, protótipo sem corpo, `%s`, `snprintf` e o `?:` — e a
-# t12 afirma uma saída que este gcc não dá. O banco não foi mexido. Todas
-# as premissas abrem com questão de código.
+# AS QUESTÕES DE MARCAR. Seis das 36 questões de diagnóstico e de treino
+# ficam fora, porque usam o que as escadas não ensinam — variável global,
+# `n++` e `++n`, protótipo sem corpo, `%s`, `snprintf` e o `?:`. Do banco,
+# só a t12 foi mexida (reescrita, ver acima). Todas as premissas abrem com
+# questão de código.
 #
 # A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
 # alternativa de um degrau guiado, e só ali o erro leva `crenca`.
@@ -789,9 +790,9 @@ I1:
 
       printf("%d\n", f());
     saida: "7"
-  # Diz que ali sai 0; este gcc devolve NULL no lugar do endereço da
-  # local, e sai 1.
-  fora_da_trilha: [ciu_kc12_t12]
+  # A ciu_kc12_t12 ficava fora: dizia que `p == NULL` dava 0, e este gcc
+  # devolve NULL no lugar do endereço da local. Reescrita em 18/11/2026
+  # sem depender desse valor, voltou para a trilha.
   provas:
     - crenca: pointer_is_data
       programa: |

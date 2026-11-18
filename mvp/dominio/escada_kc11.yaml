@@ -47,8 +47,9 @@
 # AS QUESTÕES DE MARCAR. Cinco das 36 questões de diagnóstico e de treino
 # usam o que as escadas não ensinam — `struct`, `%c`, `for`, `double` e
 # uma função de várias linhas — e estão em `fora_da_trilha`. A t15, a da
-# função, diz ainda que o compilador "recusa" void * + n, o que o gcc não
-# faz sem -Wpointer-arith. O banco não foi mexido. O I3 perde a de código
+# função, dizia ainda que o compilador "recusa" void * + n, o que o gcc
+# não faz; em 18/11/2026 ela foi reescrita para dizer o que o padrão não
+# define, e segue fora pela função. O I3 perde a de código
 # de degrau 2 (a 017, com `for`) e abre com a de degrau 3; todas as
 # premissas abrem com questão de código.
 #

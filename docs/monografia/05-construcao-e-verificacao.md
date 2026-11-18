@@ -79,8 +79,8 @@ aviso, e as questões servidas não usam construções ainda não ensinadas
 
 Essa conferência do banco foi escrita depois que a revisão deste texto
 notou a falta dela. Na primeira rodada, achou de novo a questão do kc_12
-que já estava fora da trilha, e achou oito questões do kc_02 com o código
-partido (6.4).
+que já estava fora da trilha (depois reescrita), e achou oito questões do
+kc_02 com o código partido (6.4).
 
 ## 5.3 A régua do texto, em teste
 

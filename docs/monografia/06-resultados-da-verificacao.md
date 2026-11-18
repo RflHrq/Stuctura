@@ -28,15 +28,13 @@ do compilador — sete o analisador de fluxo (`-fanalyzer`), uma
 `-Wnull-dereference` —, e as que dependem do ambiente trazem nota que
 diz isso.
 
-No banco, das 70 questões de prever a saída conferidas, 69 imprimem o
-valor da alternativa certa; a outra é a do kc_12 relatada em 6.4, que
-está fora da trilha. Nenhum trecho das 321 questões com código parte uma
+No banco, das 69 questões de prever a saída conferidas, todas imprimem
+o valor da alternativa certa — depois da reescrita da questão do kc_12
+relatada em 6.4. Nenhum trecho das 321 questões com código parte uma
 string entre duas linhas, depois do conserto das oito do kc_02 (6.4).
 
-A seleção de questões deixa 94 questões do banco fora da trilha, por
-usarem construções que nenhum tópico ensinou até ali ou, num caso, por
-afirmarem o que o compilador do laboratório não confirma (6.4). Com
-elas fora, as 79 premissas abrem com uma questão de código.
+A seleção de questões deixa 93 questões do banco fora da trilha, por
+usarem construções que nenhum tópico ensinou até ali. Com elas fora, as 79 premissas abrem com uma questão de código.
 
 ## 6.3 A medida, com os estudantes simulados
 
@@ -83,9 +81,8 @@ nem se ela aprende — o que exigiria o estudo do Apêndice A.
 ## 6.4 O que a verificação encontrou
 
 O resultado mais útil da verificação não foi o "zero problemas" final,
-mas os defeitos que ela encontrou no caminho. Alguns exemplos — corrigidos
-antes da versão descrita, menos as questões do kc_11 e do kc_12, que
-ficaram fora da trilha até serem revistas:
+mas os defeitos que ela encontrou no caminho. Alguns exemplos, todos
+corrigidos antes da versão descrita:
 
 - **Oito questões com o código partido na tela.** No kc_02, oito questões
   tinham o `\n` do `printf` gravado como quebra de linha de verdade: a
@@ -98,10 +95,11 @@ ficaram fora da trilha até serem revistas:
   do kc_12 pergunta o que imprime `p == NULL` depois de `p` receber o
   endereço de uma variável local de uma função que já retornou, e dá
   como certa a resposta 0. No gcc 16.2, o compilador avisa e devolve
-  `NULL` no lugar daquele endereço, e sai 1. A questão ficou fora da
-  trilha, e o defeito foi registrado para revisão.
+  `NULL` no lugar daquele endereço, e sai 1 — e o padrão do C não define
+  aquele valor. A questão ficou fora da trilha até ser reescrita sem
+  depender dele; então voltou.
 - **Uma afirmação que depende da versão do compilador.** Uma questão do
-  kc_11 diz que o compilador "recusa" aritmética em `void *`; o gcc
+  kc_11 dizia que o compilador "recusa" aritmética em `void *`; o gcc
   aceita a conta por uma extensão própria, e só avisa com
   `-Wpointer-arith`. A questão já estava fora da trilha, por usar uma
   função de várias linhas; a demonstração do tópico usa a opção e diz

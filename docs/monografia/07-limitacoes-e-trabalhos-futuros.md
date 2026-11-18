@@ -17,7 +17,7 @@ iniciante, que a ordem dos passos é a mais fácil, nem que a frase de um
 passo é clara (5.7).
 
 **Só parte do banco é conferida contra o compilador.** O conferidor
-cobre as escadas e as demonstrações; no banco, só as 70 questões de
+cobre as escadas e as demonstrações; no banco, só as 69 questões de
 prever a saída com resposta em valor são comparadas com o que o programa
 imprime (5.2). Nas outras, a alternativa certa — "não dá para saber", o
 que está errado num trecho, a diferença entre dois casos — depende da

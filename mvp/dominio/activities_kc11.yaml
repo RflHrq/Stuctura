@@ -1158,11 +1158,15 @@ activities:
       void soma(void *base, int n) {
           void *fim = base + n;
       }
-    enunciado: "O que o compilador recusa aqui?"
+    # REESCRITA EM 18/11/2026. Perguntava o que o compilador "recusa", e o
+    # gcc aceita void * + n por uma extensão própria (só avisa com
+    # -Wpointer-arith). Quem não define a conta é o padrão do C: void não
+    # tem tamanho. Continua fora da trilha pela função de várias linhas.
+    enunciado: "O que está errado aqui, pelo padrão do C?"
     alternativas:
-      a: "base + n: void * não escala"
-      b: "Nada: void * soma normalmente"
-      c: "Nada: soma n bytes e acaba"
+      a: "base + n: o tipo void não tem tamanho"
+      b: "Nada: void * soma como os outros ponteiros"
+      c: "Nada: soma n bytes e o resultado vale"
     gabarito: a
     crencas:
       b: voidptr_arith_ok
