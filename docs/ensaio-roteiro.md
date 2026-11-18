@@ -45,10 +45,11 @@ Suba os dois, cada um no seu terminal, e **abra a página de quem responde
 antes de chamar a pessoa**:
 
 ```
-http://127.0.0.1:8010/?codigo=E01
+http://127.0.0.1:8015/?codigo=E01
 ```
 
-O código vai na URL, não numa tela a mais. Se a página abrir sem
+(A 8015, e não a 8010: a 8010 é do contêiner do portal, que fica ligado
+o tempo todo.) O código vai na URL, não numa tela a mais. Se a página abrir sem
 `?codigo=`, a sessão sai anônima e não dá para ligá-la a ninguém depois.
 
 Deixe o painel (`http://127.0.0.1:8011`) **na sua tela, não na dela**.

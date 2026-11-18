@@ -14,6 +14,7 @@ perder 7%, e a pessoa não volta para repetir.
 
 from __future__ import annotations
 
+import os
 import re
 import uuid
 from pathlib import Path
@@ -346,6 +347,21 @@ def raiz() -> FileResponse:
 app.mount("/web", StaticFiles(directory=AQUI / "web"), name="web")
 
 
+def porta() -> int:
+    """A porta do app de um tópico: 8010, ou a de `STRUCTURA_PORTA`.
+
+    O contêiner do portal ocupa a 8010 o tempo todo, e o ensaio do fluxo
+    anterior (`scripts/ensaio.sh`) sobe este app em outra porta. O host
+    não muda: só nesta máquina, como o portal sem configuração.
+    """
+    bruta = os.environ.get("STRUCTURA_PORTA") or "8010"
+    try:
+        return int(bruta)
+    except ValueError:
+        raise SystemExit(
+            "STRUCTURA_PORTA tem de ser um número, e veio %r" % bruta)
+
+
 def main() -> None:
     import uvicorn
 
@@ -354,8 +370,8 @@ def main() -> None:
           % (len(dominio.nos), len(dominio.crencas), len(dominio.atividades)))
     print("  streak para confirmar: %d · teto de tentativas: %d"
           % (motor.STREAK_ALVO, motor.TETO_TENTATIVAS))
-    print("  http://127.0.0.1:8010")
-    uvicorn.run(app, host="127.0.0.1", port=8010, log_level="warning")
+    print("  http://127.0.0.1:%d" % porta())
+    uvicorn.run(app, host="127.0.0.1", port=porta(), log_level="warning")
 
 
 if __name__ == "__main__":

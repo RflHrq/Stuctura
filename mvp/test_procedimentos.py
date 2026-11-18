@@ -393,6 +393,32 @@ def test_o_ensaio_imprime_os_comandos_com_o_ambiente_montado(area):
     assert "copia.sh" in r.stdout
 
 
+def test_o_ensaio_nao_disputa_a_porta_do_sistema_no_ar(area):
+    """Desde 16/11/2026 o contêiner ocupa a 8010 o tempo todo
+    (`restart: unless-stopped`), e o ensaio que mandava subir o app ali
+    não rodava mais nesta máquina. O ensaio usa a 8015, e diz isso no
+    comando que imprime."""
+    texto = pathlib.Path(RAIZ, ENSAIO).read_text(encoding="utf-8")
+    assert "for porta in 8015 8011" in texto
+    r = _ensaio("E02", "--pasta", rel(area))
+    if r.returncode == 0:
+        assert "STRUCTURA_PORTA=8015" in r.stdout
+        assert "http://127.0.0.1:8015/?codigo=E02" in r.stdout
+        assert ":8010" not in r.stdout
+
+
+def test_o_app_de_um_topico_le_a_porta(monkeypatch):
+    from mvp import app
+    monkeypatch.delenv("STRUCTURA_PORTA", raising=False)
+    assert app.porta() == 8010
+    monkeypatch.setenv("STRUCTURA_PORTA", "8015")
+    assert app.porta() == 8015
+    monkeypatch.setenv("STRUCTURA_PORTA", "oitenta")
+    with pytest.raises(SystemExit) as erro:
+        app.porta()
+    assert "STRUCTURA_PORTA" in str(erro.value)
+
+
 def test_o_ensaio_recusa_codigo_fora_do_formato(area):
     """A mesma regra do servidor. Um código com ponto ou barra passa aqui e
     estoura lá, ou pior: vira problema na hora de apagar."""

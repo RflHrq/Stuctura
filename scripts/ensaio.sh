@@ -121,9 +121,14 @@ fi
 #
 # Entao a pergunta e "alguem atende?", e quando atende o portao diz COM
 # QUE TOPICO — que e o diagnostico, nao o sintoma.
+#
+# A 8015, e nao a 8010: desde 16/11/2026 o contêiner do portal ocupa a
+# 8010 o tempo todo (`restart: unless-stopped`), e o ensaio que mandava
+# subir o app ali não rodava mais nesta máquina. O app de um tópico lê a
+# porta de STRUCTURA_PORTA.
 atende() { curl -s -m 2 "http://127.0.0.1:$1/saude" 2>/dev/null; }
 
-for porta in 8010 8011; do
+for porta in 8015 8011; do
   corpo=$(atende "$porta" || true)
   if [ -n "$corpo" ]; then
     quem=$(printf '%s' "$corpo" | python -c '
@@ -151,10 +156,10 @@ fi
 verde "pronto. Suba os dois, cada um no seu terminal:"
 cat <<FIM
 
-  STRUCTURA_TOPICO=$topico STRUCTURA_LOG=$pasta/$topico.jsonl python -m mvp.app
+  STRUCTURA_PORTA=8015 STRUCTURA_TOPICO=$topico STRUCTURA_LOG=$pasta/$topico.jsonl python -m mvp.app
   STRUCTURA_TOPICO=$topico STRUCTURA_LOG=$pasta/$topico.jsonl python -m mvp.painel
 
-  quem responde:  http://127.0.0.1:8010/?codigo=$codigo
+  quem responde:  http://127.0.0.1:8015/?codigo=$codigo
   voce observa:   http://127.0.0.1:8011
 
   Abra a pagina de quem responde ANTES de chamar a pessoa: o codigo vai na
