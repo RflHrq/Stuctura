@@ -151,11 +151,12 @@ def cria_portal(pasta: Path | None = None) -> FastAPI:
 
     lista = []
     rotulos, do_fim = caminho.rotulos(), set(caminho.fim())
-    # Na ORDEM DO CAMINHO (docs/interface.md, seção 7), que é sugestão:
-    # todos os tópicos continuam abertos. O rótulo é o nome curto que a
-    # trilha desenhada escreve ao lado da parada; `fim` marca os três em
-    # que o caminho se abre.
-    for topico in caminho.ordem():
+    # A lista sai na ordem dos tópicos no disco, como sempre (o teste do
+    # portal de 12/11/2026 afirma isso), e a ORDEM DO CAMINHO
+    # (docs/interface.md, seção 7) vai em `caminho`, ao lado: a página
+    # ordena por ela. O rótulo é o nome curto que a trilha desenhada
+    # escreve ao lado da parada; `fim` marca os três em que ela se abre.
+    for topico in topicos():
         mod = _app_do_topico(topico, pasta / ("%s.jsonl" % topico))
         portal.mount("/kc/%s" % topico, mod.app)
         d = mod.dominio
@@ -174,7 +175,7 @@ def cria_portal(pasta: Path | None = None) -> FastAPI:
 
     @portal.get("/topicos")
     def lista_os_topicos() -> dict:
-        return {"topicos": lista, "pasta": str(pasta)}
+        return {"topicos": lista, "caminho": caminho.ordem(), "pasta": str(pasta)}
 
     @portal.get("/")
     def entrada() -> FileResponse:

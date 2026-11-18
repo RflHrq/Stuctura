@@ -319,7 +319,16 @@
   }
 
   fetch("/topicos").then(function (r) { return r.json(); }).then(function (j) {
-    var topicos = j.topicos || [];
+    /* A lista vem na ordem dos tópicos; a do caminho vem em j.caminho, e
+     * é por ela que a página desenha. Tópico fora do caminho vai no fim. */
+    var ordem = j.caminho || [];
+    var posicao = function (t) {
+      var i = ordem.indexOf(t.id);
+      return i < 0 ? ordem.length : i;
+    };
+    var topicos = (j.topicos || []).slice().sort(function (a, b) {
+      return posicao(a) - posicao(b);
+    });
     var est = Caminho.estados(topicos, o_que_o_navegador_lembra(topicos));
     desenhaProximo(topicos, est);
     Caminho.desenha(document.getElementById("trilha"), topicos, est, {

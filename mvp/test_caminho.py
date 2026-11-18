@@ -61,10 +61,20 @@ def test_o_portal_manda_a_ordem_do_caminho_e_os_rotulos(tmp_path):
     from fastapi.testclient import TestClient
 
     from mvp import portal
-    lista = TestClient(portal.cria_portal(tmp_path)).get("/topicos").json()["topicos"]
-    assert [t["id"] for t in lista] == caminho.ordem()
+    """A lista continua na ordem numérica — é o que o teste do portal de
+    12/11/2026 (test_portal.py, anterior a este ramo) afirma — e a ordem do
+    caminho vai num campo à parte, que a página usa para ordenar."""
+    j = TestClient(portal.cria_portal(tmp_path)).get("/topicos").json()
+    lista = j["topicos"]
+    assert [t["id"] for t in lista] == list(topicos())
+    assert j["caminho"] == caminho.ordem()
     assert {t["id"]: t["rotulo"] for t in lista} == caminho.rotulos()
     assert {t["id"] for t in lista if t["fim"]} == set(caminho.fim())
+
+
+def test_a_pagina_inicial_ordena_pelo_caminho():
+    html = (WEB / "portal.html").read_text(encoding="utf-8")
+    assert "j.caminho" in html
 
 
 # --------------------------------------------------------------------------
