@@ -23,6 +23,11 @@
   var PARTES = window.location.pathname.split("/");
   var NO_PORTAL = PARTES[1] === "trilha" && !!PARTES[2];
   var BASE = NO_PORTAL ? "/trilha/" + PARTES[2] : "";
+  /* O tópico, para o navegador lembrar a sessão e o andamento dele
+   * (progresso.js). Fora do portal não há tópico na URL, e nada se
+   * guarda. */
+  var TOPICO = NO_PORTAL ? PARTES[2] : "";
+  var GUARDA = !!(TOPICO && window.Progresso);
 
   /* O mesmo teto do servidor para o tempo de uma resposta. Quem deixa a
    * página aberta de um dia para o outro não pode ficar com um número
@@ -31,6 +36,7 @@
 
   var S = {
     sessao: null,
+    codigo: "",         // o código com que a sessão abriu ("" sem código)
     tela: null,
     passo: 0,           // o número da tela, que volta em todo pedido
     cartao: null,       // o cartão na tela, para o retorno entrar ABAIXO dele
@@ -222,6 +228,10 @@
      * o código não passou pela tela de entrada, e sem isto os ajustes
      * abririam vazios. */
     S.ritmo = j.ritmo || S.ritmo;
+    /* O navegador lembra onde a pessoa está, e quanto do tópico fechou:
+     * é o que deixa voltar sem código e a página inicial mostrar o
+     * andamento. */
+    if (GUARDA) Progresso.anota(TOPICO, j, S.codigo);
     desenhaAjustes();
     desenhaProgresso(j.progresso, j.tela);
     if (j.explicacao) { abrePainel(j.explicacao); return; }
@@ -230,9 +240,11 @@
     desenha(j.tela);
   }
 
-  /* A sessão que o servidor não conhece mais. */
+  /* A sessão que o servidor não conhece mais. O que o navegador guardava
+   * dela também não serve, e é esquecido. */
   function perdeu(texto) {
     S.sessao = null;
+    if (GUARDA) Progresso.apaga(TOPICO);
     $("palco").classList.add("oculto");
     $("ajustes").classList.add("oculto");
     $("btn-ajustes").hidden = true;
@@ -247,6 +259,7 @@
     var r = await pede("/sessoes", { codigo: codigo || "" });
     if (r.status === 200) {
       S.sessao = r.json.sessao;
+      S.codigo = codigo || "";
       recebe(r.json);
       return;
     }
@@ -870,9 +883,38 @@
     c.appendChild(el("div", { "class": "t-acoes" }, [
       NO_PORTAL ? el("a", { "class": "btn", href: "/", texto: "Voltar aos tópicos",
                             style: "text-decoration:none" }) : null,
-      botao("Fazer de novo", function () { abre(""); }, "btn-topo")
+      botao("Fazer de novo", function () { recomeca(); }, "btn-topo")
     ]));
   };
+
+  /* Uma sessão nova, do zero: o que o navegador guardava do tópico sai,
+   * para reabrir a página não voltar à sessão de antes. */
+  function recomeca() {
+    if (GUARDA) Progresso.apaga(TOPICO);
+    abre("");
+  }
+
+  /* A sessão de quem abriu SEM código e fechou a página: o navegador
+   * guardou o número, e o servidor devolve a tela em que ela estava. Se
+   * ele não a conhece mais, abre outra; se o conteúdo mudou, a frase
+   * dele vai para a tela (docs/trilha.md, 6.12). */
+  async function retoma(sessao) {
+    $("perdida").classList.add("oculto");
+    $("palco").classList.remove("oculto");
+    var r = await pede("/sessoes/" + sessao + "/retoma", {});
+    if (r.status === 200) {
+      S.sessao = r.json.sessao;
+      S.codigo = "";
+      recebe(r.json);
+      return;
+    }
+    if (r.status === 410) { perdeu(r.json && r.json.detail); return; }
+    if (r.status === 0) {
+      perdeu("O servidor não respondeu. Confira se o sistema está ligado e tente de novo.");
+      return;
+    }
+    recomeca();
+  }
 
   /* ------------------------------------------------------------ começo */
 
@@ -881,7 +923,7 @@
     return m ? decodeURIComponent(m[1]) : "";
   }
 
-  $("btn-recomecar").addEventListener("click", function () { abre(""); });
+  $("btn-recomecar").addEventListener("click", function () { recomeca(); });
   if (!NO_PORTAL) $("lnk-topicos").hidden = true;
 
   /* As figuras são por tópico: id de premissa se repete entre tópicos. */
@@ -895,5 +937,14 @@
     })
     .catch(function () { /* sem saúde, a sessão ainda abre */ });
 
-  abre(codigoDaURL());
+  /* Abrir: o código da URL vale primeiro. Sem ele, o que o navegador
+   * guardou deste tópico — o código com que a pessoa abriu, ou o número
+   * da sessão de quem abriu sem código. Sem nada guardado, uma nova. */
+  (function () {
+    var codigo = codigoDaURL();
+    var guardado = (!codigo && GUARDA) ? Progresso.le(TOPICO) : null;
+    if (guardado && guardado.codigo) abre(guardado.codigo);
+    else if (guardado && guardado.sessao) retoma(guardado.sessao);
+    else abre(codigo);
+  })();
 })();

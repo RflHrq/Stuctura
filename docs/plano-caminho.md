@@ -48,4 +48,7 @@ orientador. Execução inline, tarefa por tarefa, teste antes do código.
 
 ## Estado
 
-- [ ] 1 · [ ] 2 · [ ] 3 · [ ] 4 · [ ] 5 · [ ] 6
+- [x] 1 · [x] 2 · [x] 3 · [x] 4 · [x] 5 · [x] 6 — feito em 18/11/2026; a
+  conferência no navegador (servidor de ensaio) passou em tela larga, em
+  360 px e nos dois temas, e a sessão sem código voltou no mesmo passo,
+  inclusive depois de o servidor reiniciar.

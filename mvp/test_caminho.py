@@ -65,3 +65,100 @@ def test_o_portal_manda_a_ordem_do_caminho_e_os_rotulos(tmp_path):
     assert [t["id"] for t in lista] == caminho.ordem()
     assert {t["id"]: t["rotulo"] for t in lista} == caminho.rotulos()
     assert {t["id"] for t in lista if t["fim"]} == set(caminho.fim())
+
+
+# --------------------------------------------------------------------------
+# O caminho desenhado (mvp/web/caminho.js e portal.html)
+# --------------------------------------------------------------------------
+
+from mvp.test_interface import (_roda_node, contraste, cores_do_tema,  # noqa: E402
+                                tem_node)
+
+WEB = pathlib.Path(__file__).resolve().parent / "web"
+
+_TOPICOS = [{"id": t, "fim": t in ("kc_10", "kc_11", "kc_12")}
+            for t in ["kc_00", "kc_02", "kc_03", "kc_04", "kc_05", "kc_06",
+                      "kc_07", "kc_01", "kc_08", "kc_09", "kc_10", "kc_11",
+                      "kc_12"]]
+
+
+def _estados(guardados: dict):
+    import json
+    programa = """
+    global.window = global;
+    require(require("path").join(WEB, "caminho.js"));
+    console.log(JSON.stringify(global.Caminho.estados(%s, %s)));
+    """ % (json.dumps(_TOPICOS), json.dumps(guardados))
+    return json.loads(_roda_node(programa))
+
+
+@tem_node
+def test_sem_nada_feito_o_primeiro_e_o_proximo():
+    e = _estados({})
+    assert e["proximo"] == "kc_00"
+    assert {v["estado"] for v in e["porId"].values()} == {"aberto"}
+
+
+@tem_node
+def test_o_feito_o_andamento_e_o_proximo():
+    e = _estados({"kc_00": {"feitas": 5, "total": 5, "fim": True},
+                  "kc_03": {"feitas": 2, "total": 6, "fim": False}})
+    assert e["porId"]["kc_00"]["estado"] == "feito"
+    assert e["porId"]["kc_03"]["estado"] == "andamento"
+    assert (e["porId"]["kc_03"]["feitas"], e["porId"]["kc_03"]["total"]) == (2, 6)
+    # o próximo é o primeiro da ordem ainda não feito — o kc_02, que vem
+    # antes do kc_03 no caminho, mesmo sem ter começado
+    assert e["proximo"] == "kc_02"
+    assert e["porId"]["kc_02"]["estado"] == "aberto"
+
+
+@tem_node
+def test_o_proximo_pode_estar_em_andamento():
+    e = _estados({"kc_00": {"feitas": 3, "total": 5, "fim": False}})
+    assert e["proximo"] == "kc_00"
+    assert e["porId"]["kc_00"]["estado"] == "andamento"
+
+
+@tem_node
+def test_com_tudo_feito_nao_ha_proximo():
+    e = _estados({t["id"]: {"feitas": 6, "total": 6, "fim": True} for t in _TOPICOS})
+    assert e["proximo"] is None
+
+
+@tem_node
+def test_as_paradas_nao_se_atropelam():
+    import json
+    programa = """
+    global.window = global;
+    require(require("path").join(WEB, "caminho.js"));
+    console.log(JSON.stringify(global.Caminho.posicoes(10, 3)));
+    """
+    p = json.loads(_roda_node(programa))
+    assert len(p["tronco"]) == 10 and len(p["fim"]) == 3
+    todos = p["tronco"] + p["fim"]
+    assert all(20 <= x <= 310 and 20 <= y <= 410 for x, y in todos)
+    pertos = [(a, b) for i, a in enumerate(todos) for b in todos[i + 1:]
+              if ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** .5 < 34]
+    assert pertos == []
+
+
+def test_as_cores_da_trilha_passam_no_contraste():
+    for tema in ("claro", "escuro"):
+        c = cores_do_tema(tema)
+        for frente, fundo in (("tinta", "trilha-fundo"), ("tinta2", "trilha-fundo"),
+                              ("destaque", "trilha-fundo"), ("tinta2", "cartao"),
+                              ("destaque", "cartao")):
+            assert contraste(c[frente], c[fundo]) >= 4.5, (tema, frente, fundo)
+
+
+def test_a_pagina_inicial_desenha_o_caminho():
+    html = (WEB / "portal.html").read_text(encoding="utf-8")
+    for js in ("progresso.js", "caminho.js"):
+        assert "/web/%s?v=" % js in html, js
+    assert "Próximo sugerido" in html
+    for legenda in ("já feito", "próximo", "em andamento", "aberto"):
+        assert legenda in html, legenda
+    assert 'aria-label="O caminho dos tópicos"' in html
+    assert "Caminho.desenha" in html and "Progresso.le" in html
+    # a pulsação do próximo só anda com movimento permitido
+    assert "prefers-reduced-motion: no-preference" in html

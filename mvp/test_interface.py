@@ -433,8 +433,10 @@ def test_a_pagina_inicial_tem_o_logo_o_titulo_e_o_tema():
     topo = re.search(r'<header class="topo[^"]*">(.*?)</header>', html, re.S).group(1)
     assert 'id="codigo"' in topo and 'for="codigo"' in topo
     assert 'aria-describedby="nota"' in topo and 'id="nota"' in html
-    # a ordem sugerida é a fatia 2: a frase não promete o que a lista não faz
-    assert "ordem sugerida" not in html
+    # ERA "ordem sugerida" not in html: a frase não podia prometer o que a
+    # lista não fazia. A fatia 2 desenhou o caminho (18/11/2026), e a frase
+    # voltou junto com ele.
+    assert "ordem sugerida" in html and "caminho.js" in html
 
 
 def test_o_sinal_de_certo_so_anima_com_movimento_permitido():

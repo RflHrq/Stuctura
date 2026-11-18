@@ -366,7 +366,8 @@ Cada fatia deixa o sistema funcionando e passa pela suíte inteira.
      tocado.
 2. **O caminho.** `caminho.yaml`, o teste da ordem, `/topicos` mandando
    a ordem, e a trilha desenhada na página inicial com o estado de cada
-   parada.
+   parada. **Feita em 18/11/2026** (`docs/plano-caminho.md`), junto com o
+   andamento por tópico ("3 de 6") da seção 6.12 de `docs/trilha.md`.
 3. **O desenhista e as cenas do kc_00**, o tópico-modelo, como foi com
    as escadas: o formato da cena, a conferência, os personagens da
    primeira leva, e as cinco cenas do kc_00. O Rafael olha antes de

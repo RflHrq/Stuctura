@@ -25,18 +25,78 @@
   .p-codigo input::placeholder { color: var(--topo-tinta2); opacity: 1; }
   .p-codigo input:focus-visible { outline: 3px solid var(--topo-realce); outline-offset: 1px; }
 
-  .portal { max-width: 760px; margin: 0 auto; padding: 40px 20px 56px; }
+  .portal { max-width: 1040px; margin: 0 auto; padding: 36px 20px 56px; }
+  /* A casa: à esquerda o título, o próximo sugerido e a legenda; à direita
+     a trilha. Em tela estreita, um embaixo do outro — o cartão antes. */
+  .p-casa { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 440px);
+            gap: 32px; align-items: start; }
   .portal h1 { font-size: 2rem; line-height: 1.15; letter-spacing: -.02em;
                font-weight: 800; margin: 0 0 12px; }
   .portal .sub { color: var(--tinta2); margin: 0 0 10px; line-height: 1.55;
                  max-width: 60ch; font-size: 1.05rem; }
-  .codigo-nota { color: var(--tinta2); font-size: .9rem; margin: 0 0 26px;
+  .codigo-nota { color: var(--tinta2); font-size: .9rem; margin: 0 0 22px;
                  min-height: 1.3em; }
   .codigo-nota.erro { color: var(--erro); }
 
-  /* Os tópicos, em cartões, na ordem de sempre. O caminho desenhado é
-     a fatia 2. */
-  #lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  /* O próximo sugerido. */
+  .p-proximo { background: var(--cartao); border: 1.5px solid var(--linha);
+               border-radius: 16px; padding: 18px 20px; box-shadow: var(--cartao-sombra); }
+  .p-proximo .p-rot { display: block; font: 700 .78rem/1.2 "JetBrains Mono", ui-monospace,
+                      Consolas, monospace; color: var(--etiqueta); text-transform: uppercase;
+                      letter-spacing: .04em; margin-bottom: 8px; }
+  .p-proximo .p-tit { font-size: 1.3rem; font-weight: 800; margin: 0 0 4px; }
+  .p-proximo .p-meta { color: var(--tinta2); font-size: .92rem; margin: 0 0 14px; }
+  .p-acoes { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .p-acoes a { text-decoration: none; }
+  .p-ver { color: var(--acento); font-weight: 700; font-size: .95rem; padding: 8px 4px; }
+  .p-ver:hover, .p-ver:focus-visible { text-decoration: underline; }
+
+  /* A legenda: a cor nunca é a única informação — cada marca tem forma. */
+  .p-legenda { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 16px;
+               margin: 16px 0 0; padding: 0; color: var(--tinta2); font-size: .88rem; }
+  .p-legenda li { display: flex; align-items: center; gap: 6px; }
+  .p-legenda svg { flex: none; }
+
+  /* A trilha (caminho.js desenha; as cores são do tema). */
+  .p-trilha svg { display: block; width: 100%; height: auto; max-width: 440px;
+                  margin: 0 auto; }
+  .c-fundo { fill: var(--trilha-fundo); }
+  .c-enfeite circle { fill: var(--trilha-enfeite); }
+  .c-chao { fill: none; stroke: var(--trilha-chao); stroke-width: 22;
+            stroke-linecap: round; stroke-linejoin: round; }
+  .c-andado { fill: none; stroke: var(--trilha-feito); stroke-width: 4;
+              stroke-linecap: round; stroke-linejoin: round; }
+  .c-parada { cursor: pointer; }
+  .c-parada .c-bola { stroke-width: 2.5; }
+  .c-parada.feito .c-bola { fill: var(--parada-ok); stroke: none; }
+  .c-parada .c-certo { fill: none; stroke: var(--parada-ok-tinta); stroke-width: 3;
+                       stroke-linecap: round; stroke-linejoin: round; }
+  .c-parada.aberto .c-bola { fill: var(--cartao); stroke: var(--linha2); }
+  .c-parada.aberto .c-num { fill: var(--tinta2); }
+  .c-parada.andamento .c-bola { fill: var(--cartao); stroke: var(--destaque); stroke-width: 3; }
+  .c-parada.andamento .c-num { fill: var(--destaque); }
+  .c-parada.proximo .c-bola { fill: var(--parada-agora); stroke: none; }
+  .c-parada.proximo .c-num { fill: var(--parada-agora-tinta); }
+  .c-pulso { fill: var(--parada-agora); opacity: .3; }
+  .c-num { font: 800 10.5px/1 "JetBrains Mono", ui-monospace, Consolas, monospace;
+           text-anchor: middle; }
+  .c-rotulo { fill: var(--tinta); font: 600 10px/1 Nunito, system-ui, sans-serif; }
+  .c-parada.proximo .c-rotulo { fill: var(--destaque); font-weight: 800; }
+  .c-andamento { fill: var(--tinta2); font: 700 8.5px/1 Nunito, system-ui, sans-serif; }
+  .c-parada:hover .c-bola, .c-parada:focus .c-bola { stroke: var(--acento); stroke-width: 4; }
+  .c-parada:focus { outline: none; }
+  /* A pulsação do próximo, só com movimento permitido. */
+  @media (prefers-reduced-motion: no-preference) {
+    .c-pulso { transform-box: fill-box; transform-origin: center;
+               animation: c-pulso 2s ease-in-out infinite; }
+    @keyframes c-pulso { 0%, 100% { opacity: .3; transform: scale(1); }
+                         50% { opacity: .08; transform: scale(1.22); } }
+  }
+
+  /* Todos os tópicos, na ordem do caminho. */
+  .p-todos { margin: 44px 0 14px; font-size: 1.25rem; font-weight: 800; }
+  #lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px;
+           grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
   #lista a { display: grid; grid-template-columns: 2.6em 1fr auto;
              gap: 14px; align-items: center; padding: 14px 16px;
              background: var(--cartao); border: 1.5px solid var(--linha);
@@ -54,7 +114,8 @@
   .marcas { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   .marca { font-size: .78rem; font-weight: 700; padding: 3px 9px; border-radius: 999px;
            white-space: nowrap; }
-  .marca.aberto { background: var(--ok-fundo); color: var(--ok); }
+  .marca.feito { background: var(--ok-fundo); color: var(--ok); }
+  .marca.andamento { background: var(--destaque-fundo); color: var(--tinta); }
   .falha { color: var(--erro); }
   /* O caminho de sempre, para o tópico que já abre pela trilha. */
   #lista a.anterior { display: inline; padding: 0; border: 0; background: none;
@@ -63,13 +124,17 @@
   #lista a.anterior:hover, #lista a.anterior:focus-visible {
                       color: var(--acento); }
 
+  @media (max-width: 860px) {
+    .p-casa { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  }
   /* Tela estreita: o nome sai do topo (o logo fica), o rótulo encurta. */
   @media (max-width: 560px) {
     .p-topo { gap: 8px; padding: 10px 12px; }
     .p-nome, .p-longo { display: none; }
     .p-codigo input { width: 7.5em; }
-    .portal { padding: 26px 14px 48px; }
+    .portal { padding: 24px 14px 48px; }
     .portal h1 { font-size: 1.6rem; }
+    #lista { grid-template-columns: minmax(0, 1fr); }
     #lista a { grid-template-columns: 2.4em 1fr; gap: 12px; }
     .marcas { grid-column: 2; justify-content: flex-start; }
   }
@@ -104,16 +169,45 @@
     class="t-btn-texto">Tema escuro</span></button>
 </header>
 <main class="portal">
-  <h1>Ponteiros em C, uma ideia de cada vez</h1>
-  <p class="sub">Treze tópicos. Cada ideia começa com uma pergunta: o sistema
-    descobre o que você já sabe, o que falta e o que você acha que sabe — e
-    mostra, rodando, o que a máquina faz.</p>
-  <p class="codigo-nota" id="nota">Sem código, a sessão sai anônima. Com
-    código, o mesmo código vale uma vez em cada tópico.</p>
+  <div class="p-casa">
+    <div class="p-ola">
+      <h1>Ponteiros em C, uma ideia de cada vez</h1>
+      <p class="sub">Treze tópicos, numa ordem sugerida. Cada ideia começa com uma
+        pergunta: o sistema descobre o que você já sabe, o que falta e o que você
+        acha que sabe — e mostra, rodando, o que a máquina faz.</p>
+      <p class="codigo-nota" id="nota">Sem código, a sessão sai anônima, e este
+        navegador lembra onde você parou. Com código, o mesmo código retoma a
+        sessão em cada tópico.</p>
 
+      <section class="p-proximo" aria-labelledby="prox-titulo">
+        <span class="p-rot">Próximo sugerido</span>
+        <h2 class="p-tit" id="prox-titulo">…</h2>
+        <p class="p-meta" id="prox-meta"></p>
+        <div class="p-acoes">
+          <a class="btn" id="prox-ir" href="#">Começar</a>
+          <a class="p-ver" href="#todos">Ver todos os tópicos</a>
+        </div>
+      </section>
+
+      <ul class="p-legenda" aria-label="Legenda do caminho">
+        <li><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6" style="fill:var(--parada-ok)"/><path d="M4 7 l2 2 l4 -4" style="fill:none;stroke:var(--parada-ok-tinta);stroke-width:1.8;stroke-linecap:round"/></svg>já feito</li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6" style="fill:var(--parada-agora)"/></svg>próximo</li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" style="fill:var(--cartao);stroke:var(--destaque);stroke-width:2"/></svg>em andamento</li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" style="fill:var(--cartao);stroke:var(--linha2);stroke-width:2"/></svg>aberto</li>
+      </ul>
+    </div>
+
+    <nav class="p-trilha" aria-label="O caminho dos tópicos">
+      <svg id="trilha" viewBox="0 0 330 420" role="group"></svg>
+    </nav>
+  </div>
+
+  <h2 class="p-todos" id="todos">Todos os tópicos</h2>
   <ol id="lista" aria-label="Tópicos"></ol>
 </main>
 
+<script src="/web/progresso.js?v=20261116"></script>
+<script src="/web/caminho.js?v=20261116"></script>
 <script>
 (function () {
   "use strict";
@@ -149,25 +243,60 @@
     guarda("structura-codigo", campo.value.trim());
   });
 
-  function abertos() {
-    try { return JSON.parse(guardado("structura-abertos") || "{}"); }
-    catch (e) { return {}; }
+  /* Ir a um endereço levando o código, quando há um. Código fora do
+   * formato não deixa sair: a nota diz o que está errado. */
+  function vai(ev, destino) {
+    var c = codigoValido();
+    if (c === null) { ev.preventDefault(); campo.focus(); return; }
+    if (c) { ev.preventDefault(); window.location.href = destino + "?codigo=" + encodeURIComponent(c); }
   }
 
-  function desenha(topicos) {
-    var ja = abertos();
+  /* Quem tem trilha abre por ela; o caminho de sempre fica num link
+   * discreto, a "versão anterior". */
+  function destinoDe(t) { return t.trilha || t.caminho; }
+
+  function o_que_o_navegador_lembra(topicos) {
+    var g = {};
+    topicos.forEach(function (t) {
+      var d = window.Progresso ? Progresso.le(t.id) : null;
+      if (d) g[t.id] = d;
+    });
+    return g;
+  }
+
+  function desenhaProximo(topicos, est) {
+    var t = topicos.filter(function (x) { return x.id === est.proximo; })[0];
+    var tit = document.getElementById("prox-titulo");
+    var meta = document.getElementById("prox-meta");
+    var ir = document.getElementById("prox-ir");
+    if (!t) {
+      tit.textContent = "Você passou pelos treze tópicos";
+      meta.textContent = "Dá para refazer qualquer um pela trilha ou pela lista abaixo.";
+      ir.hidden = true;
+      return;
+    }
+    var e = est.porId[t.id];
+    tit.textContent = t.titulo;
+    meta.textContent = e.estado === "andamento"
+      ? "Em andamento: " + e.feitas + " de " + e.total + " ideias"
+      : t.nos + " ideias · " + t.atividades + " atividades";
+    ir.textContent = e.estado === "andamento" ? "Continuar" : "Começar";
+    ir.href = destinoDe(t);
+    ir.hidden = false;
+    ir.onclick = function (ev) { vai(ev, destinoDe(t)); };
+  }
+
+  function desenhaLista(topicos, est) {
     lista.textContent = "";
-    topicos.forEach(function (t, i) {
+    topicos.forEach(function (t) {
       var li = document.createElement("li");
       var a = document.createElement("a");
-      /* Quem tem trilha abre por ela; o caminho de sempre fica num link
-       * discreto, logo abaixo. */
-      var destino = t.trilha || t.caminho;
+      var destino = destinoDe(t);
       a.href = destino;
 
       var num = document.createElement("span");
       num.className = "num";
-      num.textContent = (i < 10 ? "0" : "") + i;
+      num.textContent = t.id.replace(/^kc_/, "");
 
       var meio = document.createElement("span");
       meio.className = "titulo";
@@ -179,31 +308,23 @@
 
       var marcas = document.createElement("span");
       marcas.className = "marcas";
-      if (ja[t.id]) {
+      var e = est.porId[t.id];
+      if (e.estado !== "aberto") {
         var v = document.createElement("span");
-        v.className = "marca aberto"; v.textContent = "já aberto";
+        v.className = "marca " + e.estado;
+        v.textContent = e.estado === "feito" ? "feito" : e.feitas + " de " + e.total;
         marcas.appendChild(v);
       }
 
       a.appendChild(num); a.appendChild(meio); a.appendChild(marcas);
-      a.addEventListener("click", function (ev) {
-        var c = codigoValido();
-        if (c === null) { ev.preventDefault(); campo.focus(); return; }
-        var marcados = abertos(); marcados[t.id] = true;
-        guarda("structura-abertos", JSON.stringify(marcados));
-        if (c) { ev.preventDefault(); window.location.href = destino + "?codigo=" + encodeURIComponent(c); }
-      });
+      a.addEventListener("click", function (ev) { vai(ev, destino); });
       li.appendChild(a);
       if (t.trilha) {
         var antes = document.createElement("a");
         antes.className = "anterior";
         antes.href = t.caminho;
         antes.textContent = "versão anterior";
-        antes.addEventListener("click", function (ev) {
-          var c = codigoValido();
-          if (c === null) { ev.preventDefault(); campo.focus(); return; }
-          if (c) { ev.preventDefault(); window.location.href = t.caminho + "?codigo=" + encodeURIComponent(c); }
-        });
+        antes.addEventListener("click", function (ev) { vai(ev, t.caminho); });
         li.appendChild(antes);
       }
       lista.appendChild(li);
@@ -211,7 +332,14 @@
   }
 
   fetch("/topicos").then(function (r) { return r.json(); }).then(function (j) {
-    desenha(j.topicos || []);
+    var topicos = j.topicos || [];
+    var est = Caminho.estados(topicos, o_que_o_navegador_lembra(topicos));
+    desenhaProximo(topicos, est);
+    Caminho.desenha(document.getElementById("trilha"), topicos, est, {
+      href: destinoDe,
+      aoClicar: function (ev, t) { vai(ev, destinoDe(t)); }
+    });
+    desenhaLista(topicos, est);
   }).catch(function (e) {
     var li = document.createElement("li");
     li.className = "falha";

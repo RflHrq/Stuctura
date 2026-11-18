@@ -1342,7 +1342,10 @@ Cada fatia deixa o sistema funcionando.
    com o registro inteiro em disco. Agora o servidor a refaz pelo número
    dela, que só a página conhece; se o conteúdo mudou desde que ela
    começou, a página recebe 410 e mostra a frase. Falta o resto deste
-   item: quem fecha a página e volta depois, sem código.)
+   item: quem fecha a página e volta depois, sem código.) **Feita em
+   18/11/2026** (`docs/plano-caminho.md`): o navegador guarda a sessão de
+   quem abriu sem código e volta à mesma tela; a página inicial mostra o
+   andamento de cada tópico no caminho desenhado.
 4. O porquê do acerto, por questão, tópico a tópico.
 
 ## 10. Decisões minhas, para o Rafael conferir

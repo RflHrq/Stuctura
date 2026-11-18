@@ -62,6 +62,9 @@ html[data-tema="claro"], html:not([data-tema]) {
   --fundo-desenho: linear-gradient(var(--padrao) 1px, transparent 1px),
                    linear-gradient(90deg, var(--padrao) 1px, transparent 1px);
   --fundo-passo: 22px 22px;
+  /* a trilha da página inicial: o fundo, o chão, o chão já andado e os enfeites */
+  --trilha-fundo: #f2f7ef; --trilha-chao: #f1e3c6; --trilha-feito: #9ccbb6;
+  --trilha-enfeite: #d3e5cc;
 }
 
 /* ---- escuro: noite de editor ---- */
@@ -97,6 +100,9 @@ html[data-tema="escuro"] {
   --fundo-desenho: radial-gradient(var(--padrao) 1px, transparent 1px),
                    radial-gradient(1200px 300px at 80% -10%, rgba(56, 189, 248, .12), transparent);
   --fundo-passo: 18px 18px, 100% 100%;
+  /* a trilha da página inicial: o fundo, o chão, o chão já andado e os enfeites */
+  --trilha-fundo: #11202e; --trilha-chao: #1d3246; --trilha-feito: #1f6b52;
+  --trilha-enfeite: #182b3d;
 }
 
 /* O mesmo escuro, para quem está sem JavaScript com o sistema no escuro.
@@ -136,6 +142,9 @@ html[data-tema="escuro"] {
     --fundo-desenho: radial-gradient(var(--padrao) 1px, transparent 1px),
                      radial-gradient(1200px 300px at 80% -10%, rgba(56, 189, 248, .12), transparent);
     --fundo-passo: 18px 18px, 100% 100%;
+    /* a trilha da página inicial: o fundo, o chão, o chão já andado e os enfeites */
+    --trilha-fundo: #11202e; --trilha-chao: #1d3246; --trilha-feito: #1f6b52;
+    --trilha-enfeite: #182b3d;
   }
 }
 
