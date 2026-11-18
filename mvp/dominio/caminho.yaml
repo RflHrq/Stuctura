@@ -1,0 +1,28 @@
+# O caminho sugerido dos treze tópicos (docs/interface.md, seção 7).
+#
+# A ordem é SUGESTÃO: todos os tópicos ficam abertos. O kc_01 vem depois
+# do kc_06 e do kc_07, como o Rafael decidiu em 16/11/2026; e no fim o
+# caminho se abre em três, porque o kc_10, o kc_11 e o kc_12 não dependem
+# um do outro. Quem confere que cada tópico vem depois do que ele pede é
+# mvp/test_caminho.py.
+#
+# O rótulo é o nome curto que a trilha desenhada escreve ao lado de cada
+# parada; o título inteiro continua no cartão e na lista.
+
+ordem:
+  - {topico: kc_00, rotulo: "Variáveis"}
+  - {topico: kc_02, rotulo: "O que é um ponteiro"}
+  - {topico: kc_03, rotulo: "Declarar"}
+  - {topico: kc_04, rotulo: "& e *"}
+  - {topico: kc_05, rotulo: "NULL"}
+  - {topico: kc_06, rotulo: "Passagem por referência"}
+  - {topico: kc_07, rotulo: "Ponteiro e array"}
+  - {topico: kc_01, rotulo: "Memória"}
+  - {topico: kc_08, rotulo: "malloc"}
+  - {topico: kc_09, rotulo: "free"}
+
+# Os três que fecham o caminho, lado a lado.
+fim:
+  - {topico: kc_10, rotulo: "Ponteiro de ponteiro"}
+  - {topico: kc_11, rotulo: "Aritmética"}
+  - {topico: kc_12, rotulo: "Pendente"}

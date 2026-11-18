@@ -17,6 +17,8 @@ acontece vira linha em `mvp/trilha_log.py`.
     POST /sessoes/{sessao}/agir    uma entrada, uma transição. O pedido
                                    diz de que tela é (`passo`); se a
                                    tela já mudou, 409 com a tela atual
+    POST /sessoes/{sessao}/retoma  a tela em que a sessão estava, pelo
+                                   número — voltar sem código
     GET  /saude
     GET  /                         a página
 """
@@ -43,6 +45,9 @@ AQUI = Path(__file__).resolve().parent
 # O código do participante, quando quem abre informa um: o mesmo formato
 # estreito do fluxo atual. Ele vai para toda linha do registro.
 CODIGO = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,15}$")
+# O número de uma sessão: o código, ou os doze caracteres sorteados de
+# quem abriu sem código. Só o que tem essa forma vai buscar no registro.
+SESSAO = re.compile(r"^(?:[0-9a-f]{12}|[A-Za-z][A-Za-z0-9_-]{0,15})$")
 
 # Um episódio leva minutos, não horas.
 LIMITE_MS = 2 * 60 * 60 * 1000
@@ -128,6 +133,20 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
                 # entrada, e é por aqui que os ajustes sabem o que marcar.
                 "modo": e.modo, "ritmo": e.ritmo}
 
+    def refaz(sessao: str) -> trilha.Estado:
+        """A sessão refeita pelo registro, de volta à memória.
+
+        Levanta `RegistroNaoReexecutavel` se o conteúdo mudou desde que
+        ela começou; quem chama decide o status (409 ao abrir com código,
+        410 com a página aberta ou ao retomar pelo número).
+        """
+        t = trilha_log.reconstroi(d, escadas, destino, sessao)
+        sessoes[sessao] = t.estado
+        trilha_log.grava(destino, sessao, [Evento(
+            "sessao_reconstruida", {"tela": t.tela.tipo,
+                                    "passo": t.estado.n})])
+        return t.estado
+
     def resposta(sessao: str, t: trilha.Transicao, entrada=None) -> dict:
         sessoes[sessao] = t.estado
         # A entrada vai antes dos eventos que ela provocou: é o que
@@ -159,16 +178,11 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
             # registro; recusar queimava o código para sempre. O motor é
             # puro e o registro guarda as entradas: a sessão é REFEITA.
             try:
-                t = trilha_log.reconstroi(d, escadas, destino, codigo)
+                return corpo(codigo, refaz(codigo))
             except trilha_log.RegistroNaoReexecutavel as erro:
                 # 409: a sessão existe, e este servidor não consegue
                 # continuá-la. A mensagem é para quem está na tela.
                 raise HTTPException(status_code=409, detail=str(erro)) from erro
-            sessoes[codigo] = t.estado
-            trilha_log.grava(destino, codigo, [Evento(
-                "sessao_reconstruida", {"tela": t.tela.tipo,
-                                        "passo": t.estado.n})])
-            return corpo(codigo, t.estado)
         else:
             sessao = codigo
         # A sessão é a semente: a ordem das alternativas e das peças sai
@@ -185,15 +199,11 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
             # 14/11/2026, quando o Docker caiu no meio de uma sessão. Ela
             # é refeita como a de código, em `abre`.
             try:
-                t = trilha_log.reconstroi(d, escadas, destino, sessao)
+                estado = refaz(sessao)
             except trilha_log.RegistroNaoReexecutavel as erro:
                 # 410: a sessão existiu e não dá para continuar. A página
                 # mostra a frase, que é para quem está na tela.
                 raise HTTPException(status_code=410, detail=str(erro)) from erro
-            estado = sessoes[sessao] = t.estado
-            trilha_log.grava(destino, sessao, [Evento(
-                "sessao_reconstruida", {"tela": t.tela.tipo,
-                                        "passo": t.estado.n})])
         if estado is None:
             raise HTTPException(status_code=404, detail="sessão desconhecida")
         entrada = trilha.Entrada(
@@ -219,6 +229,27 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
             # estado não anda.
             raise HTTPException(status_code=400, detail=str(erro)) from erro
         return resposta(sessao, t, entrada)
+
+    @app.post("/sessoes/{sessao}/retoma")
+    def retoma(sessao: str) -> dict:
+        """A tela em que a sessão estava, pelo número dela.
+
+        É o que faz voltar sem código (docs/trilha.md, 6.12): o navegador
+        guardou o número, a página fechou, e a pessoa reabriu o tópico.
+        """
+        if not SESSAO.match(sessao):
+            raise HTTPException(status_code=404, detail="sessão desconhecida")
+        estado = sessoes.get(sessao)
+        if estado is not None:
+            trilha_log.grava(destino, sessao, [Evento(
+                "sessao_retomada", {"tela": estado.tela.tipo})])
+            return corpo(sessao, estado)
+        if not trilha_log.existe(destino, sessao):
+            raise HTTPException(status_code=404, detail="sessão desconhecida")
+        try:
+            return corpo(sessao, refaz(sessao))
+        except trilha_log.RegistroNaoReexecutavel as erro:
+            raise HTTPException(status_code=410, detail=str(erro)) from erro
 
     @app.get("/saude")
     def saude() -> dict:

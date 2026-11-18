@@ -46,7 +46,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from mvp import log, trilha_app, trilha_escada
+from mvp import caminho, log, trilha_app, trilha_escada
 from mvp.dominio import carrega, topicos
 
 AQUI = Path(__file__).resolve().parent
@@ -150,13 +150,20 @@ def cria_portal(pasta: Path | None = None) -> FastAPI:
         return resposta
 
     lista = []
-    for topico in topicos():
+    rotulos, do_fim = caminho.rotulos(), set(caminho.fim())
+    # Na ORDEM DO CAMINHO (docs/interface.md, seção 7), que é sugestão:
+    # todos os tópicos continuam abertos. O rótulo é o nome curto que a
+    # trilha desenhada escreve ao lado da parada; `fim` marca os três em
+    # que o caminho se abre.
+    for topico in caminho.ordem():
         mod = _app_do_topico(topico, pasta / ("%s.jsonl" % topico))
         portal.mount("/kc/%s" % topico, mod.app)
         d = mod.dominio
         lista.append({
             "id": topico,
             "titulo": d.titulo,
+            "rotulo": rotulos[topico],
+            "fim": topico in do_fim,
             "nos": len(d.nos),
             "atividades": len(d.atividades),
             "caminho": "/kc/%s/" % topico,
