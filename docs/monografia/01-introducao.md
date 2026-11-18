@@ -10,8 +10,8 @@ entrou — por exemplo, a de que um array e um ponteiro são a mesma coisa,
 ideia que funciona em quase todos os casos e só falha diante de `sizeof`.
 Uma concepção errônea desse tipo é estável e coerente para quem a tem, e
 por isso resiste à informação nova: a explicação correta é lida e
-encaixada dentro da ideia antiga **[conferir: literatura de mudança
-conceitual]**.
+encaixada na ideia antiga, ou guardada à parte, sem entrar em conflito com
+ela (POSNER et al., 1982, p. 221).
 
 Daí decorrem duas dificuldades práticas. A primeira é de diagnóstico: uma
 resposta errada, sozinha, não distingue quem não sabe de quem sabe errado,

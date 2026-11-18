@@ -241,8 +241,8 @@ dois temas: o escuro, inspirado num editor de código à noite (Figura
 escolhido antes de a página ser desenhada — o do sistema operacional, ou
 o que a pessoa escolheu da última vez —, e pode ser trocado por um botão
 no topo. Todos os pares de texto sobre fundo passam na razão de contraste
-de 4,5:1 recomendada pela WCAG 2.x para texto comum **[conferir: WCAG
-2.1, critério 1.4.3]**, nos dois temas; quem pediu ao sistema operacional
+de 4,5:1 que o critério 1.4.3 da WCAG 2.1, no nível AA, exige para texto
+comum (W3C, 2025), nos dois temas; quem pediu ao sistema operacional
 menos movimento não vê animação.
 
 O código aparece numa moldura de editor, com cores por categoria

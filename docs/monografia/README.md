@@ -19,23 +19,32 @@ tirados do sistema por script, e não de memória.
 | # | Arquivo | Estado |
 | --- | --- | --- |
 | 1 | [01-introducao.md](01-introducao.md) | rascunho completo |
-| 2 | [02-fundamentacao.md](02-fundamentacao.md) | rascunho; referências marcadas **[conferir]** |
+| 2 | [02-fundamentacao.md](02-fundamentacao.md) | rascunho completo; referências conferidas em 18/11/2026 |
 | 3 | [03-sistema.md](03-sistema.md) | rascunho completo; faltam as figuras finais |
 | 4 | [curadoria.md](curadoria.md) | escrito antes; números presos ao catálogo por teste |
 | 5 | [05-construcao-e-verificacao.md](05-construcao-e-verificacao.md) | rascunho completo |
 | 6 | [06-resultados-da-verificacao.md](06-resultados-da-verificacao.md) | rascunho completo |
 | 7 | [07-limitacoes-e-trabalhos-futuros.md](07-limitacoes-e-trabalhos-futuros.md) | rascunho completo |
 | 8 | [08-conclusao.md](08-conclusao.md) | rascunho completo |
+| — | [referencias.md](referencias.md) | a lista, na NBR 6023, dos capítulos 1 a 3, 5 a 8 e do apêndice |
+| — | [conferencia-das-referencias.md](conferencia-das-referencias.md) | onde cada obra foi aberta e o que sustenta, com página |
 | A | [apendice-protocolo.md](apendice-protocolo.md) | o estudo com estudantes, pronto para quando houver participantes |
 
 ## O que falta, e de quem é
 
 - **O modelo da UFV** (e as seções obrigatórias: resumo, abstract,
   agradecimentos, listas). É do Rafael trazer.
-- **As referências marcadas [conferir].** Nenhuma referência entra sem
-  ter sido aberta na obra: é a regra do projeto (`docs/linguagem.md`:
-  "fonte que você só consegue parafrasear de memória não é fonte"). As
-  que já foram conferidas no projeto estão no capítulo de curadoria.
+- **As referências.** Nenhuma referência entra sem ter sido aberta na
+  obra: é a regra do projeto (`docs/linguagem.md`: "fonte que você só
+  consegue parafrasear de memória não é fonte"). A conferência de
+  18/11/2026, feita com assistência de IA, abriu todas as do texto menos
+  Brooke (1996), que só o Apêndice A usa e segue marcada; três foram
+  retiradas e duas trocadas por obras que puderam ser abertas
+  ([conferencia-das-referencias.md](conferencia-das-referencias.md)). O
+  autor pode refazer a conferência pelos endereços registrados.
+  `mvp/test_monografia.py` falha se aparecer uma marca de "conferir" nova
+  no texto, ou se a lista e o registro discordarem. Falta juntar a lista à do
+  capítulo de curadoria na formatação final.
 - **A revisão do conteúdo das escadas pelo autor.** As treze escadas
   estão com `revisado_por` em branco. O texto diz como o material foi
   escrito e conferido; dizer "revisado pelo autor" depende dessa leitura.

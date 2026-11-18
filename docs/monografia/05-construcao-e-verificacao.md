@@ -116,12 +116,16 @@ Capítulo 6 apresenta.
 
 Também a interface foi verificada por teste onde isso foi possível: a
 razão de contraste de cada par de cores de texto e fundo, nos dois temas,
-calculada pela fórmula da WCAG 2.x **[conferir]**; que o realce de código
-devolve exatamente o texto original, em todos os trechos de código das
-escadas; que nenhuma página carrega nada de outro endereço; que o tema é
-escolhido antes de a página aparecer, inclusive em navegador sem
-armazenamento local; e que a saída do programa nunca recebe cores de
-código. O resto — o desenho de cada tela, o comportamento em celular
+calculada pelas definições de luminância relativa e de razão de contraste
+da WCAG 2.1 (W3C, 2025); que o realce de código devolve exatamente o
+texto original, em todos os trechos de código das escadas; que nenhuma
+página carrega nada de outro endereço; que o tema é escolhido antes de a
+página aparecer, inclusive em navegador sem armazenamento local; e que a
+saída do programa nunca recebe cores de código. O teste de contraste usa
+o limiar de linearização da versão 2.0 da norma, 0,03928, que a versão
+atual trocou por 0,04045, dizendo que a troca não tem efeito prático: em
+cores de 8 bits nenhum valor cai entre os dois, e outro teste confere
+isso. O resto — o desenho de cada tela, o comportamento em celular
 (360 px de largura) e em tela larga — foi conferido no navegador, tela a
 tela, nos dois temas.
 

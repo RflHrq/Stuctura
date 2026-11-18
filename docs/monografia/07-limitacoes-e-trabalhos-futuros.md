@@ -30,12 +30,17 @@ diagnóstico a registra como erro fora do catálogo, sem tratá-la.
 **A certeza declarada é um sinal barato e ruidoso.** Quem marca "tenho
 certeza" por hábito gera uma hipótese de concepção errônea errada. O
 sistema mitiga isso exigindo a razão da concepção, e não só a resposta
-errada, mas não elimina o ruído.
+errada, mas não elimina o ruído. E a escala usa palavras — "chutei",
+"acho que sei", "tenho certeza" —, que querem dizer coisas diferentes
+para pessoas diferentes; é por isso que Gardner-Medwin (2006) nomeia os
+níveis com números. Se a mesma marcação significa convicções diferentes,
+o mesmo erro pode levar uma pessoa à demonstração e outra ao ensino.
 
 **O que se mede é a sessão.** O fechamento fala de assimilação dentro de
 uma sessão: acertar de novo com outras premissas no meio. Isso não é
-aprendizagem duradoura, que exigiria reteste dias depois **[conferir:
-Soderstrom e Bjork, 2015]**.
+aprendizagem duradoura, que se mede por retenção de longo prazo ou por
+transferência e exigiria reteste dias depois (SODERSTROM; BJORK, 2015,
+p. 176).
 
 **Um ambiente.** As demonstrações foram conferidas no gcc 16.2, no
 Windows. Onde o resultado depende do ambiente, a demonstração diz isso;

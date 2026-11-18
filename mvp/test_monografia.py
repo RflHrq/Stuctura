@@ -140,6 +140,61 @@ def test_os_trechos_de_codigo_do_realce():
         "06-resultados-da-verificacao.md")
 
 
+def _secao(texto: str, titulo: str) -> str:
+    """O corpo da seção '## titulo', até a próxima seção do mesmo nível."""
+    m = re.search(r"^## %s\n(.*?)(?=^## |\Z)" % re.escape(titulo), texto,
+                  re.M | re.S)
+    assert m, titulo
+    return m.group(1)
+
+
+def _chaves(secao: str) -> list:
+    """'### POSNER et al. (1982)' -> ('posner', '1982')."""
+    return [(m.group(1).lower(), m.group(2)) for m in re.finditer(
+        r"^### ([A-Z][\w-]*)\b[^\n]*\((\d{4})\)", secao, re.M)]
+
+
+def test_so_a_referencia_nao_aberta_continua_marcada():
+    """A regra do README: nenhuma referência entra sem ter sido aberta na obra.
+    A conferência de 18/11/2026 abriu todas, menos uma, que segue marcada."""
+    marcadas = {}
+    for arq in sorted(CAPITULOS.glob("*.md")):
+        for m in re.finditer(r"\[conferir[^\]]*\]", arq.read_text(encoding="utf-8")):
+            marcadas.setdefault(arq.name, []).append(" ".join(m.group(0).split()))
+    assert marcadas == {"apendice-protocolo.md": ["[conferir: Brooke, 1996]"],
+                        "referencias.md": ["[conferir: Brooke, 1996]"]}
+
+
+def test_cada_referencia_da_lista_foi_aberta_e_e_citada():
+    """A lista (referencias.md) e o registro da conferência dizem as mesmas
+    obras; cada obra aberta é citada no texto; a única não aberta é Brooke."""
+    registro = (CAPITULOS / "conferencia-das-referencias.md").read_text(
+        encoding="utf-8")
+    conferidas = _chaves(_secao(registro, "Conferidas"))
+    pendentes = _chaves(_secao(registro, "Ainda não abertas"))
+    assert pendentes == [("brooke", "1996")]
+    lista = (CAPITULOS / "referencias.md").read_text(encoding="utf-8")
+    entradas = [p for p in re.split(r"\n\s*\n", lista)
+                if re.match(r"[A-Z][\w-]*[,.]", p.strip())]
+    assert len(entradas) == len(conferidas) + len(pendentes)
+    for nome, ano in conferidas + pendentes:
+        assert any(re.match(re.escape(nome) + "[,.]", e.strip().lower())
+                   and ano in e for e in entradas), (nome, ano)
+    texto = " ".join(_texto(a.name) for a in sorted(CAPITULOS.glob("0*.md")))
+    texto += " " + _texto("apendice-protocolo.md")
+    for nome, ano in conferidas:
+        assert re.search(re.escape(nome) + r".{0,80}?" + ano, texto,
+                         re.I | re.S), (nome, ano)
+
+
+def test_o_limiar_antigo_da_wcag_da_o_mesmo_contraste_em_8_bits():
+    """test_interface usa 0,03928 (WCAG 2.0); a WCAG 2.1, na versão de 2025,
+    diz 0,04045. Nenhum valor c/255 cai entre os dois, então o contraste
+    calculado é o mesmo — e o capítulo 5 diz isso."""
+    assert all((c / 255 <= 0.03928) == (c / 255 <= 0.04045) for c in range(256))
+    assert "0,03928" in _texto("05-construcao-e-verificacao.md")
+
+
 def test_os_capitulos_do_roteiro_existem():
     roteiro = (CAPITULOS / "README.md").read_text(encoding="utf-8")
     for nome in re.findall(r"\]\(([\w.-]+\.md)\)", roteiro):
