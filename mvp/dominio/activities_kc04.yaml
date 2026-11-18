@@ -498,6 +498,7 @@ activities:
       /* A */  int cinco = 5;  f(&cinco);
       /* B */  f(&5);
     enunciado: "Uma das duas passa um endereço. Qual, e por quê?"
+    porque: "cinco é uma variável e ocupa um lugar, então &cinco tem resposta. O 5 escrito no código não ocupa lugar nenhum, e &5 não existe."
     alternativas:
       a: "A: cinco ocupa um lugar, e o lugar tem número"
       b: "As duas: & dá o endereço do valor"
@@ -611,6 +612,7 @@ activities:
       x = 20;
       printf("%d\n", *p);
     enunciado: "O que sai?"
+    porque: "p guarda o endereço de x, não uma cópia do 10. Depois de x = 20, *p vai até x e encontra 20."
     alternativas:
       a: "20: p tem o endereço, não uma cópia"
       b: "10: p guardou uma cópia do 10"
@@ -765,6 +767,7 @@ activities:
       /* A */  p
       /* B */  *p
     enunciado: "Qual dos dois vale 42?"
+    porque: "p guarda o endereço de x. *p vai até esse endereço e lê o que tem lá: o 42."
     alternativas:
       a: "B: p guarda o endereço, *p o valor"
       b: "A: p guarda 42"
@@ -879,6 +882,7 @@ activities:
       int *p = &x;
       printf("%d\n", *p + y);
     enunciado: "O que sai?"
+    porque: "*p vai até x e lê o 3. Somado ao y, que vale 4, sai 7."
     alternativas:
       a: "7: *p vale 3"
       b: "não compila: *p é só p escrito diferente"
@@ -1032,6 +1036,7 @@ activities:
       /* A */  *p = b;
       /* B */   p = &b;
     enunciado: "Qual das duas deixa p apontando para outro lugar?"
+    porque: "*p = b escreve o valor de b dentro de a, e p continua apontando para a. Só p = &b troca o endereço guardado em p."
     alternativas:
       a: "B: só ela troca o endereço em p"
       b: "As duas: escrever em *p move p"
@@ -1166,6 +1171,7 @@ activities:
       /* A */  *(&x) = 2;
       /* B */  &(*p) = 2;
     enunciado: "Uma das duas escreve 2 em x. Qual, e por quê?"
+    porque: "&x dá o endereço de x, e * vai até ele: *(&x) é o próprio x, e recebe o 2. &(*p) dá um endereço, e endereço não recebe valor."
     alternativas:
       a: "A: & e * se desfazem, e sobra x"
       b: "B: &(*p) é o jeito de chegar em x"

@@ -538,6 +538,7 @@ activities:
       f(x);
       printf("%d\n", x);
     enunciado: "O que sai, nas duas linhas?"
+    porque: "f recebe uma cópia de x numa caixa nova, n. Mudar n para 99 não toca em x, que continua 1."
     alternativas:
       a: "99 e 1: são duas variáveis"
       b: "99 e 99: f mexeu em x"
@@ -676,6 +677,7 @@ activities:
       int n = 2;
       f(n + 1, &n);
     enunciado: "O que sai?"
+    porque: "A conta n + 1 é feita antes da chamada, e v recebe o 3. Zerar n dentro de f não muda a cópia que já estava em v."
     alternativas:
       a: "3: a conta foi feita antes"
       b: "1: f resolve a conta lá"
@@ -810,6 +812,7 @@ activities:
       zera(x);
       printf("%d\n", x);
     enunciado: "O que falta para zerar x de verdade?"
+    porque: "zera recebe uma cópia do 7 e zera a cópia. Para alcançar x, ela precisa receber &x e escrever em *n."
     alternativas:
       a: "Passar &x, e zerar *n"
       b: "Nada: zera(x) já zera o x"
@@ -946,6 +949,7 @@ activities:
       poe(&x);
       printf("%d\n", x);
     enunciado: "O que sai?"
+    porque: "poe recebe uma cópia do endereço de x. A cópia leva ao mesmo lugar, e *p = 42 escreve dentro de x."
     alternativas:
       a: "42: a cópia do endereço levou lá"
       b: "1: p recebeu uma cópia de x"
@@ -1084,6 +1088,7 @@ activities:
       aponta(q, &y);
       printf("%d\n", *q);
     enunciado: "Por que *q continua 1?"
+    porque: "p é uma cópia de q. p = alvo troca só a cópia, e q continua apontando para x, que vale 1."
     alternativas:
       a: "p = alvo mexeu em p, não em q"
       b: "Não continua: p é o q de fora"
@@ -1225,6 +1230,7 @@ activities:
       f(q);
       printf("%d %d\n", x, q == NULL);
     enunciado: "O que sai?"
+    porque: "p recebe uma cópia do endereço guardado em q. *p = 9 muda x; p = NULL muda só a cópia, e q continua não nulo."
     alternativas:
       a: "9 0: o apontado mudou, q não"
       b: "9 1: q e p são a mesma"

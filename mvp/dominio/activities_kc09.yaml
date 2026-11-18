@@ -780,6 +780,7 @@ activities:
       int *p = malloc(10 * sizeof(int));
       printf("%zu\n", sizeof p);
     enunciado: "Por que isso não diz quantos ints foram pedidos?"
+    porque: "p é uma caixa que guarda um endereço, e sizeof p mede essa caixa. Quantos ints foram pedidos, quem sabe é o alocador, não p."
     alternativas:
       a: "p guarda só um endereço"
       b: "sizeof p devolve os 10 ints"
@@ -915,6 +916,7 @@ activities:
       f(p);
       printf("%d\n", p == NULL);
     enunciado: "O que sai, e o que isso diz sobre free(p)?"
+    porque: "f recebe uma cópia de p e põe NULL na cópia. O p de quem chamou não muda, e com free(p) é igual."
     alternativas:
       a: "0: a função recebeu uma cópia"
       b: "1: a função recebeu o próprio p"
@@ -1049,6 +1051,7 @@ activities:
           free(p);
       }
     enunciado: "Quando a caixa de p deixa de existir?"
+    porque: "free devolve o bloco, não a caixa p. p é local de f e só deixa de existir quando f termina."
     alternativas:
       a: "No fim de f, como toda local"
       b: "No free, com o bloco"
@@ -1186,6 +1189,7 @@ activities:
       free(p);
       printf("%d\n", *p);
     enunciado: "Por que a última linha é inválida?"
+    porque: "Depois de free(p), o bloco foi devolvido e pode ser entregue a outro pedido. Ler *p ali é usar memória que não é mais sua."
     alternativas:
       a: "O bloco já não é seu"
       b: "Não é: o 7 continua lá"
@@ -1325,6 +1329,7 @@ activities:
       free(p);
       printf("%d\n", p == NULL);
     enunciado: "O que sai?"
+    porque: "free recebe uma cópia do valor de p e não tem como mexer na caixa p. p continua com o endereço antigo, que não é NULL."
     alternativas:
       a: "0: p continua com o endereço"
       b: "1: free põe NULL em p"
@@ -1458,6 +1463,7 @@ activities:
       free(p);
       printf("%d\n", p == guardado);
     enunciado: "O que sai?"
+    porque: "Neste programa sai 1: free não mexe no valor guardado em p, e p e guardado continuam com o mesmo endereço."
     alternativas:
       a: "1: o valor de p não mudou"
       b: "não compila: p foi apagada"
@@ -1592,6 +1598,7 @@ activities:
       /* B */  free(p);  p = NULL;
     enunciado: >
       Depois de qual das duas o teste p == NULL diz a verdade?
+    porque: "free não escreve NULL em p. Só em B o NULL foi escrito, por você; em A, p continua com o endereço antigo."
     alternativas:
       a: "B: nela você escreveu o NULL"
       b: "Das duas: o free já faz isso"
@@ -1729,6 +1736,7 @@ activities:
       free(p);
       *p = 1;
     enunciado: "Quantas das duas últimas linhas são inválidas?"
+    porque: "O segundo free devolve um bloco que já tinha sido devolvido, e *p = 1 escreve num bloco que não é mais seu. As duas são inválidas."
     alternativas:
       a: "As duas"
       b: "Uma: o segundo free é seguro"

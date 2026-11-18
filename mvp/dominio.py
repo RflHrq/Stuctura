@@ -235,6 +235,10 @@ class Atividade:
     # trocada.
     do_molde: str = ""
     parametros: Mapping[str, object] = field(default_factory=dict)
+    # O porquê do acerto: uma frase sobre ESTA questão, que o retorno de
+    # quem acerta mostra no lugar da premissa genérica (docs/trilha.md,
+    # seção 7). Escrito para as questões de abertura; vazio nas outras.
+    porque: str = ""
 
     @property
     def indice_correto_no_arquivo(self) -> int:
@@ -885,6 +889,7 @@ def carrega(raiz: Path | None = None, topico: str | None = None,
             nivel=bruto.get("nivel") if bruto.get("nivel") in NIVEIS else 1,
             do_molde=str(bruto.get("do_molde") or ""),
             parametros=dict(bruto.get("parametros") or {}),
+            porque=_texto(bruto.get("porque")),
         ))
 
         # Meia procedência é pior que nenhuma, porque PARECE procedência:

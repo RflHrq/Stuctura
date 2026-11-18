@@ -598,6 +598,7 @@ activities:
       char a[] = "oi";
       char *p  = "oi";
     enunciado: "O que existe na memória em cada uma?"
+    porque: "a ganha as próprias caixas, com o, i e o terminador. p ganha só uma caixa, com o endereço de um texto guardado em outro lugar."
     alternativas:
       a: "Em a, as letras; em p, um endereço"
       b: "Nas duas, as letras guardadas igual"
@@ -729,6 +730,7 @@ activities:
       int a[5];
       int *p;
     enunciado: "Quantas caixas de int cada linha reserva?"
+    porque: "int a[5] cria cinco caixas de int. int *p cria só a caixa p, que guarda um endereço; nenhum int nasce com ela."
     alternativas:
       a: "Cinco, e nenhuma"
       b: "Cinco, e uma"
@@ -862,6 +864,7 @@ activities:
       f(a);
       printf("%d\n", a[0]);
     enunciado: "O que sai, e o que viajou na chamada?"
+    porque: "Na chamada, a vira o endereço da primeira caixa, e é esse endereço que v recebe. v[0] = 9 escreve no a[0] de quem chamou."
     alternativas:
       a: "9: viajou o endereço do primeiro"
       b: "9: viajou o array, por referência"
@@ -992,6 +995,7 @@ activities:
       int a[5];
       printf("%zu %zu\n", sizeof a, sizeof &a);
     enunciado: "A primeira mede as cinco caixas. E a segunda?"
+    porque: "&a é o endereço do conjunto inteiro: um ponteiro para o array. sizeof &a mede esse ponteiro, e não as cinco caixas."
     alternativas:
       a: "Mede um ponteiro para o array"
       b: "Mede as cinco também: &a é a"
@@ -1123,6 +1127,7 @@ activities:
       char s[10];
       s = "oi";
     enunciado: "Por que a segunda linha não compila?"
+    porque: "s é o conjunto de caixas, e o conjunto não recebe atribuição. Dá para mudar cada caixa, mas não trocar s inteiro."
     alternativas:
       a: "Não se atribui ao nome do array"
       b: "Compila: s recebe o texto"
@@ -1256,6 +1261,7 @@ activities:
       char v[10];
       f(v);
     enunciado: "O que sai?"
+    porque: "O parâmetro char a[10] é, na verdade, um ponteiro: na chamada só o endereço de v viajou. sizeof a mede esse ponteiro."
     alternativas:
       a: "O tamanho de um ponteiro"
       b: "10: sizeof mede o array"
@@ -1408,6 +1414,7 @@ activities:
       /* A */  a[1]
       /* B */  p[1]
     enunciado: "As duas dão 2. Isso quer dizer que a e p são iguais?"
+    porque: "a[1] e p[1] chegam no mesmo 2, mas a é um array de três ints e p é um ponteiro. O sizeof de cada um, por exemplo, é diferente."
     alternativas:
       a: "Não: a escrita é igual, os tipos não"
       b: "Quer dizer: o índice prova que são um"

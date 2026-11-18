@@ -477,6 +477,7 @@ activities:
       int idade;
       char turma;
     enunciado: "Depois dessas duas linhas, o que já existe na memória?"
+    porque: "Cada declaração já cria o espaço da sua variável: idade ganha um espaço de int, e turma, um de char. Ainda sem valor, mas já existem."
     alternativas:
       a: "Nada ainda: nenhuma das duas tem valor"
       b: "Dois espaços, cada um do tipo que a sua linha pediu"
@@ -510,6 +511,7 @@ activities:
       int nota;
       nota = 7;
     enunciado: "Em que momento o espaço de nota passou a existir?"
+    porque: "int nota; já criou o espaço. A segunda linha só escreve o 7 num espaço que existia desde a declaração."
     alternativas:
       a: "Na primeira linha, quando nota foi declarada"
       b: "Na segunda linha, quando nota recebeu o 7"
@@ -544,6 +546,7 @@ activities:
       int idade;
       printf("%d\n", idade);
     enunciado: "O que esse printf mostra?"
+    porque: "idade foi declarada, mas ninguém escreveu nela. O printf lê a sobra que estava naquele lugar, e ela pode ser qualquer número."
     alternativas:
       a: "0: a variável nova começa zerada"
       b: "Não dá para saber: idade não recebeu valor"
@@ -580,6 +583,7 @@ activities:
       pontos = 30;
       printf("%d\n", pontos);
     enunciado: "O que aparece na tela?"
+    porque: "Cada atribuição apaga o valor anterior. Quando o printf roda, pontos guarda só o último que foi escrito: 30."
     alternativas:
       a: "10 20 30: os três valores"
       b: "30: só o último valor escrito"
@@ -609,6 +613,7 @@ activities:
     codigo: |
       int nota = 7;
     enunciado: "Qual destes trechos deixa nota do mesmo jeito que essa linha?"
+    porque: "Declarar nota e depois escrever 7 nela termina no mesmo estado: uma variável nota valendo 7. Só muda o momento em que o valor chegou."
     alternativas:
       a: "int nota;  7 = nota;"
       b: "int nota;  nota = 7;"

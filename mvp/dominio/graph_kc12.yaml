@@ -310,8 +310,8 @@ nodes:
     text: "static muda a duração, não o escopo; por isso às vezes parece funcionar."
     plain_text: >
       Marcar a caixa como static faz ela durar o programa inteiro, mas o
-      nome continua só de dentro da função. E sem static o lugar muitas
-      vezes ainda guarda o valor antigo — e aí o erro parece funcionar.
+      nome continua só de dentro da função. E sem static o lugar pode
+      ainda guardar o valor antigo — e aí o erro parece funcionar.
     negated_by:
       - static_is_scope
 

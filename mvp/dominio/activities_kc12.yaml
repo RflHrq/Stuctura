@@ -62,7 +62,7 @@ resgates:
     Marcar a casa como permanente faz ela durar o programa inteiro, e o
     número dela passa a valer para sempre. Mas o NOME continua só de
     dentro da função: duração e escopo são duas coisas. E sem isso o lugar
-    muitas vezes ainda guarda o valor antigo — é aí que o erro parece
+    pode ainda guardar o valor antigo — é aí que o erro parece
     funcionar.
 
   I3: >
@@ -615,6 +615,7 @@ activities:
       int *c(void) { int n = 1;               return &n; }
     enunciado: >
       Duas das três devolvem endereço válido. Qual não devolve?
+    porque: "Na terceira, n é uma local comum e some no retorno. Em a, o static faz n durar o programa; em b, o bloco fica até o free."
     alternativas:
       a: "A terceira: n é local comum"
       b: "Nenhuma: a memória é uma só"
@@ -733,6 +734,7 @@ activities:
           printf("%d\n", n);
       }
     enunciado: "O que sai, e por quê?"
+    porque: "Enquanto f roda, n existe e &n é um endereço bom. *p = 9 escreve em n, e o printf mostra 9."
     alternativas:
       a: "9: &n deu o endereço de n"
       b: "7: p recebeu uma cópia"
@@ -876,6 +878,7 @@ activities:
           printf("%d\n", soma(2, 3));
       }
     enunciado: "Por que a primeira chamada não serviu de nada?"
+    porque: "soma devolve 5, mas a primeira chamada não guardou o valor em lugar nenhum. Ele foi descartado, e só a segunda chamada chega ao printf."
     alternativas:
       a: "O retorno não foi guardado"
       b: "Serviu: ele fica na função"
@@ -1020,6 +1023,7 @@ activities:
           printf("%zu\n", sizeof p);
       }
     enunciado: "O sizeof mede o quê?"
+    porque: "p é uma variável de g que guarda um endereço, e sizeof p mede essa caixa. O int de f nem existe mais quando g chega ali."
     alternativas:
       a: "O ponteiro p"
       b: "O int que veio de f"
@@ -1160,6 +1164,7 @@ activities:
       }
       void g(void) { printf("%d\n", *f()); }
     enunciado: "Isso funciona. O que o static garantiu?"
+    porque: "Com static, a caixa n dura o programa inteiro, e o endereço devolvido continua bom. O nome n, porém, só vale dentro de f."
     alternativas:
       a: "Que a caixa dura o programa"
       b: "Que o nome n vale fora de f"
@@ -1293,6 +1298,7 @@ activities:
           return &n;
       }
     enunciado: "Qual é o jeito certo de f entregar o 7?"
+    porque: "n some quando f retorna, e o endereço dela não leva a nada. Devolver o int copia o 7 para quem chamou, e a cópia vale."
     alternativas:
       a: "Retornar o int, não o endereço"
       b: "Assim mesmo: o n continua lá"

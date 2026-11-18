@@ -404,7 +404,7 @@ Prerequisitos declarados: kc_01, kc_04, kc_06. O percurso deste tópico alcança
 - `I3` — Logo ha dangling sem nenhum free.
     - em linguagem corrente: Juntando: dá para acabar com um ponteiro apontando para o nada sem ter chamado free uma única vez.
 - `I4` — static muda a duracao, nao o escopo; por isso as vezes parece funcionar.
-    - em linguagem corrente: Marcar a caixa como static faz ela durar o programa inteiro, mas o nome continua só de dentro da função. Sem static, o lugar muitas vezes ainda guarda o valor antigo — e aí o erro parece funcionar.
+    - em linguagem corrente: Marcar a caixa como static faz ela durar o programa inteiro, mas o nome continua só de dentro da função. Sem static, o lugar pode ainda guardar o valor antigo — e aí o erro parece funcionar.
 - `I5` — O caminho correto e o chamador fornecer o armazenamento.
     - em linguagem corrente: O jeito certo é quem chama criar a caixa e passar o endereço dela para a função preencher.
 

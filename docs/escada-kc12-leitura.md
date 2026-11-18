@@ -1054,7 +1054,7 @@ _Resultado do gcc 16.2. Ao ver return &n, ele avisa ("function returns address o
 
 O que isto mostra: Saiu 1. O que f devolveu foi um endereço, e não a variável: neste gcc, NULL, porque a caixa de n saiu no retorno e o endereço dela de nada serviria. A variável não viaja; só o endereço.
 
-## I2 — Marcar a caixa como static faz ela durar o programa inteiro, mas o nome continua só de dentro da função. E sem static o lugar muitas vezes ainda guarda o valor antigo — e aí o erro parece funcionar.
+## I2 — Marcar a caixa como static faz ela durar o programa inteiro, mas o nome continua só de dentro da função. E sem static o lugar pode ainda guardar o valor antigo — e aí o erro parece funcionar.
 
 ### Degrau 1 — guiado, escolher
 
@@ -1138,7 +1138,7 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> Sem static, o erro às vezes parece funcionar: o lugar onde a caixa ficava ainda guarda o valor antigo. Parecer funcionar não é funcionar.
+> Sem static, o erro às vezes parece funcionar: o lugar onde a caixa ficava pode ainda guardar o valor antigo. Parecer funcionar não é funcionar.
 
 **Versão 1.** Um colega diz: retornei &n sem static e o programa mostrou o 7, então está certo. O que dizer a ele?
 

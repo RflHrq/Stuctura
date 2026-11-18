@@ -351,17 +351,18 @@ def _degrau(escadas: Mapping[str, Escada], e: Estado, no: str, g: Degrau,
 def _retorno(d: Dominio, e: Estado, no: str, veredito: str, adiante: str,
              eventos: list, texto: str = "", mostra_certa: str = "",
              escolheu: str = "", contradiz: bool = False,
-             degrau: str = "", versao: int = 0) -> Transicao:
+             degrau: str = "", versao: int = 0, porque: str = "") -> Transicao:
     """O retorno, que a tela mostra ABAIXO do que a pessoa acabou de fazer.
 
     `degrau` e `versao` viajam no passo quando o retorno é de um degrau:
     é por eles que o "continuar" sabe qual degrau repetir, e com que
-    versão NÃO repetir.
+    versão NÃO repetir. `porque` é a frase da questão acertada, quando
+    ela tem uma.
     """
     tela = Tela("retorno", texto=texto, dados={
         "premissa": no, "veredito": veredito, "mostra_certa": mostra_certa,
         "premissa_texto": d.nos[no].simples, "escolheu": escolheu,
-        "contradiz": contradiz, "sobre": no,
+        "contradiz": contradiz, "sobre": no, "porque": porque,
     })
     return _mostra(e, tela, Passo("retorno", premissa=no, adiante=adiante,
                                   degrau=degrau, versao=versao), eventos)
@@ -737,12 +738,16 @@ def _responde_pergunta(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
     if p.papel == "abertura":
         if crenca:
             e = e.com(no, crenca_da_abertura=crenca)
+        # A resposta certa ganha o porquê DAQUELA questão, quando há um.
+        porque = a.porque if certa else ""
         if episodio == motor.CONFIRMADA:
             completo = e.em_vigor[1] == "completo" and escadas[no].pratica
             return _retorno(d, e, no, "firme",
-                            "produzir" if completo else "fecha_firme", eventos)
+                            "produzir" if completo else "fecha_firme", eventos,
+                            porque=porque)
         if episodio == motor.FRAGIL_EP:
-            return _retorno(d, e, no, "inseguro", "reforco", eventos)
+            return _retorno(d, e, no, "inseguro", "reforco", eventos,
+                            porque=porque)
         if episodio == motor.FALSO_NEGATIVO_EP:
             return _retorno(d, e, no, "escorregao", "reforco", eventos)
         if episodio == motor.FALSO_POSITIVO_EP:
@@ -750,7 +755,8 @@ def _responde_pergunta(d: Dominio, escadas: Mapping[str, Escada], e: Estado,
             return _retorno(
                 d, e, no, "razao_errada", "reforco", eventos,
                 escolheu=d.crencas[crenca].afirma if crenca else "",
-                contradiz=bool(crenca and d.crencas[crenca].nega == no))
+                contradiz=bool(crenca and d.crencas[crenca].nega == no),
+                porque=porque)
         if episodio == motor.CRENCA_EP and crenca:
             return _inicia_prova(d, escadas, e, no, crenca, eventos,
                                  volta="reforco")

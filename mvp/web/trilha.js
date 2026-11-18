@@ -651,10 +651,24 @@
       b.appendChild(p("t-rotulo", "Você marcou:"));
       b.appendChild(el("blockquote", { "class": "t-fala", texto: t.escolheu }));
     }
+    /* O porquê da questão acertada (docs/trilha.md, seção 7): uma frase
+     * sobre ESTA questão. Quem acertou pela razão certa lê o porquê no
+     * lugar da premissa genérica; quem acertou pela razão errada lê os
+     * dois, porque a premissa é o que corrige a razão. */
+    var noLugar = t.porque && v.tom === "certo";
+    if (t.porque) {
+      b.appendChild(p("t-rotulo", "Por que está certa:"));
+      b.appendChild(p("ideia", t.porque));
+      if (noLugar) {
+        var desenho = el("div", { "class": "figura" });
+        b.appendChild(desenho);
+        if (window.Figuras) window.Figuras.dentro(desenho, t.sobre);
+      }
+    }
     /* A premissa entra quando o retorno é sobre a IDEIA. No erro de um
      * degrau o texto do erro já diz o que faltou, e a ideia inteira ali
      * seria ruído. */
-    if (t.premissa_texto && !(t.veredito === "errada" && t.texto)) {
+    if (t.premissa_texto && !(t.veredito === "errada" && t.texto) && !noLugar) {
       var rotulo = "A ideia desta pergunta:";
       if (t.escolheu) {
         rotulo = t.contradiz ? "Isso contradiz esta ideia:"

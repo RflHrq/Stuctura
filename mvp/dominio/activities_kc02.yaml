@@ -585,6 +585,7 @@ activities:
       printf("%p\n", (void *)&x);
       printf("%d\n", x);
     enunciado: "As duas linhas imprimem coisas diferentes. O que a primeira mostra?"
+    porque: "&x é o endereço de x: o número do lugar onde ele está. O primeiro printf mostra esse número; o segundo, o 42 guardado lá."
     alternativas:
       a: "O lugar da memória onde x está guardado"
       b: "42, igual à segunda: o endereço de x é o conteúdo dele"
@@ -696,6 +697,7 @@ activities:
       int *p = &x;
       printf("%p\n", (void *)&p);
     enunciado: "O que essa linha imprime?"
+    porque: "&p pede o endereço da própria caixa p. p também é uma variável e ocupa um lugar, diferente do lugar de x que ela guarda."
     alternativas:
       a: "O endereço da própria variável p"
       b: "Erro: p é um ponteiro, não tem endereço para pegar"
@@ -926,6 +928,7 @@ activities:
       p = q;
       printf("%d %d\n", x, y);
     enunciado: "O que sai?"
+    porque: "p = q só troca o endereço guardado em p: agora p aponta para y. Nenhum valor foi escrito em x nem em y, que continuam 1 e 2."
     alternativas:
       a: "1 2 — mudou p, não mudou x nem y"
       b: "2 2 — p = q copiou o valor de y para x"
@@ -1047,6 +1050,7 @@ activities:
       int x = 42;
       int n = &x;
     enunciado: "Por que o compilador reclama da segunda linha?"
+    porque: "&x é um endereço de int, do tipo int *, e n foi declarado int. São tipos diferentes, e por isso o compilador reclama."
     alternativas:
       a: "&x é um ponteiro para int, e n é um int: são tipos diferentes"
       b: "Não deveria reclamar: endereço é um número, e int guarda número"
@@ -1118,6 +1122,7 @@ activities:
       a(n);   printf("%d\n", n);
       b(&n);  printf("%d\n", n);
     enunciado: "O que as duas impressões mostram?"
+    porque: "a recebe uma cópia de n e muda só a cópia. b recebe o endereço de n e escreve lá: por isso só a segunda impressão mostra 99."
     alternativas:
       a: "1 e depois 99: só b alcançou o n de fora"
       b: "99 e 99: as duas mudam n, só muda o jeito de escrever"
@@ -1490,6 +1495,7 @@ activities:
       int *p = &x;
 
       printf("%d\n", p);'
+    porque: "p guarda o endereço de x, não o 42. Mostrar um endereço com %d é usar o formato errado: %d espera um int."
     alternativas:
       a: '%d espera um int, e p é um endereço'
       b: 'Não está: p vale 42, que é int'

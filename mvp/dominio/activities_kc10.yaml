@@ -494,6 +494,7 @@ activities:
       int **pp = &p;
       printf("%d\n", *pp == p);
     enunciado: "O que sai?"
+    porque: "pp guarda o endereço da caixa p. *pp vai até esse endereço e chega na própria p, então *pp == p dá 1."
     alternativas:
       a: "1: *pp chega na caixa p"
       b: "0: pp guarda uma cópia de p"
@@ -628,6 +629,7 @@ activities:
       int **pp = &p;
       printf("%d\n", **pp);
     enunciado: "Quantos passos o ** deu?"
+    porque: "Cada estrela é um passo: o primeiro * vai de pp até p, e o segundo vai de p até x. Por isso **pp é o 7."
     alternativas:
       a: "Dois: pp para p, e p para x"
       b: "Nenhum: é tudo o mesmo nome"
@@ -784,6 +786,7 @@ activities:
       /* A */  void  *v  = &p;
       /* B */  void **vv = &p;
     enunciado: "Uma delas o padrão garante. Qual?"
+    porque: "void * pode guardar o endereço de qualquer objeto, inclusive o de p. void ** não é genérico: só serve para o endereço de um void *."
     alternativas:
       a: "A: void * aceita qualquer objeto"
       b: "B: void ** é o genérico de nível 2"
@@ -924,6 +927,7 @@ activities:
       /* A */  a(q);
       /* B */  b(&q);
     enunciado: "Qual das duas deixa q em NULL?"
+    porque: "a recebe uma cópia de q e põe NULL só na cópia. b recebe &q, e *p = NULL escreve dentro do próprio q."
     alternativas:
       a: "B: ela recebeu o endereço de q"
       b: "As duas: o p é o q de quem chamou"
@@ -1045,6 +1049,7 @@ activities:
       int a[3][4];
       f(a);
     enunciado: "Por que o compilador reclama?"
+    porque: "a é um bloco de doze ints e, na chamada, vira o endereço da primeira fileira, de quatro ints. f espera int **, que é outro tipo."
     alternativas:
       a: "a é uma matriz, não int **"
       b: "Não reclama: a já é int **"
@@ -1179,6 +1184,7 @@ activities:
       int **pp = &p;
       printf("%d %d\n", **pp, *pp == p);
     enunciado: "O que sai?"
+    porque: "*pp dá um passo e chega em p, então *pp == p é 1. **pp dá mais um passo e chega no 7."
     alternativas:
       a: "7 1: um passo por estrela"
       b: "7 0: o ** foi direto ao 7"

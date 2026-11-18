@@ -559,6 +559,7 @@ activities:
       int x = 5;
       int *p = 1000;
     enunciado: "Por que o compilador reclama da segunda linha?"
+    porque: "1000 é um número inteiro, não o endereço de algum int. p foi declarado int *, e por isso o compilador reclama dessa conversão."
     alternativas:
       a: "1000 é int, e p quer um endereço"
       b: "Não reclama: ponteiro é um inteiro"
@@ -691,6 +692,7 @@ activities:
       int *p;
       printf("%zu\n", sizeof *p);
     enunciado: "Isso funciona, mesmo com p sem valor?"
+    porque: "sizeof *p só olha o tipo: p é int *, então *p é um int. O compilador sabe o tamanho sem ler p nem rodar o programa."
     alternativas:
       a: "Funciona: o tipo basta"
       b: "Não: falta o bloco para medir"
@@ -821,6 +823,7 @@ activities:
       int v[3];
       printf("%d\n", &v[1] - &v[0] == 1);
     enunciado: "O que sai?"
+    porque: "As caixas de v ficam grudadas. A diferença entre os endereços de v[1] e v[0] é contada em caixas de int, e dá 1."
     alternativas:
       a: "1: as caixas são vizinhas"
       b: "0: elas não são vizinhas"
@@ -952,6 +955,7 @@ activities:
       int v[4] = {0, 1, 2, 3};
       printf("%d %d\n", v[2], 2[v]);
     enunciado: "A segunda forma compila. O que sai?"
+    porque: "v[2] é *(v + 2), e 2[v] é *(2 + v): a mesma soma, em outra ordem. As duas chegam na caixa que guarda 2."
     alternativas:
       a: "2 2: as duas são a mesma conta"
       b: "não compila: 2[v] não é array"
@@ -1084,6 +1088,7 @@ activities:
       void *v = malloc(10);
       v = v + 1;
     enunciado: "Por que o padrão não permite a segunda linha?"
+    porque: "Para somar 1 a um ponteiro, o compilador precisa do tamanho do destino. void não tem tamanho, e o padrão não define essa conta."
     alternativas:
       a: "O compilador não sabe o passo"
       b: "Permite: o passo é 1"
@@ -1240,6 +1245,7 @@ activities:
       /* A */  p + 2
       /* B */  p + 2 * sizeof(int)
     enunciado: "As duas pretendem chegar em v[2]. Qual chega?"
+    porque: "p + 2 já anda duas caixas de int: o compilador faz a escala. Multiplicar por sizeof andaria 2 * sizeof(int) caixas, longe demais."
     alternativas:
       a: "A: a escala já está feita"
       b: "B: é ela que aplica o tamanho"

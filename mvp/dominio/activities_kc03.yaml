@@ -517,6 +517,7 @@ activities:
     enunciado: >
       Um colega diz que a segunda linha é inválida porque x não tem
       valor. O que você responde?
+    porque: "int x; já criou o lugar de x, mesmo sem valor. &x dá o endereço desse lugar, e *p = 10 escreve nele."
     alternativas:
       a: "É válida: x já tem lugar, e é o lugar que &x dá"
       b: "Ele tem razão: sem valor não há o que endereçar"
@@ -627,6 +628,7 @@ activities:
       int* a, b;
       b = &a;
     enunciado: "Por que o compilador reclama da segunda linha?"
+    porque: "Em int* a, b; o asterisco vale só para a. b é um int comum, e um int não guarda o endereço que &a dá."
     alternativas:
       a: "b foi declarado int, não ponteiro: o * ficou só em a"
       b: "Não deveria reclamar: int* vale para os dois nomes"
@@ -761,6 +763,7 @@ activities:
       int nota;
       printf("%d\n", nota);
     enunciado: "O que é razoável esperar que apareça?"
+    porque: "nota foi declarada e nunca recebeu valor. C não limpa o lugar, então o printf mostra a sobra que estava ali."
     alternativas:
       a: "Um valor que ninguém escolheu"
       b: "Zero: C limpa a variável nova"
@@ -894,6 +897,7 @@ activities:
       char *p;
       *p = 'a';
     enunciado: "Por que a segunda linha é inválida?"
+    porque: "char *p; cria só a caixa p, e ela não recebeu endereço de nada. *p = 'a' tenta escrever numa caixa apontada que não existe."
     alternativas:
       a: "Não há caixa apontada para receber o 'a'"
       b: "É válida: declarar p já criou a caixa"
@@ -1045,6 +1049,7 @@ activities:
       /* A */  int *p;
       /* B */  int *p = NULL;
     enunciado: "Qual diferença essas duas linhas fazem para um teste p == NULL?"
+    porque: "Em A, p guarda uma sobra qualquer. Em B, você escreveu NULL nele: só aí o teste p == NULL diz algo de verdade."
     alternativas:
       a: "Só em B o teste quer dizer alguma coisa"
       b: "Nenhuma: as duas deixam p em NULL"
@@ -1177,6 +1182,7 @@ activities:
       /* A */  int *p;        *p = 1;
       /* B */  int x;  int *p = &x;  *p = 1;
     enunciado: "Uma das duas é inválida. Qual, e por quê?"
+    porque: "Em A, p nunca recebeu endereço, e *p = 1 escreve num lugar que ninguém escolheu. Em B, p recebe &x, e o 1 vai para x."
     alternativas:
       a: "A: p não recebeu endereço de nada"
       b: "B: x não tinha valor quando &x foi usado"

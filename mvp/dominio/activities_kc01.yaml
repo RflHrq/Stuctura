@@ -582,6 +582,7 @@ activities:
       /* programa B */   int y;
     enunciado: >
       Os dois programas rodam ao mesmo tempo. B pode ler o 42 que A guardou?
+    porque: "Cada programa em execução tem a sua própria memória. O x de A mora na memória de A, e B não tem como chegar lá."
     alternativas:
       a: "Não: cada programa tem a memória dele"
       b: "Pode: a memória é do computador, não do programa"
@@ -713,6 +714,7 @@ activities:
       }
       printf("%d %d %d\n", conta(), conta(), conta());
     enunciado: "O que sai?"
+    porque: "A cada chamada, conta cria um n novo, que começa em 0 e vira 1. Quando a função termina, esse n some, e a próxima começa do zero."
     alternativas:
       a: "1 1 1: n nasce de novo a cada chamada"
       b: "1 2 3: n continua lá entre as chamadas"
@@ -852,6 +854,7 @@ activities:
       int *q = faz();
       printf("%d\n", *q);
     enunciado: "O que sai?"
+    porque: "O bloco do malloc não pertence à função: continua alugado depois do return. faz devolve o endereço dele, e q chega ao 7."
     alternativas:
       a: "7: o bloco continua valendo depois do return"
       b: "Lixo: o bloco acabou junto com a função"
@@ -988,6 +991,7 @@ activities:
       int *b = malloc(sizeof(int)); *b = 2;  /* bloco no monte   */
       /* a funcao termina aqui */
     enunciado: "Depois que a função termina, o que ainda é válido?"
+    porque: "a é local e some quando a função termina. O bloco do malloc fica até alguém chamar free, mas só serve se o endereço dele foi guardado."
     alternativas:
       a: "Só o bloco, se alguém guardou o endereço"
       b: "Nenhum dos dois: a função acabou e levou tudo"
@@ -1122,6 +1126,7 @@ activities:
           int *b = malloc(sizeof(int));      /* e o bloco? */
       }
     enunciado: "a e o bloco apontado por b ficam na mesma área?"
+    porque: "a é uma variável local: mora na pilha e some com a função. O bloco do malloc fica no monte, outra área, e continua até o free."
     alternativas:
       a: "Não: a na pilha, o bloco no monte"
       b: "Ficam: memória é uma só"

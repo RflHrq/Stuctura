@@ -532,6 +532,7 @@ activities:
       /* A */  int *p;
       /* B */  int *q = NULL;
     enunciado: "Qual dos dois guarda um valor que você escolheu?"
+    porque: "Em q você escreveu NULL: é um valor escolhido. p não recebeu nada, e o que está nele é sobra, não NULL."
     alternativas:
       a: "B: NULL é um valor, e você o escreveu"
       b: "Nenhum: os dois estão sem valor"
@@ -647,6 +648,7 @@ activities:
       int *p = (int *)n;
       if (p == NULL) printf("nulo\n");
     enunciado: "Por que não dá para contar com esse teste?"
+    porque: "Só um 0 escrito no código, onde se espera ponteiro, garante o ponteiro nulo. n vale 0 em execução, e convertê-lo não tem essa garantia."
     alternativas:
       a: "n é zero em execução, não constante"
       b: "Dá: um zero convertido dá o nulo"
@@ -778,6 +780,7 @@ activities:
       int x = 5;
       if (&x == p) printf("igual\n");
     enunciado: "Por que esse if não entra?"
+    porque: "x é uma variável de verdade e tem um endereço de verdade. NULL não é endereço de caixa nenhuma, então &x nunca é igual a ele."
     alternativas:
       a: "&x não dá o nulo em caso nenhum"
       b: "Entra se x estiver no endereço 0"
@@ -926,6 +929,7 @@ activities:
       /* A */  if (p  == NULL) ;
       /* B */  if (*p == 0)    ;
     enunciado: "Uma das duas é segura. Qual, e por quê?"
+    porque: "A compara o valor de p com NULL e não sai de p. B tenta ir até onde p aponta, e com p nulo não existe caixa lá."
     alternativas:
       a: "A: olha p sem sair de p"
       b: "As duas: p e *p dizem o mesmo"
@@ -1020,6 +1024,7 @@ activities:
     tipo: teorica
     enunciado: >
       p == 0 funciona. O que isso diz sobre os bits guardados em p?
+    porque: "Comparar p com 0 é uma conversão da linguagem: o 0 vira o ponteiro nulo. Isso não diz nada sobre os bits guardados em p."
     alternativas:
       a: "Nada: é conversão da linguagem"
       b: "Que são todos zeros"
@@ -1188,6 +1193,7 @@ activities:
       /* A */  if (p)         *p = 1;
       /* B */  if (p == NULL) *p = 1;
     enunciado: "Uma das duas escreve com p nulo. Qual?"
+    porque: "Em B, o if entra justamente quando p é nulo, e *p = 1 tenta escrever onde não existe caixa. Em A, o corpo só roda se p apontar para algo."
     alternativas:
       a: "B: o corpo roda quando p é nulo"
       b: "Nenhuma: *p com nulo não escreve"

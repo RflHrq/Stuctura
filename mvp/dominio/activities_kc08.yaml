@@ -574,6 +574,7 @@ activities:
       iarray[4] = 1;
     enunciado: >
       O malloc não devolveu NULL, e o código não funciona. Por quê?
+    porque: "malloc conta bytes: malloc(5) entrega 5 bytes, e cinco ints precisam de 5 * sizeof(int). iarray[4] cai fora do bloco."
     alternativas:
       a: "Foram 5 bytes, não 5 ints"
       b: "Nada errado: malloc conta ints"
@@ -702,6 +703,7 @@ activities:
       int *p;
       *p = malloc(sizeof(int));
     enunciado: "Por que a segunda linha está errada?"
+    porque: "malloc devolve um endereço, e quem guarda endereço é p. *p é o int apontado, e p ainda nem aponta para lugar nenhum."
     alternativas:
       a: "O endereço vai em p, não em *p"
       b: "Nada: malloc devolve o dado"
@@ -850,6 +852,7 @@ activities:
       /* A */  int *p = malloc(4 * sizeof(int));
       /* B */  int *q = calloc(4, sizeof(int));
     enunciado: "Qual das duas devolve as quatro posições em zero?"
+    porque: "calloc entrega o bloco preenchido com zeros. malloc entrega o bloco com sobra, sem limpar nada."
     alternativas:
       a: "B: o calloc preenche com zero"
       b: "As duas: o malloc também zera"
@@ -963,6 +966,7 @@ activities:
           *p = 7;
       }
     enunciado: "No fim de f, o que deixa de existir?"
+    porque: "p é uma variável local de f e some no fim da função. O bloco do malloc não some: fica alugado, agora sem ninguém com o endereço."
     alternativas:
       a: "A caixa de p, e só ela"
       b: "As duas: p e o bloco"
@@ -1097,6 +1101,7 @@ activities:
       int *p = malloc(1000000000);
       p[0] = 1;
     enunciado: "O que falta entre as duas linhas?"
+    porque: "Um pedido desse tamanho pode falhar, e aí malloc devolve NULL. Antes de escrever em p[0], é preciso conferir."
     alternativas:
       a: "Conferir se p veio NULL"
       b: "Nada: malloc devolve bloco"
@@ -1251,6 +1256,7 @@ activities:
       /* B */  void g(void) { int *v = malloc(100 * 4); }
     enunciado: >
       Depois de mil chamadas de cada uma, qual delas deixou memória presa?
+    porque: "O vetor de f é local e some a cada retorno. Cada chamada de g aluga um bloco e perde o endereço: são mil blocos presos."
     alternativas:
       a: "B: o bloco fica até o free"
       b: "Nenhuma: o sistema recolhe"
