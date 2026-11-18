@@ -1,0 +1,1495 @@
+# A escada do kc_10 — ponteiro para ponteiro.
+#
+# O QUE É. Para cada premissa do tópico, os degraus do mais mecânico até
+# a ideia, e a prova de cada crença que nega a premissa. Segue o molde
+# do kc_00, e a mesma régua do texto (docs/trilha.md, 6.16).
+#
+# QUEM CHEGA AQUI usa ponteiro, `&` e `*` desde o kc_04, e já viu função
+# receber endereço (kc_06). Em dois tópicos anteriores a escada parou na
+# porta deste: "para trocar o ponteiro de quem chamou, a função
+# precisaria do endereço dele" (kc_06, kc_09). É aqui que se entra.
+#
+# O QUE ESTE TÓPICO APRESENTA, e onde:
+#
+#   int **pp;  pp = &p;       a caixa de mais um nível         B1, degrau 2
+#   *pp e **pp                um passo por estrela             B2, degrau 2
+#   "nível"                   quantos passos até o valor       B3, degrau 1
+#   void *, e *(int *)v       o ponteiro sem tipo              B3, degrau 2
+#   void **                   que não é genérico               B3, degrau 3
+#   função com int **pp                                        I1, degrau 2
+#   int a[2][3], a[1][0]      a matriz                         I2, degrau 1
+#
+# O MESMO TRIO EM TODO O TÓPICO: idade, p e pp — idade guarda um número,
+# p guarda o endereço de idade, pp guarda o endereço de p. A segunda
+# variável, nota, entra quando alguma caixa precisa trocar de endereço.
+#
+# AS PROVAS, e o que cada uma usa. Quatro são saídas, e nas quatro a
+# pessoa vê uma caixa trocar de endereço e o resultado acompanhar:
+#
+#   B1  &p entrega uma cópia     escreve por *pp, e p muda: 7
+#   B2  p é outro nome de idade  p troca de variável, e idade fica: 15
+#   B3  void ** é genérico       o compilador aceita v = &p; e reclama
+#                                de vv = &p;
+#   I1  trocar o parâmetro       a função troca a cópia, e q fica: 15
+#       troca o de fora
+#   I2  a matriz é int **        sizeof m e sizeof m[0]: 12 e 4
+#   I3  **pp vai direto ao dado  p troca de variável, e **pp acompanha: 7
+#
+# A matriz das provas e dos passos de `sizeof` é de char, para o número
+# ser o de caixas em qualquer máquina.
+#
+# AS QUESTÕES DE MARCAR. Cinco das 36 questões de diagnóstico e de treino
+# usam o que as escadas não ensinam — protótipo de função, `double`,
+# `static`, vetor de ponteiros e ponteiro para fileira (`int (*pp)[4]`) —
+# e estão em `fora_da_trilha`. Uma sexta, a ciu_kc10_014 (I2), foi
+# reescrita em 18/11/2026, com o Rafael de acordo, como as do kc_06: sem
+# o protótipo, e com a alternativa certa no vocabulário do I2. Com ela o
+# I2 fica com quatro questões e abre com código, como todas as premissas.
+#
+# A CRENÇA DE CADA PREMISSA aparece dita, com todas as letras, numa
+# alternativa de um degrau guiado, e só ali o erro leva `crenca`.
+#
+# gerado_por: Claude Fable 5.2, em 14/11/2026; terminado por Claude Opus
+#   5.5, em 18/11/2026
+# revisado_por:
+#   (em branco até o Rafael ler; só então este conteúdo vai para o ramo
+#   principal)
+
+B1:
+  revisao:
+    frases:
+      - "p é uma caixa, e toda caixa tem endereço: &p é o endereço da caixa p."
+      - "Para guardar esse endereço, a caixa tem uma estrela a mais: int **pp = &p;"
+    codigo: |
+      int idade = 15;
+      int *p = &idade;
+      int **pp = &p;
+
+      printf("%d\n", *pp == p);
+    saida: "1"
+  # Protótipo de função, sem corpo.
+  fora_da_trilha: [ciu_kc10_t02]
+  provas:
+    - crenca: ampersand_copies
+      programa: |
+        int idade = 15;
+        int nota = 7;
+        int *p = &idade;
+        int **pp = &p;
+
+        *pp = &nota;
+        printf("%d\n", *p);
+      previsao:
+        pergunta: >
+          pp guarda &p. O trecho escreve &nota por *pp, e depois mostra o
+          que p alcança. O que aparece?
+        opcoes:
+          - "15: &p entregou uma cópia de p, e o p de verdade não mudou"
+          - "7"
+        real: 1
+        crenca: 0
+      espera: "7"
+      afirma: >
+        Saiu 7. &p não é uma cópia de p: é o endereço da própria caixa p.
+        Por ele, *pp chegou nessa caixa e trocou o que estava lá — e p
+        passou a apontar para nota.
+  degraus:
+    - id: esc_kc10_B1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "p é uma caixa como as outras, e toda caixa tem endereço: &p é o endereço da caixa p."
+        - "&p não é o que p guarda, nem uma cópia de p: é onde a caixa p fica."
+      versoes:
+        - pede: "O que &p dá, neste trecho?"
+          antes: |-
+            int idade = 15;
+            int *p = &idade;
+          pecas:
+            - "O endereço da caixa p"
+            - "Uma cópia de p: o & entrega uma cópia do ponteiro"
+            - "O endereço de idade, que é o que p guarda"
+          certa: [[0]]
+          certa_texto: "O endereço da caixa p"
+          erros:
+            - exata: [1]
+              crenca: ampersand_copies
+              retorno: "O & nunca copia: ele diz ONDE a caixa fica. &p é o endereço da caixa p, e quem tiver esse endereço chega na própria p."
+            - exata: [2]
+              retorno: "O endereço de idade é o que está guardado DENTRO de p. &p é outra coisa: o endereço da caixa p."
+          retorno_geral: "&p é o endereço da caixa p — onde ela fica, e não o que ela guarda."
+        - pede: "O que &q dá, neste trecho?"
+          antes: |-
+            int nota = 7;
+            int *q = &nota;
+          pecas:
+            - "O endereço de nota, que é o que q guarda"
+            - "O endereço da caixa q"
+            - "Uma cópia de q: o & entrega uma cópia do ponteiro"
+          certa: [[1]]
+          certa_texto: "O endereço da caixa q"
+          erros:
+            - exata: [2]
+              crenca: ampersand_copies
+              retorno: "O & nunca copia: ele diz ONDE a caixa fica. &q é o endereço da caixa q, e quem tiver esse endereço chega na própria q."
+            - exata: [0]
+              retorno: "O endereço de nota é o que está guardado DENTRO de q. &q é outra coisa: o endereço da caixa q."
+          retorno_geral: "&q é o endereço da caixa q — onde ela fica, e não o que ela guarda."
+
+    - id: esc_kc10_B1_2
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Para guardar o endereço de um int *, a caixa tem uma estrela a mais: int **pp;"
+        - "pp = &p; guarda nela o endereço da caixa p."
+      versoes:
+        - pede: "Complete com a caixa que guarda o endereço de p."
+          antes: |-
+            int idade;
+            int *p;
+            int **pp;
+
+            p = &idade;
+          mostra: "___ = &p;"
+          pecas: ["pp", "p", "idade"]
+          certa: [[0]]
+          certa_texto: "pp = &p;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "p guarda o endereço de um int, e &p é o endereço de um ponteiro: o compilador reclama. Quem guarda o endereço de p é a caixa de duas estrelas: pp = &p;"
+            - exata: [2]
+              invalida: true
+              retorno: "idade guarda um número, e não um endereço: o compilador reclama. Quem guarda o endereço de p é pp: pp = &p;"
+          retorno_geral: "O endereço de um int * se guarda num int **: pp = &p;"
+        - pede: "Complete com a caixa que guarda o endereço de q."
+          antes: |-
+            int nota;
+            int *q;
+            int **qq;
+
+            q = &nota;
+          mostra: "___ = &q;"
+          pecas: ["nota", "qq", "q"]
+          certa: [[1]]
+          certa_texto: "qq = &q;"
+          erros:
+            - exata: [2]
+              invalida: true
+              retorno: "q guarda o endereço de um int, e &q é o endereço de um ponteiro: o compilador reclama. Quem guarda o endereço de q é a caixa de duas estrelas: qq = &q;"
+            - exata: [0]
+              invalida: true
+              retorno: "nota guarda um número, e não um endereço: o compilador reclama. Quem guarda o endereço de q é qq: qq = &q;"
+          retorno_geral: "O endereço de um int * se guarda num int **: qq = &q;"
+
+    - id: esc_kc10_B1_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com o endereço de p guardado em pp, *pp chega na própria caixa p."
+      versoes:
+        - pede: "A última linha pergunta se o que *pp alcança é igual a p. Que número aparece?"
+          mostra: |-
+            int idade = 15;
+            int *p = &idade;
+            int **pp = &p;
+
+            printf("%d\n", *pp == p);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "pp guarda o endereço da caixa p, e *pp chega nela: o que *pp encontra é o próprio p. A pergunta é verdadeira: 1."
+            - texto: "15"
+              retorno: "15 está em idade, a dois passos de pp. O printf mostra a resposta da pergunta *pp == p, que é verdadeira: 1."
+          retorno_geral: "*pp chega na caixa p. O que ele encontra é o próprio p: 1."
+        - pede: "A última linha pergunta se o que *qq alcança é diferente de q. Que número aparece?"
+          mostra: |-
+            int nota = 7;
+            int *q = &nota;
+            int **qq = &q;
+
+            printf("%d\n", *qq != q);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "qq guarda o endereço da caixa q, e *qq chega nela: o que *qq encontra é o próprio q. Não é diferente: 0."
+            - texto: "7"
+              retorno: "7 está em nota, a dois passos de qq. O printf mostra a resposta da pergunta *qq != q, que é falsa: 0."
+          retorno_geral: "*qq chega na caixa q. O que ele encontra é o próprio q: a resposta é 0."
+
+    - id: esc_kc10_B1_4
+      nome: "&p é o endereço da caixa p"
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int idade;
+            int *p;
+            int **pp;
+
+            p = &idade;
+          pecas: ["pp = &p;", "pp = p;", "pp = &idade;"]
+          certa: [[0]]
+          certa_texto: "pp = &p;"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "p guarda o endereço de um int, e pp espera o endereço de um ponteiro: o compilador reclama. O endereço da caixa p é &p."
+            - exata: [2]
+              retorno: "&idade é o endereço de um int. pp guarda o endereço de um ponteiro para int, e o compilador reclama. O que serve é &p."
+          retorno_geral: "pp guarda o endereço de um ponteiro: pp = &p;"
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int nota;
+            int *q;
+            int **qq;
+
+            q = &nota;
+          pecas: ["qq = &nota;", "qq = q;", "qq = &q;"]
+          certa: [[2]]
+          certa_texto: "qq = &q;"
+          invalidas: [0, 1]
+          erros:
+            - exata: [1]
+              retorno: "q guarda o endereço de um int, e qq espera o endereço de um ponteiro: o compilador reclama. O endereço da caixa q é &q."
+            - exata: [0]
+              retorno: "&nota é o endereço de um int. qq guarda o endereço de um ponteiro para int, e o compilador reclama. O que serve é &q."
+          retorno_geral: "qq guarda o endereço de um ponteiro: qq = &q;"
+
+    - id: esc_kc10_B1_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "p começa apontando para nota. O trecho escreve outro endereço em p, por *pp. Que número aparece?"
+          mostra: |-
+            int idade = 15;
+            int nota = 7;
+            int *p = &nota;
+            int **pp = &p;
+
+            *pp = &idade;
+            printf("%d\n", *p);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "7"
+              retorno: "*pp é a própria caixa p: a linha *pp = &idade; trocou o endereço que p guardava. Agora *p chega em idade: 15."
+          retorno_geral: "Por *pp o trecho escreveu na caixa p, que passou a apontar para idade: 15."
+        - pede: "q começa apontando para idade. O trecho escreve outro endereço em q, por *qq. Que número aparece?"
+          mostra: |-
+            int idade = 20;
+            int nota = 9;
+            int *q = &idade;
+            int **qq = &q;
+
+            *qq = &nota;
+            printf("%d\n", *q);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "20"
+              retorno: "*qq é a própria caixa q: a linha *qq = &nota; trocou o endereço que q guardava. Agora *q chega em nota: 9."
+          retorno_geral: "Por *qq o trecho escreveu na caixa q, que passou a apontar para nota: 9."
+
+B2:
+  revisao:
+    frases:
+      - "Cada * dá um passo: de uma caixa até a caixa cujo endereço ela guarda."
+      - "*pp chega em p. **pp dá mais um passo, e chega em idade."
+    codigo: |
+      int idade = 15;
+      int *p = &idade;
+      int **pp = &p;
+
+      printf("%d\n", **pp);
+    saida: "15"
+  provas:
+    - crenca: pointer_is_just_a_name
+      programa: |
+        int idade = 15;
+        int nota = 7;
+        int *p = &idade;
+
+        p = &nota;
+        *p = 0;
+        printf("%d\n", idade);
+      previsao:
+        pergunta: >
+          p começa apontando para idade, e depois recebe o endereço de
+          nota. O trecho escreve 0 por *p e mostra idade. O que aparece?
+        opcoes:
+          - "0: p é outro nome de idade, e escrever por ele muda idade"
+          - "15"
+        real: 1
+        crenca: 0
+      espera: "15"
+      afirma: >
+        Saiu 15. p não é outro nome de idade: é uma caixa com um
+        endereço, e o endereço foi trocado. O * deu um passo até onde p
+        aponta AGORA, que é nota — e idade ficou como estava.
+  degraus:
+    - id: esc_kc10_B2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "p não é outro nome de idade: é uma caixa, que guarda o endereço de idade."
+        - "O * é um passo: sai da caixa p e vai até a caixa cujo endereço está lá."
+      versoes:
+        - pede: "O que p é, neste trecho?"
+          antes: |-
+            int idade = 15;
+            int *p = &idade;
+          pecas:
+            - "Uma caixa que guarda o endereço de idade"
+            - "Outro nome da variável idade: o * não é um passo"
+            - "Uma cópia de idade"
+          certa: [[0]]
+          certa_texto: "Uma caixa que guarda o endereço de idade"
+          erros:
+            - exata: [1]
+              crenca: pointer_is_just_a_name
+              retorno: "Um nome não tem lugar próprio, e p tem: é uma caixa, com o endereço de idade dentro. É por isso que *p é um passo, de p até idade."
+            - exata: [2]
+              retorno: "p não guarda o 15: guarda o endereço de idade. Para chegar ao 15 dá-se um passo, com *p."
+          retorno_geral: "p é uma caixa com o endereço de idade. *p é o passo até lá."
+        - pede: "O que q é, neste trecho?"
+          antes: |-
+            int nota = 7;
+            int *q = &nota;
+          pecas:
+            - "Uma cópia de nota"
+            - "Uma caixa que guarda o endereço de nota"
+            - "Outro nome da variável nota: o * não é um passo"
+          certa: [[1]]
+          certa_texto: "Uma caixa que guarda o endereço de nota"
+          erros:
+            - exata: [2]
+              crenca: pointer_is_just_a_name
+              retorno: "Um nome não tem lugar próprio, e q tem: é uma caixa, com o endereço de nota dentro. É por isso que *q é um passo, de q até nota."
+            - exata: [0]
+              retorno: "q não guarda o 7: guarda o endereço de nota. Para chegar ao 7 dá-se um passo, com *q."
+          retorno_geral: "q é uma caixa com o endereço de nota. *q é o passo até lá."
+
+    - id: esc_kc10_B2_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Com duas estrelas são dois passos: **pp vai de pp a p, e de p a idade."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int idade = 15;
+            int *p = &idade;
+            int **pp = &p;
+
+            printf("%d\n", **pp);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "O primeiro * vai de pp até p; o segundo, de p até idade. Dois passos, e o que se acha lá é 15."
+          retorno_geral: "Dois passos: de pp a p, de p a idade. Lá está o 15."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int nota = 7;
+            int *q = &nota;
+            int **qq = &q;
+
+            printf("%d\n", **qq);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "0"
+              retorno: "O primeiro * vai de qq até q; o segundo, de q até nota. Dois passos, e o que se acha lá é 7."
+          retorno_geral: "Dois passos: de qq a q, de q a nota. Lá está o 7."
+
+    - id: esc_kc10_B2_3
+      guiado: true
+      forma: escolher
+      codigo: true
+      frases:
+        - "Um passo chega num ponteiro; dois passos chegam num int."
+        - "O que cada um aceita receber é diferente: *pp recebe endereço, **pp recebe número."
+      versoes:
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int idade = 15;
+            int nota = 7;
+            int *p = &idade;
+            int **pp = &p;
+          pecas: ["*pp = &nota;", "*pp = 9;", "**pp = &nota;"]
+          certa: [[0]]
+          certa_texto: "*pp = &nota;"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "*pp é a caixa p, que guarda endereço — e 9 é um número: o compilador reclama. Ali cabe um endereço: *pp = &nota;"
+            - exata: [2]
+              retorno: "**pp é a caixa idade, que guarda número — e &nota é um endereço: o compilador reclama. Endereço se escreve a um passo: *pp = &nota;"
+          retorno_geral: "A um passo está p, que recebe endereço: *pp = &nota;"
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int idade = 15;
+            int nota = 7;
+            int *q = &nota;
+            int **qq = &q;
+          pecas: ["**qq = &idade;", "**qq = 9;", "*qq = 9;"]
+          certa: [[1]]
+          certa_texto: "**qq = 9;"
+          invalidas: [0, 2]
+          erros:
+            - exata: [0]
+              retorno: "**qq é a caixa nota, que guarda número — e &idade é um endereço: o compilador reclama. A dois passos cabe um número: **qq = 9;"
+            - exata: [2]
+              retorno: "*qq é a caixa q, que guarda endereço — e 9 é um número: o compilador reclama. O número se escreve a dois passos: **qq = 9;"
+          retorno_geral: "A dois passos está nota, que recebe número: **qq = 9;"
+
+    - id: esc_kc10_B2_4
+      nome: "Um passo por estrela"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "O trecho escreve 9 a dois passos de pp. Que número aparece?"
+          mostra: |-
+            int idade = 15;
+            int *p = &idade;
+            int **pp = &p;
+
+            **pp = 9;
+            printf("%d\n", idade);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "15"
+              retorno: "Dois passos a partir de pp: o primeiro chega em p, o segundo em idade. O 9 foi escrito em idade."
+          retorno_geral: "**pp chega em idade em dois passos, e escreveu 9 lá."
+        - pede: "O trecho escreve 0 a dois passos de qq. Que número aparece?"
+          mostra: |-
+            int nota = 7;
+            int *q = &nota;
+            int **qq = &q;
+
+            **qq = 0;
+            printf("%d\n", nota);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "7"
+              retorno: "Dois passos a partir de qq: o primeiro chega em q, o segundo em nota. O 0 foi escrito em nota."
+          retorno_geral: "**qq chega em nota em dois passos, e escreveu 0 lá."
+
+    - id: esc_kc10_B2_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "A um passo o trecho troca o endereço em p; a dois, escreve 0. Que número aparece?"
+          mostra: |-
+            int idade = 15;
+            int nota = 7;
+            int *p = &idade;
+            int **pp = &p;
+
+            *pp = &nota;
+            **pp = 0;
+            printf("%d\n", idade);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "A primeira linha trocou o endereço em p, que passou a apontar para nota. O 0, a dois passos, foi para nota; idade continua com 15."
+          retorno_geral: "p passou a apontar para nota, e foi nota que recebeu o 0. idade continua 15."
+        - pede: "A um passo o trecho troca o endereço em q; a dois, escreve 0. Que número aparece?"
+          mostra: |-
+            int idade = 15;
+            int nota = 7;
+            int *q = &nota;
+            int **qq = &q;
+
+            *qq = &idade;
+            **qq = 0;
+            printf("%d\n", nota);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "0"
+              retorno: "A primeira linha trocou o endereço em q, que passou a apontar para idade. O 0, a dois passos, foi para idade; nota continua com 7."
+          retorno_geral: "q passou a apontar para idade, e foi idade que recebeu o 0. nota continua 7."
+
+B3:
+  revisao:
+    frases:
+      - "O tipo diz quantos passos há até o valor: int * é um nível, int ** são dois."
+      - "void * guarda qualquer endereço. void ** não é um genérico de dois níveis: é o endereço de um void *."
+    codigo: |
+      int idade = 15;
+      int *p = &idade;
+      void *v;
+
+      v = p;
+      printf("%d\n", *(int *)v);
+    saida: "15"
+  # Protótipo de função, double e a conversão para (void **).
+  fora_da_trilha: [ciu_kc10_008]
+  provas:
+    - crenca: voidptr_is_universal
+      programa: |
+        int idade;
+        int *p;
+        void *v;
+        void **vv;
+
+        p = &idade;
+        v = &p;
+        vv = &p;
+      previsao:
+        pergunta: >
+          v é um void *, e vv é um void **. As duas últimas linhas
+          guardam &p em cada um. De qual delas o compilador reclama?
+        opcoes:
+          - "De nenhuma: void ** serve a qualquer nível"
+          - "Da última: &p não é o endereço de um void *"
+        real: 1
+        crenca: 0
+      reclama: "incompatible pointer type"
+      ambiente: >
+        Mensagem do gcc 16.2. Nele a reclamação é um erro; em versões
+        mais antigas, um aviso. Nos dois casos ele reclama da última
+        linha, e só dela.
+      afirma: >
+        O compilador aceita v = &p; e reclama de vv = &p;. O void *
+        guarda qualquer endereço, até o de um ponteiro. O void ** não é
+        um genérico de dois níveis: é o endereço de um void *, e &p é o
+        endereço de um int *.
+  degraus:
+    - id: esc_kc10_B3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O tipo diz quantos passos há até o valor: int * é um nível, int ** são dois."
+        - "As estrelas da declaração fixam isso. Não dá para dar um passo que o tipo não tem."
+      versoes:
+        - pede: "Quantos passos há de pp até o int?"
+          antes: "int **pp;"
+          pecas:
+            - "Dois: o tipo tem duas estrelas"
+            - "Um: todo ponteiro chega direto no valor"
+            - "Depende de quantas estrelas você usar depois"
+          certa: [[0]]
+          certa_texto: "Dois: o tipo tem duas estrelas"
+          erros:
+            - exata: [1]
+              retorno: "Cada estrela do tipo é um nível, e cada nível é um passo. int ** tem duas: de pp a um ponteiro, e dele ao int."
+            - exata: [2]
+              retorno: "Quem decide é a declaração, e não o uso: int ** tem dois níveis, e é só isso que se pode percorrer."
+          retorno_geral: "int ** tem dois níveis: são dois passos até o int."
+        - pede: "Quantos passos há de q até o int?"
+          antes: "int *q;"
+          pecas:
+            - "Depende de quantas estrelas você usar depois"
+            - "Dois: todo ponteiro passa por outro ponteiro"
+            - "Um: o tipo tem uma estrela"
+          certa: [[2]]
+          certa_texto: "Um: o tipo tem uma estrela"
+          erros:
+            - exata: [1]
+              retorno: "Cada estrela do tipo é um nível, e cada nível é um passo. int * tem uma só: de q direto ao int."
+            - exata: [0]
+              retorno: "Quem decide é a declaração, e não o uso: int * tem um nível, e é só isso que se pode percorrer."
+          retorno_geral: "int * tem um nível: é um passo até o int."
+
+    - id: esc_kc10_B3_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "void * é um ponteiro que guarda qualquer endereço, sem saber o tipo do que há lá."
+        - "Para usar o que ele aponta, converte-se de volta: *(int *)v."
+      versoes:
+        - pede: "v recebe o endereço que está em p, e é convertido de volta para int *. Que número aparece?"
+          mostra: |-
+            int idade = 15;
+            int *p = &idade;
+            void *v;
+
+            v = p;
+            printf("%d\n", *(int *)v);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "v guarda o mesmo endereço que está em p, o de idade. Convertido de volta para int *, o * chega em idade: 15."
+          retorno_geral: "v guarda o endereço de idade. Convertido para int *, chega no 15."
+        - pede: "v recebe o endereço que está em q, e é convertido de volta para int *. Que número aparece?"
+          mostra: |-
+            int nota = 7;
+            int *q = &nota;
+            void *v;
+
+            v = q;
+            printf("%d\n", *(int *)v);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "0"
+              retorno: "v guarda o mesmo endereço que está em q, o de nota. Convertido de volta para int *, o * chega em nota: 7."
+          retorno_geral: "v guarda o endereço de nota. Convertido para int *, chega no 7."
+
+    - id: esc_kc10_B3_3
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "O void * guarda qualquer endereço, de qualquer nível."
+        - "O void ** não é um genérico de dois níveis: é o endereço de um void *, e só disso."
+      versoes:
+        - pede: "v é um void *, e vv é um void **. Qual dos dois pode guardar &p, o endereço de um int *?"
+          antes: |-
+            int idade;
+            int *p;
+            void *v;
+            void **vv;
+          pecas:
+            - "Só v: void * guarda qualquer endereço"
+            - "Os dois: void * aceita qualquer coisa, e void ** serve a qualquer nível"
+            - "Só vv: &p tem dois níveis, e vv também"
+          certa: [[0]]
+          certa_texto: "Só v: void * guarda qualquer endereço"
+          erros:
+            - exata: [1]
+              crenca: voidptr_is_universal
+              retorno: "O void * serve a qualquer endereço. O void ** não: ele é o endereço de um void *, e &p é o endereço de um int *. O compilador reclama."
+            - exata: [2]
+              retorno: "Não basta o número de estrelas bater: vv é o endereço de um void *, e &p é o endereço de um int *. Quem aceita qualquer endereço é v."
+          retorno_geral: "v, um void *, guarda qualquer endereço. vv só guarda o endereço de um void *."
+        - pede: "v é um void *, e vv é um void **. Qual dos dois pode guardar &q, o endereço de um char *?"
+          antes: |-
+            char letra;
+            char *q;
+            void **vv;
+            void *v;
+          pecas:
+            - "Só vv: &q tem dois níveis, e vv também"
+            - "Os dois: void * aceita qualquer coisa, e void ** serve a qualquer nível"
+            - "Só v: void * guarda qualquer endereço"
+          certa: [[2]]
+          certa_texto: "Só v: void * guarda qualquer endereço"
+          erros:
+            - exata: [1]
+              crenca: voidptr_is_universal
+              retorno: "O void * serve a qualquer endereço. O void ** não: ele é o endereço de um void *, e &q é o endereço de um char *. O compilador reclama."
+            - exata: [0]
+              retorno: "Não basta o número de estrelas bater: vv é o endereço de um void *, e &q é o endereço de um char *. Quem aceita qualquer endereço é v."
+          retorno_geral: "v, um void *, guarda qualquer endereço. vv só guarda o endereço de um void *."
+
+    - id: esc_kc10_B3_4
+      nome: "O tipo fixa os níveis"
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            char letra;
+            char *cp;
+            char **cc;
+            int **pp;
+
+            cp = &letra;
+          pecas: ["cc = &cp;", "pp = &cp;", "pp = cp;"]
+          certa: [[0]]
+          certa_texto: "cc = &cp;"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "&cp é o endereço de um char *, e pp guarda o endereço de um int *: os dois níveis batem, o tipo do fim não. O compilador reclama."
+            - exata: [2]
+              retorno: "cp tem um nível, e pp tem dois: o compilador reclama. O endereço de cp, que é um char *, se guarda num char **: cc = &cp;"
+          retorno_geral: "O endereço de um char * se guarda num char **: cc = &cp;"
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int idade;
+            int *p;
+            int **pp;
+            char **cc;
+
+            p = &idade;
+          pecas: ["cc = &p;", "pp = p;", "pp = &p;"]
+          certa: [[2]]
+          certa_texto: "pp = &p;"
+          invalidas: [0, 1]
+          erros:
+            - exata: [0]
+              retorno: "&p é o endereço de um int *, e cc guarda o endereço de um char *: os dois níveis batem, o tipo do fim não. O compilador reclama."
+            - exata: [1]
+              retorno: "p tem um nível, e pp tem dois: o compilador reclama. O endereço de p, que é um int *, se guarda num int **: pp = &p;"
+          retorno_geral: "O endereço de um int * se guarda num int **: pp = &p;"
+
+    - id: esc_kc10_B3_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "v guarda o endereço de nota. O trecho o converte para int * e escreve 0 por ele. Que número aparece?"
+          mostra: |-
+            int nota = 7;
+            void *v;
+
+            v = &nota;
+            *(int *)v = 0;
+            printf("%d\n", nota);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "7"
+              retorno: "v guarda o endereço de nota. Convertido para int *, o * chega em nota, e o 0 foi escrito lá."
+          retorno_geral: "Convertido para int *, v chega em nota, que recebeu 0."
+        - pede: "v guarda o endereço de idade. O trecho o converte para int * e soma 1 por ele. Que número aparece?"
+          mostra: |-
+            int idade = 15;
+            void *v;
+
+            v = &idade;
+            *(int *)v = *(int *)v + 1;
+            printf("%d\n", idade);
+          aceitas: ["16"]
+          certa_texto: "16"
+          erros:
+            - texto: "15"
+              retorno: "v guarda o endereço de idade. Convertido para int *, o * chega em idade, e foi nela que o 1 foi somado."
+          retorno_geral: "Convertido para int *, v chega em idade, que passou a valer 16."
+
+I1:
+  revisao:
+    frases:
+      - "A função que recebe p recebe uma cópia do endereço. Trocar a cópia não troca o p de quem chamou."
+      - "Para trocar o p de quem chamou, ela recebe o endereço dele, &p, num int **."
+    codigo: |
+      void troca(int **pp, int *novo) { *pp = novo; }
+
+      int idade = 15;
+      int nota = 7;
+      int *q = &idade;
+
+      troca(&q, &nota);
+      printf("%d\n", *q);
+    saida: "7"
+  # static, que é assunto do kc_12.
+  fora_da_trilha: [ciu_kc10_011]
+  provas:
+    - crenca: modify_pp_changes_p
+      programa: |
+        void troca(int *p, int *novo) { p = novo; }
+
+        int idade = 15;
+        int nota = 7;
+        int *q = &idade;
+
+        troca(q, &nota);
+        printf("%d\n", *q);
+      previsao:
+        pergunta: >
+          A função troca o parâmetro p dela pelo endereço de nota. Depois
+          da chamada, o trecho mostra o que q alcança. O que aparece?
+        opcoes:
+          - "15"
+          - "7: trocar o parâmetro trocou o ponteiro de quem chamou"
+        real: 0
+        crenca: 1
+      espera: "15"
+      afirma: >
+        Saiu 15. A função trocou p, a cópia dela. O q de quem chamou é
+        outra caixa, e continua apontando para idade. Para trocar q, ela
+        teria de receber o endereço de q.
+  degraus:
+    - id: esc_kc10_I1_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "A função que recebe p recebe uma cópia do endereço que estava no ponteiro de quem chamou."
+        - "Trocar a cópia não troca o ponteiro de quem chamou."
+      versoes:
+        - pede: "A função troca o parâmetro dela. O q de quem chamou muda?"
+          antes: |-
+            void troca(int *p, int *novo) { p = novo; }
+
+            int idade = 15;
+            int nota = 7;
+            int *q = &idade;
+
+            troca(q, &nota);
+          pecas:
+            - "Não: p é uma cópia do endereço que estava em q"
+            - "Muda: trocar o parâmetro ponteiro troca o ponteiro de quem chamou"
+            - "Muda, mas volta quando a função termina"
+          certa: [[0]]
+          certa_texto: "Não: p é uma cópia do endereço que estava em q"
+          erros:
+            - exata: [1]
+              crenca: modify_pp_changes_p
+              retorno: "p é uma caixa da função, com uma cópia do endereço que estava em q. A linha p = novo; escreve em p; q é outra caixa, e fica como estava."
+            - exata: [2]
+              retorno: "q não muda nem por um instante: a função só escreve em p, a cópia dela. q continua apontando para idade o tempo todo."
+          retorno_geral: "A função trocou a cópia. q continua apontando para idade."
+        - pede: "A função apaga o parâmetro dela. O q de quem chamou muda?"
+          antes: |-
+            void larga(int *p) { p = NULL; }
+
+            int nota = 7;
+            int *q = &nota;
+
+            larga(q);
+          pecas:
+            - "Muda: trocar o parâmetro ponteiro troca o ponteiro de quem chamou"
+            - "Muda, mas volta quando a função termina"
+            - "Não: p é uma cópia do endereço que estava em q"
+          certa: [[2]]
+          certa_texto: "Não: p é uma cópia do endereço que estava em q"
+          erros:
+            - exata: [0]
+              crenca: modify_pp_changes_p
+              retorno: "p é uma caixa da função, com uma cópia do endereço que estava em q. A linha p = NULL; escreve em p; q é outra caixa, e fica como estava."
+            - exata: [1]
+              retorno: "q não muda nem por um instante: a função só escreve em p, a cópia dela. q continua apontando para nota o tempo todo."
+          retorno_geral: "A função apagou a cópia. q continua apontando para nota."
+
+    - id: esc_kc10_I1_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "Para trocar o ponteiro de quem chamou, a função recebe o endereço dele, num int **."
+        - "Com *pp ela chega na caixa q, e escreve nela."
+      versoes:
+        - pede: "A função recebe o endereço de q. Que número aparece?"
+          mostra: |-
+            void troca(int **pp, int *novo) { *pp = novo; }
+
+            int idade = 15;
+            int nota = 7;
+            int *q = &idade;
+
+            troca(&q, &nota);
+            printf("%d\n", *q);
+          aceitas: ["7"]
+          certa_texto: "7"
+          erros:
+            - texto: "15"
+              retorno: "Desta vez a função recebeu o endereço da caixa q. Com *pp ela escreveu em q, que passou a apontar para nota: 7."
+          retorno_geral: "Com o endereço de q, a função trocou o que q guardava: agora aponta para nota, 7."
+        - pede: "A função recebe o endereço de q. Que número aparece?"
+          mostra: |-
+            void troca(int **pp, int *novo) { *pp = novo; }
+
+            int idade = 15;
+            int nota = 7;
+            int *q = &nota;
+
+            troca(&q, &idade);
+            printf("%d\n", *q);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "7"
+              retorno: "Desta vez a função recebeu o endereço da caixa q. Com *pp ela escreveu em q, que passou a apontar para idade: 15."
+          retorno_geral: "Com o endereço de q, a função trocou o que q guardava: agora aponta para idade, 15."
+
+    - id: esc_kc10_I1_3
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "Na chamada vai o endereço do ponteiro, com o &: troca(&q, ...)."
+      versoes:
+        - pede: "Complete a chamada para a função trocar o que q guarda."
+          antes: |-
+            void troca(int **pp, int *novo) { *pp = novo; }
+
+            int idade = 15;
+            int nota = 7;
+            int *q = &idade;
+          mostra: "troca(___, &nota);"
+          pecas: ["&q", "q", "*q"]
+          certa: [[0]]
+          certa_texto: "troca(&q, &nota);"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "q entrega uma cópia do endereço de idade, e a função espera o endereço de um ponteiro: o compilador reclama. O endereço da caixa q é &q."
+            - exata: [2]
+              invalida: true
+              retorno: "*q é o número guardado em idade, e a função espera o endereço de um ponteiro: o compilador reclama. O endereço da caixa q é &q."
+          retorno_geral: "A função espera o endereço do ponteiro: troca(&q, &nota);"
+        - pede: "Complete a chamada para a função trocar o que p guarda."
+          antes: |-
+            void troca(int **pp, int *novo) { *pp = novo; }
+
+            int idade = 15;
+            int nota = 7;
+            int *p = &nota;
+          mostra: "troca(___, &idade);"
+          pecas: ["*p", "&p", "p"]
+          certa: [[1]]
+          certa_texto: "troca(&p, &idade);"
+          erros:
+            - exata: [2]
+              invalida: true
+              retorno: "p entrega uma cópia do endereço de nota, e a função espera o endereço de um ponteiro: o compilador reclama. O endereço da caixa p é &p."
+            - exata: [0]
+              invalida: true
+              retorno: "*p é o número guardado em nota, e a função espera o endereço de um ponteiro: o compilador reclama. O endereço da caixa p é &p."
+          retorno_geral: "A função espera o endereço do ponteiro: troca(&p, &idade);"
+
+    - id: esc_kc10_I1_4
+      nome: "Para mudar o ponteiro de fora, a função recebe &p"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "A função recebe o endereço de q e escreve NULL por ele. A última linha pergunta se q vale NULL. Que número aparece?"
+          mostra: |-
+            void solta(int **pp) { *pp = NULL; }
+
+            int idade = 15;
+            int *q = &idade;
+
+            solta(&q);
+            printf("%d\n", q == NULL);
+          aceitas: ["1"]
+          certa_texto: "1"
+          erros:
+            - texto: "0"
+              retorno: "A função recebeu o endereço da caixa q, e *pp é a própria q: o NULL foi escrito nela. A pergunta é verdadeira: 1."
+          retorno_geral: "Com o endereço de q, a função escreveu NULL na própria q: 1."
+        - pede: "A função recebe uma cópia de q e escreve NULL nela. A última linha pergunta se q vale NULL. Que número aparece?"
+          mostra: |-
+            void solta(int *p) { p = NULL; }
+
+            int nota = 7;
+            int *q = &nota;
+
+            solta(q);
+            printf("%d\n", q == NULL);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "1"
+              retorno: "A função recebeu uma cópia do endereço, e o NULL foi para a cópia. q é outra caixa, e continua apontando para nota: 0."
+          retorno_geral: "A função só tinha uma cópia: q continua apontando para nota, e a resposta é 0."
+
+    - id: esc_kc10_I1_5
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "A função faz q apontar para nota, e depois o trecho escreve 0 por q. Que número aparece?"
+          mostra: |-
+            void aponta(int **pp, int *alvo) { *pp = alvo; }
+
+            int idade = 15;
+            int nota = 7;
+            int *q = &idade;
+
+            aponta(&q, &nota);
+            *q = 0;
+            printf("%d\n", nota);
+          aceitas: ["0"]
+          certa_texto: "0"
+          erros:
+            - texto: "7"
+              retorno: "A função recebeu o endereço de q e trocou o que q guardava: q passou a apontar para nota. O 0 escrito por *q foi para nota."
+          retorno_geral: "q passou a apontar para nota, e o 0 foi escrito nela."
+        - pede: "A função faz q apontar para nota, e depois o trecho escreve 0 por q. Que número aparece?"
+          mostra: |-
+            void aponta(int **pp, int *alvo) { *pp = alvo; }
+
+            int idade = 15;
+            int nota = 7;
+            int *q = &idade;
+
+            aponta(&q, &nota);
+            *q = 0;
+            printf("%d\n", idade);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "0"
+              retorno: "A função trocou o que q guardava: q passou a apontar para nota, e foi nota que recebeu o 0. idade continua com 15."
+          retorno_geral: "q passou a apontar para nota. idade não foi tocada: 15."
+
+I2:
+  revisao:
+    frases:
+      - "int a[3][4]; cria doze caixas de int, grudadas: três fileiras de quatro."
+      - "Não há ponteiro nenhum ali. Uma fileira, a[0], é um array de quatro, e não um ponteiro."
+    codigo: |
+      int a[2][3] = {{1, 2, 3}, {4, 5, 6}};
+
+      printf("%d\n", a[1][0]);
+    saida: "4"
+  # Vetor de ponteiros; ponteiro para fileira. (A 014, que usava protótipo,
+  # foi reescrita em 18/11/2026 e voltou.)
+  fora_da_trilha: [ciu_kc10_015, ciu_kc10_t15]
+  provas:
+    - crenca: array2d_is_double_pointer
+      programa: |
+        char m[3][4];
+
+        printf("%zu\n", sizeof m);
+        printf("%zu\n", sizeof m[0]);
+      previsao:
+        pergunta: >
+          m tem três fileiras de quatro chars. O trecho mostra sizeof m,
+          e depois sizeof m[0], o tamanho de uma fileira. O que aparece?
+        opcoes:
+          - "12 e 4: doze caixas, e uma fileira de quatro"
+          - "Tamanhos de ponteiro: m são três ponteiros para fileiras"
+        real: 0
+        crenca: 1
+      espera: "12\n4"
+      afirma: >
+        Saíram 12 e 4. m é um bloco só, de doze caixas, e uma fileira são
+        quatro caixas — não um ponteiro. Como não há ponteiro nenhum ali,
+        m não serve onde se espera um ponteiro para ponteiro.
+  degraus:
+    - id: esc_kc10_I2_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "int a[3][4]; cria doze caixas de int, grudadas: três fileiras de quatro."
+        - "Não há ponteiro nenhum ali: nem três, nem um."
+      versoes:
+        - pede: "O que esta linha cria?"
+          antes: "int a[3][4];"
+          pecas:
+            - "Doze caixas de int, grudadas"
+            - "Três ponteiros para fileiras: por isso a serve onde se espera int **"
+            - "Um ponteiro para ponteiro, com tudo dentro"
+          certa: [[0]]
+          certa_texto: "Doze caixas de int, grudadas"
+          erros:
+            - exata: [1]
+              crenca: array2d_is_double_pointer
+              retorno: "Não há ponteiro nenhum ali: são doze caixas de int, uma depois da outra. Por não haver ponteiro, a não serve onde se espera um int **."
+            - exata: [2]
+              retorno: "Um ponteiro para ponteiro é uma caixa só, com um endereço. A linha cria outra coisa: doze caixas de int, grudadas."
+          retorno_geral: "São doze caixas de int grudadas, em três fileiras de quatro. Ponteiro, nenhum."
+        - pede: "O que esta linha cria?"
+          antes: "int b[2][5];"
+          pecas:
+            - "Um ponteiro para ponteiro, com tudo dentro"
+            - "Dez caixas de int, grudadas"
+            - "Dois ponteiros para fileiras: por isso b serve onde se espera int **"
+          certa: [[1]]
+          certa_texto: "Dez caixas de int, grudadas"
+          erros:
+            - exata: [2]
+              crenca: array2d_is_double_pointer
+              retorno: "Não há ponteiro nenhum ali: são dez caixas de int, uma depois da outra. Por não haver ponteiro, b não serve onde se espera um int **."
+            - exata: [0]
+              retorno: "Um ponteiro para ponteiro é uma caixa só, com um endereço. A linha cria outra coisa: dez caixas de int, grudadas."
+          retorno_geral: "São dez caixas de int grudadas, em duas fileiras de cinco. Ponteiro, nenhum."
+
+    - id: esc_kc10_I2_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "a[1][0] é a fileira 1, posição 0. As duas contagens começam em 0."
+        - "A lista entre chaves vem fileira por fileira."
+      versoes:
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int a[2][3] = {{1, 2, 3}, {4, 5, 6}};
+
+            printf("%d\n", a[1][0]);
+          aceitas: ["4"]
+          certa_texto: "4"
+          erros:
+            - texto: "1"
+              retorno: "a[0] é a primeira fileira, a do 1, 2 e 3. a[1] é a segunda, e a posição 0 dela guarda 4."
+            - texto: "2"
+              retorno: "O primeiro número escolhe a fileira, e o segundo a posição nela. a[1][0] é a segunda fileira, primeira posição: 4."
+          retorno_geral: "a[1] é a segunda fileira, e a posição 0 dela guarda 4."
+        - pede: "Que número este trecho mostra na tela?"
+          mostra: |-
+            int b[2][3] = {{7, 8, 9}, {15, 16, 17}};
+
+            printf("%d\n", b[0][2]);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "17"
+              retorno: "b[0] é a primeira fileira, a do 7, 8 e 9. A posição 2 dela é a terceira: 9. O 17 está na outra fileira."
+            - texto: "8"
+              retorno: "A contagem começa em 0: a posição 2 é a terceira da fileira. Em b[0], é o 9."
+          retorno_geral: "b[0] é a primeira fileira, e a posição 2 dela guarda 9."
+
+    - id: esc_kc10_I2_3
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "sizeof m mede as caixas todas; sizeof m[0] mede uma fileira."
+        - "Uma fileira é um array, e não um ponteiro."
+      versoes:
+        - pede: "m tem três fileiras de quatro chars. Que número aparece?"
+          mostra: |-
+            char m[3][4];
+
+            printf("%zu\n", sizeof m);
+          aceitas: ["12"]
+          certa_texto: "12"
+          erros:
+            - texto: "3"
+              retorno: "3 é o número de fileiras. sizeof m mede as caixas todas: três fileiras de quatro, 12."
+            - texto: "4"
+              retorno: "4 é o tamanho de uma fileira. sizeof m mede as caixas todas: três fileiras de quatro, 12."
+          retorno_geral: "sizeof m mede as doze caixas: três fileiras de quatro."
+        - pede: "t tem duas fileiras de cinco chars. Que número aparece?"
+          mostra: |-
+            char t[2][5];
+
+            printf("%zu\n", sizeof t);
+          aceitas: ["10"]
+          certa_texto: "10"
+          erros:
+            - texto: "2"
+              retorno: "2 é o número de fileiras. sizeof t mede as caixas todas: duas fileiras de cinco, 10."
+            - texto: "5"
+              retorno: "5 é o tamanho de uma fileira. sizeof t mede as caixas todas: duas fileiras de cinco, 10."
+          retorno_geral: "sizeof t mede as dez caixas: duas fileiras de cinco."
+
+    - id: esc_kc10_I2_4
+      nome: "A matriz é um bloco só de caixas"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "t tem duas fileiras de cinco chars. O trecho mostra o tamanho de UMA fileira. Que número aparece?"
+          mostra: |-
+            char t[2][5];
+
+            printf("%zu\n", sizeof t[0]);
+          aceitas: ["5"]
+          certa_texto: "5"
+          erros:
+            - texto: "10"
+              retorno: "10 são as caixas todas. t[0] é uma fileira só, de cinco caixas: 5."
+            - texto: "8"
+              retorno: "8 seria o tamanho de um ponteiro nesta máquina. t[0] não é um ponteiro: é uma fileira de cinco caixas de char, 5."
+          retorno_geral: "t[0] é uma fileira, um array de cinco chars: 5."
+        - pede: "g tem quatro fileiras de três chars. O trecho mostra o tamanho de UMA fileira. Que número aparece?"
+          mostra: |-
+            char g[4][3];
+
+            printf("%zu\n", sizeof g[0]);
+          aceitas: ["3"]
+          certa_texto: "3"
+          erros:
+            - texto: "12"
+              retorno: "12 são as caixas todas. g[0] é uma fileira só, de três caixas: 3."
+            - texto: "8"
+              retorno: "8 seria o tamanho de um ponteiro nesta máquina. g[0] não é um ponteiro: é uma fileira de três caixas de char, 3."
+          retorno_geral: "g[0] é uma fileira, um array de três chars: 3."
+
+    - id: esc_kc10_I2_5
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int a[3][4];
+            int *p;
+            int **pp;
+          pecas: ["p = a[0];", "pp = a;", "pp = a[0];"]
+          certa: [[0]]
+          certa_texto: "p = a[0];"
+          invalidas: [1, 2]
+          erros:
+            - exata: [1]
+              retorno: "a não é um ponteiro para ponteiro: é o bloco das doze caixas, e numa conta vira o endereço de uma fileira. O compilador reclama."
+            - exata: [2]
+              retorno: "a[0] é uma fileira de ints, e numa conta vira o endereço de um int — não o de um ponteiro: o compilador reclama. Quem aponta para int é p."
+          retorno_geral: "a[0] é uma fileira de ints, e vira o endereço do primeiro: p = a[0];"
+        - pede: "Qual destas linhas o compilador aceita?"
+          antes: |-
+            int b[2][5];
+            int **qq;
+            int *q;
+          pecas: ["qq = b;", "qq = b[1];", "q = b[1];"]
+          certa: [[2]]
+          certa_texto: "q = b[1];"
+          invalidas: [0, 1]
+          erros:
+            - exata: [0]
+              retorno: "b não é um ponteiro para ponteiro: é o bloco das dez caixas, e numa conta vira o endereço de uma fileira. O compilador reclama."
+            - exata: [1]
+              retorno: "b[1] é uma fileira de ints, e numa conta vira o endereço de um int — não o de um ponteiro: o compilador reclama. Quem aponta para int é q."
+          retorno_geral: "b[1] é uma fileira de ints, e vira o endereço do primeiro dela: q = b[1];"
+
+I3:
+  revisao:
+    frases:
+      - "pp e p são duas caixas: pp guarda o endereço de p, e p guarda o endereço de idade."
+      - "*pp chega em p. **pp passa por p, e só então chega no número."
+    codigo: |
+      int idade = 15;
+      int *p = &idade;
+      int **pp = &p;
+
+      **pp = 9;
+      printf("%d\n", *p);
+    saida: "9"
+  provas:
+    - crenca: double_deref_is_data
+      programa: |
+        int idade = 15;
+        int nota = 7;
+        int *p = &idade;
+        int **pp = &p;
+
+        p = &nota;
+        printf("%d\n", **pp);
+      previsao:
+        pergunta: >
+          pp guarda &p. Depois, p passa a guardar o endereço de nota. O
+          que **pp mostra?
+        opcoes:
+          - "7"
+          - "15: **pp vai direto ao dado final, que era idade"
+        real: 0
+        crenca: 1
+      espera: "7"
+      afirma: >
+        Saiu 7. **pp não vai direto a lugar nenhum: dá um passo até p, e
+        outro até onde p aponta. Quando p trocou de endereço, o segundo
+        passo passou a dar em nota.
+  degraus:
+    - id: esc_kc10_I3_1
+      guiado: true
+      forma: escolher
+      codigo: false
+      frases:
+        - "pp e p são duas caixas: pp guarda o endereço de p, e p guarda o endereço de idade."
+        - "**pp não pula direto para o número: passa por p, e só então chega em idade."
+      versoes:
+        - pede: "Como **pp chega no 15?"
+          antes: |-
+            int idade = 15;
+            int *p = &idade;
+            int **pp = &p;
+          pecas:
+            - "Em dois passos: de pp a p, e de p a idade"
+            - "Direto: **pp acessa o dado final, e o nível a mais se resolve sozinho"
+            - "Em um passo: pp já guarda o endereço de idade"
+          certa: [[0]]
+          certa_texto: "Em dois passos: de pp a p, e de p a idade"
+          erros:
+            - exata: [1]
+              crenca: double_deref_is_data
+              retorno: "Não há atalho: o primeiro * sai de pp e chega em p; o segundo sai de p e chega em idade. Se p mudar de endereço, **pp muda junto."
+            - exata: [2]
+              retorno: "pp guarda o endereço de p, e não o de idade. Até idade são dois passos: de pp a p, e de p a idade."
+          retorno_geral: "São dois passos, e o do meio passa por p."
+        - pede: "Como **qq chega no 7?"
+          antes: |-
+            int nota = 7;
+            int *q = &nota;
+            int **qq = &q;
+          pecas:
+            - "Em um passo: qq já guarda o endereço de nota"
+            - "Em dois passos: de qq a q, e de q a nota"
+            - "Direto: **qq acessa o dado final, e o nível a mais se resolve sozinho"
+          certa: [[1]]
+          certa_texto: "Em dois passos: de qq a q, e de q a nota"
+          erros:
+            - exata: [2]
+              crenca: double_deref_is_data
+              retorno: "Não há atalho: o primeiro * sai de qq e chega em q; o segundo sai de q e chega em nota. Se q mudar de endereço, **qq muda junto."
+            - exata: [0]
+              retorno: "qq guarda o endereço de q, e não o de nota. Até nota são dois passos: de qq a q, e de q a nota."
+          retorno_geral: "São dois passos, e o do meio passa por q."
+
+    - id: esc_kc10_I3_2
+      guiado: true
+      forma: digitar
+      codigo: true
+      frases:
+        - "O que **pp escreve é o que *p lê: os dois chegam na mesma caixa."
+      versoes:
+        - pede: "O trecho escreve por **pp e lê por *p. Que número aparece?"
+          mostra: |-
+            int idade = 15;
+            int *p = &idade;
+            int **pp = &p;
+
+            **pp = 9;
+            printf("%d\n", *p);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "15"
+              retorno: "**pp passa por p e chega em idade — a mesma caixa em que *p chega. O 9 escrito por um é o que o outro lê."
+          retorno_geral: "**pp e *p chegam em idade, que recebeu 9."
+        - pede: "O trecho escreve por *q e lê por **qq. Que número aparece?"
+          mostra: |-
+            int nota = 7;
+            int *q = &nota;
+            int **qq = &q;
+
+            *q = 20;
+            printf("%d\n", **qq);
+          aceitas: ["20"]
+          certa_texto: "20"
+          erros:
+            - texto: "7"
+              retorno: "**qq passa por q e chega em nota — a mesma caixa em que *q chega. O 20 escrito por um é o que o outro lê."
+          retorno_geral: "*q e **qq chegam em nota, que recebeu 20."
+
+    - id: esc_kc10_I3_3
+      guiado: true
+      forma: completar
+      codigo: true
+      frases:
+        - "*pp é a caixa p: o que se escreve ali é um endereço."
+        - "**pp é a caixa idade: o que se escreve ali é um número."
+      versoes:
+        - pede: "Complete para trocar o que p guarda, sem escrever o nome p."
+          antes: |-
+            int idade = 15;
+            int nota = 7;
+            int *p = &idade;
+            int **pp = &p;
+          mostra: "___ = &nota;"
+          pecas: ["*pp", "**pp", "pp"]
+          certa: [[0]]
+          certa_texto: "*pp = &nota;"
+          erros:
+            - exata: [1]
+              invalida: true
+              retorno: "**pp é a caixa idade, que guarda número — e &nota é um endereço: o compilador reclama. A caixa p está a um passo: *pp = &nota;"
+            - exata: [2]
+              invalida: true
+              retorno: "pp guarda o endereço de um ponteiro, e &nota é o endereço de um int: o compilador reclama. A caixa p está a um passo: *pp = &nota;"
+          retorno_geral: "A um passo de pp está a caixa p: *pp = &nota;"
+        - pede: "Complete para escrever 0 em nota, sem escrever nem nota nem q."
+          antes: |-
+            int nota = 7;
+            int *q = &nota;
+            int **qq = &q;
+          mostra: "___ = 0;"
+          pecas: ["qq", "**qq", "&qq"]
+          certa: [[1]]
+          certa_texto: "**qq = 0;"
+          erros:
+            - exata: [0]
+              retorno: "qq = 0; apaga o endereço que qq guardava, e mais nada: nota fica como estava. A caixa nota está a dois passos: **qq = 0;"
+            - exata: [2]
+              invalida: true
+              retorno: "&qq é o endereço da caixa qq, e não um lugar que recebe valor: o compilador reclama. A caixa nota está a dois passos: **qq = 0;"
+          retorno_geral: "A dois passos de qq está a caixa nota: **qq = 0;"
+
+    - id: esc_kc10_I3_4
+      nome: "*pp chega em p; **pp, no número"
+      guiado: false
+      forma: digitar
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "p começa apontando para nota, e depois recebe o endereço de idade. Que número **pp mostra?"
+          mostra: |-
+            int idade = 15;
+            int nota = 7;
+            int *p = &nota;
+            int **pp = &p;
+
+            p = &idade;
+            printf("%d\n", **pp);
+          aceitas: ["15"]
+          certa_texto: "15"
+          erros:
+            - texto: "7"
+              retorno: "**pp passa por p. Quando p trocou de endereço, o segundo passo passou a dar em idade: 15."
+          retorno_geral: "**pp passa por p, que agora aponta para idade: 15."
+        - pede: "q começa apontando para idade, e depois recebe o endereço de nota. Que número **qq mostra?"
+          mostra: |-
+            int idade = 20;
+            int nota = 9;
+            int *q = &idade;
+            int **qq = &q;
+
+            q = &nota;
+            printf("%d\n", **qq);
+          aceitas: ["9"]
+          certa_texto: "9"
+          erros:
+            - texto: "20"
+              retorno: "**qq passa por q. Quando q trocou de endereço, o segundo passo passou a dar em nota: 9."
+          retorno_geral: "**qq passa por q, que agora aponta para nota: 9."
+
+    - id: esc_kc10_I3_5
+      guiado: false
+      forma: escolher
+      codigo: true
+      frases: []
+      versoes:
+        - pede: "Qual destas linhas mostra 15 na tela?"
+          antes: |-
+            int idade = 15;
+            int *p = &idade;
+            int **pp = &p;
+          pecas:
+            - 'printf("%d\n", **pp);'
+            - 'printf("%d\n", *pp);'
+            - 'printf("%d\n", pp);'
+          certa: [[0]]
+          certa_texto: 'printf("%d\n", **pp);'
+          erros:
+            - exata: [1]
+              retorno: "*pp dá um passo só, e chega em p, que guarda um endereço — e não o 15. O compilador reclama do %d. Até o número são dois passos: **pp."
+            - exata: [2]
+              retorno: "pp guarda o endereço de p, e não o 15: o compilador reclama do %d. Até o número são dois passos: **pp."
+          retorno_geral: "O 15 está a dois passos de pp: **pp."
+        - pede: "Qual destas linhas mostra 7 na tela?"
+          antes: |-
+            int nota = 7;
+            int *q = &nota;
+            int **qq = &q;
+          pecas:
+            - 'printf("%d\n", qq);'
+            - 'printf("%d\n", *qq);'
+            - 'printf("%d\n", **qq);'
+          certa: [[2]]
+          certa_texto: 'printf("%d\n", **qq);'
+          erros:
+            - exata: [1]
+              retorno: "*qq dá um passo só, e chega em q, que guarda um endereço — e não o 7. O compilador reclama do %d. Até o número são dois passos: **qq."
+            - exata: [0]
+              retorno: "qq guarda o endereço de q, e não o 7: o compilador reclama do %d. Até o número são dois passos: **qq."
+          retorno_geral: "O 7 está a dois passos de qq: **qq."

@@ -1035,13 +1035,18 @@ activities:
     nivel: 2
     formato: achar_o_erro
     tipo: codigo
+    # Reescrita em 18/11/2026, com o Rafael de acordo (fazer como no kc_06):
+    # a versão anterior declarava f só com o protótipo, que escada nenhuma
+    # ensina, e a alternativa certa dizia "a vira ponteiro para fileira",
+    # que a escada do I2 deixa de fora de propósito. Agora f tem corpo,
+    # numa linha, como nas escadas, e a certa diz o que o I2 ensina.
     codigo: |
-      void f(int **m);
+      void f(int **m) { printf("%d\n", **m); }
       int a[3][4];
       f(a);
     enunciado: "Por que o compilador reclama?"
     alternativas:
-      a: "a vira ponteiro para fileira"
+      a: "a é uma matriz, não int **"
       b: "Não reclama: a já é int **"
       c: "Não reclama: o ** aceita tudo"
     gabarito: a

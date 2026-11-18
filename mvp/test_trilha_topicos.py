@@ -951,6 +951,81 @@ def test_o_kc_09_diz_pendente_e_o_free_de_null_e_separa_as_ideias_vizinhas():
         "Escrever NULL depois do free"]
 
 
+def test_no_kc_10_ficam_fora_cinco_e_toda_premissa_abre_com_codigo():
+    """Ficam fora as cinco questões com protótipo de função, `double`,
+    `static`, vetor de ponteiros e ponteiro para fileira. A sexta, a
+    ciu_kc10_014, foi reescrita (18/11/2026, com o Rafael de acordo, como
+    as do kc_06) e voltou: com ela o I2 abre com código."""
+    fora, quantas, abre = _selecao("kc_10")
+    assert fora == {
+        "B1": ("ciu_kc10_t02",),
+        "B3": ("ciu_kc10_008",),
+        "I1": ("ciu_kc10_011",),
+        "I2": ("ciu_kc10_015", "ciu_kc10_t15"),
+    }
+    assert quantas == {"B1": 5, "B2": 6, "B3": 5, "I1": 5, "I2": 4, "I3": 6}
+    assert abre == {
+        "B1": "ciu_kc10_002", "B2": "ciu_kc10_005", "B3": "ciu_kc10_009",
+        "I1": "ciu_kc10_012", "I2": "ciu_kc10_014", "I3": "ciu_kc10_017"}
+    d = _dominio("kc_10")
+    por_id = {a.id: a for a in d.atividades}
+    assert [no for no, i in abre.items() if not por_id[i].codigo] == []
+    # Protótipo sem corpo, double, static, vetor de ponteiros (`int *v[3]`),
+    # ponteiro para fileira (`int (*pp)[4]`) e matriz entregue a `int **`.
+    ruim = re.compile(r"\b(double|static)\b|\bint \*\w+\[|\(\*\w+\)\["
+                      r"|^\s*(?:void|int)\s+\w+\([^)]*\);"
+                      r"|\[\d\]\[\d\];\s*\n\s*int \*\*", re.M)
+    for no in d.ordem:
+        for i in _servidas_pela_trilha("kc_10", no):
+            assert not ruim.search(por_id[i].codigo or ""), i
+    # A régua morde: pega as cinco de fora. A t15 pede, nas ALTERNATIVAS, a
+    # declaração de um ponteiro para fileira; no código dela, o que a
+    # régua vê é a matriz entregue a um int **.
+    assert all(ruim.search(por_id[i].codigo or "")
+               for ids in fora.values() for i in ids)
+    # A reescrita: a certa diz o que o I2 ensina, e não "ponteiro para
+    # fileira", que a escada deixa de fora.
+    reescrita = por_id["ciu_kc10_014"]
+    certa = next(o.texto for o in reescrita.opcoes if o.correta)
+    assert "fileira" not in certa
+    assert "{" in reescrita.codigo
+
+
+def test_o_kc_10_apresenta_o_segundo_nivel_o_void_e_a_matriz():
+    """Entram a caixa de duas estrelas, a palavra "nível", o void *, o
+    void ** e a matriz. Cada coisa é dita num passo guiado."""
+    assert _onde_se_apresenta("kc_10", "B1", "int **pp") == "esc_kc10_B1_2"
+    assert _onde_se_apresenta("kc_10", "B2", "duas estrelas") == "esc_kc10_B2_2"
+    assert _onde_se_apresenta("kc_10", "B3", "nível") == "esc_kc10_B3_1"
+    assert _onde_se_apresenta("kc_10", "B3", "void * é") == "esc_kc10_B3_2"
+    assert _onde_se_apresenta("kc_10", "B3", "void **") == "esc_kc10_B3_3"
+    assert _onde_se_apresenta("kc_10", "I1", "int **") == "esc_kc10_I1_2"
+    assert _onde_se_apresenta("kc_10", "I2", "a[3][4]") == "esc_kc10_I2_1"
+    escadas = _escadas("kc_10")
+    nomes = [escadas[no].pratica[0].nome for no in _dominio("kc_10").ordem]
+    assert len(set(nomes)) == 6
+
+
+def test_as_provas_do_kc_10_e_a_matriz_de_char():
+    """Quatro das seis provas são saídas em que uma caixa troca de
+    endereço e o resultado acompanha. A da matriz mede uma matriz de
+    char, para o número ser o de caixas em qualquer máquina — e por isso
+    não precisa de nota de ambiente."""
+    provas = {p.crenca: p for e in _escadas("kc_10").values() for p in e.provas}
+    assert len(provas) == 6
+    assert {c for c, p in provas.items() if p.reclama} == {"voidptr_is_universal"}
+    da_matriz = provas["array2d_is_double_pointer"]
+    assert "char m[3][4];" in da_matriz.programa
+    assert da_matriz.espera == "12\n4" and not da_matriz.ambiente
+    # Nenhum passo de digitar mede matriz de int nem ponteiro.
+    for e, g, k, v in _versoes("kc_10"):
+        if g.forma == "digitar" and "sizeof" in v.mostra:
+            assert re.search(r"char \w+\[\d\]\[\d\];", v.mostra), g.id
+    # A prova do I1 não é a do kc_06, que tem a mesma crença.
+    do_kc_06 = _escadas("kc_06")["I3"].prova("modify_pp_changes_p")
+    assert provas["modify_pp_changes_p"].programa != do_kc_06.programa
+
+
 def test_sem_a_questao_de_degrau_2_a_premissa_abre_com_a_de_codigo():
     """A abertura é a questão de código de degrau 2: é a que APLICA a
     ideia. Quando ela fica fora da trilha, quem abre é outra de código, e

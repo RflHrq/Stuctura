@@ -1152,6 +1152,39 @@ passos já escritos, um do kc_05 e um do kc_06. Os três trocaram de
 cenário. O teste vê o trecho repetido ao pé da letra; a mesma ideia com
 outros nomes continua sendo o que o treino é.
 
+**O kc_10, em 18/11/2026 — ponteiro para ponteiro**
+
+Duas escadas anteriores pararam na porta deste tópico: "para trocar o
+ponteiro de quem chamou, a função precisaria do endereço dele" (kc_06,
+kc_09). É aqui que se entra. Seis premissas, 30 degraus, uma prova por
+crença (`mvp/dominio/escada_kc10.yaml`, `docs/escada-kc10-leitura.md`).
+Entram a caixa de duas estrelas (`int **pp = &p;`), um passo por estrela
+(`*pp` e `**pp`), a palavra "nível", o `void *` e o `void **`, a função
+que recebe `int **` e a matriz (`int a[3][4]`).
+
+- **O mesmo trio em todo o tópico**: `idade` guarda um número, `p` o
+  endereço de `idade`, `pp` o endereço de `p`. Uma segunda variável,
+  `nota`, entra quando alguma caixa precisa trocar de endereço.
+- **As provas**: cinco são saídas, e em quatro delas a pessoa vê uma
+  caixa trocar de endereço e o resultado acompanhar; uma é o que o
+  compilador diz (aceita `v = &p;` num `void *` e reclama de `vv = &p;`
+  num `void **`). A da matriz mede uma matriz de `char`, para o número
+  ser o de caixas em qualquer máquina, e por isso não precisa de nota de
+  ambiente.
+- **Uma questão do banco reescrita, com o Rafael de acordo** (como as do
+  kc_06): a `ciu_kc10_014` declarava a função só com o protótipo, que
+  escada nenhuma ensina, e a alternativa certa dizia "a vira ponteiro
+  para fileira", que a escada do I2 deixa de fora de propósito. Agora a
+  função tem corpo, numa linha, e a certa diz o que o I2 ensina ("a é
+  uma matriz, não int **"). Id, nível, gabarito e a crença de cada
+  distrator não mudaram. Com ela, as seis premissas abrem com questão de
+  código. Cinco das 36 questões ficam fora: protótipo, `double`,
+  `static`, vetor de ponteiros e ponteiro para fileira.
+
+Quem acerta tudo faz 14 telas e 19 toques (8 e 13 no rápido); quem não
+sabe e aprende, 26 e 43; quem erra todo passo, 38 e 91; quem diz a
+crença de cada ideia e depois acerta, 38 e 37.
+
 **Novo, e opcional — a trilha funciona sem**
 
 1. **A previsão.** Os programas de demonstração imprimem frases ("o
