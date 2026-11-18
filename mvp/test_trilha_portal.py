@@ -139,11 +139,16 @@ def test_a_trilha_tambem_responde_sem_cache(cliente):
         assert r.headers["Cache-Control"] == "no-cache", rota
 
 
-def test_a_pagina_inicial_abre_a_trilha_e_guarda_a_versao_anterior():
+def test_a_pagina_inicial_abre_a_trilha_sem_a_versao_anterior():
+    """ERA ..._e_guarda_a_versao_anterior: um link discreto para o fluxo
+    de sempre ficava sob cada tópico. Em 18/11/2026 o Rafael pediu que ele
+    saísse — os treze tópicos abrem pela trilha. As rotas /kc/<tópico>/
+    continuam montadas (o painel do pesquisador e a exportação leem o
+    registro delas), só sem link na página."""
     html = (WEB / "portal.html").read_text(encoding="utf-8")
     assert "t.trilha" in html
-    assert "versão anterior" in html
-    # O link de sempre continua sendo montado, para quem não tem trilha.
+    assert "versão anterior" not in html
+    # O caminho de sempre ainda é o destino de quem não tem trilha.
     assert "t.caminho" in html
 
 

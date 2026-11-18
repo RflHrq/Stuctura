@@ -210,8 +210,9 @@ um caminho que se percorre.
   como o "já aberto" de hoje — numa máquina de laboratório compartilhada,
   o código do participante não muda isso (limitação dita na tela de
   ajuda, se houver, e no relatório).
-- Cada parada é um link para o tópico; a "versão anterior" (fluxo antigo)
-  continua num link discreto, dentro do cartão do tópico.
+- Cada parada é um link para o tópico. A "versão anterior" (fluxo antigo)
+  ficava num link discreto; **saiu em 18/11/2026, a pedido do Rafael** —
+  as rotas `/kc/<tópico>/` continuam montadas, sem link.
 - O código do participante sai do meio da página e vai para um campo no
   topo, com o mesmo comportamento e a mesma validação de hoje.
 

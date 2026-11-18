@@ -419,3 +419,15 @@ pre.codigo, .t-retorno pre.codigo {
   .cn-caixa.cn-ativa .cn-bola, .cn-caixa.cn-ativa .cn-valor { animation: cn-entra .35s ease-out both; }
   @keyframes cn-entra { from { opacity: 0; } to { opacity: 1; } }
 }
+
+/* Tela de computador: a cena ao lado do texto, sem rolagem (o Rafael, em
+   18/11/2026, no painel de explicação). No celular, um embaixo do outro. */
+@media (min-width: 1000px) {
+  .palco.t-largo { max-width: min(1180px, 96vw); }
+  .t-painel.t-largo { max-width: min(1180px, 96vw); }
+  .t-lado-a-lado { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+                   gap: 28px; align-items: start; }
+  .t-lado-a-lado > .cena { margin: 0; }
+  .t-lado-a-lado .cn-palco { max-height: 210px; }
+  .t-fundo { padding-top: 3vh; }
+}

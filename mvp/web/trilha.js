@@ -332,9 +332,11 @@
     (x.frases || []).forEach(function (f) { caixa.appendChild(p("t-frase", f)); });
     if (x.cena && window.Cena) {
       /* A ideia com cena: a cena toma o lugar do código e da figura
-       * antiga (docs/interface.md, 8.1). */
-      caixa.appendChild(Cena.desenha(x.cena, x.codigo));
-      return caixa;
+       * antiga (docs/interface.md, 8.1). Em tela larga ela fica ao lado
+       * do texto, para caber sem rolagem (tema.css, "t-lado-a-lado"). */
+      caixa.className = "t-lado-texto";
+      return el("div", { "class": "t-lado-a-lado" },
+                [caixa, Cena.desenha(x.cena, x.codigo)]);
     }
     if (x.codigo) caixa.appendChild(bloco(x.codigo));
     var figura = el("div", { "class": "figura" });
@@ -347,6 +349,8 @@
     var corpo = $("painel-corpo");
     corpo.textContent = "";
     corpo.appendChild(corpoDaExplicacao(explicacao, explicacao.no));
+    /* Com cena, o painel alarga em tela de computador. */
+    corpo.parentNode.classList.toggle("t-largo", !!(explicacao.cena && window.Cena));
     $("painel").classList.remove("oculto");
     $("btn-fechar-painel").focus();
   }
@@ -387,6 +391,8 @@
     }
     var palco = $("palco");
     palco.textContent = "";
+    /* A revisão com cena alarga o palco em tela de computador (tema.css). */
+    palco.classList.toggle("t-largo", tela.tipo === "revisao" && !!tela.cena && !!window.Cena);
     var cartao = el("section", { "class": "cartao t-cartao" });
     S.cartao = cartao;
     palco.appendChild(cartao);
@@ -798,22 +804,28 @@
   };
 
   DESENHA["revisao"] = function (c, t) {
-    c.appendChild(cabeca("Vamos rever"));
-    t.frases.forEach(function (f) { c.appendChild(p("t-frase", f)); });
+    var continuar = el("div", { "class": "t-acoes" }, [
+      botao("Continuar", function () { age({ acao: "continuar" }); })
+    ]);
     if (t.cena && window.Cena) {
       /* A cena traz o código com a linha que roda marcada, e a tela do
-       * programa: toma o lugar dos dois blocos (docs/interface.md, 8). */
-      c.appendChild(Cena.desenha(t.cena, t.codigo));
-    } else {
-      c.appendChild(bloco(t.codigo));
-      if (t.saida) {
-        c.appendChild(p("t-rotulo", "A máquina imprime:"));
-        c.appendChild(bloco(t.saida, "terminal"));
-      }
+       * programa: toma o lugar dos dois blocos (docs/interface.md, 8). Em
+       * tela larga fica ao lado do texto, sem rolagem. */
+      var texto = el("div", { "class": "t-lado-texto" }, [cabeca("Vamos rever")]);
+      t.frases.forEach(function (f) { texto.appendChild(p("t-frase", f)); });
+      texto.appendChild(continuar);
+      c.appendChild(el("div", { "class": "t-lado-a-lado" },
+                       [texto, Cena.desenha(t.cena, t.codigo)]));
+      return;
     }
-    c.appendChild(el("div", { "class": "t-acoes" }, [
-      botao("Continuar", function () { age({ acao: "continuar" }); })
-    ]));
+    c.appendChild(cabeca("Vamos rever"));
+    t.frases.forEach(function (f) { c.appendChild(p("t-frase", f)); });
+    c.appendChild(bloco(t.codigo));
+    if (t.saida) {
+      c.appendChild(p("t-rotulo", "A máquina imprime:"));
+      c.appendChild(bloco(t.saida, "terminal"));
+    }
+    c.appendChild(continuar);
   };
 
   /* O FECHAMENTO. Antes da lista ideia por ideia, o que a sessão achou

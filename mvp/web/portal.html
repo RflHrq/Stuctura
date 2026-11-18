@@ -117,12 +117,6 @@
   .marca.feito { background: var(--ok-fundo); color: var(--ok); }
   .marca.andamento { background: var(--destaque-fundo); color: var(--tinta); }
   .falha { color: var(--erro); }
-  /* O caminho de sempre, para o tópico que já abre pela trilha. */
-  #lista a.anterior { display: inline; padding: 0; border: 0; background: none;
-                      box-shadow: none; color: var(--tinta2); font-size: .82rem;
-                      text-decoration: underline; margin-left: 18px; }
-  #lista a.anterior:hover, #lista a.anterior:focus-visible {
-                      color: var(--acento); }
 
   @media (max-width: 860px) {
     .p-casa { grid-template-columns: minmax(0, 1fr); gap: 22px; }
@@ -251,8 +245,9 @@
     if (c) { ev.preventDefault(); window.location.href = destino + "?codigo=" + encodeURIComponent(c); }
   }
 
-  /* Quem tem trilha abre por ela; o caminho de sempre fica num link
-   * discreto, a "versão anterior". */
+  /* Todo tópico abre pela trilha. O fluxo de sempre (t.caminho) só é o
+   * destino de um tópico sem trilha; o link discreto para ele saiu em
+   * 18/11/2026, a pedido do Rafael. */
   function destinoDe(t) { return t.trilha || t.caminho; }
 
   function o_que_o_navegador_lembra(topicos) {
@@ -319,14 +314,6 @@
       a.appendChild(num); a.appendChild(meio); a.appendChild(marcas);
       a.addEventListener("click", function (ev) { vai(ev, destino); });
       li.appendChild(a);
-      if (t.trilha) {
-        var antes = document.createElement("a");
-        antes.className = "anterior";
-        antes.href = t.caminho;
-        antes.textContent = "versão anterior";
-        antes.addEventListener("click", function (ev) { vai(ev, t.caminho); });
-        li.appendChild(antes);
-      }
       lista.appendChild(li);
     });
   }

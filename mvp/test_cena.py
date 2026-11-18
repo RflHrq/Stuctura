@@ -234,3 +234,18 @@ def test_o_botao_da_cena_nao_se_chama_continuar():
     """"Continuar" é o botão da sessão, logo abaixo da cena."""
     js = (WEB / "cena.js").read_text(encoding="utf-8")
     assert '"Continuar"' not in js and '"Retomar"' in js
+
+
+def test_em_tela_larga_a_cena_fica_ao_lado_do_texto():
+    """O Rafael, em 18/11/2026: no painel de explicação a cena pedia
+    rolagem. Em tela de computador o painel e a revisão alargam, com o
+    texto à esquerda e a cena à direita; no celular, um embaixo do outro."""
+    import re
+    css = (WEB / "tema.css").read_text(encoding="utf-8")
+    largo = re.search(r"@media \(min-width: 1000px\) \{(.*?)\n\}", css, re.S)
+    assert largo, "tema.css não tem o bloco de tela larga da cena"
+    for regra in (".palco.t-largo", ".t-painel.t-largo", ".t-lado-a-lado"):
+        assert regra in largo.group(1), regra
+    js = (WEB / "trilha.js").read_text(encoding="utf-8")
+    assert js.count('"t-lado-a-lado"') >= 2
+    assert 'classList.toggle("t-largo"' in js
