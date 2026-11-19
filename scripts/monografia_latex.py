@@ -35,7 +35,12 @@ CAPITULOS = [
      "07-limitacoes-e-trabalhos-futuros", "7"),
     ("08-conclusao.md", "08-conclusao", "8"),
 ]
-APENDICES = [("apendice-protocolo.md", "apendice-a-protocolo", "A")]
+APENDICES = [("apendice-protocolo.md", "apendice-a-protocolo", "A"),
+             ("apendice-curadoria.md", "apendice-b-curadoria", "B")]
+
+# Um quadro com mais linhas que isto não cabe numa página: vira tabela
+# longa, que quebra entre páginas e repete o cabeçalho.
+LINHAS_DO_QUADRO_LONGO = 25
 
 FONTE_PADRAO_QUADRO = "Elaborado pelo autor."
 FONTE_PADRAO_FIGURA = "Captura de tela do Structura, elaborada pelo autor."
@@ -285,6 +290,8 @@ def _quadro(linhas, titulo, num, fonte, tx: Texto) -> str:
     n = len(cab)
     if any(len(r) != n for r in corpo):
         raise Erro("Quadro %s: linha com número de colunas diferente" % num)
+    if len(corpo) > LINHAS_DO_QUADRO_LONGO:
+        return _quadro_longo(cab, corpo, titulo, num, fonte, tx)
     larguras = [max(len(r[k]) for r in [cab] + corpo) for k in range(n)]
     colunas = []
     for k in range(n):
@@ -310,6 +317,40 @@ def _quadro(linhas, titulo, num, fonte, tx: Texto) -> str:
     s += ["\\end{tabularx}",
           "\\fonte{%s}" % tx.converte(fonte),
           "\\end{quadro}"]
+    return "\n".join(s)
+
+
+def _quadro_longo(cab, corpo, titulo, num, fonte, tx: Texto) -> str:
+    """Quadro que atravessa páginas: título e entrada na lista de quadros
+    feitos à mão (o longtable não usa o contador de quadro), cabeçalho
+    repetido em cada página, fonte no fim."""
+    n = len(cab)
+    # cada coluna tem pelo menos a largura do próprio título, em negrito
+    larg = [max(min(max(len(r[k]) for r in corpo), 32),
+                int(len(cab[k]) * 1.9) + 3)
+            for k in range(n)]
+    livre = 1 - n * 0.0145          # o espaço entre colunas (3 pt) e os fios
+    fr = [livre * w / sum(larg) for w in larg]
+    colunas = "|".join(">{\\raggedright\\arraybackslash}p{%.3f\\linewidth}" % f
+                       for f in fr)
+    cabecalho = (" & ".join("\\textbf{%s}" % tx.converte(c) for c in cab)
+                 + " \\\\ \\hline")
+    titulo_tex = tx.converte(titulo)
+    s = ["\\begin{center}",
+         "\\refstepcounter{quadro}\\label{%s}" % _rotulo("qua", num),
+         "\\addcontentsline{loq}{quadro}{\\protect\\numberline{\\thequadro}"
+         "%s}" % titulo_tex,
+         "Quadro~\\thequadro~--~%s" % titulo_tex,
+         "\\end{center}",
+         "{\\scriptsize\\setlength{\\tabcolsep}{3pt}",
+         "\\begin{longtable}{|%s|}" % colunas,
+         "\\hline", cabecalho, "\\endfirsthead",
+         "\\hline", cabecalho, "\\endhead"]
+    for r in corpo:
+        s.append(" & ".join(tx.converte(c) for c in r) + " \\\\ \\hline")
+    s += ["\\end{longtable}}",
+          "\\vspace{-\\baselineskip}",
+          "\\fonte{%s}" % tx.converte(fonte)]
     return "\n".join(s)
 
 

@@ -159,8 +159,7 @@ exatamente o que distingue C das linguagens em que ela foi produzida.
 A conclusão, então, não é que as 34 concepções da classe 2 sejam fracas. É
 que **um catálogo de concepções errôneas para C exige uma segunda classe de
 fonte, e ela tem de ser declarada como segunda classe**, com o que sustenta
-e o que não sustenta escrito ao lado. É o que a coluna de classe do
-apêndice de curadoria faz, linha por linha.
+e o que não sustenta escrito ao lado. É o que a coluna de classe do Apêndice B faz, linha por linha.
 
 ## O procedimento de conferência
 
@@ -199,8 +198,7 @@ Doukakis et al. (2007), Ma (2007), Kaczmarczyk et al. (2010). As cinco concepç�
 os citam fazem-no **`apud` Sorva (2012)**, com página e item, e caem na
 primeira linha da tabela. A seção de integridade adiante detalha isso.
 
-A conferência é **mecânica onde pode ser**: o programa que gera o apêndice
-de curadoria extrai a frase entre aspas de cada citação e a procura no texto
+A conferência é **mecânica onde pode ser**: o programa que gera o Apêndice B extrai a frase entre aspas de cada citação e a procura no texto
 da obra. Ele não confia no campo de fonte: ele confere. Rodado sem o texto
 da obra, o número de conferidas cai de 53 para 32 e o documento passa a
 dizer, linha por linha, que não conferiu. Um programa que mente quando lhe
@@ -390,7 +388,7 @@ Declarar o alcance é parte do método, não ressalva de rodapé.
 
 ## O catálogo é verificável por máquina, e é isso que se oferece
 
-O apêndice de curadoria não foi digitado: é **gerado** do catálogo, por um
+O Apêndice B não foi digitado: é **gerado** do catálogo, por um
 comando. Digitar 61 linhas à mão seria convidar justamente a divergência
 entre documento e dado que este capítulo existe para medir; e a subseção
 4.6.5, acima, mostra que essa divergência acontece mesmo quando quem mantém os

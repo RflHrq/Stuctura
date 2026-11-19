@@ -307,7 +307,7 @@ curadoria, não de leitura.
 | `system_frees_auto` | kc_01, kc_08 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `type_is_a_hint` | kc_00 | B1 | hipótese | `E` | — | sem fonte, por desenho |
 | `uninitialized_is_null` | kc_03 | I2 | **1** · concepção estudada | `D` | página/item | citada sem frase entre aspas |
-| `variable_remembers` | kc_00 | B4 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
+| `variable_remembers` | kc_00 | B4 | **1** · concepção estudada | `T` | página/item, seção da obra | **conferida** — texto integral do Sorva |
 | `voidptr_arith_ok` | kc_11 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | parcial — seção 11 não reaberta |
 | `voidptr_is_universal` | kc_10 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 

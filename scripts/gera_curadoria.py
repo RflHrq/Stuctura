@@ -176,6 +176,7 @@ def conferencia(cid, f, grade, sem_item=""):
 
 
 linhas, conta = [], collections.Counter()
+apendice = []
 for cid in sorted(cr):
     d = cr[cid]
     b = d["b"]
@@ -189,6 +190,7 @@ for cid in sorted(cr):
     conta["grade " + grade] += 1
     cl = classe(f, grade, si)
     conta["classe " + cl.replace("**", "")] += 1
+    apendice.append((cid, ts, nega, cl, grade, localizador(f, si), conf))
     linhas.append("| `%s` | %s | %s | %s | `%s` | %s | %s |"
                   % (cid, ", ".join(ts), nega, cl, grade,
                      localizador(f, si), conf))
@@ -489,3 +491,57 @@ print("%d crenças, %d conferidas nesta auditoria" % (n, confs))
 print()
 for k, v in sorted(conta.items()):
     print("   %-48s %d" % (k, v))
+
+
+# ------------------------------------------------- o apêndice da monografia
+# A mesma tabela, no vocabulário da monografia (concepção, grau) e sem
+# travessão no texto: docs/monografia/apendice-curadoria.md, que o
+# scripts/monografia_latex.py converte no Apêndice B do PDF.
+
+
+def _monografia(s):
+    s = s.replace("**", "")
+    s = re.sub(r"^— ", "", s)
+    s = s.replace(" — ", ": ").replace(" · ", ", ")
+    return "não há" if s == "—" else s
+
+
+linhas_ap = ["| `%s` | %s | %s | %s | `%s` | %s | %s |"
+             % (cid, ", ".join(ts), nega, _monografia(cl), grade,
+                _monografia(loc), _monografia(cf))
+             for cid, ts, nega, cl, grade, loc, cf in apendice]
+fonte_ap = ("gerado do catálogo do Structura por "
+            "`scripts/gera_curadoria.py`, com o texto integral de Sorva "
+            "(2012)" if TEM_SORVA else
+            "gerado do catálogo do Structura por "
+            "`scripts/gera_curadoria.py`, sem o texto integral de Sorva "
+            "(2012): as citações dessa obra aparecem como não conferidas")
+ap = """# Apêndice B — O catálogo de concepções errôneas, linha por linha
+
+Este apêndice traz as %d concepções errôneas do catálogo, uma por linha,
+com a procedência de cada uma (Capítulo 4). Ele não foi digitado: é gerado
+do catálogo (`mvp/dominio/beliefs_kc*.yaml`) por `scripts/gera_curadoria.py`,
+que procura no texto integral de Sorva (2012) a frase em inglês de cada
+citação daquela obra. Rodado sem esse texto, o programa marca essas linhas
+como não conferidas, em vez de afirmar uma conferência que não fez.
+
+As colunas são: a **concepção**, pelo identificador do catálogo; os
+**tópicos** em que ela aparece; a **premissa** que ela nega, no primeiro
+desses tópicos; a **classe** da fonte (1, concepção estudada com
+estudantes; 2, corpus de praticante; ou hipótese); o **grau** de
+procedência (Quadro 4.1); o **localizador**, isto é, o tipo de posição que
+a citação dá na obra; e a **conferência**, como a citação foi conferida na
+obra primária (Quadro 4.4). A conferência é a da passada de curadoria; a
+conferência posterior das normas CERT C e CWE está em 4.7.
+
+**Quadro B.1 — As %d concepções errôneas do catálogo e a procedência de cada uma**
+
+| concepção | tópicos | premissa | classe | grau | localizador | conferência |
+| --- | --- | --- | --- | --- | --- | --- |
+%s
+
+*Fonte: %s.*
+""" % (n, n, NL.join(linhas_ap), fonte_ap)
+alvo_ap = RAIZ / "docs" / "monografia" / "apendice-curadoria.md"
+alvo_ap.write_text(ap, encoding="utf-8", newline=NL)
+print("escrito:", alvo_ap)

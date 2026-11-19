@@ -326,3 +326,22 @@ def test_as_figuras_do_latex_existem_em_ordem():
     assert rotulos == ["3-%d" % n for n in range(1, 7)]
     for arq in re.findall(r"\\includegraphics\[[^\]]*\]\{([^}]+)\}", cap3):
         assert (CAPITULOS / "figuras" / arq).exists(), arq
+
+
+def test_o_apendice_b_traz_cada_concepcao_do_catalogo_uma_vez():
+    """O Apêndice B sai do catálogo por scripts/gera_curadoria.py: cada
+    concepção aparece uma vez, com o grau que o catálogo lhe dá. Se o
+    catálogo mudar e o apêndice não for gerado de novo, este teste cai."""
+    import yaml
+    catalogo = {}
+    for p in sorted((RAIZ / "dominio").glob("beliefs_kc*.yaml")):
+        for b in yaml.safe_load(p.read_text(encoding="utf-8")) or ():
+            catalogo.setdefault(b["id"], b["provenance"])
+    linhas = [l for l in (CAPITULOS / "apendice-curadoria.md").read_text(
+        encoding="utf-8").splitlines() if l.startswith("| `")]
+    no_apendice = {}
+    for l in linhas:
+        c = [x.strip() for x in l.strip().strip("|").split("|")]
+        no_apendice[c[0].strip("`")] = c[4].strip("`")
+    assert len(linhas) == len(no_apendice) == len(catalogo) == 61
+    assert no_apendice == catalogo

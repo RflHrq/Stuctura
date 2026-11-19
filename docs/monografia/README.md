@@ -3,11 +3,15 @@
 O texto do TCC, um arquivo por capítulo. Os `.md` são a fonte; o PDF no
 modelo da UFV (abnTeX2) sai deles:
 
+    python -P -E scripts/gera_curadoria.py docs/monografia/fontes/sorva2012/isbn9789526046266.pdf.txt
     python scripts/monografia_latex.py
     cd docs/monografia/latex
     pdflatex TCC_STRUCTURA && bibtex TCC_STRUCTURA && pdflatex TCC_STRUCTURA && pdflatex TCC_STRUCTURA
 
-O script gera `latex/gerado/` (capítulos, resumo, abstract e declaração de
+O primeiro comando gera o Apêndice B (`apendice-curadoria.md`) e a
+auditoria `docs/curadoria-crencas.md` a partir do catálogo, conferindo
+cada citação do Sorva no texto integral da tese, baixado em `fontes/`. O
+segundo gera `latex/gerado/` (capítulos, resumo, abstract e declaração de
 uso de IA) e recusa o que não sabe traduzir: citação fora da tabela dele,
 figura ou quadro citado que não existe, seção cujo número não bate com o
 que o LaTeX numera. `latex/TCC_STRUCTURA.tex` (capa, dedicatória,
@@ -49,18 +53,16 @@ foram tirados do sistema por script, e não de memória, e
 | — | [referencias.md](referencias.md) | a lista, na NBR 6023, dos capítulos 1 a 3, 5 a 8 e do apêndice |
 | — | [conferencia-das-referencias.md](conferencia-das-referencias.md) | onde cada obra foi aberta e o que sustenta, com página |
 | A | [apendice-protocolo.md](apendice-protocolo.md) | o estudo com estudantes, pronto para quando houver participantes |
+| B | [apendice-curadoria.md](apendice-curadoria.md) | as 61 concepções do catálogo e a procedência de cada uma; **gerado**, não editar à mão (ver abaixo) |
 
 ## O que falta, e de quem é
 
 - **O que o modelo da UFV ainda pede e não está no PDF:** a folha de
   aprovação (comentada em `TCC_STRUCTURA.tex` até a banca ser definida) e
   a ficha catalográfica, se o curso a exigir (é feita pela biblioteca).
-- **Dois pontos de referência para o autor decidir:** o ano do livro de
+- **Um ponto de referência para o autor decidir:** o ano do livro de
   Summit (1995 na página do FAQ, 1996 no texto; conferir na página de
-  direitos do livro); e a curadoria fala de um
-  "apêndice de curadoria" (`docs/curadoria-crencas.md`) que não está no
-  PDF. Com o texto do Sorva agora em `fontes/sorva2012/`, ele pode ser
-  gerado de novo e entrar como apêndice.
+  direitos do livro).
 - **As referências.** Nenhuma referência entra sem ter sido aberta na
   obra: é a regra do projeto (`docs/linguagem.md`: "fonte que você só
   consegue parafrasear de memória não é fonte"). A conferência de
