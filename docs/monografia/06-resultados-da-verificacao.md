@@ -23,21 +23,17 @@ na versão de 19/11/2026.
 
 O conferidor não acusa nenhum problema nos 13 tópicos: os 402 passos, os
 79 exemplos resolvidos e as 80 demonstrações fazem o que o texto afirma
-que fazem, no gcc 16.2. Das 80 demonstrações, nove pedem opções a mais
-do compilador — sete o analisador de fluxo (`-fanalyzer`), uma
-`-Wpointer-arith`, e uma, a do `NULL` no kc_05, `-O2` com
-`-Wnull-dereference` —, e as que dependem do ambiente trazem nota que
+que fazem, no gcc 16.2. Das 80 demonstrações, nove pedem opções a mais do compilador: sete o analisador de fluxo (`-fanalyzer`), uma `-Wpointer-arith`, e uma, a do `NULL` no kc_05, `-O2` com `-Wnull-dereference`. As que dependem do ambiente trazem nota que
 diz isso.
 
 As 79 cenas também conferem: em cada ponto por onde cada uma passa, o
 programa instrumentado afirma o valor de cada caixa, para onde cada
 ponteiro aponta e quantas vezes a linha rodou, e nenhuma afirmação falha.
-Das 79, 20 passam por dentro de funções — duas delas, a do `conta` (kc_01)
-e a do `dobra` (kc_12), pela mesma função duas vezes —, 13 por arrays e
+Das 79, 20 passam por dentro de funções (duas delas, a do `conta`, no kc_01, e a do `dobra`, no kc_12, pela mesma função duas vezes), 13 por arrays e
 17 por blocos do `malloc`.
 
 No banco, das 69 questões de prever a saída conferidas, todas imprimem
-o valor da alternativa certa — depois da reescrita da questão do kc_12
+o valor da alternativa certa, depois da reescrita da questão do kc_12
 relatada em 6.4. Nenhum trecho das 321 questões com código parte uma
 string entre duas linhas, depois do conserto das oito do kc_02 (6.4).
 
@@ -47,8 +43,7 @@ usarem construções que nenhum tópico ensinou até ali. Com elas fora, as 79 p
 ## 6.3 A medida, com os estudantes simulados
 
 O Quadro 6.2 mostra quantas telas e quantos toques cada perfil leva para
-atravessar cada tópico, no ritmo completo. Um toque é cada envio — cada
-vez que a pessoa responde ou segue —: marcar a resposta, confirmá-la e
+atravessar cada tópico, no ritmo completo. Um toque é cada envio, isto é, cada vez que a pessoa responde ou segue: marcar a resposta, confirmá-la e
 escolher a razão e a certeza, na mesma tela, contam como um.
 
 **Quadro 6.2 — Telas e toques por tópico, no ritmo completo**
@@ -86,7 +81,7 @@ Três leituras do quadro:
 
 Os números são de perfis simulados, e servem para mostrar que o percurso
 se comporta como o desenho diz. Não dizem quanto tempo uma pessoa leva,
-nem se ela aprende — o que exigiria o estudo do Apêndice A.
+nem se ela aprende, o que exigiria o estudo do Apêndice A.
 
 ## 6.4 O que a verificação encontrou
 
@@ -128,7 +123,7 @@ versão descrita:
   do kc_12 pergunta o que imprime `p == NULL` depois de `p` receber o
   endereço de uma variável local de uma função que já retornou, e dá
   como certa a resposta 0. No gcc 16.2, o compilador avisa e devolve
-  `NULL` no lugar daquele endereço, e sai 1 — e o padrão do C não define
+  `NULL` no lugar daquele endereço, e sai 1; e o padrão do C não define
   aquele valor. A questão ficou fora da trilha até ser reescrita sem
   depender dele; então voltou.
 - **Uma afirmação que depende da versão do compilador.** Uma questão do

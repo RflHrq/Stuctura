@@ -17,8 +17,20 @@ arquivos) não foram usadas, e nenhum bloqueio de acesso foi contornado.
 
 **Páginas.** Onde a cópia aberta é a versão publicada, a página é a da
 revista. Onde é um manuscrito do autor, as páginas não coincidem com as do
-livro ou da revista, e o texto cita sem página — o que a NBR 10520 permite
+livro ou da revista, e o texto cita sem página, o que a NBR 10520 permite
 na citação indireta.
+
+**Segunda conferência, 19/11/2026, a pedido do autor.** Desta vez as obras
+foram **baixadas**, cada uma na sua pasta em `docs/monografia/fontes/`
+(fora do repositório, porque são obras de terceiros), e cada frase do
+texto que cita uma delas foi conferida de novo no arquivo, na página
+citada, por busca no texto extraído do PDF. Só se baixou de fonte
+legítima: editora em acesso aberto, repositório institucional, página do
+autor ou de agência pública, ERIC, e o Internet Archive para páginas que
+saíram do ar. Onde a editora bloqueia acesso automatizado (verificação
+anti-robô), o bloqueio não foi contornado, e a obra fica para o autor
+baixar pelo acesso institucional. O resultado está na seção "Segunda
+conferência", ao fim, e as correções que ela pediu já estão no texto.
 
 ## Conferidas
 
@@ -28,9 +40,11 @@ na citação indireta.
   `eclass.uoa.gr/modules/document/file.php/PHS122/Αρθρα/Posner_Strike_Hewson_Gertzog.pdf`
   (a cópia da Weber State é digitalização sem texto). É a versão publicada:
   *Science Education* 66(2), p. 211-227.
-- **p. 212:** distingue dois modos de mudança: usar os conceitos que se tem
-  para lidar com o novo (o que os autores chamam de assimilação) e
-  substituir ou reorganizar os conceitos centrais (acomodação).
+- **p. 212-213:** distingue dois modos de mudança: usar os conceitos que se
+  tem para lidar com o novo (o que os autores chamam de assimilação, p. 212)
+  e substituir ou reorganizar os conceitos centrais (p. 212), mudança que
+  eles chamam de acomodação no alto da p. 213. O texto citava só a p. 212;
+  passou a citar 212-213 na segunda conferência.
 - **p. 214:** as quatro condições da acomodação: insatisfação com a
   concepção existente; a nova precisa ser inteligível; parecer plausível
   desde o início; e sugerir um programa frutífero.
@@ -94,7 +108,10 @@ na citação indireta.
   As páginas do manuscrito não são as do livro.
 - **ms p. 1:** a marcação pela certeza foi muito pesquisada antes de a
   avaliação por computador ser viável (Ahlgren, 1969; Good, 1979); o autor
-  relata dez anos de uso na UCL.
+  relata dez anos de uso na UCL, num protocolo nascido entre escolas de
+  medicina e usado, desde 2001, nas provas de medicina. O texto dizia "dez
+  anos de uso em cursos de medicina"; passou a dizer "na University College
+  London, sobretudo em cursos de medicina".
 - **ms p. 2:** três níveis de certeza (C = 1, 2, 3), com acerto valendo
   1, 2 ou 3 e erro valendo 0, -2 ou -6; os níveis são nomeados por números
   ou descritores neutros, e não por palavras como "certeza" ou "chute",
@@ -178,6 +195,8 @@ na citação indireta.
   eles.
 - **Sustenta:** Capítulo 2 (2.5), no lugar de "literatura de carga
   cognitiva e de exemplos resolvidos, a escolher".
+- **Segunda conferência:** o parágrafo de 2.5 cita os quatro efeitos acima,
+  mas dizia "três efeitos"; passou a dizer quatro.
 
 ### VANLEHN (2006)
 
@@ -242,19 +261,32 @@ na citação indireta.
   `mvp/test_monografia.py` confere isso, e o Capítulo 5 o diz.
 - **Sustenta:** Capítulo 3 (3.7); Capítulo 5 (5.5).
 
-## Ainda não abertas
-
 ### BROOKE (1996)
 
-- **Tentativas em 18/11/2026:** a cópia do capítulo no site da AHRQ não
-  existe mais; o *Journal of Usability Studies* mudou de endereço e o PDF
-  da retrospectiva de 2013 dá 404; o Internet Archive estava fora do ar; a
-  ACM só tem a ficha da retrospectiva, sem o texto; o ResearchGate
-  bloqueia o acesso automatizado.
-- **Os dados da entrada** (organizadores, páginas) não foram conferidos.
-- **Onde aparece:** só no Apêndice A, no protocolo do estudo com
-  estudantes, que esta versão não executa. Fica marcada, no apêndice e na
-  lista, até ser aberta.
+- **Tentativas em 18/11/2026,** sem sucesso: a cópia do capítulo no site
+  da AHRQ não existia mais, o PDF da retrospectiva de 2013 dava 404 e o
+  Internet Archive estava fora do ar.
+- **Aberta em 19/11/2026:** a cópia que a AHRQ (agência do governo dos
+  EUA) publicava, recuperada no Internet Archive
+  (`web.archive.org/web/2015/https://www.digital.ahrq.gov/...systemusabilityscale(sus)_comp[1].pdf`),
+  em `fontes/brooke1996/`. É o manuscrito do capítulo, "SUS - A quick and
+  dirty usability scale", com a escala no fim.
+- **O que sustenta:** o SUS é uma escala Likert simples, de dez itens, que
+  dá uma visão global da usabilidade percebida. Sustenta o Apêndice A
+  (A.1, V4: "SUS, de 10 itens").
+- **Os dados da entrada:** autor, título, organizadores, livro e editora
+  conferem com a citação que o próprio Brooke faz do capítulo na
+  retrospectiva de 2013 (*Journal of Usability Studies* 8(2), p. 29-40,
+  também do Internet Archive, em `fontes/brooke2013/`) e com a página do
+  livro na editora (Jordan, Thomas, McClelland, Weerdmeester; o prenome de
+  McClelland é Ian Lyall, e a retrospectiva grafa "A. L."). As páginas
+  **p. 189-194**, como estavam, não foram achadas em fonte aberta; o
+  registro do capítulo na Crossref, da editora, dá **p. 207-212** e o DOI
+  10.1201/9781498710411-35, e é o que a lista passou a trazer.
+
+## Ainda não abertas
+
+Nenhuma, depois da segunda conferência (19/11/2026).
 
 ## Citadas por outra obra (apud)
 
@@ -274,3 +306,72 @@ na citação indireta.
   aberto; trocado por Falmagne et al. (2006).
 - **WOOLF (2009)**, *Building Intelligent Interactive Tutors*: o livro não
   foi aberto; VanLehn (2006) sustenta a frase.
+
+## Segunda conferência, 19/11/2026: as obras baixadas
+
+Cada arquivo está em `docs/monografia/fontes/<pasta>/`, fora do
+repositório. O hash (os 12 primeiros caracteres do SHA-256) permite a quem
+refizer a conferência saber que tem o mesmo arquivo. "Confere" quer dizer
+que o que a frase do texto afirma está na página citada do arquivo.
+
+| obra | arquivo (pasta) | origem | tamanho, hash | resultado |
+| --- | --- | --- | --- | --- |
+| Posner et al. (1982) | `posner1982` | curso da Universidade de Atenas (eclass.uoa.gr), versão publicada | 1149 KB, 3bff2d0dc0fb | p. 214, 221, 224 e 225 conferem; a p. 212 passou a 212-213 |
+| Qian e Lehman (2017) | não baixada | ACM: verificação anti-robô | | a p. 1:1 (resumo) confere com o registro da Crossref; as p. 1:2-1:3 ficam com a leitura de 18/11 |
+| Sorva (2012) | `sorva2012` | repositório da Aalto, PDF e texto integral | 16040 KB, a3a7d20b7b4d; texto 1363 KB, 8a259439d0a2 | confere (ver a seção seguinte) |
+| Gardner-Medwin (2006) | `gardnermedwin2006` | página do autor | 147 KB, 9fd215fddbbe | confere; o "cursos de medicina" foi ajustado |
+| Falmagne et al. (2006) | `falmagne2006` | página da ALEKS | 353 KB, 5dec432b6073 | p. 1, 9 e 10 conferem; volume e páginas da LNCS conferem com a Crossref |
+| White e Gunstone (1992) | `white1992` | página do capítulo na editora | 43 KB, 9fdca855e57e | confere (as três tarefas do POE); o capítulo é o das p. 44-64; o livro inteiro não é aberto |
+| Nussbaum, Cordova e Rehmat (2017) | `nussbaum2017` | ERIC | 441 KB, f5bc0602b36b | p. 23 e 31 conferem, inclusive a citação de Tippett (2010, p. 965) |
+| Sweller, van Merriënboer e Paas (2019) | `sweller2019` | Springer, acesso aberto | 808 KB, 47ce1d814f9b | p. 265, 268, 277 e 279 conferem; "três efeitos" passou a quatro |
+| VanLehn (2006) | `vanlehn2006` | material de curso da Universidade de Kentucky (manuscrito) | 630 KB, 0fc27a20c46b | confere; volume e páginas conferem com a Crossref |
+| VanLehn (2011) | não baixada | a editora e a página do autor bloqueiam acesso automatizado | | fica com a leitura de 18/11 |
+| Soderstrom e Bjork (2015) | `soderstrom2015` | página do laboratório dos autores | 672 KB, f143e20a1d87 | p. 176 confere |
+| W3C (2025) | `w3c2025` | w3.org | 465 KB, 233ac31974ce | 4,5:1 no nível AA, o limiar 0,04045 e a nota sobre 0,03928 conferem |
+| Brooke (1996) | `brooke1996`, `brooke2013`, `brooke1996-livro` | AHRQ e JUS pelo Internet Archive; página do livro na editora | 164 KB, fc03554a8a27; 538 KB, 4249de64fad1 | aberta pela primeira vez; confere; páginas trocadas para as da editora |
+
+**Para o autor baixar pelo acesso da UFV (CAPES):** Qian e Lehman (2017),
+DOI 10.1145/3077618 (a ACM é de acesso aberto, mas bloqueia download
+automatizado), e VanLehn (2011), DOI 10.1080/00461520.2011.611369. Com os
+dois arquivos em `fontes/`, as frases das p. 1:2-1:3 e da p. 197 podem ser
+conferidas como as outras.
+
+## Segunda conferência: as obras do capítulo de curadoria
+
+- **Sorva (2012), Tabela A.1.** Os onze itens que o capítulo cita conferem
+  no texto da tese: número, página e frase (itens 5, 9, 10 e 12 na
+  p. 359; 14 e 22 na p. 360, com a segunda frase do 14; 54 e 65 na p. 362;
+  92 na p. 364, atribuído a Ma, 2007; 151 na p. 367). A tabela tem 162
+  itens, 17 no tópico `Refs`, e a contagem de termos do Quadro 4.3 confere
+  exatamente (0, 0, 0, 1 para `null`, 1 para `lifetime`, 7 para `memory`).
+  Hermans et al. (2018) não aparece nenhuma vez no texto integral.
+- **FAQ do comp.lang.c.** As sete perguntas citadas (4.9, 4.11, 6.2, 6.4b,
+  6.9, 7.21 e 7.22) existem, e os quatro títulos do Quadro 4.2 conferem
+  palavra por palavra. O prefácio do livro, publicado pelo autor, diz que a
+  lista começou a ser postada em maio de 1990. A página do FAQ diz que o
+  livro é "mais longo" que a versão on-line, e não que ela é "cerca de
+  metade" dele: o texto passou a dizer "mais curta".
+- **O ano do livro de Summit:** a página do FAQ e o prefácio dizem
+  Addison-Wesley, **1995**; o registro na Open Library traz o lançamento em
+  7 de novembro de 1995 e a data de 1996. O texto usa 1996. **Conferir na
+  página de direitos do livro** antes de mudar.
+- **Duas entradas da lista estavam erradas, e o erro vinha da própria
+  bibliografia de Sorva (2012), que a curadoria copiou.**
+  - *Sleeman et al. (1986):* a bibliografia do Sorva traz duas entradas de
+    Sleeman em 1986; uma repete o título e os dados de Putnam et al.
+    (1986). O texto do Sorva cita "Putnam et al. (1986) e Sleeman et al.
+    (1986)" como estudos distintos, e o registro da Crossref confirma o
+    outro: "Pascal and high school students: a study of errors", *Journal
+    of Educational Computing Research* 2(1), p. 5-23. A lista passou a
+    trazê-lo.
+  - *Samurçay (1989):* o Sorva dá R. E. Mayer como organizador de *Studying
+    the novice programmer*; o registro do livro na Open Library dá Soloway
+    e Spohrer. A lista passou a trazê-los.
+- **Os demais dados** de du Boulay (1986), Holland et al. (1997),
+  Kaczmarczyk et al. (2010), Doukakis et al. (2007), Ma (2007) e Soloway
+  et al. (1982) conferem com a bibliografia do Sorva e, onde há registro,
+  com a Crossref e a Open Library. Os artigos em si continuam não abertos
+  (acervos pagos), como o capítulo declara: a citação é `apud` Sorva.
+- **Kernighan e Ritchie (1988)** é livro e não foi baixado; a frase que o
+  cita (K&R diz que a variável declarada não é zerada) fica com a leitura
+  original.

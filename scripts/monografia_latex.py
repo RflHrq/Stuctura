@@ -80,8 +80,7 @@ CITACOES = [
     (r"Doukakis et al\. \(2007\)", r"\\citeonline{doukakis2007}"),
     (r"Kaczmarczyk et al\. \(2010\)", r"\\citeonline{kaczmarczyk2010}"),
     (r"Kernighan e Ritchie(?! \()", r"\\citeonline{kernighan1988}"),
-    (r"\[conferir: Brooke, 1996\]",
-     r"\\cite{brooke1996} \\conferir"),
+    (r"\(BROOKE, 1996\)", r"\\cite{brooke1996}"),
 ]
 # Menções a obras que o texto discute sem citar como fonte, e que por isso
 # não têm entrada na lista: ficam como texto. Conferir com o autor.

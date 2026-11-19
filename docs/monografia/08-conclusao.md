@@ -22,7 +22,7 @@ resposta em valor; o resto depende de leitura (7.1). O comportamento foi
 conferido com dez perfis de estudante simulado em todos os tópicos: cada
 caso segue o percurso que o desenho promete, e a sessão tem teto. E a
 verificação mostrou o seu valor no caminho, encontrando defeitos que a
-leitura humana deixara passar — entre eles, uma questão cuja resposta
+leitura humana deixara passar, entre eles uma questão cuja resposta
 certa não vale no compilador do laboratório, e oito questões cujo código
 aparecia partido na tela. A leitura humana, por sua vez, achou o que a
 verificação mecânica não poderia achar: perguntas verdadeiras, mas que

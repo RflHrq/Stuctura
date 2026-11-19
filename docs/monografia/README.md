@@ -55,21 +55,27 @@ foram tirados do sistema por script, e não de memória, e
 - **O que o modelo da UFV ainda pede e não está no PDF:** a folha de
   aprovação (comentada em `TCC_STRUCTURA.tex` até a banca ser definida) e
   a ficha catalográfica, se o curso a exigir (é feita pela biblioteca).
-- **Três pontos de referência para o autor decidir:** SLEEMAN et al.
-  (1986) repete título, periódico e páginas de PUTNAM et al. (1986) na
-  lista da curadoria (conferir na bibliografia de Sorva, 2012); Hermans et
-  al. (2018) é mencionada na curadoria, como citação removida, sem entrada
-  na lista; e a curadoria fala de um "apêndice de curadoria"
-  (`docs/curadoria-crencas.md`) que não está no PDF — incluí-lo pede
-  gerá-lo de novo com o texto do Sorva em mãos.
+- **Três pontos de referência para o autor decidir:** o ano do livro de
+  Summit (1995 na página do FAQ, 1996 no texto; conferir na página de
+  direitos do livro); Hermans et al. (2018) é mencionada na curadoria,
+  como citação removida, sem entrada na lista; e a curadoria fala de um
+  "apêndice de curadoria" (`docs/curadoria-crencas.md`) que não está no
+  PDF. Com o texto do Sorva agora em `fontes/sorva2012/`, ele pode ser
+  gerado de novo e entrar como apêndice.
 - **As referências.** Nenhuma referência entra sem ter sido aberta na
   obra: é a regra do projeto (`docs/linguagem.md`: "fonte que você só
   consegue parafrasear de memória não é fonte"). A conferência de
-  18/11/2026, feita com assistência de IA, abriu todas as do texto menos
-  Brooke (1996), que só o Apêndice A usa e segue marcada; três foram
-  retiradas e duas trocadas por obras que puderam ser abertas
-  ([conferencia-das-referencias.md](conferencia-das-referencias.md)). O
-  autor pode refazer a conferência pelos endereços registrados.
+  18/11/2026, feita com assistência de IA, leu as obras no navegador; três
+  foram retiradas e duas trocadas por obras que puderam ser abertas. A
+  segunda, de 19/11/2026, a pedido do autor, **baixou** as obras para
+  `fontes/` (fora do repositório) e conferiu cada frase de novo no
+  arquivo: abriu Brooke (1996), que faltava, e corrigiu uma página de
+  Posner, uma contagem em 2.5, uma frase sobre Gardner-Medwin, uma sobre o
+  FAQ e duas entradas da curadoria (Sleeman et al. e Samurçay), herdadas
+  da bibliografia do Sorva
+  ([conferencia-das-referencias.md](conferencia-das-referencias.md)). Qian
+  e Lehman (2017) e VanLehn (2011) não puderam ser baixados (bloqueio
+  anti-robô da editora) e ficam para o autor baixar pelo acesso da UFV.
   `mvp/test_monografia.py` falha se aparecer uma marca de "conferir" nova
   no texto, ou se a lista e o registro discordarem. As duas listas (esta e
   a do capítulo de curadoria) estão juntas em `latex/referencias.bib`.

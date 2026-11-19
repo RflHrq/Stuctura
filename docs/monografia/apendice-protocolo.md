@@ -18,7 +18,7 @@ consigam e queiram completar. Ela se divide em quatro:
 | V1 | Os estudantes concluem a sessão sem ajuda de conteúdo do pesquisador, e em quanto tempo? | conclui (sim/não); minutos por tópico; onde parou | o registro da sessão |
 | V2 | A concepção errônea detectada é compatível com a explicação que o participante dá pensando em voz alta? | compatível / incompatível / inconclusiva, por episódio | a gravação de áudio × as crenças registradas na sessão |
 | V3 | Depois da demonstração, o participante responde de outro jeito? | a reconferência do fim: certa pela razão certa, ou "a ideia voltou" | o registro da sessão |
-| V4 | Como percebe clareza, dificuldade e utilidade? | SUS (10 itens) e três perguntas abertas **[conferir: Brooke, 1996]** | questionário ao fim |
+| V4 | Como percebe clareza, dificuldade e utilidade? | SUS, de 10 itens (BROOKE, 1996), e três perguntas abertas | questionário ao fim |
 
 A unidade de análise de V2 e V3 **não é o participante**: é o episódio de
 concepção errônea detectada. Dez pessoas podem gerar 25 episódios ou 4, e
@@ -52,8 +52,7 @@ cada vez, presencialmente, em cerca de 30 minutos cada:
 Uma segunda pessoa classifica pelo menos um terço dos episódios, às cegas.
 Com poucos episódios, reporta-se a contagem e os casos, e não um
 coeficiente de concordância. Com 10 a 15 pessoas não há teste de
-hipótese: os números são descritivos, e o que sustenta as conclusões são
-os casos — um episódio incompatível vale mais do que dez compatíveis,
+hipótese: os números são descritivos, e o que sustenta as conclusões são os casos: um episódio incompatível vale mais do que dez compatíveis,
 porque mostra onde a regra falha.
 
 ## A.4 Ameaças à validade

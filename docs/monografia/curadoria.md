@@ -15,7 +15,7 @@
 
 O sistema descrito nos capítulos anteriores faz uma afirmação forte a cada
 atividade respondida: *esta pessoa provavelmente sustenta esta concepção
-errônea*. A afirmação tem consequência imediata — ela escolhe o percurso de
+errônea*. A afirmação tem consequência imediata: ela escolhe o percurso de
 refutação que a pessoa vai atravessar.
 
 Toda a validade dessa afirmação depende de uma pergunta anterior, que o
@@ -23,14 +23,13 @@ software não responde: **de onde vem cada concepção do catálogo?**
 
 Se uma delas foi escrita pelo autor porque lhe pareceu plausível, o sistema
 não está diagnosticando uma concepção errônea documentada. Está produzindo
-dado sobre uma ficção — e produzindo-o com a mesma aparência de rigor que
+dado sobre uma ficção, e produzindo-o com a mesma aparência de rigor que
 produz o resto. O projeto registrou isso como regra, em `docs/linguagem.md`:
 
 > Uma crença sem procedência é uma invenção sua que vai virar dado.
 
 Este capítulo é a resposta a essa pergunta, e ela é verificável sem
-participante nenhum. O instrumento não foi avaliado com estudantes — essa
-limitação está declarada no capítulo de limitações. O que se pode afirmar, e
+participante nenhum. O instrumento não foi avaliado com estudantes; essa limitação está declarada no capítulo de limitações. O que se pode afirmar, e
 é o que aqui se sustenta, é mais modesto e inteiramente conferível: **o
 sistema afirma sobre concepções errôneas só o que a literatura registra, e
 recusa afirmar o resto.**
@@ -49,21 +48,20 @@ autor nela: descreve **que tipo de obra a sustenta**.
 | `L` | registrada como erro comum em obra técnica |
 | `T` | transposta de outra linguagem, **com a analogia declarada** |
 | `N` | o erro está em norma (CERT C, CWE); a concepção, não |
-| `E` | elaborada a partir do modelo de máquina — **hipótese a testar** |
+| `E` | elaborada a partir do modelo de máquina: **hipótese a testar** |
 
 Duas propriedades desse campo importam para o método, e não são
 decorativas.
 
 A primeira: **o grau é afirmação sobre a literatura, não sobre o uso.** A
-mesma concepção aparece em mais de um tópico do domínio — quatorze delas
-aparecem —, e o texto que a contextualiza muda de tópico para tópico, como
+mesma concepção aparece em mais de um tópico do domínio (quatorze delas aparecem), e o texto que a contextualiza muda de tópico para tópico, como
 deve. O grau não muda. Se uma concepção é `D` num tópico e `L` noutro, uma
 das duas afirmações é falsa, e num trabalho acadêmico essa é a diferença
 entre citar e alegar. A auditoria descrita adiante encontrou três casos
 desses e os corrigiu; um teste passou a proibi-los.
 
 A segunda: **`E` é legítimo, e só vale declarado.** Uma hipótese do autor
-pode entrar no catálogo — o que não pode é entrar com cara de achado. As
+pode entrar no catálogo; o que não pode é entrar com cara de achado. As
 três hipóteses atuais dizem no próprio campo de fonte que são hipóteses, e
 há dois testes independentes garantindo que nenhuma delas apareça nos
 tópicos escolhidos para coleta.
@@ -75,20 +73,20 @@ qualidade: é de **que tipo de afirmação cada um sustenta**. Confundi-los
 seria o defeito metodológico; declará-los, linha por linha, é o que torna o
 catálogo auditável.
 
-### Classe 1 — literatura de concepções errôneas (23 concepções)
+### Classe 1: literatura de concepções errôneas (23 concepções)
 
 Estudo empírico com estudantes, ou revisão que os agrega. A obra principal é
 o **Apêndice A de Sorva (2012)**: a Tabela A.1 arrola 162 concepções
 errôneas levantadas da literatura de ensino de programação introdutória,
 cada uma com tópico, descrição e fonte. Ao lado dela entram os estudos que
-ela própria atribui — du Boulay (1986), Soloway et al. (1982), Putnam et al.
+ela própria atribui: du Boulay (1986), Soloway et al. (1982), Putnam et al.
 (1986), Sleeman et al. (1986), Samurçay (1989), Holland et al. (1997), Ma
 (2007), Doukakis et al. (2007), Kaczmarczyk et al. (2010).
 
 **O que esta classe sustenta:** que a concepção foi *observada em
 estudantes*, por alguém que a estudou.
 
-### Classe 2 — corpus de praticante (34 concepções)
+### Classe 2: corpus de praticante (34 concepções)
 
 O **FAQ do comp.lang.c**, composto em 1990 a partir do grupo de Usenet de
 mesmo nome e refinado episodicamente desde então, publicado em forma de
@@ -120,11 +118,10 @@ confusões auto-relatadas, ocorridas naturalmente e curadas por *recorrência*
 ao longo de mais de três décadas. O tratamento dado aqui é análise
 documental desse corpus.
 
-**O que esta classe sustenta — e o que ela não sustenta:**
+**O que esta classe sustenta, e o que ela não sustenta:**
 
 - sustenta que a confusão **ocorre e recorre** entre quem aprende C;
-- **não** sustenta prevalência. A população é auto-selecionada — quem
-  escreve para um grupo de Usenet — e a frequência é juízo do editor, não
+- **não** sustenta prevalência. A população é auto-selecionada (quem escreve para um grupo de Usenet), e a frequência é juízo do editor, não
   medida. Nenhuma afirmação de proporção sai desta fonte, e nenhuma é feita.
 
 ### Por que a segunda classe é necessária, e isso é um achado
@@ -133,8 +130,7 @@ A exigência razoável seria: ancore tudo na classe 1, que é empírica, e
 dispense a classe 2. Essa exigência foi testada contra o catálogo do Sorva,
 item por item, e **ela não é satisfazível**.
 
-A Tabela A.1 tem um tópico dedicado a referências — `Refs`, com 17 dos 162
-itens — e itens sobre memória e tempo de vida espalhados por `VarAssign`,
+A Tabela A.1 tem um tópico dedicado a referências (`Refs`, com 17 dos 162 itens) e itens sobre memória e tempo de vida espalhados por `VarAssign`,
 `ObjState` e `Misc`. O que ela não tem é o que importa aqui, e a contagem
 abaixo é reprodutível por busca de termo no texto da tabela:
 
@@ -145,8 +141,8 @@ abaixo é reprodutível por busca de termo no texto da tabela:
 | `malloc`, `free`, `deallocat`, `garbage` | **0** |
 | `heap`, `stack` | **0** |
 | `arithmetic`, `decay`, `dangling`, `sizeof` | **0** |
-| `null` | **1** — e é *"Null model of recursion"* (item 54), que não trata de ponteiro nulo |
-| `lifetime` | **1** — item 5, *"Difficulties understanding the lifetime of values"* |
+| `null` | **1**, e é *"Null model of recursion"* (item 54), que não trata de ponteiro nulo |
+| `lifetime` | **1**: item 5, *"Difficulties understanding the lifetime of values"* |
 | `memory` | 7 |
 
 *Fonte: elaborado pelo autor, por busca no texto de Sorva (2012).*
@@ -175,7 +171,7 @@ tabela abaixo.
 
 Ela é **exaustiva e exclusiva**: cada uma das 61 concepções
 aparece em exatamente uma linha, e a linha registra **a verificação mais
-forte alcançada** para ela. A soma é 61, de propósito — um quadro de "quantas
+forte alcançada** para ela. A soma é 61, de propósito: um quadro de "quantas
 concepções citam cada obra" somaria mais, porque uma concepção pode citar
 duas, e não permitiria dizer quantas ficaram sem conferência.
 
@@ -183,10 +179,10 @@ duas, e não permitiria dizer quantas ficaram sem conferência.
 
 | como foi conferida | concepções |
 | --- | --- |
-| **conferida no texto integral de Sorva (2012)** — obtido do repositório aberto da Aalto (handle `123456789/3534`, bundle TEXT); a frase em inglês entre aspas da citação foi localizada no texto da obra | 21 |
-| **conferida no índice do FAQ comp.lang.c** — seções 1, 4, 5, 6 e 7 abertas em `c-faq.com`; as perguntas citadas existem e os títulos conferem com o que o catálogo cita | 32 |
+| **conferida no texto integral de Sorva (2012)**, obtido do repositório aberto da Aalto (handle `123456789/3534`, bundle TEXT); a frase em inglês entre aspas da citação foi localizada no texto da obra | 21 |
+| **conferida no índice do FAQ comp.lang.c**: seções 1, 4, 5, 6 e 7 abertas em `c-faq.com`; as perguntas citadas existem e os títulos conferem com o que o catálogo cita | 32 |
 | citação abreviada no catálogo; forma íntegra localizada na obra | 1 |
-| cita o Sorva com página e item, mas **sem frase entre aspas** — logo não verificável pelo procedimento mecânico | 1 |
+| cita o Sorva com página e item, mas **sem frase entre aspas**, logo não verificável pelo procedimento mecânico | 1 |
 | conferência **parcial**: a seção 11 do FAQ ficou fora desta passada | 1 |
 | **não conferida**: fonte pública (CWE), não reaberta aqui | 1 |
 | **sem item na literatura**, com a busca declarada em campo próprio | 2 |
@@ -197,16 +193,15 @@ As duas primeiras linhas somam as **53 conferidas na obra primária**. As
 seis últimas são o que este capítulo não afirma ter conferido, e cada uma
 diz por quê.
 
-Os estudos que o Apêndice A do Sorva agrega — du Boulay (1986), Samurçay
+Não aparecem como linha própria, porque não foram abertos, os estudos que o Apêndice A do Sorva agrega: du Boulay (1986), Samurçay
 (1989), Sleeman et al. (1986), Soloway et al. (1982), Putnam et al. (1986),
-Doukakis et al. (2007), Ma (2007), Kaczmarczyk et al. (2010) — não
-aparecem como linha própria porque não foram abertos: as cinco concepções que
+Doukakis et al. (2007), Ma (2007), Kaczmarczyk et al. (2010). As cinco concepções que
 os citam fazem-no **`apud` Sorva (2012)**, com página e item, e caem na
 primeira linha da tabela. A seção de integridade adiante detalha isso.
 
 A conferência é **mecânica onde pode ser**: o programa que gera o apêndice
 de curadoria extrai a frase entre aspas de cada citação e a procura no texto
-da obra. Ele não confia no campo de fonte — ele confere. Rodado sem o texto
+da obra. Ele não confia no campo de fonte: ele confere. Rodado sem o texto
 da obra, o número de conferidas cai de 53 para 32 e o documento passa a
 dizer, linha por linha, que não conferiu. Um programa que mente quando lhe
 falta insumo seria pior que um programa que não roda.
@@ -225,7 +220,7 @@ falta insumo seria pior que um programa que não roda.
 ## O que a auditoria encontrou
 
 Os achados abaixo valem mais que a tabela, porque são sobre **o método de
-construir catálogo a partir da literatura** — e não sobre C.
+construir catálogo a partir da literatura**, e não sobre C.
 
 ### 1. Três vezes a busca errou de vocabulário ou de item, e as três vezes o certo estava lá
 
@@ -239,25 +234,22 @@ construir catálogo a partir da literatura** — e não sobre C.
 
 *Fonte: elaborado pelo autor, com trechos de Sorva (2012).*
 
-Nos três casos o grau subiu — `E`→`T`, `E`→`D` e `L`→`D` — **porque a busca
+Nos três casos o grau subiu (`E`→`T`, `E`→`D` e `L`→`D`) **porque a busca
 foi refeita com outro vocabulário**, e não porque se decidiu confiar na
 intuição.
 
 Daí sai uma recomendação de método, replicável: **buscar pelo fenômeno, não
 pelo termo da própria linguagem.** Num catálogo de concepções errôneas da
-linguagem X, o item procurado pode estar escrito no vocabulário da linguagem
-Y — e estará, se o catálogo foi produzido em Y.
+linguagem X, o item procurado pode estar escrito no vocabulário da linguagem Y, e estará, se o catálogo foi produzido em Y.
 
 O terceiro caso acrescenta um segundo princípio, e ele é sobre honestidade
 de citação: **foi a aproximação declarada que tornou o erro achável.** A
 citação dizia em que o item diferia da concepção, e foi essa diferença que
-apontou para o item vizinho. Uma citação que esconde a folga não dá esse
-aviso — ela fica errada em silêncio.
+apontou para o item vizinho. Uma citação que esconde a folga não dá esse aviso: ela fica errada em silêncio.
 
 ### 2. Uma citação estava no item errado, e a concepção estava certa
 
-`pointer_is_data` apontava o item 14 do Sorva, que trata de variável ser par
-nome-valor — **não é sobre ponteiro**. A concepção está no catálogo, mas no
+`pointer_is_data` apontava o item 14 do Sorva, que trata de variável ser par nome-valor: **não é sobre ponteiro**. A concepção está no catálogo, mas no
 item 65, p. 362: *"A (non-primitive Java) variable does not hold a reference
 but a set of object properties."* A obra estava certa; o item, não. Não há
 como encontrar isso sem abrir a obra.
@@ -267,8 +259,7 @@ deste capítulo. A Tabela A.1 atribui quatorze dos itens usados a
 "Ma (2007)", e o catálogo registrava essa obra como um artigo de SIGCSE
 assinado por quatro autores. A bibliografia de Sorva (2012) identifica
 "Ma (2007)" como uma **tese de doutorado** de autor único, de outra
-instituição. Citar uma obra mediada exige ler a bibliografia da obra
-mediadora — não basta reconhecer o sobrenome e o ano.
+instituição. Citar uma obra mediada exige ler a bibliografia da obra mediadora; não basta reconhecer o sobrenome e o ano.
 
 ### 3. Uma resposta de FAQ costuma responder a duas confusões
 
@@ -287,23 +278,22 @@ correspondente; se não houver, **remove-se**.
 
 - **Hermans et al. (2018) foi removida.** A citação de `variable_remembers`
   a trazia, e a obra não aparece em item nenhum da Tabela A.1 nem na
-  bibliografia do Sorva — zero ocorrências no texto integral. Sem a obra
+  bibliografia do Sorva: zero ocorrências no texto integral. Sem a obra
   aberta e sem corroboração, a citação não se sustenta.
 - **Uma atribuição estava trocada.** `declaration_allocates` citava
   *"Kaczmarczyk et al. (2010), p. 109, Tabela 2, MMR4"*. O item do Sorva que
-  registra essa concepção — item 92, p. 364 — atribui a **Ma (2007)**.
+  registra essa concepção (item 92, p. 364) atribui a **Ma (2007)**.
   A afirmação sobre a página 109 e o código da tabela não era verificável por
   quem a escreveu, e saiu. A concepção vive num dos tópicos escolhidos para
   coleta, o que torna a correção material.
 - **Uma concepção desceu de grau.** `memory_is_uniform` era `T` com citação
   de página e tabela de um artigo sem cópia de acesso aberto. Procurada item
   por item no Apêndice A, não há item sobre a memória ser região única sem
-  distinção de regras de tempo de vida — o mais próximo, item 5, p. 359, é
+  distinção de regras de tempo de vida; o mais próximo, item 5, p. 359, é
   *dificuldade* com tempo de vida, que é outra coisa. Passou a `E`,
   declarada como hipótese.
 - **Uma obra técnica estava no campo errado.** `declaration_zeroes` citava
-  Kernighan e Ritchie como fonte. K&R é a obra que diz que a concepção é
-  **falsa** — é a refutação, não o registro de que alguém a sustenta. Os dois
+  Kernighan e Ritchie como fonte. K&R é a obra que diz que a concepção é **falsa**: é a refutação, não o registro de que alguém a sustenta. Os dois
   papéis passaram a ficar separados, e a fonte passou a ser o item 10, p. 359.
 - **Um código interno de artigo saiu da citação.** `no_value_no_memory`
   citava Kaczmarczyk et al. (2010) trazendo o código "(PVR2)" com que o
@@ -316,8 +306,7 @@ correspondente; se não houver, **remove-se**.
 ### 5. A mesma concepção tinha procedência divergente entre tópicos
 
 Quatorze concepções aparecem em mais de um tópico, e cada cópia tem seu
-próprio campo de fonte, escrito à mão. Três divergiam no **grau** — e, em
-dois desses três casos, **uma das cópias estava certa**: citava página e
+próprio campo de fonte, escrito à mão. Três divergiam no **grau**, e, em dois desses três casos, **uma das cópias estava certa**: citava página e
 item, enquanto a cópia do outro tópico citava o estudo original sem declarar
 a mediação. O trabalho havia sido feito num tópico e não propagado ao outro,
 e nada no sistema avisava.
@@ -337,10 +326,9 @@ repositório institucional aberto da Universidade Aalto; e as perguntas
 citadas do FAQ do comp.lang.c, em `c-faq.com`. As citações dessas duas obras
 são de primeira mão, e a frase citada foi localizada no texto.
 
-**Citado `apud`:** os estudos que o Apêndice A agrega — du Boulay (1986),
+**Citado `apud`:** os estudos que o Apêndice A agrega, a saber, du Boulay (1986),
 Samurçay (1989), Sleeman et al. (1986), Soloway et al. (1982), Putnam et al.
-(1986), Doukakis et al. (2007), Ma (2007) e Kaczmarczyk et al. (2010)
-— são citados **pela mediação de Sorva (2012)**, com página e item. Os
+(1986), Doukakis et al. (2007), Ma (2007) e Kaczmarczyk et al. (2010), são citados **pela mediação de Sorva (2012)**, com página e item. Os
 artigos originais não foram abertos: estão em acervos de acesso restrito, e
 a verificação de existência que se fez foi a do registro bibliográfico, não
 a do texto. Cinco concepções do catálogo citam esses estudos, e cada uma
@@ -348,18 +336,15 @@ declara a mediação no próprio campo de fonte.
 
 A consequência, dita de uma vez: **nenhuma afirmação deste trabalho atribui
 a esses artigos conteúdo que não esteja no item do Apêndice A que os cita.**
-Onde a citação anterior ia além disso — uma página e um código de tabela de
-um artigo não aberto —, ela foi removida, e o caso está contado na seção
+Onde a citação anterior ia além disso (uma página e um código de tabela de um artigo não aberto), ela foi removida, e o caso está contado na seção
 anterior.
 
 **Não reaberto:** CERT C e CWE, que sustentam três concepções de grau `N`,
 são fontes públicas e não foram reabertas nesta passada; a seção 11 do FAQ
 ficou fora dela.
 
-Duas observações de forma, que mudam o que se pode afirmar. Primeira: a
-versão on-line do FAQ corresponde a cerca de **metade** do livro de Summit
-(1996); as citações deste trabalho são da versão on-line, por número de
-pergunta, que é o que foi consultado — e não do livro. Segunda: os números
+Duas observações de forma, que mudam o que se pode afirmar. Primeira: a versão on-line do FAQ é **mais curta** que o livro de Summit (1996), como o próprio autor diz na página do FAQ; as citações deste trabalho são da versão on-line, por número de
+pergunta, que é o que foi consultado, e não do livro. Segunda: os números
 de página do Apêndice A referem-se ao texto extraído do PDF disponível
 naquele repositório, e foram calibrados contra os marcadores de página do
 próprio texto.
@@ -377,8 +362,7 @@ Declarar o alcance é parte do método, não ressalva de rodapé.
 3. **Três hipóteses seguem hipóteses.** `type_is_a_hint`,
    `memoria_e_do_computador` e `memory_is_uniform` entram declaradas como
    tais, fora dos tópicos de coleta. O precedente desta auditoria diz o que
-   tentar antes de aceitá-las: refazer a busca com outro vocabulário — foi o
-   que fez duas outras subirem de grau, e o que confirmou que para estas não
+   tentar antes de aceitá-las: refazer a busca com outro vocabulário, que foi o que fez duas outras subirem de grau, e o que confirmou que para estas não
    há item.
 4. **Uma concepção de grau `T` não cita obra nenhuma.**
    `heap_dies_with_function` tem apenas a analogia, declarada: em Java e
@@ -386,8 +370,7 @@ Declarar o alcance é parte do método, não ressalva de rodapé.
    A busca foi refeita pelo vocabulário do fenômeno e registrada; não há
    item. O próprio campo de fonte diz que ela precisa de fonte ou desce para
    `E`.
-5. **Uma citação do Sorva não traz frase entre aspas** — a de
-   `uninitialized_is_null` —, o que a torna não verificável pelo
+5. **Uma citação do Sorva não traz frase entre aspas**, a de `uninitialized_is_null`, o que a torna não verificável pelo
    procedimento mecânico descrito acima, embora traga página e item.
 6. **Três concepções de grau `N` citam CERT C e CWE**, e essas fontes não
    foram reabertas nesta passada; de cinco concepções que as citam, quatro
@@ -398,7 +381,7 @@ Declarar o alcance é parte do método, não ressalva de rodapé.
 
 O apêndice de curadoria não foi digitado: é **gerado** do catálogo, por um
 comando. Digitar 61 linhas à mão seria convidar justamente a divergência
-entre documento e dado que este capítulo existe para medir — e a subseção
+entre documento e dado que este capítulo existe para medir; e a subseção
 4.6.5, acima, mostra que essa divergência acontece mesmo quando quem mantém os
 arquivos sabe do risco.
 
@@ -418,9 +401,7 @@ propriedade deixar de valer. As principais:
 | sem chave duplicada no YAML | campo sobrescrito em silêncio por repetição |
 | o capítulo não diverge do catálogo | número afirmado neste capítulo que o catálogo deixou de sustentar |
 
-Três dessas travas nasceram de defeitos reais encontrados durante esta
-auditoria — a busca que falhou lida como conferência, o campo declarado em
-só uma cópia, a chave duplicada —, e é por isso que estão aqui. Uma trava
+Três dessas travas nasceram de defeitos reais encontrados durante esta auditoria (a busca que falhou lida como conferência, o campo declarado em só uma cópia, a chave duplicada), e é por isso que estão aqui. Uma trava
 escrita depois do erro que ela impede custa menos a justificar que uma
 escrita por antecipação: sabe-se que o erro é possível, porque aconteceu.
 
@@ -435,7 +416,7 @@ arquivo não entra no repositório do projeto porque é obra de terceiro; sem
 ele o programa roda igual e o apêndice passa a declarar, linha por linha,
 que não conferiu.
 
-É essa verificabilidade — e não a quantidade de concepções — que o trabalho
+É essa verificabilidade, e não a quantidade de concepções, que o trabalho
 oferece como contribuição deste capítulo. Um catálogo de 61 concepções
 errôneas de ponteiros em C, com duas classes de fonte declaradas, posição
 localizável onde o grau a exige, mediação de citação declarada onde ela
@@ -445,8 +426,7 @@ existe, e o todo conferível por um comando.
 
 Marcadas com ★ as obras lidas no original para esta curadoria. As demais são
 citadas pela mediação de Sorva (2012), com página e item, conforme declarado
-acima; os dados bibliográficos abaixo são os que constam da bibliografia
-daquela obra.
+acima; os dados bibliográficos abaixo são os que constam da bibliografia daquela obra, com duas correções, anotadas nas entradas de Samurçay e de Sleeman et al.
 
 ★ SORVA, J. **Visual Program Simulation in Introductory Programming
 Education.** Tese de doutorado — Aalto University School of Science,
@@ -454,8 +434,7 @@ Espoo, 2012. Disponível no repositório institucional da Universidade Aalto,
 handle 123456789/3534.
 
 ★ SUMMIT, S. **C Programming FAQs: Frequently Asked Questions.** Reading:
-Addison-Wesley, 1996. ISBN 0-201-84519-9. Versão on-line consultada em
-`c-faq.com`, correspondente a cerca de metade do livro.
+Addison-Wesley, 1996. ISBN 0-201-84519-9. Versão on-line consultada em `c-faq.com`, mais curta que o livro.
 
 ★ KERNIGHAN, B. W.; RITCHIE, D. M. **The C Programming Language.** 2. ed.
 Englewood Cliffs: Prentice Hall, 1988. *(citada como refutação, não como
@@ -493,13 +472,9 @@ Misconceptions of High School BASIC Programmers. **Journal of Educational
 Computing Research**, v. 2, n. 4, p. 459–472, 1986.
 
 SAMURÇAY, R. The Concept of Variable in Programming: Its Meaning and Use in
-Problem-Solving by Novice Programmers. In: MAYER, R. E. (ed.). **Studying
-the Novice Programmer.** Hillsdale: Lawrence Erlbaum Associates, 1989.
-p. 161–178.
+Problem-Solving by Novice Programmers. In: SOLOWAY, E.; SPOHRER, J. C. (ed.). **Studying the Novice Programmer.** Hillsdale: Lawrence Erlbaum Associates, 1989. p. 161–178. *(A bibliografia de Sorva (2012) dá R. E. Mayer como organizador; o registro do livro na Open Library dá Soloway e Spohrer.)*
 
-SLEEMAN, D.; BAXTER, J. A.; KUSPA, L. K. A Summary of Misconceptions of
-High School BASIC Programmers. **Journal of Educational Computing
-Research**, v. 2, n. 4, p. 459–472, 1986.
+SLEEMAN, D.; PUTNAM, R. T.; BAXTER, J.; KUSPA, L. Pascal and High School Students: A Study of Errors. **Journal of Educational Computing Research**, v. 2, n. 1, p. 5–23, 1986. *(A bibliografia de Sorva (2012) traz duas entradas de Sleeman em 1986; uma repete título e dados de Putnam et al. (1986). Esta é a outra, a que o registro da Crossref confirma.)*
 
 SOLOWAY, E.; EHRLICH, K.; BONAR, J.; GREENSPAN, J. What Do Novices Know
 About Programming? In: BADRE, A.; SHNEIDERMAN, B. (eds.). **Directions in

@@ -8,8 +8,7 @@ como cada obra foi aberta está em
 
 BROOKE, J. SUS: a "quick and dirty" usability scale. In: JORDAN, P. W.;
 THOMAS, B.; WEERDMEESTER, B. A.; McCLELLAND, I. L. (ed.). **Usability
-evaluation in industry**. London: Taylor & Francis, 1996. p. 189-194.
-**[conferir: Brooke, 1996]**
+evaluation in industry**. London: Taylor & Francis, 1996. p. 207-212. DOI: 10.1201/9781498710411-35.
 
 FALMAGNE, J.-C.; COSYN, E.; DOIGNON, J.-P.; THIÉRY, N. The assessment of
 knowledge, in theory and in practice. In: MISSAOUI, R.; SCHMIDT, J. (ed.).

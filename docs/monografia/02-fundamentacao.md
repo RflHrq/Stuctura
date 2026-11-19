@@ -8,15 +8,13 @@ fazer. Cada obra citada foi aberta, e onde e como está registrado em
 
 Uma concepção errônea é uma ideia estável e coerente para quem a tem, que
 produz respostas erradas de forma sistemática. Não é esquecimento nem
-distração. Quem acredita que "array e ponteiro são a mesma coisa" acerta
-várias questões com essa ideia — `a[i]` e `p[i]` funcionam igual, os dois
-podem ser passados para uma função — e só tropeça em `sizeof`. A ideia se
+distração. Quem acredita que "array e ponteiro são a mesma coisa" acerta várias questões com essa ideia (`a[i]` e `p[i]` funcionam igual, os dois podem ser passados para uma função) e só tropeça em `sizeof`. A ideia se
 sustenta porque quase sempre funciona.
 
 A literatura de mudança conceitual descreve por que informação nova não
-basta. Posner et al. (1982, p. 212) distinguem dois modos de mudança:
+basta. Posner et al. (1982, p. 212-213) distinguem dois modos de mudança:
 lidar com o novo usando os conceitos que se tem, e substituir ou
-reorganizar os conceitos centrais — o que chamam de acomodação. Diante de
+reorganizar os conceitos centrais, o que chamam de acomodação. Diante de
 uma informação que contradiz o que pensa, a pessoa raramente acomoda: é
 mais comum encaixar a informação na concepção que já tem, ou guardá-la num
 compartimento à parte, onde ela não entra em conflito com a antiga
@@ -30,18 +28,15 @@ isso os autores recomendam demonstrações e problemas que o criem (p. 225).
 
 Uma nota de vocabulário: Posner et al. chamam de assimilação o primeiro
 modo, o de encaixar o novo no que já se tinha. Neste texto, como no
-sistema, "assimilou" quer dizer outra coisa — que a pessoa acertou de
-novo, com outras premissas no meio (Capítulo 3).
+sistema, "assimilou" quer dizer outra coisa: que a pessoa acertou de novo, com outras premissas no meio (Capítulo 3).
 
 Em programação, o estudo das concepções errôneas começa nos anos 1980,
-com nomes variados — dificuldades, erros, *bugs*, concepções errôneas — e
-sem uma definição aceita por todos (QIAN; LEHMAN, 2017, p. 1:2-1:3). Na
+com nomes variados (dificuldades, erros, *bugs*, concepções errôneas) e sem uma definição aceita por todos (QIAN; LEHMAN, 2017, p. 1:2-1:3). Na
 revisão de Qian e Lehman (2017, p. 1:1), as dificuldades dos iniciantes
 aparecem no conhecimento sintático, no conceitual e no estratégico, e os
 autores recomendam que a pesquisa vá além de documentá-las e incorpore as
 teorias de mudança conceitual. A dissertação de Sorva (2012) organiza boa
-parte dessa literatura em torno do modelo de máquina que o estudante
-constrói — a "máquina nocional" —, e é a fonte de que o catálogo do
+parte dessa literatura em torno do modelo de máquina que o estudante constrói, a "máquina nocional", e é a fonte de que o catálogo do
 sistema mais se serve (Capítulo 4).
 
 ## 2.2 Perguntar a certeza
@@ -50,8 +45,7 @@ Uma resposta errada, sozinha, não diz se a pessoa não sabe ou se sabe
 errado. A certeza declarada é o sinal mais barato que separa os dois:
 custa um toque e vem da própria pessoa. Pedir a confiança junto com a
 resposta não é novo. A marcação pela certeza foi muito pesquisada antes
-mesmo da avaliação por computador, e Gardner-Medwin (2006) relata dez anos
-de uso em cursos de medicina, com três níveis de certeza e penalidade
+mesmo da avaliação por computador, e Gardner-Medwin (2006) relata dez anos de uso na University College London, sobretudo em cursos de medicina, com três níveis de certeza e penalidade
 crescente para o erro convicto. O argumento dele é o deste trabalho: um
 acerto por sorte não é conhecimento, e uma concepção errônea firme é
 muito pior do que a ignorância reconhecida. O que o Structura faz de
@@ -59,14 +53,12 @@ diferente é usar esse sinal para **escolher o percurso**, e não para
 pontuar: o erro com "chutei" leva ao ensino; o erro com convicção, pela
 razão de uma concepção mapeada, leva à demonstração.
 
-Três cuidados decorrem disso. A certeza não mede o estado mental da
-pessoa — ela roteia a intervenção, e uma marcação por hábito gera uma
+Três cuidados decorrem disso. A certeza não mede o estado mental da pessoa: ela roteia a intervenção, e uma marcação por hábito gera uma
 hipótese errada. A escala tem três pontos, como a de Gardner-Medwin
 (2006), porque precisa caber num toque dentro do ritmo da atividade; mas
 ele nomeia os níveis com números ou termos neutros, porque palavras como
 "certeza" e "chute" querem dizer coisas diferentes para pessoas
-diferentes, e o Structura usa palavras ("chutei", "acho que sei", "tenho
-certeza") — o custo disso está no Capítulo 7. E a razão escolhida pesa
+diferentes, e o Structura usa palavras ("chutei", "acho que sei", "tenho certeza"); o custo disso está no Capítulo 7. E a razão escolhida pesa
 tanto quanto a certeza: sem ela, o sistema não saberia **qual** ideia
 sustenta o erro.
 
@@ -74,8 +66,7 @@ sustenta o erro.
 
 O conteúdo de cada tópico é um grafo de premissas que vai de fatos
 observáveis a uma conclusão, e cada concepção errônea nega exatamente uma
-premissa. A escolha de onde intervir — a premissa em que a pessoa está, e
-não a lição seguinte do livro — aproxima-se da noção de fronteira da
+premissa. A escolha de onde intervir (a premissa em que a pessoa está, e não a lição seguinte do livro) aproxima-se da noção de fronteira da
 teoria dos espaços de conhecimento. Ali, o estado de conhecimento de uma
 pessoa é o conjunto de problemas que ela resolve, e a fronteira externa
 reúne os problemas que, acrescentados ao estado, formam outro estado: é o
@@ -94,8 +85,7 @@ resultado de um acontecimento, justificando a previsão; descrever o que se
 vê acontecer; e reconciliar o conflito entre o previsto e o observado. No
 Structura, a justificativa já veio antes: é a razão escolhida na pergunta
 de diagnóstico. A previsão é o que dá força ao confronto: a contradição
-deixa de ser entre o estudante e o sistema — em quem ele poderia
-simplesmente não acreditar — e passa a ser entre o que **ele** previu e o
+deixa de ser entre o estudante e o sistema, em quem ele poderia simplesmente não acreditar, e passa a ser entre o que **ele** previu e o
 que a máquina fez.
 
 É também a lógica dos textos de refutação, que ativam a concepção
@@ -118,11 +108,10 @@ compilador, e a tela pode dizer, sem exagero, "a máquina respondeu".
 
 A quem não sabe, o sistema não mostra a ideia inteira de uma vez:
 oferece uma escada de passos, dos guiados aos de prática, com retorno a
-cada passo e uma ideia nova por passo. O desenho segue três efeitos que a
+cada passo e uma ideia nova por passo. O desenho segue quatro efeitos que a
 teoria da carga cognitiva descreve (SWELLER; VAN MERRIËNBOER; PAAS, 2019).
 Os passos guiados mostram o programa e pedem uma parte dele, perto do
-exemplo resolvido (p. 265) e do problema de completar — este, proposto
-justamente para a programação introdutória, em que o estudante recebe um
+exemplo resolvido (p. 265) e do problema de completar, este proposto justamente para a programação introdutória, em que o estudante recebe um
 programa incompleto para terminar (p. 268). A orientação esmaece ao longo
 da escada, dos passos guiados aos de prática, porque o que ajuda o novato
 fica redundante para quem já avançou (p. 277). E cada passo muda uma coisa
@@ -139,26 +128,21 @@ sistemas por dois laços: o externo escolhe a próxima tarefa, com base num
 modelo do estudante; o interno acompanha cada passo da tarefa, com retorno
 e dicas, e atualiza esse modelo. No Structura, o laço externo escolhe a
 premissa e o caminho; o interno é a escada, com retorno a cada passo. Na
-classificação de VanLehn (2011, p. 197), é um tutor por passo — e os
-tutores inteligentes, quase todos por passo ou subpasso, ficaram, na
+classificação de VanLehn (2011, p. 197), é um tutor por passo; e os tutores inteligentes, quase todos por passo ou subpasso, ficaram, na
 revisão dele, perto da tutoria humana em efeito (0,76 contra 0,79 desvio
 padrão, contra nenhuma tutoria).
 
 O que este trabalho acrescenta, depois desse desconto, é a combinação de
 um catálogo de concepções errôneas com procedência declarada, ligado a um
-grafo de premissas, com demonstrações verificadas por compilador — e um
-método de verificação em que o material de ensino é testado contra o
+grafo de premissas, com demonstrações verificadas por compilador. Acrescenta, ainda, um método de verificação em que o material de ensino é testado contra o
 programa que ele descreve.
 
 ## 2.7 Desempenho não é aprendizagem
 
 O que se observa durante a instrução é desempenho, e desempenho é, muitas
-vezes, índice pouco confiável de que a aprendizagem — a mudança
-relativamente permanente, que se mede por retenção de longo prazo ou por
-transferência — aconteceu (SODERSTROM; BJORK, 2015, p. 176). Acertar logo
+vezes, índice pouco confiável de que a aprendizagem (a mudança relativamente permanente, que se mede por retenção de longo prazo ou por transferência) aconteceu (SODERSTROM; BJORK, 2015, p. 176). Acertar logo
 depois de ver a resposta não garante que a ideia ficou. Por isso o sistema
-reconfere, no fim do tópico, cada premissa trabalhada, com outras
-premissas no meio — e por isso o fechamento fala de assimilação **nesta
+reconfere, no fim do tópico, cada premissa trabalhada, com outras premissas no meio; e por isso o fechamento fala de assimilação **nesta
 sessão**, e não de aprendizagem.
 
 As obras citadas estão em [Referências](referencias.md).

@@ -35,8 +35,7 @@ explicação correta. Uma resposta errada, sozinha, não distingue quem não
 sabe de quem sabe errado, e os dois casos pedem intervenções diferentes.
 Este trabalho apresenta o Structura, um sistema de ensino de ponteiros
 em C que diagnostica cada premissa do conteúdo cruzando três sinais que o
-estudante fornece numa mesma tela — a resposta, a razão que a sustenta e
-a certeza declarada — e conduz cada caso por um percurso próprio: a quem
+estudante fornece numa mesma tela (a resposta, a razão que a sustenta e a certeza declarada) e conduz cada caso por um percurso próprio: a quem
 não sabe, uma escada de passos curtos com retorno imediato; a quem
 sustenta uma concepção errônea, uma demonstração em que ele prevê o que um
 programa faz e vê o que a máquina fez; a quem erra depois da escada, uma
@@ -65,8 +64,7 @@ correct explanation. A wrong answer alone does not tell apart a student
 who does not know from one who knows wrongly, and the two cases call for
 different interventions. This work presents Structura, a system for
 teaching pointers in C that diagnoses each premise of the content by
-crossing three signals the student provides on a single screen — the
-answer, the reason behind it and the declared confidence — and leads each
+crossing three signals the student provides on a single screen (the answer, the reason behind it and the declared confidence) and leads each
 case along its own path: to the student who does not know, a ladder of
 short steps with immediate feedback; to the student who holds a
 misconception, a demonstration in which they predict what a program does
@@ -94,9 +92,7 @@ quiser declarar]
 
 Este trabalho foi desenvolvido com assistência de um modelo de linguagem
 (Claude, da Anthropic), sob a direção e a revisão do autor. O modelo foi
-usado para escrever parte do código do sistema, para rascunhar o
-conteúdo didático — as escadas de passos, as demonstrações e as cenas — e
-o texto desta monografia, e para localizar e conferir as referências.
+usado para escrever parte do código do sistema, para rascunhar o conteúdo didático (as escadas de passos, as demonstrações e as cenas) e o texto desta monografia, e para localizar e conferir as referências.
 
 Três cuidados limitam o que o modelo pôde afirmar sem conferência. Todo
 conteúdo que diz o que um programa em C faz foi conferido por compilador,

@@ -74,8 +74,8 @@ def test_os_numeros_do_sistema_estao_no_texto(contagens):
     afirmado = {
         "01-introducao.md": [
             "catálogo de 61 concepções errôneas",
-            "80 demonstrações com previsão — uma para cada concepção errônea "
-            "em cada tópico em que ela aparece — e 402 passos",
+            "80 demonstrações com previsão (uma para cada concepção errônea "
+            "em cada tópico em que ela aparece) e 402 passos",
             "treze tópicos de ponteiros em C"],
         "03-sistema.md": [
             "organizado em **13 tópicos**", "somam **79 premissas**",
@@ -239,25 +239,26 @@ def _chaves(secao: str) -> list:
         r"^### ([A-Z][\w-]*)\b[^\n]*\((\d{4})\)", secao, re.M)]
 
 
-def test_so_a_referencia_nao_aberta_continua_marcada():
+def test_nenhuma_referencia_segue_marcada():
     """A regra do README: nenhuma referência entra sem ter sido aberta na obra.
-    A conferência de 18/11/2026 abriu todas, menos uma, que segue marcada."""
+    A conferência de 18/11/2026 abriu todas menos Brooke (1996), que ficou
+    marcada; a segunda, de 19/11/2026, abriu Brooke, e nenhuma marca fica."""
     marcadas = {}
     for arq in sorted(CAPITULOS.glob("*.md")):
         for m in re.finditer(r"\[conferir[^\]]*\]", arq.read_text(encoding="utf-8")):
             marcadas.setdefault(arq.name, []).append(" ".join(m.group(0).split()))
-    assert marcadas == {"apendice-protocolo.md": ["[conferir: Brooke, 1996]"],
-                        "referencias.md": ["[conferir: Brooke, 1996]"]}
+    assert marcadas == {}
 
 
 def test_cada_referencia_da_lista_foi_aberta_e_e_citada():
     """A lista (referencias.md) e o registro da conferência dizem as mesmas
-    obras; cada obra aberta é citada no texto; a única não aberta é Brooke."""
+    obras; cada obra aberta é citada no texto; depois da segunda conferência
+    (19/11/2026), nenhuma fica sem abrir."""
     registro = (CAPITULOS / "conferencia-das-referencias.md").read_text(
         encoding="utf-8")
     conferidas = _chaves(_secao(registro, "Conferidas"))
     pendentes = _chaves(_secao(registro, "Ainda não abertas"))
-    assert pendentes == [("brooke", "1996")]
+    assert pendentes == []
     lista = (CAPITULOS / "referencias.md").read_text(encoding="utf-8")
     entradas = [p for p in re.split(r"\n\s*\n", lista)
                 if re.match(r"[A-Z][\w-]*[,.]", p.strip())]

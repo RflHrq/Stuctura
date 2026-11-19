@@ -5,15 +5,15 @@
 
 \section{O problema que este capítulo resolve}
 
-O sistema descrito nos capítulos anteriores faz uma afirmação forte a cada atividade respondida: \textit{esta pessoa provavelmente sustenta esta concepção errônea}. A afirmação tem consequência imediata — ela escolhe o percurso de refutação que a pessoa vai atravessar.
+O sistema descrito nos capítulos anteriores faz uma afirmação forte a cada atividade respondida: \textit{esta pessoa provavelmente sustenta esta concepção errônea}. A afirmação tem consequência imediata: ela escolhe o percurso de refutação que a pessoa vai atravessar.
 
 Toda a validade dessa afirmação depende de uma pergunta anterior, que o software não responde: \textbf{de onde vem cada concepção do catálogo?}
 
-Se uma delas foi escrita pelo autor porque lhe pareceu plausível, o sistema não está diagnosticando uma concepção errônea documentada. Está produzindo dado sobre uma ficção — e produzindo-o com a mesma aparência de rigor que produz o resto. O projeto registrou isso como regra, em \texttt{docs/\allowbreak{}linguagem.\allowbreak{}md}:
+Se uma delas foi escrita pelo autor porque lhe pareceu plausível, o sistema não está diagnosticando uma concepção errônea documentada. Está produzindo dado sobre uma ficção, e produzindo-o com a mesma aparência de rigor que produz o resto. O projeto registrou isso como regra, em \texttt{docs/\allowbreak{}linguagem.\allowbreak{}md}:
 
 ``Uma crença sem procedência é uma invenção sua que vai virar dado.''
 
-Este capítulo é a resposta a essa pergunta, e ela é verificável sem participante nenhum. O instrumento não foi avaliado com estudantes — essa limitação está declarada no capítulo de limitações. O que se pode afirmar, e é o que aqui se sustenta, é mais modesto e inteiramente conferível: \textbf{o sistema afirma sobre concepções errôneas só o que a literatura registra, e recusa afirmar o resto.}
+Este capítulo é a resposta a essa pergunta, e ela é verificável sem participante nenhum. O instrumento não foi avaliado com estudantes; essa limitação está declarada no capítulo de limitações. O que se pode afirmar, e é o que aqui se sustenta, é mais modesto e inteiramente conferível: \textbf{o sistema afirma sobre concepções errôneas só o que a literatura registra, e recusa afirmar o resto.}
 
 \section{A régua: cinco graus de procedência}
 
@@ -29,28 +29,28 @@ Cada concepção do catálogo carrega um campo \texttt{provenance}, com um de ci
 \texttt{L} & registrada como erro comum em obra técnica \\ \hline
 \texttt{T} & transposta de outra linguagem, \textbf{com a analogia declarada} \\ \hline
 \texttt{N} & o erro está em norma (CERT C, CWE); a concepção, não \\ \hline
-\texttt{E} & elaborada a partir do modelo de máquina — \textbf{hipótese a testar} \\ \hline
+\texttt{E} & elaborada a partir do modelo de máquina: \textbf{hipótese a testar} \\ \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor.}
 \end{quadro}
 
 Duas propriedades desse campo importam para o método, e não são decorativas.
 
-A primeira: \textbf{o grau é afirmação sobre a literatura, não sobre o uso.} A mesma concepção aparece em mais de um tópico do domínio — quatorze delas aparecem —, e o texto que a contextualiza muda de tópico para tópico, como deve. O grau não muda. Se uma concepção é \texttt{D} num tópico e \texttt{L} noutro, uma das duas afirmações é falsa, e num trabalho acadêmico essa é a diferença entre citar e alegar. A auditoria descrita adiante encontrou três casos desses e os corrigiu; um teste passou a proibi-los.
+A primeira: \textbf{o grau é afirmação sobre a literatura, não sobre o uso.} A mesma concepção aparece em mais de um tópico do domínio (quatorze delas aparecem), e o texto que a contextualiza muda de tópico para tópico, como deve. O grau não muda. Se uma concepção é \texttt{D} num tópico e \texttt{L} noutro, uma das duas afirmações é falsa, e num trabalho acadêmico essa é a diferença entre citar e alegar. A auditoria descrita adiante encontrou três casos desses e os corrigiu; um teste passou a proibi-los.
 
-A segunda: \textbf{\texttt{E} é legítimo, e só vale declarado.} Uma hipótese do autor pode entrar no catálogo — o que não pode é entrar com cara de achado. As três hipóteses atuais dizem no próprio campo de fonte que são hipóteses, e há dois testes independentes garantindo que nenhuma delas apareça nos tópicos escolhidos para coleta.
+A segunda: \textbf{\texttt{E} é legítimo, e só vale declarado.} Uma hipótese do autor pode entrar no catálogo; o que não pode é entrar com cara de achado. As três hipóteses atuais dizem no próprio campo de fonte que são hipóteses, e há dois testes independentes garantindo que nenhuma delas apareça nos tópicos escolhidos para coleta.
 
 \section{As duas classes de fonte}
 
 O catálogo se apoia em dois tipos de obra. A diferença entre eles não é de qualidade: é de \textbf{que tipo de afirmação cada um sustenta}. Confundi-los seria o defeito metodológico; declará-los, linha por linha, é o que torna o catálogo auditável.
 
-\subsection{Classe 1 — literatura de concepções errôneas (23 concepções)}
+\subsection{Classe 1: literatura de concepções errôneas (23 concepções)}
 
-Estudo empírico com estudantes, ou revisão que os agrega. A obra principal é o \textbf{Apêndice A de \citeonline{sorva2012}}: a Tabela A.1 arrola 162 concepções errôneas levantadas da literatura de ensino de programação introdutória, cada uma com tópico, descrição e fonte. Ao lado dela entram os estudos que ela própria atribui — du Boulay (\citeyear{duboulay1986}), \citeonline{soloway1982}, \citeonline{putnam1986}, \citeonline{sleeman1986}, \citeonline{samurcay1989}, \citeonline{holland1997}, \citeonline{ma2007}, \citeonline{doukakis2007}, \citeonline{kaczmarczyk2010}.
+Estudo empírico com estudantes, ou revisão que os agrega. A obra principal é o \textbf{Apêndice A de \citeonline{sorva2012}}: a Tabela A.1 arrola 162 concepções errôneas levantadas da literatura de ensino de programação introdutória, cada uma com tópico, descrição e fonte. Ao lado dela entram os estudos que ela própria atribui: du Boulay (\citeyear{duboulay1986}), \citeonline{soloway1982}, \citeonline{putnam1986}, \citeonline{sleeman1986}, \citeonline{samurcay1989}, \citeonline{holland1997}, \citeonline{ma2007}, \citeonline{doukakis2007}, \citeonline{kaczmarczyk2010}.
 
 \textbf{O que esta classe sustenta:} que a concepção foi \textit{observada em estudantes}, por alguém que a estudou.
 
-\subsection{Classe 2 — corpus de praticante (34 concepções)}
+\subsection{Classe 2: corpus de praticante (34 concepções)}
 
 O \textbf{FAQ do comp.lang.c}, composto em 1990 a partir do grupo de Usenet de mesmo nome e refinado episodicamente desde então, publicado em forma de livro por \citeonline{summit1996}.
 
@@ -74,18 +74,18 @@ O catálogo não \textbf{infere} a concepção a partir de uma explicação téc
 
 Em termos de método, isso faz do FAQ uma \textbf{fonte documental}: um corpus de confusões auto-relatadas, ocorridas naturalmente e curadas por \textit{recorrência} ao longo de mais de três décadas. O tratamento dado aqui é análise documental desse corpus.
 
-\textbf{O que esta classe sustenta — e o que ela não sustenta:}
+\textbf{O que esta classe sustenta, e o que ela não sustenta:}
 
 \begin{itemize}
 \item sustenta que a confusão \textbf{ocorre e recorre} entre quem aprende C;
-\item \textbf{não} sustenta prevalência. A população é auto-selecionada — quem escreve para um grupo de Usenet — e a frequência é juízo do editor, não medida. Nenhuma afirmação de proporção sai desta fonte, e nenhuma é feita.
+\item \textbf{não} sustenta prevalência. A população é auto-selecionada (quem escreve para um grupo de Usenet), e a frequência é juízo do editor, não medida. Nenhuma afirmação de proporção sai desta fonte, e nenhuma é feita.
 \end{itemize}
 
 \subsection{Por que a segunda classe é necessária, e isso é um achado}
 
 A exigência razoável seria: ancore tudo na classe 1, que é empírica, e dispense a classe 2. Essa exigência foi testada contra o catálogo do Sorva, item por item, e \textbf{ela não é satisfazível}.
 
-A Tabela A.1 tem um tópico dedicado a referências — \texttt{Refs}, com 17 dos 162 itens — e itens sobre memória e tempo de vida espalhados por \texttt{VarAssign}, \texttt{ObjState} e \texttt{Misc}. O que ela não tem é o que importa aqui, e a contagem abaixo é reprodutível por busca de termo no texto da tabela:
+A Tabela A.1 tem um tópico dedicado a referências (\texttt{Refs}, com 17 dos 162 itens) e itens sobre memória e tempo de vida espalhados por \texttt{VarAssign}, \texttt{ObjState} e \texttt{Misc}. O que ela não tem é o que importa aqui, e a contagem abaixo é reprodutível por busca de termo no texto da tabela:
 
 \begin{quadro}[htbp]
 \caption{Ocorrências de termos de memória na Tabela A.1}\label{qua:4-3}
@@ -96,8 +96,8 @@ A Tabela A.1 tem um tópico dedicado a referências — \texttt{Refs}, com 17 do
 \texttt{malloc}, \texttt{free}, \texttt{deallocat}, \texttt{garbage} & \textbf{0} \\ \hline
 \texttt{heap}, \texttt{stack} & \textbf{0} \\ \hline
 \texttt{arithmetic}, \texttt{decay}, \texttt{dangling}, \texttt{sizeof} & \textbf{0} \\ \hline
-\texttt{null} & \textbf{1} — e é \textit{``Null model of recursion''} (item 54), que não trata de ponteiro nulo \\ \hline
-\texttt{lifetime} & \textbf{1} — item 5, \textit{``Difficulties understanding the lifetime of values''} \\ \hline
+\texttt{null} & \textbf{1}, e é \textit{``Null model of recursion''} (item 54), que não trata de ponteiro nulo \\ \hline
+\texttt{lifetime} & \textbf{1}: item 5, \textit{``Difficulties understanding the lifetime of values''} \\ \hline
 \texttt{memory} & 7 \\ \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor, por busca no texto de \citeonline{sorva2012}.}
@@ -113,7 +113,7 @@ A conclusão, então, não é que as 34 concepções da classe 2 sejam fracas. �
 
 O padrão fixado pelo projeto é explícito, e está escrito no cabeçalho do primeiro catálogo de tópico: \textit{as fontes foram conferidas na obra primária, não de memória}. O que isso significou, concepção por concepção, está na tabela abaixo.
 
-Ela é \textbf{exaustiva e exclusiva}: cada uma das 61 concepções aparece em exatamente uma linha, e a linha registra \textbf{a verificação mais forte alcançada} para ela. A soma é 61, de propósito — um quadro de ``quantas concepções citam cada obra'' somaria mais, porque uma concepção pode citar duas, e não permitiria dizer quantas ficaram sem conferência.
+Ela é \textbf{exaustiva e exclusiva}: cada uma das 61 concepções aparece em exatamente uma linha, e a linha registra \textbf{a verificação mais forte alcançada} para ela. A soma é 61, de propósito: um quadro de ``quantas concepções citam cada obra'' somaria mais, porque uma concepção pode citar duas, e não permitiria dizer quantas ficaram sem conferência.
 
 \begin{quadro}[htbp]
 \caption{Como cada uma das 61 concepções foi conferida}\label{qua:4-4}
@@ -121,10 +121,10 @@ Ela é \textbf{exaustiva e exclusiva}: cada uma das 61 concepções aparece em e
 \begin{tabularx}{\textwidth}{|X|l|}
 \hline
 \textbf{como foi conferida} & \textbf{concepções} \\ \hline
-\textbf{conferida no texto integral de \citeonline{sorva2012}} — obtido do repositório aberto da Aalto (handle \texttt{123456789/3534}, bundle TEXT); a frase em inglês entre aspas da citação foi localizada no texto da obra & 21 \\ \hline
-\textbf{conferida no índice do FAQ comp.lang.c} — seções 1, 4, 5, 6 e 7 abertas em \texttt{c-{}faq.com}; as perguntas citadas existem e os títulos conferem com o que o catálogo cita & 32 \\ \hline
+\textbf{conferida no texto integral de \citeonline{sorva2012}}, obtido do repositório aberto da Aalto (handle \texttt{123456789/3534}, bundle TEXT); a frase em inglês entre aspas da citação foi localizada no texto da obra & 21 \\ \hline
+\textbf{conferida no índice do FAQ comp.lang.c}: seções 1, 4, 5, 6 e 7 abertas em \texttt{c-{}faq.com}; as perguntas citadas existem e os títulos conferem com o que o catálogo cita & 32 \\ \hline
 citação abreviada no catálogo; forma íntegra localizada na obra & 1 \\ \hline
-cita o Sorva com página e item, mas \textbf{sem frase entre aspas} — logo não verificável pelo procedimento mecânico & 1 \\ \hline
+cita o Sorva com página e item, mas \textbf{sem frase entre aspas}, logo não verificável pelo procedimento mecânico & 1 \\ \hline
 conferência \textbf{parcial}: a seção 11 do FAQ ficou fora desta passada & 1 \\ \hline
 \textbf{não conferida}: fonte pública (CWE), não reaberta aqui & 1 \\ \hline
 \textbf{sem item na literatura}, com a busca declarada em campo próprio & 2 \\ \hline
@@ -136,9 +136,9 @@ conferência \textbf{parcial}: a seção 11 do FAQ ficou fora desta passada & 1 
 
 As duas primeiras linhas somam as \textbf{53 conferidas na obra primária}. As seis últimas são o que este capítulo não afirma ter conferido, e cada uma diz por quê.
 
-Os estudos que o Apêndice A do Sorva agrega — du Boulay (\citeyear{duboulay1986}), \citeonline{samurcay1989}, \citeonline{sleeman1986}, \citeonline{soloway1982}, \citeonline{putnam1986}, \citeonline{doukakis2007}, \citeonline{ma2007}, \citeonline{kaczmarczyk2010} — não aparecem como linha própria porque não foram abertos: as cinco concepções que os citam fazem-no \textbf{\texttt{apud} \citeonline{sorva2012}}, com página e item, e caem na primeira linha da tabela. A seção de integridade adiante detalha isso.
+Não aparecem como linha própria, porque não foram abertos, os estudos que o Apêndice A do Sorva agrega: du Boulay (\citeyear{duboulay1986}), \citeonline{samurcay1989}, \citeonline{sleeman1986}, \citeonline{soloway1982}, \citeonline{putnam1986}, \citeonline{doukakis2007}, \citeonline{ma2007}, \citeonline{kaczmarczyk2010}. As cinco concepções que os citam fazem-no \textbf{\texttt{apud} \citeonline{sorva2012}}, com página e item, e caem na primeira linha da tabela. A seção de integridade adiante detalha isso.
 
-A conferência é \textbf{mecânica onde pode ser}: o programa que gera o apêndice de curadoria extrai a frase entre aspas de cada citação e a procura no texto da obra. Ele não confia no campo de fonte — ele confere. Rodado sem o texto da obra, o número de conferidas cai de 53 para 32 e o documento passa a dizer, linha por linha, que não conferiu. Um programa que mente quando lhe falta insumo seria pior que um programa que não roda.
+A conferência é \textbf{mecânica onde pode ser}: o programa que gera o apêndice de curadoria extrai a frase entre aspas de cada citação e a procura no texto da obra. Ele não confia no campo de fonte: ele confere. Rodado sem o texto da obra, o número de conferidas cai de 53 para 32 e o documento passa a dizer, linha por linha, que não conferiu. Um programa que mente quando lhe falta insumo seria pior que um programa que não roda.
 
 \section{O resultado}
 
@@ -157,7 +157,7 @@ hipóteses \texttt{E} & \textbf{3}, todas fora dos tópicos escolhidos para cole
 
 \section{O que a auditoria encontrou}
 
-Os achados abaixo valem mais que a tabela, porque são sobre \textbf{o método de construir catálogo a partir da literatura} — e não sobre C.
+Os achados abaixo valem mais que a tabela, porque são sobre \textbf{o método de construir catálogo a partir da literatura}, e não sobre C.
 
 \subsection{Três vezes a busca errou de vocabulário ou de item, e as três vezes o certo estava lá}
 
@@ -174,17 +174,17 @@ Os achados abaixo valem mais que a tabela, porque são sobre \textbf{o método d
 \fonte{Elaborado pelo autor, com trechos de \citeonline{sorva2012}.}
 \end{quadro}
 
-Nos três casos o grau subiu — \texttt{E}→\texttt{T}, \texttt{E}→\texttt{D} e \texttt{L}→\texttt{D} — \textbf{porque a busca foi refeita com outro vocabulário}, e não porque se decidiu confiar na intuição.
+Nos três casos o grau subiu (\texttt{E}→\texttt{T}, \texttt{E}→\texttt{D} e \texttt{L}→\texttt{D}) \textbf{porque a busca foi refeita com outro vocabulário}, e não porque se decidiu confiar na intuição.
 
-Daí sai uma recomendação de método, replicável: \textbf{buscar pelo fenômeno, não pelo termo da própria linguagem.} Num catálogo de concepções errôneas da linguagem X, o item procurado pode estar escrito no vocabulário da linguagem Y — e estará, se o catálogo foi produzido em Y.
+Daí sai uma recomendação de método, replicável: \textbf{buscar pelo fenômeno, não pelo termo da própria linguagem.} Num catálogo de concepções errôneas da linguagem X, o item procurado pode estar escrito no vocabulário da linguagem Y, e estará, se o catálogo foi produzido em Y.
 
-O terceiro caso acrescenta um segundo princípio, e ele é sobre honestidade de citação: \textbf{foi a aproximação declarada que tornou o erro achável.} A citação dizia em que o item diferia da concepção, e foi essa diferença que apontou para o item vizinho. Uma citação que esconde a folga não dá esse aviso — ela fica errada em silêncio.
+O terceiro caso acrescenta um segundo princípio, e ele é sobre honestidade de citação: \textbf{foi a aproximação declarada que tornou o erro achável.} A citação dizia em que o item diferia da concepção, e foi essa diferença que apontou para o item vizinho. Uma citação que esconde a folga não dá esse aviso: ela fica errada em silêncio.
 
 \subsection{Uma citação estava no item errado, e a concepção estava certa}
 
-\texttt{pointer\_\allowbreak{}is\_\allowbreak{}data} apontava o item 14 do Sorva, que trata de variável ser par nome-valor — \textbf{não é sobre ponteiro}. A concepção está no catálogo, mas no item 65, p. 362: \textit{``A (non-primitive Java) variable does not hold a reference but a set of object properties.''} A obra estava certa; o item, não. Não há como encontrar isso sem abrir a obra.
+\texttt{pointer\_\allowbreak{}is\_\allowbreak{}data} apontava o item 14 do Sorva, que trata de variável ser par nome-valor: \textbf{não é sobre ponteiro}. A concepção está no catálogo, mas no item 65, p. 362: \textit{``A (non-primitive Java) variable does not hold a reference but a set of object properties.''} A obra estava certa; o item, não. Não há como encontrar isso sem abrir a obra.
 
-Um segundo caso do mesmo tipo apareceu ao montar a lista de referências deste capítulo. A Tabela A.1 atribui quatorze dos itens usados a ``\citeonline{ma2007}'', e o catálogo registrava essa obra como um artigo de SIGCSE assinado por quatro autores. A bibliografia de \citeonline{sorva2012} identifica ``\citeonline{ma2007}'' como uma \textbf{tese de doutorado} de autor único, de outra instituição. Citar uma obra mediada exige ler a bibliografia da obra mediadora — não basta reconhecer o sobrenome e o ano.
+Um segundo caso do mesmo tipo apareceu ao montar a lista de referências deste capítulo. A Tabela A.1 atribui quatorze dos itens usados a ``\citeonline{ma2007}'', e o catálogo registrava essa obra como um artigo de SIGCSE assinado por quatro autores. A bibliografia de \citeonline{sorva2012} identifica ``\citeonline{ma2007}'' como uma \textbf{tese de doutorado} de autor único, de outra instituição. Citar uma obra mediada exige ler a bibliografia da obra mediadora; não basta reconhecer o sobrenome e o ano.
 
 \subsection{Uma resposta de FAQ costuma responder a duas confusões}
 
@@ -197,17 +197,17 @@ Isso não é economia de fonte: é que uma resposta de FAQ costuma responder a \
 A regra aplicada foi: se a fonte não pode ser verificada, procura-se o correspondente; se não houver, \textbf{remove-se}.
 
 \begin{itemize}
-\item \textbf{Hermans et al. (2018) foi removida.} A citação de \texttt{variable\_\allowbreak{}remembers} a trazia, e a obra não aparece em item nenhum da Tabela A.1 nem na bibliografia do Sorva — zero ocorrências no texto integral. Sem a obra aberta e sem corroboração, a citação não se sustenta.
-\item \textbf{Uma atribuição estava trocada.} \texttt{declaration\_\allowbreak{}allocates} citava \textit{``\citeonline{kaczmarczyk2010}, p. 109, Tabela 2, MMR4''}. O item do Sorva que registra essa concepção — item 92, p. 364 — atribui a \textbf{\citeonline{ma2007}}. A afirmação sobre a página 109 e o código da tabela não era verificável por quem a escreveu, e saiu. A concepção vive num dos tópicos escolhidos para coleta, o que torna a correção material.
-\item \textbf{Uma concepção desceu de grau.} \texttt{memory\_\allowbreak{}is\_\allowbreak{}uniform} era \texttt{T} com citação de página e tabela de um artigo sem cópia de acesso aberto. Procurada item por item no Apêndice A, não há item sobre a memória ser região única sem distinção de regras de tempo de vida — o mais próximo, item 5, p. 359, é \textit{dificuldade} com tempo de vida, que é outra coisa. Passou a \texttt{E}, declarada como hipótese.
-\item \textbf{Uma obra técnica estava no campo errado.} \texttt{declaration\_\allowbreak{}zeroes} citava \citeonline{kernighan1988} como fonte. K\&R é a obra que diz que a concepção é \textbf{falsa} — é a refutação, não o registro de que alguém a sustenta. Os dois papéis passaram a ficar separados, e a fonte passou a ser o item 10, p. 359.
+\item \textbf{Hermans et al. (2018) foi removida.} A citação de \texttt{variable\_\allowbreak{}remembers} a trazia, e a obra não aparece em item nenhum da Tabela A.1 nem na bibliografia do Sorva: zero ocorrências no texto integral. Sem a obra aberta e sem corroboração, a citação não se sustenta.
+\item \textbf{Uma atribuição estava trocada.} \texttt{declaration\_\allowbreak{}allocates} citava \textit{``\citeonline{kaczmarczyk2010}, p. 109, Tabela 2, MMR4''}. O item do Sorva que registra essa concepção (item 92, p. 364) atribui a \textbf{\citeonline{ma2007}}. A afirmação sobre a página 109 e o código da tabela não era verificável por quem a escreveu, e saiu. A concepção vive num dos tópicos escolhidos para coleta, o que torna a correção material.
+\item \textbf{Uma concepção desceu de grau.} \texttt{memory\_\allowbreak{}is\_\allowbreak{}uniform} era \texttt{T} com citação de página e tabela de um artigo sem cópia de acesso aberto. Procurada item por item no Apêndice A, não há item sobre a memória ser região única sem distinção de regras de tempo de vida; o mais próximo, item 5, p. 359, é \textit{dificuldade} com tempo de vida, que é outra coisa. Passou a \texttt{E}, declarada como hipótese.
+\item \textbf{Uma obra técnica estava no campo errado.} \texttt{declaration\_\allowbreak{}zeroes} citava \citeonline{kernighan1988} como fonte. K\&R é a obra que diz que a concepção é \textbf{falsa}: é a refutação, não o registro de que alguém a sustenta. Os dois papéis passaram a ficar separados, e a fonte passou a ser o item 10, p. 359.
 \item \textbf{Um código interno de artigo saiu da citação.} \texttt{no\_\allowbreak{}value\_\allowbreak{}no\_\allowbreak{}memory} citava \citeonline{kaczmarczyk2010} trazendo o código ``(PVR2)'' com que o artigo nomeia o achado. O código é verificável só por quem abriu o artigo, e saiu; ficou a citação \texttt{apud}, com item 22, p. 360.
 \item \textbf{Uma aproximação declarada virou citação exata.} \texttt{assignment\_\allowbreak{}symmetric} mudou de item e subiu de grau; o caso está contado na subseção 4.6.1, acima, porque é também um resultado de método.
 \end{itemize}
 
 \subsection{A mesma concepção tinha procedência divergente entre tópicos}
 
-Quatorze concepções aparecem em mais de um tópico, e cada cópia tem seu próprio campo de fonte, escrito à mão. Três divergiam no \textbf{grau} — e, em dois desses três casos, \textbf{uma das cópias estava certa}: citava página e item, enquanto a cópia do outro tópico citava o estudo original sem declarar a mediação. O trabalho havia sido feito num tópico e não propagado ao outro, e nada no sistema avisava.
+Quatorze concepções aparecem em mais de um tópico, e cada cópia tem seu próprio campo de fonte, escrito à mão. Três divergiam no \textbf{grau}, e, em dois desses três casos, \textbf{uma das cópias estava certa}: citava página e item, enquanto a cópia do outro tópico citava o estudo original sem declarar a mediação. O trabalho havia sido feito num tópico e não propagado ao outro, e nada no sistema avisava.
 
 O achado aqui não é sobre as três linhas: é sobre \textbf{catálogo mantido à mão em arquivos paralelos derivar em silêncio}. A correção foi alinhar as três; a contramedida foi um teste que recusa a divergência.
 
@@ -217,13 +217,13 @@ Esta seção existe para que o leitor não tenha de inferir nada, e é a contrap
 
 \textbf{Lido no original:} o texto integral de \citeonline{sorva2012}, obtido do repositório institucional aberto da Universidade Aalto; e as perguntas citadas do FAQ do comp.lang.c, em \texttt{c-{}faq.com}. As citações dessas duas obras são de primeira mão, e a frase citada foi localizada no texto.
 
-\textbf{Citado \texttt{apud}:} os estudos que o Apêndice A agrega — du Boulay (\citeyear{duboulay1986}), \citeonline{samurcay1989}, \citeonline{sleeman1986}, \citeonline{soloway1982}, \citeonline{putnam1986}, \citeonline{doukakis2007}, \citeonline{ma2007} e \citeonline{kaczmarczyk2010} — são citados \textbf{pela mediação de \citeonline{sorva2012}}, com página e item. Os artigos originais não foram abertos: estão em acervos de acesso restrito, e a verificação de existência que se fez foi a do registro bibliográfico, não a do texto. Cinco concepções do catálogo citam esses estudos, e cada uma declara a mediação no próprio campo de fonte.
+\textbf{Citado \texttt{apud}:} os estudos que o Apêndice A agrega, a saber, du Boulay (\citeyear{duboulay1986}), \citeonline{samurcay1989}, \citeonline{sleeman1986}, \citeonline{soloway1982}, \citeonline{putnam1986}, \citeonline{doukakis2007}, \citeonline{ma2007} e \citeonline{kaczmarczyk2010}, são citados \textbf{pela mediação de \citeonline{sorva2012}}, com página e item. Os artigos originais não foram abertos: estão em acervos de acesso restrito, e a verificação de existência que se fez foi a do registro bibliográfico, não a do texto. Cinco concepções do catálogo citam esses estudos, e cada uma declara a mediação no próprio campo de fonte.
 
-A consequência, dita de uma vez: \textbf{nenhuma afirmação deste trabalho atribui a esses artigos conteúdo que não esteja no item do Apêndice A que os cita.} Onde a citação anterior ia além disso — uma página e um código de tabela de um artigo não aberto —, ela foi removida, e o caso está contado na seção anterior.
+A consequência, dita de uma vez: \textbf{nenhuma afirmação deste trabalho atribui a esses artigos conteúdo que não esteja no item do Apêndice A que os cita.} Onde a citação anterior ia além disso (uma página e um código de tabela de um artigo não aberto), ela foi removida, e o caso está contado na seção anterior.
 
 \textbf{Não reaberto:} CERT C e CWE, que sustentam três concepções de grau \texttt{N}, são fontes públicas e não foram reabertas nesta passada; a seção 11 do FAQ ficou fora dela.
 
-Duas observações de forma, que mudam o que se pode afirmar. Primeira: a versão on-line do FAQ corresponde a cerca de \textbf{metade} do livro de \citeonline{summit1996}; as citações deste trabalho são da versão on-line, por número de pergunta, que é o que foi consultado — e não do livro. Segunda: os números de página do Apêndice A referem-se ao texto extraído do PDF disponível naquele repositório, e foram calibrados contra os marcadores de página do próprio texto.
+Duas observações de forma, que mudam o que se pode afirmar. Primeira: a versão on-line do FAQ é \textbf{mais curta} que o livro de \citeonline{summit1996}, como o próprio autor diz na página do FAQ; as citações deste trabalho são da versão on-line, por número de pergunta, que é o que foi consultado, e não do livro. Segunda: os números de página do Apêndice A referem-se ao texto extraído do PDF disponível naquele repositório, e foram calibrados contra os marcadores de página do próprio texto.
 
 \section{O que esta curadoria não sustenta}
 
@@ -232,15 +232,15 @@ Declarar o alcance é parte do método, não ressalva de rodapé.
 \begin{enumerate}
 \item \textbf{Nenhuma afirmação de prevalência.} Nem a classe 1 nem a classe 2 autorizam dizer que tantos por cento dos estudantes sustentam uma dada concepção. O catálogo afirma que a concepção \textbf{existe e recorre}.
 \item \textbf{Nenhuma afirmação sobre eficácia do instrumento.} Que as concepções estejam documentadas não diz que o sistema as detecte bem, nem que a refutação funcione. Isso exigiria coleta com participantes.
-\item \textbf{Três hipóteses seguem hipóteses.} \texttt{type\_is\_a\_hint}, \texttt{memoria\_\allowbreak{}e\_\allowbreak{}do\_\allowbreak{}computador} e \texttt{memory\_\allowbreak{}is\_\allowbreak{}uniform} entram declaradas como tais, fora dos tópicos de coleta. O precedente desta auditoria diz o que tentar antes de aceitá-las: refazer a busca com outro vocabulário — foi o que fez duas outras subirem de grau, e o que confirmou que para estas não há item.
+\item \textbf{Três hipóteses seguem hipóteses.} \texttt{type\_is\_a\_hint}, \texttt{memoria\_\allowbreak{}e\_\allowbreak{}do\_\allowbreak{}computador} e \texttt{memory\_\allowbreak{}is\_\allowbreak{}uniform} entram declaradas como tais, fora dos tópicos de coleta. O precedente desta auditoria diz o que tentar antes de aceitá-las: refazer a busca com outro vocabulário, que foi o que fez duas outras subirem de grau, e o que confirmou que para estas não há item.
 \item \textbf{Uma concepção de grau \texttt{T} não cita obra nenhuma.} \texttt{heap\_\allowbreak{}dies\_\allowbreak{}with\_\allowbreak{}function} tem apenas a analogia, declarada: em Java e Python, o que a função alocou e ninguém mais alcança desaparece sozinho. A busca foi refeita pelo vocabulário do fenômeno e registrada; não há item. O próprio campo de fonte diz que ela precisa de fonte ou desce para \texttt{E}.
-\item \textbf{Uma citação do Sorva não traz frase entre aspas} — a de \texttt{uninitialized\_\allowbreak{}is\_\allowbreak{}null} —, o que a torna não verificável pelo procedimento mecânico descrito acima, embora traga página e item.
+\item \textbf{Uma citação do Sorva não traz frase entre aspas}, a de \texttt{uninitialized\_\allowbreak{}is\_\allowbreak{}null}, o que a torna não verificável pelo procedimento mecânico descrito acima, embora traga página e item.
 \item \textbf{Três concepções de grau \texttt{N} citam CERT C e CWE}, e essas fontes não foram reabertas nesta passada; de cinco concepções que as citam, quatro foram conferidas pela citação do FAQ que trazem ao lado, e uma ficou sem conferência.
 \end{enumerate}
 
 \section{O catálogo é verificável por máquina, e é isso que se oferece}
 
-O apêndice de curadoria não foi digitado: é \textbf{gerado} do catálogo, por um comando. Digitar 61 linhas à mão seria convidar justamente a divergência entre documento e dado que este capítulo existe para medir — e a subseção 4.6.5, acima, mostra que essa divergência acontece mesmo quando quem mantém os arquivos sabe do risco.
+O apêndice de curadoria não foi digitado: é \textbf{gerado} do catálogo, por um comando. Digitar 61 linhas à mão seria convidar justamente a divergência entre documento e dado que este capítulo existe para medir; e a subseção 4.6.5, acima, mostra que essa divergência acontece mesmo quando quem mantém os arquivos sabe do risco.
 
 Sobre o catálogo correm travas automatizadas, que falham a suíte se a propriedade deixar de valer. As principais:
 
@@ -262,7 +262,7 @@ o capítulo não diverge do catálogo & número afirmado neste capítulo que o c
 \fonte{Elaborado pelo autor.}
 \end{quadro}
 
-Três dessas travas nasceram de defeitos reais encontrados durante esta auditoria — a busca que falhou lida como conferência, o campo declarado em só uma cópia, a chave duplicada —, e é por isso que estão aqui. Uma trava escrita depois do erro que ela impede custa menos a justificar que uma escrita por antecipação: sabe-se que o erro é possível, porque aconteceu.
+Três dessas travas nasceram de defeitos reais encontrados durante esta auditoria (a busca que falhou lida como conferência, o campo declarado em só uma cópia, a chave duplicada), e é por isso que estão aqui. Uma trava escrita depois do erro que ela impede custa menos a justificar que uma escrita por antecipação: sabe-se que o erro é possível, porque aconteceu.
 
 A reprodução é um comando:
 
@@ -272,4 +272,4 @@ python~scripts/gera\_curadoria.py~CAMINHO/DO/sorva2012.txt
 
 O argumento é o texto integral da obra, baixado do repositório da Aalto. O arquivo não entra no repositório do projeto porque é obra de terceiro; sem ele o programa roda igual e o apêndice passa a declarar, linha por linha, que não conferiu.
 
-É essa verificabilidade — e não a quantidade de concepções — que o trabalho oferece como contribuição deste capítulo. Um catálogo de 61 concepções errôneas de ponteiros em C, com duas classes de fonte declaradas, posição localizável onde o grau a exige, mediação de citação declarada onde ela existe, e o todo conferível por um comando.
+É essa verificabilidade, e não a quantidade de concepções, que o trabalho oferece como contribuição deste capítulo. Um catálogo de 61 concepções errôneas de ponteiros em C, com duas classes de fonte declaradas, posição localizável onde o grau a exige, mediação de citação declarada onde ela existe, e o todo conferível por um comando.

@@ -22,8 +22,7 @@ passaram por ela.
 **Só parte do banco é conferida contra o compilador.** O conferidor
 cobre as escadas e as demonstrações; no banco, só as 69 questões de
 prever a saída com resposta em valor são comparadas com o que o programa
-imprime (5.2). Nas outras, a alternativa certa — "não dá para saber", o
-que está errado num trecho, a diferença entre dois casos — depende da
+imprime (5.2). Nas outras, a alternativa certa ("não dá para saber", o que está errado num trecho, a diferença entre dois casos) depende da
 revisão mecânica da forma e da leitura.
 
 **O conteúdo foi escrito com assistência de um modelo de linguagem**, e
@@ -40,8 +39,7 @@ diagnóstico a registra como erro fora do catálogo, sem tratá-la.
 **A certeza declarada é um sinal barato e ruidoso.** Quem marca "tenho
 certeza" por hábito gera uma hipótese de concepção errônea errada. O
 sistema mitiga isso exigindo a razão da concepção, e não só a resposta
-errada, mas não elimina o ruído. E a escala usa palavras — "chutei",
-"acho que sei", "tenho certeza" —, que querem dizer coisas diferentes
+errada, mas não elimina o ruído. E a escala usa palavras ("chutei", "acho que sei", "tenho certeza"), que querem dizer coisas diferentes
 para pessoas diferentes; é por isso que Gardner-Medwin (2006) nomeia os
 níveis com números. Se a mesma marcação significa convicções diferentes,
 o mesmo erro pode levar uma pessoa à demonstração e outra ao ensino.
@@ -60,7 +58,7 @@ mas outro compilador, ou outra versão, pode dar outra mensagem.
 
 1. **O estudo com estudantes**, como desenhado no Apêndice A: de 10 a 15
    participantes que cursam ou cursaram a disciplina com C, pensando em
-   voz alta, com quatro perguntas — se concluem a sessão sem ajuda (V1),
+   voz alta, com quatro perguntas: se concluem a sessão sem ajuda (V1),
    se a concepção detectada coincide com a verbalizada (V2), se mudam de
    resposta num item novo depois da demonstração (V3) e como percebem o
    sistema (V4). O sistema já grava tudo o que o estudo precisa; falta a

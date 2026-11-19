@@ -391,9 +391,9 @@ AFIRMA_O_CAPITULO = {
     "conferidas na obra primária | **53**": lambda c: c["conferidas"] == 53,
     "`D` 6, `L` 33, `T` 16, `N` 3, `E` 3": lambda c: c["grades"] == {
         "D": 6, "L": 33, "T": 16, "N": 3, "E": 3},
-    "Classe 1 — literatura de concepções errôneas (23 concepções)":
+    "Classe 1: literatura de concepções errôneas (23 concepções)":
         lambda c: c["classe1"] == 23,
-    "Classe 2 — corpus de praticante (34 concepções)":
+    "Classe 2: corpus de praticante (34 concepções)":
         lambda c: c["classe2"] == 34,
     "hipóteses `E` | **3**": lambda c: c["grades"]["E"] == 3,
     "Quatorze concepções aparecem em mais de um tópico": lambda c: c["em_dois_topicos"] == 14,

@@ -5,18 +5,16 @@
 Ponteiros são, há décadas, um dos pontos em que o ensino de programação
 em C mais tropeça. A dificuldade não está só em não saber: está em saber
 errado. Um estudante pode atravessar um material inteiro sobre ponteiros,
-acertar boa parte dos exercícios e sair com a mesma ideia errada com que
-entrou — por exemplo, a de que um array e um ponteiro são a mesma coisa,
+acertar boa parte dos exercícios e sair com a mesma ideia errada com que entrou: por exemplo, a de que um array e um ponteiro são a mesma coisa,
 ideia que funciona em quase todos os casos e só falha diante de `sizeof`.
-Uma concepção errônea desse tipo — *misconception*, na literatura em
-inglês, o termo do título — é estável e coerente para quem a tem, e
+Uma concepção errônea desse tipo (*misconception*, na literatura em inglês, o termo do título) é estável e coerente para quem a tem, e
 por isso resiste à informação nova: a explicação correta é lida e
 encaixada na ideia antiga, ou guardada à parte, sem entrar em conflito com
 ela (POSNER et al., 1982, p. 221).
 
 Daí decorrem duas dificuldades práticas. A primeira é de diagnóstico: uma
 resposta errada, sozinha, não distingue quem não sabe de quem sabe errado,
-e os dois casos pedem intervenções diferentes — a quem não sabe, é preciso
+e os dois casos pedem intervenções diferentes: a quem não sabe, é preciso
 construir a ideia; a quem sabe errado, é preciso desmontar a ideia que
 está no lugar. A segunda é de intervenção: dizer ao estudante qual é a
 resposta certa não basta quando ele tem razões para acreditar em outra.
@@ -39,10 +37,9 @@ concepção errônea) ou acertou sem firmeza.
 uma escada de passos curtos, do mais mecânico até a ideia, com retorno
 imediato a cada passo. A quem acha que sabe, o sistema não explica:
 mostra um programa pequeno, pede que o estudante preveja o que ele faz e,
-em seguida, mostra o que a máquina de fato fez — a saída do programa, ou
+em seguida, mostra o que a máquina de fato fez: a saída do programa, ou
 o que o compilador disse dele. E quem erra depois de subir a escada recebe
-uma revisão curta, com o código da ideia animado linha a linha numa cena
-— a caixa que nasce, o valor que entra, o ponteiro com o seu bilhete.
+uma revisão curta, com o código da ideia animado linha a linha numa cena: a caixa que nasce, o valor que entra, o ponteiro com o seu bilhete.
 Todas essas demonstrações e cenas foram compiladas e executadas por um
 conferidor automático antes de entrar no sistema: o que a tela afirma
 que a máquina faz, a máquina faz.
@@ -95,8 +92,7 @@ concepção errônea que ele afirma diagnosticar tem procedência declarada.
    com procedência declarada e ligada à premissa que nega (Capítulo 4).
 2. Um diagnóstico que usa a certeza declarada para **escolher o
    percurso**, e não para pontuar.
-3. Um conjunto de 80 demonstrações com previsão — uma para cada
-   concepção errônea em cada tópico em que ela aparece — e 402 passos de
+3. Um conjunto de 80 demonstrações com previsão (uma para cada concepção errônea em cada tópico em que ela aparece) e 402 passos de
    escada, além de 79 cenas animadas, todos conferidos por compilador.
 4. Um método de verificação de conteúdo didático de programação em que o
    compilador é o árbitro: o texto que afirma o que um programa faz é

@@ -6,8 +6,7 @@ que o compilador reclama daquela linha, que esta alternativa é a certa.
 No plano do **comportamento**, o sistema afirma que trata cada estudante
 de um jeito: que quem erra com convicção vê a demonstração, que quem não
 sabe sobe a escada, que a sessão tem teto. Este capítulo descreve como
-cada plano foi verificado sem depender da opinião de quem escreveu o
-conteúdo ou o código — e diz, ao fim, o que essa verificação não cobre.
+cada plano foi verificado sem depender da opinião de quem escreveu o conteúdo ou o código, e diz, ao fim, o que essa verificação não cobre.
 
 ## 5.1 O processo
 
@@ -21,20 +20,16 @@ estarem erradas.
 O código foi escrito com **testes antes do código**: o teste de cada
 comportamento novo foi escrito e visto falhar antes de a implementação
 existir, e só então a implementação foi feita até o teste passar. Um
-teste que passa antes da implementação não prova nada — pode estar
-testando outra coisa —, e por isso vê-lo falhar é parte do método, e não
+teste que passa antes da implementação não prova nada (pode estar testando outra coisa), e por isso vê-lo falhar é parte do método, e não
 formalidade. Testes existentes nunca foram alterados para passar; quando
 uma mudança deliberada de comportamento exigiu mudar um teste, a mudança
 foi declarada no registro do controle de versão, com o motivo.
 
 ## 5.2 O compilador como árbitro do conteúdo
 
-Todo trecho de código das escadas — passos, exemplos resolvidos e
-demonstrações — passa por um **conferidor** automático antes de entrar no
+Todo trecho de código das escadas (passos, exemplos resolvidos e demonstrações) passa por um **conferidor** automático antes de entrar no
 sistema. O conferidor monta cada trecho
-dentro de um programa completo — com as bibliotecas padrão de entrada e
-saída e de alocação, e com as funções do trecho levadas para fora do
-`main` —, compila com o gcc 16.2 (`-std=c17 -Wall`) e confere o que o
+dentro de um programa completo (com as bibliotecas padrão de entrada e saída e de alocação, e com as funções do trecho levadas para fora do `main`), compila com o gcc 16.2 (`-std=c17 -Wall`) e confere o que o
 texto afirma:
 
 - nos passos de **digitar**, roda o programa e compara a saída inteira
@@ -63,15 +58,12 @@ a suíte.
 
 As **cenas** (3.6) passam pela mesma conferência, com um passo a mais. O
 que uma cena afirma não é uma saída, mas um estado: depois desta linha,
-`idade` vale 15 e `p` aponta para `idade`. O conferidor monta, então, um
-segundo programa — o código da revisão com, em cada ponto por onde a cena
-passa, as afirmações dela escritas em C — e o executa; a afirmação que
+`idade` vale 15 e `p` aponta para `idade`. O conferidor monta, então, um segundo programa (o código da revisão com, em cada ponto por onde a cena passa, as afirmações dela escritas em C) e o executa; a afirmação que
 falha sai com a linha e com o que a cena dizia. Três cuidados tornam isso
 possível dentro de funções e no monte. Cada personagem tem o seu endereço
 guardado assim que nasce, e toda afirmação passa por esse endereço, e não
 pelo nome: ela vale dentro da função e fora dela, e também para o bloco
-do `malloc`, que não tem nome. A mesma linha pode rodar mais de uma vez —
-a função chamada duas vezes —, e cada passagem é conferida com o seu
+do `malloc`, que não tem nome. A mesma linha pode rodar mais de uma vez (a função chamada duas vezes), e cada passagem é conferida com o seu
 próprio estado: a cena que dissesse que a variável local de `conta`
 continua valendo 2 na segunda chamada seria acusada, e a primeira
 chamada, que está certa, não. E, no fim do programa, o conferidor confere
@@ -83,19 +75,17 @@ sumiu.
 
 As **questões do banco** passam por uma conferência mais estreita, que
 também roda na suíte. Nas 321 questões que têm código, ela procura
-string partida entre duas linhas — uma linha com aspas ímpares, que na
+string partida entre duas linhas: uma linha com aspas ímpares, que na
 tela é o código cortado ao meio. Nas questões de prever a saída que
 imprimem e cuja alternativa certa começa por um valor ("30: só o último
 valor escrito"), ela monta o programa, compila, roda e exige aquele
 valor; a questão que não bate tem de estar fora da trilha. O resto do
 banco não se confere comparando texto: a alternativa certa que diz "não
 dá para saber", e as questões de achar o erro e de comparar casos, que
-muitas vezes são fragmentos que não formam programa. Para elas fica a
-revisão mecânica da forma — toda alternativa errada aponta uma concepção
+muitas vezes são fragmentos que não formam programa. Para elas ficam a leitura e a revisão mecânica da forma: toda alternativa errada aponta uma concepção
 do catálogo, a certa não é visivelmente a mais longa, o enunciado não
 afirma a severidade de uma mensagem que o compilador pode rebaixar a
-aviso, e as questões servidas não usam construções ainda não ensinadas
-(5.3) — e a leitura.
+aviso, e as questões servidas não usam construções ainda não ensinadas (5.3).
 
 Essa conferência do banco foi escrita depois que a revisão deste texto
 notou a falta dela. Na primeira rodada, achou de novo a questão do kc_12
@@ -151,8 +141,7 @@ com um dos cinco resultados; nenhuma premissa recebe mais de um trabalho;
 a sessão tem teto; quem sustenta uma concepção errônea vê a demonstração
 dela; a sessão inteira pode ser reconstruída a partir do registro; e
 perfis diferentes terminam com resultados diferentes. A mesma travessia
-produz a **medida** de cada tópico — telas e toques por perfil —, que o
-Capítulo 6 apresenta.
+produz a **medida** de cada tópico (telas e toques por perfil), que o Capítulo 6 apresenta.
 
 ## 5.5 A interface
 
@@ -168,11 +157,9 @@ o limiar de linearização da versão 2.0 da norma, 0,03928, que a versão
 atual trocou por 0,04045, dizendo que a troca não tem efeito prático: em
 cores de 8 bits nenhum valor cai entre os dois, e outro teste confere
 isso. Das cenas, o que se testa por programa são os estados que o
-desenhista calcula a cada passo — que a caixa da função some quando ela
+desenhista calcula a cada passo: que a caixa da função some quando ela
 termina, que o bloco devolvido fica apagado, que a frase de cada passo
-existe para o leitor de tela. O resto — o desenho de cada tela e de cada
-personagem, o comportamento em celular (360 px de largura) e em tela
-larga — foi conferido no navegador, tela a tela, nos dois temas.
+existe para o leitor de tela. O resto (o desenho de cada tela e de cada personagem, o comportamento em celular, com 360 px de largura, e em tela larga) foi conferido no navegador, tela a tela, nos dois temas.
 
 ## 5.6 O ensaio
 
@@ -188,15 +175,14 @@ O conferidor diz se uma afirmação é verdadeira, e não se a pergunta é boa.
 Quando o autor leu o primeiro passo do kc_02 no sistema, achou a pergunta
 confusa: depois de duas frases que diziam o que é o endereço de uma
 variável, ela perguntava "o que é o endereço de `idade`?", e a
-alternativa certa era a frase de cima copiada — responder era achar
+alternativa certa era a frase de cima copiada: responder era achar
 palavras, e quem sabia desconfiava de pegadinha. O passo foi reescrito
 com um endereço de exemplo ("`idade` ficou no lugar de número 1000 e
 guarda 15: qual é o endereço de `idade`?"), e o mesmo defeito foi
 procurado em todos os tópicos.
 
 O critério escrito foi este: há defeito quando a frase do passo diz a
-conclusão sobre o próprio caso da pergunta — o mesmo código, os mesmos
-nomes —, ou quando a última frase é a alternativa certa. Não há quando a
+conclusão sobre o próprio caso da pergunta (o mesmo código, os mesmos nomes), ou quando a última frase é a alternativa certa. Não há quando a
 frase dá uma regra geral e a pergunta obriga a reconhecer, no código, qual
 coisa é qual antes de aplicá-la; nem no passo que mostra uma construção
 nova e pede para imitá-la uma vez, que é assim de propósito. Um programa
@@ -214,8 +200,8 @@ ordem mais fácil para um iniciante, que a analogia ajuda, ou que a
 concepção errônea do catálogo é a que um estudante de fato tem. Os testes
 garantem que o sistema se comporta como o desenho diz; não garantem que o
 desenho ensina. A primeira lacuna é preenchida pela revisão do conteúdo
-por quem conhece o domínio — o conteúdo das escadas foi escrito com
+por quem conhece o domínio (o conteúdo das escadas foi escrito com
 assistência de um modelo de linguagem e ainda aguarda a revisão do
-autor **[atualizar quando a revisão for feita]** —; a segunda, só por um
+autor **[atualizar quando a revisão for feita]**); a segunda, só por um
 estudo com estudantes, que é o primeiro dos trabalhos futuros
 (Capítulo 7).
