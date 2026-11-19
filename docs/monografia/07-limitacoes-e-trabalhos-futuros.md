@@ -14,7 +14,10 @@ compilador.
 **A verificação mecânica não verifica a pedagogia.** O compilador confirma
 o que um programa faz; não confirma que a ideia ensinada é a certa para um
 iniciante, que a ordem dos passos é a mais fácil, nem que a frase de um
-passo é clara (5.7).
+passo é clara (5.8). A leitura das perguntas (5.7) consertou um tipo de
+defeito de clareza, com um critério escrito, mas foi feita uma vez, sobre
+os passos guiados: os passos de prática e as perguntas de abertura não
+passaram por ela.
 
 **Só parte do banco é conferida contra o compilador.** O conferidor
 cobre as escadas e as demonstrações; no banco, só as 69 questões de
@@ -49,8 +52,8 @@ aprendizagem duradoura, que se mede por retenção de longo prazo ou por
 transferência e exigiria reteste dias depois (SODERSTROM; BJORK, 2015,
 p. 176).
 
-**Um ambiente.** As demonstrações foram conferidas no gcc 16.2, no
-Windows. Onde o resultado depende do ambiente, a demonstração diz isso;
+**Um ambiente.** As demonstrações e as cenas foram conferidas no gcc 16.2,
+no Windows. Onde o resultado depende do ambiente, a demonstração diz isso;
 mas outro compilador, ou outra versão, pode dar outra mensagem.
 
 ## 7.2 Trabalhos futuros
@@ -68,12 +71,13 @@ mas outro compilador, ou outra versão, pode dar outra mensagem.
 3. **O resto do banco contra o compilador**: nas questões de achar o
    erro e de comparar casos, montar cada caso e conferir se o compilador
    reclama dele, como o conferidor já faz com os passos de completar.
-4. **O caminho desenhado na página inicial**, com a ordem sugerida dos
-   tópicos e o estado de cada um, e as **cenas animadas** que ilustram
-   cada premissa com analogias visuais (a caixa, o bilhete), já
-   desenhadas e planejadas.
-5. **Um modo de prática**, só com os exercícios da escada e retorno de
+4. **As cenas das demonstrações.** As 79 cenas animam a revisão de cada
+   premissa; as 80 demonstrações ainda mostram o programa e o resultado
+   sem animação. O formato e o conferidor das cenas já servem para elas.
+5. **A leitura das perguntas (5.7) nos passos de prática e nas perguntas
+   de abertura**, com o mesmo critério.
+6. **Um modo de prática**, só com os exercícios da escada e retorno de
    certo e errado, para uso fora da sessão de diagnóstico.
-6. **Retenção**: um reteste dias depois, para medir o que fica.
-7. **Outros compiladores**: conferir as demonstrações também no clang, e
-   marcar as que mudam.
+7. **Retenção**: um reteste dias depois, para medir o que fica.
+8. **Outros compiladores**: conferir as demonstrações e as cenas também
+   no clang, e marcar as que mudam.

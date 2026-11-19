@@ -39,9 +39,12 @@ uma escada de passos curtos, do mais mecânico até a ideia, com retorno
 imediato a cada passo. A quem acha que sabe, o sistema não explica:
 mostra um programa pequeno, pede que o estudante preveja o que ele faz e,
 em seguida, mostra o que a máquina de fato fez — a saída do programa, ou
-o que o compilador disse dele. Todas essas demonstrações foram compiladas
-e executadas por um conferidor automático antes de entrar no sistema: o
-que a tela afirma que a máquina faz, a máquina faz.
+o que o compilador disse dele. E quem erra depois de subir a escada recebe
+uma revisão curta, com o código da ideia animado linha a linha numa cena
+— a caixa que nasce, o valor que entra, o ponteiro com o seu bilhete.
+Todas essas demonstrações e cenas foram compiladas e executadas por um
+conferidor automático antes de entrar no sistema: o que a tela afirma
+que a máquina faz, a máquina faz.
 
 ## 1.3 Objetivos
 
@@ -56,10 +59,12 @@ com demonstrações conferidas por compilador.
    cada concepção errônea do catálogo ligada à premissa que ela nega.
 2. Implementar o diagnóstico que combina resposta, razão e certeza
    declarada, e a escolha do percurso a partir dele.
-3. Escrever, para cada premissa, uma escada de passos para quem não sabe
-   e uma demonstração com previsão para cada concepção errônea.
+3. Escrever, para cada premissa, uma escada de passos para quem não sabe,
+   uma demonstração com previsão para cada concepção errônea e uma cena
+   que anima a revisão.
 4. Verificar mecanicamente que todo trecho de código das escadas e das
-   demonstrações compila e faz o que o texto afirma.
+   demonstrações compila e faz o que o texto afirma, e que cada cena
+   mostra o que o programa faz.
 5. Verificar o comportamento do sistema com estudantes simulados, que
    respondem segundo perfis definidos, em todos os tópicos.
 
@@ -91,7 +96,7 @@ concepção errônea que ele afirma diagnosticar tem procedência declarada.
    percurso**, e não para pontuar.
 3. Um conjunto de 80 demonstrações com previsão — uma para cada
    concepção errônea em cada tópico em que ela aparece — e 402 passos de
-   escada, todos conferidos por compilador.
+   escada, além de 79 cenas animadas, todos conferidos por compilador.
 4. Um método de verificação de conteúdo didático de programação em que o
    compilador é o árbitro: o texto que afirma o que um programa faz é
    testado contra o programa.

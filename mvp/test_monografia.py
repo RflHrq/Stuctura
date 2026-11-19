@@ -170,6 +170,53 @@ def test_a_conferencia_do_banco_no_texto():
         "06-resultados-da-verificacao.md")
 
 
+def test_as_cenas_no_texto():
+    """As 79 cenas (docs/plano-cenas.md), contadas nos dados: quantas
+    passam por função, por array e por bloco do malloc, e quais chamam a
+    mesma função duas vezes. O texto do Capítulo 6 diz esses números."""
+    import collections
+    n = funcao = array = bloco = 0
+    duas = []
+    for t in topicos():
+        _, escadas = _escadas(t)
+        for no, e in escadas.items():
+            if e.cena is None:
+                continue
+            n += 1
+            tipos = {a.tipo for a in e.cena.atores}
+            funcao += "bancada" in tipos
+            array += "fileira" in tipos
+            bloco += "bloco" in tipos
+            chamadas = collections.Counter(arg for p in e.cena.passos
+                                           for acao, arg in p.faz if acao == "chama")
+            duas += [(t, f) for f, k in chamadas.items() if k > 1]
+    assert (n, funcao, array, bloco) == (79, 20, 13, 17)
+    assert duas == [("kc_01", "conta"), ("kc_12", "dobra")]
+    texto = _texto("06-resultados-da-verificacao.md")
+    assert "| Cenas da revisão | 79 |" in texto
+    assert "Das 79, 20 passam por dentro de funções" in texto
+    assert "13 por arrays e 17 por blocos do `malloc`" in texto
+    assert "São 79 cenas, uma por premissa" in _texto("03-sistema.md")
+
+
+def test_a_leitura_das_perguntas_no_texto():
+    """Os números do pente (6.4) saem do registro dele,
+    docs/pente-dos-degraus.md: uma entrada por passo reescrito, a do
+    passo que o autor leu e as 46 da primeira passada antes de "Segunda
+    passada", as 54 da segunda depois."""
+    registro = (RAIZ.parent / "docs" / "pente-dos-degraus.md").read_text(
+        encoding="utf-8")
+    primeira, segunda = registro.split("## Segunda passada")
+    assert (primeira.count("\n### "), segunda.count("\n### ")) == (47, 54)
+    assert "### esc_kc02_B1_1" in primeira
+    guiados = sum(len(e.guiados) for t in topicos() for e in _escadas(t)[1].values())
+    assert guiados == 244
+    texto = _texto("06-resultados-da-verificacao.md")
+    assert ("Dos 244 passos guiados, 101 tiveram a frase reescrita: o passo "
+            "que o autor leu, 46 dos que o programa marcou e 54 que ele não "
+            "marcou") in texto
+
+
 def test_os_trechos_de_codigo_do_realce():
     from mvp import test_interface
     n = len(test_interface._todos_os_trechos())

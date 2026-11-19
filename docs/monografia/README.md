@@ -10,16 +10,21 @@ pergunta "estudantes conseguem e querem completar a sessão?" vai para
 trabalhos futuros, com o protocolo do estudo pronto em apêndice. Se a
 coleta acontecer depois, os resultados entram num capítulo próprio.
 
-**A versão descrita** é a do ramo `trilha` em 18/11/2026: os treze
-tópicos abrem na trilha (commit `5d2b2bc`), com a conferência do banco
-contra o compilador, o conserto das oito questões do kc_02 e a correção
-das citações de `pointer_is_data` (commit `579e89c` e seguintes). Os
-números do texto foram tirados do sistema por script, e não de memória.
+**A versão descrita** é a do ramo `trilha` em 19/11/2026 (commit
+`2a549a2`): os treze tópicos na trilha, com a conferência do banco contra
+o compilador, as 79 cenas que animam a revisão de cada premissa
+(`b8a02bc`), as duas passadas da leitura das perguntas (`0e4f522` e
+`ebb0b82`, registro em `docs/pente-dos-degraus.md`), o caminho na página
+inicial, a volta sem código, o sair da sessão (guardar ou cancelar) e o
+"Confirmar resposta" antes do porquê (`2a549a2`). Os números do texto
+foram tirados do sistema por script, e não de memória, e
+`mvp/test_monografia.py` falha se o sistema e o texto discordarem.
 
 ## Os capítulos
 
 | # | Arquivo | Estado |
 | --- | --- | --- |
+| — | [00-pre-textuais.md](00-pre-textuais.md) | rascunho: capa, resumo, abstract e declaração de uso de IA, com os campos do autor marcados "[preencher]" |
 | 1 | [01-introducao.md](01-introducao.md) | rascunho completo |
 | 2 | [02-fundamentacao.md](02-fundamentacao.md) | rascunho completo; referências conferidas em 18/11/2026 |
 | 3 | [03-sistema.md](03-sistema.md) | rascunho completo; faltam as figuras finais |
@@ -34,8 +39,9 @@ números do texto foram tirados do sistema por script, e não de memória.
 
 ## O que falta, e de quem é
 
-- **O modelo da UFV** (e as seções obrigatórias: resumo, abstract,
-  agradecimentos, listas). É do Rafael trazer.
+- **O modelo da UFV** (e as seções obrigatórias que ainda faltam:
+  agradecimentos, ficha, folha de aprovação, listas). É do Rafael trazer.
+  Resumo e abstract estão em rascunho em `00-pre-textuais.md`.
 - **As referências.** Nenhuma referência entra sem ter sido aberta na
   obra: é a regra do projeto (`docs/linguagem.md`: "fonte que você só
   consegue parafrasear de memória não é fonte"). A conferência de
@@ -61,9 +67,10 @@ números do texto foram tirados do sistema por script, e não de memória.
 
 | Figura | Arquivo | O que mostra |
 | --- | --- | --- |
-| 3.1 | `figuras/fig-3-1-pergunta.jpg` | a pergunta de diagnóstico, com a resposta marcada e as razões (kc_07, tema claro) |
-| 3.2a | `figuras/fig-3-2a-voce-disse.jpg` | "Você disse": a concepção da pessoa e a previsão pedida |
-| 3.2b | `figuras/fig-3-2b-maquina.jpg` | "A máquina respondeu": o que o compilador disse, a previsão, e a ideia que fica de pé |
-| 3.3 | `figuras/fig-3-3-passo.jpg` | um passo guiado da escada, com a concepção errônea entre as alternativas e a certeza |
-| 3.4 | `figuras/fig-3-4-fechamento.jpg` | o fechamento: as ideias erradas encontradas e a situação de cada uma |
-| 3.5 | `figuras/fig-3-5-inicio-escuro.jpg` | a página inicial no tema escuro |
+| 3.1 | `figuras/fig-3-1-pergunta.jpg` | a pergunta de diagnóstico, com a resposta confirmada e as razões (kc_07, tema claro; 19/11) |
+| 3.2a | `figuras/fig-3-2a-voce-disse.jpg` | "Você disse": a concepção da pessoa e a previsão pedida (18/11, antes do botão Sair) |
+| 3.2b | `figuras/fig-3-2b-maquina.jpg` | "A máquina respondeu": o que o compilador disse, a previsão, e a ideia que fica de pé (18/11, antes do botão Sair) |
+| 3.3 | `figuras/fig-3-3-passo.jpg` | um passo guiado da escada, com a concepção errônea entre as alternativas e a certeza (kc_07 B2, com a frase da leitura das perguntas; 19/11) |
+| 3.4 | `figuras/fig-3-4-fechamento.jpg` | o fechamento: as ideias erradas encontradas e a situação de cada uma (18/11) |
+| 3.5 | `figuras/fig-3-5-inicio-escuro.jpg` | a página inicial no tema escuro: o próximo sugerido e o caminho dos 13 tópicos, com um feito e um em andamento (19/11) |
+| 3.6 | `figuras/fig-3-6-cena.jpg` | a cena da revisão do kc_06 B1, dentro da bancada de `zera`: a cópia `n` vira 0, e `idade` continua 15 (19/11) |

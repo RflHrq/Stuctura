@@ -61,6 +61,26 @@ O conferidor roda dentro da suíte de testes, sobre os 13 tópicos: uma
 escada cujo texto deixou de corresponder ao que o compilador faz derruba
 a suíte.
 
+As **cenas** (3.6) passam pela mesma conferência, com um passo a mais. O
+que uma cena afirma não é uma saída, mas um estado: depois desta linha,
+`idade` vale 15 e `p` aponta para `idade`. O conferidor monta, então, um
+segundo programa — o código da revisão com, em cada ponto por onde a cena
+passa, as afirmações dela escritas em C — e o executa; a afirmação que
+falha sai com a linha e com o que a cena dizia. Três cuidados tornam isso
+possível dentro de funções e no monte. Cada personagem tem o seu endereço
+guardado assim que nasce, e toda afirmação passa por esse endereço, e não
+pelo nome: ela vale dentro da função e fora dela, e também para o bloco
+do `malloc`, que não tem nome. A mesma linha pode rodar mais de uma vez —
+a função chamada duas vezes —, e cada passagem é conferida com o seu
+próprio estado: a cena que dissesse que a variável local de `conta`
+continua valendo 2 na segunda chamada seria acusada, e a primeira
+chamada, que está certa, não. E, no fim do programa, o conferidor confere
+quantas vezes passou por cada ponto, o que acusa a cena que conta outra
+história de chamadas. Antes do compilador, a própria estrutura da cena já
+recusa o que o tópico ensina a não fazer: ler uma caixa sem valor, seguir
+o bilhete de um `NULL` ou de um bloco devolvido, citar uma caixa que já
+sumiu.
+
 As **questões do banco** passam por uma conferência mais estreita, que
 também roda na suíte. Nas 321 questões que têm código, ela procura
 string partida entre duas linhas — uma linha com aspas ímpares, que na
@@ -147,9 +167,12 @@ saída do programa nunca recebe cores de código. O teste de contraste usa
 o limiar de linearização da versão 2.0 da norma, 0,03928, que a versão
 atual trocou por 0,04045, dizendo que a troca não tem efeito prático: em
 cores de 8 bits nenhum valor cai entre os dois, e outro teste confere
-isso. O resto — o desenho de cada tela, o comportamento em celular
-(360 px de largura) e em tela larga — foi conferido no navegador, tela a
-tela, nos dois temas.
+isso. Das cenas, o que se testa por programa são os estados que o
+desenhista calcula a cada passo — que a caixa da função some quando ela
+termina, que o bloco devolvido fica apagado, que a frase de cada passo
+existe para o leitor de tela. O resto — o desenho de cada tela e de cada
+personagem, o comportamento em celular (360 px de largura) e em tela
+larga — foi conferido no navegador, tela a tela, nos dois temas.
 
 ## 5.6 O ensaio
 
@@ -159,7 +182,31 @@ para que nenhuma sessão simulada se misturasse a dados de pessoas. As
 sessões foram levadas pelo protocolo HTTP, pelos mesmos perfis simulados,
 até cada tipo de tela, e conferidas na página.
 
-## 5.7 O que esta verificação não cobre
+## 5.7 A leitura das perguntas
+
+O conferidor diz se uma afirmação é verdadeira, e não se a pergunta é boa.
+Quando o autor leu o primeiro passo do kc_02 no sistema, achou a pergunta
+confusa: depois de duas frases que diziam o que é o endereço de uma
+variável, ela perguntava "o que é o endereço de `idade`?", e a
+alternativa certa era a frase de cima copiada — responder era achar
+palavras, e quem sabia desconfiava de pegadinha. O passo foi reescrito
+com um endereço de exemplo ("`idade` ficou no lugar de número 1000 e
+guarda 15: qual é o endereço de `idade`?"), e o mesmo defeito foi
+procurado em todos os tópicos.
+
+O critério escrito foi este: há defeito quando a frase do passo diz a
+conclusão sobre o próprio caso da pergunta — o mesmo código, os mesmos
+nomes —, ou quando a última frase é a alternativa certa. Não há quando a
+frase dá uma regra geral e a pergunta obriga a reconhecer, no código, qual
+coisa é qual antes de aplicá-la; nem no passo que mostra uma construção
+nova e pede para imitá-la uma vez, que é assim de propósito. Um programa
+marcou os passos em que as palavras da alternativa certa já estavam nas
+frases, e os 244 passos guiados foram lidos, os marcados e os demais. O
+resultado está em 6.4. Na reescrita, os testes do que cada tópico
+apresenta (5.3) serviram de rede: cinco frases novas tinham perdido a
+construção que aquele passo deve apresentar, e os testes as acusaram.
+
+## 5.8 O que esta verificação não cobre
 
 O compilador garante que o que a tela afirma sobre um programa é verdade.
 Ele não garante que a ideia ensinada é a ideia certa, que a escada está na

@@ -3,7 +3,7 @@
 ## 6.1 O que foi verificado
 
 O Quadro 6.1 resume o tamanho do que a verificação do Capítulo 5 cobre,
-na versão de 18/11/2026.
+na versão de 19/11/2026.
 
 **Quadro 6.1 — O sistema verificado**
 
@@ -15,8 +15,9 @@ na versão de 18/11/2026.
 | Questões no banco | 560 |
 | Passos de escada (versões) | 402 (804) |
 | Demonstrações com previsão | 80 (41 saídas, 39 do compilador) |
+| Cenas da revisão | 79 |
 | Trechos de código das escadas | 1 762 |
-| Testes automatizados | mais de 7 300 |
+| Testes automatizados | 7 547 |
 
 ## 6.2 O conteúdo contra o compilador
 
@@ -27,6 +28,13 @@ do compilador — sete o analisador de fluxo (`-fanalyzer`), uma
 `-Wpointer-arith`, e uma, a do `NULL` no kc_05, `-O2` com
 `-Wnull-dereference` —, e as que dependem do ambiente trazem nota que
 diz isso.
+
+As 79 cenas também conferem: em cada ponto por onde cada uma passa, o
+programa instrumentado afirma o valor de cada caixa, para onde cada
+ponteiro aponta e quantas vezes a linha rodou, e nenhuma afirmação falha.
+Das 79, 20 passam por dentro de funções — duas delas, a do `conta` (kc_01)
+e a do `dobra` (kc_12), pela mesma função duas vezes —, 13 por arrays e
+17 por blocos do `malloc`.
 
 No banco, das 69 questões de prever a saída conferidas, todas imprimem
 o valor da alternativa certa — depois da reescrita da questão do kc_12
@@ -39,7 +47,9 @@ usarem construções que nenhum tópico ensinou até ali. Com elas fora, as 79 p
 ## 6.3 A medida, com os estudantes simulados
 
 O Quadro 6.2 mostra quantas telas e quantos toques cada perfil leva para
-atravessar cada tópico, no ritmo completo.
+atravessar cada tópico, no ritmo completo. Um toque é cada envio — cada
+vez que a pessoa responde ou segue —: marcar a resposta, confirmá-la e
+escolher a razão e a certeza, na mesma tela, contam como um.
 
 **Quadro 6.2 — Telas e toques por tópico, no ritmo completo**
 
@@ -81,8 +91,31 @@ nem se ela aprende — o que exigiria o estudo do Apêndice A.
 ## 6.4 O que a verificação encontrou
 
 O resultado mais útil da verificação não foi o "zero problemas" final,
-mas os defeitos que ela encontrou no caminho. Alguns exemplos, todos
-corrigidos antes da versão descrita:
+mas os defeitos que ela encontrou no caminho.
+
+A primeira leitura do sistema pelo autor, já com a verificação mecânica
+limpa, encontrou três defeitos que nenhum teste apontaria, porque não são
+afirmações falsas, mas experiências ruins:
+
+- **Perguntas que repetiam a frase de cima** (5.7). Dos 244 passos
+  guiados, 101 tiveram a frase reescrita: o passo que o autor leu, 46 dos
+  que o programa marcou e 54 que ele não marcou e só a leitura achou. O
+  programa, portanto, achou menos da metade: a marca por palavras serviu
+  de ponto de partida, e não de critério. Um passo de prática, que pedia
+  a definição de ponteiro pendente, passou a pedir que se ache o ponteiro
+  pendente num trecho. O registro de cada troca, com o antes e o depois,
+  acompanha o projeto.
+- **O toque errado sem volta.** A resposta travava no primeiro toque,
+  para que as razões não a influenciassem, e quem tocava na alternativa
+  errada não tinha como corrigir. A trava continua, mas passou para o
+  "Confirmar resposta" (3.2).
+- **A sessão sem saída.** Não havia como desistir de uma sessão no meio e
+  começar do zero; entrou o botão Sair, com as duas saídas de 3.7. Com
+  ele, o topo do tópico de oito premissas voltou a transbordar o celular
+  em 4 px, o que a conferência no navegador achou.
+
+Da verificação mecânica, alguns exemplos, todos corrigidos antes da
+versão descrita:
 
 - **Oito questões com o código partido na tela.** No kc_02, oito questões
   tinham o `\n` do `printf` gravado como quebra de linha de verdade: a

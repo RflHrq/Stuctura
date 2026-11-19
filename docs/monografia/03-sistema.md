@@ -1,11 +1,12 @@
 # 3. O sistema Structura
 
-Este capítulo descreve o sistema na versão de 18/11/2026: o domínio que
+Este capítulo descreve o sistema na versão de 19/11/2026: o domínio que
 ele ensina (3.1), a forma como diagnostica cada estudante (3.2), o
-percurso que oferece a partir do diagnóstico (3.3), as duas peças de
-conteúdo que sustentam esse percurso — a escada de passos (3.4) e a
-demonstração com previsão (3.5) —, o registro da sessão (3.6) e a
-interface (3.7). A arquitetura de software está resumida em 3.8.
+percurso que oferece a partir do diagnóstico (3.3), as três peças de
+conteúdo que sustentam esse percurso — a escada de passos (3.4), a
+demonstração com previsão (3.5) e a cena que anima a revisão de cada
+premissa (3.6) —, o registro da sessão (3.7) e a interface (3.8). A
+arquitetura de software está resumida em 3.9.
 
 ## 3.1 O domínio: premissas, concepções errôneas e questões
 
@@ -50,19 +51,25 @@ conceitual) e um uso (entrada, diagnóstico ou treino). Toda alternativa
 errada aponta a concepção errônea que a explicaria. É dessa ligação que o
 diagnóstico tira a razão de cada resposta.
 
-Cada premissa tem ainda um cartão curto — a premissa em linguagem
-simples, um exemplo em código e uma figura —, que a pessoa pode abrir a
-qualquer momento pelo botão "Ver a explicação".
+Cada premissa tem ainda uma explicação curta — a premissa em linguagem
+simples e um exemplo em código, animado pela cena da premissa (3.6) —,
+que a pessoa pode abrir a qualquer momento pelo botão "Ver a explicação".
 
 ## 3.2 O diagnóstico: resposta, razão e certeza
 
 Cada premissa começa por uma **pergunta de diagnóstico**, numa tela só
-(Figura 3.1). A pessoa escolhe a resposta; em seguida aparecem as razões
-possíveis — a certa é a premissa em linguagem simples, e as erradas são
-as concepções errôneas que as alternativas daquela questão apontam —; e,
-por último, a certeza: "chutei", "acho que sei" ou "tenho certeza". Há
-também o botão "Não sei", que é uma resposta legítima: obrigar a escolher
-fabricaria chute, e com ele a lacuna vira dado observado, e não inferido.
+(Figura 3.1). A pessoa marca a resposta — e pode trocá-la à vontade — e
+a confirma. Só então aparecem as razões possíveis — a certa é a premissa
+em linguagem simples, e as erradas são as concepções errôneas que as
+alternativas daquela questão apontam —, e a resposta trava; por último
+vem a certeza: "chutei", "acho que sei" ou "tenho certeza". A ordem é
+deliberada. As razões dão pista de qual resposta combina com cada uma, e
+quem pudesse voltar depois de lê-las trocaria a resposta para combinar
+com a razão: o diagnóstico passaria a medir a leitura das razões, e não a
+ideia com que a pessoa respondeu. A confirmação antes das razões existe
+para o toque errado, que sem ela não tinha volta. Há também o botão "Não
+sei", que é uma resposta legítima: obrigar a escolher fabricaria chute,
+e com ele a lacuna vira dado observado, e não inferido.
 
 A pergunta de abertura de cada premissa é, de preferência, uma questão
 **com código** de nível intermediário: a que pede que a pessoa aplique a
@@ -102,7 +109,9 @@ Cada premissa recebe **no máximo um trabalho** — o da lacuna ou o da
 crença —, o que garante um teto para a duração da sessão. Os quatro
 caminhos funcionam assim:
 
-- **Firme.** Um retorno curto e, no ritmo "completo", uma segunda
+- **Firme.** Um retorno curto, que diz por que a resposta está certa —
+  cada uma das 79 perguntas de abertura tem essa explicação escrita, para
+  que o acerto também ensine — e, no ritmo "completo", uma segunda
   pergunta de outra natureza: depois de marcar, a pessoa **escreve** — o
   passo de produzir mais alto da escada da premissa (3.4). Acertou, a
   premissa fecha como "já sabia". No ritmo "rápido", a resposta firme
@@ -118,7 +127,9 @@ caminhos funcionam assim:
   e pede a certeza (Figura 3.3): escolhida com convicção, ela abre a
   demonstração na hora, porque é o mesmo episódio da pergunta de
   abertura. A premissa
-  fecha como "aprendeu agora" quando a pessoa acerta a pergunta seguinte.
+  fecha como "aprendeu agora" quando a pessoa acerta a pergunta seguinte;
+  se erra, vem a **revisão**: duas ou três frases com a ideia e um trecho
+  de código, animado pela cena da premissa (3.6).
 - **Crença.** A tela "Você disse" repete a concepção que a pessoa
   sustentou e pede uma **previsão**: o que ela espera que o programa faça.
   A tela seguinte mostra o que a máquina fez (3.5). Depois vem o treino,
@@ -218,7 +229,46 @@ de uma linha só — a tela diz "o compilador reclamou desta linha", e a
 mesma mensagem saindo de duas seria a demonstração dizer menos do que
 aconteceu. O Capítulo 5 descreve essa conferência.
 
-## 3.6 O registro e a retomada
+## 3.6 A cena
+
+A revisão de cada premissa tem uma **cena**: o trecho de código dela
+animado linha a linha (Figura 3.6). A linha que roda fica marcada no
+código, e um palco ao lado mostra o que ela fez — a caixa que nasce, o
+valor que entra e o que sai, o ponteiro com o seu bilhete, o que vai
+para a tela. São 79 cenas, uma por premissa, e elas ocupam o lugar das
+figuras estáticas que a versão anterior mostrava.
+
+Os personagens são poucos e vêm da mesma analogia em todos os tópicos. A
+**caixa** é a variável: uma etiqueta com o nome, o tipo escrito em cima e
+o valor numa bolinha dentro, com um "?" enquanto não há valor. O
+**ponteiro** é uma caixa que guarda um bilhete, "→ idade", com uma seta
+até a caixa apontada; o `NULL` é o bilhete que diz `NULL`, sem seta. A
+**fileira** é o array: as caixinhas lado a lado, com o índice embaixo, ou
+em linhas e colunas na matriz, e a caixinha que a linha lê ou escreve
+fica marcada; o texto entra como uma fileira de `char` com o `'\0'` no
+fim. A **bancada** é a função enquanto roda: um andar próprio, com a
+primeira linha da função por título, onde nascem as caixas dela, que
+somem quando ela termina — menos a marcada `static`, que fica. E o
+**bloco alugado** é o que o `malloc` pede: ele mora num andar à parte, o
+monte, com a placa "alugado", e depois do `free` fica apagado, com a
+placa "devolvido".
+
+A cena anda sozinha, um passo por segundo e pouco, com os botões
+Pausar, Passo e Rever. Quem pediu ao sistema operacional menos movimento
+vê a cena já no estado final, com o passo a passo nos botões. Cada passo
+tem uma frase — "Linha 3: guarda 21 em idade; o 20 que estava lá sai."
+—, escrita embaixo do palco e lida pelos leitores de tela. Em
+tela de computador, a cena fica ao lado do texto da revisão; no celular,
+embaixo.
+
+A cena é dado, e não desenho: cada uma é uma lista de passos, um por
+linha executada, com as ações daquela linha (criar uma caixa, guardar um
+valor, apontar, chamar e voltar de uma função, alugar e devolver um
+bloco). Por ser dado, ela é conferida contra o compilador como o resto
+do conteúdo (Capítulo 5): o palco nunca mostra um valor que o programa
+não tem.
+
+## 3.7 O registro e a retomada
 
 Tudo o que a pessoa faz é gravado num registro só de acréscimo, um evento
 por linha: a resposta, a razão, a certeza, o tempo, a previsão e se ela
@@ -232,9 +282,20 @@ sessão diz a versão das regras com que ela começou, e uma sessão de outra
 versão não é refeita: a pessoa vê uma mensagem, e não uma tela errada.
 
 A identificação é por um código de participante, opcional e sem nenhum
-dado pessoal; o mesmo código retoma a sessão no mesmo tópico.
+dado pessoal; o mesmo código retoma a sessão no mesmo tópico. Sem código,
+é o navegador que guarda o número da sessão: quem fecha a página e reabre
+o tópico volta à tela em que estava.
 
-## 3.7 A interface
+No meio da sessão, o botão **Sair** do topo oferece duas saídas. "Guardar
+e sair" volta à página dos tópicos, e a sessão continua de onde parou
+quando o tópico é reaberto — não há o que gravar a mais, porque cada
+resposta já está no registro. "Cancelar a sessão", depois de uma
+confirmação, faz o tópico recomeçar do zero. Também o cancelamento não
+apaga nada: o registro ganha uma linha dizendo que a sessão foi
+cancelada, e daí em diante ela não é mais retomada — nem pelo número, nem
+pelo código, nem refeita depois de um reinício do servidor.
+
+## 3.8 A interface
 
 A interface foi desenhada para parecer um ambiente de programação, em
 dois temas: o escuro, inspirado num editor de código à noite (Figura
@@ -252,13 +313,26 @@ O código aparece numa moldura de editor, com cores por categoria
 do programa e a mensagem do compilador aparecem numa moldura de terminal,
 sem cores de código. O topo da trilha mostra o tópico e uma parada por
 premissa, numerada, com o estado de cada uma — feita, em aberto, agora ou
-ainda não — também dito em texto para leitores de tela. A página inicial
-lista os 13 tópicos, cada um abrindo pela trilha.
+ainda não — também dito em texto para leitores de tela, além dos botões
+de tema, de ajustes (o ritmo) e de sair. Em tela de celular os botões
+ficam só com o desenho, para que as oito paradas do kc_09 caibam em
+360 px de largura.
+
+A página inicial desenha o **caminho** dos 13 tópicos como a trilha de
+um jogo (Figura 3.5): dez tópicos em fila, do kc_00 ao kc_09 — com o
+kc_01, modelo de memória, depois do kc_06 e do kc_07, por decisão do
+autor —, abrindo-se em três no fim (kc_10, kc_11 e kc_12, que não dependem um do
+outro). A ordem é
+sugerida, e não imposta: todos os tópicos ficam abertos, e um teste
+confere que cada tópico vem depois dos seus pré-requisitos. Cada parada
+mostra o seu estado — já feito, próximo, em andamento ou aberto — e o
+andamento do tópico ("3 de 6"), e o próximo sugerido aparece num cartão
+acima do caminho.
 
 As fontes são livres (licença OFL) e estão guardadas no próprio projeto:
 nenhuma página carrega nada de outro endereço.
 
-## 3.8 Arquitetura
+## 3.9 Arquitetura
 
 O sistema é escrito em Python, com um servidor HTTP (FastAPI) e páginas
 em HTML, CSS e JavaScript sem dependências externas. O conteúdo —
