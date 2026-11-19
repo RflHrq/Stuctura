@@ -438,7 +438,7 @@ citadas pela mediação de Sorva (2012), com página e item, conforme declarado
 acima; os dados bibliográficos abaixo são os que constam da bibliografia daquela obra, com duas correções, anotadas nas entradas de Samurçay e de Sleeman et al.
 
 ★ SORVA, J. **Visual Program Simulation in Introductory Programming
-Education.** Tese de doutorado — Aalto University School of Science,
+Education.** Tese (Doutorado) – Aalto University School of Science,
 Espoo, 2012. Disponível no repositório institucional da Universidade Aalto,
 handle 123456789/3534.
 
@@ -472,12 +472,12 @@ Technical Symposium on Computer Science Education (SIGCSE '10)**. ACM, 2010.
 p. 107–111.
 
 MA, L. **Investigating and Improving Novice Programmers' Mental Models of
-Programming Concepts.** Tese de doutorado — Department of Computer &
+Programming Concepts.** Tese (Doutorado) – Department of Computer &
 Information Sciences, University of Strathclyde, 2007.
 
 > **Nota de conferência.** A Tabela A.1 atribui 14 dos itens aqui usados a
 > "Ma (2007)", e a bibliografia de Sorva (2012) identifica essa obra como a
-> **tese de doutorado** acima — não como o artigo de SIGCSE de mesmo ano e
+> **tese de doutorado** acima, e não como o artigo de SIGCSE de mesmo ano e
 > tema assinado por Ma, Ferguson, Roper e Wood. O catálogo deste trabalho
 > registrou a referência errada numa de suas versões, e a correção veio de
 > ler a bibliografia da obra mediadora, não a memória de quem citava.

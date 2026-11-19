@@ -98,8 +98,9 @@ Três cuidados limitam o que o modelo pôde afirmar sem conferência. Todo
 conteúdo que diz o que um programa em C faz foi conferido por compilador,
 pelos conferidores automáticos descritos no Capítulo 5, e o sistema não
 aceita conteúdo que não passe por eles. Toda referência citada foi aberta
-na obra, com a página do que ela sustenta registrada à parte; a única que
-não pôde ser aberta segue marcada no texto. E as decisões de recorte, de
+na obra, e o que cada uma sustenta está registrado à parte, com a página;
+as obras de acervo pago foram baixadas pelo autor, pelo acesso da
+universidade. E as decisões de recorte, de
 desenho e de método são do autor, registradas por escrito ao longo do
 projeto. A revisão do conteúdo didático pelo autor [preencher: feita em
 (data) / em andamento].
