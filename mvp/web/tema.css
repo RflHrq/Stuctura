@@ -245,15 +245,17 @@ body {
 @media (max-width: 720px) {
   .t-topico { display: none; }
 }
-/* Tela estreita: paradas menores, e os botões do topo (tema e ajustes)
-   só com o desenho — o texto continua no botão, escondido da vista, para
-   o leitor de tela. Assim cabem as 8 paradas do kc_09 em 360 px. */
+/* Tela estreita: paradas menores, e os botões do topo (tema, ajustes e
+   sair) só com o desenho — o texto continua no botão, escondido da vista,
+   para o leitor de tela. Assim cabem as 8 paradas do kc_09 em 360 px. Com
+   o Sair (19/11/2026) eram 4 px a mais: a folga lateral dos botões caiu
+   de 11 para 8 px, e cada um segue acima dos 24 px de alvo de toque. */
 @media (max-width: 560px) {
   .t-topo { gap: 6px; padding: 10px 10px; }
   .t-progresso li { width: 20px; height: 20px; font-size: 11px; }
   .t-progresso li + li { margin-left: 5px; }
   .t-progresso li + li::before { width: 5px; }
-  .t-topo .btn-topo { padding: 5px 11px; }
+  .t-topo .btn-topo { padding: 5px 8px; }
   .t-btn-icone { margin-right: 0; }
   .t-btn-texto {
     position: absolute; width: 1px; height: 1px; overflow: hidden;

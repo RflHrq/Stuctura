@@ -44,6 +44,12 @@
           aria-expanded="false" aria-controls="ajustes" hidden><span
     class="t-btn-icone" aria-hidden="true">&#9881;&#xFE0E;</span><span
     class="t-btn-texto">Ajustes</span></button>
+  <!-- Sair no meio da sessão: guardar para continuar depois, ou cancelar
+       e começar do zero (o Rafael, em 19/11/2026). -->
+  <button class="btn-topo" id="btn-sair" type="button"
+          aria-haspopup="dialog" aria-controls="sair" hidden><span
+    class="t-btn-icone" aria-hidden="true">&#x2715;&#xFE0E;</span><span
+    class="t-btn-texto">Sair</span></button>
 </header>
 
 <!-- O ritmo, que a pessoa troca quando quiser. A troca vale a partir da
@@ -77,6 +83,35 @@
     <p class="etiqueta" id="painel-titulo">A explicação desta ideia</p>
     <div id="painel-corpo"></div>
     <button class="btn" id="btn-fechar-painel" type="button">Voltar</button>
+  </section>
+</div>
+
+<!-- Sair da sessão. Guardar não apaga nada: o que a pessoa respondeu já
+     está no registro, e ao reabrir o tópico ela volta à mesma tela.
+     Cancelar pede confirmação, porque o andamento se perde. -->
+<div class="t-fundo oculto" id="sair" role="dialog" aria-modal="true"
+     aria-labelledby="sair-titulo">
+  <section class="t-painel cartao t-sair">
+    <h2 id="sair-titulo">Sair da sessão</h2>
+    <div id="sair-escolha">
+      <p>O que você respondeu até aqui fica guardado, e ao abrir este
+      tópico de novo você continua de onde parou. Ou cancele a sessão
+      para começar do zero.</p>
+      <div class="t-acoes">
+        <button class="btn" id="btn-guardar-sair" type="button">Guardar e sair</button>
+        <button class="btn-topo" id="btn-cancelar-sessao" type="button">Cancelar a sessão</button>
+        <button class="btn-topo" id="btn-ficar" type="button">Voltar à sessão</button>
+      </div>
+    </div>
+    <div id="sair-confirma" hidden>
+      <p>Cancelar a sessão? Tudo o que você fez nela deixa de contar, e
+      o tópico recomeça do zero.</p>
+      <div class="t-acoes">
+        <button class="btn" id="btn-confirma-cancelar" type="button">Sim, cancelar</button>
+        <button class="btn-topo" id="btn-nao-cancelar" type="button">Não, voltar</button>
+      </div>
+    </div>
+    <p class="aviso" id="sair-erro" hidden></p>
   </section>
 </div>
 

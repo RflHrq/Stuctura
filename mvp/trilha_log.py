@@ -146,6 +146,17 @@ def existe(destino: Path, sessao: str) -> bool:
 
 CAMPOS_DA_ENTRADA = tuple(f.name for f in fields(trilha.Entrada))
 
+# A linha que a pessoa escreve ao cancelar a sessão (mvp/trilha_app.py,
+# `/cancela`). Não é evento do motor, como a entrada: é o registro de que
+# ela desistiu daquela sessão e quis começar do zero.
+CANCELADA = "sessao_cancelada"
+
+
+def cancelada(destino: Path, sessao: str) -> bool:
+    """Se a sessão foi cancelada. Cancelar não apaga linha nenhuma: só
+    acrescenta esta, e a sessão deixa de poder ser retomada."""
+    return any(l.get("tipo") == CANCELADA for l in le(destino, sessao))
+
 
 def reconstroi(d, escadas, destino: Path, sessao: str) -> "trilha.Transicao":
     """A sessão de volta, reexecutando as entradas gravadas no motor.
@@ -156,11 +167,16 @@ def reconstroi(d, escadas, destino: Path, sessao: str) -> "trilha.Transicao":
 
     Não grava nada: reexecutar produz os mesmos eventos outra vez.
 
-    Três coisas impedem, e as três levantam `RegistroNaoReexecutavel`:
-    uma linha quebrada da própria sessão (falta uma entrada, e o estado
-    sairia plausível e errado); o conteúdo ter mudado desde que a sessão
-    começou; e uma entrada que o motor de hoje não aceita.
+    Quatro coisas impedem, e as quatro levantam `RegistroNaoReexecutavel`:
+    a sessão ter sido cancelada; uma linha quebrada da própria sessão
+    (falta uma entrada, e o estado sairia plausível e errado); o conteúdo
+    ter mudado desde que a sessão começou; e uma entrada que o motor de
+    hoje não aceita.
     """
+    if cancelada(destino, sessao):
+        raise RegistroNaoReexecutavel(
+            "A sessão %s foi cancelada e não pode ser retomada. Para "
+            "começar de novo, abra uma sessão nova." % sessao)
     if quebradas_de(destino, sessao):
         raise RegistroNaoReexecutavel(
             "Não foi possível retomar a sessão %s: o registro dela ficou "

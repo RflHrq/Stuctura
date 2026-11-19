@@ -19,6 +19,9 @@ acontece vira linha em `mvp/trilha_log.py`.
                                    tela já mudou, 409 com a tela atual
     POST /sessoes/{sessao}/retoma  a tela em que a sessão estava, pelo
                                    número — voltar sem código
+    POST /sessoes/{sessao}/cancela a pessoa desistiu e quer começar do
+                                   zero: a sessão é marcada no registro e
+                                   não é mais retomada (nada é apagado)
     GET  /saude
     GET  /                         a página
 """
@@ -250,6 +253,29 @@ def cria_app(d: Dominio, escadas: Mapping[str, Escada],
             return corpo(sessao, refaz(sessao))
         except trilha_log.RegistroNaoReexecutavel as erro:
             raise HTTPException(status_code=410, detail=str(erro)) from erro
+
+    @app.post("/sessoes/{sessao}/cancela")
+    def cancela(sessao: str) -> dict:
+        """A pessoa desistiu desta sessão e quer começar do zero (o
+        Rafael, em 19/11/2026).
+
+        Nada é apagado: o registro ganha a linha `sessao_cancelada`, a
+        sessão sai da memória, e daí em diante não é retomada — nem pelo
+        número, nem pelo código, nem refeita depois de um reinício
+        (`trilha_log.reconstroi` recusa). Guardar para depois não precisa
+        de rota: cada resposta já está no registro.
+        """
+        if not SESSAO.match(sessao):
+            raise HTTPException(status_code=404, detail="sessão desconhecida")
+        if trilha_log.cancelada(destino, sessao):
+            raise HTTPException(status_code=410,
+                                detail="Esta sessão já foi cancelada.")
+        estado = sessoes.pop(sessao, None)
+        if estado is None and not trilha_log.existe(destino, sessao):
+            raise HTTPException(status_code=404, detail="sessão desconhecida")
+        dados = {"tela": estado.tela.tipo, "passo": estado.n} if estado else {}
+        trilha_log.grava(destino, sessao, [Evento(trilha_log.CANCELADA, dados)])
+        return {"sessao": sessao, "cancelada": True}
 
     @app.get("/saude")
     def saude() -> dict:

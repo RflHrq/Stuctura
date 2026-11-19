@@ -248,6 +248,7 @@
     $("palco").classList.add("oculto");
     $("ajustes").classList.add("oculto");
     $("btn-ajustes").hidden = true;
+    $("btn-sair").hidden = true;
     if (texto) $("perdida-texto").textContent = texto;
     $("perdida").classList.remove("oculto");
     $("btn-recomecar").focus();
@@ -362,7 +363,75 @@
     if (ev.target === $("painel")) fechaPainel();
   });
   document.addEventListener("keydown", function (ev) {
-    if (ev.key === "Escape") fechaPainel();
+    if (ev.key === "Escape") { fechaPainel(); fechaSair(); }
+  });
+
+  /* -------------------------------------------------------------- sair */
+
+  /* Sair no meio da sessão (o Rafael, em 19/11/2026): guardar para
+   * continuar depois, ou cancelar e começar do zero. Guardar não precisa
+   * do servidor: cada resposta já está no registro, e o navegador lembra
+   * a sessão. Cancelar marca a sessão no registro (nada é apagado), e o
+   * navegador esquece o andamento. */
+  function abreSair() {
+    $("sair-escolha").hidden = false;
+    $("sair-confirma").hidden = true;
+    $("sair-erro").hidden = true;
+    $("sair").classList.remove("oculto");
+    $("btn-guardar-sair").focus();
+  }
+
+  function fechaSair() {
+    $("sair").classList.add("oculto");
+    $("btn-sair").focus();
+  }
+
+  /* De volta à página dos tópicos. Fora do portal não há para onde ir: a
+   * sessão fica guardada, e o aviso diz como voltar a ela. */
+  function vaiAosTopicos() {
+    if (NO_PORTAL) { window.location.href = "/"; return; }
+    fechaSair();
+    avisa("A sessão ficou guardada. Abra este endereço de novo para continuar.");
+  }
+
+  function guardaESai() {
+    vaiAosTopicos();
+  }
+
+  async function cancelaSessao() {
+    var r = await pede("/sessoes/" + S.sessao + "/cancela", {});
+    /* 410: já estava cancelada (outra aba, um segundo toque). O efeito
+     * que a pessoa pediu já existe, e segue igual. */
+    if (r.status !== 200 && r.status !== 410) {
+      $("sair-erro").textContent = r.status === 0
+        ? "O servidor não respondeu, e a sessão não foi cancelada. Tente de novo."
+        : "Não foi possível cancelar a sessão (" + r.status + ").";
+      $("sair-erro").hidden = false;
+      return;
+    }
+    if (GUARDA) Progresso.apaga(TOPICO);
+    S.sessao = null;
+    if (NO_PORTAL) { window.location.href = "/"; return; }
+    fechaSair();
+    recomeca();
+  }
+
+  $("btn-sair").addEventListener("click", abreSair);
+  $("btn-guardar-sair").addEventListener("click", guardaESai);
+  $("btn-ficar").addEventListener("click", fechaSair);
+  $("btn-cancelar-sessao").addEventListener("click", function () {
+    $("sair-escolha").hidden = true;
+    $("sair-confirma").hidden = false;
+    $("btn-nao-cancelar").focus();
+  });
+  $("btn-nao-cancelar").addEventListener("click", function () {
+    $("sair-confirma").hidden = true;
+    $("sair-escolha").hidden = false;
+    $("btn-guardar-sair").focus();
+  });
+  $("btn-confirma-cancelar").addEventListener("click", cancelaSessao);
+  $("sair").addEventListener("click", function (ev) {
+    if (ev.target === $("sair")) fechaSair();
   });
 
   function botaoDaExplicacao() {
@@ -400,6 +469,9 @@
 
     var comAjustes = tela.tipo !== "entrada" && tela.tipo !== "mapa";
     $("btn-ajustes").hidden = !comAjustes;
+    /* Sair só faz sentido com a sessão andando: na entrada ainda não há o
+     * que guardar, e no mapa ela já terminou. */
+    $("btn-sair").hidden = !comAjustes;
     if (!comAjustes) $("ajustes").classList.add("oculto");
     S.inicio = performance.now();
     window.scrollTo(0, 0);
@@ -445,14 +517,20 @@
     if (t.codigo) c.appendChild(bloco(t.codigo));
 
     var escolha = null, razao = null, confianca = "";
+    /* Com porquê ou certeza depois, a resposta passa por "Confirmar
+     * resposta" antes (ver abaixo). Sem eles, não há o que esconder, e a
+     * alternativa fica trocável até o Responder. */
+    var precisaConfirmar = !!(t.pede_razao || t.pede_certeza);
+    var confirmada = !precisaConfirmar;
     var enviar = botao("Responder", function () {
       age({ acao: "responder", escolha: escolha, razao: razao,
             confianca: confianca });
     });
     enviar.disabled = true;
+    enviar.hidden = precisaConfirmar;
 
     function confere() {
-      enviar.disabled = !(escolha !== null &&
+      enviar.disabled = !(escolha !== null && confirmada &&
                           (!t.pede_razao || razao !== null) &&
                           (!t.pede_certeza || confianca));
     }
@@ -477,20 +555,41 @@
 
     /* A resposta TRAVA quando o porquê aparece: é a regra do sistema
      * desde sempre. Quem vê as razões não pode voltar e trocar a
-     * resposta para combinar com uma delas. */
+     * resposta para combinar com uma delas.
+     *
+     * Mas tocar numa alternativa só a MARCA: dá para trocar à vontade,
+     * e quem trava é o "Confirmar resposta" — e só então o porquê
+     * aparece. O Rafael, em 19/11/2026, tocou na alternativa errada e
+     * não tinha como voltar; das três saídas propostas, escolheu esta,
+     * que conserta o toque errado sem deixar ver as razões antes. */
     var opcoes = grupo("opcoes", "opcao",
                        t.opcoes.map(function (o) { return o.texto; }),
                        function (i) {
                          escolha = i;
-                         opcoes.classList.add("t-travada");
-                         Array.prototype.forEach.call(opcoes.children, function (b) {
-                           b.disabled = true;
-                         });
-                         if (t.pede_razao) etapaRazao.classList.remove("oculto");
-                         else if (t.pede_certeza) etapaCerteza.classList.remove("oculto");
+                         if (confirma) confirma.disabled = false;
                          confere();
                        });
+    var confirma = null;
+    if (precisaConfirmar) {
+      confirma = botao("Confirmar resposta", function () {
+        if (escolha === null) return;
+        confirmada = true;
+        opcoes.classList.add("t-travada");
+        Array.prototype.forEach.call(opcoes.children, function (b) {
+          b.disabled = true;
+        });
+        confirma.hidden = true;
+        enviar.hidden = false;
+        var etapa = t.pede_razao ? etapaRazao : etapaCerteza;
+        etapa.classList.remove("oculto");
+        var primeiro = etapa.querySelector("button");
+        if (primeiro) primeiro.focus();
+        confere();
+      });
+      confirma.disabled = true;
+    }
     c.appendChild(opcoes);
+    if (confirma) c.appendChild(el("div", { "class": "t-acoes" }, [confirma]));
     c.appendChild(etapaRazao);
     c.appendChild(etapaCerteza);
     c.appendChild(el("div", { "class": "t-acoes" }, [
