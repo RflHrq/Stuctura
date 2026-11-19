@@ -75,6 +75,21 @@ B1:
       dobra();
       printf("%d\n", dobra());
     saida: "6"
+  cena:
+    atores:
+      - {nome: dobra, tipo: bancada, de: int dobra(void)}
+      - {nome: n, tipo: caixa, de: int}
+    passos:
+      - {linha: 7, faz: [{chama: dobra}]}
+      - {linha: 2, faz: [{cria: n}, {guarda: {em: n, valor: 3}}]}
+      - {linha: 3, faz: [{le: n}, {guarda: {em: n, valor: 6}}]}
+      - {linha: 4, faz: [{le: n}, {diz: dobra devolve 6}]}
+      - {linha: 7, faz: [{volta: dobra}, {diz: o 6 que voltou não vai para variável nenhuma}]}
+      - {linha: 8, faz: [{chama: dobra}]}
+      - {linha: 2, faz: [{cria: n}, {guarda: {em: n, valor: 3}}, {diz: 'este n é outro, e começa de novo em 3'}]}
+      - {linha: 3, faz: [{le: n}, {guarda: {em: n, valor: 6}}]}
+      - {linha: 4, faz: [{le: n}]}
+      - {linha: 8, faz: [{volta: dobra}, {mostra: '6'}]}
   # Variável global.
   fora_da_trilha: [ciu_kc12_002]
   provas:
@@ -331,6 +346,18 @@ B2:
 
       f();
     saida: "8"
+  cena:
+    atores:
+      - {nome: f, tipo: bancada, de: void f(void)}
+      - {nome: n, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 8, faz: [{chama: f}]}
+      - {linha: 2, faz: [{cria: n}, {guarda: {em: n, valor: 5}}]}
+      - {linha: 3, faz: [{cria: p}, {aponta: {de: p, para: n}}]}
+      - {linha: 4, faz: [{segue: p}, {guarda: {em: n, valor: 8}}]}
+      - {linha: 5, faz: [{le: n}, {mostra: '8'}]}
+      - {linha: 8, faz: [{volta: f}]}
   provas:
     - crenca: ampersand_copies
       programa: |
@@ -560,6 +587,16 @@ B3:
       int x = dobro(3);
       printf("%d\n", x);
     saida: "6"
+  cena:
+    atores:
+      - {nome: dobro, tipo: bancada, de: int dobro(int n)}
+      - {nome: n, tipo: caixa, de: int}
+      - {nome: x, tipo: caixa, de: int}
+    passos:
+      - {linha: 3, faz: [{chama: dobro}, {cria: n}, {guarda: {em: n, valor: 3}}]}
+      - {linha: 1, faz: [{le: n}, {diz: dobro devolve 6}]}
+      - {linha: 3, faz: [{volta: dobro}, {cria: x}, {guarda: {em: x, valor: 6}}]}
+      - {linha: 4, faz: [{le: x}, {mostra: '6'}]}
   # n++; protótipo sem corpo e %s.
   fora_da_trilha: [ciu_kc12_t08, ciu_kc12_t09]
   provas:
@@ -790,6 +827,15 @@ I1:
 
       printf("%d\n", f());
     saida: "7"
+  cena:
+    atores:
+      - {nome: f, tipo: bancada, de: int f(void)}
+      - {nome: n, tipo: caixa, de: int}
+    passos:
+      - {linha: 6, faz: [{chama: f}]}
+      - {linha: 2, faz: [{cria: n}, {guarda: {em: n, valor: 7}}]}
+      - {linha: 3, faz: [{le: n}, {diz: 'f devolve 7: o valor, e não a caixa'}]}
+      - {linha: 6, faz: [{volta: f}, {mostra: '7'}]}
   # A ciu_kc12_t12 ficava fora: dizia que `p == NULL` dava 0, e este gcc
   # devolve NULL no lugar do endereço da local. Reescrita em 18/11/2026
   # sem depender desse valor, voltou para a trilha.
@@ -1027,6 +1073,16 @@ I2:
       int *p = f();
       printf("%d\n", *p);
     saida: "7"
+  cena:
+    atores:
+      - {nome: f, tipo: bancada, de: int *f(void)}
+      - {nome: n, tipo: caixa, de: static int, fica: true}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 3, faz: [{chama: f}]}
+      - {linha: 1, faz: [{cria: n}, {guarda: {em: n, valor: 7}}, {diz: 'static: n não é da bancada, e fica depois da volta'}]}
+      - {linha: 3, faz: [{volta: f}, {cria: p}, {aponta: {de: p, para: n}}]}
+      - {linha: 4, faz: [{segue: p}, {le: n}, {mostra: '7'}]}
   # ++n.
   fora_da_trilha: [ciu_kc12_t15]
   provas:
@@ -1253,6 +1309,17 @@ I3:
       poe(&n);
       printf("%d\n", n);
     saida: "7"
+  cena:
+    atores:
+      - {nome: poe, tipo: bancada, de: void poe(int *destino)}
+      - {nome: destino, tipo: ponteiro, de: int *}
+      - {nome: n, tipo: caixa, de: int}
+    passos:
+      - {linha: 3, faz: [{cria: n}]}
+      - {linha: 4, faz: [{chama: poe}, {cria: destino}, {aponta: {de: destino, para: n}}]}
+      - {linha: 1, faz: [{segue: destino}, {guarda: {em: n, valor: 7}}]}
+      - {linha: 4, faz: [{volta: poe}]}
+      - {linha: 5, faz: [{le: n}, {mostra: '7'}]}
   # snprintf e %s; o operador ?:.
   fora_da_trilha: [ciu_kc12_t17, ciu_kc12_t18]
   provas:

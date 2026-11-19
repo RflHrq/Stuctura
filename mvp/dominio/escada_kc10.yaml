@@ -67,6 +67,16 @@ B1:
 
       printf("%d\n", *pp == p);
     saida: "1"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: pp, tipo: ponteiro, de: int **}
+    passos:
+      - {linha: 1, faz: [{cria: idade}, {guarda: {em: idade, valor: 15}}]}
+      - {linha: 2, faz: [{cria: p}, {aponta: {de: p, para: idade}}]}
+      - {linha: 3, faz: [{cria: pp}, {aponta: {de: pp, para: p}}]}
+      - {linha: 5, faz: [{segue: pp}, {le: p}, {diz: '*pp é o que está em p: o mesmo endereço, e o C escreve 1'}, {mostra: '1'}]}
   # Protótipo de função, sem corpo.
   fora_da_trilha: [ciu_kc10_t02]
   provas:
@@ -313,6 +323,16 @@ B2:
 
       printf("%d\n", **pp);
     saida: "15"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: pp, tipo: ponteiro, de: int **}
+    passos:
+      - {linha: 1, faz: [{cria: idade}, {guarda: {em: idade, valor: 15}}]}
+      - {linha: 2, faz: [{cria: p}, {aponta: {de: p, para: idade}}]}
+      - {linha: 3, faz: [{cria: pp}, {aponta: {de: pp, para: p}}]}
+      - {linha: 5, faz: [{segue: pp}, {segue: p}, {le: idade}, {mostra: '15'}]}
   provas:
     - crenca: pointer_is_just_a_name
       programa: |
@@ -544,6 +564,17 @@ B3:
       v = p;
       printf("%d\n", *(int *)v);
     saida: "15"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: v, tipo: ponteiro, de: void *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}, {guarda: {em: idade, valor: 15}}]}
+      - {linha: 2, faz: [{cria: p}, {aponta: {de: p, para: idade}}]}
+      - {linha: 3, faz: [{cria: v}]}
+      - {linha: 5, faz: [{le: p}, {aponta: {de: v, para: idade}}, {diz: 'v guarda o mesmo endereço, sem dizer o tipo da caixa'}]}
+      - {linha: 6, faz: [{diz: '(int *)v diz que lá mora um int, e o * segue o bilhete'}, {segue: v}, {le: idade}, {mostra: '15'}]}
   # Protótipo de função, double e a conversão para (void **).
   fora_da_trilha: [ciu_kc10_008]
   provas:
@@ -792,6 +823,22 @@ I1:
       troca(&q, &nota);
       printf("%d\n", *q);
     saida: "7"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: nota, tipo: caixa, de: int}
+      - {nome: q, tipo: ponteiro, de: int *}
+      - {nome: troca, tipo: bancada, de: 'void troca(int **pp, int *novo)'}
+      - {nome: pp, tipo: ponteiro, de: int **}
+      - {nome: novo, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 3, faz: [{cria: idade}, {guarda: {em: idade, valor: 15}}]}
+      - {linha: 4, faz: [{cria: nota}, {guarda: {em: nota, valor: 7}}]}
+      - {linha: 5, faz: [{cria: q}, {aponta: {de: q, para: idade}}]}
+      - {linha: 7, faz: [{chama: troca}, {cria: pp}, {aponta: {de: pp, para: q}}, {cria: novo}, {aponta: {de: novo, para: nota}}]}
+      - {linha: 1, faz: [{segue: pp}, {le: novo}, {aponta: {de: q, para: nota}}, {diz: '*pp é a própria q: é nela que entra o endereço de nota'}]}
+      - {linha: 7, faz: [{volta: troca}]}
+      - {linha: 8, faz: [{segue: q}, {le: nota}, {mostra: '7'}]}
   # static, que é assunto do kc_12.
   fora_da_trilha: [ciu_kc10_011]
   provas:
@@ -1048,6 +1095,12 @@ I2:
 
       printf("%d\n", a[1][0]);
     saida: "4"
+  cena:
+    atores:
+      - {nome: a, tipo: fileira, de: int, tamanho: [2, 3]}
+    passos:
+      - {linha: 1, faz: [{cria: a}, {guarda: {em: a, valor: [[1, 2, 3], [4, 5, 6]]}}]}
+      - {linha: 3, faz: [{diz: 'a[1][0] é a linha 1, coluna 0'}, {le: 'a[1][0]'}, {mostra: '4'}]}
   # Vetor de ponteiros; ponteiro para fileira. (A 014, que usava protótipo,
   # foi reescrita em 18/11/2026 e voltou.)
   fora_da_trilha: [ciu_kc10_015, ciu_kc10_t15]
@@ -1266,6 +1319,17 @@ I3:
       **pp = 9;
       printf("%d\n", *p);
     saida: "9"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: pp, tipo: ponteiro, de: int **}
+    passos:
+      - {linha: 1, faz: [{cria: idade}, {guarda: {em: idade, valor: 15}}]}
+      - {linha: 2, faz: [{cria: p}, {aponta: {de: p, para: idade}}]}
+      - {linha: 3, faz: [{cria: pp}, {aponta: {de: pp, para: p}}]}
+      - {linha: 5, faz: [{segue: pp}, {segue: p}, {guarda: {em: idade, valor: 9}}]}
+      - {linha: 6, faz: [{segue: p}, {le: idade}, {mostra: '9'}]}
   provas:
     - crenca: double_deref_is_data
       programa: |

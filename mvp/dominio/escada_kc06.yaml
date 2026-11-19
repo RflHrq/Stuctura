@@ -80,6 +80,18 @@ B1:
       zera(idade);
       printf("%d\n", idade);
     saida: "15"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: zera, tipo: bancada, de: void zera(int n)}
+      - {nome: n, tipo: caixa, de: int}
+    passos:
+      - {linha: 3, faz: [{cria: idade}]}
+      - {linha: 5, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 6, faz: [{le: idade}, {chama: zera}, {cria: n}, {guarda: {em: n, valor: 15}}]}
+      - {linha: 1, faz: [{guarda: {em: n, valor: 0}}]}
+      - {linha: 6, faz: [{volta: zera}, {diz: 'idade continua 15: zera mexeu na cópia'}]}
+      - {linha: 7, faz: [{le: idade}, {mostra: '15'}]}
   # Variável global, e parâmetro com o mesmo nome dela.
   fora_da_trilha: [ciu_kc06_003]
   provas:
@@ -360,6 +372,17 @@ B2:
       idade = 15;
       mostra(idade + 1);
     saida: "16"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: mostra, tipo: bancada, de: void mostra(int v)}
+      - {nome: v, tipo: caixa, de: int}
+    passos:
+      - {linha: 3, faz: [{cria: idade}]}
+      - {linha: 5, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 6, faz: [{le: idade}, {diz: idade + 1 dá 16}, {chama: mostra}, {cria: v}, {guarda: {em: v, valor: 16}}]}
+      - {linha: 1, faz: [{le: v}, {mostra: '16'}]}
+      - {linha: 6, faz: [{volta: mostra}]}
   # return e (void); o ++. (A 005 e a t06 saíram daqui em 16/11/2026:
   # foram reescritas sem a variável global.)
   fora_da_trilha: [ciu_kc06_t05, ciu_kc06_006]
@@ -602,6 +625,18 @@ I1:
       zera(nota);
       printf("%d\n", nota);
     saida: "7"
+  cena:
+    atores:
+      - {nome: nota, tipo: caixa, de: int}
+      - {nome: zera, tipo: bancada, de: void zera(int n)}
+      - {nome: n, tipo: caixa, de: int}
+    passos:
+      - {linha: 3, faz: [{cria: nota}]}
+      - {linha: 5, faz: [{guarda: {em: nota, valor: 7}}]}
+      - {linha: 6, faz: [{le: nota}, {chama: zera}, {cria: n}, {guarda: {em: n, valor: 7}}]}
+      - {linha: 1, faz: [{guarda: {em: n, valor: 0}}]}
+      - {linha: 6, faz: [{volta: zera}, {diz: 'nota continua 7: zera mexeu na cópia'}]}
+      - {linha: 7, faz: [{le: nota}, {mostra: '7'}]}
   provas:
     - crenca: function_gets_original
       programa: |
@@ -854,6 +889,18 @@ I2:
       poe(&idade);
       printf("%d\n", idade);
     saida: "42"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: poe, tipo: bancada, de: void poe(int *p)}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 3, faz: [{cria: idade}]}
+      - {linha: 5, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 6, faz: [{chama: poe}, {cria: p}, {aponta: {de: p, para: idade}}]}
+      - {linha: 1, faz: [{segue: p}, {guarda: {em: idade, valor: 42}}]}
+      - {linha: 6, faz: [{volta: poe}]}
+      - {linha: 7, faz: [{le: idade}, {mostra: '42'}]}
   provas:
     - crenca: ampersand_copies
       programa: |
@@ -1115,6 +1162,21 @@ I3:
       solta(q);
       printf("%d\n", *q);
     saida: "15"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: q, tipo: ponteiro, de: int *}
+      - {nome: solta, tipo: bancada, de: void solta(int *p)}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 3, faz: [{cria: idade}]}
+      - {linha: 4, faz: [{cria: q}]}
+      - {linha: 6, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 7, faz: [{aponta: {de: q, para: idade}}]}
+      - {linha: 8, faz: [{le: q}, {chama: solta}, {cria: p}, {aponta: {de: p, para: idade}}]}
+      - {linha: 1, faz: [{nulo: p}]}
+      - {linha: 8, faz: [{volta: solta}, {diz: 'q continua com o endereço de idade: solta mudou a cópia'}]}
+      - {linha: 9, faz: [{segue: q}, {le: idade}, {mostra: '15'}]}
   # Ponteiro para ponteiro, e malloc.
   fora_da_trilha: [ciu_kc06_015, ciu_kc06_t15]
   provas:
@@ -1372,6 +1434,24 @@ I4:
       alcanca(&idade);
       printf("%d\n", idade);
     saida: "15\n9"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: muda, tipo: bancada, de: void muda(int v)}
+      - {nome: v, tipo: caixa, de: int}
+      - {nome: alcanca, tipo: bancada, de: void alcanca(int *p)}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 4, faz: [{cria: idade}]}
+      - {linha: 6, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 7, faz: [{le: idade}, {chama: muda}, {cria: v}, {guarda: {em: v, valor: 15}}]}
+      - {linha: 1, faz: [{guarda: {em: v, valor: 9}}]}
+      - {linha: 7, faz: [{volta: muda}]}
+      - {linha: 8, faz: [{le: idade}, {mostra: '15'}]}
+      - {linha: 9, faz: [{chama: alcanca}, {cria: p}, {aponta: {de: p, para: idade}}]}
+      - {linha: 2, faz: [{segue: p}, {guarda: {em: idade, valor: 9}}]}
+      - {linha: 9, faz: [{volta: alcanca}]}
+      - {linha: 10, faz: [{le: idade}, {mostra: '9'}]}
   provas:
     - crenca: pointer_copy_is_alias
       programa: |

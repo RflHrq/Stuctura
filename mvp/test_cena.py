@@ -30,18 +30,23 @@ CENA_B2 = {"atores": [{"nome": "idade", "tipo": "caixa", "de": "int"}],
                       {"linha": 2, "faz": [{"guarda": {"em": "idade", "valor": 20}}]}]}
 
 
-def _escadas_com(tmp_path, no, cena):
-    cru = yaml.safe_load(ARQUIVO.read_text(encoding="utf-8"))
+def _arquivo(topico):
+    return RAIZ / "dominio" / ("escada_%s.yaml" % topico.replace("_", ""))
+
+
+def _escadas_com(tmp_path, no, cena, topico="kc_00"):
+    cru = yaml.safe_load(_arquivo(topico).read_text(encoding="utf-8"))
     cru[no]["cena"] = cena
-    arq = tmp_path / "escada_kc00.yaml"
+    arq = tmp_path / _arquivo(topico).name
     arq.write_text(yaml.safe_dump(cru, allow_unicode=True, sort_keys=False),
                    encoding="utf-8")
     return arq
 
 
-def _problemas(tmp_path, no, cena):
+def _problemas(tmp_path, no, cena, topico="kc_00"):
     with pytest.raises(trilha_escada.EscadaInvalida) as erro:
-        trilha_escada.le(_escadas_com(tmp_path, no, cena), D)
+        trilha_escada.le(_escadas_com(tmp_path, no, cena, topico),
+                         carrega(topico=topico))
     return str(erro.value)
 
 
@@ -105,9 +110,10 @@ CENA_B3 = {"atores": [{"nome": "idade", "tipo": "caixa", "de": "int"}],
                       {"linha": 3, "faz": [{"le": "idade"}, {"mostra": "20"}]}]}
 
 
-def _confere(tmp_path, no, cena):
-    esc = trilha_escada.le(_escadas_com(tmp_path, no, cena), D)
-    return [p for p in confere_escada.confere(esc) if "/cena" in p]
+def _confere(tmp_path, no, cena, topico="kc_00"):
+    esc = trilha_escada.le(_escadas_com(tmp_path, no, cena, topico),
+                           carrega(topico=topico))
+    return [p for p in confere_escada.confere({no: esc[no]}) if "/cena" in p]
 
 
 @tem_gcc
@@ -134,12 +140,262 @@ def test_a_cena_que_mostra_outra_saida_e_acusada(tmp_path):
 
 
 # --------------------------------------------------------------------------
+# A fatia 4: a bancada (função), a fileira (array) e o bloco alugado
+# (malloc). docs/plano-cenas.md, "Fatia 4".
+# --------------------------------------------------------------------------
+
+import copy  # noqa: E402
+
+# kc_06 B1: void zera(int n) { n = 0; } — a cópia muda, idade não.
+CENA_ZERA = {
+    "atores": [{"nome": "idade", "tipo": "caixa", "de": "int"},
+               {"nome": "zera", "tipo": "bancada", "de": "void zera(int n)"},
+               {"nome": "n", "tipo": "caixa", "de": "int"}],
+    "passos": [
+        {"linha": 3, "faz": [{"cria": "idade"}]},
+        {"linha": 5, "faz": [{"guarda": {"em": "idade", "valor": 15}}]},
+        {"linha": 6, "faz": [{"le": "idade"}, {"chama": "zera"}, {"cria": "n"},
+                             {"guarda": {"em": "n", "valor": 15}}]},
+        {"linha": 1, "faz": [{"guarda": {"em": "n", "valor": 0}}]},
+        {"linha": 6, "faz": [{"volta": "zera"}]},
+        {"linha": 7, "faz": [{"le": "idade"}, {"mostra": "15"}]}]}
+
+# kc_01 B2: a mesma função chamada duas vezes, e o n nasce de novo.
+CENA_CONTA = {
+    "atores": [{"nome": "conta", "tipo": "bancada", "de": "int conta(void)"},
+               {"nome": "n", "tipo": "caixa", "de": "int"}],
+    "passos": [
+        {"linha": 3, "faz": [{"chama": "conta"}]},
+        {"linha": 1, "faz": [{"cria": "n"}, {"guarda": {"em": "n", "valor": 0}},
+                             {"guarda": {"em": "n", "valor": 1}},
+                             {"diz": "conta devolve 1"}]},
+        {"linha": 3, "faz": [{"volta": "conta"}]},
+        {"linha": 4, "faz": [{"chama": "conta"}]},
+        {"linha": 1, "faz": [{"cria": "n"}, {"guarda": {"em": "n", "valor": 0}},
+                             {"guarda": {"em": "n", "valor": 1}}]},
+        {"linha": 4, "faz": [{"volta": "conta"}, {"mostra": "1"}]}]}
+
+# kc_07 B1: a fileira.
+CENA_NOTAS = {
+    "atores": [{"nome": "notas", "tipo": "fileira", "de": "int", "tamanho": 3}],
+    "passos": [
+        {"linha": 1, "faz": [{"cria": "notas"},
+                             {"guarda": {"em": "notas", "valor": [7, 8, 9]}}]},
+        {"linha": 3, "faz": [{"le": "notas[2]"}, {"mostra": "9"}]}]}
+
+# kc_08 B1: o bloco alugado com três int.
+CENA_BLOCO = {
+    "atores": [{"nome": "p", "tipo": "ponteiro", "de": "int *"},
+               {"nome": "bloco", "tipo": "bloco", "de": "int", "tamanho": 3}],
+    "passos": [
+        {"linha": 1, "faz": [{"cria": "p"}]},
+        {"linha": 3, "faz": [{"aluga": {"nome": "bloco", "para": "p"}}]},
+        {"linha": 4, "faz": [{"segue": "p"}, {"guarda": {"em": "bloco[2]", "valor": 9}}]},
+        {"linha": 5, "faz": [{"le": "bloco[2]"}, {"mostra": "9"}]},
+        {"linha": 6, "faz": [{"devolve": "bloco"}]}]}
+
+# kc_12 B1: a função de várias linhas, chamada duas vezes.
+CENA_DOBRA = {
+    "atores": [{"nome": "dobra", "tipo": "bancada", "de": "int dobra(void)"},
+               {"nome": "n", "tipo": "caixa", "de": "int"}],
+    "passos": [
+        {"linha": 7, "faz": [{"chama": "dobra"}]},
+        {"linha": 2, "faz": [{"cria": "n"}, {"guarda": {"em": "n", "valor": 3}}]},
+        {"linha": 3, "faz": [{"le": "n"}, {"guarda": {"em": "n", "valor": 6}}]},
+        {"linha": 4, "faz": [{"le": "n"}, {"diz": "dobra devolve 6"}]},
+        {"linha": 7, "faz": [{"volta": "dobra"}]},
+        {"linha": 8, "faz": [{"chama": "dobra"}]},
+        {"linha": 2, "faz": [{"cria": "n"}, {"guarda": {"em": "n", "valor": 3}}]},
+        {"linha": 3, "faz": [{"le": "n"}, {"guarda": {"em": "n", "valor": 6}}]},
+        {"linha": 4, "faz": [{"le": "n"}]},
+        {"linha": 8, "faz": [{"volta": "dobra"}, {"mostra": "6"}]}]}
+
+
+def test_as_caixas_da_bancada_somem_na_volta(tmp_path):
+    cena = copy.deepcopy(CENA_ZERA)
+    cena["passos"][5]["faz"].insert(0, {"le": "n"})
+    assert "linha 7: n não existe nesse ponto" in _problemas(
+        tmp_path, "B1", cena, "kc_06")
+
+
+def test_volta_de_outra_bancada_e_acusada(tmp_path):
+    cena = copy.deepcopy(CENA_ZERA)
+    cena["atores"].append({"nome": "outra", "tipo": "bancada", "de": "void outra(void)"})
+    cena["passos"][4]["faz"] = [{"volta": "outra"}]
+    assert "volta outra, que não é a bancada aberta" in _problemas(
+        tmp_path, "B1", cena, "kc_06")
+
+
+def test_a_linha_da_funcao_so_roda_dentro_da_bancada(tmp_path):
+    cena = copy.deepcopy(CENA_ZERA)
+    cena["passos"][2]["faz"] = [{"le": "idade"}]        # sem chamar
+    cena["passos"][4]["faz"] = []
+    assert "linha 1 é de zera" in _problemas(tmp_path, "B1", cena, "kc_06")
+
+
+def test_a_cabeca_e_o_fecho_da_funcao_nao_pedem_passo(tmp_path):
+    trilha_escada.le(_escadas_com(tmp_path, "B1", CENA_DOBRA, "kc_12"),
+                     carrega(topico="kc_12"))
+
+
+def test_a_fileira_nao_tem_caixa_fora_do_tamanho(tmp_path):
+    cena = copy.deepcopy(CENA_NOTAS)
+    cena["passos"][1]["faz"][0] = {"le": "notas[3]"}
+    assert "notas[3] fora da fileira" in _problemas(tmp_path, "B1", cena, "kc_07")
+
+
+def test_a_fileira_recebe_um_valor_por_caixa(tmp_path):
+    cena = copy.deepcopy(CENA_NOTAS)
+    cena["passos"][0]["faz"][1]["guarda"]["valor"] = [7, 8]
+    assert "2 valores para 3 caixas" in _problemas(tmp_path, "B1", cena, "kc_07")
+
+
+def test_o_texto_entra_na_fileira_de_char_com_o_zero_no_fim(tmp_path):
+    cena = {"atores": [{"nome": "letras", "tipo": "fileira", "de": "char", "tamanho": 5},
+                       {"nome": "c", "tipo": "ponteiro", "de": "char *"}],
+            "passos": [{"linha": 1, "faz": [{"cria": "letras"},
+                                            {"guarda": {"em": "letras", "texto": "casa"}}]},
+                       {"linha": 2, "faz": [{"cria": "c"},
+                                            {"aponta": {"de": "c", "para": "letras[0]"}}]},
+                       {"linha": 4, "faz": [{"diz": "sizeof *c é 1: c aponta para um char"},
+                                            {"mostra": "1"}]}]}
+    esc = trilha_escada.le(_escadas_com(tmp_path, "B2", cena, "kc_11"),
+                           carrega(topico="kc_11"))
+    assert esc["B2"].cena.passos[0].faz[1] == (
+        "guarda", ("letras", ("'c'", "'a'", "'s'", "'a'", "'\\0'")))
+
+
+def test_seguir_o_bilhete_do_bloco_devolvido_e_acusado(tmp_path):
+    cena = copy.deepcopy(CENA_BLOCO)
+    cena["passos"][4]["faz"].append({"segue": "p"})
+    assert "segue p, que aponta para um bloco devolvido" in _problemas(
+        tmp_path, "B1", cena, "kc_08")
+
+
+def test_a_cena_nao_termina_com_a_bancada_aberta(tmp_path):
+    cena = copy.deepcopy(CENA_ZERA)
+    cena["passos"][4]["faz"] = []
+    assert "termina com a bancada de zera aberta" in _problemas(
+        tmp_path, "B1", cena, "kc_06")
+
+
+def test_a_cena_nova_vai_em_json(tmp_path):
+    esc = trilha_escada.le(_escadas_com(tmp_path, "B1", CENA_BLOCO, "kc_08"),
+                           carrega(topico="kc_08"))
+    j = trilha_escada.cena_json(esc["B1"].cena)
+    assert j["atores"][1] == {"nome": "bloco", "tipo": "bloco", "de": "int",
+                              "tamanho": [3]}
+    assert j["passos"][1]["faz"] == [{"acao": "aluga", "nome": "bloco", "para": "p"}]
+    assert j["passos"][4]["faz"] == [{"acao": "devolve", "nome": "bloco"}]
+    esc = trilha_escada.le(_escadas_com(tmp_path, "B1", CENA_NOTAS, "kc_07"),
+                           carrega(topico="kc_07"))
+    j = trilha_escada.cena_json(esc["B1"].cena)
+    assert j["passos"][0]["faz"][1] == {"acao": "guarda", "em": "notas",
+                                        "valor": ["7", "8", "9"]}
+
+
+@tem_gcc
+@pytest.mark.parametrize("topico, no, cena", [
+    ("kc_06", "B1", CENA_ZERA), ("kc_01", "B2", CENA_CONTA),
+    ("kc_07", "B1", CENA_NOTAS), ("kc_08", "B1", CENA_BLOCO),
+    ("kc_12", "B1", CENA_DOBRA)])
+def test_a_cena_certa_da_fatia_4_confere(tmp_path, topico, no, cena):
+    assert _confere(tmp_path, no, cena, topico) == []
+
+
+@tem_gcc
+def test_o_valor_errado_dentro_da_funcao_e_acusado(tmp_path):
+    errada = copy.deepcopy(CENA_ZERA)
+    errada["passos"][3]["faz"][0]["guarda"]["valor"] = 1
+    problemas = _confere(tmp_path, "B1", errada, "kc_06")
+    assert any("linha 1" in p and "n == 1" in p for p in problemas), problemas
+
+
+@tem_gcc
+def test_a_segunda_chamada_e_conferida_a_parte(tmp_path):
+    """A crença de que o n da função continua de uma chamada para a outra:
+    a cena que a dissesse (n == 2 na segunda vez) é acusada uma vez só —
+    a primeira chamada está certa."""
+    errada = copy.deepcopy(CENA_CONTA)
+    errada["passos"][4]["faz"][2]["guarda"]["valor"] = 2
+    problemas = _confere(tmp_path, "B2", errada, "kc_01")
+    assert len([p for p in problemas if "n == 2" in p]) == 1, problemas
+
+
+@tem_gcc
+def test_a_caixa_errada_da_fileira_e_acusada(tmp_path):
+    errada = copy.deepcopy(CENA_NOTAS)
+    errada["passos"][0]["faz"][1]["guarda"]["valor"] = [7, 8, 10]
+    problemas = _confere(tmp_path, "B1", errada, "kc_07")
+    assert any("notas[2] == 10" in p for p in problemas), problemas
+
+
+@tem_gcc
+def test_o_valor_errado_no_bloco_e_acusado(tmp_path):
+    errada = copy.deepcopy(CENA_BLOCO)
+    errada["passos"][2]["faz"][1]["guarda"]["valor"] = 8
+    problemas = _confere(tmp_path, "B1", errada, "kc_08")
+    assert any("bloco[2] == 8" in p for p in problemas), problemas
+
+
+@tem_gcc
+def test_o_ponteiro_para_a_caixa_errada_e_acusado(tmp_path):
+    cena = {"atores": [{"nome": "idade", "tipo": "caixa", "de": "int"},
+                       {"nome": "p", "tipo": "ponteiro", "de": "int *"},
+                       {"nome": "pp", "tipo": "ponteiro", "de": "int **"}],
+            "passos": [{"linha": 1, "faz": [{"cria": "idade"},
+                                            {"guarda": {"em": "idade", "valor": 15}}]},
+                       {"linha": 2, "faz": [{"cria": "p"},
+                                            {"aponta": {"de": "p", "para": "idade"}}]},
+                       {"linha": 3, "faz": [{"cria": "pp"},
+                                            {"aponta": {"de": "pp", "para": "p"}}]},
+                       {"linha": 5, "faz": [{"segue": "pp"}, {"mostra": "15"}]}]}
+    assert _confere(tmp_path, "B2", cena, "kc_10") == []
+    errada = copy.deepcopy(cena)
+    errada["passos"][2]["faz"][1]["aponta"]["para"] = "idade"
+    problemas = _confere(tmp_path, "B2", errada, "kc_10")
+    assert any("pp == &idade" in p for p in problemas), problemas
+
+
+@tem_gcc
+def test_a_chamada_que_o_programa_nao_faz_e_acusada(tmp_path):
+    """A cena conta duas chamadas de zera; o programa faz uma."""
+    errada = copy.deepcopy(CENA_ZERA)
+    errada["passos"][5:5] = [
+        {"linha": 7, "faz": [{"chama": "zera"}, {"cria": "n"},
+                             {"guarda": {"em": "n", "valor": 15}}]},
+        {"linha": 1, "faz": [{"guarda": {"em": "n", "valor": 0}}]},
+        {"linha": 7, "faz": [{"volta": "zera"}]}]
+    problemas = _confere(tmp_path, "B1", errada, "kc_06")
+    assert any("a entrada de zera: a cena passa 2 vez(es)" in p
+               for p in problemas), problemas
+
+
+@tem_gcc
+def test_o_dobra_que_acumulasse_seria_acusado(tmp_path):
+    errada = copy.deepcopy(CENA_DOBRA)
+    errada["passos"][6]["faz"][1]["guarda"]["valor"] = 6
+    problemas = _confere(tmp_path, "B1", errada, "kc_12")
+    assert any("linha 2" in p and "n == 6" in p for p in problemas), problemas
+
+
+# --------------------------------------------------------------------------
 # As cenas do kc_00 e o que o servidor manda
 # --------------------------------------------------------------------------
 
 def test_toda_ideia_do_kc_00_tem_cena():
     esc = trilha_escada.le(ARQUIVO, D)
     assert [no for no in D.ordem if esc[no].cena is None] == []
+
+
+@pytest.mark.parametrize("topico", ["kc_%02d" % i for i in range(13)])
+def test_toda_ideia_de_todo_topico_tem_cena(topico):
+    """A fatia 4 (docs/plano-cenas.md): as 79 ideias dos treze tópicos.
+    A conferência delas contra o compilador é a do test_trilha_topicos,
+    que confere a escada inteira de cada tópico."""
+    d = carrega(topico=topico)
+    esc = trilha_escada.le(_arquivo(topico), d)
+    assert [no for no in d.ordem if esc[no].cena is None] == []
 
 
 def test_a_cena_vai_em_json_para_a_tela():
@@ -198,6 +454,82 @@ def test_cada_passo_tem_uma_frase_para_quem_nao_ve():
     assert "Linha 1" in e[1]["descricao"] and "cria a caixa idade" in e[1]["descricao"]
     assert "o 20 que estava lá sai" in e[3]["descricao"]
     assert "mostra 21 na tela" in e[4]["descricao"]
+
+
+def _estados_da(tmp_path, topico, no, cena):
+    import json
+    esc = trilha_escada.le(_escadas_com(tmp_path, no, cena, topico),
+                           carrega(topico=topico))
+    programa = """
+    global.window = global;
+    require(require("path").join(WEB, "cena.js"));
+    console.log(JSON.stringify(global.Cena.estados(%s)));
+    """ % json.dumps(trilha_escada.cena_json(esc[no].cena))
+    return json.loads(_roda_node(programa))
+
+
+def _caixas(estado):
+    return {c["nome"]: c for c in estado["caixas"]}
+
+
+@tem_node
+def test_a_bancada_abre_com_as_caixas_dela_e_fecha_sem_elas(tmp_path):
+    e = _estados_da(tmp_path, "kc_06", "B1", CENA_ZERA)
+    dentro = e[3]                                   # depois de chamar zera
+    assert dentro["bancadas"] == [{"nome": "zera", "de": "void zera(int n)"}]
+    assert _caixas(dentro)["n"]["dono"] == "zera"
+    assert _caixas(dentro)["n"]["valor"] == "15"
+    assert _caixas(dentro)["idade"]["dono"] is None
+    depois = e[5]                                   # depois da volta
+    assert depois["bancadas"] == [] and "n" not in _caixas(depois)
+    assert "a bancada de zera abre" in e[3]["descricao"]
+    assert "a bancada fecha" in e[5]["descricao"]
+
+
+@tem_node
+def test_a_fileira_tem_um_valor_por_caixa(tmp_path):
+    e = _estados_da(tmp_path, "kc_07", "B1", CENA_NOTAS)
+    notas = _caixas(e[1])["notas"]
+    assert notas["valores"] == ["7", "8", "9"] and notas["tamanho"] == [3]
+    assert "guarda 7, 8, 9 em notas" in e[1]["descricao"]
+    # a caixinha que a linha lê fica marcada, e só naquele passo
+    assert notas["foco"] is None and _caixas(e[2])["notas"]["foco"] == 2
+
+
+@tem_node
+def test_o_bloco_mora_no_monte_e_o_free_o_devolve(tmp_path):
+    e = _estados_da(tmp_path, "kc_08", "B1", CENA_BLOCO)
+    bloco = _caixas(e[2])["bloco"]
+    assert bloco["tipo"] == "bloco" and bloco["devolvido"] is False
+    assert bloco["valores"] == [None, None, None]
+    assert _caixas(e[2])["p"]["aponta"] == "bloco"
+    assert _caixas(e[3])["bloco"]["valores"] == [None, None, "9"]
+    assert _caixas(e[5])["bloco"]["devolvido"] is True
+    assert "aluga no monte" in e[2]["descricao"]
+    assert "devolve o bloco" in e[5]["descricao"]
+
+
+@tem_node
+def test_o_static_fica_depois_da_volta(tmp_path):
+    cena = {"atores": [{"nome": "f", "tipo": "bancada", "de": "int *f(void)"},
+                       {"nome": "n", "tipo": "caixa", "de": "static int", "fica": True},
+                       {"nome": "p", "tipo": "ponteiro", "de": "int *"}],
+            "passos": [{"linha": 3, "faz": [{"chama": "f"}]},
+                       {"linha": 1, "faz": [{"cria": "n"},
+                                            {"guarda": {"em": "n", "valor": 7}}]},
+                       {"linha": 3, "faz": [{"volta": "f"}, {"cria": "p"},
+                                            {"aponta": {"de": "p", "para": "n"}}]},
+                       {"linha": 4, "faz": [{"segue": "p"}, {"mostra": "7"}]}]}
+    e = _estados_da(tmp_path, "kc_12", "I2", cena)
+    assert _caixas(e[3])["n"]["dono"] is None and _caixas(e[3])["n"]["valor"] == "7"
+    assert _caixas(e[3])["p"]["aponta"] == "n"
+    assert "n fica: é static" in e[3]["descricao"]
+
+
+@tem_node
+def test_o_diz_entra_na_frase_do_passo(tmp_path):
+    e = _estados_da(tmp_path, "kc_01", "B2", CENA_CONTA)
+    assert "conta devolve 1" in e[2]["descricao"]
 
 
 @tem_node

@@ -47,6 +47,14 @@ B1:
 
       p = &idade;
     saida: ""
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{aponta: {de: p, para: idade}}]}
   # Protótipo de função sem corpo, função que devolve valor, e vetor.
   fora_da_trilha: [ciu_kc04_002, ciu_kc04_t02, ciu_kc04_t03]
   provas:
@@ -294,6 +302,17 @@ B2:
       *p = 16;
       printf("%d\n", idade);
     saida: "16"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 5, faz: [{aponta: {de: p, para: idade}}]}
+      - {linha: 6, faz: [{segue: p}, {guarda: {em: idade, valor: 16}}]}
+      - {linha: 7, faz: [{le: idade}, {mostra: '16'}]}
   # A multiplicação escrita com o mesmo * da dereferência: *n = *n * 2;
   fora_da_trilha: [ciu_kc04_t06]
   provas:
@@ -551,6 +570,16 @@ B3:
       p = &idade;
       printf("%d\n", *p);
     saida: "42"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{guarda: {em: idade, valor: 42}}]}
+      - {linha: 5, faz: [{aponta: {de: p, para: idade}}]}
+      - {linha: 6, faz: [{segue: p}, {le: idade}, {mostra: '42'}]}
   # A comparação p == &x impressa com %d: a escada não ensina.
   fora_da_trilha: [ciu_kc04_008]
   provas:
@@ -812,6 +841,20 @@ I1:
       p = &nota;
       printf("%d\n", *p);
     saida: "7"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: nota, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: nota}]}
+      - {linha: 3, faz: [{cria: p}]}
+      - {linha: 5, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 6, faz: [{guarda: {em: nota, valor: 7}}]}
+      - {linha: 7, faz: [{aponta: {de: p, para: idade}}]}
+      - {linha: 8, faz: [{aponta: {de: p, para: nota}}, {diz: 'idade não muda: só o bilhete de p mudou'}]}
+      - {linha: 9, faz: [{segue: p}, {le: nota}, {mostra: '7'}]}
   # Aritmética de ponteiro (p = p + 1): é assunto do kc_11.
   fora_da_trilha: [ciu_kc04_t12]
   provas:
@@ -1089,6 +1132,17 @@ I2:
       *p = 8;
       printf("%d\n", idade);
     saida: "8"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{aponta: {de: p, para: idade}}]}
+      - {linha: 5, faz: [{segue: p}, {guarda: {em: idade, valor: 7}}]}
+      - {linha: 6, faz: [{segue: p}, {guarda: {em: idade, valor: 8}}]}
+      - {linha: 7, faz: [{le: idade}, {mostra: '8'}]}
   # A comparação p == &x impressa com %d, e o ++.
   fora_da_trilha: [ciu_kc04_014, ciu_kc04_t14]
   provas:
@@ -1357,6 +1411,13 @@ I3:
       idade = 7;
       printf("%d\n", *(&idade));
     saida: "7"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 3, faz: [{guarda: {em: idade, valor: 7}}]}
+      - {linha: 4, faz: [{diz: '&idade é o endereço de idade, e o * segue esse endereço de volta até idade'}, {le: idade}, {mostra: '7'}]}
   # malloc: a escada não ensina.
   fora_da_trilha: [ciu_kc04_017]
   provas:

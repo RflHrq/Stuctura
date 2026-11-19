@@ -413,6 +413,24 @@ pre.codigo, .t-retorno pre.codigo {
 .cn-caixa .cn-bilhete-txt { fill: var(--bilhete-tinta); font: 700 12px/1 "JetBrains Mono", ui-monospace, monospace; }
 .cn-seta { fill: none; stroke: var(--acento); stroke-width: 2.5; stroke-dasharray: 5 4; }
 .cn-vazio { fill: var(--tinta2); font: 600 12px/1 Nunito, system-ui, sans-serif; }
+/* A fileira: as caixinhas dentro da caixa grande, com o índice embaixo. */
+.cn-caixa .cn-cel { fill: var(--cartao); stroke: var(--linha2); stroke-width: 1.5; }
+.cn-caixa .cn-cel-cheia { fill: var(--destaque-fundo); stroke: var(--destaque); }
+.cn-caixa .cn-cel-foco { stroke: var(--destaque); stroke-width: 3; }
+.cn-caixa .cn-cel-txt { fill: var(--tinta); font: 800 12px/1 "JetBrains Mono", ui-monospace, monospace; }
+.cn-caixa .cn-cel-sobra { fill: var(--tinta2); font: 700 14px/1 Nunito, system-ui, sans-serif; }
+.cn-caixa .cn-indice { fill: var(--tinta2); font: 600 9px/1 "JetBrains Mono", ui-monospace, monospace; }
+/* Os andares: a bancada da função que roda, e o monte dos blocos. */
+.cn-moldura { fill: none; stroke: var(--linha2); stroke-width: 1.5; stroke-dasharray: 6 4; }
+.cn-moldura.cn-monte { stroke: var(--acento); }
+.cn-andar { fill: var(--tinta2); font: 700 11px/1 "JetBrains Mono", ui-monospace, monospace; }
+.cn-caixa .cn-placa { fill: var(--tinta2); font: 700 9px/1 "JetBrains Mono", ui-monospace, monospace;
+                      letter-spacing: .04em; }
+/* O bloco devolvido e o bilhete do que já não existe ficam apagados. */
+.cn-caixa.cn-devolvido { opacity: .5; }
+.cn-caixa.cn-devolvido .cn-corpo { stroke-dasharray: 4 3; }
+.cn-caixa.cn-solto .cn-bilhete { stroke-dasharray: 3 3; }
+.cn-seta-morta { opacity: .45; }
 @media (prefers-reduced-motion: no-preference) {
   /* Só a caixa que a linha mexeu: o palco é redesenhado a cada passo, e
      animar todas faria os valores parados piscarem. */

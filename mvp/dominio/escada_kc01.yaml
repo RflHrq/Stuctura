@@ -66,6 +66,13 @@ B1:
       nota = 7;
       printf("%d\n", nota);
     saida: "7"
+  cena:
+    atores:
+      - {nome: nota, tipo: caixa, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: nota}]}
+      - {linha: 3, faz: [{guarda: {em: nota, valor: 7}}]}
+      - {linha: 4, faz: [{le: nota}, {mostra: '7'}]}
   # Variável global, que nenhuma escada ensinou.
   fora_da_trilha: [ciu_kc01_t03]
   provas:
@@ -308,6 +315,17 @@ B2:
       conta();
       printf("%d\n", conta());
     saida: "1"
+  cena:
+    atores:
+      - {nome: conta, tipo: bancada, de: int conta(void)}
+      - {nome: n, tipo: caixa, de: int}
+    passos:
+      - {linha: 3, faz: [{chama: conta}]}
+      - {linha: 1, faz: [{cria: n}, {guarda: {em: n, valor: 0}}, {guarda: {em: n, valor: 1}}, {diz: conta devolve 1}]}
+      - {linha: 3, faz: [{volta: conta}, {diz: o 1 que voltou não vai para variável nenhuma}]}
+      - {linha: 4, faz: [{chama: conta}]}
+      - {linha: 1, faz: [{cria: n}, {guarda: {em: n, valor: 0}}, {guarda: {em: n, valor: 1}}, {diz: 'este n é outro, e começa de novo em 0'}]}
+      - {linha: 4, faz: [{volta: conta}, {mostra: '1'}]}
   # O +=, e variável declarada fora da função.
   fora_da_trilha: [ciu_kc01_t06]
   provas:
@@ -540,6 +558,16 @@ B3:
       printf("%d\n", *p);
       free(p);
     saida: "7"
+  cena:
+    atores:
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: bloco, tipo: bloco, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: p}]}
+      - {linha: 3, faz: [{aluga: {nome: bloco, para: p}}]}
+      - {linha: 4, faz: [{segue: p}, {guarda: {em: bloco, valor: 7}}]}
+      - {linha: 5, faz: [{segue: p}, {le: bloco}, {mostra: '7'}]}
+      - {linha: 6, faz: [{devolve: bloco}]}
   # A multiplicação, em malloc(100 * sizeof(int)).
   fora_da_trilha: [ciu_kc01_t08]
   provas:
@@ -805,6 +833,19 @@ I1:
       printf("%d\n", *q);
       free(q);
     saida: "9"
+  cena:
+    atores:
+      - {nome: faz, tipo: bancada, de: int *faz(void)}
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: bloco, tipo: bloco, de: int}
+      - {nome: q, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 3, faz: [{cria: q}]}
+      - {linha: 5, faz: [{chama: faz}]}
+      - {linha: 1, faz: [{cria: p}, {aluga: {nome: bloco, para: p}}, {segue: p}, {guarda: {em: bloco, valor: 9}}, {le: p}, {diz: faz devolve o endereço do bloco}]}
+      - {linha: 5, faz: [{volta: faz}, {aponta: {de: q, para: bloco}}, {diz: 'o bloco continua: ele é do monte, não da bancada'}]}
+      - {linha: 6, faz: [{segue: q}, {le: bloco}, {mostra: '9'}]}
+      - {linha: 7, faz: [{devolve: bloco}]}
   # A multiplicação, em malloc(10 * sizeof(int)).
   fora_da_trilha: [ciu_kc01_t11]
   provas:
@@ -1050,6 +1091,19 @@ I2:
       printf("%d\n", *p);
       free(p);
     saida: "7"
+  cena:
+    atores:
+      - {nome: nota, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: bloco, tipo: bloco, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: nota}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{guarda: {em: nota, valor: 7}}]}
+      - {linha: 5, faz: [{aluga: {nome: bloco, para: p}}]}
+      - {linha: 6, faz: [{le: nota}, {segue: p}, {guarda: {em: bloco, valor: 7}}]}
+      - {linha: 7, faz: [{segue: p}, {le: bloco}, {mostra: '7'}]}
+      - {linha: 8, faz: [{devolve: bloco}]}
   # Vetor de um milhão de posições, a multiplicação, e o tamanho da
   # pilha, que a escada não diz.
   fora_da_trilha: [ciu_kc01_t15]

@@ -66,4 +66,75 @@ fatia 4 (a bancada), e a conferência acusa em vez de calar.
 - [x] 1 · [x] 2 · [x] 3 · [x] 4 · [x] 5 · [x] 6 — feito em 18/11/2026. As
   cinco cenas do kc_00 conferem contra o compilador; a conferência no
   navegador passou nos dois temas e em 360 px, com o ponteiro e o NULL
-  vistos numa cena de teste. **Aguarda o Rafael olhar** antes da fatia 4.
+  vistos numa cena de teste. O Rafael olhou e pediu a fatia 4 (abaixo).
+
+## Fatia 4 — as cenas dos outros doze tópicos
+
+Pedido do Rafael em 18/11/2026, depois de ver as do kc_00 ("pode seguir
+com as cenas dos outros tópicos"; a cena maior no computador já entrou).
+
+### O que as 74 revisões pedem
+
+- **bancada** (função): a execução entra na função, linha a linha, e
+  volta. O passo pode repetir linha e voltar no código (é o rastro da
+  execução). Ator `{tipo: bancada, de: "void zera(int n)"}`; ações
+  `chama` e `volta`; quem nasce entre as duas é da bancada e some na
+  volta, menos o ator com `fica: true` (o `static` do kc_12).
+- **fileira** (array): `{tipo: fileira, tamanho: 3}` ou `tamanho: [2, 3]`
+  (a matriz); `guarda {em: "notas[2]", ...}` e `aponta {para:
+  "notas[1]"}`. Texto entra como fileira de char, com `'\0'` no fim.
+- **bloco alugado** (`malloc`): `{tipo: bloco, de: int}` (ou com
+  `tamanho`); `aluga {nome: bloco, para: p}` cria o bloco no monte e põe
+  o endereço em p; `devolve: bloco` (o `free`) tira a placa. Depois do
+  `free` nada do bloco é lido nem comparado (seria o que o kc_09 ensina a
+  não fazer).
+- **diz**: uma frase a mais no passo, para o que não é estado de caixa
+  (o `if` que não entra, o `sizeof`, a conta de ponteiro). Não afirma
+  nada que precise de conferência.
+
+### A conferência com função (seção 8.3)
+
+Cada ator tem o endereço guardado numa variável global do programa da
+conferência logo que nasce (`cena_e_x`; a do bloco, logo depois do
+`malloc`), e TODA afirmação passa por esse endereço, a de valor também:
+`*(int *)cena_e_idade == 15`, `*(int **)cena_e_p == (int *)cena_e_idade`.
+Assim ela vale dentro da bancada e fora dela, e no monte, onde a caixa
+não tem nome.
+
+Onde a afirmação entra: depois da linha, no `main` e na função de várias
+linhas (antes, se a linha é `return` ou o `}` do fim); na função de uma
+linha, antes do `return` ou do `}` final — e aí a cena afirma o estado
+final daquela chamada; e no começo do corpo, o estado de quando a bancada
+abre (os parâmetros com a cópia). A mesma linha roda de novo quando a
+função é chamada de novo: cada passagem é uma VISITA, com um contador no
+programa, e cada visita confere o seu estado — é assim que a segunda
+chamada do `conta` é conferida à parte da primeira. No fim do `main`, o
+programa confere quantas vezes passou por cada ponto: a cena que conta
+outra história de chamadas (a função que não roda, a que roda duas
+vezes) é acusada.
+
+O que a estrutura da cena já recusa, antes do compilador
+(`trilha_escada.toca`): citar caixa que já sumiu, ler caixa sem valor,
+seguir bilhete de NULL, de caixa que sumiu ou de bloco devolvido, voltar
+de bancada que não é a aberta, a linha de uma função rodando fora da
+bancada dela, e terminar com bancada aberta.
+
+### Progresso, tópico a tópico
+
+Todas escritas e conferidas em 18/11/2026 (`python
+scripts/confere_escada.py kc_XX`, 0 problemas em cada um):
+
+| tópico | ideias | personagens novos |
+| --- | --- | --- |
+| kc_01 | 5 | bancada (o `conta` chamado duas vezes), bloco |
+| kc_02 | 6 | bancada (`zera(&idade)`) |
+| kc_03 | 6 | — |
+| kc_04 | 6 | — |
+| kc_05 | 6 | `diz` (o `if` que não entra) |
+| kc_06 | 6 | bancada: a cópia muda, o original não |
+| kc_07 | 7 | fileira, e a bancada que recebe o endereço da primeira caixa |
+| kc_08 | 6 | bloco, e o bloco que sobrevive à volta da função |
+| kc_09 | 8 | bloco devolvido; dois aluguéis seguidos |
+| kc_10 | 6 | ponteiro para ponteiro, `void *`, matriz 2 × 3 |
+| kc_11 | 6 | fileira de char com o `'\0'` |
+| kc_12 | 6 | função de várias linhas; o `static` que fica |

@@ -48,6 +48,7 @@ sys.path.insert(0, str(RAIZ / "scripts"))
 
 import oraculo  # noqa: E402
 
+from mvp import trilha_escada  # noqa: E402
 from mvp.dominio import Dominio, carrega  # noqa: E402
 from mvp.trilha_escada import (  # noqa: E402
     ENDERECO_DE_EXEMPLO, LACUNA, Degrau, Escada, Prova, Versao, faltando, le)
@@ -338,62 +339,224 @@ def confere(escadas: Mapping[str, Escada]) -> list[str]:
     return problemas
 
 
-def _afirmacoes(estado: dict) -> list[tuple[str, str]]:
+def _texto_c(texto: str) -> str:
+    """O texto dentro das aspas de um fprintf: sem quebrar a string."""
+    return (texto.replace("\\", "\\\\").replace('"', '\\"')
+            .replace("%", "%%"))
+
+
+def _indices(plano: int, tamanho: tuple[int, ...]) -> str:
+    """O índice achatado de volta em `[i]` ou `[i][j]`."""
+    if len(tamanho) == 2:
+        return "[%d][%d]" % divmod(plano, tamanho[1])
+    return "[%d]" % plano
+
+
+def _endereco(vivos: dict, texto: str) -> str | None:
+    """O endereço de um alvo, pelo endereço guardado do ator. None: o alvo
+    não existe mais ou o bloco foi devolvido (e aí nada é comparado)."""
+    nome, idx = trilha_escada.ref(texto)
+    v = vivos.get(nome)
+    if v is None or v.devolvido:
+        return None
+    if not idx:
+        return "cena_e_%s" % nome
+    plano = 0
+    for i, k in zip(idx, v.ator.tamanho):
+        plano = plano * k + i
+    return "(void *)(((%s *)cena_e_%s) + %d)" % (v.ator.tipo_c, nome, plano)
+
+
+def _afirmacoes(vivos: dict, pode) -> list[tuple[str, str]]:
     """O que a cena afirma naquele ponto, em C: (condição, como se lê).
+
+    Tudo pelo ENDEREÇO GUARDADO do ator (`cena_e_x`), e não pelo nome: a
+    conferência vale dentro da bancada e fora dela, e no monte, onde a
+    caixa não tem nome. `pode(nome)` diz se o endereço já foi guardado
+    quando aquele ponto roda.
 
     Valor de caixa que tem valor, ponteiro apontando para quem, NULL.
     Caixa sem valor não é lida (ler seria o que o tópico ensina a não
-    fazer), e endereço nunca é conferido pelo número."""
+    fazer), bloco devolvido não é lido nem comparado, e endereço nunca é
+    conferido pelo número."""
     saida = []
-    for nome, (valor, aponta) in estado.items():
-        if aponta is not None:
-            alvo = "NULL" if aponta == "" else "&%s" % aponta
-            saida.append(("(%s) == %s" % (nome, alvo),
-                          "%s == %s" % (nome, alvo)))
-        elif valor is not None:
-            saida.append(("(%s) == (%s)" % (nome, valor),
-                          "%s == %s" % (nome, valor)))
+    for nome, v in vivos.items():
+        a = v.ator
+        if not pode(nome) or v.devolvido:
+            continue
+        if a.tipo == "ponteiro":
+            if v.aponta is None or v.solto:
+                continue
+            onde = "*(%s *)cena_e_%s" % (a.tipo_c, nome)
+            if v.aponta == "":
+                saida.append(("%s == NULL" % onde, "%s == NULL" % nome))
+                continue
+            alvo = _endereco(vivos, v.aponta)
+            if alvo is None or not pode(trilha_escada.ref(v.aponta)[0]):
+                continue
+            saida.append(("%s == (%s)(%s)" % (onde, a.tipo_c, alvo),
+                          "%s == &%s" % (nome, v.aponta)))
+            continue
+        for i, valor in enumerate(v.valor):
+            if valor is None:
+                continue
+            if a.tamanho:
+                saida.append(("((%s *)cena_e_%s)[%d] == (%s)" % (a.tipo_c, nome, i, valor),
+                              "%s%s == %s" % (nome, _indices(i, a.tamanho), valor)))
+            else:
+                saida.append(("*(%s *)cena_e_%s == (%s)" % (a.tipo_c, nome, valor),
+                              "%s == %s" % (nome, valor)))
     return saida
 
 
+def _visitas(cena, momentos) -> dict:
+    """Onde cada passo da cena cai no programa, e quantas vezes.
+
+    Um PONTO é ("linha", n) — logo depois da linha n (antes, se ela é um
+    `return` ou o fecho da função; na função de uma linha, antes do
+    `return` ou do `}`) — ou ("entra", f), o começo do corpo de f. A
+    mesma linha roda de novo quando a função é chamada de novo: cada
+    passagem é uma VISITA, e cada visita confere o seu estado.
+
+    Devolve {(ponto, k): {"passos": [s...], "ultimo": s | None,
+    "linha": n, "acoes": [(s, acao, arg)...]}}."""
+    contagem: dict = {}
+    ultimo_ponto: dict[int, tuple] = {}
+    visitas: dict = {}
+
+    def visita(ponto, profundidade):
+        if ultimo_ponto.get(profundidade) != ponto:
+            contagem[ponto] = contagem.get(ponto, 0) + 1
+            ultimo_ponto[profundidade] = ponto
+        chave = (ponto, contagem[ponto])
+        return visitas.setdefault(chave, {"passos": [], "ultimo": None,
+                                          "linha": 0, "acoes": []})
+
+    for s, p in enumerate(cena.passos):
+        antes = len(momentos[s - 1].pilha) if s else 0
+        chama = next((i for i, (a, _) in enumerate(p.faz) if a == "chama"), None)
+        if chama is None:
+            v = visita(("linha", p.linha), len(momentos[s].pilha))
+            v["passos"].append(s)
+            v["ultimo"], v["linha"] = s, p.linha
+            v["acoes"] += [(s, a, x) for a, x in p.faz]
+            continue
+        # O passo que chama: o que vem antes do `chama` é da linha de quem
+        # chama, e o resto já é da bancada. O estado deste passo não é
+        # conferido na linha de quem chama — lá ele roda depois da volta.
+        v = visita(("linha", p.linha), antes)
+        v["passos"].append(s)
+        v["linha"] = p.linha
+        v["acoes"] += [(s, a, x) for a, x in p.faz[:chama]]
+        ponto = ("entra", p.faz[chama][1])
+        contagem[ponto] = contagem.get(ponto, 0) + 1
+        ultimo_ponto[antes + 1] = ponto
+        visitas[(ponto, contagem[ponto])] = {
+            "passos": [s], "ultimo": s, "linha": p.linha,
+            "acoes": [(s, a, x) for a, x in p.faz[chama + 1:]]}
+    return visitas
+
+
+def _nome_do_ponto(ponto) -> str:
+    return "cena_v_%s" % ("l%d" % ponto[1] if ponto[0] == "linha" else "e_" + ponto[1])
+
+
 def programa_da_cena(r, cena) -> str:
-    """O código da revisão com, depois de cada linha, as afirmações da cena
-    naquele passo. A que falha sai em stderr, com a linha e o que dizia."""
-    linhas = r.codigo.rstrip("\n").split("\n")
-    estado: dict = {}
-    depois: dict[int, list[tuple[str, str]]] = {}
-    for p in cena.passos:
-        for acao, arg in p.faz:
-            if acao == "cria":
-                estado.setdefault(arg, (None, None))
-            elif acao == "guarda":
-                estado[arg[0]] = (arg[1], None)
-            elif acao == "aponta":
-                estado[arg[0]] = (None, arg[1])
-            elif acao == "nulo":
-                estado[arg] = (None, "")
-            elif acao == "some":
-                estado.pop(arg, None)
-        depois[p.linha] = _afirmacoes(estado)
-    corpo = []
-    for i, linha in enumerate(linhas, 1):
-        corpo.append(linha)
-        for cond, diz in depois.get(i, ()):
-            corpo.append('if (!(%s)) fprintf(stderr, "@@ linha %d: a cena diz '
-                         '%s, e o programa não\\n");'
-                         % (cond, i, diz.replace('"', '\\"')))
-    return ("#include <stdio.h>\n#include <stdlib.h>\n"
-            "int main(void) {\n%s\nreturn 0;\n}\n" % "\n".join(corpo))
+    """O código da revisão com, em cada ponto por onde a cena passa, o que
+    ela afirma ali. A afirmação que falha sai em stderr, com a linha e o
+    que a cena dizia; e no fim do `main`, quantas vezes o programa passou
+    por cada ponto — a cena que conta outra história de chamadas (a
+    função que não roda, a que roda duas vezes) também é acusada."""
+    codigo = r.codigo.rstrip("\n")
+    linhas = codigo.split("\n")
+    papeis = trilha_escada.estrutura(codigo)
+    momentos = trilha_escada.toca(cena, codigo)
+    visitas = _visitas(cena, momentos)
+    atores = {a.nome: a for a in cena.atores}
+
+    # Quando roda cada visita (o último passo dela), e quando o endereço
+    # de cada encarnação de cada ator é guardado.
+    roda = {chave: max(v["passos"]) for chave, v in visitas.items()}
+    guardado: dict[str, list[tuple[int, int]]] = {}   # nome -> [(passo, roda)]
+    for chave, v in visitas.items():
+        for s0, acao, arg in v["acoes"]:
+            nome = arg if acao == "cria" else (arg[0] if acao == "aluga" else None)
+            if nome:
+                guardado.setdefault(nome, []).append((s0, roda[chave]))
+
+    def codigo_do_ponto(ponto) -> list[str]:
+        chaves = sorted(k for k in visitas if k[0] == ponto)
+        if not chaves:
+            return []
+        saida = ["%s++;" % _nome_do_ponto(ponto)]
+        for chave in chaves:
+            v = visitas[chave]
+            corpo = []
+            for _, acao, arg in v["acoes"]:
+                if acao == "cria":
+                    corpo.append("cena_e_%s = (void *)&%s;" % (arg, arg))
+                elif acao == "aluga":
+                    corpo.append("cena_e_%s = (void *)*(%s *)cena_e_%s;"
+                                 % (arg[0], atores[arg[1]].tipo_c, arg[1]))
+            if v["ultimo"] is not None:
+                s, quando = v["ultimo"], roda[chave]
+
+                def pode(nome, s=s, quando=quando):
+                    feitos = [q for p0, q in guardado.get(nome, ()) if p0 <= s]
+                    return bool(feitos) and feitos[-1] <= quando
+
+                for cond, diz in _afirmacoes(momentos[s].vivos, pode):
+                    corpo.append(
+                        'if (!(%s)) fprintf(stderr, "@@ linha %d: a cena diz %s, '
+                        'e o programa não\\n");' % (cond, v["linha"], _texto_c(diz)))
+            saida.append("if (%s == %d) {" % (_nome_do_ponto(ponto), chave[1]))
+            saida += corpo
+            saida.append("}")
+        return saida
+
+    fora, dentro = [], []
+    for i, (l, papel) in enumerate(zip(linhas, papeis), 1):
+        ponto = codigo_do_ponto(("linha", i))
+        if papel.papel == "main":
+            dentro += [l] + ponto
+        elif papel.papel == "uma":
+            a, b = l.index("{"), l.rindex("}")
+            corpo = l[a + 1:b]
+            ret = list(re.finditer(r"\breturn\b", corpo))
+            corte = ret[-1].start() if ret else len(corpo)
+            fora += ([l[:a + 1]] + codigo_do_ponto(("entra", papel.funcao))
+                     + [corpo[:corte]] + ponto + [corpo[corte:], l[b:]])
+        elif papel.papel == "abre":
+            fora += [l] + codigo_do_ponto(("entra", papel.funcao))
+        elif papel.papel == "fecha" or l.strip().startswith("return"):
+            fora += ponto + [l]
+        else:
+            fora += [l] + ponto
+
+    contagem: dict = {}
+    for ponto, k in visitas:
+        contagem[ponto] = max(contagem.get(ponto, 0), k)
+    fim = []
+    for ponto, k in sorted(contagem.items()):
+        nome = _nome_do_ponto(ponto)
+        lugar = ("linha %d" % ponto[1] if ponto[0] == "linha"
+                 else "a entrada de %s" % ponto[1])
+        fim.append('if (%s != %d) fprintf(stderr, "@@ %s: a cena passa %d vez(es) '
+                   'por aqui, e o programa passou %%d\\n", %s);'
+                   % (nome, k, lugar, k, nome))
+
+    globais = ["static void *cena_e_%s;" % a.nome for a in cena.atores
+               if a.tipo != "bancada"]
+    globais += ["static int %s;" % _nome_do_ponto(p) for p in sorted(contagem)]
+    return ("#include <stdio.h>\n#include <stdlib.h>\n%s\n%s\n"
+            "int main(void) {\n%s\n%s\nreturn 0;\n}\n"
+            % ("\n".join(globais), "\n".join(fora), "\n".join(dentro),
+               "\n".join(fim)))
 
 
 def _confere_cena(onde: str, r, cena, problemas: list[str]) -> None:
     """A cena contra o compilador (docs/interface.md, seção 8.3)."""
-    linhas = r.codigo.rstrip("\n").split("\n")
-    if any(FUNCAO.match(l) or ABRE_FUNCAO.match(l) for l in linhas):
-        problemas.append("%s: o código tem função, e a conferência da cena "
-                         "dentro de função (a bancada) ainda não existe" % onde)
-        return
-    mostra = "\n".join(arg for p in cena.passos for acao, arg in p.faz
+    mostra ="\n".join(arg for p in cena.passos for acao, arg in p.faz
                        if acao == "mostra")
     if mostra.strip() != r.saida.strip():
         problemas.append("%s: o que a cena mostra (%r) não é a saída da "
@@ -415,8 +578,11 @@ def _confere_cena(onde: str, r, cena, problemas: list[str]) -> None:
                 problemas.append("%s: o programa da cena não compila — %s"
                                  % (onde, compilou.stderr.strip()[:200]))
                 return
+            # As mensagens "@@" foram escritas em UTF-8 no programa: lidas
+            # na codificação da máquina, o "não" chegava estragado.
             rodou = subprocess.run(
                 [str(pasta / "o.exe")], capture_output=True, text=True,
+                encoding="utf-8", errors="replace",
                 timeout=TEMPO_CONFERE, cwd=str(pasta))
         except subprocess.TimeoutExpired:
             problemas.append("%s: o programa da cena não terminou" % onde)

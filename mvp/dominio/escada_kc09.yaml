@@ -66,6 +66,16 @@ B1:
       printf("%d\n", p[2]);
       free(p);
     saida: "9"
+  cena:
+    atores:
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: bloco, tipo: bloco, de: int, tamanho: 3}
+    passos:
+      - {linha: 1, faz: [{cria: p}]}
+      - {linha: 3, faz: [{aluga: {nome: bloco, para: p}}]}
+      - {linha: 4, faz: [{segue: p}, {guarda: {em: 'bloco[2]', valor: 9}}]}
+      - {linha: 5, faz: [{segue: p}, {le: 'bloco[2]'}, {mostra: '9'}]}
+      - {linha: 6, faz: [{devolve: bloco}]}
   provas:
     - crenca: pointer_knows_block_size
       programa: |
@@ -315,6 +325,21 @@ B2:
       printf("%d\n", *p);
       free(p);
     saida: "7"
+  cena:
+    atores:
+      - {nome: esvazia, tipo: bancada, de: void esvazia(int *x)}
+      - {nome: x, tipo: ponteiro, de: int *}
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: bloco, tipo: bloco, de: int}
+    passos:
+      - {linha: 3, faz: [{cria: p}]}
+      - {linha: 5, faz: [{aluga: {nome: bloco, para: p}}]}
+      - {linha: 6, faz: [{segue: p}, {guarda: {em: bloco, valor: 7}}]}
+      - {linha: 7, faz: [{le: p}, {chama: esvazia}, {cria: x}, {aponta: {de: x, para: bloco}}]}
+      - {linha: 1, faz: [{nulo: x}]}
+      - {linha: 7, faz: [{volta: esvazia}, {diz: 'p continua com o endereço do bloco: esvazia mudou a cópia'}]}
+      - {linha: 8, faz: [{segue: p}, {le: bloco}, {mostra: '7'}]}
+      - {linha: 9, faz: [{devolve: bloco}]}
   # Ponteiro para ponteiro, que é o tópico seguinte.
   fora_da_trilha: [ciu_kc09_006, ciu_kc09_t06]
   provas:
@@ -576,6 +601,16 @@ B3:
       p = NULL;
       printf("%d\n", p == NULL);
     saida: "1"
+  cena:
+    atores:
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: bloco, tipo: bloco, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: p}]}
+      - {linha: 3, faz: [{aluga: {nome: bloco, para: p}}]}
+      - {linha: 4, faz: [{devolve: bloco}, {diz: 'p ainda tem o endereço, mas o bloco já não é do programa'}]}
+      - {linha: 5, faz: [{nulo: p}]}
+      - {linha: 6, faz: [{le: p}, {diz: 'p == NULL é verdade, e o C escreve 1'}, {mostra: '1'}]}
   # Variável declarada fora da função.
   fora_da_trilha: [ciu_kc09_009]
   provas:
@@ -831,6 +866,19 @@ B4:
       free(p);
       printf("%d\n", nota);
     saida: "7"
+  cena:
+    atores:
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: nota, tipo: caixa, de: int}
+      - {nome: bloco, tipo: bloco, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: p}]}
+      - {linha: 2, faz: [{cria: nota}]}
+      - {linha: 4, faz: [{aluga: {nome: bloco, para: p}}]}
+      - {linha: 5, faz: [{segue: p}, {guarda: {em: bloco, valor: 7}}]}
+      - {linha: 6, faz: [{segue: p}, {le: bloco}, {guarda: {em: nota, valor: 7}}]}
+      - {linha: 7, faz: [{devolve: bloco}, {diz: 'nota tem a cópia do 7, e ela não foi devolvida'}]}
+      - {linha: 8, faz: [{le: nota}, {mostra: '7'}]}
   # struct, que nenhuma escada ensinou.
   fora_da_trilha: [ciu_kc09_t12]
   provas:
@@ -1093,6 +1141,18 @@ I1:
       free(p);
       printf("%d\n", p == q);
     saida: "1"
+  cena:
+    atores:
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: q, tipo: ponteiro, de: int *}
+      - {nome: bloco, tipo: bloco, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: p}]}
+      - {linha: 2, faz: [{cria: q}]}
+      - {linha: 4, faz: [{aluga: {nome: bloco, para: p}}]}
+      - {linha: 5, faz: [{le: p}, {aponta: {de: q, para: bloco}}]}
+      - {linha: 6, faz: [{devolve: bloco}, {diz: 'p e q continuam com o mesmo endereço, de um bloco que já não é do programa'}]}
+      - {linha: 7, faz: [{le: p}, {le: q}, {diz: 'os dois endereços são iguais: o C escreve 1'}, {mostra: '1'}]}
   # Ponteiro para ponteiro.
   fora_da_trilha: [ciu_kc09_t15]
   provas:
@@ -1331,6 +1391,19 @@ I2:
       printf("%d\n", *p);
       free(p);
     saida: "15"
+  cena:
+    atores:
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: bloco, tipo: bloco, de: int}
+      - {nome: outro, tipo: bloco, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: p}]}
+      - {linha: 3, faz: [{aluga: {nome: bloco, para: p}}]}
+      - {linha: 4, faz: [{devolve: bloco}]}
+      - {linha: 5, faz: [{aluga: {nome: outro, para: p}}, {diz: 'é outro aluguel: o endereço pode até ser o mesmo, mas o bloco é novo'}]}
+      - {linha: 6, faz: [{segue: p}, {guarda: {em: outro, valor: 15}}]}
+      - {linha: 7, faz: [{segue: p}, {le: outro}, {mostra: '15'}]}
+      - {linha: 8, faz: [{devolve: outro}]}
   provas:
     - crenca: free_kills_pointer
       programa: |
@@ -1578,6 +1651,17 @@ I3:
       if (p != NULL) *p = 7;
       printf("%d\n", p == NULL);
     saida: "1"
+  cena:
+    atores:
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: bloco, tipo: bloco, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: p}]}
+      - {linha: 3, faz: [{aluga: {nome: bloco, para: p}}]}
+      - {linha: 4, faz: [{devolve: bloco}]}
+      - {linha: 5, faz: [{nulo: p}]}
+      - {linha: 6, faz: [{le: p}, {diz: 'p é NULL: o teste dá falso, e o if não segue o bilhete'}]}
+      - {linha: 7, faz: [{le: p}, {diz: 'p == NULL é verdade, e o C escreve 1'}, {mostra: '1'}]}
   # struct.
   fora_da_trilha: [ciu_kc09_021, ciu_kc09_t21]
   provas:
@@ -1839,6 +1923,17 @@ I4:
       free(p);
       printf("%d\n", p == NULL);
     saida: "1"
+  cena:
+    atores:
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: bloco, tipo: bloco, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: p}]}
+      - {linha: 3, faz: [{aluga: {nome: bloco, para: p}}]}
+      - {linha: 4, faz: [{devolve: bloco}]}
+      - {linha: 5, faz: [{nulo: p}]}
+      - {linha: 6, faz: [{le: p}, {diz: 'free(NULL) não faz nada: não há bloco para devolver'}]}
+      - {linha: 7, faz: [{le: p}, {diz: 'p == NULL é verdade, e o C escreve 1'}, {mostra: '1'}]}
   provas:
     - crenca: double_free_is_safe
       programa: |

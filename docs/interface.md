@@ -375,7 +375,12 @@ Cada fatia deixa o sistema funcionando e passa pela suíte inteira.
    seguir. **Feita em 18/11/2026** (`docs/plano-cenas.md`), com caixa,
    ponteiro e NULL; fileira, bancada e bloco alugado ficam para a fatia 4.
 4. **As cenas dos outros tópicos**, um de cada vez, na ordem do caminho.
-   Ao entrar a cena de um tópico, a figura antiga dele sai.
+   Ao entrar a cena de um tópico, a figura antiga dele sai. **Feita em
+   18/11/2026** (`docs/plano-cenas.md`, "Fatia 4"): as 74 cenas de kc_01
+   a kc_12, com a bancada (função), a fileira (array, matriz, texto com
+   o `'\0'`) e o bloco alugado (malloc e free), todas conferidas contra o
+   compilador. Na trilha, a cena tomou o lugar da figura em todos os
+   tópicos; as figuras continuam no fluxo anterior.
 5. **As cenas das provas** (8.4).
 
 As escadas que faltam (kc_10, kc_11, kc_12) seguem em paralelo, no

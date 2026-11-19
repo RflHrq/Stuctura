@@ -72,6 +72,14 @@ B1:
 
       printf("%d\n", *p + 1);
     saida: "16"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}, {guarda: {em: idade, valor: 15}}]}
+      - {linha: 2, faz: [{cria: p}, {aponta: {de: p, para: idade}}]}
+      - {linha: 4, faz: [{segue: p}, {le: idade}, {diz: '*p + 1: primeiro segue o bilhete (15), depois soma 1'}, {mostra: '16'}]}
   provas:
     - crenca: pointer_is_integer
       programa: |
@@ -296,6 +304,14 @@ B2:
 
       printf("%zu\n", sizeof *c);
     saida: "1"
+  cena:
+    atores:
+      - {nome: letras, tipo: fileira, de: char, tamanho: 5}
+      - {nome: c, tipo: ponteiro, de: char *}
+    passos:
+      - {linha: 1, faz: [{cria: letras}, {guarda: {em: letras, texto: casa}}]}
+      - {linha: 2, faz: [{cria: c}, {aponta: {de: c, para: 'letras[0]'}}]}
+      - {linha: 4, faz: [{diz: 'sizeof *c mede uma caixa de char: 1 byte'}, {mostra: '1'}]}
   # struct.
   fora_da_trilha: [ciu_kc11_t06]
   provas:
@@ -513,6 +529,12 @@ B3:
 
       printf("%d\n", &notas[1] - &notas[0] == 1);
     saida: "1"
+  cena:
+    atores:
+      - {nome: notas, tipo: fileira, de: int, tamanho: 3}
+    passos:
+      - {linha: 1, faz: [{cria: notas}, {guarda: {em: notas, valor: [7, 8, 9]}}]}
+      - {linha: 3, faz: [{diz: '&notas[1] - &notas[0] conta caixas, e não bytes: dá 1'}, {mostra: '1'}]}
   provas:
     - crenca: string_literal_is_array
       programa: |
@@ -729,6 +751,12 @@ I1:
 
       printf("%d\n", *(notas + 2));
     saida: "6"
+  cena:
+    atores:
+      - {nome: notas, tipo: fileira, de: int, tamanho: 3}
+    passos:
+      - {linha: 1, faz: [{cria: notas}, {guarda: {em: notas, valor: [4, 5, 6]}}]}
+      - {linha: 3, faz: [{diz: 'notas + 2 é o endereço da caixa [2]'}, {le: 'notas[2]'}, {mostra: '6'}]}
   # %c.
   fora_da_trilha: [ciu_kc11_t11]
   provas:
@@ -939,6 +967,16 @@ I2:
 
       printf("%d\n", c == &nome[1]);
     saida: "1"
+  cena:
+    atores:
+      - {nome: nome, tipo: fileira, de: char, tamanho: 4}
+      - {nome: v, tipo: ponteiro, de: void *}
+      - {nome: c, tipo: ponteiro, de: char *}
+    passos:
+      - {linha: 1, faz: [{cria: nome}, {guarda: {em: nome, texto: ana}}]}
+      - {linha: 2, faz: [{cria: v}, {aponta: {de: v, para: 'nome[0]'}}]}
+      - {linha: 3, faz: [{cria: c}, {aponta: {de: c, para: 'nome[1]'}}, {diz: '(char *)v + 1 anda uma caixa de char: chega em nome[1]'}]}
+      - {linha: 5, faz: [{diz: 'c e &nome[1] são o mesmo endereço: o C escreve 1'}, {mostra: '1'}]}
   # Função de várias linhas (e o enunciado diz que o compilador "recusa"
   # void * + n, o que o gcc não faz sem -Wpointer-arith).
   fora_da_trilha: [ciu_kc11_t15]
@@ -1170,6 +1208,14 @@ I3:
 
       printf("%d\n", *(p + 1));
     saida: "20"
+  cena:
+    atores:
+      - {nome: pontos, tipo: fileira, de: int, tamanho: 3}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: pontos}, {guarda: {em: pontos, valor: [10, 20, 30]}}]}
+      - {linha: 2, faz: [{cria: p}, {aponta: {de: p, para: 'pontos[0]'}}]}
+      - {linha: 4, faz: [{diz: 'p + 1 é o endereço da caixa seguinte, e o * a lê'}, {le: 'pontos[1]'}, {mostra: '20'}]}
   # for; double.
   fora_da_trilha: [ciu_kc11_017, ciu_kc11_t18]
   provas:

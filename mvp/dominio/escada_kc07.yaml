@@ -75,6 +75,12 @@ B1:
 
       printf("%d\n", notas[2]);
     saida: "9"
+  cena:
+    atores:
+      - {nome: notas, tipo: fileira, de: int, tamanho: 3}
+    passos:
+      - {linha: 1, faz: [{cria: notas}, {guarda: {em: notas, valor: [7, 8, 9]}}]}
+      - {linha: 3, faz: [{le: 'notas[2]'}, {mostra: '9'}]}
   # Escrever num texto entre aspas (a escada não diz que ele não se
   # escreve); double e long.
   fora_da_trilha:
@@ -365,6 +371,15 @@ B2:
       p = &notas[0];
       printf("%d\n", p[0]);
     saida: "7"
+  cena:
+    atores:
+      - {nome: notas, tipo: fileira, de: int, tamanho: 3}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: notas}, {guarda: {em: notas, valor: [7, 8, 9]}}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{aponta: {de: p, para: 'notas[0]'}}]}
+      - {linha: 5, faz: [{segue: p}, {le: 'notas[0]'}, {mostra: '7'}]}
   # malloc.
   fora_da_trilha: [ciu_kc07_t06]
   provas:
@@ -600,6 +615,17 @@ B3:
       zera(notas);
       printf("%d\n", notas[0]);
     saida: "0"
+  cena:
+    atores:
+      - {nome: zera, tipo: bancada, de: 'void zera(int v[])'}
+      - {nome: v, tipo: ponteiro, de: int *}
+      - {nome: notas, tipo: fileira, de: int, tamanho: 3}
+    passos:
+      - {linha: 3, faz: [{cria: notas}, {guarda: {em: notas, valor: [7, 8, 9]}}]}
+      - {linha: 5, faz: [{chama: zera}, {cria: v}, {aponta: {de: v, para: 'notas[0]'}}, {diz: 'o que vai para v é o endereço da primeira caixa, e não a fileira'}]}
+      - {linha: 1, faz: [{segue: v}, {guarda: {em: 'notas[0]', valor: 0}}]}
+      - {linha: 5, faz: [{volta: zera}]}
+      - {linha: 6, faz: [{le: 'notas[0]'}, {mostra: '0'}]}
   # Protótipo de função, sem corpo.
   fora_da_trilha: [ciu_kc07_t09]
   provas:
@@ -829,6 +855,12 @@ B4:
 
       printf("%zu\n", sizeof v);
     saida: "10"
+  cena:
+    atores:
+      - {nome: v, tipo: fileira, de: char, tamanho: 10}
+    passos:
+      - {linha: 1, faz: [{cria: v}]}
+      - {linha: 3, faz: [{diz: 'sizeof v mede a fileira inteira: 10 caixas de char, de um byte cada'}, {mostra: '10'}]}
   # A conta com endereço (a + 1), ponteiro para ponteiro, e comparação
   # impressa com conversão para (void *).
   fora_da_trilha: [ciu_kc07_012, ciu_kc07_t11, ciu_kc07_t12]
@@ -1055,6 +1087,15 @@ I1:
       copia[0] = notas[0];
       printf("%d\n", copia[0]);
     saida: "7"
+  cena:
+    atores:
+      - {nome: notas, tipo: fileira, de: int, tamanho: 3}
+      - {nome: copia, tipo: fileira, de: int, tamanho: 3}
+    passos:
+      - {linha: 1, faz: [{cria: notas}, {guarda: {em: notas, valor: [7, 8, 9]}}]}
+      - {linha: 2, faz: [{cria: copia}]}
+      - {linha: 4, faz: [{le: 'notas[0]'}, {guarda: {em: 'copia[0]', valor: 7}}]}
+      - {linha: 5, faz: [{le: 'copia[0]'}, {mostra: '7'}]}
   # strcpy; função de várias linhas, com return.
   fora_da_trilha: [ciu_kc07_015, ciu_kc07_t14]
   provas:
@@ -1282,6 +1323,17 @@ I2:
 
       ultimo(notas, 3);
     saida: "9"
+  cena:
+    atores:
+      - {nome: ultimo, tipo: bancada, de: 'void ultimo(int v[], int n)'}
+      - {nome: v, tipo: ponteiro, de: int *}
+      - {nome: n, tipo: caixa, de: int}
+      - {nome: notas, tipo: fileira, de: int, tamanho: 3}
+    passos:
+      - {linha: 3, faz: [{cria: notas}, {guarda: {em: notas, valor: [7, 8, 9]}}]}
+      - {linha: 5, faz: [{chama: ultimo}, {cria: v}, {aponta: {de: v, para: 'notas[0]'}}, {cria: n}, {guarda: {em: n, valor: 3}}]}
+      - {linha: 1, faz: [{le: n}, {diz: 'v[n - 1] é v[2]: a partir do endereço de v, duas caixas adiante'}, {le: 'notas[2]'}, {mostra: '9'}]}
+      - {linha: 5, faz: [{volta: ultimo}]}
   # Laço e função de várias linhas; protótipo de função; variável
   # declarada fora da função.
   fora_da_trilha: [ciu_kc07_018, ciu_kc07_t17, ciu_kc07_t18]
@@ -1515,6 +1567,15 @@ I3:
       p = notas;
       printf("%d\n", p[1]);
     saida: "8"
+  cena:
+    atores:
+      - {nome: notas, tipo: fileira, de: int, tamanho: 3}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: notas}, {guarda: {em: notas, valor: [7, 8, 9]}}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{aponta: {de: p, para: 'notas[0]'}}, {diz: 'o nome da fileira, sozinho, vira o endereço da primeira caixa'}]}
+      - {linha: 5, faz: [{segue: p}, {le: 'notas[1]'}, {mostra: '8'}]}
   # extern, em dois arquivos; protótipo de função e ponteiro para
   # ponteiro.
   fora_da_trilha: [ciu_kc07_020, ciu_kc07_t21]

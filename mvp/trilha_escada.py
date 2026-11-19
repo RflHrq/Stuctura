@@ -173,11 +173,33 @@ class Prova:
 
 @dataclass(frozen=True)
 class Ator:
-    """Quem aparece na cena: uma caixa (variável) ou um ponteiro (a caixa
-    com o bilhete). `de` é o tipo do C, para a etiqueta."""
+    """Quem aparece na cena. `de` é o tipo do C, para a etiqueta (na
+    bancada, a primeira linha da função).
+
+    caixa     a variável
+    ponteiro  a caixa com o bilhete do endereço
+    fileira   o array: `tamanho` caixas lado a lado, ou linhas e colunas
+    bloco     o que o `malloc` aluga no monte; com `tamanho`, várias caixas
+    bancada   a função enquanto roda: as caixas dela nascem lá e somem na
+              volta, menos a que `fica` (o `static`)
+    """
     nome: str
     tipo: str
     de: str = ""
+    tamanho: tuple[int, ...] = ()
+    fica: bool = False
+
+    @property
+    def caixas(self) -> int:
+        n = 1
+        for t in self.tamanho:
+            n *= t
+        return n
+
+    @property
+    def tipo_c(self) -> str:
+        """O tipo como o conferidor o escreve: sem o `static`."""
+        return re.sub(r"^static\s+", "", self.de).strip()
 
 
 @dataclass(frozen=True)
@@ -442,23 +464,330 @@ def cena_json(cena: Cena | None) -> dict | None:
 
     def acao(nome: str, arg: Any) -> dict:
         if nome == "guarda":
-            return {"acao": nome, "em": arg[0], "valor": arg[1]}
+            valor = list(arg[1]) if isinstance(arg[1], tuple) else arg[1]
+            return {"acao": nome, "em": arg[0], "valor": valor}
         if nome == "aponta":
             return {"acao": nome, "de": arg[0], "para": arg[1]}
-        if nome == "mostra":
+        if nome == "aluga":
+            return {"acao": nome, "nome": arg[0], "para": arg[1]}
+        if nome in ("mostra", "diz"):
             return {"acao": nome, "texto": arg}
         return {"acao": nome, "nome": arg}
 
-    return {"atores": [{"nome": a.nome, "tipo": a.tipo, "de": a.de}
-                       for a in cena.atores],
+    def ator(a: Ator) -> dict:
+        j = {"nome": a.nome, "tipo": a.tipo, "de": a.de}
+        if a.tamanho:
+            j["tamanho"] = list(a.tamanho)
+        if a.fica:
+            j["fica"] = True
+        return j
+
+    return {"atores": [ator(a) for a in cena.atores],
             "passos": [{"linha": p.linha, "faz": [acao(n, a) for n, a in p.faz]}
                        for p in cena.passos]}
 
 
-# As ações de uma cena, e o que cada uma recebe.
+# As ações de uma cena. As de estado: `cria` (a caixa nasce), `guarda`
+# (valor, ou uma lista para a fileira inteira), `aponta`, `nulo`, `some`,
+# `aluga` (o malloc: nasce o bloco no monte, e o endereço vai para o
+# ponteiro), `devolve` (o free), `chama` e `volta` (a bancada abre e
+# fecha). As de leitura: `le`, `segue` (o bilhete do ponteiro). E as de
+# texto: `mostra` (a tela do programa) e `diz` (a frase do passo, para o
+# que não é caixa — o `if` que não entra, o `sizeof`).
 ACOES_DA_CENA = ("cria", "guarda", "le", "mostra", "aponta", "nulo",
-                 "segue", "some")
-TIPOS_DE_ATOR = ("caixa", "ponteiro")
+                 "segue", "some", "chama", "volta", "aluga", "devolve", "diz")
+TIPOS_DE_ATOR = ("caixa", "ponteiro", "fileira", "bloco", "bancada")
+
+# A estrutura do código da revisão: que linha é de que função. As formas
+# são as do conferidor (scripts/confere_escada.py): a função inteira numa
+# linha, ou aberta na margem com o tipo e fechada por `}` sozinho, também
+# na margem.
+_FUNCAO_NUMA_LINHA = re.compile(
+    r"^\s*(?:void|int|char)\s*\**\s*(\w+)\s*\([^;{]*\)\s*\{.*\}\s*$")
+_ABRE_FUNCAO = re.compile(r"^(?:void|int|char)\s*\**\s*(\w+)\s*\([^;{]*\)\s*\{\s*$")
+_FECHA_FUNCAO = re.compile(r"^\}\s*$")
+
+
+@dataclass(frozen=True)
+class Linha:
+    """Uma linha do código: de que função (None: o main) e que papel —
+    `main`, `uma` (a função inteira), `abre`, `corpo` ou `fecha`."""
+    funcao: str | None
+    papel: str
+
+
+def estrutura(codigo: str) -> list[Linha]:
+    saida: list[Linha] = []
+    aberta = None
+    for l in codigo.rstrip("\n").split("\n"):
+        if aberta:
+            fecha = bool(_FECHA_FUNCAO.match(l))
+            saida.append(Linha(aberta, "fecha" if fecha else "corpo"))
+            aberta = None if fecha else aberta
+            continue
+        m = _FUNCAO_NUMA_LINHA.match(l)
+        if m:
+            saida.append(Linha(m.group(1), "uma"))
+            continue
+        m = _ABRE_FUNCAO.match(l)
+        if m:
+            aberta = m.group(1)
+            saida.append(Linha(aberta, "abre"))
+            continue
+        saida.append(Linha(None, "main"))
+    return saida
+
+
+_REF = re.compile(r"^([A-Za-z_]\w*)((?:\[\d+\])*)$")
+
+
+def ref(texto: str) -> tuple[str, tuple[int, ...]]:
+    """`notas[2]` -> ("notas", (2,)); `a[1][0]` -> ("a", (1, 0))."""
+    m = _REF.match(texto)
+    if not m:
+        return texto, ()
+    return m.group(1), tuple(int(i) for i in re.findall(r"\[(\d+)\]", m.group(2)))
+
+
+@dataclass
+class Vivo:
+    """Um ator vivo num momento da cena. `valor` tem uma entrada por caixa
+    (None: sem valor); `aponta` é o alvo do ponteiro ("" é NULL, None é
+    sem endereço), e `solto` diz que o alvo já não existe."""
+    ator: Ator
+    valor: list
+    aponta: str | None = None
+    solto: bool = False
+    dono: str | None = None
+    devolvido: bool = False
+
+
+@dataclass
+class Momento:
+    """O estado depois de um passo: as bancadas abertas e os vivos."""
+    pilha: tuple[str, ...]
+    vivos: dict[str, Vivo]
+
+
+def toca(cena: Cena, codigo: str, problemas: list[str] | None = None,
+         onde: str = "cena") -> list[Momento]:
+    """A cena tocada passo a passo: um momento depois de cada passo.
+
+    Com `problemas`, acusa o que a cena faz e o código não pode fazer:
+    ler caixa sem valor, seguir bilhete de NULL ou de bloco devolvido,
+    citar caixa que já sumiu, voltar de bancada que não está aberta, ou a
+    linha de uma função rodando fora da bancada dela."""
+    import copy
+
+    def acusa(msg: str) -> None:
+        if problemas is not None:
+            problemas.append("%s: %s" % (onde, msg))
+
+    atores = {a.nome: a for a in cena.atores}
+    linhas = estrutura(codigo)
+    funcoes = {l.funcao for l in linhas if l.funcao}
+    vivos: dict[str, Vivo] = {}
+    pilha: list[str] = []
+    momentos: list[Momento] = []
+
+    def vivo(nome: str, n: int) -> Vivo | None:
+        v = vivos.get(nome)
+        if v is None and nome in atores:
+            acusa("linha %d: %s não existe nesse ponto" % (n, nome))
+        return v
+
+    def caixa_de(texto: str, n: int) -> tuple[Vivo | None, int | None]:
+        nome, idx = ref(texto)
+        v = vivo(nome, n)
+        if v is None or not idx:
+            return v, None
+        t = v.ator.tamanho
+        if not t:
+            acusa("linha %d: %s não é fileira" % (n, nome))
+            return None, None
+        if len(idx) != len(t) or any(i >= k for i, k in zip(idx, t)):
+            acusa("linha %d: %s fora da %s" % (
+                n, texto, "fileira" if v.ator.tipo == "fileira" else "caixa do bloco"))
+            return None, None
+        plano = 0
+        for i, k in zip(idx, t):
+            plano = plano * k + i
+        return v, plano
+
+    def solta(nome: str) -> None:
+        for v in vivos.values():
+            if v.aponta and ref(v.aponta)[0] == nome:
+                v.solto = True
+
+    def ponteiro(nome: str, n: int) -> Vivo | None:
+        v = vivo(nome, n)
+        if v is not None and v.ator.tipo != "ponteiro":
+            acusa("linha %d: %s não é ponteiro" % (n, nome))
+            return None
+        return v
+
+    for p in cena.passos:
+        n = p.linha
+        topo_antes = pilha[-1] if pilha else None
+        chama = False
+        for acao, arg in p.faz:
+            if acao == "cria":
+                a = atores.get(arg)
+                if a is None:
+                    continue
+                if a.tipo not in ("caixa", "ponteiro", "fileira"):
+                    acusa("linha %d: cria %s, que é %s — %s" % (
+                        n, arg, a.tipo, "o bloco nasce com aluga"
+                        if a.tipo == "bloco" else "a bancada abre com chama"))
+                elif arg in vivos:
+                    acusa("linha %d: cria %s, que já existe" % (n, arg))
+                else:
+                    vivos[arg] = Vivo(a, [None] * a.caixas,
+                                      dono=pilha[-1] if pilha else None)
+            elif acao == "guarda":
+                alvo, valor = arg
+                v, i = caixa_de(alvo, n)
+                if v is None:
+                    continue
+                if v.ator.tipo == "ponteiro":
+                    acusa("linha %d: guarda num ponteiro (%s): o endereço entra "
+                          "com aponta ou nulo" % (n, alvo))
+                elif v.devolvido:
+                    acusa("linha %d: guarda em %s, que já foi devolvido" % (n, alvo))
+                elif isinstance(valor, tuple):
+                    if i is not None:
+                        acusa("linha %d: uma lista de valores para a caixa %s"
+                              % (n, alvo))
+                    elif len(valor) != v.ator.caixas:
+                        acusa("linha %d: %d valores para %d caixas"
+                              % (n, len(valor), v.ator.caixas))
+                    else:
+                        v.valor = list(valor)
+                elif i is None and v.ator.caixas > 1:
+                    acusa("linha %d: um valor só para %s, que tem %d caixas"
+                          % (n, alvo, v.ator.caixas))
+                else:
+                    v.valor[i or 0] = valor
+            elif acao == "le":
+                v, i = caixa_de(arg, n)
+                if v is None:
+                    continue
+                if v.devolvido:
+                    acusa("linha %d: lê %s, que já foi devolvido" % (n, arg))
+                elif v.ator.tipo == "ponteiro":
+                    sem = v.aponta is None
+                else:
+                    sem = None in (v.valor if i is None else [v.valor[i]])
+                if not v.devolvido and sem:
+                    acusa("linha %d: lê %s, que não tem valor — ler a sobra é "
+                          "o que o tópico ensina a não fazer" % (n, arg))
+            elif acao == "aponta":
+                de, para = arg
+                v = ponteiro(de, n)
+                alvo, _ = caixa_de(para, n)
+                if v is None or alvo is None:
+                    continue
+                if alvo.devolvido:
+                    acusa("linha %d: aponta para %s, que já foi devolvido" % (n, para))
+                v.aponta, v.solto = para, False
+            elif acao == "nulo":
+                v = ponteiro(arg, n)
+                if v is not None:
+                    v.aponta, v.solto = "", False
+            elif acao == "segue":
+                v = ponteiro(arg, n)
+                if v is None:
+                    continue
+                if v.aponta is None:
+                    acusa("linha %d: segue %s, que não aponta para nada" % (n, arg))
+                elif v.aponta == "":
+                    acusa("linha %d: segue %s, que é NULL — é o que o tópico "
+                          "ensina a não fazer" % (n, arg))
+                elif v.solto or ref(v.aponta)[0] not in vivos:
+                    acusa("linha %d: segue %s, que aponta para o que já não existe"
+                          % (n, arg))
+                elif vivos[ref(v.aponta)[0]].devolvido:
+                    acusa("linha %d: segue %s, que aponta para um bloco devolvido "
+                          "— é o que o tópico ensina a não fazer" % (n, arg))
+            elif acao == "some":
+                if vivo(arg, n) is not None:
+                    del vivos[arg]
+                    solta(arg)
+            elif acao == "chama":
+                a = atores.get(arg)
+                if a is None:
+                    continue
+                if a.tipo != "bancada":
+                    acusa("linha %d: chama %s, que não é bancada" % (n, arg))
+                elif arg not in funcoes:
+                    acusa("linha %d: chama %s, que o código não define" % (n, arg))
+                else:
+                    pilha.append(arg)
+                    chama = True
+            elif acao == "volta":
+                if not pilha or pilha[-1] != arg:
+                    acusa("linha %d: volta %s, que não é a bancada aberta" % (n, arg))
+                    continue
+                pilha.pop()
+                for nome, v in list(vivos.items()):
+                    if v.dono != arg:
+                        continue
+                    if v.ator.fica:
+                        v.dono = None
+                    else:
+                        del vivos[nome]
+                        solta(nome)
+            elif acao == "aluga":
+                b, para = arg
+                a = atores.get(b)
+                v = ponteiro(para, n)
+                if a is None or v is None:
+                    continue
+                if a.tipo != "bloco":
+                    acusa("linha %d: aluga %s, que não é bloco" % (n, b))
+                elif b in vivos or any(m.vivos.get(b) for m in momentos):
+                    acusa("linha %d: aluga %s, que já foi alugado: o bloco novo "
+                          "é outro ator" % (n, b))
+                else:
+                    vivos[b] = Vivo(a, [None] * a.caixas)
+                    v.aponta, v.solto = b, False
+            elif acao == "devolve":
+                v = vivo(arg, n)
+                if v is None:
+                    continue
+                if v.ator.tipo != "bloco" or v.devolvido:
+                    acusa("linha %d: devolve %s, que não está alugado" % (n, arg))
+                else:
+                    v.devolvido = True
+                    v.valor = [None] * v.ator.caixas
+        topo = topo_antes if chama else (pilha[-1] if pilha else None)
+        if 1 <= n <= len(linhas) and linhas[n - 1].funcao != topo:
+            dono = linhas[n - 1].funcao
+            acusa("linha %d é %s, e a cena está %s" % (
+                n, "do main" if dono is None else "de %s" % dono,
+                "no main" if topo is None else "na bancada de %s" % topo))
+        momentos.append(Momento(tuple(pilha), copy.deepcopy(vivos)))
+    if pilha:
+        acusa("a cena termina com a bancada de %s aberta" % pilha[-1])
+    return momentos
+
+
+def _literal_de_char(c: str) -> str:
+    if c in ("'", "\\"):
+        return "'\\%s'" % c
+    return "'%s'" % c
+
+
+def _valor_c(cru: Any) -> str:
+    """O valor como no C. O YAML lê 20 como número, e o C quer o texto."""
+    return "" if cru is None or isinstance(cru, bool) else str(cru).strip()
+
+
+def _plano(cru: Any) -> list:
+    """A lista de valores da fileira, achatada linha a linha (a matriz)."""
+    if isinstance(cru, (list, tuple)):
+        return [x for item in cru for x in _plano(item)]
+    return [cru]
 
 
 def _cena(premissa: str, cru: Any, codigo: str,
@@ -480,12 +809,30 @@ def _cena(premissa: str, cru: Any, codigo: str,
             problemas.append("%s: ator sem nome de variável: %r" % (onde, nome))
         if tipo not in TIPOS_DE_ATOR:
             problemas.append("%s: tipo de ator desconhecido: %r" % (onde, tipo))
-        atores.append(Ator(nome, tipo, _str(a.get("de"))))
+        if not _str(a.get("de")):
+            problemas.append("%s: ator %s sem o tipo do C (de)" % (onde, nome))
+        cru_t = a.get("tamanho")
+        tamanho = tuple(cru_t) if isinstance(cru_t, list) else (
+            () if cru_t is None else (cru_t,))
+        if not all(isinstance(t, int) and not isinstance(t, bool) and t > 0
+                   for t in tamanho) or len(tamanho) > 2:
+            problemas.append("%s: tamanho de %s: um número, ou linhas e colunas"
+                             % (onde, nome))
+            tamanho = ()
+        if tipo == "fileira" and not tamanho:
+            problemas.append("%s: a fileira %s sem tamanho" % (onde, nome))
+        if tamanho and tipo not in ("fileira", "bloco"):
+            problemas.append("%s: só fileira e bloco têm tamanho (%s)" % (onde, nome))
+        fica = a.get("fica") is True
+        if fica and tipo not in ("caixa", "ponteiro"):
+            problemas.append("%s: só caixa e ponteiro ficam (%s)" % (onde, nome))
+        atores.append(Ator(nome, tipo, _str(a.get("de")), tamanho, fica))
     nomes = {a.nome for a in atores}
+    por_nome = {a.nome: a for a in atores}
 
     linhas = codigo.rstrip("\n").split("\n")
+    papeis = estrutura(codigo)
     passos, cobertas = [], set()
-    valor, aponta = {}, {}
     for p in cru.get("passos") or ():
         p = p if isinstance(p, Mapping) else {}
         n = _inteiro(p.get("linha"))
@@ -507,43 +854,61 @@ def _cena(premissa: str, cru: Any, codigo: str,
                 continue
             if nome_acao == "guarda":
                 arg = arg if isinstance(arg, Mapping) else {}
-                # O valor é escrito como no C, e o YAML lê 20 como número.
-                cru_v = arg.get("valor")
                 alvo = _str(arg.get("em"))
-                v = "" if cru_v is None or isinstance(cru_v, bool) else str(cru_v).strip()
-                if not v:
-                    problemas.append("%s: linha %d: guarda sem valor" % (onde, n))
-                valor[alvo] = v
+                if "texto" in arg:
+                    # O texto entra na fileira de char letra por letra, com
+                    # o '\0' no fim — e o C enche de '\0' o que sobra.
+                    texto = "" if arg.get("texto") is None else str(arg.get("texto"))
+                    v = tuple(_literal_de_char(c) for c in texto) + ("'\\0'",)
+                    a = por_nome.get(ref(alvo)[0])
+                    if a is not None and a.caixas >= len(v):
+                        v += ("'\\0'",) * (a.caixas - len(v))
+                    elif a is not None:
+                        problemas.append("%s: linha %d: %r não cabe em %s"
+                                         % (onde, n, texto, alvo))
+                elif isinstance(arg.get("valor"), list):
+                    v = tuple(_valor_c(x) for x in _plano(arg.get("valor")))
+                    if "" in v:
+                        problemas.append("%s: linha %d: guarda sem valor" % (onde, n))
+                else:
+                    v = _valor_c(arg.get("valor"))
+                    if not v:
+                        problemas.append("%s: linha %d: guarda sem valor" % (onde, n))
                 citados, arg = [alvo], (alvo, v)
-            elif nome_acao == "aponta":
+            elif nome_acao in ("aponta", "aluga"):
                 arg = arg if isinstance(arg, Mapping) else {}
-                de, para = _str(arg.get("de")), _str(arg.get("para"))
-                aponta[de] = para
+                chave = "de" if nome_acao == "aponta" else "nome"
+                de, para = _str(arg.get(chave)), _str(arg.get("para"))
                 citados, arg = [de, para], (de, para)
-            elif nome_acao == "mostra":
+            elif nome_acao in ("mostra", "diz"):
                 citados, arg = [], ("" if arg is None else str(arg))
+                if nome_acao == "diz" and not arg.strip():
+                    problemas.append("%s: linha %d: diz sem frase" % (onde, n))
             else:
                 arg = _str(arg)
                 citados = [arg]
-                if nome_acao == "le" and arg not in valor:
-                    problemas.append("%s: linha %d: lê %s, que não tem valor "
-                                     "— ler a sobra é o que o tópico ensina a "
-                                     "não fazer" % (onde, n, arg))
-                if nome_acao == "segue" and arg not in aponta:
-                    problemas.append("%s: linha %d: segue %s, que não aponta "
-                                     "para nada" % (onde, n, arg))
-                if nome_acao == "nulo":
-                    aponta[arg] = None
             for c in citados:
-                if c not in nomes:
+                if ref(c)[0] not in nomes:
                     problemas.append("%s: linha %d: ator desconhecido: %s"
                                      % (onde, n, c))
             faz.append((nome_acao, arg))
         passos.append(PassoCena(n, tuple(faz)))
     for i, l in enumerate(linhas, 1):
-        if l.strip() and i not in cobertas:
+        # A cabeça e o fecho da função de várias linhas não rodam: quem
+        # chama abre a bancada, e a volta a fecha.
+        if (l.strip() and i not in cobertas
+                and papeis[i - 1].papel not in ("abre", "fecha")):
             problemas.append("%s: linha %d sem passo" % (onde, i))
-    return Cena(tuple(atores), tuple(passos))
+    cena = Cena(tuple(atores), tuple(passos))
+    if not _ja_acusada(problemas, onde):
+        toca(cena, codigo, problemas, onde)
+    return cena
+
+
+def _ja_acusada(problemas: list[str], onde: str) -> bool:
+    """Já há problema de forma nesta cena? Tocar uma cena malformada só
+    repetiria o mesmo erro com outras palavras."""
+    return any(p.startswith(onde + ":") for p in problemas)
 
 
 def _fora_da_trilha(premissa: str, cru: Any, d: Dominio,

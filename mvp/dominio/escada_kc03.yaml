@@ -62,6 +62,13 @@ B1:
       int idade;
       int *p;
     saida: ""
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: p}]}
   # sizeof com %zu, e vetor: a escada não ensina nenhum dos dois.
   fora_da_trilha: [ciu_kc03_002, ciu_kc03_t03]
   provas:
@@ -288,6 +295,12 @@ B2:
     codigo: |
       int *p, *q;
     saida: ""
+  cena:
+    atores:
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: q, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: p}, {cria: q}]}
   provas:
     - crenca: estrela_e_do_tipo
       programa: |
@@ -492,6 +505,15 @@ B3:
       nota = 0;
       p = &nota;
     saida: ""
+  cena:
+    atores:
+      - {nome: nota, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: nota}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{guarda: {em: nota, valor: 0}}]}
+      - {linha: 5, faz: [{aponta: {de: p, para: nota}}]}
   # Variável fora de função, laço e vetor: a escada não ensina nenhum
   # deles. (A 008 saiu daqui em 16/11/2026: foi reescrita sem a função.)
   fora_da_trilha: [ciu_kc03_009, ciu_kc03_t08, ciu_kc03_t09]
@@ -718,6 +740,16 @@ I1:
       *p = 10;
       printf("%d\n", idade);
     saida: "10"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{aponta: {de: p, para: idade}}]}
+      - {linha: 5, faz: [{segue: p}, {guarda: {em: idade, valor: 10}}]}
+      - {linha: 6, faz: [{le: idade}, {mostra: '10'}]}
   # malloc e sizeof: a escada não ensina nenhum dos dois.
   fora_da_trilha: [ciu_kc03_t11]
   provas:
@@ -951,6 +983,12 @@ I2:
 
       p = NULL;
     saida: ""
+  cena:
+    atores:
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: p}]}
+      - {linha: 3, faz: [{nulo: p}]}
   # if, malloc e sizeof; a comparação impressa com %d; função que
   # devolve ponteiro: a escada não ensina nenhum deles.
   fora_da_trilha: [ciu_kc03_014, ciu_kc03_t14, ciu_kc03_t15]
@@ -1161,6 +1199,16 @@ I3:
       *p = 7;
       printf("%d\n", nota);
     saida: "7"
+  cena:
+    atores:
+      - {nome: nota, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: nota}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{aponta: {de: p, para: nota}}]}
+      - {linha: 5, faz: [{segue: p}, {guarda: {em: nota, valor: 7}}]}
+      - {linha: 6, faz: [{le: nota}, {mostra: '7'}]}
   # Colchetes de vetor: a escada não ensina.
   fora_da_trilha: [ciu_kc03_017]
   provas:

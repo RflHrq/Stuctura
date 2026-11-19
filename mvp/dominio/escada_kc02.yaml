@@ -78,6 +78,13 @@ B1:
       idade = 15;
       printf("%d\n", idade);
     saida: "15"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 3, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 4, faz: [{le: idade}, {mostra: '15'}]}
   provas:
     - crenca: memory_is_by_name
       programa: |
@@ -309,6 +316,13 @@ B2:
       int idade;
       int *p;
     saida: ""
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: p}]}
   # Usam sizeof com %zu, e ponteiro para ponteiro (int **pp): a escada
   # não ensina nenhum dos dois. O banco não muda; a trilha não as serve.
   fora_da_trilha: [kc02_gb2_n2_2, kc02_gb2_n3_3]
@@ -535,6 +549,16 @@ B3:
       p = &idade;
       printf("%d\n", *p);
     saida: "15"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: p}]}
+      - {linha: 4, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 5, faz: [{aponta: {de: p, para: idade}}]}
+      - {linha: 6, faz: [{segue: p}, {le: idade}, {mostra: '15'}]}
   provas:
     - crenca: pointer_is_data
       programa: |
@@ -825,6 +849,21 @@ I1:
       printf("%d\n", idade);
       printf("%d\n", nota);
     saida: "15\n9"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: nota, tipo: caixa, de: int}
+      - {nome: p, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: nota}]}
+      - {linha: 3, faz: [{cria: p}]}
+      - {linha: 5, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 6, faz: [{guarda: {em: nota, valor: 7}}]}
+      - {linha: 7, faz: [{aponta: {de: p, para: nota}}]}
+      - {linha: 8, faz: [{segue: p}, {guarda: {em: nota, valor: 9}}]}
+      - {linha: 9, faz: [{le: idade}, {mostra: '15'}]}
+      - {linha: 10, faz: [{le: nota}, {mostra: '9'}]}
   provas:
     - crenca: pointer_and_target_are_one
       programa: |
@@ -1097,6 +1136,19 @@ I2:
       p = &idade;
       c = &turma;
     saida: ""
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: turma, tipo: caixa, de: char}
+      - {nome: p, tipo: ponteiro, de: int *}
+      - {nome: c, tipo: ponteiro, de: char *}
+    passos:
+      - {linha: 1, faz: [{cria: idade}]}
+      - {linha: 2, faz: [{cria: turma}]}
+      - {linha: 3, faz: [{cria: p}]}
+      - {linha: 4, faz: [{cria: c}]}
+      - {linha: 6, faz: [{aponta: {de: p, para: idade}}]}
+      - {linha: 7, faz: [{aponta: {de: c, para: turma}}]}
   # Usam double, e sizeof com %zu: a escada não ensina nenhum dos dois.
   fora_da_trilha: [ciu_kc02_t14, kc02_gi2_n2_2]
   provas:
@@ -1341,6 +1393,18 @@ I3:
       zera(&idade);
       printf("%d\n", idade);
     saida: "0"
+  cena:
+    atores:
+      - {nome: idade, tipo: caixa, de: int}
+      - {nome: zera, tipo: bancada, de: void zera(int *q)}
+      - {nome: q, tipo: ponteiro, de: int *}
+    passos:
+      - {linha: 3, faz: [{cria: idade}]}
+      - {linha: 5, faz: [{guarda: {em: idade, valor: 15}}]}
+      - {linha: 6, faz: [{chama: zera}, {cria: q}, {aponta: {de: q, para: idade}}]}
+      - {linha: 1, faz: [{segue: q}, {guarda: {em: idade, valor: 0}}]}
+      - {linha: 6, faz: [{volta: zera}]}
+      - {linha: 7, faz: [{le: idade}, {mostra: '0'}]}
   provas:
     - crenca: pointer_is_pointless
       programa: |
