@@ -369,7 +369,7 @@ Se errar:
 
 ### Degrau 3 — guiado, completar
 
-> Esse endereço pode ir para outra função enquanto a dona da caixa roda: zera(&n) entrega a caixa n, e zera escreve nela.
+> Esse endereço pode ir para outra função enquanto a dona da caixa roda: com ele, a outra função escreve na caixa.
 
 **Versão 1.** Complete a chamada para zera escrever em n.
 
@@ -590,7 +590,7 @@ Se errar:
 
 ### Degrau 2 — guiado, completar
 
-> Para usar depois o que a função retornou, guarde numa variável: int x = dobro(3);
+> Para usar depois o que a função retornou, guarde numa variável, com a chamada do lado direito do =.
 
 **Versão 1.** Complete para x guardar o que dobro(3) retorna.
 
@@ -850,7 +850,7 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> Quando quem chamou recebe esse endereço, a caixa n já sumiu: sumiu no mesmo instante do retorno.
+> Quando quem chamou recebe o endereço de uma local, a caixa dela já sumiu, no mesmo instante do retorno.
 
 **Versão 1.** Na última linha, p recebe o endereço de n. Onde está a caixa n nesse momento?
 

@@ -45,7 +45,7 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> Na chamada zera(idade); o que vai entre os parênteses é o argumento.
+> Na chamada, o que vai entre os parênteses é o argumento.
 > O parâmetro não é o argumento: é uma variável nova, criada na chamada, com o seu próprio lugar.
 
 **Versão 1.** Durante a chamada da última linha, quantas variáveis existem?

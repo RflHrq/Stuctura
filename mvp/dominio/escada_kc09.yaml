@@ -373,7 +373,7 @@ B2:
       forma: escolher
       codigo: false
       frases:
-        - "free é uma função como as outras: na chamada free(p), o que entra nela é uma cópia do valor de p."
+        - "free é uma função como as outras: na chamada, o que entra nela é uma cópia do valor do argumento."
         - "O valor de p é um endereço. A variável p fica com quem chamou."
       versoes:
         - pede: "Na última linha, o que entra na função free?"
@@ -647,8 +647,8 @@ B3:
       forma: escolher
       codigo: false
       frases:
-        - "São duas coisas: o bloco, no monte, e a caixa de p, que é uma variável sua e fica onde foi declarada."
-        - "free devolve o bloco. A caixa de p não está dentro dele, e não vai junto."
+        - "São duas coisas: o bloco, no monte, e a caixa do ponteiro, que fica onde foi declarada."
+        - "free devolve só o bloco."
       versoes:
         - pede: "A última linha devolve o bloco. O que acontece com a caixa de p?"
           antes: |-
@@ -1792,7 +1792,7 @@ I3:
       forma: completar
       codigo: true
       frases:
-        - "O costume é uma linha só, logo depois do free: p = NULL;"
+        - "O costume é uma linha só, logo depois do free, escrevendo NULL no próprio ponteiro."
       versoes:
         - pede: "Complete com a linha que deixa registrado que p não aponta mais para nada."
           antes: |-
@@ -1969,7 +1969,7 @@ I4:
       codigo: false
       frases:
         - "Depois do free, p guarda um endereço com cara de bom, de um lugar que já não é seu."
-        - "Chamar free(p) de novo é devolver o que não é seu: não é seguro, e o compilador reclama quando vê."
+        - "Um bloco só pode ser devolvido uma vez, e o compilador reclama quando vê."
       versoes:
         - pede: "O que a última linha faz?"
           antes: |-
@@ -2058,7 +2058,7 @@ I4:
       codigo: false
       frases:
         - "Com p pendente, o padrão do C não garante nem copiar nem comparar o valor dele: as comparações que você viu aqui valem nesta máquina."
-        - "O único uso seguro é dar a p um valor novo."
+        - "Ler p, para copiar ou comparar, já é usar o valor dele."
       versoes:
         - pede: "Depois do free(p);, qual destas linhas é segura?"
           pecas:

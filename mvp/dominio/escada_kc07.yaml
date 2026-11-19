@@ -414,7 +414,7 @@ B2:
       forma: escolher
       codigo: false
       frases:
-        - "int notas[3]; cria três caixas de int. int *p; cria uma caixa só: a de p."
+        - "Declarar um array cria as caixas dele; declarar um ponteiro cria só a caixa do ponteiro."
         - "Com o ponteiro não nasce caixa de int nenhuma."
       versoes:
         - pede: "Depois destas duas linhas, quantas caixas de int existem?"
@@ -897,8 +897,8 @@ B4:
       forma: escolher
       codigo: false
       frases:
-        - "Em sizeof v, o nome não vira endereço: ali v é o conjunto inteiro."
-        - "É por isso que sizeof v mede as dez caixas, e não um ponteiro."
+        - "Dentro do sizeof, o nome do array não vira endereço: ali ele é o conjunto inteiro."
+        - "É por isso que o sizeof de um array mede todas as caixas, e não um ponteiro."
       versoes:
         - pede: "Em qual destes lugares v continua sendo o conjunto das dez caixas?"
           antes: |-
@@ -1369,8 +1369,8 @@ I2:
       forma: escolher
       codigo: false
       frases:
-        - "O parâmetro escrito char v[10] é um ponteiro: o mesmo que char *v."
-        - "O 10 dali não cria caixa nenhuma, e a função não fica sabendo dele."
+        - "Um parâmetro escrito com colchetes, como int v[5], é um ponteiro: o mesmo que int *v."
+        - "O número dali não cria caixa nenhuma, e a função não fica sabendo dele."
       versoes:
         - pede: "Dentro desta função, o que v é?"
           antes: "void marca(char v[10]) { v[0] = 'a'; }"
@@ -1406,7 +1406,7 @@ I2:
       forma: escolher
       codigo: false
       frases:
-        - "Fora da função, sizeof notas mede as cinco caixas. Dentro dela, sizeof v mede o ponteiro."
+        - "Fora da função, o sizeof do array mede todas as caixas; dentro, o parâmetro já é um ponteiro."
         - "Quantas caixas havia, lá dentro não dá mais para saber."
       versoes:
         - pede: "notas tem cinco caixas. O que o sizeof v de dentro da função mede?"
@@ -1694,8 +1694,8 @@ I3:
       forma: escolher
       codigo: true
       frases:
-        - "p pode receber outro endereço quando você quiser."
-        - "notas não: o conjunto das caixas não muda de lugar."
+        - "Um ponteiro pode receber outro endereço quando você quiser."
+        - "O nome de um array não: o conjunto das caixas não muda de lugar."
       versoes:
         - pede: "Qual destas linhas o compilador aceita?"
           antes: |-

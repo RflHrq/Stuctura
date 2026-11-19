@@ -47,7 +47,7 @@ Se errar:
 
 ### Degrau 2 — guiado, completar
 
-> Por isso o compilador reclama de p = 1000;: 1000 é um int, e p quer o endereço de um int.
+> Por isso o compilador reclama de guardar um número qualquer num ponteiro: ele quer o endereço de uma caixa do tipo dele.
 
 **Versão 1.** Complete com o que cabe em p.
 
@@ -503,7 +503,7 @@ O que isto mostra: Saiu 1. sizeof *c mede um char, o tipo que a declaração de 
 ### Degrau 1 — guiado, escolher
 
 > Os elementos de um array ficam grudados, um logo depois do outro, sem buraco entre eles.
-> Por isso a distância de &notas[0] a &notas[2] é de duas caixas: &notas[2] - &notas[0] dá 2.
+> Por isso a distância entre dois endereços do mesmo array se conta em caixas: é o que mede a conta &notas[2] - &notas[0].
 
 **Versão 1.** Quantas caixas há de &notas[0] até &notas[2]?
 
@@ -785,7 +785,7 @@ Se errar:
 
 ### Degrau 2 — guiado, completar
 
-> Com um ponteiro vale o mesmo: p[1] é *(p + 1). A soma vem antes do *.
+> Com um ponteiro vale o mesmo: p[i] é *(p + i). A soma vem antes do *.
 > E dá para andar para trás: *(p - 1) é a caixa de trás, que também se escreve p[-1].
 
 **Versão 1.** Complete para mostrar notas[1], escrito como soma.
@@ -1254,7 +1254,7 @@ O que isto mostra: O compilador aceita c + 1 e reclama de v + 1. O void * não s
 
 ### Degrau 1 — guiado, escolher
 
-> p + 1 anda um elemento do tipo de p, e não um byte: com int *p, uma caixa de int inteira.
+> Somar 1 a um ponteiro anda um elemento do tipo dele, e não um byte.
 > Quem faz a conta do tamanho é o compilador.
 
 **Versão 1.** p aponta para notas[0]. Para onde aponta p + 1?

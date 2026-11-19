@@ -361,3 +361,371 @@ esc_kc11_B2_3, esc_kc12_B1_3, esc_kc12_B3_5 e esc_kc12_I3_1.
 - antes: Sem static, o erro às vezes parece funcionar: o lugar onde a caixa ficava pode ainda guardar o valor antigo. Parecer funcionar não é funcionar.
 - depois: Sem static, o erro às vezes parece funcionar: quando a caixa sai, o lugar dela não é apagado, e pode guardar o valor antigo.
 - depois: Ler esse lugar é ler o que sobrou, e não a variável.
+
+## Segunda passada (19/11/2026)
+
+A marca do programa era pista, e não prova. Os 189 degraus guiados que
+ela não marcou foram lidos um a um, com o mesmo critério, mais uma
+distinção: o passo que MOSTRA uma construção nova e pede para imitá-la
+uma vez (montar, completar, tocar ou digitar o que a frase acabou de
+mostrar) é assim de propósito, e ficou; os traços de programa ("que
+número aparece?") também. O conserto foi nas perguntas de entender —
+o que p guarda, por quê, qual destas — em que a frase já dava a
+conclusão para o mesmo caso: 54 degraus. Nenhuma alternativa nem retorno
+mudou, e os trechos que os testes exigem em cada passo ficaram.
+
+### esc_kc00_B1_3
+
+- antes: O tipo diz que espécie de valor cabe na variável.
+- antes: int guarda um número inteiro, como 20. char guarda um caractere, como 'B'.
+- depois: O tipo diz que espécie de valor cabe na variável.
+- depois: int guarda um número inteiro, como 20. char guarda um caractere, como 'x'.
+
+### esc_kc00_B2_2
+
+- antes: Repare: você escreveu na variável sem declarar de novo.
+- antes: Ela existe desde a linha da declaração, mesmo antes de receber qualquer valor.
+- depois: Repare: você escreveu na variável sem declarar de novo.
+- depois: Quem reserva o lugar da variável é a declaração, e não o primeiro valor.
+
+### esc_kc00_B4_2
+
+- antes: O valor antigo não fica guardado em outro canto da variável.
+- antes: Depois de idade = 21; não existe mais 20 nenhum ali.
+- depois: O valor antigo não fica guardado em outro canto da variável.
+- depois: Uma variável tem lugar para um valor só, e o valor novo ocupa esse lugar inteiro.
+
+### esc_kc01_B1_2
+
+- antes: Quando o programa termina, a memória dele volta para o sistema.
+- antes: Na próxima vez que rodar, ele recebe outra: o que a execução anterior guardou não está lá.
+- depois: Quando o programa termina, a memória dele volta para o sistema.
+- depois: Na próxima vez que rodar, ele recebe outra memória, que pode ter sido de qualquer programa.
+
+### esc_kc01_I1_3
+
+- antes: A variável que guarda o endereço e o bloco são duas coisas, com dois fins diferentes.
+- antes: q acaba sozinha, como toda variável local; o bloco, só com free(q);
+- depois: A variável que guarda o endereço e o bloco são duas coisas, com dois fins diferentes.
+- depois: Variável local acaba sozinha; bloco do malloc, só com free.
+
+### esc_kc02_B1_2
+
+- antes: Em C, o & antes do nome pede o endereço da variável.
+- antes: idade é o valor guardado. &idade é o endereço de idade.
+- depois: Em C, o & antes do nome pede o endereço da variável.
+- depois: Sem o &, o nome dá o valor guardado nela.
+
+### esc_kc02_B3_2
+
+- antes: Depois de p = &idade;, o que está guardado em p é o endereço de idade.
+- antes: O valor de idade continua guardado em idade, e não em p.
+- depois: Um ponteiro guarda o endereço que recebeu, e só isso.
+- depois: O valor da variável apontada continua guardado nela, e não no ponteiro.
+
+### esc_kc02_I2_1
+
+- antes: O tipo antes do * diz o que mora no endereço guardado.
+- antes: int *p guarda endereço de int. char *c guarda endereço de char.
+- depois: O tipo antes do * diz o que mora no endereço guardado.
+- depois: int *p guarda endereço de int; para outro tipo, troca-se o tipo antes do *.
+
+### esc_kc02_I2_2
+
+- antes: O endereço tem de combinar com o tipo do ponteiro.
+- antes: Um int *p recebe &idade, que é endereço de int, e não &turma, que é endereço de char.
+- depois: O endereço tem de combinar com o tipo do ponteiro.
+- depois: Um ponteiro para int recebe endereço de int; um ponteiro para char, endereço de char.
+
+### esc_kc02_I2_3
+
+- antes: Um endereço não é um número inteiro comum.
+- antes: Por isso o compilador reclama de n = p; quando n é int e p é ponteiro.
+- depois: Um endereço não é um número inteiro comum.
+- depois: Ponteiro e int são tipos diferentes, e o compilador confere o tipo de cada lado do =.
+
+### esc_kc02_I3_4
+
+- antes: É isso que o ponteiro dá, e a variável comum não: alcançar a mesma variável de outro ponto do programa.
+- antes: Só o endereço viaja. O conteúdo não é copiado.
+- depois: A variável comum chega na função como cópia; o ponteiro leva o endereço dela.
+- depois: Só o endereço viaja. O conteúdo não é copiado.
+
+### esc_kc03_B1_1
+
+- antes: Declarar uma variável já reserva o lugar dela na memória.
+- antes: O valor vem depois. O lugar existe desde a declaração.
+- depois: Uma variável precisa de um lugar na memória antes de poder receber valor.
+- depois: Quem reserva esse lugar é a declaração.
+
+### esc_kc03_I1_1
+
+- antes: int *p; declara uma variável só: o ponteiro.
+- antes: O lugar para onde ele vai apontar não nasce junto. Quem cria esse lugar é outra declaração.
+- depois: Declarar cria a variável declarada, e só ela.
+- depois: O lugar para onde um ponteiro vai apontar não nasce junto: quem cria esse lugar é outra declaração.
+
+### esc_kc03_I2_3
+
+- antes: O ponteiro também pode já nascer com NULL: int *p = NULL;
+- antes: É declarar e dar o valor na mesma linha, como em int idade = 15;
+- depois: O ponteiro também pode já nascer valendo NULL, numa declaração com valor.
+- depois: É declarar e dar o valor na mesma linha, como em int idade = 15;
+
+### esc_kc04_B1_2
+
+- antes: Por isso &idade é aceito, e &5 faz o compilador reclamar.
+- depois: Por isso o & só é aceito antes do nome de uma variável.
+- depois: Antes de um número escrito no código, o compilador reclama.
+
+### esc_kc04_B2_1
+
+- antes: &idade é o endereço de idade: o número do lugar dela.
+- antes: Pedir o endereço não copia nada. O valor continua guardado em idade, e só lá.
+- depois: &idade é o endereço de idade: o número do lugar dela.
+- depois: Pedir o endereço de uma variável não copia o que ela guarda.
+
+### esc_kc04_B3_2
+
+- antes: São duas coisas diferentes: p é o endereço guardado, e *p é o valor que mora lá.
+- depois: São duas coisas diferentes: o nome do ponteiro dá o endereço guardado.
+- depois: Com o * na frente, ele dá o valor que mora lá.
+
+### esc_kc04_B3_3
+
+- antes: Por isso um ponteiro recebe endereço, e não valor: p = &idade; e nunca p = idade;
+- depois: Por isso o que se guarda num ponteiro é um endereço, e não um valor.
+
+### esc_kc04_I1_1
+
+- antes: *p quer dizer: vá até o endereço guardado em p.
+- antes: Não é outro nome da variável. É um caminho, e o destino é o endereço que estiver em p naquele momento.
+- depois: O * diante de um ponteiro quer dizer: vá até o endereço guardado nele.
+- depois: Não é outro nome da variável: é um caminho, e o destino é o endereço guardado naquele momento.
+
+### esc_kc04_I2_1
+
+- antes: *p = 7; escreve 7 no lugar apontado por p.
+- antes: O ponteiro não muda: continua guardando o mesmo endereço de antes.
+- depois: Com o * na frente, a escrita vai para o lugar apontado.
+- depois: O ponteiro em si não é escrito: continua guardando o mesmo endereço.
+
+### esc_kc04_I2_3
+
+- antes: Quem muda o ponteiro é a escrita sem o *: p = &nota;
+- depois: Quem muda o ponteiro é a escrita sem o *, com um endereço novo do lado direito.
+
+### esc_kc04_I3_3
+
+- antes: Cada coisa tem o seu lugar: o endereço se guarda em p, e o valor se escreve em *p.
+- antes: p = &idade; guarda o endereço. *p = 9; escreve no lugar apontado.
+- depois: Cada coisa tem o seu lugar: o endereço se guarda no ponteiro, e o valor se escreve no lugar apontado.
+- depois: Sem o *, a linha mexe no ponteiro; com o *, no lugar apontado.
+
+### esc_kc05_B2_2
+
+- antes: Isso vale para o 0 escrito ali, na linha.
+- antes: Um zero guardado numa variável inteira é um número comum: o compilador reclama de p = n;
+- depois: Isso vale para o 0 escrito ali, na linha.
+- depois: Um zero guardado numa variável inteira é um número comum, e o compilador reclama de guardá-lo num ponteiro.
+
+### esc_kc05_B2_3
+
+- antes: Dá para forçar: q = (int *)n; manda o compilador tratar o número de n como endereço, e ele aceita.
+- antes: Mas a linguagem não promete que saia dali o ponteiro nulo, mesmo com n valendo zero.
+- depois: Dá para forçar com um cast: (int *)n manda o compilador tratar o número de n como endereço, e ele aceita.
+- depois: Mas só o 0 escrito no código tem a promessa de virar o ponteiro nulo.
+
+### esc_kc05_I1_1
+
+- antes: p == NULL lê o valor guardado em p, e compara.
+- antes: Ela não vai ao lugar apontado: quem vai é o *p.
+- depois: Comparar um ponteiro lê o que está guardado nele, como em qualquer variável.
+- depois: Quem vai ao lugar apontado é o *.
+
+### esc_kc05_I1_2
+
+- antes: São duas perguntas diferentes: p == NULL pergunta do ponteiro; *p == 0 pergunta do lugar apontado.
+- antes: Com p valendo NULL, só a primeira pode ser feita.
+- depois: São duas perguntas diferentes: p == NULL pergunta do ponteiro; *p == 0 pergunta do lugar apontado.
+- depois: Com p valendo NULL, não há lugar apontado para perguntar nada.
+
+### esc_kc05_I2_2
+
+- antes: Essa é uma regra de escrita: no código, o 0 ao lado de um ponteiro quer dizer 'o ponteiro nulo'.
+- antes: Ela não diz o que a máquina guarda dentro de p. Isso é assunto de cada máquina.
+- depois: Essa é uma regra de escrita: no código, o 0 ao lado de um ponteiro quer dizer 'o ponteiro nulo'.
+- depois: Por dentro, cada máquina representa o ponteiro nulo do seu jeito.
+
+### esc_kc05_I3_2
+
+- antes: Por isso, antes de usar *p, pergunta-se ao ponteiro: if (p != NULL)
+- antes: Escrever só if (p) quer dizer a mesma coisa: 'se p não é o ponteiro nulo'.
+- depois: Por isso, antes de usar *p, pergunta-se ao ponteiro se ele aponta para algum lugar.
+- depois: A pergunta se escreve p != NULL, ou só p: if (p) quer dizer 'se p não é o ponteiro nulo'.
+
+### esc_kc06_B1_2
+
+- antes: Na chamada zera(idade); o que vai entre os parênteses é o argumento.
+- antes: O parâmetro não é o argumento: é uma variável nova, criada na chamada, com o seu próprio lugar.
+- depois: Na chamada, o que vai entre os parênteses é o argumento.
+- depois: O parâmetro não é o argumento: é uma variável nova, criada na chamada, com o seu próprio lugar.
+
+### esc_kc07_B2_1
+
+- antes: int notas[3]; cria três caixas de int. int *p; cria uma caixa só: a de p.
+- antes: Com o ponteiro não nasce caixa de int nenhuma.
+- depois: Declarar um array cria as caixas dele; declarar um ponteiro cria só a caixa do ponteiro.
+- depois: Com o ponteiro não nasce caixa de int nenhuma.
+
+### esc_kc07_B4_1
+
+- antes: Em sizeof v, o nome não vira endereço: ali v é o conjunto inteiro.
+- antes: É por isso que sizeof v mede as dez caixas, e não um ponteiro.
+- depois: Dentro do sizeof, o nome do array não vira endereço: ali ele é o conjunto inteiro.
+- depois: É por isso que o sizeof de um array mede todas as caixas, e não um ponteiro.
+
+### esc_kc07_I2_1
+
+- antes: O parâmetro escrito char v[10] é um ponteiro: o mesmo que char *v.
+- antes: O 10 dali não cria caixa nenhuma, e a função não fica sabendo dele.
+- depois: Um parâmetro escrito com colchetes, como int v[5], é um ponteiro: o mesmo que int *v.
+- depois: O número dali não cria caixa nenhuma, e a função não fica sabendo dele.
+
+### esc_kc07_I2_2
+
+- antes: Fora da função, sizeof notas mede as cinco caixas. Dentro dela, sizeof v mede o ponteiro.
+- antes: Quantas caixas havia, lá dentro não dá mais para saber.
+- depois: Fora da função, o sizeof do array mede todas as caixas; dentro, o parâmetro já é um ponteiro.
+- depois: Quantas caixas havia, lá dentro não dá mais para saber.
+
+### esc_kc07_I3_3
+
+- antes: p pode receber outro endereço quando você quiser.
+- antes: notas não: o conjunto das caixas não muda de lugar.
+- depois: Um ponteiro pode receber outro endereço quando você quiser.
+- depois: O nome de um array não: o conjunto das caixas não muda de lugar.
+
+### esc_kc08_B2_2
+
+- antes: O endereço que malloc devolve se guarda no ponteiro: p = malloc(...);
+- antes: *p é o que está NO bloco, e só serve depois de p ter o endereço.
+- depois: O endereço que malloc devolve se guarda num ponteiro, como todo endereço.
+- depois: *p é o que está NO bloco, e só serve depois de p ter o endereço.
+
+### esc_kc08_I1_2
+
+- antes: Quando a função termina, a caixa de p acaba, como toda variável local.
+- antes: O bloco continua no monte — e, se p era o único com o endereço, ninguém mais chega nele.
+- depois: Quando a função termina, as variáveis locais dela acabam, ponteiro ou não.
+- depois: O bloco do malloc fica no monte — e, se só uma variável local tinha o endereço, ninguém mais chega nele.
+
+### esc_kc08_I2_2
+
+- antes: Conferir é perguntar se o ponteiro não é NULL, antes de usar: if (p != NULL) ...
+- depois: Conferir é perguntar, antes de usar, se o ponteiro não é NULL.
+
+### esc_kc08_I3_2
+
+- antes: Quem pediu devolve: free(p); antes de a função terminar, enquanto p ainda guarda o endereço.
+- depois: Quem pediu devolve, com free, antes de a função terminar e enquanto o ponteiro ainda guarda o endereço.
+
+### esc_kc09_B2_1
+
+- antes: free é uma função como as outras: na chamada free(p), o que entra nela é uma cópia do valor de p.
+- antes: O valor de p é um endereço. A variável p fica com quem chamou.
+- depois: free é uma função como as outras: na chamada, o que entra nela é uma cópia do valor do argumento.
+- depois: O valor de p é um endereço. A variável p fica com quem chamou.
+
+### esc_kc09_B3_1
+
+- antes: São duas coisas: o bloco, no monte, e a caixa de p, que é uma variável sua e fica onde foi declarada.
+- antes: free devolve o bloco. A caixa de p não está dentro dele, e não vai junto.
+- depois: São duas coisas: o bloco, no monte, e a caixa do ponteiro, que fica onde foi declarada.
+- depois: free devolve só o bloco.
+
+### esc_kc09_I3_3
+
+- antes: O costume é uma linha só, logo depois do free: p = NULL;
+- depois: O costume é uma linha só, logo depois do free, escrevendo NULL no próprio ponteiro.
+
+### esc_kc09_I4_1
+
+- antes: Depois do free, p guarda um endereço com cara de bom, de um lugar que já não é seu.
+- antes: Chamar free(p) de novo é devolver o que não é seu: não é seguro, e o compilador reclama quando vê.
+- depois: Depois do free, p guarda um endereço com cara de bom, de um lugar que já não é seu.
+- depois: Um bloco só pode ser devolvido uma vez, e o compilador reclama quando vê.
+
+### esc_kc09_I4_3
+
+- antes: Com p pendente, o padrão do C não garante nem copiar nem comparar o valor dele: as comparações que você viu aqui valem nesta máquina.
+- antes: O único uso seguro é dar a p um valor novo.
+- depois: Com p pendente, o padrão do C não garante nem copiar nem comparar o valor dele: as comparações que você viu aqui valem nesta máquina.
+- depois: Ler p, para copiar ou comparar, já é usar o valor dele.
+
+### esc_kc10_B1_1
+
+- antes: p é uma caixa como as outras, e toda caixa tem endereço: &p é o endereço da caixa p.
+- antes: &p não é o que p guarda, nem uma cópia de p: é onde a caixa p fica.
+- depois: Um ponteiro é uma caixa como as outras, e toda caixa tem endereço.
+- depois: O & dá onde a caixa fica, e não o que ela guarda.
+
+### esc_kc10_I1_3
+
+- antes: Na chamada vai o endereço do ponteiro, com o &: troca(&q, ...).
+- depois: Na chamada vai o endereço do ponteiro, com o &.
+
+### esc_kc10_I3_1
+
+- antes: pp e p são duas caixas: pp guarda o endereço de p, e p guarda o endereço de idade.
+- antes: **pp não pula direto para o número: passa por p, e só então chega em idade.
+- depois: Cada estrela é um passo, e cada passo para numa caixa.
+- depois: Um ponteiro para ponteiro guarda o endereço de outro ponteiro, e não o do número.
+
+### esc_kc10_I3_3
+
+- antes: *pp é a caixa p: o que se escreve ali é um endereço.
+- antes: **pp é a caixa idade: o que se escreve ali é um número.
+- depois: Com uma estrela, pp chega na caixa cujo endereço ele guarda; com duas, na caixa seguinte.
+- depois: Em cada caixa se escreve o que ela guarda: endereço no ponteiro, número no int.
+
+### esc_kc11_B1_2
+
+- antes: Por isso o compilador reclama de p = 1000;: 1000 é um int, e p quer o endereço de um int.
+- depois: Por isso o compilador reclama de guardar um número qualquer num ponteiro: ele quer o endereço de uma caixa do tipo dele.
+
+### esc_kc11_B3_1
+
+- antes: Os elementos de um array ficam grudados, um logo depois do outro, sem buraco entre eles.
+- antes: Por isso a distância de &notas[0] a &notas[2] é de duas caixas: &notas[2] - &notas[0] dá 2.
+- depois: Os elementos de um array ficam grudados, um logo depois do outro, sem buraco entre eles.
+- depois: Por isso a distância entre dois endereços do mesmo array se conta em caixas: é o que mede a conta &notas[2] - &notas[0].
+
+### esc_kc11_I1_2
+
+- antes: Com um ponteiro vale o mesmo: p[1] é *(p + 1). A soma vem antes do *.
+- antes: E dá para andar para trás: *(p - 1) é a caixa de trás, que também se escreve p[-1].
+- depois: Com um ponteiro vale o mesmo: p[i] é *(p + i). A soma vem antes do *.
+- depois: E dá para andar para trás: *(p - 1) é a caixa de trás, que também se escreve p[-1].
+
+### esc_kc11_I3_1
+
+- antes: p + 1 anda um elemento do tipo de p, e não um byte: com int *p, uma caixa de int inteira.
+- antes: Quem faz a conta do tamanho é o compilador.
+- depois: Somar 1 a um ponteiro anda um elemento do tipo dele, e não um byte.
+- depois: Quem faz a conta do tamanho é o compilador.
+
+### esc_kc12_B2_3
+
+- antes: Esse endereço pode ir para outra função enquanto a dona da caixa roda: zera(&n) entrega a caixa n, e zera escreve nela.
+- depois: Esse endereço pode ir para outra função enquanto a dona da caixa roda: com ele, a outra função escreve na caixa.
+
+### esc_kc12_B3_2
+
+- antes: Para usar depois o que a função retornou, guarde numa variável: int x = dobro(3);
+- depois: Para usar depois o que a função retornou, guarde numa variável, com a chamada do lado direito do =.
+
+### esc_kc12_I1_2
+
+- antes: Quando quem chamou recebe esse endereço, a caixa n já sumiu: sumiu no mesmo instante do retorno.
+- depois: Quando quem chamou recebe o endereço de uma local, a caixa dela já sumiu, no mesmo instante do retorno.

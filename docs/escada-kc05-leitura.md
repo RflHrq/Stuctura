@@ -340,7 +340,7 @@ Se errar:
 ### Degrau 2 — guiado, escolher
 
 > Isso vale para o 0 escrito ali, na linha.
-> Um zero guardado numa variável inteira é um número comum: o compilador reclama de p = n;
+> Um zero guardado numa variável inteira é um número comum, e o compilador reclama de guardá-lo num ponteiro.
 
 **Versão 1.** n guarda zero. Qual destas linhas o compilador aceita?
 
@@ -386,8 +386,8 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> Dá para forçar: q = (int *)n; manda o compilador tratar o número de n como endereço, e ele aceita.
-> Mas a linguagem não promete que saia dali o ponteiro nulo, mesmo com n valendo zero.
+> Dá para forçar com um cast: (int *)n manda o compilador tratar o número de n como endereço, e ele aceita.
+> Mas só o 0 escrito no código tem a promessa de virar o ponteiro nulo.
 
 **Versão 1.** Qual dos dois é o ponteiro nulo com certeza?
 
@@ -836,8 +836,8 @@ O que isto mostra: O próprio compilador avisa: o endereço de idade nunca vai s
 
 ### Degrau 1 — guiado, escolher
 
-> p == NULL lê o valor guardado em p, e compara.
-> Ela não vai ao lugar apontado: quem vai é o *p.
+> Comparar um ponteiro lê o que está guardado nele, como em qualquer variável.
+> Quem vai ao lugar apontado é o *.
 
 **Versão 1.** O que a comparação da última linha lê?
 
@@ -886,7 +886,7 @@ Se errar:
 ### Degrau 2 — guiado, escolher
 
 > São duas perguntas diferentes: p == NULL pergunta do ponteiro; *p == 0 pergunta do lugar apontado.
-> Com p valendo NULL, só a primeira pode ser feita.
+> Com p valendo NULL, não há lugar apontado para perguntar nada.
 
 **Versão 1.** p vale NULL. Qual destas linhas é segura?
 
@@ -1153,7 +1153,7 @@ Se errar:
 ### Degrau 2 — guiado, escolher
 
 > Essa é uma regra de escrita: no código, o 0 ao lado de um ponteiro quer dizer 'o ponteiro nulo'.
-> Ela não diz o que a máquina guarda dentro de p. Isso é assunto de cada máquina.
+> Por dentro, cada máquina representa o ponteiro nulo do seu jeito.
 
 **Versão 1.** p == 0 dá 1. O que isso garante sobre o que a máquina guarda dentro de p?
 
@@ -1419,8 +1419,8 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> Por isso, antes de usar *p, pergunta-se ao ponteiro: if (p != NULL)
-> Escrever só if (p) quer dizer a mesma coisa: 'se p não é o ponteiro nulo'.
+> Por isso, antes de usar *p, pergunta-se ao ponteiro se ele aponta para algum lugar.
+> A pergunta se escreve p != NULL, ou só p: if (p) quer dizer 'se p não é o ponteiro nulo'.
 
 **Versão 1.** Qual linha só escreve em *p quando há lugar?
 

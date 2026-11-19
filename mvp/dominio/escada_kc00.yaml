@@ -192,7 +192,7 @@ B1:
       codigo: false
       frases:
         - "O tipo diz que espécie de valor cabe na variável."
-        - "int guarda um número inteiro, como 20. char guarda um caractere, como 'B'."
+        - "int guarda um número inteiro, como 20. char guarda um caractere, como 'x'."
       versoes:
         - pede: "Qual declaração serve para guardar a letra de uma turma, como 'B'?"
           pecas:
@@ -378,7 +378,7 @@ B2:
       codigo: false
       frases:
         - "Repare: você escreveu na variável sem declarar de novo."
-        - "Ela existe desde a linha da declaração, mesmo antes de receber qualquer valor."
+        - "Quem reserva o lugar da variável é a declaração, e não o primeiro valor."
       versoes:
         - pede: "Logo depois de int idade; e antes de qualquer valor, a variável idade já existe?"
           pecas:
@@ -861,7 +861,7 @@ B4:
       codigo: false
       frases:
         - "O valor antigo não fica guardado em outro canto da variável."
-        - "Depois de idade = 21; não existe mais 20 nenhum ali."
+        - "Uma variável tem lugar para um valor só, e o valor novo ocupa esse lugar inteiro."
       versoes:
         - pede: "Depois de idade = 20; e idade = 21; onde ficou o 20?"
           pecas:

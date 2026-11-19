@@ -318,7 +318,7 @@ O que isto mostra: Saíram 6 e 8. nome é o conjunto das seis caixas, com as let
 
 ### Degrau 1 — guiado, escolher
 
-> int notas[3]; cria três caixas de int. int *p; cria uma caixa só: a de p.
+> Declarar um array cria as caixas dele; declarar um ponteiro cria só a caixa do ponteiro.
 > Com o ponteiro não nasce caixa de int nenhuma.
 
 **Versão 1.** Depois destas duas linhas, quantas caixas de int existem?
@@ -829,8 +829,8 @@ O que isto mostra: Saiu 7. Se o array viajasse por referência, v seria o própr
 
 ### Degrau 1 — guiado, escolher
 
-> Em sizeof v, o nome não vira endereço: ali v é o conjunto inteiro.
-> É por isso que sizeof v mede as dez caixas, e não um ponteiro.
+> Dentro do sizeof, o nome do array não vira endereço: ali ele é o conjunto inteiro.
+> É por isso que o sizeof de um array mede todas as caixas, e não um ponteiro.
 
 **Versão 1.** Em qual destes lugares v continua sendo o conjunto das dez caixas?
 
@@ -1342,8 +1342,8 @@ O que isto mostra: O compilador reclama da última linha: copia é um array, e o
 
 ### Degrau 1 — guiado, escolher
 
-> O parâmetro escrito char v[10] é um ponteiro: o mesmo que char *v.
-> O 10 dali não cria caixa nenhuma, e a função não fica sabendo dele.
+> Um parâmetro escrito com colchetes, como int v[5], é um ponteiro: o mesmo que int *v.
+> O número dali não cria caixa nenhuma, e a função não fica sabendo dele.
 
 **Versão 1.** Dentro desta função, o que v é?
 
@@ -1383,7 +1383,7 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> Fora da função, sizeof notas mede as cinco caixas. Dentro dela, sizeof v mede o ponteiro.
+> Fora da função, o sizeof do array mede todas as caixas; dentro, o parâmetro já é um ponteiro.
 > Quantas caixas havia, lá dentro não dá mais para saber.
 
 **Versão 1.** notas tem cinco caixas. O que o sizeof v de dentro da função mede?
@@ -1673,8 +1673,8 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> p pode receber outro endereço quando você quiser.
-> notas não: o conjunto das caixas não muda de lugar.
+> Um ponteiro pode receber outro endereço quando você quiser.
+> O nome de um array não: o conjunto das caixas não muda de lugar.
 
 **Versão 1.** Qual destas linhas o compilador aceita?
 

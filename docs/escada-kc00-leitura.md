@@ -75,7 +75,7 @@ Se errar:
 ### Degrau 3 — guiado, escolher
 
 > O tipo diz que espécie de valor cabe na variável.
-> int guarda um número inteiro, como 20. char guarda um caractere, como 'B'.
+> int guarda um número inteiro, como 20. char guarda um caractere, como 'x'.
 
 **Versão 1.** Qual declaração serve para guardar a letra de uma turma, como 'B'?
 
@@ -245,7 +245,7 @@ Se errar:
 ### Degrau 2 — guiado, escolher
 
 > Repare: você escreveu na variável sem declarar de novo.
-> Ela existe desde a linha da declaração, mesmo antes de receber qualquer valor.
+> Quem reserva o lugar da variável é a declaração, e não o primeiro valor.
 
 **Versão 1.** Logo depois de int idade; e antes de qualquer valor, a variável idade já existe?
 
@@ -788,7 +788,7 @@ Se errar:
 ### Degrau 2 — guiado, escolher
 
 > O valor antigo não fica guardado em outro canto da variável.
-> Depois de idade = 21; não existe mais 20 nenhum ali.
+> Uma variável tem lugar para um valor só, e o valor novo ocupa esse lugar inteiro.
 
 **Versão 1.** Depois de idade = 20; e idade = 21; onde ficou o 20?
 

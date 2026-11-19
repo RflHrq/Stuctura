@@ -49,7 +49,8 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> Por isso &idade é aceito, e &5 faz o compilador reclamar.
+> Por isso o & só é aceito antes do nome de uma variável.
+> Antes de um número escrito no código, o compilador reclama.
 
 **Versão 1.** Qual destas linhas o compilador aceita?
 
@@ -278,7 +279,7 @@ O que isto mostra: O compilador reclama: o & pede algo que ocupe um lugar, e um 
 ### Degrau 1 — guiado, escolher
 
 > &idade é o endereço de idade: o número do lugar dela.
-> Pedir o endereço não copia nada. O valor continua guardado em idade, e só lá.
+> Pedir o endereço de uma variável não copia o que ela guarda.
 
 **Versão 1.** Depois da última linha, em quantos lugares o 15 está guardado?
 
@@ -608,7 +609,8 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> São duas coisas diferentes: p é o endereço guardado, e *p é o valor que mora lá.
+> São duas coisas diferentes: o nome do ponteiro dá o endereço guardado.
+> Com o * na frente, ele dá o valor que mora lá.
 
 **Versão 1.** Qual destas vale 42?
 
@@ -656,7 +658,7 @@ Se errar:
 
 ### Degrau 3 — guiado, completar
 
-> Por isso um ponteiro recebe endereço, e não valor: p = &idade; e nunca p = idade;
+> Por isso o que se guarda num ponteiro é um endereço, e não um valor.
 
 **Versão 1.** Complete para p receber o que um ponteiro guarda.
 
@@ -853,8 +855,8 @@ O que isto mostra: Saiu 9. Se o ponteiro fosse o próprio dado, q teria ficado c
 
 ### Degrau 1 — guiado, escolher
 
-> *p quer dizer: vá até o endereço guardado em p.
-> Não é outro nome da variável. É um caminho, e o destino é o endereço que estiver em p naquele momento.
+> O * diante de um ponteiro quer dizer: vá até o endereço guardado nele.
+> Não é outro nome da variável: é um caminho, e o destino é o endereço guardado naquele momento.
 
 **Versão 1.** O que o *p da última linha faz?
 
@@ -1154,8 +1156,8 @@ O que isto mostra: Saiu 15. Se *p fosse outro nome de idade, o 9 teria ido para 
 
 ### Degrau 1 — guiado, escolher
 
-> *p = 7; escreve 7 no lugar apontado por p.
-> O ponteiro não muda: continua guardando o mesmo endereço de antes.
+> Com o * na frente, a escrita vai para o lugar apontado.
+> O ponteiro em si não é escrito: continua guardando o mesmo endereço.
 
 **Versão 1.** Depois da última linha, o que mudou?
 
@@ -1251,7 +1253,7 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> Quem muda o ponteiro é a escrita sem o *: p = &nota;
+> Quem muda o ponteiro é a escrita sem o *, com um endereço novo do lado direito.
 
 **Versão 1.** Qual linha faz p passar a apontar para nota?
 
@@ -1529,8 +1531,8 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> Cada coisa tem o seu lugar: o endereço se guarda em p, e o valor se escreve em *p.
-> p = &idade; guarda o endereço. *p = 9; escreve no lugar apontado.
+> Cada coisa tem o seu lugar: o endereço se guarda no ponteiro, e o valor se escreve no lugar apontado.
+> Sem o *, a linha mexe no ponteiro; com o *, no lugar apontado.
 
 **Versão 1.** Em qual destes o endereço de idade fica guardado?
 

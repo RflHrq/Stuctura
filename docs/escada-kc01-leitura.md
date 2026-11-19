@@ -52,7 +52,7 @@ Se errar:
 ### Degrau 2 — guiado, escolher
 
 > Quando o programa termina, a memória dele volta para o sistema.
-> Na próxima vez que rodar, ele recebe outra: o que a execução anterior guardou não está lá.
+> Na próxima vez que rodar, ele recebe outra memória, que pode ter sido de qualquer programa.
 
 **Versão 1.** O programa roda, guarda 7 em nota e termina. Depois roda de novo. O que a segunda execução encontra em nota, antes de escrever nela?
 
@@ -882,7 +882,7 @@ Se errar:
 ### Degrau 3 — guiado, escolher
 
 > A variável que guarda o endereço e o bloco são duas coisas, com dois fins diferentes.
-> q acaba sozinha, como toda variável local; o bloco, só com free(q);
+> Variável local acaba sozinha; bloco do malloc, só com free.
 
 **Versão 1.** Destas três coisas, qual só acaba quando alguém chama free?
 

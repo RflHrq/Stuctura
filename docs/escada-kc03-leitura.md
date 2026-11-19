@@ -6,8 +6,8 @@ Texto para leitura, gerado de `mvp/dominio/escada_kc03.yaml`. Cada degrau tem du
 
 ### Degrau 1 — guiado, escolher
 
-> Declarar uma variável já reserva o lugar dela na memória.
-> O valor vem depois. O lugar existe desde a declaração.
+> Uma variável precisa de um lugar na memória antes de poder receber valor.
+> Quem reserva esse lugar é a declaração.
 
 **Versão 1.** Depois dessa linha, o que já existe?
 
@@ -719,8 +719,8 @@ O que isto mostra: Se declarar zerasse a variável, não haveria do que reclamar
 
 ### Degrau 1 — guiado, escolher
 
-> int *p; declara uma variável só: o ponteiro.
-> O lugar para onde ele vai apontar não nasce junto. Quem cria esse lugar é outra declaração.
+> Declarar cria a variável declarada, e só ela.
+> O lugar para onde um ponteiro vai apontar não nasce junto: quem cria esse lugar é outra declaração.
 
 **Versão 1.** Quantos lugares da memória essa linha reserva?
 
@@ -1077,7 +1077,7 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> O ponteiro também pode já nascer com NULL: int *p = NULL;
+> O ponteiro também pode já nascer valendo NULL, numa declaração com valor.
 > É declarar e dar o valor na mesma linha, como em int idade = 15;
 
 **Versão 1.** Em qual linha p vale NULL com certeza?

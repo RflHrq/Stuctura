@@ -127,7 +127,8 @@ B1:
       forma: escolher
       codigo: true
       frases:
-        - "Por isso &idade é aceito, e &5 faz o compilador reclamar."
+        - "Por isso o & só é aceito antes do nome de uma variável."
+        - "Antes de um número escrito no código, o compilador reclama."
       versoes:
         - pede: "Qual destas linhas o compilador aceita?"
           antes: |-
@@ -346,7 +347,7 @@ B2:
       codigo: false
       frases:
         - "&idade é o endereço de idade: o número do lugar dela."
-        - "Pedir o endereço não copia nada. O valor continua guardado em idade, e só lá."
+        - "Pedir o endereço de uma variável não copia o que ela guarda."
       versoes:
         - pede: "Depois da última linha, em quantos lugares o 15 está guardado?"
           antes: |-
@@ -661,7 +662,8 @@ B3:
       forma: escolher
       codigo: false
       frases:
-        - "São duas coisas diferentes: p é o endereço guardado, e *p é o valor que mora lá."
+        - "São duas coisas diferentes: o nome do ponteiro dá o endereço guardado."
+        - "Com o * na frente, ele dá o valor que mora lá."
       versoes:
         - pede: "Qual destas vale 42?"
           antes: |-
@@ -701,7 +703,7 @@ B3:
       forma: completar
       codigo: true
       frases:
-        - "Por isso um ponteiro recebe endereço, e não valor: p = &idade; e nunca p = idade;"
+        - "Por isso o que se guarda num ponteiro é um endereço, e não um valor."
       versoes:
         - pede: "Complete para p receber o que um ponteiro guarda."
           antes: |-
@@ -889,8 +891,8 @@ I1:
       forma: escolher
       codigo: false
       frases:
-        - "*p quer dizer: vá até o endereço guardado em p."
-        - "Não é outro nome da variável. É um caminho, e o destino é o endereço que estiver em p naquele momento."
+        - "O * diante de um ponteiro quer dizer: vá até o endereço guardado nele."
+        - "Não é outro nome da variável: é um caminho, e o destino é o endereço guardado naquele momento."
       versoes:
         - pede: "O que o *p da última linha faz?"
           antes: |-
@@ -1179,8 +1181,8 @@ I2:
       forma: escolher
       codigo: false
       frases:
-        - "*p = 7; escreve 7 no lugar apontado por p."
-        - "O ponteiro não muda: continua guardando o mesmo endereço de antes."
+        - "Com o * na frente, a escrita vai para o lugar apontado."
+        - "O ponteiro em si não é escrito: continua guardando o mesmo endereço."
       versoes:
         - pede: "Depois da última linha, o que mudou?"
           antes: |-
@@ -1274,7 +1276,7 @@ I2:
       forma: escolher
       codigo: true
       frases:
-        - "Quem muda o ponteiro é a escrita sem o *: p = &nota;"
+        - "Quem muda o ponteiro é a escrita sem o *, com um endereço novo do lado direito."
       versoes:
         - pede: "Qual linha faz p passar a apontar para nota?"
           antes: |-
@@ -1523,8 +1525,8 @@ I3:
       forma: escolher
       codigo: false
       frases:
-        - "Cada coisa tem o seu lugar: o endereço se guarda em p, e o valor se escreve em *p."
-        - "p = &idade; guarda o endereço. *p = 9; escreve no lugar apontado."
+        - "Cada coisa tem o seu lugar: o endereço se guarda no ponteiro, e o valor se escreve no lugar apontado."
+        - "Sem o *, a linha mexe no ponteiro; com o *, no lugar apontado."
       versoes:
         - pede: "Em qual destes o endereço de idade fica guardado?"
           antes: |-

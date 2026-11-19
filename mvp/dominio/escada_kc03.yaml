@@ -100,8 +100,8 @@ B1:
       forma: escolher
       codigo: false
       frases:
-        - "Declarar uma variável já reserva o lugar dela na memória."
-        - "O valor vem depois. O lugar existe desde a declaração."
+        - "Uma variável precisa de um lugar na memória antes de poder receber valor."
+        - "Quem reserva esse lugar é a declaração."
       versoes:
         - pede: "Depois dessa linha, o que já existe?"
           antes: "int idade;"
@@ -781,8 +781,8 @@ I1:
       forma: escolher
       codigo: false
       frases:
-        - "int *p; declara uma variável só: o ponteiro."
-        - "O lugar para onde ele vai apontar não nasce junto. Quem cria esse lugar é outra declaração."
+        - "Declarar cria a variável declarada, e só ela."
+        - "O lugar para onde um ponteiro vai apontar não nasce junto: quem cria esse lugar é outra declaração."
       versoes:
         - pede: "Quantos lugares da memória essa linha reserva?"
           antes: "int *p;"
@@ -1093,7 +1093,7 @@ I2:
       forma: escolher
       codigo: true
       frases:
-        - "O ponteiro também pode já nascer com NULL: int *p = NULL;"
+        - "O ponteiro também pode já nascer valendo NULL, numa declaração com valor."
         - "É declarar e dar o valor na mesma linha, como em int idade = 15;"
       versoes:
         - pede: "Em qual linha p vale NULL com certeza?"

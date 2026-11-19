@@ -283,7 +283,7 @@ O que isto mostra: O compilador avisa que a conta não dá o número de itens: s
 
 ### Degrau 1 — guiado, escolher
 
-> free é uma função como as outras: na chamada free(p), o que entra nela é uma cópia do valor de p.
+> free é uma função como as outras: na chamada, o que entra nela é uma cópia do valor do argumento.
 > O valor de p é um endereço. A variável p fica com quem chamou.
 
 **Versão 1.** Na última linha, o que entra na função free?
@@ -567,8 +567,8 @@ O que isto mostra: Saiu 0. A função recebeu uma cópia do endereço e escreveu
 
 ### Degrau 1 — guiado, escolher
 
-> São duas coisas: o bloco, no monte, e a caixa de p, que é uma variável sua e fica onde foi declarada.
-> free devolve o bloco. A caixa de p não está dentro dele, e não vai junto.
+> São duas coisas: o bloco, no monte, e a caixa do ponteiro, que fica onde foi declarada.
+> free devolve só o bloco.
 
 **Versão 1.** A última linha devolve o bloco. O que acontece com a caixa de p?
 
@@ -1744,7 +1744,7 @@ Se errar:
 
 ### Degrau 3 — guiado, completar
 
-> O costume é uma linha só, logo depois do free: p = NULL;
+> O costume é uma linha só, logo depois do free, escrevendo NULL no próprio ponteiro.
 
 **Versão 1.** Complete com a linha que deixa registrado que p não aponta mais para nada.
 
@@ -1941,7 +1941,7 @@ O que isto mostra: Saíram 1 e 0. Só o ponteiro em que você escreveu NULL resp
 ### Degrau 1 — guiado, escolher
 
 > Depois do free, p guarda um endereço com cara de bom, de um lugar que já não é seu.
-> Chamar free(p) de novo é devolver o que não é seu: não é seguro, e o compilador reclama quando vê.
+> Um bloco só pode ser devolvido uma vez, e o compilador reclama quando vê.
 
 **Versão 1.** O que a última linha faz?
 
@@ -2032,7 +2032,7 @@ Se errar:
 ### Degrau 3 — guiado, escolher
 
 > Com p pendente, o padrão do C não garante nem copiar nem comparar o valor dele: as comparações que você viu aqui valem nesta máquina.
-> O único uso seguro é dar a p um valor novo.
+> Ler p, para copiar ou comparar, já é usar o valor dele.
 
 **Versão 1.** Depois do free(p);, qual destas linhas é segura?
 

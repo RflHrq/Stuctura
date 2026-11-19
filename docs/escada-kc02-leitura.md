@@ -50,7 +50,7 @@ Se errar:
 ### Degrau 2 — guiado, escolher
 
 > Em C, o & antes do nome pede o endereço da variável.
-> idade é o valor guardado. &idade é o endereço de idade.
+> Sem o &, o nome dá o valor guardado nela.
 
 **Versão 1.** Qual destas é o endereço de idade?
 
@@ -556,8 +556,8 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> Depois de p = &idade;, o que está guardado em p é o endereço de idade.
-> O valor de idade continua guardado em idade, e não em p.
+> Um ponteiro guarda o endereço que recebeu, e só isso.
+> O valor da variável apontada continua guardado nela, e não no ponteiro.
 
 **Versão 1.** idade guarda 15. O que está guardado em p?
 
@@ -1149,7 +1149,7 @@ O que isto mostra: Saiu 15. p = &nota; mexeu só no ponteiro, que passou a guard
 ### Degrau 1 — guiado, escolher
 
 > O tipo antes do * diz o que mora no endereço guardado.
-> int *p guarda endereço de int. char *c guarda endereço de char.
+> int *p guarda endereço de int; para outro tipo, troca-se o tipo antes do *.
 
 **Versão 1.** Qual declaração serve para guardar o endereço de turma?
 
@@ -1190,7 +1190,7 @@ Se errar:
 ### Degrau 2 — guiado, completar
 
 > O endereço tem de combinar com o tipo do ponteiro.
-> Um int *p recebe &idade, que é endereço de int, e não &turma, que é endereço de char.
+> Um ponteiro para int recebe endereço de int; um ponteiro para char, endereço de char.
 
 **Versão 1.** Complete com o endereço que combina com p.
 
@@ -1243,7 +1243,7 @@ Se errar:
 ### Degrau 3 — guiado, escolher
 
 > Um endereço não é um número inteiro comum.
-> Por isso o compilador reclama de n = p; quando n é int e p é ponteiro.
+> Ponteiro e int são tipos diferentes, e o compilador confere o tipo de cada lado do =.
 
 **Versão 1.** Por que o compilador reclama da última linha?
 
@@ -1568,7 +1568,7 @@ Se errar:
 
 ### Degrau 4 — guiado, escolher
 
-> É isso que o ponteiro dá, e a variável comum não: alcançar a mesma variável de outro ponto do programa.
+> A variável comum chega na função como cópia; o ponteiro leva o endereço dela.
 > Só o endereço viaja. O conteúdo não é copiado.
 
 **Versão 1.** Por que esta função recebe um ponteiro, e não um int comum?

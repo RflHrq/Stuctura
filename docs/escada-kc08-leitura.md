@@ -319,7 +319,7 @@ Se errar:
 
 ### Degrau 2 — guiado, completar
 
-> O endereço que malloc devolve se guarda no ponteiro: p = malloc(...);
+> O endereço que malloc devolve se guarda num ponteiro, como todo endereço.
 > *p é o que está NO bloco, e só serve depois de p ter o endereço.
 
 **Versão 1.** Complete com quem recebe o que malloc devolve.
@@ -889,8 +889,8 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> Quando a função termina, a caixa de p acaba, como toda variável local.
-> O bloco continua no monte — e, se p era o único com o endereço, ninguém mais chega nele.
+> Quando a função termina, as variáveis locais dela acabam, ponteiro ou não.
+> O bloco do malloc fica no monte — e, se só uma variável local tinha o endereço, ninguém mais chega nele.
 
 **Versão 1.** A função termina sem chamar free. O que sobrou, e o que se perdeu?
 
@@ -1172,7 +1172,7 @@ Se errar:
 
 ### Degrau 2 — guiado, completar
 
-> Conferir é perguntar se o ponteiro não é NULL, antes de usar: if (p != NULL) ...
+> Conferir é perguntar, antes de usar, se o ponteiro não é NULL.
 
 **Versão 1.** Complete a pergunta para a escrita só acontecer quando o bloco existe.
 
@@ -1445,7 +1445,7 @@ Se errar:
 
 ### Degrau 2 — guiado, completar
 
-> Quem pediu devolve: free(p); antes de a função terminar, enquanto p ainda guarda o endereço.
+> Quem pediu devolve, com free, antes de a função terminar e enquanto o ponteiro ainda guarda o endereço.
 
 **Versão 1.** Complete para a função devolver o bloco antes de terminar.
 

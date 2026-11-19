@@ -6,8 +6,8 @@ Texto para leitura, gerado de `mvp/dominio/escada_kc10.yaml`. Cada degrau tem du
 
 ### Degrau 1 — guiado, escolher
 
-> p é uma caixa como as outras, e toda caixa tem endereço: &p é o endereço da caixa p.
-> &p não é o que p guarda, nem uma cópia de p: é onde a caixa p fica.
+> Um ponteiro é uma caixa como as outras, e toda caixa tem endereço.
+> O & dá onde a caixa fica, e não o que ela guarda.
 
 **Versão 1.** O que &p dá, neste trecho?
 
@@ -912,7 +912,7 @@ Se errar:
 
 ### Degrau 3 — guiado, completar
 
-> Na chamada vai o endereço do ponteiro, com o &: troca(&q, ...).
+> Na chamada vai o endereço do ponteiro, com o &.
 
 **Versão 1.** Complete a chamada para a função trocar o que q guarda.
 
@@ -1347,8 +1347,8 @@ O que isto mostra: Saíram 12 e 4. m é um bloco só, de doze caixas, e uma file
 
 ### Degrau 1 — guiado, escolher
 
-> pp e p são duas caixas: pp guarda o endereço de p, e p guarda o endereço de idade.
-> **pp não pula direto para o número: passa por p, e só então chega em idade.
+> Cada estrela é um passo, e cada passo para numa caixa.
+> Um ponteiro para ponteiro guarda o endereço de outro ponteiro, e não o do número.
 
 **Versão 1.** Como **pp chega no 15?
 
@@ -1432,8 +1432,8 @@ Se errar:
 
 ### Degrau 3 — guiado, completar
 
-> *pp é a caixa p: o que se escreve ali é um endereço.
-> **pp é a caixa idade: o que se escreve ali é um número.
+> Com uma estrela, pp chega na caixa cujo endereço ele guarda; com duas, na caixa seguinte.
+> Em cada caixa se escreve o que ela guarda: endereço no ponteiro, número no int.
 
 **Versão 1.** Complete para trocar o que p guarda, sem escrever o nome p.
 

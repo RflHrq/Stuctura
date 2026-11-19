@@ -151,7 +151,7 @@ B1:
       forma: completar
       codigo: true
       frases:
-        - "Por isso o compilador reclama de p = 1000;: 1000 é um int, e p quer o endereço de um int."
+        - "Por isso o compilador reclama de guardar um número qualquer num ponteiro: ele quer o endereço de uma caixa do tipo dele."
       versoes:
         - pede: "Complete com o que cabe em p."
           antes: |-
@@ -570,7 +570,7 @@ B3:
       codigo: false
       frases:
         - "Os elementos de um array ficam grudados, um logo depois do outro, sem buraco entre eles."
-        - "Por isso a distância de &notas[0] a &notas[2] é de duas caixas: &notas[2] - &notas[0] dá 2."
+        - "Por isso a distância entre dois endereços do mesmo array se conta em caixas: é o que mede a conta &notas[2] - &notas[0]."
       versoes:
         - pede: "Quantas caixas há de &notas[0] até &notas[2]?"
           antes: "int notas[3];"
@@ -824,7 +824,7 @@ I1:
       forma: completar
       codigo: true
       frases:
-        - "Com um ponteiro vale o mesmo: p[1] é *(p + 1). A soma vem antes do *."
+        - "Com um ponteiro vale o mesmo: p[i] é *(p + i). A soma vem antes do *."
         - "E dá para andar para trás: *(p - 1) é a caixa de trás, que também se escreve p[-1]."
       versoes:
         - pede: "Complete para mostrar notas[1], escrito como soma."
@@ -1245,7 +1245,7 @@ I3:
       forma: escolher
       codigo: false
       frases:
-        - "p + 1 anda um elemento do tipo de p, e não um byte: com int *p, uma caixa de int inteira."
+        - "Somar 1 a um ponteiro anda um elemento do tipo dele, e não um byte."
         - "Quem faz a conta do tamanho é o compilador."
       versoes:
         - pede: "p aponta para notas[0]. Para onde aponta p + 1?"
