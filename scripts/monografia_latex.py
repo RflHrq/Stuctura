@@ -90,13 +90,14 @@ CITACOES = [
     (r"\(DOIGNON; FALMAGNE, 1985 apud FALMAGNE et al\., 2006\)",
      r"(DOIGNON; FALMAGNE, 1985 \\textit{apud} FALMAGNE et al., "
      r"\\citeyear{falmagne2006})"),
-    (r"Falmagne et al\. \(2006\)", r"\\citeonline{falmagne2006}"),
-    (r"Sorva \(2013\)", r"\\citeonline{sorva2013}"),
+    (r"Falmagne et al\. \(2006\)", r"\\citeonline{falmagne2006}"),    (r"Sorva \(2013\)", r"\\citeonline{sorva2013}"),
+    (r"Hermans et al\. \(2018\)", r"\\citeonline{hermans2018}"),
+    (r"\(SEI, 2025\)", r"\\cite{sei2025}"),
+    (r"\(MITRE, 2026\)", r"\\cite{mitre2026}"),
 ]
 # Menções a obras que o texto discute sem citar como fonte, e que por isso
 # não têm entrada na lista: ficam como texto. Conferir com o autor.
-SEM_REFERENCIA = ["Hermans et al. (2018)", "TIPPETT, 2010",
-                  "DOIGNON; FALMAGNE, 1985"]
+SEM_REFERENCIA = ["TIPPETT, 2010", "DOIGNON; FALMAGNE, 1985"]
 
 PADRAO_DE_CITACAO = re.compile(
     r"\b[A-ZÀ-Ý][A-ZÀ-Ý\-]{2,}(?: et al\.)?(?:; [A-ZÀ-Ý][A-ZÀ-Ý \-]+)*, "

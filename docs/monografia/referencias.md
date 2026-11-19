@@ -51,8 +51,7 @@ Espoo, 2012. Disponível no repositório institucional da Universidade
 Aalto, handle 123456789/3534.
 
 SORVA, J. Notional machines and introductory programming education.
-**ACM Transactions on Computing Education**, v. 13, n. 2, p. 1-31, June
-2013. DOI: 10.1145/2483710.2483713.
+**ACM Transactions on Computing Education**, v. 13, n. 2, art. 8, p. 1-31, June 2013. DOI: 10.1145/2483710.2483713.
 
 SWELLER, J.; VAN MERRIËNBOER, J. J. G.; PAAS, F. Cognitive architecture
 and instructional design: 20 years later. **Educational Psychology

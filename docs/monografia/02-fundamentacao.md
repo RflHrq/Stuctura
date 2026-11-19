@@ -185,11 +185,15 @@ examiná-las depois, e aplicam partes deles aos exercícios de modelagem
 lógica do tutor inteligente Iltis, com mais de 250 respostas em muitos dos
 exercícios.
 
-O trabalho mostra o que um tutor pode dar à pesquisa de concepções
-errôneas, que é escala, mas fica na medida: trata de encontrar e contar as
-concepções, e não de intervir sobre elas, e é de outro domínio. O Structura
-faz o caminho inverso: parte de concepções já registradas na literatura
-(Capítulo 4) e as usa para diagnosticar e intervir. O registro que ele
+O segundo fluxo vai além da medida: prevê usar as concepções descobertas
+para melhorar o retorno do tutor e testar se esse retorno ajuda, o que
+serviria também de sinal de que a concepção é real (p. 466). O estudo,
+porém, aplica só a parte de medida e de descoberta (p. 469-470); no
+Iltis, o retorno a cada tentativa dizia se ela estava certa e, se não,
+por quê (p. 467). O trabalho mostra o que um tutor pode dar à pesquisa
+de concepções errôneas, que é escala, e é de outro domínio. O Structura
+parte de concepções já registradas na literatura (Capítulo 4) e já as
+usa para escolher a intervenção de cada pessoa. O registro que ele
 grava de cada sessão (3.7) poderia servir à medida que o Iltis propõe,
 quando houver estudantes usando o sistema.
 
@@ -252,7 +256,7 @@ sessão, está registrado na declaração de uso de inteligência artificial.
 | Trabalho | Domínio | Diagnóstico de concepção errônea | Intervenção conforme o diagnóstico | Mostra a máquina em funcionamento |
 | --- | --- | --- | --- | --- |
 | TEDViT (YAMASHITA et al., 2017) | ponteiros em C | não | não | sim: memória e mundo do domínio |
-| Iltis (SCHMELLENKAMP; LATYS; ZEUME, 2023) | métodos formais | mede e descobre, nos dados agregados | não | não |
+| Iltis (SCHMELLENKAMP; LATYS; ZEUME, 2023) | métodos formais | mede e descobre, nos dados agregados | proposta (retorno sob medida), não aplicada no estudo | não |
 | ALEKS (FALMAGNE et al., 2006) | matemática | não: avalia o que se sabe e o que falta | indica o que aprender em seguida | não |
 | Sorva (2013) | programação introdutória | não se aplica: é uma revisão | não se aplica | recomenda ensinar a máquina nocional |
 | Structura | ponteiros em C | sim: resposta, razão e certeza, por premissa | sim: escada, demonstração ou revisão | sim: as cenas da revisão |

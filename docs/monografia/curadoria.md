@@ -47,7 +47,7 @@ autor nela: descreve **que tipo de obra a sustenta**.
 | `D` | documentada: achado empírico, com fonte e posição localizável |
 | `L` | registrada como erro comum em obra técnica |
 | `T` | transposta de outra linguagem, **com a analogia declarada** |
-| `N` | o erro está em norma (CERT C, CWE); a concepção, não |
+| `N` | o erro está em norma, como o CERT C (SEI, 2025) e a CWE (MITRE, 2026); a concepção, não |
 | `E` | elaborada a partir do modelo de máquina: **hipótese a testar** |
 
 Duas propriedades desse campo importam para o método, e não são
@@ -277,9 +277,13 @@ A regra aplicada foi: se a fonte não pode ser verificada, procura-se o
 correspondente; se não houver, **remove-se**.
 
 - **Hermans et al. (2018) foi removida.** A citação de `variable_remembers`
-  a trazia, e a obra não aparece em item nenhum da Tabela A.1 nem na
-  bibliografia do Sorva: zero ocorrências no texto integral. Sem a obra
-  aberta e sem corroboração, a citação não se sustenta.
+  a trazia, e a obra não aparece em item nenhum da Tabela A.1 nem na bibliografia do
+  Sorva: zero ocorrências no texto integral. Sem a obra aberta e sem
+  corroboração, a citação não se sustentava. Aberta depois, na conferência
+  das referências deste trabalho (19/11/2026), a obra registra essa
+  concepção, a de que a variável guarda vários valores ou "lembra" os
+  anteriores, e a estuda num experimento com 496 iniciantes; a citação
+  pode voltar ao catálogo na próxima revisão dele.
 - **Uma atribuição estava trocada.** `declaration_allocates` citava
   *"Kaczmarczyk et al. (2010), p. 109, Tabela 2, MMR4"*. O item do Sorva que
   registra essa concepção (item 92, p. 364) atribui a **Ma (2007)**.
@@ -340,8 +344,15 @@ Onde a citação anterior ia além disso (uma página e um código de tabela de 
 anterior.
 
 **Não reaberto:** CERT C e CWE, que sustentam três concepções de grau `N`,
-são fontes públicas e não foram reabertas nesta passada; a seção 11 do FAQ
-ficou fora dela.
+são fontes públicas e não foram reabertas nesta passada; a seção 11 do
+FAQ ficou fora dela. Na conferência das referências deste trabalho
+(19/11/2026), as duas foram abertas: os três itens da CWE (476, 252 e
+415) e três das quatro regras do CERT C (EXP34-C, MEM30-C e MEM31-C)
+conferem com o que o catálogo cita. A quarta, citada como MEM52-C, não
+existe no padrão de C: é o número de uma regra do padrão de C++, sobre o
+operador `new`. A citação passou à regra ERR33-C, que trata do erro
+devolvido pelas funções da biblioteca, `malloc` entre elas. Os números
+de 4.4 e 4.5 são os da passada de curadoria, e não mudam com isso.
 
 Duas observações de forma, que mudam o que se pode afirmar. Primeira: a versão on-line do FAQ é **mais curta** que o livro de Summit (1996), como o próprio autor diz na página do FAQ; as citações deste trabalho são da versão on-line, por número de
 pergunta, que é o que foi consultado, e não do livro. Segunda: os números
@@ -373,9 +384,9 @@ Declarar o alcance é parte do método, não ressalva de rodapé.
 5. **Uma citação do Sorva não traz frase entre aspas**, a de `uninitialized_is_null`, o que a torna não verificável pelo
    procedimento mecânico descrito acima, embora traga página e item.
 6. **Três concepções de grau `N` citam CERT C e CWE**, e essas fontes não
-   foram reabertas nesta passada; de cinco concepções que as citam, quatro
-   foram conferidas pela citação do FAQ que trazem ao lado, e uma ficou sem
-   conferência.
+   foram reabertas nesta passada; de cinco concepções que as citam, quatro foram conferidas pela citação do FAQ que trazem ao lado, e uma
+   ficou sem conferência. Elas foram abertas depois, na conferência das
+   referências (4.7).
 
 ## O catálogo é verificável por máquina, e é isso que se oferece
 
@@ -448,6 +459,12 @@ Applications Conference (HERCMA '07)**, 2007.
 DU BOULAY, B. Some Difficulties of Learning to Program. **Journal of
 Educational Computing Research**, v. 2, n. 1, p. 57–73, 1986.
 
+★ HERMANS, F.; SWIDAN, A.; AIVALOGLOU, E.; SMIT, M. Thinking out of the
+Box: Comparing Metaphors for Variables in Programming Education. In:
+**Proceedings of the 13th Workshop in Primary and Secondary Computing
+Education (WiPSCE '18)**. ACM, 2018. Art. 8, p. 1–8. DOI:
+10.1145/3265757.3265765.
+
 HOLLAND, S.; GRIFFITHS, R.; WOODMAN, M. Avoiding Object Misconceptions.
 **SIGCSE Bulletin**, v. 29, n. 1, p. 131–134, 1997.
 
@@ -467,12 +484,21 @@ Information Sciences, University of Strathclyde, 2007.
 > registrou a referência errada numa de suas versões, e a correção veio de
 > ler a bibliografia da obra mediadora, não a memória de quem citava.
 
+★ MITRE. **CWE: Common Weakness Enumeration.** Versão 5.0, 28 out. 2026.
+Entradas CWE-252, CWE-415 e CWE-476. Disponível em:
+`https://cwe.mitre.org`. Acesso em: 19 nov. 2026.
+
 PUTNAM, R. T.; SLEEMAN, D.; BAXTER, J. A.; KUSPA, L. K. A Summary of
 Misconceptions of High School BASIC Programmers. **Journal of Educational
 Computing Research**, v. 2, n. 4, p. 459–472, 1986.
 
 SAMURÇAY, R. The Concept of Variable in Programming: Its Meaning and Use in
 Problem-Solving by Novice Programmers. In: SOLOWAY, E.; SPOHRER, J. C. (ed.). **Studying the Novice Programmer.** Hillsdale: Lawrence Erlbaum Associates, 1989. p. 161–178. *(A bibliografia de Sorva (2012) dá R. E. Mayer como organizador; o registro do livro na Open Library dá Soloway e Spohrer.)*
+
+★ SEI. **SEI CERT C Coding Standard.** Pittsburgh: Software Engineering
+Institute, Carnegie Mellon University, 2025. Regras ERR33-C, EXP34-C,
+MEM30-C e MEM31-C. Disponível em:
+`https://wiki.sei.cmu.edu/confluence/display/c`. Acesso em: 19 nov. 2026.
 
 SLEEMAN, D.; PUTNAM, R. T.; BAXTER, J.; KUSPA, L. Pascal and High School Students: A Study of Errors. **Journal of Educational Computing Research**, v. 2, n. 1, p. 5–23, 1986. *(A bibliografia de Sorva (2012) traz duas entradas de Sleeman em 1986; uma repete título e dados de Putnam et al. (1986). Esta é a outra, a que o registro da Crossref confirma.)*
 

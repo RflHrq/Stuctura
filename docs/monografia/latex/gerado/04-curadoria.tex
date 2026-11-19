@@ -28,7 +28,7 @@ Cada concepção do catálogo carrega um campo \texttt{provenance}, com um de ci
 \texttt{D} & documentada: achado empírico, com fonte e posição localizável \\ \hline
 \texttt{L} & registrada como erro comum em obra técnica \\ \hline
 \texttt{T} & transposta de outra linguagem, \textbf{com a analogia declarada} \\ \hline
-\texttt{N} & o erro está em norma (CERT C, CWE); a concepção, não \\ \hline
+\texttt{N} & o erro está em norma, como o CERT C \cite{sei2025} e a CWE \cite{mitre2026}; a concepção, não \\ \hline
 \texttt{E} & elaborada a partir do modelo de máquina: \textbf{hipótese a testar} \\ \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor.}
@@ -197,7 +197,7 @@ Isso não é economia de fonte: é que uma resposta de FAQ costuma responder a \
 A regra aplicada foi: se a fonte não pode ser verificada, procura-se o correspondente; se não houver, \textbf{remove-se}.
 
 \begin{itemize}
-\item \textbf{Hermans et al. (2018) foi removida.} A citação de \texttt{variable\_\allowbreak{}remembers} a trazia, e a obra não aparece em item nenhum da Tabela A.1 nem na bibliografia do Sorva: zero ocorrências no texto integral. Sem a obra aberta e sem corroboração, a citação não se sustenta.
+\item \textbf{\citeonline{hermans2018} foi removida.} A citação de \texttt{variable\_\allowbreak{}remembers} a trazia, e a obra não aparece em item nenhum da Tabela A.1 nem na bibliografia do Sorva: zero ocorrências no texto integral. Sem a obra aberta e sem corroboração, a citação não se sustentava. Aberta depois, na conferência das referências deste trabalho (19/11/2026), a obra registra essa concepção, a de que a variável guarda vários valores ou ``lembra'' os anteriores, e a estuda num experimento com 496 iniciantes; a citação pode voltar ao catálogo na próxima revisão dele.
 \item \textbf{Uma atribuição estava trocada.} \texttt{declaration\_\allowbreak{}allocates} citava \textit{``\citeonline{kaczmarczyk2010}, p. 109, Tabela 2, MMR4''}. O item do Sorva que registra essa concepção (item 92, p. 364) atribui a \textbf{\citeonline{ma2007}}. A afirmação sobre a página 109 e o código da tabela não era verificável por quem a escreveu, e saiu. A concepção vive num dos tópicos escolhidos para coleta, o que torna a correção material.
 \item \textbf{Uma concepção desceu de grau.} \texttt{memory\_\allowbreak{}is\_\allowbreak{}uniform} era \texttt{T} com citação de página e tabela de um artigo sem cópia de acesso aberto. Procurada item por item no Apêndice A, não há item sobre a memória ser região única sem distinção de regras de tempo de vida; o mais próximo, item 5, p. 359, é \textit{dificuldade} com tempo de vida, que é outra coisa. Passou a \texttt{E}, declarada como hipótese.
 \item \textbf{Uma obra técnica estava no campo errado.} \texttt{declaration\_\allowbreak{}zeroes} citava \citeonline{kernighan1988} como fonte. K\&R é a obra que diz que a concepção é \textbf{falsa}: é a refutação, não o registro de que alguém a sustenta. Os dois papéis passaram a ficar separados, e a fonte passou a ser o item 10, p. 359.
@@ -221,7 +221,7 @@ Esta seção existe para que o leitor não tenha de inferir nada, e é a contrap
 
 A consequência, dita de uma vez: \textbf{nenhuma afirmação deste trabalho atribui a esses artigos conteúdo que não esteja no item do Apêndice A que os cita.} Onde a citação anterior ia além disso (uma página e um código de tabela de um artigo não aberto), ela foi removida, e o caso está contado na seção anterior.
 
-\textbf{Não reaberto:} CERT C e CWE, que sustentam três concepções de grau \texttt{N}, são fontes públicas e não foram reabertas nesta passada; a seção 11 do FAQ ficou fora dela.
+\textbf{Não reaberto:} CERT C e CWE, que sustentam três concepções de grau \texttt{N}, são fontes públicas e não foram reabertas nesta passada; a seção 11 do FAQ ficou fora dela. Na conferência das referências deste trabalho (19/11/2026), as duas foram abertas: os três itens da CWE (476, 252 e 415) e três das quatro regras do CERT C (EXP34-C, MEM30-C e MEM31-C) conferem com o que o catálogo cita. A quarta, citada como MEM52-C, não existe no padrão de C: é o número de uma regra do padrão de C++, sobre o operador \texttt{new}. A citação passou à regra ERR33-C, que trata do erro devolvido pelas funções da biblioteca, \texttt{malloc} entre elas. Os números de 4.4 e 4.5 são os da passada de curadoria, e não mudam com isso.
 
 Duas observações de forma, que mudam o que se pode afirmar. Primeira: a versão on-line do FAQ é \textbf{mais curta} que o livro de \citeonline{summit1996}, como o próprio autor diz na página do FAQ; as citações deste trabalho são da versão on-line, por número de pergunta, que é o que foi consultado, e não do livro. Segunda: os números de página do Apêndice A referem-se ao texto extraído do PDF disponível naquele repositório, e foram calibrados contra os marcadores de página do próprio texto.
 
@@ -235,7 +235,7 @@ Declarar o alcance é parte do método, não ressalva de rodapé.
 \item \textbf{Três hipóteses seguem hipóteses.} \texttt{type\_is\_a\_hint}, \texttt{memoria\_\allowbreak{}e\_\allowbreak{}do\_\allowbreak{}computador} e \texttt{memory\_\allowbreak{}is\_\allowbreak{}uniform} entram declaradas como tais, fora dos tópicos de coleta. O precedente desta auditoria diz o que tentar antes de aceitá-las: refazer a busca com outro vocabulário, que foi o que fez duas outras subirem de grau, e o que confirmou que para estas não há item.
 \item \textbf{Uma concepção de grau \texttt{T} não cita obra nenhuma.} \texttt{heap\_\allowbreak{}dies\_\allowbreak{}with\_\allowbreak{}function} tem apenas a analogia, declarada: em Java e Python, o que a função alocou e ninguém mais alcança desaparece sozinho. A busca foi refeita pelo vocabulário do fenômeno e registrada; não há item. O próprio campo de fonte diz que ela precisa de fonte ou desce para \texttt{E}.
 \item \textbf{Uma citação do Sorva não traz frase entre aspas}, a de \texttt{uninitialized\_\allowbreak{}is\_\allowbreak{}null}, o que a torna não verificável pelo procedimento mecânico descrito acima, embora traga página e item.
-\item \textbf{Três concepções de grau \texttt{N} citam CERT C e CWE}, e essas fontes não foram reabertas nesta passada; de cinco concepções que as citam, quatro foram conferidas pela citação do FAQ que trazem ao lado, e uma ficou sem conferência.
+\item \textbf{Três concepções de grau \texttt{N} citam CERT C e CWE}, e essas fontes não foram reabertas nesta passada; de cinco concepções que as citam, quatro foram conferidas pela citação do FAQ que trazem ao lado, e uma ficou sem conferência. Elas foram abertas depois, na conferência das referências (4.7).
 \end{enumerate}
 
 \section{O catálogo é verificável por máquina, e é isso que se oferece}

@@ -72,7 +72,9 @@
   provenance: N
   label_pt: "Verificar NULL após malloc é desnecessário, porque malloc sempre funciona."
   source: >
-    CERT C MEM52-C, "Detect and handle memory allocation errors"; CWE-252,
+    CERT C ERR33-C, "Detect and handle standard library errors", cuja
+    tabela lista malloc, que devolve NULL no erro (a citação dizia
+    MEM52-C, número que só existe no padrão de C++); CWE-252,
     "Unchecked Return Value". A norma catalogou o ERRO, não a crença — é
     por isso que a procedência é N. É a crença da curadoria, com a fonte
     dela.

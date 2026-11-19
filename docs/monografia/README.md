@@ -57,8 +57,7 @@ foram tirados do sistema por script, e não de memória, e
   a ficha catalográfica, se o curso a exigir (é feita pela biblioteca).
 - **Três pontos de referência para o autor decidir:** o ano do livro de
   Summit (1995 na página do FAQ, 1996 no texto; conferir na página de
-  direitos do livro); Hermans et al. (2018) é mencionada na curadoria,
-  como citação removida, sem entrada na lista; e a curadoria fala de um
+  direitos do livro); Hermans et al. (2018), aberta e já nas referências, pode voltar a ser citada no catálogo (`variable_remembers`); e a curadoria fala de um
   "apêndice de curadoria" (`docs/curadoria-crencas.md`) que não está no
   PDF. Com o texto do Sorva agora em `fontes/sorva2012/`, ele pode ser
   gerado de novo e entrar como apêndice.
@@ -77,10 +76,12 @@ foram tirados do sistema por script, e não de memória, e
   Os trabalhos relacionados (2.8) voltaram, a partir do relatório
   anterior, só com o que as obras sustentam: saíram três afirmações sem
   apoio e a tese de Mazumder (2024), que não foi encontrada em catálogo
-  nenhum. Ficam para o autor baixar pelo acesso da UFV, porque a editora
-  bloqueia download automatizado: Qian e Lehman (2017), VanLehn (2011),
-  Schmellenkamp, Latys e Zeume (2023) e Sorva (2013); dos dois últimos,
-  o texto só afirma o que está no resumo.
+  nenhum. Qian e Lehman (2017), VanLehn (2011), Schmellenkamp, Latys e Zeume
+  (2023) e Sorva (2013), que a editora bloqueia para download
+  automatizado, foram baixados pelo autor e conferidos; o texto integral
+  do Iltis corrigiu a 2.8.2. CERT C, CWE e Hermans et al. (2018), que a
+  curadoria menciona, foram abertos e entraram nas referências; a regra
+  MEM52-C que o catálogo citava não existe no padrão de C e virou ERR33-C.
   `mvp/test_monografia.py` falha se aparecer uma marca de "conferir" nova
   no texto, ou se a lista e o registro discordarem. As duas listas (esta e
   a do capítulo de curadoria) estão juntas em `latex/referencias.bib`.

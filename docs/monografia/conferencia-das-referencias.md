@@ -84,6 +84,15 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
 - **p. 1:13:** a seção sobre mudança conceitual parte de Posner et al.
   (1982) e do conflito cognitivo.
 - **Sustenta:** Capítulo 2 (2.1).
+- **Baixada pelo autor em 19/11/2026** (acesso da UFV), em
+  `fontes/qian2017/` (329 KB, b0ef226a6366). No arquivo, a p. 1:2 diz que,
+  como nas ciências naturais, os primeiros trabalhos sobre concepções
+  errôneas em computação e programação são dos anos 1980, e lista os
+  termos variados ("difficulties", "misconceptions", "errors", "bugs"); a
+  p. 1:3 diz que não há definição comumente aceita. Confere. A lista de
+  referências do artigo identifica Sleeman et al. (1986) como "Pascal and
+  high school students: a study of errors", o que confirma a correção feita
+  na lista da curadoria.
 
 ### SORVA (2012)
 
@@ -228,6 +237,11 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
   clássica" — o artigo compara efeitos, não descreve arquitetura. A frase
   passou para VanLehn (2006).
 - **Sustenta:** Capítulo 2 (2.6), a classificação e os efeitos.
+- **Baixada pelo autor em 19/11/2026**, em `fontes/vanlehn2011/` (588 KB,
+  1b353bd1e6fd), cópia da editora (*Educational Psychologist* 46(4),
+  p. 197-221). A p. 197 confere no arquivo: tutores por resposta, por passo
+  e por subpasso; a maioria dos tutores inteligentes por passo ou subpasso;
+  d = 0,79 para a tutoria humana e 0,76 para os tutores inteligentes.
 
 ### SODERSTROM e BJORK (2015)
 
@@ -305,12 +319,11 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
 
 ### SCHMELLENKAMP, LATYS e ZEUME (2023)
 
-- **Aberta em 19/11/2026 só no resumo,** no registro aberto do Semantic
-  Scholar; os dados de publicação, no registro da Crossref (*Proceedings
-  of the 54th ACM Technical Symposium on Computer Science Education V. 1*,
-  p. 465-471). O texto integral está na ACM (acesso aberto, mas com
-  bloqueio anti-robô) e numa cópia do repositório da Universidade de
-  Bochum que deu erro no servidor; fica para o autor baixar.
+- **Aberta em 19/11/2026,** primeiro no resumo (Semantic Scholar) e
+  depois no texto integral, baixado pelo autor na ACM, em
+  `fontes/schmellenkamp2023/` (1005 KB, 3798f11de418). *Proceedings of the
+  54th ACM Technical Symposium on Computer Science Education V. 1*,
+  p. 465-471.
 - **Resumo:** estudar concepções errôneas em métodos formais integrando
   métodos quantitativos e qualitativos; até então, estudos sobretudo
   qualitativos, em geral entrevistas com menos de 20 pessoas; dois fluxos
@@ -321,14 +334,23 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
   "questões de múltipla escolha com distratores mapeados a concepções
   errôneas" não está no resumo (os exercícios são de modelagem lógica) e
   foi retirada.
-- **Sustenta:** Capítulo 2 (2.8.2 e Quadro 2.1), só com o que está no
-  resumo.
+- **O texto integral corrigiu o texto:** a seção dizia que o trabalho
+  "fica na medida" e não trata de intervir. O segundo fluxo (p. 466) inclui
+  usar as concepções descobertas para melhorar o retorno do tutor e testar
+  se ele ajuda; o estudo aplica só a parte de medida e de descoberta
+  (p. 469-470); e o Iltis daquele estudo dizia, a cada tentativa, se ela
+  estava certa e por que não (p. 467). O texto e o Quadro 2.1 passaram a
+  dizer isso.
+- **Sustenta:** Capítulo 2 (2.8.2 e Quadro 2.1).
 
 ### SORVA (2013)
 
-- **Aberta em 19/11/2026 só no resumo,** no registro aberto da Crossref,
-  com os dados de publicação (*ACM Transactions on Computing Education*
-  13(2), p. 1-31). O texto integral está na ACM; fica para o autor baixar.
+- **Aberta em 19/11/2026,** primeiro no resumo (Crossref) e depois no
+  texto integral, baixado pelo autor na ACM, em `fontes/sorva2013/` (185 KB,
+  ab8767311fae). *ACM Transactions on Computing Education* 13(2), artigo 8,
+  31 p.; a lista passou a trazer o número do artigo. O texto integral
+  confirma que o termo máquina nocional foi introduzido por du Boulay
+  (1986), e não pelo artigo (p. 8:2).
 - **Resumo:** revisão que reúne a literatura de concepções errôneas de
   programação, modelos mentais, construtivismo, fenomenografia e
   conceitos-limiar, examinada em relação à máquina nocional; a literatura
@@ -401,7 +423,7 @@ que o que a frase do texto afirma está na página citada do arquivo.
 | obra | arquivo (pasta) | origem | tamanho, hash | resultado |
 | --- | --- | --- | --- | --- |
 | Posner et al. (1982) | `posner1982` | curso da Universidade de Atenas (eclass.uoa.gr), versão publicada | 1149 KB, 3bff2d0dc0fb | p. 214, 221, 224 e 225 conferem; a p. 212 passou a 212-213 |
-| Qian e Lehman (2017) | não baixada | ACM: verificação anti-robô | | a p. 1:1 (resumo) confere com o registro da Crossref; as p. 1:2-1:3 ficam com a leitura de 18/11 |
+| Qian e Lehman (2017) | `qian2017` | baixada pelo autor na ACM | 329 KB, b0ef226a6366 | p. 1:1, 1:2 e 1:3 conferem |
 | Sorva (2012) | `sorva2012` | repositório da Aalto, PDF e texto integral | 16040 KB, a3a7d20b7b4d; texto 1363 KB, 8a259439d0a2 | confere (ver a seção seguinte) |
 | Gardner-Medwin (2006) | `gardnermedwin2006` | página do autor | 147 KB, 9fd215fddbbe | confere; o "cursos de medicina" foi ajustado |
 | Falmagne et al. (2006) | `falmagne2006` | página da ALEKS | 353 KB, 5dec432b6073 | p. 1, 9 e 10 conferem; volume e páginas da LNCS conferem com a Crossref |
@@ -409,16 +431,15 @@ que o que a frase do texto afirma está na página citada do arquivo.
 | Nussbaum, Cordova e Rehmat (2017) | `nussbaum2017` | ERIC | 441 KB, f5bc0602b36b | p. 23 e 31 conferem, inclusive a citação de Tippett (2010, p. 965) |
 | Sweller, van Merriënboer e Paas (2019) | `sweller2019` | Springer, acesso aberto | 808 KB, 47ce1d814f9b | p. 265, 268, 277 e 279 conferem; "três efeitos" passou a quatro |
 | VanLehn (2006) | `vanlehn2006` | material de curso da Universidade de Kentucky (manuscrito) | 630 KB, 0fc27a20c46b | confere; volume e páginas conferem com a Crossref |
-| VanLehn (2011) | não baixada | a editora e a página do autor bloqueiam acesso automatizado | | fica com a leitura de 18/11 |
+| VanLehn (2011) | `vanlehn2011` | baixada pelo autor, cópia da editora | 588 KB, 1b353bd1e6fd | p. 197 confere |
 | Soderstrom e Bjork (2015) | `soderstrom2015` | página do laboratório dos autores | 672 KB, f143e20a1d87 | p. 176 confere |
 | W3C (2025) | `w3c2025` | w3.org | 465 KB, 233ac31974ce | 4,5:1 no nível AA, o limiar 0,04045 e a nota sobre 0,03928 conferem |
 | Brooke (1996) | `brooke1996`, `brooke2013`, `brooke1996-livro` | AHRQ e JUS pelo Internet Archive; página do livro na editora | 164 KB, fc03554a8a27; 538 KB, 4249de64fad1 | aberta pela primeira vez; confere; páginas trocadas para as da editora |
 
-**Para o autor baixar pelo acesso da UFV (CAPES):** Qian e Lehman (2017),
-DOI 10.1145/3077618 (a ACM é de acesso aberto, mas bloqueia download
-automatizado), e VanLehn (2011), DOI 10.1080/00461520.2011.611369. Com os
-dois arquivos em `fontes/`, as frases das p. 1:2-1:3 e da p. 197 podem ser
-conferidas como as outras.
+**Os quatro arquivos que o download automatizado não alcançou** (Qian e
+Lehman, 2017; VanLehn, 2011; Schmellenkamp, Latys e Zeume, 2023; Sorva,
+2013) foram baixados pelo autor, pelo acesso da UFV, em 19/11/2026, e
+conferidos como os outros (ver as entradas de cada obra).
 
 ## Segunda conferência: as obras do capítulo de curadoria
 
@@ -459,3 +480,28 @@ conferidas como as outras.
 - **Kernighan e Ritchie (1988)** é livro e não foi baixado; a frase que o
   cita (K&R diz que a variável declarada não é zerada) fica com a leitura
   original.
+- **CERT C e CWE, abertos em 19/11/2026 para entrar nas referências.** A
+  CWE, no site oficial (versão 5.0, de 28/10/2026), em `fontes/cwe/`: os
+  títulos de CWE-476 ("NULL Pointer Dereference"), CWE-252 ("Unchecked
+  Return Value") e CWE-415 ("Double Free") conferem com o catálogo. O wiki
+  do CERT C recusou a conexão, e as regras foram lidas nas cópias de
+  dezembro de 2025 do Internet Archive, em `fontes/certc/`: EXP34-C ("Do
+  not dereference null pointers"), MEM30-C ("Do not access freed memory") e
+  MEM31-C ("Free dynamically allocated memory when no longer needed")
+  conferem. **A MEM52-C, citada para `malloc_always_succeeds`, não existe
+  no padrão de C:** MEM52-CPP, com o título que o catálogo dava ("Detect and
+  handle memory allocation errors"), é do padrão de C++ e trata do operador
+  `new`. A regra de C para o caso é a ERR33-C ("Detect and handle standard
+  library errors"), cuja tabela lista `malloc` e o NULL que ele devolve no
+  erro; o catálogo (`beliefs_kc08.yaml`) passou a citá-la. O PDF da edição
+  de 2016 só é entregue depois de um formulário com dados pessoais, que não
+  foi preenchido; a página do catálogo da SEI confirma título e edição.
+- **Hermans et al. (2018), aberta em 19/11/2026,** no repositório da TU
+  Delft (manuscrito aceito), em `fontes/hermans2018/`: *Proceedings of the
+  13th Workshop in Primary and Secondary Computing Education* (WiPSCE '18),
+  art. 8, p. 1-8. A obra registra a concepção de que a variável guarda
+  vários valores ou "lembra" os anteriores e a estuda num experimento com
+  496 iniciantes (caixa contra etiqueta como metáfora). Entrou na lista, e
+  a frase da curadoria que a menciona passou a dizer que ela foi aberta
+  depois; a citação no catálogo não foi restaurada, o que fica para a
+  próxima revisão dele.
