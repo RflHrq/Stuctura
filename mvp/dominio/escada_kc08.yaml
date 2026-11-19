@@ -114,8 +114,8 @@ B1:
       forma: escolher
       codigo: false
       frases:
-        - "O número entre os parênteses de malloc é um tamanho em bytes. Um byte é o espaço de uma caixa de char."
-        - "malloc(10) pede dez bytes. Ele não sabe o que você vai guardar ali."
+        - "O número entre os parênteses de malloc é um tamanho em bytes, e um byte é o espaço de uma caixa de char."
+        - "malloc não sabe o que você vai guardar ali: nem olha o tipo do ponteiro."
       versoes:
         - pede: "O que a última linha pede ao sistema?"
           antes: |-
@@ -370,7 +370,7 @@ B2:
       forma: escolher
       codigo: false
       frases:
-        - "malloc devolve o endereço do bloco que conseguiu, e é esse endereço que fica guardado em p."
+        - "malloc não entrega o bloco em si: devolve o endereço dele."
         - "Se não conseguir bloco nenhum, devolve NULL."
       versoes:
         - pede: "Depois da última linha, o que fica guardado em p?"
@@ -635,8 +635,8 @@ B3:
       forma: escolher
       codigo: false
       frases:
-        - "O bloco chega do jeito que estava: malloc não limpa nada antes de entregar."
-        - "O que há nele é sobra, um valor que ninguém escolheu."
+        - "malloc entrega o bloco do jeito que estava: não limpa nada antes."
+        - "É como declarar uma variável e não dar valor a ela."
       versoes:
         - pede: "Logo depois da última linha, o que há dentro do bloco?"
           antes: |-
@@ -902,8 +902,8 @@ I1:
       forma: escolher
       codigo: false
       frases:
-        - "São duas coisas: a caixa de p, que é uma variável local e fica na pilha, e o bloco, que fica no monte."
-        - "p aponta para o monte, mas não mora lá."
+        - "Variável local mora na pilha; bloco de malloc mora no monte."
+        - "Apontar para um lugar não é morar nele."
       versoes:
         - pede: "Onde mora a variável p?"
           antes: |-

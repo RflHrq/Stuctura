@@ -385,8 +385,8 @@ B2:
       forma: escolher
       codigo: false
       frases:
-        - "Enquanto a função roda, &n é o endereço da caixa n: um endereço como outro qualquer."
-        - "&n não é uma cópia de n: é onde a própria n está."
+        - "Uma variável local tem endereço como qualquer outra, enquanto a função roda."
+        - "O & dá o lugar onde a variável está, e não uma cópia dela."
       versoes:
         - pede: "f está rodando. O que &n dá?"
           antes: |-
@@ -627,8 +627,8 @@ B3:
       forma: escolher
       codigo: false
       frases:
-        - "O valor do return é copiado para o lugar da chamada. int x = dobro(3); guarda essa cópia em x."
-        - "Se ninguém guardar, a cópia se perde."
+        - "O valor do return é copiado para o lugar da chamada."
+        - "Ele só fica guardado se a linha o guardar numa variável, como em int x = f();"
       versoes:
         - pede: "O que acontece com o 6 que dobro(3) retorna, na última linha?"
           antes: |-
@@ -871,8 +871,8 @@ I1:
       forma: escolher
       codigo: false
       frases:
-        - "return &n copia o endereço de n. A caixa n não vai junto: fica para trás e sai no retorno."
-        - "Retornar &local devolve um endereço, e não a variável."
+        - "O return copia o valor da expressão para quem chamou: o que viaja é sempre uma cópia."
+        - "As caixas da função ficam para trás, e saem quando ela termina."
       versoes:
         - pede: "O que f entrega a quem chamou?"
           antes: |-
@@ -1116,8 +1116,8 @@ I2:
       forma: escolher
       codigo: false
       frases:
-        - "static muda a duração: a caixa dura o programa inteiro, e o endereço dela vale depois do retorno."
-        - "O nome não muda de lugar: n continua sendo um nome só de dentro da função."
+        - "Uma variável tem duas coisas: até quando a caixa dura (a duração) e de onde o nome é visto (o escopo)."
+        - "static mexe só na primeira: a caixa passa a durar o programa inteiro."
       versoes:
         - pede: "O que static muda em n?"
           antes: "int *f(void) { static int n = 7; return &n; }"
@@ -1192,7 +1192,8 @@ I2:
       forma: escolher
       codigo: false
       frases:
-        - "Sem static, o erro às vezes parece funcionar: o lugar onde a caixa ficava pode ainda guardar o valor antigo. Parecer funcionar não é funcionar."
+        - "Sem static, o erro às vezes parece funcionar: quando a caixa sai, o lugar dela não é apagado, e pode guardar o valor antigo."
+        - "Ler esse lugar é ler o que sobrou, e não a variável."
       versoes:
         - pede: "Um colega diz: retornei &n sem static e o programa mostrou o 7, então está certo. O que dizer a ele?"
           antes: "int *f(void) { int n = 7; return &n; }"

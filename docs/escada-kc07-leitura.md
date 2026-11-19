@@ -6,8 +6,8 @@ Texto para leitura, gerado de `mvp/dominio/escada_kc07.yaml`. Cada degrau tem du
 
 ### Degrau 1 — guiado, escolher
 
-> int notas[3]; cria três caixas de int, grudadas uma na outra. Cada caixa é uma variável.
-> O nome notas vale para o conjunto das três, e não para uma caixa só.
+> int pesos[4]; cria quatro caixas de int, grudadas uma na outra, e cada caixa é uma variável.
+> O nome do array vale para o conjunto das caixas, e não para uma caixa só.
 
 **Versão 1.** O que esta linha cria?
 
@@ -121,8 +121,8 @@ Se errar:
 
 ### Degrau 4 — guiado, escolher
 
-> char nome[] = "ana"; cria quatro caixas de char: a, n, a e uma marca de fim, o terminador.
-> char *p = "ana"; cria só a caixa de p, com o endereço de letras guardadas em outro lugar.
+> char a[] = "oi"; cria três caixas de char: o, i e uma marca de fim, o terminador.
+> char *b = "oi"; cria só a caixa de b, com o endereço de letras guardadas em outro lugar.
 
 **Versão 1.** As duas linhas guardam as letras do mesmo jeito?
 
@@ -650,8 +650,8 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> Na chamada zera(notas); acontece a mesma troca: o que é copiado para o parâmetro é o endereço da primeira caixa.
-> O parâmetro int v[] é um ponteiro, como int *v.
+> Na chamada, o nome do array faz a troca de sempre: vira o endereço da primeira caixa.
+> E o parâmetro int v[] é um ponteiro, como int *v: recebe uma cópia, como todo parâmetro.
 
 **Versão 1.** Na última linha, o que a função recebe?
 
@@ -872,8 +872,8 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> O outro lugar é o &: &v é o endereço do conjunto inteiro, e não o de uma caixa.
-> v e &v marcam o mesmo ponto da memória, mas têm tipos diferentes: um aponta uma caixa, o outro o conjunto.
+> O outro lugar é o &: com ele na frente, o nome do array dá o endereço do conjunto inteiro, e não o de uma caixa.
+> Os dois endereços marcam o mesmo ponto da memória, mas têm tipos diferentes.
 
 **Versão 1.** v e &v são a mesma coisa?
 
@@ -1124,7 +1124,7 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> O nome do array não recebe atribuição: de copia = notas; o compilador reclama.
+> O nome de um array não recebe atribuição, e o compilador reclama de quem tenta.
 > As caixas não mudam de lugar, e o conjunto não é trocado por outro.
 
 **Versão 1.** O que o compilador faz com a última linha?
@@ -1626,8 +1626,8 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> A escrita é igual, mas os tipos são diferentes: notas é o conjunto das três caixas de int.
-> p é uma caixa só, que guarda um endereço.
+> Um array e um ponteiro podem se escrever igual, com os colchetes, e mesmo assim são coisas diferentes.
+> O array é o conjunto das caixas; o ponteiro é uma caixa só, que guarda um endereço.
 
 **Versão 1.** notas e p são a mesma coisa?
 

@@ -112,8 +112,8 @@ B1:
       forma: escolher
       codigo: false
       frases:
-        - "Um ponteiro guarda um endereço e sabe o tipo do que está lá: int *p aponta para um int, char *c para um char."
-        - "O tipo vem escrito na declaração. Ponteiro não é um número solto."
+        - "Um ponteiro guarda um endereço, e a declaração diz o tipo do que mora lá: é o que vem antes do *."
+        - "Ponteiro não é um número solto."
       versoes:
         - pede: "O que a declaração int *p; diz sobre p?"
           antes: "int *p;"
@@ -342,7 +342,7 @@ B2:
       codigo: false
       frases:
         - "O tamanho de um tipo é fixo: todo char ocupa 1 byte, e todo int ocupa o mesmo tanto, numa mesma máquina."
-        - "O compilador sabe esse tamanho pela declaração, antes de o programa rodar."
+        - "E o tipo do que mora no endereço vem escrito na declaração do ponteiro."
       versoes:
         - pede: "Quando o compilador fica sabendo quanto ocupa a caixa para onde c aponta?"
           antes: "char *c;"
@@ -606,26 +606,26 @@ B3:
       forma: escolher
       codigo: false
       frases:
-        - 'char s[] = "pai"; cria quatro caixas de char grudadas, cópia do texto, e elas são de s.'
-        - 'char *t = "pai"; cria uma caixa só, um ponteiro para letras grudadas que não são de t.'
+        - "char s[] = \"oi\"; cria as caixas do texto, uma cópia dele, e elas são de s."
+        - "char *t = \"oi\"; cria uma caixa só: um ponteiro para letras que não são de t."
       versoes:
         - pede: "O que cada uma destas linhas cria?"
           antes: |-
-            char s[] = "pai";
-            char *t = "pai";
+            char x[] = "pai";
+            char *y = "pai";
           pecas:
-            - "s são quatro caixas de char; t é um ponteiro para o texto"
-            - 'O mesmo: char *s = "abc" e char s[] = "abc" guardam do mesmo jeito'
-            - "s é um ponteiro para o texto; t são quatro caixas de char"
+            - "x são quatro caixas de char; y é um ponteiro para o texto"
+            - "O mesmo: as duas linhas guardam as letras do mesmo jeito"
+            - "x é um ponteiro para o texto; y são quatro caixas de char"
           certa: [[0]]
-          certa_texto: "s são quatro caixas de char; t é um ponteiro para o texto"
+          certa_texto: "x são quatro caixas de char; y é um ponteiro para o texto"
           erros:
             - exata: [1]
               crenca: string_literal_is_array
-              retorno: "O texto é o mesmo, mas guardado de outro jeito: s são quatro caixas de char, que são de s; t é uma caixa só, que aponta para letras de fora."
+              retorno: "O texto é o mesmo, mas guardado de outro jeito: x são quatro caixas de char, que são de x; y é uma caixa só, que aponta para letras de fora."
             - exata: [2]
-              retorno: "É o contrário: os colchetes de s[] criam as caixas, e a estrela de *t cria um ponteiro."
-          retorno_geral: "s são quatro caixas de char, que são de s; t é um ponteiro para o texto."
+              retorno: "É o contrário: os colchetes de x[] criam as caixas, e a estrela de *y cria um ponteiro."
+          retorno_geral: "x são quatro caixas de char, que são de x; y é um ponteiro para o texto."
         - pede: "O que cada uma destas linhas cria?"
           antes: |-
             char *u = "ana";
@@ -633,7 +633,7 @@ B3:
           pecas:
             - "u são quatro caixas de char; nome é um ponteiro para o texto"
             - "u é um ponteiro para o texto; nome são quatro caixas de char"
-            - 'O mesmo: char *s = "abc" e char s[] = "abc" guardam do mesmo jeito'
+            - "O mesmo: as duas linhas guardam as letras do mesmo jeito"
           certa: [[1]]
           certa_texto: "u é um ponteiro para o texto; nome são quatro caixas de char"
           erros:
@@ -1016,8 +1016,8 @@ I2:
       forma: escolher
       codigo: false
       frases:
-        - "Para andar, o ponteiro precisa saber o tamanho da caixa do destino. O void * não sabe: não tem tipo nenhum."
-        - "Por isso o padrão do C não define v + 1: não há quanto andar."
+        - "Para andar, o ponteiro precisa saber o tamanho da caixa do destino, e quem diz esse tamanho é o tipo."
+        - "O void * não tem tipo nenhum."
       versoes:
         - pede: "v é um void *. O que o padrão do C diz de v + 1?"
           antes: "void *v;"

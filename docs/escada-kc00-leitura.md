@@ -508,7 +508,7 @@ Se errar:
 ### Degrau 2 — guiado, escolher
 
 > Declarar reserva o lugar, mas não escreve nada nele.
-> O C não põe zero para você: logo depois de int idade; ninguém sabe o que há ali.
+> E o C não põe zero para você: o lugar fica com o que já estava lá.
 
 **Versão 1.** Logo depois de int idade; que valor está guardado em idade?
 

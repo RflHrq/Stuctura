@@ -6,10 +6,10 @@ Texto para leitura, gerado de `mvp/dominio/escada_kc02.yaml`. Cada degrau tem du
 
 ### Degrau 1 — guiado, escolher
 
-> Toda variável fica guardada num lugar da memória.
-> Cada lugar tem um número. Esse número é o endereço da variável.
+> Toda variável fica num lugar da memória, e cada lugar tem um número: o endereço.
+> É como uma casa: o endereço diz onde ela fica, e não o que tem dentro.
 
-**Versão 1.** idade guarda 15. O que é o endereço de idade?
+**Versão 1.** Neste exemplo, idade ficou no lugar de número 1000 e guarda 15. Qual é o endereço de idade?
 
 Já está escrito:
 
@@ -18,17 +18,17 @@ int idade;
 idade = 15;
 ```
 
-Opções: `O número do lugar onde idade fica`  `O valor guardado nela: 15`  `Nada disso: o computador acha idade pelo nome`
+Opções: `1000`  `15`  `idade não tem endereço: o computador a acha pelo nome`
 
-Resposta certa: `O número do lugar onde idade fica`
+Resposta certa: `1000`
 
 Se errar:
 
-- respondeu `O valor guardado nela: 15` → 15 é o conteúdo: o que está guardado. O endereço é outra coisa, o número do lugar onde idade fica.
-- respondeu `Nada disso: o computador acha idade pelo nome` → O nome serve a quem escreve o código. A máquina chega em idade pelo número do lugar onde ela fica: o endereço. _(aponta a crença `memory_is_by_name`)_
-- qualquer outro erro → O endereço é o número do lugar da memória onde idade fica.
+- respondeu `15` → 15 é o que está guardado dentro de idade. O endereço é o número do lugar onde ela fica: 1000.
+- respondeu `idade não tem endereço: o computador a acha pelo nome` → O nome é para quem escreve o código. Para a máquina, idade é o lugar 1000: é por esse número que ela chega lá. _(aponta a crença `memory_is_by_name`)_
+- qualquer outro erro → O endereço de idade é 1000, o número do lugar. O 15 é o que está guardado lá dentro.
 
-**Versão 2.** nota guarda 7. O que é o endereço de nota?
+**Versão 2.** Neste exemplo, nota ficou no lugar de número 2000 e guarda 7. Qual é o endereço de nota?
 
 Já está escrito:
 
@@ -37,15 +37,15 @@ int nota;
 nota = 7;
 ```
 
-Opções: `O número do lugar onde nota fica`  `O valor guardado nela: 7`  `Nada disso: o computador acha nota pelo nome`
+Opções: `2000`  `7`  `nota não tem endereço: o computador a acha pelo nome`
 
-Resposta certa: `O número do lugar onde nota fica`
+Resposta certa: `2000`
 
 Se errar:
 
-- respondeu `O valor guardado nela: 7` → 7 é o conteúdo: o que está guardado. O endereço é outra coisa, o número do lugar onde nota fica.
-- respondeu `Nada disso: o computador acha nota pelo nome` → O nome serve a quem escreve o código. A máquina chega em nota pelo número do lugar onde ela fica: o endereço. _(aponta a crença `memory_is_by_name`)_
-- qualquer outro erro → O endereço é o número do lugar da memória onde nota fica.
+- respondeu `7` → 7 é o que está guardado dentro de nota. O endereço é o número do lugar onde ela fica: 2000.
+- respondeu `nota não tem endereço: o computador a acha pelo nome` → O nome é para quem escreve o código. Para a máquina, nota é o lugar 2000: é por esse número que ela chega lá. _(aponta a crença `memory_is_by_name`)_
+- qualquer outro erro → O endereço de nota é 2000, o número do lugar. O 7 é o que está guardado lá dentro.
 
 ### Degrau 2 — guiado, escolher
 

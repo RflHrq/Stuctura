@@ -603,8 +603,8 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> A função terminar não devolve o bloco: quem acaba é a variável p, e o bloco continua alugado.
-> O sistema também não recolhe sozinho. Sem free, o bloco fica ocupado até o programa terminar.
+> Quando a função termina, acabam as variáveis locais dela, e o bloco do malloc não é uma delas.
+> O sistema também não recolhe bloco sozinho: só o free devolve.
 
 **Versão 1.** A função pede um bloco e termina sem chamar free. O que acontece com o bloco?
 

@@ -7,7 +7,7 @@ Texto para leitura, gerado de `mvp/dominio/escada_kc04.yaml`. Cada degrau tem du
 ### Degrau 1 — guiado, escolher
 
 > O endereço é o número de um lugar da memória.
-> Só tem endereço o que ocupa um lugar: uma variável ocupa; um número escrito no código não.
+> Só tem endereço o que ocupa um lugar na memória.
 
 **Versão 1.** De qual destes dá para pedir o endereço?
 
@@ -1448,8 +1448,8 @@ O que isto mostra: O endereço guardado em p é o mesmo antes e depois. *p = 20;
 
 ### Degrau 1 — guiado, escolher
 
-> O & pergunta: onde está esta variável? O * diz: vá até este endereço.
-> Um desfaz o outro: *(&idade) vai até o endereço de idade, e chega na própria idade.
+> O & pergunta: onde está esta variável?
+> O * diz: vá até este endereço, e veja o que mora lá.
 
 **Versão 1.** O que é *(&idade)?
 

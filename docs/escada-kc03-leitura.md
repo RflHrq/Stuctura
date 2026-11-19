@@ -295,7 +295,7 @@ Se errar:
 ### Degrau 2 — guiado, escolher
 
 > Dá para declarar dois nomes numa linha, separados por vírgula.
-> O * vale só para o nome em que está colado: em int *p, q; p é ponteiro, e q é um int comum.
+> O * vale só para o nome em que está colado: em int *a, b; só a é ponteiro.
 
 **Versão 1.** O que esta linha declara?
 
@@ -479,7 +479,7 @@ O que isto mostra: O compilador reclama só de q: ele é um int comum, e &idade 
 ### Degrau 1 — guiado, escolher
 
 > Declarar reserva o lugar, mas não escreve nada nele.
-> O que estava naquele lugar antes continua lá: um valor que ninguém escolheu.
+> E a memória nunca fica vazia: todo lugar guarda algum valor, deixado por quem o usou antes.
 
 **Versão 1.** Logo depois dessa linha, o que está guardado em nota?
 
@@ -519,8 +519,8 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> Com o ponteiro é igual: int *p; reserva o lugar de p e não escreve nada nele.
-> O que p guarda nesse momento é um valor que ninguém escolheu.
+> Com o ponteiro, declarar faz o mesmo que com a variável comum.
+> Reserva o lugar, e não escreve nada nele.
 
 **Versão 1.** Logo depois dessa linha, o que está guardado em p?
 
@@ -1218,7 +1218,7 @@ O que isto mostra: Para o compilador, p não vale NULL: está sem valor ("used u
 ### Degrau 1 — guiado, escolher
 
 > *p vai ao lugar cujo endereço está guardado em p.
-> Se p ainda não recebeu endereço, esse lugar é um que ninguém escolheu.
+> Declarar o ponteiro não escreve endereço nenhum nele: o que ele guarda é um valor que ninguém escolheu.
 
 **Versão 1.** Para onde a última linha manda o 10?
 

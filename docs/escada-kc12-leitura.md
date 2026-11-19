@@ -278,8 +278,8 @@ O que isto mostra: O compilador aceita a, que devolve o endereço do bloco, e re
 
 ### Degrau 1 — guiado, escolher
 
-> Enquanto a função roda, &n é o endereço da caixa n: um endereço como outro qualquer.
-> &n não é uma cópia de n: é onde a própria n está.
+> Uma variável local tem endereço como qualquer outra, enquanto a função roda.
+> O & dá o lugar onde a variável está, e não uma cópia dela.
 
 **Versão 1.** f está rodando. O que &n dá?
 
@@ -545,8 +545,8 @@ O que isto mostra: Saiu 9. &n não é uma cópia de n: é o endereço da própri
 
 ### Degrau 1 — guiado, escolher
 
-> O valor do return é copiado para o lugar da chamada. int x = dobro(3); guarda essa cópia em x.
-> Se ninguém guardar, a cópia se perde.
+> O valor do return é copiado para o lugar da chamada.
+> Ele só fica guardado se a linha o guardar numa variável, como em int x = f();
 
 **Versão 1.** O que acontece com o 6 que dobro(3) retorna, na última linha?
 
@@ -803,8 +803,8 @@ O que isto mostra: Saiu 4. O 20 de dobro(10) foi copiado para o lugar da chamada
 
 ### Degrau 1 — guiado, escolher
 
-> return &n copia o endereço de n. A caixa n não vai junto: fica para trás e sai no retorno.
-> Retornar &local devolve um endereço, e não a variável.
+> O return copia o valor da expressão para quem chamou: o que viaja é sempre uma cópia.
+> As caixas da função ficam para trás, e saem quando ela termina.
 
 **Versão 1.** O que f entrega a quem chamou?
 
@@ -1058,8 +1058,8 @@ O que isto mostra: Saiu 1. O que f devolveu foi um endereço, e não a variável
 
 ### Degrau 1 — guiado, escolher
 
-> static muda a duração: a caixa dura o programa inteiro, e o endereço dela vale depois do retorno.
-> O nome não muda de lugar: n continua sendo um nome só de dentro da função.
+> Uma variável tem duas coisas: até quando a caixa dura (a duração) e de onde o nome é visto (o escopo).
+> static mexe só na primeira: a caixa passa a durar o programa inteiro.
 
 **Versão 1.** O que static muda em n?
 
@@ -1138,7 +1138,8 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> Sem static, o erro às vezes parece funcionar: o lugar onde a caixa ficava pode ainda guardar o valor antigo. Parecer funcionar não é funcionar.
+> Sem static, o erro às vezes parece funcionar: quando a caixa sai, o lugar dela não é apagado, e pode guardar o valor antigo.
+> Ler esse lugar é ler o que sobrou, e não a variável.
 
 **Versão 1.** Um colega diz: retornei &n sem static e o programa mostrou o 7, então está certo. O que dizer a ele?
 

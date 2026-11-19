@@ -6,8 +6,8 @@ Texto para leitura, gerado de `mvp/dominio/escada_kc11.yaml`. Cada degrau tem du
 
 ### Degrau 1 — guiado, escolher
 
-> Um ponteiro guarda um endereço e sabe o tipo do que está lá: int *p aponta para um int, char *c para um char.
-> O tipo vem escrito na declaração. Ponteiro não é um número solto.
+> Um ponteiro guarda um endereço, e a declaração diz o tipo do que mora lá: é o que vem antes do *.
+> Ponteiro não é um número solto.
 
 **Versão 1.** O que a declaração int *p; diz sobre p?
 
@@ -263,7 +263,7 @@ O que isto mostra: O compilador aceita p = &idade; e reclama de p = 1000;. Ponte
 ### Degrau 1 — guiado, escolher
 
 > O tamanho de um tipo é fixo: todo char ocupa 1 byte, e todo int ocupa o mesmo tanto, numa mesma máquina.
-> O compilador sabe esse tamanho pela declaração, antes de o programa rodar.
+> E o tipo do que mora no endereço vem escrito na declaração do ponteiro.
 
 **Versão 1.** Quando o compilador fica sabendo quanto ocupa a caixa para onde c aponta?
 
@@ -543,27 +543,27 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> char s[] = "pai"; cria quatro caixas de char grudadas, cópia do texto, e elas são de s.
-> char *t = "pai"; cria uma caixa só, um ponteiro para letras grudadas que não são de t.
+> char s[] = "oi"; cria as caixas do texto, uma cópia dele, e elas são de s.
+> char *t = "oi"; cria uma caixa só: um ponteiro para letras que não são de t.
 
 **Versão 1.** O que cada uma destas linhas cria?
 
 Já está escrito:
 
 ```c
-char s[] = "pai";
-char *t = "pai";
+char x[] = "pai";
+char *y = "pai";
 ```
 
-Opções: `s são quatro caixas de char; t é um ponteiro para o texto`  `O mesmo: char *s = "abc" e char s[] = "abc" guardam do mesmo jeito`  `s é um ponteiro para o texto; t são quatro caixas de char`
+Opções: `x são quatro caixas de char; y é um ponteiro para o texto`  `O mesmo: as duas linhas guardam as letras do mesmo jeito`  `x é um ponteiro para o texto; y são quatro caixas de char`
 
-Resposta certa: `s são quatro caixas de char; t é um ponteiro para o texto`
+Resposta certa: `x são quatro caixas de char; y é um ponteiro para o texto`
 
 Se errar:
 
-- respondeu `O mesmo: char *s = "abc" e char s[] = "abc" guardam do mesmo jeito` → O texto é o mesmo, mas guardado de outro jeito: s são quatro caixas de char, que são de s; t é uma caixa só, que aponta para letras de fora. _(aponta a crença `string_literal_is_array`)_
-- respondeu `s é um ponteiro para o texto; t são quatro caixas de char` → É o contrário: os colchetes de s[] criam as caixas, e a estrela de *t cria um ponteiro.
-- qualquer outro erro → s são quatro caixas de char, que são de s; t é um ponteiro para o texto.
+- respondeu `O mesmo: as duas linhas guardam as letras do mesmo jeito` → O texto é o mesmo, mas guardado de outro jeito: x são quatro caixas de char, que são de x; y é uma caixa só, que aponta para letras de fora. _(aponta a crença `string_literal_is_array`)_
+- respondeu `x é um ponteiro para o texto; y são quatro caixas de char` → É o contrário: os colchetes de x[] criam as caixas, e a estrela de *y cria um ponteiro.
+- qualquer outro erro → x são quatro caixas de char, que são de x; y é um ponteiro para o texto.
 
 **Versão 2.** O que cada uma destas linhas cria?
 
@@ -574,13 +574,13 @@ char *u = "ana";
 char nome[] = "ana";
 ```
 
-Opções: `u são quatro caixas de char; nome é um ponteiro para o texto`  `u é um ponteiro para o texto; nome são quatro caixas de char`  `O mesmo: char *s = "abc" e char s[] = "abc" guardam do mesmo jeito`
+Opções: `u são quatro caixas de char; nome é um ponteiro para o texto`  `u é um ponteiro para o texto; nome são quatro caixas de char`  `O mesmo: as duas linhas guardam as letras do mesmo jeito`
 
 Resposta certa: `u é um ponteiro para o texto; nome são quatro caixas de char`
 
 Se errar:
 
-- respondeu `O mesmo: char *s = "abc" e char s[] = "abc" guardam do mesmo jeito` → O texto é o mesmo, mas guardado de outro jeito: nome são quatro caixas de char, que são de nome; u é uma caixa só, que aponta para letras de fora. _(aponta a crença `string_literal_is_array`)_
+- respondeu `O mesmo: as duas linhas guardam as letras do mesmo jeito` → O texto é o mesmo, mas guardado de outro jeito: nome são quatro caixas de char, que são de nome; u é uma caixa só, que aponta para letras de fora. _(aponta a crença `string_literal_is_array`)_
 - respondeu `u são quatro caixas de char; nome é um ponteiro para o texto` → É o contrário: os colchetes de nome[] criam as caixas, e a estrela de *u cria um ponteiro.
 - qualquer outro erro → u é um ponteiro para o texto; nome são quatro caixas de char, que são de nome.
 
@@ -992,8 +992,8 @@ O que isto mostra: Saiu 9. notas[2] é *(notas + 2), e a soma vale nos dois sent
 
 ### Degrau 1 — guiado, escolher
 
-> Para andar, o ponteiro precisa saber o tamanho da caixa do destino. O void * não sabe: não tem tipo nenhum.
-> Por isso o padrão do C não define v + 1: não há quanto andar.
+> Para andar, o ponteiro precisa saber o tamanho da caixa do destino, e quem diz esse tamanho é o tipo.
+> O void * não tem tipo nenhum.
 
 **Versão 1.** v é um void *. O que o padrão do C diz de v + 1?
 

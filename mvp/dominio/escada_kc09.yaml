@@ -109,8 +109,8 @@ B1:
       forma: escolher
       codigo: false
       frases:
-        - "free(p) recebe só o endereço do bloco. O tamanho, quem anotou foi o alocador, na hora de entregar."
-        - "O ponteiro não carrega tamanho nenhum: guarda um endereço, e mais nada."
+        - "Quem anota o tamanho do bloco é o alocador, na hora de entregá-lo."
+        - "Por isso free(p) funciona recebendo só o endereço."
       versoes:
         - pede: "Depois da última linha, o que está guardado em p?"
           antes: |-
@@ -154,8 +154,8 @@ B1:
       forma: escolher
       codigo: false
       frases:
-        - "sizeof v mede o array inteiro, porque v é o conjunto das caixas."
-        - "sizeof p mede só o ponteiro: quantas caixas há no bloco, p não sabe."
+        - "sizeof de um array mede o conjunto inteiro das caixas."
+        - "sizeof de um ponteiro mede só a caixa do ponteiro: quantas caixas há no bloco, ele não sabe."
       versoes:
         - pede: "v é um array de dez; p aponta para um bloco de dez. Qual dos dois sizeof dá 10?"
           antes: |-
@@ -467,8 +467,8 @@ B2:
       forma: escolher
       codigo: false
       frases:
-        - "Com free é igual: ela usa a cópia para achar o bloco e devolvê-lo."
-        - "No p de quem chamou ela não tem como tocar."
+        - "free recebe uma cópia do endereço guardado em p, como toda função recebe cópias."
+        - "Com a cópia do endereço ela chega ao bloco; o p de quem chamou é outra caixa."
       versoes:
         - pede: "O que free consegue fazer com a cópia que recebeu?"
           antes: |-
@@ -694,8 +694,8 @@ B3:
       forma: escolher
       codigo: false
       frases:
-        - "A caixa de p acaba como toda variável local: no fim da função em que foi declarada."
-        - "O free não tem nada com isso."
+        - "Toda variável local acaba no fim da função em que foi declarada, seja ponteiro ou não."
+        - "O free devolve o bloco, e não mexe na caixa do ponteiro."
       versoes:
         - pede: "Quando a caixa de p deixa de existir?"
           antes: "void usa(void) { int *p = malloc(sizeof(int)); free(p); }"
@@ -914,8 +914,8 @@ B4:
       forma: escolher
       codigo: false
       frases:
-        - "Devolvido, o bloco deixa de ser seu: free(p); entrega o lugar de volta ao alocador."
-        - "O alocador pode dá-lo ao próximo malloc. O que você deixou lá não está guardado para você."
+        - "malloc aluga um lugar do alocador; free devolve o aluguel."
+        - "Lugar devolvido volta para o alocador, junto com os que ainda não foram alugados."
       versoes:
         - pede: "Depois da última linha, o bloco é de quem?"
           antes: |-
@@ -1187,8 +1187,8 @@ I1:
       forma: escolher
       codigo: false
       frases:
-        - "free recebeu só uma cópia do endereço. No p de quem chamou ela não tem como escrever."
-        - "Por isso, depois do free, p não vira NULL: continua com o endereço de antes."
+        - "free recebe só uma cópia do endereço guardado em p."
+        - "No p de quem chamou ela não tem como escrever."
       versoes:
         - pede: "Depois da última linha, o que está guardado em p?"
           antes: |-
@@ -1272,7 +1272,8 @@ I1:
       forma: escolher
       codigo: false
       frases:
-        - "Se alguém vai escrever NULL em p, é você, numa linha sua: p = NULL;"
+        - "Depois do free, p continua com o endereço antigo, e nada no programa o troca sozinho."
+        - "Uma variável só muda quando uma linha escreve nela."
       versoes:
         - pede: "Depois do free(p);, quem pode pôr NULL em p?"
           pecas:
@@ -1435,8 +1436,8 @@ I2:
       forma: escolher
       codigo: false
       frases:
-        - "free devolve o bloco, e só. A variável p não é apagada: continua declarada, com o mesmo endereço dentro."
-        - "Esse endereço leva agora a um lugar que não é mais seu. Um ponteiro assim se chama pendente."
+        - "free devolve o bloco, e só: não mexe em variável nenhuma de quem chamou."
+        - "Um ponteiro que guarda o endereço de um lugar que já não é seu se chama pendente."
       versoes:
         - pede: "Depois da última linha, o que é verdade sobre a variável p?"
           antes: |-
@@ -1606,19 +1607,19 @@ I2:
       codigo: false
       frases: []
       versoes:
-        - pede: "O que é um ponteiro pendente?"
+        - pede: "p e q apontam para dois blocos do malloc, e a última linha foi free(p);. Qual dos dois está pendente?"
           pecas:
-            - "Uma variável que ainda guarda o endereço de um bloco já devolvido"
-            - "Uma variável que o free apagou"
-            - "Um ponteiro que vale NULL"
+            - "p"
+            - "q"
+            - "Nenhum dos dois"
           certa: [[0]]
-          certa_texto: "Uma variável que ainda guarda o endereço de um bloco já devolvido"
+          certa_texto: "p"
           erros:
             - exata: [1]
-              retorno: "free não apaga variável: devolve o bloco. O ponteiro continua lá, com o endereço antigo — é isso que o deixa pendente."
+              retorno: "O bloco de q ainda é seu: nenhum free o devolveu. Pendente é p, que guarda o endereço de um bloco já devolvido."
             - exata: [2]
-              retorno: "O ponteiro que vale NULL diz que não aponta para nada. O pendente é o contrário: guarda um endereço com cara de bom, de um bloco já devolvido."
-          retorno_geral: "Pendente é o ponteiro que continua com o endereço de um bloco já devolvido."
+              retorno: "free(p) não apaga p: devolve o bloco. p continua lá, com o endereço antigo — é isso que o deixa pendente."
+          retorno_geral: "p está pendente: guarda o endereço de um bloco que free(p) já devolveu."
         - pede: "Depois de qual destas linhas p fica pendente?"
           antes: |-
             int *p;
@@ -1701,7 +1702,7 @@ I3:
       codigo: false
       frases:
         - "Depois do free, nada no programa avisa que o endereço em p ficou ruim: ele tem a mesma cara de antes."
-        - "Escrever p = NULL; logo depois é o registro de que p não aponta mais para nada."
+        - "Já o NULL diz, com todas as letras: não aponta para lugar nenhum."
       versoes:
         - pede: "Para que serve a última linha?"
           antes: |-
@@ -2016,8 +2017,7 @@ I4:
       forma: escolher
       codigo: false
       frases:
-        - "A exceção é o NULL: free(NULL) não faz nada."
-        - "Por isso p = NULL; depois do free protege também de um segundo free."
+        - "A exceção é o NULL: free(NULL) não faz nada, e não é erro."
       versoes:
         - pede: "Qual dos dois trechos é válido?"
           antes: |-

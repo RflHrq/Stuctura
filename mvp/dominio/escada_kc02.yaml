@@ -115,44 +115,50 @@ B1:
       guiado: true
       forma: escolher
       codigo: false
+      # Com um endereço de exemplo, e não a definição de volta: a primeira
+      # versão deste degrau perguntava "o que é o endereço de idade?" logo
+      # depois de dizer o que é, e a alternativa certa era a frase copiada
+      # (o Rafael, em 19/11/2026: "essa questão está meio confusa"). Aqui a
+      # pessoa separa o conteúdo (15) do endereço (1000) num caso concreto,
+      # e a crença continua dita — agora como resposta à pergunta.
       frases:
-        - "Toda variável fica guardada num lugar da memória."
-        - "Cada lugar tem um número. Esse número é o endereço da variável."
+        - "Toda variável fica num lugar da memória, e cada lugar tem um número: o endereço."
+        - "É como uma casa: o endereço diz onde ela fica, e não o que tem dentro."
       versoes:
-        - pede: "idade guarda 15. O que é o endereço de idade?"
+        - pede: "Neste exemplo, idade ficou no lugar de número 1000 e guarda 15. Qual é o endereço de idade?"
           antes: |-
             int idade;
             idade = 15;
           pecas:
-            - "O número do lugar onde idade fica"
-            - "O valor guardado nela: 15"
-            - "Nada disso: o computador acha idade pelo nome"
+            - "1000"
+            - "15"
+            - "idade não tem endereço: o computador a acha pelo nome"
           certa: [[0]]
-          certa_texto: "O número do lugar onde idade fica"
+          certa_texto: "1000"
           erros:
             - exata: [1]
-              retorno: "15 é o conteúdo: o que está guardado. O endereço é outra coisa, o número do lugar onde idade fica."
+              retorno: "15 é o que está guardado dentro de idade. O endereço é o número do lugar onde ela fica: 1000."
             - exata: [2]
               crenca: memory_is_by_name
-              retorno: "O nome serve a quem escreve o código. A máquina chega em idade pelo número do lugar onde ela fica: o endereço."
-          retorno_geral: "O endereço é o número do lugar da memória onde idade fica."
-        - pede: "nota guarda 7. O que é o endereço de nota?"
+              retorno: "O nome é para quem escreve o código. Para a máquina, idade é o lugar 1000: é por esse número que ela chega lá."
+          retorno_geral: "O endereço de idade é 1000, o número do lugar. O 15 é o que está guardado lá dentro."
+        - pede: "Neste exemplo, nota ficou no lugar de número 2000 e guarda 7. Qual é o endereço de nota?"
           antes: |-
             int nota;
             nota = 7;
           pecas:
-            - "O número do lugar onde nota fica"
-            - "O valor guardado nela: 7"
-            - "Nada disso: o computador acha nota pelo nome"
+            - "2000"
+            - "7"
+            - "nota não tem endereço: o computador a acha pelo nome"
           certa: [[0]]
-          certa_texto: "O número do lugar onde nota fica"
+          certa_texto: "2000"
           erros:
             - exata: [1]
-              retorno: "7 é o conteúdo: o que está guardado. O endereço é outra coisa, o número do lugar onde nota fica."
+              retorno: "7 é o que está guardado dentro de nota. O endereço é o número do lugar onde ela fica: 2000."
             - exata: [2]
               crenca: memory_is_by_name
-              retorno: "O nome serve a quem escreve o código. A máquina chega em nota pelo número do lugar onde ela fica: o endereço."
-          retorno_geral: "O endereço é o número do lugar da memória onde nota fica."
+              retorno: "O nome é para quem escreve o código. Para a máquina, nota é o lugar 2000: é por esse número que ela chega lá."
+          retorno_geral: "O endereço de nota é 2000, o número do lugar. O 7 é o que está guardado lá dentro."
 
     - id: esc_kc02_B1_2
       guiado: true

@@ -284,8 +284,8 @@ O que isto mostra: Saiu 7. &p não é uma cópia de p: é o endereço da própri
 
 ### Degrau 1 — guiado, escolher
 
-> p não é outro nome de idade: é uma caixa, que guarda o endereço de idade.
-> O * é um passo: sai da caixa p e vai até a caixa cujo endereço está lá.
+> Um ponteiro não é outro nome da variável: é uma caixa à parte, que guarda um endereço.
+> O * é um passo: sai da caixa do ponteiro e vai até a caixa cujo endereço está lá.
 
 **Versão 1.** O que p é, neste trecho?
 
@@ -544,8 +544,8 @@ O que isto mostra: Saiu 15. p não é outro nome de idade: é uma caixa com um e
 
 ### Degrau 1 — guiado, escolher
 
-> O tipo diz quantos passos há até o valor: int * é um nível, int ** são dois.
-> As estrelas da declaração fixam isso. Não dá para dar um passo que o tipo não tem.
+> O tipo diz quantos passos há até o valor: cada estrela da declaração é um nível, um passo.
+> Não dá para dar um passo que o tipo não tem.
 
 **Versão 1.** Quantos passos há de pp até o int?
 
@@ -815,8 +815,8 @@ O que isto mostra: O compilador aceita v = &p; e reclama de vv = &p;. O void * g
 
 ### Degrau 1 — guiado, escolher
 
-> A função que recebe p recebe uma cópia do endereço que estava no ponteiro de quem chamou.
-> Trocar a cópia não troca o ponteiro de quem chamou.
+> Um parâmetro ponteiro recebe uma cópia do endereço que estava no ponteiro de quem chamou.
+> São duas caixas: a do parâmetro, que é da função, e a de quem chamou.
 
 **Versão 1.** A função troca o parâmetro dela. O q de quem chamou muda?
 
@@ -1109,25 +1109,25 @@ O que isto mostra: Saiu 15. A função trocou p, a cópia dela. O q de quem cham
 ### Degrau 1 — guiado, escolher
 
 > int a[3][4]; cria doze caixas de int, grudadas: três fileiras de quatro.
-> Não há ponteiro nenhum ali: nem três, nem um.
+> Não há ponteiro nenhum ali dentro: só as caixas.
 
 **Versão 1.** O que esta linha cria?
 
 Já está escrito:
 
 ```c
-int a[3][4];
+int c[4][2];
 ```
 
-Opções: `Doze caixas de int, grudadas`  `Três ponteiros para fileiras: por isso a serve onde se espera int **`  `Um ponteiro para ponteiro, com tudo dentro`
+Opções: `Oito caixas de int, grudadas`  `Quatro ponteiros para fileiras: por isso c serve onde se espera int **`  `Um ponteiro para ponteiro, com tudo dentro`
 
-Resposta certa: `Doze caixas de int, grudadas`
+Resposta certa: `Oito caixas de int, grudadas`
 
 Se errar:
 
-- respondeu `Três ponteiros para fileiras: por isso a serve onde se espera int **` → Não há ponteiro nenhum ali: são doze caixas de int, uma depois da outra. Por não haver ponteiro, a não serve onde se espera um int **. _(aponta a crença `array2d_is_double_pointer`)_
-- respondeu `Um ponteiro para ponteiro, com tudo dentro` → Um ponteiro para ponteiro é uma caixa só, com um endereço. A linha cria outra coisa: doze caixas de int, grudadas.
-- qualquer outro erro → São doze caixas de int grudadas, em três fileiras de quatro. Ponteiro, nenhum.
+- respondeu `Quatro ponteiros para fileiras: por isso c serve onde se espera int **` → Não há ponteiro nenhum ali: são oito caixas de int, uma depois da outra. Por não haver ponteiro, c não serve onde se espera um int **. _(aponta a crença `array2d_is_double_pointer`)_
+- respondeu `Um ponteiro para ponteiro, com tudo dentro` → Um ponteiro para ponteiro é uma caixa só, com um endereço. A linha cria outra coisa: oito caixas de int, grudadas.
+- qualquer outro erro → São oito caixas de int grudadas, em quatro fileiras de duas. Ponteiro, nenhum.
 
 **Versão 2.** O que esta linha cria?
 

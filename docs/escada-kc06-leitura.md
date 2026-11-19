@@ -845,7 +845,7 @@ O que isto mostra: Saiu 3. A função recebeu uma cópia do valor e zerou a cóp
 
 ### Degrau 1 — guiado, escolher
 
-> Na chamada poe(&idade); o que é copiado para o parâmetro é o endereço de idade.
+> Numa chamada, o parâmetro recebe uma cópia do que vai entre os parênteses.
 > A cópia de um endereço aponta para o mesmo lugar que o original.
 
 **Versão 1.** Na última linha, o que o parâmetro p recebe?

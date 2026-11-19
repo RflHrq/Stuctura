@@ -6,8 +6,8 @@ Texto para leitura, gerado de `mvp/dominio/escada_kc05.yaml`. Cada degrau tem du
 
 ### Degrau 1 — guiado, escolher
 
-> NULL é um valor que se guarda num ponteiro. Ele quer dizer: não aponta para lugar nenhum.
-> É um valor escolhido, escrito por uma linha, e não o ponteiro estar vazio.
+> NULL é um valor que se guarda num ponteiro, como 15 se guarda num int.
+> Ele quer dizer: este ponteiro não aponta para lugar nenhum.
 
 **Versão 1.** Depois da última linha, p tem valor?
 
@@ -574,8 +574,8 @@ O que isto mostra: O compilador aceita p = 0; e reclama de p = n;, mesmo com n v
 
 ### Degrau 1 — guiado, escolher
 
-> O valor NULL não é o endereço de variável nenhuma.
-> Ele é reservado: existe só para dizer que o ponteiro não aponta para lugar nenhum.
+> O valor NULL é reservado: nenhuma variável fica no endereço que ele representa.
+> Mesmo escrito como 0, ele não é um lugar da memória como os outros.
 
 **Versão 1.** Para onde p aponta?
 
@@ -1195,8 +1195,8 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> E o ponteiro nulo não é um número inteiro: é um valor de ponteiro.
-> Uma variável inteira que guarda 0 guarda um número. Um ponteiro que vale NULL guarda 'nenhum lugar'.
+> O ponteiro nulo não é um número inteiro: é um valor de ponteiro, que quer dizer nenhum lugar.
+> O mesmo 0 escrito no código vira coisas diferentes, conforme o tipo de quem o recebe.
 
 **Versão 1.** n e p receberam um 0 escrito no código. O que cada um guarda?
 
@@ -1372,7 +1372,7 @@ O que isto mostra: Aqui o compilador reclama: para ele NULL é um ponteiro, e n 
 ### Degrau 1 — guiado, escolher
 
 > *p vai ao lugar cujo endereço está em p.
-> Com p valendo NULL não há lugar: o que o programa faz aí não é definido. Pode parar, pode seguir errado.
+> Quando esse lugar não existe, o padrão do C não diz o que acontece: o programa pode parar, ou seguir errado.
 
 **Versão 1.** O que a última linha faz?
 

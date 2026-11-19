@@ -6,8 +6,8 @@ Texto para leitura, gerado de `mvp/dominio/escada_kc08.yaml`. Cada degrau tem du
 
 ### Degrau 1 — guiado, escolher
 
-> O número entre os parênteses de malloc é um tamanho em bytes. Um byte é o espaço de uma caixa de char.
-> malloc(10) pede dez bytes. Ele não sabe o que você vai guardar ali.
+> O número entre os parênteses de malloc é um tamanho em bytes, e um byte é o espaço de uma caixa de char.
+> malloc não sabe o que você vai guardar ali: nem olha o tipo do ponteiro.
 
 **Versão 1.** O que a última linha pede ao sistema?
 
@@ -274,7 +274,7 @@ O que isto mostra: O compilador aceita malloc(5 * sizeof(int)) e reclama de mall
 
 ### Degrau 1 — guiado, escolher
 
-> malloc devolve o endereço do bloco que conseguiu, e é esse endereço que fica guardado em p.
+> malloc não entrega o bloco em si: devolve o endereço dele.
 > Se não conseguir bloco nenhum, devolve NULL.
 
 **Versão 1.** Depois da última linha, o que fica guardado em p?
@@ -560,8 +560,8 @@ O que isto mostra: Saiu 5. q = p; copiou um endereço, e não o dado: os dois po
 
 ### Degrau 1 — guiado, escolher
 
-> O bloco chega do jeito que estava: malloc não limpa nada antes de entregar.
-> O que há nele é sobra, um valor que ninguém escolheu.
+> malloc entrega o bloco do jeito que estava: não limpa nada antes.
+> É como declarar uma variável e não dar valor a ela.
 
 **Versão 1.** Logo depois da última linha, o que há dentro do bloco?
 
@@ -844,8 +844,8 @@ O que isto mostra: O compilador reclama: *p é lido sem ter recebido valor ("use
 
 ### Degrau 1 — guiado, escolher
 
-> São duas coisas: a caixa de p, que é uma variável local e fica na pilha, e o bloco, que fica no monte.
-> p aponta para o monte, mas não mora lá.
+> Variável local mora na pilha; bloco de malloc mora no monte.
+> Apontar para um lugar não é morar nele.
 
 **Versão 1.** Onde mora a variável p?
 

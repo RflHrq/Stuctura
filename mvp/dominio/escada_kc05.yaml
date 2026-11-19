@@ -113,8 +113,8 @@ B1:
       forma: escolher
       codigo: false
       frases:
-        - "NULL é um valor que se guarda num ponteiro. Ele quer dizer: não aponta para lugar nenhum."
-        - "É um valor escolhido, escrito por uma linha, e não o ponteiro estar vazio."
+        - "NULL é um valor que se guarda num ponteiro, como 15 se guarda num int."
+        - "Ele quer dizer: este ponteiro não aponta para lugar nenhum."
       versoes:
         - pede: "Depois da última linha, p tem valor?"
           antes: |-
@@ -634,8 +634,8 @@ B3:
       forma: escolher
       codigo: false
       frases:
-        - "O valor NULL não é o endereço de variável nenhuma."
-        - "Ele é reservado: existe só para dizer que o ponteiro não aponta para lugar nenhum."
+        - "O valor NULL é reservado: nenhuma variável fica no endereço que ele representa."
+        - "Mesmo escrito como 0, ele não é um lugar da memória como os outros."
       versoes:
         - pede: "Para onde p aponta?"
           antes: |-
@@ -1212,8 +1212,8 @@ I2:
       forma: escolher
       codigo: false
       frases:
-        - "E o ponteiro nulo não é um número inteiro: é um valor de ponteiro."
-        - "Uma variável inteira que guarda 0 guarda um número. Um ponteiro que vale NULL guarda 'nenhum lugar'."
+        - "O ponteiro nulo não é um número inteiro: é um valor de ponteiro, que quer dizer nenhum lugar."
+        - "O mesmo 0 escrito no código vira coisas diferentes, conforme o tipo de quem o recebe."
       versoes:
         - pede: "n e p receberam um 0 escrito no código. O que cada um guarda?"
           antes: |-
@@ -1382,7 +1382,7 @@ I3:
       codigo: false
       frases:
         - "*p vai ao lugar cujo endereço está em p."
-        - "Com p valendo NULL não há lugar: o que o programa faz aí não é definido. Pode parar, pode seguir errado."
+        - "Quando esse lugar não existe, o padrão do C não diz o que acontece: o programa pode parar, ou seguir errado."
       versoes:
         - pede: "O que a última linha faz?"
           antes: |-

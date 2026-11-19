@@ -6,8 +6,8 @@ Texto para leitura, gerado de `mvp/dominio/escada_kc09.yaml`. Cada degrau tem du
 
 ### Degrau 1 — guiado, escolher
 
-> free(p) recebe só o endereço do bloco. O tamanho, quem anotou foi o alocador, na hora de entregar.
-> O ponteiro não carrega tamanho nenhum: guarda um endereço, e mais nada.
+> Quem anota o tamanho do bloco é o alocador, na hora de entregá-lo.
+> Por isso free(p) funciona recebendo só o endereço.
 
 **Versão 1.** Depois da última linha, o que está guardado em p?
 
@@ -51,8 +51,8 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> sizeof v mede o array inteiro, porque v é o conjunto das caixas.
-> sizeof p mede só o ponteiro: quantas caixas há no bloco, p não sabe.
+> sizeof de um array mede o conjunto inteiro das caixas.
+> sizeof de um ponteiro mede só a caixa do ponteiro: quantas caixas há no bloco, ele não sabe.
 
 **Versão 1.** v é um array de dez; p aponta para um bloco de dez. Qual dos dois sizeof dá 10?
 
@@ -379,8 +379,8 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> Com free é igual: ela usa a cópia para achar o bloco e devolvê-lo.
-> No p de quem chamou ela não tem como tocar.
+> free recebe uma cópia do endereço guardado em p, como toda função recebe cópias.
+> Com a cópia do endereço ela chega ao bloco; o p de quem chamou é outra caixa.
 
 **Versão 1.** O que free consegue fazer com a cópia que recebeu?
 
@@ -614,8 +614,8 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> A caixa de p acaba como toda variável local: no fim da função em que foi declarada.
-> O free não tem nada com isso.
+> Toda variável local acaba no fim da função em que foi declarada, seja ponteiro ou não.
+> O free devolve o bloco, e não mexe na caixa do ponteiro.
 
 **Versão 1.** Quando a caixa de p deixa de existir?
 
@@ -842,8 +842,8 @@ O que isto mostra: Saíram dois endereços diferentes. A caixa de p está num lu
 
 ### Degrau 1 — guiado, escolher
 
-> Devolvido, o bloco deixa de ser seu: free(p); entrega o lugar de volta ao alocador.
-> O alocador pode dá-lo ao próximo malloc. O que você deixou lá não está guardado para você.
+> malloc aluga um lugar do alocador; free devolve o aluguel.
+> Lugar devolvido volta para o alocador, junto com os que ainda não foram alugados.
 
 **Versão 1.** Depois da última linha, o bloco é de quem?
 
@@ -1131,8 +1131,8 @@ O que isto mostra: O compilador reclama da última linha: p é usado depois do f
 
 ### Degrau 1 — guiado, escolher
 
-> free recebeu só uma cópia do endereço. No p de quem chamou ela não tem como escrever.
-> Por isso, depois do free, p não vira NULL: continua com o endereço de antes.
+> free recebe só uma cópia do endereço guardado em p.
+> No p de quem chamou ela não tem como escrever.
 
 **Versão 1.** Depois da última linha, o que está guardado em p?
 
@@ -1220,7 +1220,8 @@ Se errar:
 
 ### Degrau 3 — guiado, escolher
 
-> Se alguém vai escrever NULL em p, é você, numa linha sua: p = NULL;
+> Depois do free, p continua com o endereço antigo, e nada no programa o troca sozinho.
+> Uma variável só muda quando uma linha escreve nela.
 
 **Versão 1.** Depois do free(p);, quem pode pôr NULL em p?
 
@@ -1380,8 +1381,8 @@ O que isto mostra: Saiu 0. free não escreveu NULL em p, e nem teria como: receb
 
 ### Degrau 1 — guiado, escolher
 
-> free devolve o bloco, e só. A variável p não é apagada: continua declarada, com o mesmo endereço dentro.
-> Esse endereço leva agora a um lugar que não é mais seu. Um ponteiro assim se chama pendente.
+> free devolve o bloco, e só: não mexe em variável nenhuma de quem chamou.
+> Um ponteiro que guarda o endereço de um lugar que já não é seu se chama pendente.
 
 **Versão 1.** Depois da última linha, o que é verdade sobre a variável p?
 
@@ -1562,17 +1563,17 @@ Se errar:
 
 ### Degrau 5 — prática, escolher
 
-**Versão 1.** O que é um ponteiro pendente?
+**Versão 1.** p e q apontam para dois blocos do malloc, e a última linha foi free(p);. Qual dos dois está pendente?
 
-Opções: `Uma variável que ainda guarda o endereço de um bloco já devolvido`  `Uma variável que o free apagou`  `Um ponteiro que vale NULL`
+Opções: `p`  `q`  `Nenhum dos dois`
 
-Resposta certa: `Uma variável que ainda guarda o endereço de um bloco já devolvido`
+Resposta certa: `p`
 
 Se errar:
 
-- respondeu `Uma variável que o free apagou` → free não apaga variável: devolve o bloco. O ponteiro continua lá, com o endereço antigo — é isso que o deixa pendente.
-- respondeu `Um ponteiro que vale NULL` → O ponteiro que vale NULL diz que não aponta para nada. O pendente é o contrário: guarda um endereço com cara de bom, de um bloco já devolvido.
-- qualquer outro erro → Pendente é o ponteiro que continua com o endereço de um bloco já devolvido.
+- respondeu `q` → O bloco de q ainda é seu: nenhum free o devolveu. Pendente é p, que guarda o endereço de um bloco já devolvido.
+- respondeu `Nenhum dos dois` → free(p) não apaga p: devolve o bloco. p continua lá, com o endereço antigo — é isso que o deixa pendente.
+- qualquer outro erro → p está pendente: guarda o endereço de um bloco que free(p) já devolveu.
 
 **Versão 2.** Depois de qual destas linhas p fica pendente?
 
@@ -1651,7 +1652,7 @@ O que isto mostra: Saiu 9. free devolveu o bloco, e a variável p continuou exis
 ### Degrau 1 — guiado, escolher
 
 > Depois do free, nada no programa avisa que o endereço em p ficou ruim: ele tem a mesma cara de antes.
-> Escrever p = NULL; logo depois é o registro de que p não aponta mais para nada.
+> Já o NULL diz, com todas as letras: não aponta para lugar nenhum.
 
 **Versão 1.** Para que serve a última linha?
 
@@ -1988,8 +1989,7 @@ Se errar:
 
 ### Degrau 2 — guiado, escolher
 
-> A exceção é o NULL: free(NULL) não faz nada.
-> Por isso p = NULL; depois do free protege também de um segundo free.
+> A exceção é o NULL: free(NULL) não faz nada, e não é erro.
 
 **Versão 1.** Qual dos dois trechos é válido?
 

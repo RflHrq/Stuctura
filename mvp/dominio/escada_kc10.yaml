@@ -363,8 +363,8 @@ B2:
       forma: escolher
       codigo: false
       frases:
-        - "p não é outro nome de idade: é uma caixa, que guarda o endereço de idade."
-        - "O * é um passo: sai da caixa p e vai até a caixa cujo endereço está lá."
+        - "Um ponteiro não é outro nome da variável: é uma caixa à parte, que guarda um endereço."
+        - "O * é um passo: sai da caixa do ponteiro e vai até a caixa cujo endereço está lá."
       versoes:
         - pede: "O que p é, neste trecho?"
           antes: |-
@@ -613,8 +613,8 @@ B3:
       forma: escolher
       codigo: false
       frases:
-        - "O tipo diz quantos passos há até o valor: int * é um nível, int ** são dois."
-        - "As estrelas da declaração fixam isso. Não dá para dar um passo que o tipo não tem."
+        - "O tipo diz quantos passos há até o valor: cada estrela da declaração é um nível, um passo."
+        - "Não dá para dar um passo que o tipo não tem."
       versoes:
         - pede: "Quantos passos há de pp até o int?"
           antes: "int **pp;"
@@ -872,8 +872,8 @@ I1:
       forma: escolher
       codigo: false
       frases:
-        - "A função que recebe p recebe uma cópia do endereço que estava no ponteiro de quem chamou."
-        - "Trocar a cópia não troca o ponteiro de quem chamou."
+        - "Um parâmetro ponteiro recebe uma cópia do endereço que estava no ponteiro de quem chamou."
+        - "São duas caixas: a do parâmetro, que é da função, e a de quem chamou."
       versoes:
         - pede: "A função troca o parâmetro dela. O q de quem chamou muda?"
           antes: |-
@@ -1132,23 +1132,23 @@ I2:
       codigo: false
       frases:
         - "int a[3][4]; cria doze caixas de int, grudadas: três fileiras de quatro."
-        - "Não há ponteiro nenhum ali: nem três, nem um."
+        - "Não há ponteiro nenhum ali dentro: só as caixas."
       versoes:
         - pede: "O que esta linha cria?"
-          antes: "int a[3][4];"
+          antes: "int c[4][2];"
           pecas:
-            - "Doze caixas de int, grudadas"
-            - "Três ponteiros para fileiras: por isso a serve onde se espera int **"
+            - "Oito caixas de int, grudadas"
+            - "Quatro ponteiros para fileiras: por isso c serve onde se espera int **"
             - "Um ponteiro para ponteiro, com tudo dentro"
           certa: [[0]]
-          certa_texto: "Doze caixas de int, grudadas"
+          certa_texto: "Oito caixas de int, grudadas"
           erros:
             - exata: [1]
               crenca: array2d_is_double_pointer
-              retorno: "Não há ponteiro nenhum ali: são doze caixas de int, uma depois da outra. Por não haver ponteiro, a não serve onde se espera um int **."
+              retorno: "Não há ponteiro nenhum ali: são oito caixas de int, uma depois da outra. Por não haver ponteiro, c não serve onde se espera um int **."
             - exata: [2]
-              retorno: "Um ponteiro para ponteiro é uma caixa só, com um endereço. A linha cria outra coisa: doze caixas de int, grudadas."
-          retorno_geral: "São doze caixas de int grudadas, em três fileiras de quatro. Ponteiro, nenhum."
+              retorno: "Um ponteiro para ponteiro é uma caixa só, com um endereço. A linha cria outra coisa: oito caixas de int, grudadas."
+          retorno_geral: "São oito caixas de int grudadas, em quatro fileiras de duas. Ponteiro, nenhum."
         - pede: "O que esta linha cria?"
           antes: "int b[2][5];"
           pecas:

@@ -369,7 +369,7 @@ B2:
       codigo: false
       frases:
         - "Dá para declarar dois nomes numa linha, separados por vírgula."
-        - "O * vale só para o nome em que está colado: em int *p, q; p é ponteiro, e q é um int comum."
+        - "O * vale só para o nome em que está colado: em int *a, b; só a é ponteiro."
       versoes:
         - pede: "O que esta linha declara?"
           antes: "int *p, q;"
@@ -545,7 +545,7 @@ B3:
       codigo: false
       frases:
         - "Declarar reserva o lugar, mas não escreve nada nele."
-        - "O que estava naquele lugar antes continua lá: um valor que ninguém escolheu."
+        - "E a memória nunca fica vazia: todo lugar guarda algum valor, deixado por quem o usou antes."
       versoes:
         - pede: "Logo depois dessa linha, o que está guardado em nota?"
           antes: "int nota;"
@@ -583,8 +583,8 @@ B3:
       forma: escolher
       codigo: false
       frases:
-        - "Com o ponteiro é igual: int *p; reserva o lugar de p e não escreve nada nele."
-        - "O que p guarda nesse momento é um valor que ninguém escolheu."
+        - "Com o ponteiro, declarar faz o mesmo que com a variável comum."
+        - "Reserva o lugar, e não escreve nada nele."
       versoes:
         - pede: "Logo depois dessa linha, o que está guardado em p?"
           antes: "int *p;"
@@ -1239,7 +1239,7 @@ I3:
       codigo: false
       frases:
         - "*p vai ao lugar cujo endereço está guardado em p."
-        - "Se p ainda não recebeu endereço, esse lugar é um que ninguém escolheu."
+        - "Declarar o ponteiro não escreve endereço nenhum nele: o que ele guarda é um valor que ninguém escolheu."
       versoes:
         - pede: "Para onde a última linha manda o 10?"
           antes: |-

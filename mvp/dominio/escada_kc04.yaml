@@ -85,7 +85,7 @@ B1:
       codigo: false
       frases:
         - "O endereço é o número de um lugar da memória."
-        - "Só tem endereço o que ocupa um lugar: uma variável ocupa; um número escrito no código não."
+        - "Só tem endereço o que ocupa um lugar na memória."
       versoes:
         - pede: "De qual destes dá para pedir o endereço?"
           antes: |-
@@ -1448,8 +1448,8 @@ I3:
       forma: escolher
       codigo: false
       frases:
-        - "O & pergunta: onde está esta variável? O * diz: vá até este endereço."
-        - "Um desfaz o outro: *(&idade) vai até o endereço de idade, e chega na própria idade."
+        - "O & pergunta: onde está esta variável?"
+        - "O * diz: vá até este endereço, e veja o que mora lá."
       versoes:
         - pede: "O que é *(&idade)?"
           antes: |-

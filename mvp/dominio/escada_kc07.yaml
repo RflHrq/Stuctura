@@ -143,8 +143,8 @@ B1:
       forma: escolher
       codigo: false
       frases:
-        - "int notas[3]; cria três caixas de int, grudadas uma na outra. Cada caixa é uma variável."
-        - "O nome notas vale para o conjunto das três, e não para uma caixa só."
+        - "int pesos[4]; cria quatro caixas de int, grudadas uma na outra, e cada caixa é uma variável."
+        - "O nome do array vale para o conjunto das caixas, e não para uma caixa só."
       versoes:
         - pede: "O que esta linha cria?"
           antes: "int notas[3];"
@@ -250,8 +250,8 @@ B1:
       forma: escolher
       codigo: false
       frases:
-        - 'char nome[] = "ana"; cria quatro caixas de char: a, n, a e uma marca de fim, o terminador.'
-        - 'char *p = "ana"; cria só a caixa de p, com o endereço de letras guardadas em outro lugar.'
+        - "char a[] = \"oi\"; cria três caixas de char: o, i e uma marca de fim, o terminador."
+        - "char *b = \"oi\"; cria só a caixa de b, com o endereço de letras guardadas em outro lugar."
       versoes:
         - pede: "As duas linhas guardam as letras do mesmo jeito?"
           antes: |-
@@ -730,8 +730,8 @@ B3:
       forma: escolher
       codigo: false
       frases:
-        - "Na chamada zera(notas); acontece a mesma troca: o que é copiado para o parâmetro é o endereço da primeira caixa."
-        - "O parâmetro int v[] é um ponteiro, como int *v."
+        - "Na chamada, o nome do array faz a troca de sempre: vira o endereço da primeira caixa."
+        - "E o parâmetro int v[] é um ponteiro, como int *v: recebe uma cópia, como todo parâmetro."
       versoes:
         - pede: "Na última linha, o que a função recebe?"
           antes: |-
@@ -938,8 +938,8 @@ B4:
       forma: escolher
       codigo: false
       frases:
-        - "O outro lugar é o &: &v é o endereço do conjunto inteiro, e não o de uma caixa."
-        - "v e &v marcam o mesmo ponto da memória, mas têm tipos diferentes: um aponta uma caixa, o outro o conjunto."
+        - "O outro lugar é o &: com ele na frente, o nome do array dá o endereço do conjunto inteiro, e não o de uma caixa."
+        - "Os dois endereços marcam o mesmo ponto da memória, mas têm tipos diferentes."
       versoes:
         - pede: "v e &v são a mesma coisa?"
           antes: "char v[10];"
@@ -1162,7 +1162,7 @@ I1:
       forma: escolher
       codigo: false
       frases:
-        - "O nome do array não recebe atribuição: de copia = notas; o compilador reclama."
+        - "O nome de um array não recebe atribuição, e o compilador reclama de quem tenta."
         - "As caixas não mudam de lugar, e o conjunto não é trocado por outro."
       versoes:
         - pede: "O que o compilador faz com a última linha?"
@@ -1647,8 +1647,8 @@ I3:
       forma: escolher
       codigo: false
       frases:
-        - "A escrita é igual, mas os tipos são diferentes: notas é o conjunto das três caixas de int."
-        - "p é uma caixa só, que guarda um endereço."
+        - "Um array e um ponteiro podem se escrever igual, com os colchetes, e mesmo assim são coisas diferentes."
+        - "O array é o conjunto das caixas; o ponteiro é uma caixa só, que guarda um endereço."
       versoes:
         - pede: "notas e p são a mesma coisa?"
           antes: |-
