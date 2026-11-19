@@ -1,0 +1,226 @@
+%%==============================================================
+%% TCC --- Sistemas de Informação
+%% Universidade Federal de Viçosa - Campus Rio Paranaíba
+%% Autor: Rafael Henrique dos Santos Simão
+%% Compilar: pdflatex > bibtex > pdflatex > pdflatex
+%%
+%% Os capítulos, o resumo, o abstract e a declaração de uso de IA
+%% vêm de docs/monografia/*.md, convertidos por
+%%     python scripts/monografia_latex.py
+%% para a pasta gerado/. Não edite gerado/: edite o .md e gere de novo.
+%% Este arquivo (capa, dedicatória, agradecimentos, listas) é à mão.
+%%==============================================================
+
+\documentclass[
+12pt,
+openright,
+oneside,
+a4paper,
+sumario=tradicional,
+english,
+brazil
+]{abntex2}
+
+% ---
+% Pacotes fundamentais
+% ---
+\usepackage{abntex2-UFV}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage[final]{microtype}
+\usepackage{url}
+\usepackage{hyperref}
+
+% ---
+% Sistema de citações ABNT nativo do abntex2: autor-data, título das
+% referências em negrito (como sugere o modelo da UFV) e todos os autores
+% na lista de referências (a NBR 6023 recomenda; nas citações, et al. a
+% partir de quatro autores)
+% ---
+\usepackage[alf,abnt-emphasize=bf,abnt-etal-list=0,abnt-last-names=bibtex]{abntex2cite}
+
+% ---
+% Espaçamento ABNT
+% ---
+\setlength{\parindent}{1.3cm}
+
+% ---
+% Figuras e quadros numerados por capítulo (Figura 3.1, Quadro 6.2),
+% como o texto os cita
+% ---
+\graphicspath{{../figuras/}}
+
+% Título de capítulo longo alinhado à esquerda, sem hifenizar
+\makeatletter
+\renewcommand{\printchaptertitle}[1]{%
+	\chaptitlefont\raggedright\hyphenpenalty=10000 #1\par}
+\makeatother
+\counterwithin{figure}{chapter}
+
+\newcommand{\quadroname}{Quadro}
+\newcommand{\listofquadrosname}{Lista de quadros}
+\newfloat[chapter]{quadro}{loq}{\quadroname}
+\newlistof{listofquadros}{loq}{\listofquadrosname}
+\newlistentry{quadro}{loq}{0}
+\setfloatadjustment{quadro}{\centering}
+\renewcommand{\cftquadroname}{\quadroname\space}
+\renewcommand*{\cftquadroaftersnum}{\hfill--\hfill}
+\renewcommand*{\cftfigureaftersnum}{\hfill--\hfill}
+
+% ---
+% Marcas para o autor: aparecem no PDF e no registro da compilação
+% ---
+\newcommand{\preencher}[1]{\textbf{[preencher: #1]}\typeout{*** PREENCHER: #1}}
+\newcommand{\conferir}{\textbf{[conferir]}\typeout{*** CONFERIR referência}}
+
+% ---
+% Configurações do PDF
+% ---
+\makeatletter
+\hypersetup{
+	pdftitle={\@title},
+	pdfauthor={\@author},
+	pdfsubject={\imprimirpreambulo},
+	pdfcreator={LaTeX with abnTeX2},
+	colorlinks=true,
+	linkcolor=black,
+	citecolor=black,
+	filecolor=black,
+	urlcolor=black,
+	bookmarksdepth=4
+}
+\makeatother
+
+% ---
+% Informações do trabalho
+% ---
+\titulo{Structura: Um Sistema Adaptativo para Detecção e Correção
+	de \textit{Misconceptions} em Ponteiros na Linguagem C}
+\autor{Rafael Henrique dos Santos Simão}
+\local{Rio Paranaíba}
+\data{2026}
+\orientador{Pedro Henrique Aparecido Damaso de Melo}
+\instituicao{Universidade Federal de Viçosa}
+\campus{\emph{Campus} Rio Paranaíba}
+\curso{Sistemas de Informação}
+% Folha de aprovação: descomentar \imprimirfolhadeaprovacao abaixo
+% quando a banca for definida.
+\membrobancaA{}
+\membrobancaB{}
+\databanca{\today}
+\preambulo{Monografia apresentada ao Curso de Sistemas de Informação da
+	Universidade Federal de Viçosa, \emph{Campus} Rio Paranaíba, como
+	requisito para obtenção do título de bacharel em Sistemas de
+	Informação.}
+
+% ============================================================
+\begin{document}
+	% ============================================================
+
+	\frenchspacing
+	\OnehalfSpacing
+
+	\pretextual
+
+	\imprimircapa
+	\imprimirfolhaderosto
+	% \imprimirfolhadeaprovacao
+
+	\begin{dedicatoria}
+		\vspace*{\fill}
+		\centering
+		\noindent
+		\textit{Dedico este trabalho a todos os estudantes que já
+			sentiram que entenderam um conceito na aula e erraram o
+			mesmo conceito na prova seguinte.}
+		\vspace*{\fill}
+	\end{dedicatoria}
+
+	\begin{agradecimentos}
+		Agradeço ao meu orientador Pedro Henrique Aparecido
+		Damaso de Melo pelo suporte e direcionamento ao longo
+		deste trabalho. Agradeço também a todos os colegas e
+		professores do curso de Sistemas de Informação da
+		UFV--CRP que contribuíram, direta ou indiretamente,
+		para o desenvolvimento desta pesquisa.
+	\end{agradecimentos}
+
+	\pretextualchapter{Declaração de uso de inteligência artificial}
+	\input{gerado/00-declaracao-ia}
+	\cleardoublepage
+
+	% ---
+	% Resumo em português
+	% ---
+	\setlength{\absparsep}{18pt}
+	\begin{resumo}
+		\SingleSpacing
+		\noindent
+		\input{gerado/00-resumo}
+	\end{resumo}
+
+	\begin{resumo}[Abstract]
+		\SingleSpacing
+		\begin{otherlanguage*}{english}
+			\noindent
+			\input{gerado/00-abstract}
+		\end{otherlanguage*}
+	\end{resumo}
+
+	\pdfbookmark[0]{\listfigurename}{lof}
+	\listoffigures*
+	\cleardoublepage
+
+	\pdfbookmark[0]{\listofquadrosname}{loq}
+	\listofquadros*
+	\cleardoublepage
+
+	\begin{siglas}
+		\item[CERT]  \textit{Computer Emergency Response Team} (padrão de codificação CERT C)
+		\item[CRP]   \textit{Campus} de Rio Paranaíba
+		\item[CSS]   \textit{Cascading Style Sheets}
+		\item[CWE]   \textit{Common Weakness Enumeration}
+		\item[FAQ]   \textit{Frequently Asked Questions}
+		\item[HTML]  \textit{HyperText Markup Language}
+		\item[HTTP]  \textit{Hypertext Transfer Protocol}
+		\item[OFL]   \textit{SIL Open Font License}
+		\item[SUS]   \textit{System Usability Scale}
+		\item[UFV]   Universidade Federal de Viçosa
+		\item[W3C]   \textit{World Wide Web Consortium}
+		\item[WCAG]  \textit{Web Content Accessibility Guidelines}
+		\item[YAML]  \textit{YAML Ain't Markup Language}
+	\end{siglas}
+
+	\pdfbookmark[0]{\contentsname}{toc}
+	\tableofcontents*
+	\cleardoublepage
+
+	% ============================================================
+	\textual
+	% ============================================================
+
+	\input{gerado/01-introducao}
+	\input{gerado/02-fundamentacao}
+	\input{gerado/03-sistema}
+	\input{gerado/04-curadoria}
+	\input{gerado/05-construcao-e-verificacao}
+	\input{gerado/06-resultados-da-verificacao}
+	\input{gerado/07-limitacoes-e-trabalhos-futuros}
+	\input{gerado/08-conclusao}
+
+	% ============================================================
+	\postextual
+
+	\bibliography{referencias}
+
+	\begin{apendicesenv}
+		\input{gerado/apendice-a-protocolo}
+	\end{apendicesenv}
+
+\end{document}

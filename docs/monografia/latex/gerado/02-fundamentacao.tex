@@ -1,0 +1,50 @@
+% Gerado de docs/monografia/02-fundamentacao.md por scripts/monografia_latex.py.
+% Não edite aqui: edite o .md e gere de novo.
+
+\chapter{\texorpdfstring{\mbox{FUNDAMENTAÇÃO}}{FUNDAMENTAÇÃO}}\label{cap:2}
+
+As ideias que sustentam o Structura, e o que cada uma obriga o sistema a fazer. Cada obra citada foi aberta, e onde e como está registrado em \texttt{docs/\allowbreak{}monografia/\allowbreak{}conferencia-{}das-{}referencias.\allowbreak{}md}.
+
+\section{Saber errado não é não saber}
+
+Uma concepção errônea é uma ideia estável e coerente para quem a tem, que produz respostas erradas de forma sistemática. Não é esquecimento nem distração. Quem acredita que ``array e ponteiro são a mesma coisa'' acerta várias questões com essa ideia — \texttt{a[i]} e \texttt{p[i]} funcionam igual, os dois podem ser passados para uma função — e só tropeça em \texttt{sizeof}. A ideia se sustenta porque quase sempre funciona.
+
+A literatura de mudança conceitual descreve por que informação nova não basta. \citeonline[p.~212]{posner1982} distinguem dois modos de mudança: lidar com o novo usando os conceitos que se tem, e substituir ou reorganizar os conceitos centrais — o que chamam de acomodação. Diante de uma informação que contradiz o que pensa, a pessoa raramente acomoda: é mais comum encaixar a informação na concepção que já tem, ou guardá-la num compartimento à parte, onde ela não entra em conflito com a antiga \cite[p.~221]{posner1982}. Para que a acomodação aconteça, os autores propõem quatro condições: a pessoa precisa estar insatisfeita com a concepção que tem, e a nova precisa ser inteligível, parecer plausível desde o início e mostrar-se frutífera (p. 214). A insatisfação vem da anomalia levada a sério, que produz o conflito cognitivo (p. 224), e por isso os autores recomendam demonstrações e problemas que o criem (p. 225). É esse o papel do confronto no Structura.
+
+Uma nota de vocabulário: Posner et al. chamam de assimilação o primeiro modo, o de encaixar o novo no que já se tinha. Neste texto, como no sistema, ``assimilou'' quer dizer outra coisa — que a pessoa acertou de novo, com outras premissas no meio (Capítulo 3).
+
+Em programação, o estudo das concepções errôneas começa nos anos 1980, com nomes variados — dificuldades, erros, \textit{bugs}, concepções errôneas — e sem uma definição aceita por todos \cite[p.~1:2-1:3]{qian2017}. Na revisão de \citeonline[p.~1:1]{qian2017}, as dificuldades dos iniciantes aparecem no conhecimento sintático, no conceitual e no estratégico, e os autores recomendam que a pesquisa vá além de documentá-las e incorpore as teorias de mudança conceitual. A dissertação de \citeonline{sorva2012} organiza boa parte dessa literatura em torno do modelo de máquina que o estudante constrói — a ``máquina nocional'' —, e é a fonte de que o catálogo do sistema mais se serve (Capítulo 4).
+
+\section{Perguntar a certeza}
+
+Uma resposta errada, sozinha, não diz se a pessoa não sabe ou se sabe errado. A certeza declarada é o sinal mais barato que separa os dois: custa um toque e vem da própria pessoa. Pedir a confiança junto com a resposta não é novo. A marcação pela certeza foi muito pesquisada antes mesmo da avaliação por computador, e \citeonline{gardnermedwin2006} relata dez anos de uso em cursos de medicina, com três níveis de certeza e penalidade crescente para o erro convicto. O argumento dele é o deste trabalho: um acerto por sorte não é conhecimento, e uma concepção errônea firme é muito pior do que a ignorância reconhecida. O que o Structura faz de diferente é usar esse sinal para \textbf{escolher o percurso}, e não para pontuar: o erro com ``chutei'' leva ao ensino; o erro com convicção, pela razão de uma concepção mapeada, leva à demonstração.
+
+Três cuidados decorrem disso. A certeza não mede o estado mental da pessoa — ela roteia a intervenção, e uma marcação por hábito gera uma hipótese errada. A escala tem três pontos, como a de \citeonline{gardnermedwin2006}, porque precisa caber num toque dentro do ritmo da atividade; mas ele nomeia os níveis com números ou termos neutros, porque palavras como ``certeza'' e ``chute'' querem dizer coisas diferentes para pessoas diferentes, e o Structura usa palavras (``chutei'', ``acho que sei'', ``tenho certeza'') — o custo disso está no Capítulo 7. E a razão escolhida pesa tanto quanto a certeza: sem ela, o sistema não saberia \textbf{qual} ideia sustenta o erro.
+
+\section{O grafo de premissas e a fronteira}
+
+O conteúdo de cada tópico é um grafo de premissas que vai de fatos observáveis a uma conclusão, e cada concepção errônea nega exatamente uma premissa. A escolha de onde intervir — a premissa em que a pessoa está, e não a lição seguinte do livro — aproxima-se da noção de fronteira da teoria dos espaços de conhecimento. Ali, o estado de conhecimento de uma pessoa é o conjunto de problemas que ela resolve, e a fronteira externa reúne os problemas que, acrescentados ao estado, formam outro estado: é o que a pessoa está pronta para aprender, e onde o progresso acontece \cite{falmagne2006}. O Structura não estima o estado de conhecimento por um modelo probabilístico, como faz o sistema descrito pelos autores: com poucos dados, os parâmetros seriam inventados e deixariam de ser inspecionáveis. Ele usa o que a pessoa acabou de responder, premissa por premissa.
+
+\section{Prever, observar, explicar}
+
+A demonstração do sistema segue a sequência prever-observar-explicar, que \citeonline[cap.~3]{white1992} descrevem como três tarefas: prever o resultado de um acontecimento, justificando a previsão; descrever o que se vê acontecer; e reconciliar o conflito entre o previsto e o observado. No Structura, a justificativa já veio antes: é a razão escolhida na pergunta de diagnóstico. A previsão é o que dá força ao confronto: a contradição deixa de ser entre o estudante e o sistema — em quem ele poderia simplesmente não acreditar — e passa a ser entre o que \textbf{ele} previu e o que a máquina fez.
+
+É também a lógica dos textos de refutação, que ativam a concepção errônea, refutam-na explicitamente e só então enunciam a correta \cite[p.~23]{nussbaum2017}: a tela ``Você disse'' repete a ideia da pessoa, como razoável, antes de mostrar a máquina. Três décadas de pesquisa comparam esses textos com os expositivos, a favor dos primeiros (p. 23), e a revisão de Tippett observa que a refutação tende a funcionar melhor quando a concepção errônea é uma ideia única, e não um conceito complexo (TIPPETT, 2010, p.~965 \textit{apud} NUSSBAUM; CORDOVA; REHMAT, 2017, p.~31). É o desenho do grafo de premissas, em que cada concepção nega uma premissa só.
+
+Em programação há uma vantagem que outras áreas não têm: o fenômeno é reproduzível e verificável. O que um programa faz não depende de quem conta. Por isso as demonstrações do Structura são conferidas por compilador, e a tela pode dizer, sem exagero, ``a máquina respondeu''.
+
+\section{Ensinar por passos}
+
+A quem não sabe, o sistema não mostra a ideia inteira de uma vez: oferece uma escada de passos, dos guiados aos de prática, com retorno a cada passo e uma ideia nova por passo. O desenho segue três efeitos que a teoria da carga cognitiva descreve (SWELLER; VAN MERRIËNBOER; PAAS, \citeyear{sweller2019}). Os passos guiados mostram o programa e pedem uma parte dele, perto do exemplo resolvido (p. 265) e do problema de completar — este, proposto justamente para a programação introdutória, em que o estudante recebe um programa incompleto para terminar (p. 268). A orientação esmaece ao longo da escada, dos passos guiados aos de prática, porque o que ajuda o novato fica redundante para quem já avançou (p. 277). E cada passo muda uma coisa só em relação ao anterior, como no efeito dos elementos isolados, em que as partes vêm antes das relações entre elas (p. 279). O tópico inteiro trabalha as mesmas duas ou três variáveis.
+
+\section{Tutores inteligentes}
+
+O laço perguntar → inferir o que a pessoa pensa → escolher a intervenção → reconferir é a arquitetura clássica dos sistemas tutores inteligentes, e apresentá-lo como novidade seria um erro. \citeonline{vanlehn2006} descreve esses sistemas por dois laços: o externo escolhe a próxima tarefa, com base num modelo do estudante; o interno acompanha cada passo da tarefa, com retorno e dicas, e atualiza esse modelo. No Structura, o laço externo escolhe a premissa e o caminho; o interno é a escada, com retorno a cada passo. Na classificação de \citeonline[p.~197]{vanlehn2011}, é um tutor por passo — e os tutores inteligentes, quase todos por passo ou subpasso, ficaram, na revisão dele, perto da tutoria humana em efeito (0,76 contra 0,79 desvio padrão, contra nenhuma tutoria).
+
+O que este trabalho acrescenta, depois desse desconto, é a combinação de um catálogo de concepções errôneas com procedência declarada, ligado a um grafo de premissas, com demonstrações verificadas por compilador — e um método de verificação em que o material de ensino é testado contra o programa que ele descreve.
+
+\section{Desempenho não é aprendizagem}
+
+O que se observa durante a instrução é desempenho, e desempenho é, muitas vezes, índice pouco confiável de que a aprendizagem — a mudança relativamente permanente, que se mede por retenção de longo prazo ou por transferência — aconteceu \cite[p.~176]{soderstrom2015}. Acertar logo depois de ver a resposta não garante que a ideia ficou. Por isso o sistema reconfere, no fim do tópico, cada premissa trabalhada, com outras premissas no meio — e por isso o fechamento fala de assimilação \textbf{nesta sessão}, e não de aprendizagem.
+
+As obras citadas estão em Referências.

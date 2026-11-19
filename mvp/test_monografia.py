@@ -286,3 +286,42 @@ def test_os_capitulos_do_roteiro_existem():
         assert (CAPITULOS / nome).exists(), nome
     for nome in re.findall(r"`(figuras/[\w.-]+\.jpg)`", roteiro):
         assert (CAPITULOS / nome).exists(), nome
+
+
+# --------------------------------------------------------------------------
+# O LaTeX (modelo da UFV) é gerado dos .md: não pode envelhecer em silêncio
+# --------------------------------------------------------------------------
+
+LATEX = CAPITULOS / "latex"
+
+
+def test_o_latex_gerado_esta_em_dia_com_o_texto():
+    """docs/monografia/latex/gerado/ sai dos .md por
+    scripts/monografia_latex.py. Se um .md mudou e o LaTeX não foi gerado
+    de novo, o PDF mostra um texto que os testes acima não conferem."""
+    import monografia_latex
+    assert monografia_latex.main(["--confere"]) == 0, (
+        "rode: python scripts/monografia_latex.py")
+
+
+def test_toda_citacao_do_latex_esta_na_lista_e_toda_obra_e_citada():
+    gerado = " ".join(p.read_text(encoding="utf-8")
+                      for p in (LATEX / "gerado").glob("*.tex"))
+    citadas = set()
+    for m in re.finditer(r"\\cite(?:online|year)?(?:\[[^\]]*\])?\{([^}]+)\}",
+                         gerado):
+        citadas |= {k.strip() for k in m.group(1).split(",")}
+    bib = (LATEX / "referencias.bib").read_text(encoding="utf-8")
+    na_lista = set(re.findall(r"^@\w+\{([^,]+),", bib, re.M))
+    assert citadas - na_lista == set(), "citadas sem entrada no .bib"
+    assert na_lista - citadas == set(), "entradas do .bib que ninguém cita"
+
+
+def test_as_figuras_do_latex_existem_em_ordem():
+    """A ABNT numera as figuras na ordem em que aparecem; o Capítulo 3
+    as traz de 3.1 a 3.6, cada uma com o arquivo que existe."""
+    cap3 = (LATEX / "gerado" / "03-sistema.tex").read_text(encoding="utf-8")
+    rotulos = re.findall(r"\\label\{fig:(3-\d)\}", cap3)
+    assert rotulos == ["3-%d" % n for n in range(1, 7)]
+    for arq in re.findall(r"\\includegraphics\[[^\]]*\]\{([^}]+)\}", cap3):
+        assert (CAPITULOS / "figuras" / arq).exists(), arq

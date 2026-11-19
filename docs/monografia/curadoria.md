@@ -41,6 +41,8 @@ Cada concepção do catálogo carrega um campo `provenance`, com um de cinco
 valores. O grau não descreve a importância da concepção nem a confiança do
 autor nela: descreve **que tipo de obra a sustenta**.
 
+**Quadro 4.1 — Os cinco graus de procedência**
+
 | grau | o que afirma |
 | --- | --- |
 | `D` | documentada: achado empírico, com fonte e posição localizável |
@@ -81,7 +83,7 @@ errôneas levantadas da literatura de ensino de programação introdutória,
 cada uma com tópico, descrição e fonte. Ao lado dela entram os estudos que
 ela própria atribui — du Boulay (1986), Soloway et al. (1982), Putnam et al.
 (1986), Sleeman et al. (1986), Samurçay (1989), Holland et al. (1997), Ma
-et al. (2007), Doukakis et al. (2007), Kaczmarczyk et al. (2010).
+(2007), Doukakis et al. (2007), Kaczmarczyk et al. (2010).
 
 **O que esta classe sustenta:** que a concepção foi *observada em
 estudantes*, por alguém que a estudou.
@@ -98,12 +100,16 @@ o critério de inclusão adotado, e ele é conferível por qualquer leitor:
 **só entra a pergunta cujo título é a concepção dita por quem a sustenta**,
 em primeira pessoa.
 
+**Quadro 4.2 — Perguntas do FAQ cujo título é a concepção dita por quem a sustenta (exemplos)**
+
 | pergunta | título |
 | --- | --- |
 | 6.2 | *"But I heard that `char a[]` was identical to `char *a`."* |
 | 6.9 | *"Someone explained to me that arrays were really just constant pointers."* |
 | 6.4b | *"So arrays are passed by reference, even though the rest of C uses pass by value?"* |
 | 4.11 | *"Does C even have ``pass by reference''?"* |
+
+*Fonte: elaborado pelo autor, com títulos de perguntas de Summit (1996).*
 
 O catálogo não **infere** a concepção a partir de uma explicação técnica:
 ele **lê a frase de quem a sustenta**. Quem quiser conferir abre a pergunta
@@ -132,6 +138,8 @@ itens — e itens sobre memória e tempo de vida espalhados por `VarAssign`,
 `ObjState` e `Misc`. O que ela não tem é o que importa aqui, e a contagem
 abaixo é reprodutível por busca de termo no texto da tabela:
 
+**Quadro 4.3 — Ocorrências de termos de memória na Tabela A.1**
+
 | termo buscado na Tabela A.1 | ocorrências |
 | --- | --- |
 | `malloc`, `free`, `deallocat`, `garbage` | **0** |
@@ -140,6 +148,8 @@ abaixo é reprodutível por busca de termo no texto da tabela:
 | `null` | **1** — e é *"Null model of recursion"* (item 54), que não trata de ponteiro nulo |
 | `lifetime` | **1** — item 5, *"Difficulties understanding the lifetime of values"* |
 | `memory` | 7 |
+
+*Fonte: elaborado pelo autor, por busca no texto de Sorva (2012).*
 
 Ou seja: **nenhum item sobre `NULL`, nenhum sobre `malloc`/`free`, nenhum
 sobre aritmética de ponteiro, nenhum sobre decaimento de array, nenhum sobre
@@ -168,6 +178,8 @@ aparece em exatamente uma linha, e a linha registra **a verificação mais
 forte alcançada** para ela. A soma é 61, de propósito — um quadro de "quantas
 concepções citam cada obra" somaria mais, porque uma concepção pode citar
 duas, e não permitiria dizer quantas ficaram sem conferência.
+
+**Quadro 4.4 — Como cada uma das 61 concepções foi conferida**
 
 | como foi conferida | concepções |
 | --- | --- |
@@ -201,6 +213,8 @@ falta insumo seria pior que um programa que não roda.
 
 ## O resultado
 
+**Quadro 4.5 — O resultado da curadoria**
+
 | | |
 | --- | --- |
 | concepções distintas no catálogo | **61** |
@@ -215,11 +229,15 @@ construir catálogo a partir da literatura** — e não sobre C.
 
 ### 1. Três vezes a busca errou de vocabulário ou de item, e as três vezes o certo estava lá
 
+**Quadro 4.6 — As três buscas que erraram, e o que estava na obra**
+
 | concepção | o que a nota dizia | o que estava lá |
 | --- | --- | --- |
 | `pointer_has_no_address` | *"procurei no catálogo do Sorva e não está lá: nenhum dos 162 itens afirma que a referência não ocupa espaço"* | item 14, p. 360, **segunda frase**: *"It is not stored inside the computer."* A busca procurou REFERÊNCIA e ESPAÇO; o item fala de VARIÁVEL |
 | `array_confused_with_cell` | *"não tem fonte empírica, entra como hipótese"* | item 151, p. 367: *"Confusion between an array and its cell"*, e item 9, p. 359: *"A variable can hold multiple values at a time."* A busca procurou ARRAY; o item 9 fala de VARIÁVEL e o 151 está no tópico `Misc` |
 | `assignment_symmetric` | citava o item 11, com a aproximação declarada: *"o 11 é sobre a direção invertida, e esta concepção é sobre os dois lados"* | item 12, p. 359, **logo abaixo do 11**: *"Primitive assignment works both directions (swaps)."* É a frase do rótulo, traduzida |
+
+*Fonte: elaborado pelo autor, com trechos de Sorva (2012).*
 
 Nos três casos o grau subiu — `E`→`T`, `E`→`D` e `L`→`D` — **porque a busca
 foi refeita com outro vocabulário**, e não porque se decidiu confiar na
@@ -292,7 +310,7 @@ correspondente; se não houver, **remove-se**.
   artigo nomeia o achado. O código é verificável só por quem abriu o artigo,
   e saiu; ficou a citação `apud`, com item 22, p. 360.
 - **Uma aproximação declarada virou citação exata.** `assignment_symmetric`
-  mudou de item e subiu de grau; o caso está contado no achado 1 acima,
+  mudou de item e subiu de grau; o caso está contado na subseção 4.6.1, acima,
   porque é também um resultado de método.
 
 ### 5. A mesma concepção tinha procedência divergente entre tópicos
@@ -380,12 +398,14 @@ Declarar o alcance é parte do método, não ressalva de rodapé.
 
 O apêndice de curadoria não foi digitado: é **gerado** do catálogo, por um
 comando. Digitar 61 linhas à mão seria convidar justamente a divergência
-entre documento e dado que este capítulo existe para medir — e a seção 5
-acima mostra que essa divergência acontece mesmo quando quem mantém os
+entre documento e dado que este capítulo existe para medir — e a subseção
+4.6.5, acima, mostra que essa divergência acontece mesmo quando quem mantém os
 arquivos sabe do risco.
 
 Sobre o catálogo correm travas automatizadas, que falham a suíte se a
 propriedade deixar de valer. As principais:
+
+**Quadro 4.7 — As principais travas automatizadas sobre o catálogo**
 
 | trava | o que recusa |
 | --- | --- |

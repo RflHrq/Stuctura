@@ -8,7 +8,8 @@ errado. Um estudante pode atravessar um material inteiro sobre ponteiros,
 acertar boa parte dos exercícios e sair com a mesma ideia errada com que
 entrou — por exemplo, a de que um array e um ponteiro são a mesma coisa,
 ideia que funciona em quase todos os casos e só falha diante de `sizeof`.
-Uma concepção errônea desse tipo é estável e coerente para quem a tem, e
+Uma concepção errônea desse tipo — *misconception*, na literatura em
+inglês, o termo do título — é estável e coerente para quem a tem, e
 por isso resiste à informação nova: a explicação correta é lida e
 encaixada na ideia antiga, ou guardada à parte, sem entrar em conflito com
 ela (POSNER et al., 1982, p. 221).

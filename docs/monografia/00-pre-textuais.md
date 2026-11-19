@@ -1,28 +1,29 @@
 # Elementos pré-textuais
 
-Rascunho, até o modelo da UFV chegar: a ordem e a forma (capa, folha de
-rosto, ficha catalográfica, folha de aprovação) são as do modelo. O que
-está entre colchetes é para o autor preencher.
+A ordem e a forma (capa, folha de rosto, folha de aprovação, dedicatória,
+agradecimentos) são as do modelo da UFV, em `latex/TCC_STRUCTURA.tex`,
+que traz também a dedicatória e os agradecimentos do autor. O resumo, o
+abstract e a declaração abaixo entram no LaTeX a partir deste arquivo. O
+que está entre colchetes é para o autor preencher.
 
 ## Capa e folha de rosto
 
 UNIVERSIDADE FEDERAL DE VIÇOSA
-[preencher: campus, centro e departamento]
-[preencher: curso]
+*CAMPUS* RIO PARANAÍBA
+SISTEMAS DE INFORMAÇÃO
 
-RAFAEL H. S. SIMÃO [preencher: nome completo]
+RAFAEL HENRIQUE DOS SANTOS SIMÃO
 
-**STRUCTURA: DIAGNÓSTICO E CONFRONTO DE CONCEPÇÕES ERRÔNEAS SOBRE
-PONTEIROS EM C, COM CONTEÚDO VERIFICADO POR COMPILADOR**
-[preencher: título — este é uma proposta]
+**STRUCTURA: UM SISTEMA ADAPTATIVO PARA DETECÇÃO E CORREÇÃO DE
+*MISCONCEPTIONS* EM PONTEIROS NA LINGUAGEM C**
 
-Trabalho de Conclusão de Curso apresentado ao [preencher: curso] da
-Universidade Federal de Viçosa, como requisito parcial para a obtenção do
-título de [preencher: grau].
+Monografia apresentada ao Curso de Sistemas de Informação da Universidade
+Federal de Viçosa, *Campus* Rio Paranaíba, como requisito para obtenção do
+título de bacharel em Sistemas de Informação.
 
-Orientador: [preencher: nome do orientador]
+Orientador: Pedro Henrique Aparecido Damaso de Melo
 
-[preencher: cidade]
+RIO PARANAÍBA
 2026
 
 ## Resumo

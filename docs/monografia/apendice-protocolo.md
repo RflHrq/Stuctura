@@ -11,6 +11,8 @@ ponteiros em C a partir da resposta, da razão e da certeza declarada, e
 confrontá-las com demonstrações, numa sessão que estudantes de graduação
 consigam e queiram completar. Ela se divide em quatro:
 
+**Quadro A.1 — As quatro perguntas do estudo**
+
 | | Pergunta | Medida | De onde vem |
 | --- | --- | --- | --- |
 | V1 | Os estudantes concluem a sessão sem ajuda de conteúdo do pesquisador, e em quanto tempo? | conclui (sim/não); minutos por tópico; onde parou | o registro da sessão |
@@ -39,6 +41,8 @@ cada vez, presencialmente, em cerca de 30 minutos cada:
 
 ## A.3 A classificação dos episódios de V2
 
+**Quadro A.2 — A classificação dos episódios de V2**
+
 | Classificação | Critério |
 | --- | --- |
 | Compatível | a fala traz explicitamente a mesma relação conceitual que a concepção afirma |
@@ -53,6 +57,8 @@ os casos — um episódio incompatível vale mais do que dez compatíveis,
 porque mostra onde a regra falha.
 
 ## A.4 Ameaças à validade
+
+**Quadro A.3 — Ameaças à validade e contramedidas**
 
 | Ameaça | Contramedida |
 | --- | --- |

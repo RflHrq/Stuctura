@@ -71,6 +71,8 @@ para o toque errado, que sem ela não tinha volta. Há também o botão "Não
 sei", que é uma resposta legítima: obrigar a escolher fabricaria chute,
 e com ele a lacuna vira dado observado, e não inferido.
 
+![Figura 3.1 — A pergunta de diagnóstico, com a resposta confirmada e as razões (kc_07, tema claro)](figuras/fig-3-1-pergunta.jpg)
+
 A pergunta de abertura de cada premissa é, de preferência, uma questão
 **com código** de nível intermediário: a que pede que a pessoa aplique a
 ideia num trecho de programa. Questões que usam construções que nenhum
@@ -124,7 +126,7 @@ caminhos funcionam assim:
   a correção, com a resposta certa, e a subida segue — ninguém fica preso
   num passo. Um dos passos guiados de cada escada tem, entre as
   alternativas, a concepção errônea da premissa dita com todas as letras,
-  e pede a certeza (Figura 3.3): escolhida com convicção, ela abre a
+  e pede a certeza (Figura 3.2): escolhida com convicção, ela abre a
   demonstração na hora, porque é o mesmo episódio da pergunta de
   abertura. A premissa
   fecha como "aprendeu agora" quando a pessoa acerta a pergunta seguinte;
@@ -136,6 +138,8 @@ caminhos funcionam assim:
   com os passos de prática da escada; a premissa fecha como "corrigiu uma
   ideia" quando o treino fecha.
 
+![Figura 3.2 — Um passo guiado da escada, com a concepção errônea entre as alternativas e a certeza (kc_07 B2, passo 1)](figuras/fig-3-2-passo.jpg)
+
 Depois de todas as premissas, a **reconferência** faz uma pergunta para
 cada premissa trabalhada na sessão — ensinada ou corrigida —, com outras
 premissas no meio. É o que separa "acertou logo depois de ler" de
@@ -146,12 +150,14 @@ também a razão; e só então um passo já visto, com outros valores. Quando
 a razão marcada na reconferência é a concepção que tinha sido corrigida,
 o fechamento diz que "a ideia voltou".
 
-O **fechamento** (Figura 3.4) resume a sessão em quatro blocos — as ideias erradas
+O **fechamento** (Figura 3.3) resume a sessão em quatro blocos — as ideias erradas
 encontradas e se foram corrigidas; as lacunas, e em que passos; o que já
 estava firme; e o que ficou em aberto — e, abaixo, mostra a lista de
 premissas com o resultado de cada uma e o acesso à explicação. O passo em
 que a pessoa tropeçou aparece pelo **nome** dele, uma frase curta com a
 ideia do passo, e não pelo enunciado do exercício.
+
+![Figura 3.3 — O fechamento: as ideias erradas encontradas e a situação de cada uma](figuras/fig-3-3-fechamento.jpg)
 
 ## 3.4 A escada de passos
 
@@ -196,12 +202,15 @@ cenário não muda.
 Para cada concepção errônea de cada tópico há uma **demonstração**: um
 programa curto, de no máximo nove linhas, escrito com os nomes do cenário
 do tópico, e uma pergunta de previsão com duas alternativas — a que a
-máquina confirma e a que a concepção errônea espera (Figuras 3.2a e
-3.2b). A pessoa prevê; depois vê o que aconteceu, e uma frase diz o que
+máquina confirma e a que a concepção errônea espera (Figuras 3.4a e
+3.4b). A pessoa prevê; depois vê o que aconteceu, e uma frase diz o que
 aquilo mostra e qual premissa fica de pé. As 61 concepções do catálogo dão
 80 demonstrações porque 14 delas aparecem em mais de um tópico — a de que
 o ponteiro é o próprio dado, por exemplo, em quatro —, e cada tópico tem a
 sua, com o cenário dele.
+
+![Figura 3.4a — "Você disse": a concepção da pessoa e a previsão pedida](figuras/fig-3-4a-voce-disse.jpg)
+![Figura 3.4b — "A máquina respondeu": o que o compilador disse, a previsão, e a ideia que fica de pé](figuras/fig-3-4b-maquina.jpg)
 
 O que a máquina "respondeu" é de dois tipos. Em 41 das 80 demonstrações é
 a **saída** do programa: no kc_11, por exemplo, quem acredita que a
@@ -232,11 +241,13 @@ aconteceu. O Capítulo 5 descreve essa conferência.
 ## 3.6 A cena
 
 A revisão de cada premissa tem uma **cena**: o trecho de código dela
-animado linha a linha (Figura 3.6). A linha que roda fica marcada no
+animado linha a linha (Figura 3.5). A linha que roda fica marcada no
 código, e um palco ao lado mostra o que ela fez — a caixa que nasce, o
 valor que entra e o que sai, o ponteiro com o seu bilhete, o que vai
 para a tela. São 79 cenas, uma por premissa, e elas ocupam o lugar das
 figuras estáticas que a versão anterior mostrava.
+
+![Figura 3.5 — A cena da revisão do kc_06 B1, dentro da bancada de `zera`: a cópia `n` vira 0, e `idade` continua 15](figuras/fig-3-5-cena.jpg)
 
 Os personagens são poucos e vêm da mesma analogia em todos os tópicos. A
 **caixa** é a variável: uma etiqueta com o nome, o tipo escrito em cima e
@@ -299,7 +310,7 @@ pelo código, nem refeita depois de um reinício do servidor.
 
 A interface foi desenhada para parecer um ambiente de programação, em
 dois temas: o escuro, inspirado num editor de código à noite (Figura
-3.5), e o claro, com o topo escuro como a barra de um terminal (Figuras
+3.6), e o claro, com o topo escuro como a barra de um terminal (Figuras
 3.1 a 3.4). O tema é
 escolhido antes de a página ser desenhada — o do sistema operacional, ou
 o que a pessoa escolheu da última vez —, e pode ser trocado por um botão
@@ -319,7 +330,7 @@ ficam só com o desenho, para que as oito paradas do kc_09 caibam em
 360 px de largura.
 
 A página inicial desenha o **caminho** dos 13 tópicos como a trilha de
-um jogo (Figura 3.5): dez tópicos em fila, do kc_00 ao kc_09 — com o
+um jogo (Figura 3.6): dez tópicos em fila, do kc_00 ao kc_09 — com o
 kc_01, modelo de memória, depois do kc_06 e do kc_07, por decisão do
 autor —, abrindo-se em três no fim (kc_10, kc_11 e kc_12, que não dependem um do
 outro). A ordem é
@@ -328,6 +339,8 @@ confere que cada tópico vem depois dos seus pré-requisitos. Cada parada
 mostra o seu estado — já feito, próximo, em andamento ou aberto — e o
 andamento do tópico ("3 de 6"), e o próximo sugerido aparece num cartão
 acima do caminho.
+
+![Figura 3.6 — A página inicial no tema escuro: o próximo sugerido e o caminho dos 13 tópicos, com um tópico feito e um em andamento](figuras/fig-3-6-inicio-escuro.jpg)
 
 As fontes são livres (licença OFL) e estão guardadas no próprio projeto:
 nenhuma página carrega nada de outro endereço.
