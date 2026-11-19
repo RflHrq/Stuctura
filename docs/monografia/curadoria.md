@@ -283,7 +283,7 @@ correspondente; se não houver, **remove-se**.
   das referências deste trabalho (19/11/2026), a obra registra essa
   concepção, a de que a variável guarda vários valores ou "lembra" os
   anteriores, e a estuda num experimento com 496 iniciantes; a citação
-  pode voltar ao catálogo na próxima revisão dele.
+  voltou ao catálogo, agora com seção, página e frase.
 - **Uma atribuição estava trocada.** `declaration_allocates` citava
   *"Kaczmarczyk et al. (2010), p. 109, Tabela 2, MMR4"*. O item do Sorva que
   registra essa concepção (item 92, p. 364) atribui a **Ma (2007)**.

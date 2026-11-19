@@ -52,14 +52,23 @@
     Apêndice A, p. 359, item 9: "A variable can hold multiple values at a
     time / 'remembers' old values."
 
-    CINCO estudos independentes atrás do mesmo item — é a crença mais
-    bem documentada deste tópico.
+    Hermans, Swidan, Aivaloglou e Smit (2018), Proceedings of WiPSCE '18,
+    art. 8, seção 3 (p. 2 do manuscrito aceito, repositório da TU Delft):
+    "A common misconception related to variables that novice programmers
+    have is that a variable can hold multiple values or that it
+    'remembers' previous values." A introdução (p. 1) diz o mesmo, e o
+    artigo estuda a crença num experimento com 496 iniciantes, crianças e
+    adultos, comparando a metáfora da caixa com a da etiqueta. Lido no
+    original.
 
-    HERMANS ET AL. (2018) SAIU, 11/11/2026. A citação anterior o trazia,
-    e ele NÃO APARECE em item nenhum da Tabela A.1 do Sorva nem na
-    bibliografia dela — zero ocorrências no texto integral. Sem a obra
-    aberta e sem corroboração, a citação não se sustenta, e citação que
-    não se sustenta sai.
+    CINCO estudos independentes atrás do mesmo item do Sorva, e um sexto
+    aberto no original: é a crença mais bem documentada deste tópico.
+
+    HERMANS ET AL. (2018) SAIU em 11/11/2026: a citação o trazia sem que
+    a obra tivesse sido aberta, e ele não aparece em item nenhum da Tabela
+    A.1 do Sorva nem na bibliografia dela (zero ocorrências no texto
+    integral). VOLTOU em 19/11/2026, depois de aberto no original, com
+    seção, página e frase.
 
 - id: assignment_symmetric
   negates: kc_00:I1

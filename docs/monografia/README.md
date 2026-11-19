@@ -55,9 +55,9 @@ foram tirados do sistema por script, e não de memória, e
 - **O que o modelo da UFV ainda pede e não está no PDF:** a folha de
   aprovação (comentada em `TCC_STRUCTURA.tex` até a banca ser definida) e
   a ficha catalográfica, se o curso a exigir (é feita pela biblioteca).
-- **Três pontos de referência para o autor decidir:** o ano do livro de
+- **Dois pontos de referência para o autor decidir:** o ano do livro de
   Summit (1995 na página do FAQ, 1996 no texto; conferir na página de
-  direitos do livro); Hermans et al. (2018), aberta e já nas referências, pode voltar a ser citada no catálogo (`variable_remembers`); e a curadoria fala de um
+  direitos do livro); e a curadoria fala de um
   "apêndice de curadoria" (`docs/curadoria-crencas.md`) que não está no
   PDF. Com o texto do Sorva agora em `fontes/sorva2012/`, ele pode ser
   gerado de novo e entrar como apêndice.

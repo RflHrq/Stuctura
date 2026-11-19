@@ -503,5 +503,7 @@ conferidos como os outros (ver as entradas de cada obra).
   vários valores ou "lembra" os anteriores e a estuda num experimento com
   496 iniciantes (caixa contra etiqueta como metáfora). Entrou na lista, e
   a frase da curadoria que a menciona passou a dizer que ela foi aberta
-  depois; a citação no catálogo não foi restaurada, o que fica para a
-  próxima revisão dele.
+  depois. A pedido do autor, a citação voltou ao catálogo
+  (`variable_remembers`, em `beliefs_kc00.yaml`), com a seção 3, a p. 2
+  do manuscrito aceito e a frase; o grau continua `T`, porque o
+  experimento não é em C.
