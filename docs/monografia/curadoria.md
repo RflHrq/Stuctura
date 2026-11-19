@@ -141,8 +141,8 @@ abaixo é reprodutível por busca de termo no texto da tabela:
 | `malloc`, `free`, `deallocat`, `garbage` | **0** |
 | `heap`, `stack` | **0** |
 | `arithmetic`, `decay`, `dangling`, `sizeof` | **0** |
-| `null` | **1**, e é *"Null model of recursion"* (item 54), que não trata de ponteiro nulo |
-| `lifetime` | **1**: item 5, *"Difficulties understanding the lifetime of values"* |
+| `null` | **1**, e é *"Null model of recursion"* (item 54, p. 362), que não trata de ponteiro nulo |
+| `lifetime` | **1**: item 5, p. 359, *"Difficulties understanding the lifetime of values"* |
 | `memory` | 7 |
 
 *Fonte: elaborado pelo autor, por busca no texto de Sorva (2012).*

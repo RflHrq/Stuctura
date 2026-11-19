@@ -100,7 +100,8 @@ concepção errônea que ele afirma diagnosticar tem procedência declarada.
 
 ## 1.6 Organização do texto
 
-O Capítulo 2 apresenta as ideias que sustentam o sistema. O Capítulo 3
+O Capítulo 2 apresenta as ideias que sustentam o sistema e os trabalhos
+relacionados. O Capítulo 3
 descreve o Structura: o domínio, o diagnóstico, a trilha e a interface. O
 Capítulo 4 trata da procedência do catálogo de concepções errôneas. O
 Capítulo 5 descreve como o sistema foi construído e verificado, e o

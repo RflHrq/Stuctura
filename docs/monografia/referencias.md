@@ -34,6 +34,13 @@ introductory programming: a literature review. **ACM Transactions on
 Computing Education**, v. 18, n. 1, art. 1, p. 1-24, Oct. 2017. DOI:
 10.1145/3077618.
 
+SCHMELLENKAMP, M.; LATYS, A.; ZEUME, T. Discovering and quantifying
+misconceptions in formal methods using intelligent tutoring systems. In:
+ACM TECHNICAL SYMPOSIUM ON COMPUTER SCIENCE EDUCATION, 54., 2023.
+**Proceedings of the 54th ACM Technical Symposium on Computer Science
+Education V. 1**. [S.l.]: ACM, 2023. p. 465-471. DOI:
+10.1145/3545945.3569806.
+
 SODERSTROM, N. C.; BJORK, R. A. Learning versus performance: an
 integrative review. **Perspectives on Psychological Science**, v. 10,
 n. 2, p. 176-199, 2015. DOI: 10.1177/1745691615569000.
@@ -42,6 +49,10 @@ SORVA, J. **Visual program simulation in introductory programming
 education**. 2012. Tese (Doutorado) – Aalto University School of Science,
 Espoo, 2012. Disponível no repositório institucional da Universidade
 Aalto, handle 123456789/3534.
+
+SORVA, J. Notional machines and introductory programming education.
+**ACM Transactions on Computing Education**, v. 13, n. 2, p. 1-31, June
+2013. DOI: 10.1145/2483710.2483713.
 
 SWELLER, J.; VAN MERRIËNBOER, J. J. G.; PAAS, F. Cognitive architecture
 and instructional design: 20 years later. **Educational Psychology
@@ -61,3 +72,9 @@ https://www.w3.org/TR/WCAG21/. Acesso em: 18 nov. 2026.
 
 WHITE, R.; GUNSTONE, R. **Probing understanding**. London: Falmer Press,
 1992.
+
+YAMASHITA, K.; FUJIOKA, R.; KOGURE, S.; NOGUCHI, Y.; KONISHI, T.; ITOH, Y.
+Classroom practice for understanding pointers using learning support
+system for visualizing memory image and target domain world. **Research
+and Practice in Technology Enhanced Learning**, v. 12, art. 17, p. 1-16,
+2017. DOI: 10.1186/s41039-017-0058-4.

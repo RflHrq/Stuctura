@@ -81,10 +81,22 @@ CITACOES = [
     (r"Kaczmarczyk et al\. \(2010\)", r"\\citeonline{kaczmarczyk2010}"),
     (r"Kernighan e Ritchie(?! \()", r"\\citeonline{kernighan1988}"),
     (r"\(BROOKE, 1996\)", r"\\cite{brooke1996}"),
+    (r"Yamashita et al\. \(2017\)", r"\\citeonline{yamashita2017}"),
+    (r"\(YAMASHITA et al\., 2017\)", r"\\cite{yamashita2017}"),
+    (r"Schmellenkamp, Latys e Zeume \(2023\)",
+     r"\\citeonline{schmellenkamp2023}"),
+    (r"\(SCHMELLENKAMP; LATYS; ZEUME, 2023\)",
+     r"\\cite{schmellenkamp2023}"),
+    (r"\(DOIGNON; FALMAGNE, 1985 apud FALMAGNE et al\., 2006\)",
+     r"(DOIGNON; FALMAGNE, 1985 \\textit{apud} FALMAGNE et al., "
+     r"\\citeyear{falmagne2006})"),
+    (r"Falmagne et al\. \(2006\)", r"\\citeonline{falmagne2006}"),
+    (r"Sorva \(2013\)", r"\\citeonline{sorva2013}"),
 ]
 # Menções a obras que o texto discute sem citar como fonte, e que por isso
 # não têm entrada na lista: ficam como texto. Conferir com o autor.
-SEM_REFERENCIA = ["Hermans et al. (2018)", "TIPPETT, 2010"]
+SEM_REFERENCIA = ["Hermans et al. (2018)", "TIPPETT, 2010",
+                  "DOIGNON; FALMAGNE, 1985"]
 
 PADRAO_DE_CITACAO = re.compile(
     r"\b[A-ZÀ-Ý][A-ZÀ-Ý\-]{2,}(?: et al\.)?(?:; [A-ZÀ-Ý][A-ZÀ-Ý \-]+)*, "
@@ -388,11 +400,21 @@ def capitulo(nome: str, numero: str, rotulos: dict,
             elif nivel == 3:
                 subsecao += 1
                 m = re.match(r"^(\d+)\. (.*)$", titulo)
+                completo = re.match(r"^([0-9A-Z]+)\.(\d+)\.(\d+) (.*)$",
+                                    titulo)
                 if m:
                     if int(m.group(1)) != subsecao:
                         raise Erro("%s: subseção %s fora de ordem"
                                    % (nome, m.group(1)))
                     titulo = m.group(2)
+                elif completo:
+                    num = (completo.group(1), int(completo.group(2)),
+                           int(completo.group(3)))
+                    if num != (numero, secao, subsecao):
+                        raise Erro("%s: subseção %s.%d.%d, mas o LaTeX "
+                                   "numera %s.%d.%d" % ((nome,) + num + (
+                                       numero, secao, subsecao)))
+                    titulo = completo.group(4)
                 saida.append("\\subsection{%s}" % tx.converte(titulo))
             else:
                 raise Erro("%s: título de nível %d" % (nome, nivel))

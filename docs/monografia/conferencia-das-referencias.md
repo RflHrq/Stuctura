@@ -284,6 +284,90 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
   registro do capítulo na Crossref, da editora, dá **p. 207-212** e o DOI
   10.1201/9781498710411-35, e é o que a lista passou a trazer.
 
+### YAMASHITA et al. (2017)
+
+- **Aberta em 19/11/2026:** texto integral, SpringerOpen (acesso aberto,
+  licença Creative Commons), em `fontes/yamashita2017/`. *Research and
+  Practice in Technology Enhanced Learning* 12, art. 17, 16 p.
+- **Resumo (p. 1):** o TEDViT mostra, em sincronia, a imagem da memória
+  (o valor concreto das variáveis) e o mundo do domínio (as estruturas de
+  dados, de forma lógica); o que o mundo do domínio mostra segue uma
+  política definida pelo professor.
+- **p. 11-12:** nos questionários aplicados depois das aulas, o desvio
+  padrão das respostas sobre compreensão, ritmo e dificuldade foi menor em
+  2015, com o TEDViT, do que em 2013 e 2014; os autores leem isso como
+  redução da desigualdade de compreensão. A medida é de autoavaliação, e o
+  texto diz isso.
+- **O que não está:** nenhuma ocorrência de modelo do estudante,
+  diagnóstico ou concepção errônea; o texto diz que o artigo "não
+  descreve" modelo do estudante, e não que o sistema não o tenha.
+- **Sustenta:** Capítulo 2 (2.8.1 e Quadro 2.1).
+
+### SCHMELLENKAMP, LATYS e ZEUME (2023)
+
+- **Aberta em 19/11/2026 só no resumo,** no registro aberto do Semantic
+  Scholar; os dados de publicação, no registro da Crossref (*Proceedings
+  of the 54th ACM Technical Symposium on Computer Science Education V. 1*,
+  p. 465-471). O texto integral está na ACM (acesso aberto, mas com
+  bloqueio anti-robô) e numa cópia do repositório da Universidade de
+  Bochum que deu erro no servidor; fica para o autor baixar.
+- **Resumo:** estudar concepções errôneas em métodos formais integrando
+  métodos quantitativos e qualitativos; até então, estudos sobretudo
+  qualitativos, em geral entrevistas com menos de 20 pessoas; dois fluxos
+  de trabalho (medir quão comum é uma concepção já descrita; descobrir
+  candidatas nos dados); aplicação a exercícios de modelagem lógica do
+  Iltis, com mais de 250 respostas em muitos exercícios.
+- **O que saiu do relatório anterior:** a frase de que o Iltis usa
+  "questões de múltipla escolha com distratores mapeados a concepções
+  errôneas" não está no resumo (os exercícios são de modelagem lógica) e
+  foi retirada.
+- **Sustenta:** Capítulo 2 (2.8.2 e Quadro 2.1), só com o que está no
+  resumo.
+
+### SORVA (2013)
+
+- **Aberta em 19/11/2026 só no resumo,** no registro aberto da Crossref,
+  com os dados de publicação (*ACM Transactions on Computing Education*
+  13(2), p. 1-31). O texto integral está na ACM; fica para o autor baixar.
+- **Resumo:** revisão que reúne a literatura de concepções errôneas de
+  programação, modelos mentais, construtivismo, fenomenografia e
+  conceitos-limiar, examinada em relação à máquina nocional; a literatura
+  aponta a máquina nocional como grande desafio do ensino introdutório, e
+  o autor defende que ela seja objetivo explícito do ensino.
+- **O que mudou em relação ao relatório anterior:** ele dizia que o artigo
+  "estabeleceu formalmente o conceito" de máquina nocional e "integrou
+  misconceptions, modelos mentais e visualização". O resumo diz que o
+  artigo reúne e comenta essas linhas (e cita outras, sem visualização); o
+  conceito é anterior ao artigo. O texto passou a dizer o que o resumo
+  diz.
+- **Sustenta:** Capítulo 2 (2.8.4 e Quadro 2.1).
+
+**Também conferido para 2.8, em Falmagne et al.:**
+
+- **p. 12-14 da versão aberta:** a primeira pergunta é a mais informativa
+  (cerca de 50% de chance de acerto, pelo estado provável); a avaliação
+  para quando a entropia fica baixa e não há pergunta útil; uma avaliação
+  completa de Aritmética levou 24 perguntas, perto da média. **p. 15:** o
+  primeiro artigo da teoria é de Doignon e Falmagne, de 1985 (citado
+  `apud`, por isso fora da lista). Dois dos autores são da ALEKS
+  Corporation, e a cópia aberta é publicada pela própria ALEKS.
+- **O que saiu do relatório anterior:** "diagnóstico por meio de 25 a 30
+  questões" e "utilizado por milhões de estudantes" não estão no artigo e
+  foram retirados; ficou o número que o artigo dá (24 perguntas).
+
+## Trabalhos relacionados: o que do relatório anterior ficou de fora
+
+- **MAZUMDER (2024),** tese de doutorado na UNC Charlotte, "Investigating
+  Novice Programmers' Mental Models": não foi encontrada no OpenAlex, no
+  Semantic Scholar nem na busca do repositório da universidade; o OpenAlex
+  lista artigos da autora sobre modelos mentais de arrays (2021, 2023,
+  2024), mas nenhuma tese. Sem poder confirmar que a obra existe com esses
+  dados, ela não entrou. Se o autor tiver o arquivo, ela volta.
+- **A busca nas bases** (ACM, Google Scholar, Springer, 2013 a 2024) que o
+  relatório anterior descrevia não pôde ser confirmada nesta conferência,
+  e incluía obras fora do período (2006). O texto de 2.8 diz só o critério
+  de escolha.
+
 ## Ainda não abertas
 
 Nenhuma, depois da segunda conferência (19/11/2026).

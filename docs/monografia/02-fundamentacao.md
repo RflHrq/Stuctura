@@ -145,4 +145,124 @@ depois de ver a resposta não garante que a ideia ficou. Por isso o sistema
 reconfere, no fim do tópico, cada premissa trabalhada, com outras premissas no meio; e por isso o fechamento fala de assimilação **nesta
 sessão**, e não de aprendizagem.
 
+## 2.8 Trabalhos relacionados
+
+Os trabalhos abaixo foram escolhidos por compartilharem com o Structura
+pelo menos um destes elementos: o domínio de ponteiros em C, o estudo de
+concepções errôneas com dados de um sistema, a modelagem formal do estado
+de conhecimento, ou o modelo de máquina que o estudante precisa construir.
+Para cada um, diz-se o que ele faz e onde o Structura se põe em relação a
+ele; o Quadro 2.1, ao fim, resume a comparação.
+
+### 2.8.1 TEDViT: a memória e o mundo do problema, lado a lado
+
+Yamashita et al. (2017) descrevem o TEDViT, um sistema de visualização de
+programas, e uma prática em sala com ele no ensino de ponteiros em C. O
+sistema mostra, ao mesmo tempo e em sincronia, a imagem da memória, com o
+valor concreto de cada variável, e o mundo do domínio, com as estruturas de
+dados que o programa manipula; o que aparece no mundo do domínio segue uma
+política de visualização definida pelo professor. Nos questionários de
+autoavaliação aplicados depois das aulas, a dispersão das respostas sobre o
+grau de compreensão, o ritmo e a dificuldade foi menor na turma de 2015,
+que usou o sistema, do que nas de 2013 e 2014, o que os autores leem como
+redução da desigualdade de compreensão entre os participantes (p. 12).
+
+O artigo não descreve modelo do estudante nem diagnóstico individual: a
+adaptação que o sistema oferece é a que o professor configura. O Structura
+trabalha no mesmo domínio e também mostra a memória em funcionamento (as
+cenas, 3.6), mas parte do diagnóstico de cada premissa, pessoa por pessoa,
+e escolhe a intervenção a partir dele.
+
+### 2.8.2 Iltis: medir e descobrir concepções errôneas com dados de um tutor
+
+Schmellenkamp, Latys e Zeume (2023) defendem estudar as concepções
+errôneas em métodos formais combinando métodos quantitativos e
+qualitativos: até ali, elas tinham sido estudadas sobretudo de forma
+qualitativa, em geral com entrevistas de menos de 20 pessoas. Os autores
+propõem dois fluxos de trabalho, um para medir quão comum é uma concepção
+já descrita qualitativamente e outro para descobrir candidatas nos dados e
+examiná-las depois, e aplicam partes deles aos exercícios de modelagem
+lógica do tutor inteligente Iltis, com mais de 250 respostas em muitos dos
+exercícios.
+
+O trabalho mostra o que um tutor pode dar à pesquisa de concepções
+errôneas, que é escala, mas fica na medida: trata de encontrar e contar as
+concepções, e não de intervir sobre elas, e é de outro domínio. O Structura
+faz o caminho inverso: parte de concepções já registradas na literatura
+(Capítulo 4) e as usa para diagnosticar e intervir. O registro que ele
+grava de cada sessão (3.7) poderia servir à medida que o Iltis propõe,
+quando houver estudantes usando o sistema.
+
+### 2.8.3 ALEKS e a teoria dos espaços de conhecimento
+
+A teoria dos espaços de conhecimento, cujo primeiro artigo foi publicado
+por Doignon e Falmagne em 1985 (DOIGNON; FALMAGNE, 1985 apud FALMAGNE et
+al., 2006), define o estado de conhecimento como o conjunto de problemas
+que a pessoa sabe resolver num tópico, e a avaliação como a busca desse
+estado entre todos os possíveis (2.3). Falmagne et al. (2006) descrevem a
+implementação da teoria num sistema disponível pela internet, o ALEKS (dois
+dos autores são da empresa que o mantém): cada pergunta é escolhida por ser
+a mais informativa, aquela que a pessoa tem cerca de 50% de chance de
+acertar segundo o estado provável; a avaliação para quando a incerteza
+sobre o estado fica baixa; e o resultado são duas listas, o que o estudante
+sabe fazer e o que está pronto para aprender. Uma avaliação de Aritmética
+mostrada no artigo levou 24 perguntas, perto da média.
+
+O estado, ali, é feito de problemas: diz o que falta aprender, e não que
+ideia errada produz o erro. O Structura toma da teoria a ideia de
+fronteira, intervindo na premissa em que a pessoa está, mas registra, além
+de saber e não saber, a concepção errônea que a pessoa sustenta, e é ela
+que decide a intervenção.
+
+### 2.8.4 Máquinas nocionais
+
+Sorva (2013) reúne e comenta as linhas de pesquisa que explicam a
+dificuldade do iniciante com a dinâmica de execução dos programas: as
+concepções errôneas de programação, a teoria dos modelos mentais, o
+construtivismo, a fenomenografia e os conceitos-limiar, examinadas em
+relação à máquina nocional, o computador abstrato que executa programas de
+certo tipo. Conclui que a máquina nocional é um dos grandes desafios do
+ensino introdutório de programação e que deve ser objetivo explícito do
+ensino. É uma revisão, e não propõe um sistema; a tese de Sorva (2012), que
+é a fonte principal do catálogo do Structura (Capítulo 4), trata do mesmo
+tema.
+
+O Structura segue essa recomendação para ponteiros em C: o modelo de
+memória é ensinado em premissas próprias (o kc_01 e as premissas de base de
+cada tópico), e as cenas da revisão (3.6) mostram a máquina executando o
+código, linha a linha.
+
+### 2.8.5 Uma nota sobre tutores com modelos de linguagem
+
+Uma alternativa hoje possível é gerar o retorno e as explicações de um
+tutor com um modelo de linguagem de grande escala. O Structura não faz isso
+durante a sessão: todo texto que a pessoa vê foi escrito antes, foi
+conferido por compilador quando afirma algo sobre um programa (Capítulo 5),
+e cada resposta é ligada a uma premissa e a uma concepção do catálogo. Com
+isso, o comportamento é determinístico e pode ser auditado, e o que o
+sistema afirma sobre C é conferido antes de chegar ao estudante. O preço é
+a flexibilidade: o sistema só reconhece as concepções que o catálogo tem
+(7.1). O uso de um modelo de linguagem na construção do conteúdo, e não na
+sessão, está registrado na declaração de uso de inteligência artificial.
+
+### 2.8.6 Síntese
+
+**Quadro 2.1 — Os trabalhos relacionados e o Structura**
+
+| Trabalho | Domínio | Diagnóstico de concepção errônea | Intervenção conforme o diagnóstico | Mostra a máquina em funcionamento |
+| --- | --- | --- | --- | --- |
+| TEDViT (YAMASHITA et al., 2017) | ponteiros em C | não | não | sim: memória e mundo do domínio |
+| Iltis (SCHMELLENKAMP; LATYS; ZEUME, 2023) | métodos formais | mede e descobre, nos dados agregados | não | não |
+| ALEKS (FALMAGNE et al., 2006) | matemática | não: avalia o que se sabe e o que falta | indica o que aprender em seguida | não |
+| Sorva (2013) | programação introdutória | não se aplica: é uma revisão | não se aplica | recomenda ensinar a máquina nocional |
+| Structura | ponteiros em C | sim: resposta, razão e certeza, por premissa | sim: escada, demonstração ou revisão | sim: as cenas da revisão |
+
+*Fonte: elaborado pelo autor, a partir das obras citadas.*
+
+Entre os trabalhos analisados, nenhum reúne, para ponteiros em C, o
+diagnóstico da concepção errônea pela resposta, pela razão e pela certeza,
+a intervenção escolhida por esse diagnóstico e a máquina mostrada em
+funcionamento. Essa combinação, com o conteúdo conferido por compilador, é
+o que o Structura acrescenta.
+
 As obras citadas estão em [Referências](referencias.md).

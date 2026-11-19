@@ -73,9 +73,14 @@ foram tirados do sistema por script, e não de memória, e
   Posner, uma contagem em 2.5, uma frase sobre Gardner-Medwin, uma sobre o
   FAQ e duas entradas da curadoria (Sleeman et al. e Samurçay), herdadas
   da bibliografia do Sorva
-  ([conferencia-das-referencias.md](conferencia-das-referencias.md)). Qian
-  e Lehman (2017) e VanLehn (2011) não puderam ser baixados (bloqueio
-  anti-robô da editora) e ficam para o autor baixar pelo acesso da UFV.
+  ([conferencia-das-referencias.md](conferencia-das-referencias.md)).
+  Os trabalhos relacionados (2.8) voltaram, a partir do relatório
+  anterior, só com o que as obras sustentam: saíram três afirmações sem
+  apoio e a tese de Mazumder (2024), que não foi encontrada em catálogo
+  nenhum. Ficam para o autor baixar pelo acesso da UFV, porque a editora
+  bloqueia download automatizado: Qian e Lehman (2017), VanLehn (2011),
+  Schmellenkamp, Latys e Zeume (2023) e Sorva (2013); dos dois últimos,
+  o texto só afirma o que está no resumo.
   `mvp/test_monografia.py` falha se aparecer uma marca de "conferir" nova
   no texto, ou se a lista e o registro discordarem. As duas listas (esta e
   a do capítulo de curadoria) estão juntas em `latex/referencias.bib`.
