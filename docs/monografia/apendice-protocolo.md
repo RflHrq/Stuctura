@@ -56,9 +56,10 @@ O Quadro A.3 relaciona as ameaças à validade identificadas e as respectivas co
 
 ## A.5 Pendências anteriores à coleta
 
-Antes da coleta, é necessário providenciar:
+O estudo envolve participantes humanos e gravação de voz. Por essa razão, nenhuma coleta deve ser iniciada antes de concluídas as seguintes providências:
 
-1. a exportação das sessões da trilha em tabelas, funcionalidade ainda não implementada no sistema;
-2. o termo de consentimento e a submissão ao comitê de ética, se exigida;
-3. o ensaio com dois colegas;
-4. um procedimento de exclusão de dados a pedido do participante que alcance também as cópias de segurança do registro.
+1. a consulta formal à instância responsável pela ética em pesquisa com seres humanos da UFV e o cumprimento dos procedimentos por ela indicados, incluída a submissão do protocolo à apreciação ética;
+2. o termo de consentimento, que informe ao participante a gravação de áudio, a finalidade do estudo e o uso dos dados;
+3. um plano de gestão dos dados que defina o local de armazenamento das gravações e dos registros, as pessoas com acesso a eles, o prazo de guarda, as medidas de confidencialidade (inclusive a guarda da lista em papel que associa nomes e matrículas aos códigos) e o procedimento de exclusão de dados a pedido do participante, que deve alcançar também as cópias de segurança do registro;
+4. a exportação das sessões da trilha em tabelas, funcionalidade ainda não implementada no sistema;
+5. o ensaio com dois colegas.

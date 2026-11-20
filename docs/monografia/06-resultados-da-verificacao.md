@@ -16,7 +16,7 @@ O Quadro 6.1 resume a dimensão do sistema abrangido pela verificação descrita
 | Demonstrações com previsão | 80 (41 saídas, 39 do compilador) |
 | Cenas da revisão | 79 |
 | Trechos de código das escadas | 1 762 |
-| Testes automatizados | 7 553 |
+| Testes automatizados | 7 555 |
 
 ## 6.2 Conferência do conteúdo por compilador
 
@@ -30,9 +30,9 @@ A seleção de questões deixa 93 questões do banco fora da trilha, por utiliza
 
 ## 6.3 Medida do percurso com estudantes simulados
 
-O Quadro 6.2 apresenta o número de telas e de toques necessários para que cada perfil percorra cada tópico, no ritmo completo. Um toque corresponde a um envio, isto é, a cada vez que a pessoa responde ou avança: selecionar a resposta, confirmá-la e escolher a razão e a certeza, na mesma tela, contam como um único toque.
+Os Quadros 6.2 e 6.3 apresentam o número de telas e de toques necessários para que cada um dos dez perfis descritos na Seção 5.4 percorra cada tópico, no ritmo completo. O primeiro quadro reúne os cinco perfis que delimitam os percursos: o que não recebe intervenção, os dois que recebem ensino (com e sem êxito nos passos) e os dois que recebem a demonstração (com e sem abandono da concepção errônea). O segundo reúne os outros cinco. Um toque corresponde a um envio, isto é, a cada vez que a pessoa responde ou avança: selecionar a resposta, confirmá-la e escolher a razão e a certeza, na mesma tela, contam como um único toque.
 
-**Quadro 6.2 — Número de telas e de toques (telas / toques) por tópico e por perfil, no ritmo completo**
+**Quadro 6.2 — Número de telas e de toques (telas / toques) por tópico, nos cinco perfis que delimitam os percursos, no ritmo completo**
 
 | Tópico | Sabe tudo | Não sabe, aprende | Erra todo passo | Sustenta e muda | Sustenta e não muda |
 | --- | --- | --- | --- | --- | --- |
@@ -50,10 +50,28 @@ O Quadro 6.2 apresenta o número de telas e de toques necessários para que cada
 | kc_11 | 14 / 19 | 26 / 43 | 38 / 91 | 38 / 37 | 44 / 67 |
 | kc_12 | 14 / 19 | 26 / 43 | 38 / 91 | 38 / 37 | 44 / 67 |
 
-Três observações decorrem do quadro:
+**Quadro 6.3 — Número de telas e de toques (telas / toques) por tópico, nos demais perfis, no ritmo completo**
 
-- A extensão da sessão varia conforme a necessidade da pessoa, e não conforme o tópico. O perfil que sabe todo o conteúdo percorre um tópico de seis premissas em 14 telas; os que necessitam de ensino ou de correção em todas as premissas, em 26 a 44 telas. O tamanho do tópico influi apenas pelo número de premissas: o kc_09, com oito, é o mais longo em todos os perfis.
-- O limite de duração é respeitado. Mesmo o perfil que erra todos os passos conclui o tópico, com as premissas em aberto e sem repetição indefinida: o pior caso é finito e previsível.
+| Tópico | Acerta sem certeza | Erra com a razão correta | Responde ao acaso com certeza | Erra na prática | Consulta a explicação |
+| --- | --- | --- | --- | --- | --- |
+| kc_00 | 12 / 16 | 12 / 16 | 38 / 60 | 22 / 43 | 12 / 21 |
+| kc_01 | 12 / 16 | 12 / 16 | 39 / 61 | 22 / 41 | 12 / 21 |
+| kc_02 | 14 / 19 | 14 / 19 | 45 / 88 | 26 / 51 | 14 / 25 |
+| kc_03 | 14 / 19 | 14 / 19 | 48 / 74 | 26 / 49 | 14 / 25 |
+| kc_04 | 14 / 19 | 14 / 19 | 43 / 89 | 26 / 49 | 14 / 25 |
+| kc_05 | 14 / 19 | 14 / 19 | 45 / 63 | 26 / 50 | 14 / 25 |
+| kc_06 | 14 / 19 | 14 / 19 | 43 / 88 | 26 / 50 | 14 / 25 |
+| kc_07 | 16 / 22 | 16 / 22 | 53 / 92 | 30 / 58 | 16 / 29 |
+| kc_08 | 14 / 19 | 14 / 19 | 43 / 79 | 26 / 49 | 14 / 25 |
+| kc_09 | 18 / 25 | 18 / 25 | 58 / 98 | 34 / 65 | 18 / 33 |
+| kc_10 | 14 / 19 | 14 / 19 | 45 / 70 | 26 / 49 | 14 / 25 |
+| kc_11 | 14 / 19 | 14 / 19 | 41 / 66 | 26 / 49 | 14 / 25 |
+| kc_12 | 14 / 19 | 14 / 19 | 43 / 64 | 26 / 49 | 14 / 25 |
+
+Três observações decorrem dos quadros:
+
+- A extensão da sessão varia conforme a necessidade da pessoa, e não conforme o tópico. O perfil que sabe todo o conteúdo percorre um tópico de seis premissas em 14 telas, o mesmo número dos perfis que acertam sem certeza, que erram a resposta com a razão correta ou que consultam a explicação antes de responder; os que recebem ensino ou demonstração em todas as premissas, em 26 a 44 telas; e o que responde ao acaso com certeza, cujo percurso depende das alternativas escolhidas em cada pergunta, em 41 a 48 telas. O tamanho do tópico influi apenas pelo número de premissas: o kc_09, com oito, é o mais longo em todos os perfis.
+- O limite de extensão é respeitado: o número de telas de cada percurso é finito. Mesmo o perfil que erra todos os passos conclui o tópico, com as premissas em aberto e sem repetição indefinida: o pior caso é finito e previsível. Esse limite refere-se ao número de interações, e não ao tempo, pois o sistema não impõe limite de tempo à sessão.
 - A demonstração é breve. O perfil que sustenta a concepção errônea e a abandona realiza menos toques do que o que não sabe e aprende (37 e 43, respectivamente, em um tópico de seis premissas), pois a demonstração substitui o percurso da escada, e não se soma a ele.
 
 Os valores referem-se a perfis simulados e servem para mostrar que o percurso se comporta conforme o projeto. Não indicam o tempo que uma pessoa leva para concluir a sessão nem se ela aprende, o que exigiria o estudo descrito no Apêndice A.
@@ -62,7 +80,7 @@ Os valores referem-se a perfis simulados e servem para mostrar que o percurso se
 
 O resultado mais relevante da verificação não é a ausência de problemas na versão descrita, mas o conjunto de defeitos identificados ao longo do processo.
 
-A leitura do sistema pelo autor, realizada quando a verificação automatizada já não acusava problemas, identificou um tipo de defeito que nenhum teste apontaria, por não se tratar de afirmação falsa, e sim de deficiência de clareza: perguntas que repetiam a frase anterior (Seção 5.7). Dos 244 passos guiados, 101 tiveram a frase reescrita: o passo lido inicialmente pelo autor, 46 dos marcados pelo programa e 54 que o programa não marcou e que somente a leitura identificou. O programa identificou, portanto, menos da metade dos casos: a marcação por palavras serviu como ponto de partida, e não como critério.
+A leitura do sistema pelo autor, realizada quando a verificação automatizada já não acusava problemas, identificou um tipo de defeito que nenhum teste apontaria, por não se tratar de afirmação falsa, e sim de deficiência de clareza: perguntas que repetiam a frase anterior (Seção 5.7). O defeito foi identificado pelo autor no primeiro passo do tópico kc_02; a leitura dos demais passos guiados e a reescrita foram realizadas com assistência do modelo de linguagem, segundo o critério descrito naquela seção. Dos 244 passos guiados, 101 tiveram a frase reescrita: o passo lido inicialmente pelo autor, 46 dos marcados pelo programa e 54 que o programa não marcou e que somente a leitura identificou. O programa identificou, portanto, menos da metade dos casos: a marcação por palavras serviu como ponto de partida, e não como critério.
 
 A verificação automatizada identificou defeitos de outra natureza, todos corrigidos na versão descrita:
 

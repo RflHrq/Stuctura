@@ -10,9 +10,9 @@ Dessa característica decorrem duas dificuldades práticas. A primeira é de dia
 
 Este trabalho apresenta o Structura, um sistema de ensino de ponteiros em C que trata as duas dificuldades por meio de dois mecanismos: um diagnóstico e uma intervenção condicionada a ele.
 
-O diagnóstico combina três sinais fornecidos pelo próprio estudante em uma única tela: a resposta, a razão que a sustenta e a certeza declarada ("tenho certeza", "acho que sei" ou "chutei"). Cada alternativa incorreta de cada questão está associada a uma concepção errônea de um catálogo com procedência declarada. A razão escolhida indica qual ideia sustenta a resposta, e a certeza distingue a resposta dada ao acaso da resposta dada com convicção. Da combinação dos três sinais resultam quatro situações: o estudante sabe, não sabe, sustenta uma concepção errônea ou acertou sem firmeza.
+O diagnóstico combina três sinais fornecidos pelo próprio estudante em uma única tela: a resposta, a razão que a sustenta e a certeza declarada ("tenho certeza", "acho que sei" ou "chutei"). Cada alternativa incorreta de cada questão está associada a uma concepção errônea de um catálogo com procedência declarada. A razão escolhida indica qual ideia sustenta a resposta, e a certeza distingue a resposta dada ao acaso da resposta dada com convicção. Da combinação dos três sinais resultam quatro situações: o estudante sabe, não sabe, sustenta uma concepção errônea ou apresenta acerto sem firmeza ou sinais divergentes entre a resposta e a razão. Essa classificação constitui uma hipótese diagnóstica: o sistema identifica um padrão de resposta compatível com uma concepção catalogada, e a correspondência entre a hipótese e o que o estudante de fato pensa somente pode ser verificada com participantes (Seção 1.5).
 
-A intervenção depende da situação diagnosticada. Ao estudante que não sabe, o sistema oferece uma sequência de passos curtos, denominada escada, que parte da operação mais mecânica e chega ao conceito, com retorno imediato a cada passo. Ao estudante que sustenta uma concepção errônea, o sistema não apresenta uma explicação: exibe um programa curto, solicita uma previsão do seu comportamento e, em seguida, mostra o resultado obtido na execução, isto é, a saída do programa ou a mensagem emitida pelo compilador. Ao estudante que erra depois de percorrer a escada, o sistema apresenta uma revisão breve, na qual o código relativo ao conceito é animado linha a linha em uma representação visual da memória, denominada cena. Todas as demonstrações e cenas foram compiladas e executadas por um conferidor automático antes de serem incorporadas ao sistema, de modo que as afirmações exibidas sobre o comportamento de um programa correspondem ao comportamento observado na execução.
+A intervenção depende da situação diagnosticada. Ao estudante que não sabe, o sistema oferece uma sequência de passos curtos, denominada escada, que parte da operação mais mecânica e chega ao conceito, com retorno imediato a cada passo. Ao estudante que sustenta uma concepção errônea, o sistema não apresenta uma explicação: exibe um programa curto, solicita uma previsão do seu comportamento e, em seguida, mostra o resultado obtido na execução, isto é, a saída do programa ou a mensagem emitida pelo compilador. Ao estudante que erra depois de percorrer a escada, o sistema apresenta uma revisão breve, na qual o código relativo ao conceito é animado linha a linha em uma representação visual da memória, denominada cena. Todas as demonstrações e cenas foram compiladas e executadas por um conferidor automático antes de serem incorporadas ao sistema, de modo que as afirmações exibidas sobre o comportamento de um programa correspondem ao comportamento observado na execução, no ambiente especificado (Seção 5.2).
 
 ## 1.3 Justificativa
 
@@ -26,7 +26,7 @@ A terceira razão é metodológica. Materiais didáticos de programação fazem 
 
 ### 1.4.1 Objetivo geral
 
-Desenvolver e verificar um sistema que diagnostique, em 13 tópicos de ponteiros em C, se o estudante sabe, não sabe ou sustenta uma concepção errônea, e que conduza cada caso por um percurso próprio, com demonstrações conferidas por compilador.
+Desenvolver e verificar um sistema que formule, em 13 tópicos de ponteiros em C, uma hipótese diagnóstica sobre cada estudante (se sabe, não sabe ou sustenta uma concepção errônea) e que conduza cada caso por um percurso próprio, com demonstrações conferidas por compilador.
 
 ### 1.4.2 Objetivos específicos
 
@@ -40,9 +40,9 @@ Para alcançar o objetivo geral, foram definidos os seguintes objetivos específ
 
 ## 1.5 Questão de pesquisa e delimitação do escopo
 
-A questão de pesquisa que orienta este trabalho é de construção e de verificação: é possível construir um sistema que diagnostique concepções errôneas sobre ponteiros em C a partir da resposta, da razão e da certeza declarada, e que as confronte com demonstrações verificadas por compilador, de modo que o conteúdo e o comportamento do sistema possam ser conferidos sem depender do julgamento de quem os elaborou?
+A questão de pesquisa que orienta este trabalho é de construção e de verificação: é possível construir um sistema que formule hipóteses diagnósticas de concepções errôneas sobre ponteiros em C a partir da resposta, da razão e da certeza declarada, e que as confronte com demonstrações verificadas por compilador, de modo que o conteúdo e o comportamento do sistema possam ser conferidos sem depender do julgamento de quem os elaborou?
 
-O trabalho não avalia o sistema com estudantes. Verificar se estudantes de graduação conseguem e desejam concluir a sessão, e se a hipótese de concepção errônea gerada pelo sistema coincide com o que eles pensam, requer um estudo com participantes que não pôde ser realizado no prazo deste trabalho. Esse estudo está planejado e documentado no Apêndice A e constitui o primeiro dos trabalhos futuros (Seção 7). As afirmações deste trabalho restringem-se, portanto, ao que pode ser verificado sem participantes: o sistema se comporta conforme especificado, o conteúdo que apresenta está correto segundo o compilador, e cada concepção errônea que ele se propõe a diagnosticar tem procedência declarada.
+O trabalho não avalia o sistema com estudantes. Verificar se estudantes de graduação conseguem e desejam concluir a sessão, e se a hipótese de concepção errônea gerada pelo sistema coincide com o que eles pensam, requer um estudo com participantes que não pôde ser realizado no prazo deste trabalho. Esse estudo está planejado e documentado no Apêndice A e constitui o primeiro dos trabalhos futuros (Seção 7). As afirmações deste trabalho restringem-se, portanto, ao que pode ser verificado sem participantes: o sistema se comporta conforme especificado, as afirmações do conteúdo sobre o comportamento dos programas confirmam-se no compilador, no ambiente especificado, e cada concepção errônea que ele se propõe a diagnosticar tem procedência declarada. A adequação pedagógica do conteúdo, que ainda não foi revisado por especialistas, também permanece fora do que este trabalho afirma (Seção 5.8).
 
 ## 1.6 Procedimentos metodológicos
 
@@ -55,7 +55,7 @@ As principais contribuições deste trabalho são:
 1. um catálogo de 61 concepções errôneas sobre ponteiros em C, cada uma com procedência declarada e associada à premissa que nega (Seção 4);
 2. um diagnóstico que utiliza a certeza declarada para selecionar o percurso de intervenção, e não para atribuir pontuação;
 3. um conjunto de 80 demonstrações com previsão (uma para cada concepção errônea em cada tópico em que ela aparece) e 402 passos de escada, além de 79 cenas animadas, todos conferidos por compilador;
-4. um método de verificação de conteúdo didático de programação no qual o compilador atua como árbitro: o texto que afirma o comportamento de um programa é testado contra o próprio programa.
+4. um método de verificação de conteúdo didático de programação no qual o compilador é utilizado como instrumento de verificação: o texto que afirma o comportamento observável de um programa é testado contra o próprio programa, no ambiente especificado.
 
 ## 1.8 Organização do texto
 

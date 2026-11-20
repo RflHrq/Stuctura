@@ -40,7 +40,7 @@ foram tirados do sistema por script, e não de memória, e
 
 | # | Arquivo | Estado |
 | --- | --- | --- |
-| — | [00-pre-textuais.md](00-pre-textuais.md) | capa com os dados do arquivo do autor; resumo, abstract e declaração de uso de IA, esta com dois campos "[preencher]" |
+| — | [00-pre-textuais.md](00-pre-textuais.md) | capa com os dados do arquivo do autor; resumo, abstract e declaração de uso de IA, que o autor tem de confirmar frase por frase |
 | — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (73 páginas em 20/11/2026) |
 | 1 | [01-introducao.md](01-introducao.md) | rascunho completo |
 | 2 | [02-fundamentacao.md](02-fundamentacao.md) | rascunho completo; referências conferidas em 18/11/2026 |
@@ -107,6 +107,28 @@ foram tirados do sistema por script, e não de memória, e
   autor decidir: uma obra de metodologia para a classificação da pesquisa
   em 1.6; o que quer dizer "kc" nos códigos dos tópicos; e se o
   orientador quer o método antes da descrição do sistema.
+- **O parecer externo de 20/11/2026.** O autor submeteu o PDF a uma
+  leitura crítica e trouxe o parecer. O que mudou por causa dele: (1) a
+  declaração de uso de IA perdeu os campos a preencher e passou a dizer o
+  que foi feito com o modelo (o código, o conteúdo didático, o texto, a
+  conferência das referências, a auditoria do catálogo e a leitura das
+  perguntas), o que foi conferido e como, e o que ainda não foi revisado;
+  (2) o texto deixou de chamar de "leitura humana" a leitura dos 244
+  passos guiados: o autor achou o defeito no primeiro passo do kc_02, e a
+  leitura dos demais foi feita com o modelo, como o histórico registra;
+  (3) o diagnóstico é apresentado como hipótese diagnóstica, e não como
+  constatação do que o estudante pensa; (4) o compilador é instrumento de
+  verificação do comportamento observado no ambiente especificado, e não
+  árbitro; (5) o FAQ sustenta confusões formuladas por quem programa em
+  C, e não a frequência entre estudantes iniciantes, e o critério de
+  inclusão deixou de dizer "em primeira pessoa"; (6) os dez perfis
+  simulados aparecem nos resultados (Quadros 6.2 e 6.3, presos por
+  teste); (7) "extensão" da sessão, em número de telas, no lugar de
+  "duração"; (8) o caminho de reforço explica os sinais divergentes;
+  (9) as providências éticas do Apêndice A antecedem qualquer coleta.
+  Ficaram para o autor decidir: a grade de `heap_dies_with_function`
+  (T sem obra citada), a referência normativa do padrão C e o termo
+  "misconceptions" no título.
 - **A revisão do conteúdo das escadas pelo autor.** As treze escadas
   estão com `revisado_por` em branco. O texto diz como o material foi
   escrito e conferido; dizer "revisado pelo autor" depende dessa leitura.

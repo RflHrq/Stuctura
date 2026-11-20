@@ -45,9 +45,13 @@ A combinação dos três sinais define quatro caminhos (Quadro 3.2).
 | Resposta, razão e certeza | Situação | Caminho |
 | --- | --- | --- |
 | resposta correta, razão correta e "tenho certeza" | sabe | firme |
-| resposta correta sem certeza, correta pela razão incorreta ou incorreta pela razão correta | acerto sem firmeza | reforço |
+| resposta correta sem certeza, correta pela razão incorreta ou incorreta pela razão correta | acerto sem firmeza ou sinais divergentes | reforço |
 | "Não sei", ou resposta incorreta com "chutei" | não sabe | lacuna |
 | resposta incorreta, pela razão de uma concepção errônea, com alguma certeza | sustenta uma concepção errônea | crença |
+
+A situação atribuída a cada resposta é uma hipótese diagnóstica: o sistema identifica um padrão de resposta compatível com determinada situação, e não constata o que a pessoa pensa. A correspondência entre a hipótese e a concepção que a pessoa de fato sustenta depende de validação com participantes (Seção 7.1).
+
+O caminho de reforço reúne dois tipos de caso: o acerto pela razão correta sem a certeza máxima e a divergência entre os sinais, que ocorre quando a resposta é correta pela razão incorreta ou incorreta pela razão correta. Na divergência, um único episódio não é considerado suficiente para atribuir uma concepção errônea à pessoa. O sistema apresenta uma pergunta adicional e somente conduz à demonstração se a mesma concepção for indicada novamente ou se a nova resposta for incorreta, com alguma certeza, pela razão de uma concepção errônea (Seção 3.3).
 
 Nesse desenho, a certeza declarada não mede o estado mental da pessoa: sua função é selecionar o percurso. Quem erra e declara "chutei" reconhece que não sabe e recebe ensino; quem erra com convicção, pela razão de uma concepção errônea mapeada, recebe a demonstração que confronta essa concepção. A escala tem três pontos porque deve caber em uma única interação no ritmo da atividade, e o ponto intermediário ("acho que sei") é sempre tratado de forma conservadora: não confirma um acerto e não dispensa o tratamento de uma concepção errônea.
 
@@ -59,7 +63,7 @@ Uma sessão percorre um tópico, premissa por premissa, na ordem definida pelo g
 entrada → premissa 1 → premissa 2 → … → reconferência → fechamento
 ```
 
-Cada premissa recebe no máximo uma intervenção (a correspondente à lacuna ou a correspondente à crença), o que estabelece um limite superior para a duração da sessão. A premissa cuja intervenção não é concluída dentro desse limite é encerrada com o resultado "em aberto". Os quatro caminhos e os resultados correspondentes são descritos a seguir.
+Cada premissa recebe no máximo uma intervenção (a correspondente à lacuna ou a correspondente à crença), o que estabelece um limite superior para a extensão da sessão, medida em número de telas. A premissa cuja intervenção não é concluída dentro desse limite é encerrada com o resultado "em aberto". Os quatro caminhos e os resultados correspondentes são descritos a seguir.
 
 - **Firme.** O sistema apresenta um retorno curto, que explica por que a resposta está correta (cada uma das 79 perguntas de abertura dispõe dessa explicação, de modo que também o acerto contribua para o aprendizado) e, no ritmo "completo", uma segunda pergunta, de outra natureza, na qual a pessoa deve produzir a resposta, e não apenas indicá-la entre alternativas: trata-se do passo de produção de nível mais alto da escada da premissa (Seção 3.4). Em caso de acerto, a premissa é encerrada com o resultado "já sabia". No ritmo "rápido", a resposta firme encerra a premissa diretamente.
 - **Reforço.** O sistema apresenta uma pergunta adicional, em outro formato. Se a resposta for correta e pela razão correta, a premissa é encerrada com o resultado "firmou"; caso contrário, segue-se a intervenção indicada pela nova resposta.

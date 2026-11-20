@@ -53,9 +53,9 @@ Essa classe sustenta que a concepção foi observada em estudantes por pesquisad
 
 A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, compilada a partir de 1990 no grupo de Usenet de mesmo nome e aprimorada de forma episódica desde então (Summit, c2005). Uma versão ampliada da lista foi publicada em livro pelo mesmo autor; este trabalho utiliza a versão on-line.
 
-A inclusão dessa classe requer justificar por que um FAQ de linguagem constitui evidência sobre concepções errôneas, e não apenas sobre a linguagem C. A justificativa está no critério de inclusão adotado, que pode ser conferido por qualquer leitor: é incluída somente a pergunta cujo título enuncia a concepção na voz de quem a sustenta, em primeira pessoa (Quadro 4.2).
+A inclusão dessa classe requer justificar por que um FAQ de linguagem constitui evidência sobre concepções errôneas, e não apenas sobre a linguagem C. A justificativa está no critério de inclusão adotado, que pode ser conferido por qualquer leitor: é incluída somente a pergunta cujo título formula, na voz de quem pergunta, a concepção ou a dúvida que a revela, de modo que a ideia que motivou a pergunta possa ser identificada no próprio título (Quadro 4.2).
 
-**Quadro 4.2 — Exemplos de perguntas do FAQ cujo título enuncia a concepção na voz de quem a sustenta**
+**Quadro 4.2 — Exemplos de perguntas do FAQ cujo título formula a concepção na voz de quem pergunta**
 
 | Pergunta | Título |
 | --- | --- |
@@ -66,11 +66,11 @@ A inclusão dessa classe requer justificar por que um FAQ de linguagem constitui
 
 *Fonte: elaborado pelo autor, com títulos de perguntas de Summit (c2005).*
 
-O catálogo, portanto, não infere a concepção a partir de uma explicação técnica: registra a formulação de quem a sustenta. Para conferir a inclusão, basta consultar a pergunta e avaliar se o título enuncia a concepção ou apenas o assunto.
+O catálogo, portanto, não infere a concepção a partir de uma explicação técnica: registra a formulação de quem pergunta. Para conferir a inclusão, basta consultar a pergunta e avaliar se o título formula a concepção ou apenas indica o assunto.
 
-Do ponto de vista metodológico, o FAQ é tratado como fonte documental: um corpus de confusões autorrelatadas, de ocorrência natural, selecionadas por recorrência ao longo de mais de três décadas. O tratamento dado a esse corpus é o da análise documental.
+Do ponto de vista metodológico, o FAQ é tratado como fonte documental: um corpus de confusões autorrelatadas, de ocorrência natural, reunidas pelo editor ao longo de mais de três décadas. O tratamento dado a esse corpus é o da análise documental.
 
-Essa classe sustenta que a confusão ocorre e é recorrente entre aprendizes da linguagem C. Não sustenta afirmações de prevalência: a população é autosselecionada (pessoas que escrevem para um grupo de Usenet), e a frequência das perguntas reflete o julgamento do editor, e não uma medição. Por isso, nenhuma afirmação de proporção é extraída dessa fonte.
+Essa classe sustenta que a confusão foi formulada por pessoas que programam em C e que consta de uma lista de perguntas frequentes do grupo. Não sustenta que a confusão seja frequente entre estudantes iniciantes, nem afirmações de prevalência: a população é autosselecionada (pessoas que escrevem para um grupo de Usenet, cuja experiência com a linguagem não é conhecida), e a seleção das perguntas reflete o julgamento do editor, e não uma medição. Por isso, nenhuma afirmação de proporção é extraída dessa fonte, e a ocorrência dessas concepções entre estudantes é uma das questões a verificar no estudo com participantes (Apêndice A).
 
 ### Necessidade da segunda classe
 
@@ -206,7 +206,7 @@ Duas observações de forma delimitam o que se pode afirmar. A primeira é que a
 
 A delimitação do alcance da curadoria integra o método. Cinco limites devem ser considerados:
 
-1. Não há afirmação de prevalência. Nem a classe 1 nem a classe 2 autorizam afirmar que determinada proporção dos estudantes sustenta uma dada concepção. O catálogo afirma que a concepção existe e é recorrente.
+1. Não há afirmação de prevalência. Nem a classe 1 nem a classe 2 autorizam afirmar que determinada proporção dos estudantes sustenta uma dada concepção. O catálogo afirma que a concepção está registrada na literatura ou no corpus de praticantes, e não que seja frequente entre estudantes.
 2. Não há afirmação sobre a eficácia do instrumento. O fato de as concepções estarem documentadas não implica que o sistema as detecte adequadamente nem que a refutação produza efeito, o que exigiria coleta de dados com participantes.
 3. Três concepções permanecem como hipóteses. São elas `memory_is_uniform`, `type_is_a_hint` e `memoria_e_do_computador`, declaradas como tais e ausentes dos tópicos de coleta. A auditoria indica o procedimento a adotar antes de aceitá-las: refazer a busca com outro vocabulário, procedimento que localizou o item de duas concepções antes consideradas hipóteses (Seção 4.6.1) e que, para essas três, confirmou a inexistência de item.
 4. Uma concepção de grau `T` não cita nenhuma obra. A concepção `heap_dies_with_function` apoia-se apenas na analogia declarada: em Java e em Python, a memória alocada por uma função e que deixa de ser alcançável é liberada automaticamente. A busca foi refeita com o vocabulário do fenômeno e registrada, sem que se localizasse item correspondente. O próprio campo de fonte indica que a concepção requer uma fonte ou deve ser reclassificada para o grau `E`.

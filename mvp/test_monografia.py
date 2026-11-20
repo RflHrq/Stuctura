@@ -150,6 +150,52 @@ def test_o_quadro_da_medida(contagens):
         assert "| %s | %s |" % (t, " | ".join(celulas)) in texto, (t, celulas)
 
 
+def test_o_quadro_dos_demais_perfis():
+    """O Quadro 6.3: os outros cinco perfis, no ritmo completo. Com o
+    Quadro 6.2, os dez perfis da Seção 5.4 aparecem nos resultados."""
+    perfis = ("inseguro", "escorrega", "chuta_com_certeza",
+              "tropeca_na_pratica", "abre_a_explicacao")
+    do_6_2 = ("sabe", "nao_sabe_aprende", "nao_sabe_erra",
+              "crente_aprende", "crente_teimoso")
+    assert sorted(perfis + do_6_2) == sorted(trilha_alunos.PERSONAS)
+    texto = _texto("06-resultados-da-verificacao.md")
+    for t in topicos():
+        d, escadas = _escadas(t)
+        celulas = []
+        for p in perfis:
+            cam = trilha_alunos.caminha(d, escadas, p, "direto", "completo")
+            celulas.append("%d / %d" % (trilha_alunos.conta(cam),
+                                        trilha_alunos.toques(cam)))
+        assert "| %s | %s |" % (t, " | ".join(celulas)) in texto, (t, celulas)
+
+
+def test_as_faixas_de_telas_que_o_texto_afirma():
+    """A primeira observação de 6.3, num tópico de seis premissas: 14 telas
+    para quem não recebe intervenção, 26 a 44 para quem recebe ensino ou
+    demonstração em todas as premissas, 41 a 48 para quem responde ao
+    acaso com certeza."""
+    telas = collections.defaultdict(set)
+    for t in topicos():
+        d, escadas = _escadas(t)
+        if len(d.nos) != 6:
+            continue
+        for p in trilha_alunos.PERSONAS:
+            cam = trilha_alunos.caminha(d, escadas, p, "direto", "completo")
+            telas[p].add(trilha_alunos.conta(cam))
+    for p in ("sabe", "inseguro", "escorrega", "abre_a_explicacao"):
+        assert telas[p] == {14}, (p, telas[p])
+    com_trabalho = set().union(*(telas[p] for p in (
+        "nao_sabe_aprende", "nao_sabe_erra", "crente_aprende",
+        "crente_teimoso", "tropeca_na_pratica")))
+    assert (min(com_trabalho), max(com_trabalho)) == (26, 44)
+    acaso = telas["chuta_com_certeza"]
+    assert (min(acaso), max(acaso)) == (41, 48)
+    texto = _texto("06-resultados-da-verificacao.md")
+    assert "em 14 telas" in texto
+    assert "em 26 a 44 telas" in texto
+    assert "em 41 a 48 telas" in texto
+
+
 def test_a_conferencia_do_banco_no_texto():
     """O que `confere_banco.py` cobre: 321 questões com código; 69 de
     prever a saída comparadas com o que o programa imprime. Que todas
