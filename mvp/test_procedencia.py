@@ -387,15 +387,15 @@ CAPITULO = (pathlib.Path(__file__).resolve().parent.parent
 # é que o apêndice é GERADO e o capítulo é escrito — então o que prende
 # o capítulo é este teste.
 AFIRMA_O_CAPITULO = {
-    "concepções distintas no catálogo | **61**": lambda c: c["total"] == 61,
-    "conferidas na obra primária | **53**": lambda c: c["conferidas"] == 53,
+    "concepções distintas no catálogo | 61": lambda c: c["total"] == 61,
+    "conferidas na obra primária | 53": lambda c: c["conferidas"] == 53,
     "`D` 6, `L` 33, `T` 16, `N` 3, `E` 3": lambda c: c["grades"] == {
         "D": 6, "L": 33, "T": 16, "N": 3, "E": 3},
     "Classe 1: literatura de concepções errôneas (23 concepções)":
         lambda c: c["classe1"] == 23,
     "Classe 2: corpus de praticante (34 concepções)":
         lambda c: c["classe2"] == 34,
-    "hipóteses `E` | **3**": lambda c: c["grades"]["E"] == 3,
+    "hipóteses `E` | 3": lambda c: c["grades"]["E"] == 3,
     "Quatorze concepções aparecem em mais de um tópico": lambda c: c["em_dois_topicos"] == 14,
 }
 

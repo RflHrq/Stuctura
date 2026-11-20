@@ -78,9 +78,9 @@ def test_os_numeros_do_sistema_estao_no_texto(contagens):
             "em cada tópico em que ela aparece) e 402 passos",
             "treze tópicos de ponteiros em C"],
         "03-sistema.md": [
-            "organizado em **13 tópicos**", "somam **79 premissas**",
+            "organizado em 13 tópicos", "somam 79 premissas",
             "O catálogo tem 61 concepções", "tem 560 questões",
-            "somam **402 passos** (244 guiados e 158 de prática) e 804 versões",
+            "somam 402 passos (244 guiados e 158 de prática) e 804 versões",
             "Em 41 das 80 demonstrações", "Nas outras 39"],
         "06-resultados-da-verificacao.md": [
             "| Premissas | 79 |", "| Concepções errôneas no catálogo | 61 |",

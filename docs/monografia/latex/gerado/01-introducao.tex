@@ -11,11 +11,11 @@ Daí decorrem duas dificuldades práticas. A primeira é de diagnóstico: uma re
 
 \section{A proposta}
 
-Este trabalho apresenta o \textbf{Structura}, um sistema de ensino de ponteiros em C que trata as duas dificuldades com dois mecanismos.
+Este trabalho apresenta o Structura, um sistema de ensino de ponteiros em C que trata as duas dificuldades com dois mecanismos.
 
-\textbf{O diagnóstico} cruza três sinais que o próprio estudante fornece numa única tela: a resposta, a razão que a sustenta e a certeza declarada (``tenho certeza'', ``acho que sei'', ``chutei''). Cada alternativa errada de cada questão está ligada a uma concepção errônea de um catálogo com procedência declarada; a razão escolhida diz qual ideia sustenta a resposta, e a certeza separa o chute da convicção. Desse cruzamento saem quatro situações: o estudante sabe, não sabe, acha que sabe (sustenta uma concepção errônea) ou acertou sem firmeza.
+O diagnóstico cruza três sinais que o próprio estudante fornece numa única tela: a resposta, a razão que a sustenta e a certeza declarada (``tenho certeza'', ``acho que sei'', ``chutei''). Cada alternativa errada de cada questão está ligada a uma concepção errônea de um catálogo com procedência declarada; a razão escolhida diz qual ideia sustenta a resposta, e a certeza separa o chute da convicção. Desse cruzamento saem quatro situações: o estudante sabe, não sabe, acha que sabe (sustenta uma concepção errônea) ou acertou sem firmeza.
 
-\textbf{A intervenção} depende da situação. A quem não sabe, o sistema oferece uma escada de passos curtos, do mais mecânico até a ideia, com retorno imediato a cada passo. A quem acha que sabe, o sistema não explica: mostra um programa pequeno, pede que o estudante preveja o que ele faz e, em seguida, mostra o que a máquina de fato fez: a saída do programa, ou o que o compilador disse dele. E quem erra depois de subir a escada recebe uma revisão curta, com o código da ideia animado linha a linha numa cena: a caixa que nasce, o valor que entra, o ponteiro com o seu bilhete. Todas essas demonstrações e cenas foram compiladas e executadas por um conferidor automático antes de entrar no sistema: o que a tela afirma que a máquina faz, a máquina faz.
+A intervenção depende da situação. A quem não sabe, o sistema oferece uma escada de passos curtos, do mais mecânico até a ideia, com retorno imediato a cada passo. A quem acha que sabe, o sistema não explica: mostra um programa pequeno, pede que o estudante preveja o que ele faz e, em seguida, mostra o que a máquina de fato fez: a saída do programa, ou o que o compilador disse dele. E quem erra depois de subir a escada recebe uma revisão curta, com o código da ideia animado linha a linha numa cena: a caixa que nasce, o valor que entra, o ponteiro com o seu bilhete. Todas essas demonstrações e cenas foram compiladas e executadas por um conferidor automático antes de entrar no sistema: o que a tela afirma que a máquina faz, a máquina faz.
 
 \section{Objetivos}
 
@@ -39,13 +39,13 @@ A pergunta que este trabalho responde é de construção e verificação:
 É possível construir um sistema que diagnostique concepções errôneas sobre ponteiros em C a partir da resposta, da razão e da certeza declarada, e que as confronte com demonstrações verificadas por compilador, de modo que o conteúdo e o comportamento possam ser conferidos sem depender da opinião de quem o escreveu?
 \end{citacao}
 
-O trabalho \textbf{não} avalia o sistema com estudantes. A pergunta sobre se estudantes de graduação conseguem e querem completar a sessão, e se a hipótese de concepção errônea gerada pelo sistema coincide com o que eles pensam, exige um estudo com participantes que não coube no prazo. Esse estudo está desenhado e documentado (Apêndice A) e é o primeiro dos trabalhos futuros (Capítulo 7). O que se afirma aqui, portanto, é mais modesto e inteiramente conferível: o sistema faz o que diz fazer, o conteúdo que ele mostra está correto segundo o compilador, e cada concepção errônea que ele afirma diagnosticar tem procedência declarada.
+O trabalho não avalia o sistema com estudantes. A pergunta sobre se estudantes de graduação conseguem e querem completar a sessão, e se a hipótese de concepção errônea gerada pelo sistema coincide com o que eles pensam, exige um estudo com participantes que não coube no prazo. Esse estudo está desenhado e documentado (Apêndice A) e é o primeiro dos trabalhos futuros (Capítulo 7). O que se afirma aqui, portanto, é mais modesto e inteiramente conferível: o sistema faz o que diz fazer, o conteúdo que ele mostra está correto segundo o compilador, e cada concepção errônea que ele afirma diagnosticar tem procedência declarada.
 
 \section{Contribuições}
 
 \begin{enumerate}
 \item Um catálogo de 61 concepções errôneas sobre ponteiros em C, cada uma com procedência declarada e ligada à premissa que nega (Capítulo 4).
-\item Um diagnóstico que usa a certeza declarada para \textbf{escolher o percurso}, e não para pontuar.
+\item Um diagnóstico que usa a certeza declarada para escolher o percurso, e não para pontuar.
 \item Um conjunto de 80 demonstrações com previsão (uma para cada concepção errônea em cada tópico em que ela aparece) e 402 passos de escada, além de 79 cenas animadas, todos conferidos por compilador.
 \item Um método de verificação de conteúdo didático de programação em que o compilador é o árbitro: o texto que afirma o que um programa faz é testado contra o programa.
 \end{enumerate}

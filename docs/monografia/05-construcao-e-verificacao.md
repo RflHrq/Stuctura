@@ -1,9 +1,9 @@
 # 5. Construção e verificação
 
 Um sistema de ensino faz afirmações em dois planos. No plano do
-**conteúdo**, cada tela afirma algo sobre C: que este trecho imprime 9,
+conteúdo, cada tela afirma algo sobre C: que este trecho imprime 9,
 que o compilador reclama daquela linha, que esta alternativa é a certa.
-No plano do **comportamento**, o sistema afirma que trata cada estudante
+No plano do comportamento, o sistema afirma que trata cada estudante
 de um jeito: que quem erra com convicção vê a demonstração, que quem não
 sabe sobe a escada, que a sessão tem teto. Este capítulo descreve como
 cada plano foi verificado sem depender da opinião de quem escreveu o conteúdo ou o código, e diz, ao fim, o que essa verificação não cobre.
@@ -17,7 +17,7 @@ uma com os testes que a provam. As decisões tomadas durante a construção,
 quando o plano não respondia, foram registradas com o motivo e o custo de
 estarem erradas.
 
-O código foi escrito com **testes antes do código**: o teste de cada
+O código foi escrito com testes antes do código: o teste de cada
 comportamento novo foi escrito e visto falhar antes de a implementação
 existir, e só então a implementação foi feita até o teste passar. Um
 teste que passa antes da implementação não prova nada (pode estar testando outra coisa), e por isso vê-lo falhar é parte do método, e não
@@ -27,18 +27,18 @@ foi declarada no registro do controle de versão, com o motivo.
 
 ## 5.2 O compilador como árbitro do conteúdo
 
-Todo trecho de código das escadas (passos, exemplos resolvidos e demonstrações) passa por um **conferidor** automático antes de entrar no
+Todo trecho de código das escadas (passos, exemplos resolvidos e demonstrações) passa por um conferidor automático antes de entrar no
 sistema. O conferidor monta cada trecho
 dentro de um programa completo (com as bibliotecas padrão de entrada e saída e de alocação, e com as funções do trecho levadas para fora do `main`), compila com o gcc 16.2 (`-std=c17 -Wall`) e confere o que o
 texto afirma:
 
-- nos passos de **digitar**, roda o programa e compara a saída inteira
+- nos passos de digitar, roda o programa e compara a saída inteira
   com a resposta aceita;
-- nos passos de **completar** e **escolher** com código, monta cada linha
+- nos passos de completar e escolher com código, monta cada linha
   possível e exige que as marcadas como inválidas sejam recusadas pelo
   compilador e as demais aceitas;
 - nos exemplos resolvidos com saída, roda e compara;
-- nas **demonstrações**, roda e compara a saída, ou, quando a
+- nas demonstrações, roda e compara a saída, ou, quando a
   demonstração é o que o compilador diz, exige que a mensagem afirmada
   saia, e de uma linha só.
 
@@ -56,7 +56,7 @@ O conferidor roda dentro da suíte de testes, sobre os 13 tópicos: uma
 escada cujo texto deixou de corresponder ao que o compilador faz derruba
 a suíte.
 
-As **cenas** (3.6) passam pela mesma conferência, com um passo a mais. O
+As cenas (3.6) passam pela mesma conferência, com um passo a mais. O
 que uma cena afirma não é uma saída, mas um estado: depois desta linha,
 `idade` vale 15 e `p` aponta para `idade`. O conferidor monta, então, um segundo programa (o código da revisão com, em cada ponto por onde a cena passa, as afirmações dela escritas em C) e o executa; a afirmação que
 falha sai com a linha e com o que a cena dizia. Três cuidados tornam isso
@@ -73,7 +73,7 @@ recusa o que o tópico ensina a não fazer: ler uma caixa sem valor, seguir
 o bilhete de um `NULL` ou de um bloco devolvido, citar uma caixa que já
 sumiu.
 
-As **questões do banco** passam por uma conferência mais estreita, que
+As questões do banco passam por uma conferência mais estreita, que
 também roda na suíte. Nas 321 questões que têm código, ela procura
 string partida entre duas linhas: uma linha com aspas ímpares, que na
 tela é o código cortado ao meio. Nas questões de prever a saída que
@@ -87,10 +87,7 @@ do catálogo, a certa não é visivelmente a mais longa, o enunciado não
 afirma a severidade de uma mensagem que o compilador pode rebaixar a
 aviso, e as questões servidas não usam construções ainda não ensinadas (5.3).
 
-Essa conferência do banco foi escrita depois que a revisão deste texto
-notou a falta dela. Na primeira rodada, achou de novo a questão do kc_12
-que já estava fora da trilha (depois reescrita), e achou oito questões do
-kc_02 com o código partido (6.4).
+Os defeitos que essa conferência encontrou no banco estão em 6.4.
 
 ## 5.3 A régua do texto, em teste
 
@@ -125,7 +122,7 @@ banco ficam fora da trilha, com o motivo de cada uma.
 
 ## 5.4 Os estudantes simulados
 
-O comportamento foi verificado com **dez estudantes simulados**, cada um
+O comportamento foi verificado com dez estudantes simulados, cada um
 um perfil de resposta definido por programa: o que sabe tudo; o inseguro,
 que acerta sem certeza; o que não sabe e aprende com os passos; o que não
 sabe e erra todos os passos; o que sustenta a concepção errônea de cada
@@ -141,7 +138,7 @@ com um dos cinco resultados; nenhuma premissa recebe mais de um trabalho;
 a sessão tem teto; quem sustenta uma concepção errônea vê a demonstração
 dela; a sessão inteira pode ser reconstruída a partir do registro; e
 perfis diferentes terminam com resultados diferentes. A mesma travessia
-produz a **medida** de cada tópico (telas e toques por perfil), que o Capítulo 6 apresenta.
+produz a medida de cada tópico (telas e toques por perfil), que o Capítulo 6 apresenta.
 
 ## 5.5 A interface
 
@@ -172,14 +169,14 @@ até cada tipo de tela, e conferidas na página.
 ## 5.7 A leitura das perguntas
 
 O conferidor diz se uma afirmação é verdadeira, e não se a pergunta é boa.
-Quando o autor leu o primeiro passo do kc_02 no sistema, achou a pergunta
-confusa: depois de duas frases que diziam o que é o endereço de uma
-variável, ela perguntava "o que é o endereço de `idade`?", e a
-alternativa certa era a frase de cima copiada: responder era achar
-palavras, e quem sabia desconfiava de pegadinha. O passo foi reescrito
-com um endereço de exemplo ("`idade` ficou no lugar de número 1000 e
-guarda 15: qual é o endereço de `idade`?"), e o mesmo defeito foi
-procurado em todos os tópicos.
+Por isso os passos guiados foram lidos à procura de um defeito que nenhum
+teste acusa: a pergunta que repete a frase de cima. Um exemplo é o primeiro
+passo do kc_02: duas frases diziam o que é o endereço de uma variável, a
+pergunta era "o que é o endereço de `idade`?", e a alternativa certa era a
+frase de cima copiada. Responder era achar palavras, e quem sabia
+desconfiava de pegadinha. Sem o defeito, o passo dá um endereço de exemplo
+e pede que a pessoa o reconheça ("`idade` ficou no lugar de número 1000 e
+guarda 15: qual é o endereço de `idade`?").
 
 O critério escrito foi este: há defeito quando a frase do passo diz a
 conclusão sobre o próprio caso da pergunta (o mesmo código, os mesmos nomes), ou quando a última frase é a alternativa certa. Não há quando a

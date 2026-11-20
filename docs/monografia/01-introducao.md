@@ -21,10 +21,10 @@ resposta certa não basta quando ele tem razões para acreditar em outra.
 
 ## 1.2 A proposta
 
-Este trabalho apresenta o **Structura**, um sistema de ensino de ponteiros
+Este trabalho apresenta o Structura, um sistema de ensino de ponteiros
 em C que trata as duas dificuldades com dois mecanismos.
 
-**O diagnóstico** cruza três sinais que o próprio estudante fornece numa
+O diagnóstico cruza três sinais que o próprio estudante fornece numa
 única tela: a resposta, a razão que a sustenta e a certeza declarada
 ("tenho certeza", "acho que sei", "chutei"). Cada alternativa errada de
 cada questão está ligada a uma concepção errônea de um catálogo com
@@ -33,7 +33,7 @@ resposta, e a certeza separa o chute da convicção. Desse cruzamento saem
 quatro situações: o estudante sabe, não sabe, acha que sabe (sustenta uma
 concepção errônea) ou acertou sem firmeza.
 
-**A intervenção** depende da situação. A quem não sabe, o sistema oferece
+A intervenção depende da situação. A quem não sabe, o sistema oferece
 uma escada de passos curtos, do mais mecânico até a ideia, com retorno
 imediato a cada passo. A quem acha que sabe, o sistema não explica:
 mostra um programa pequeno, pede que o estudante preveja o que ele faz e,
@@ -76,7 +76,7 @@ A pergunta que este trabalho responde é de construção e verificação:
 > compilador, de modo que o conteúdo e o comportamento possam ser
 > conferidos sem depender da opinião de quem o escreveu?
 
-O trabalho **não** avalia o sistema com estudantes. A pergunta sobre se
+O trabalho não avalia o sistema com estudantes. A pergunta sobre se
 estudantes de graduação conseguem e querem completar a sessão, e se a
 hipótese de concepção errônea gerada pelo sistema coincide com o que eles
 pensam, exige um estudo com participantes que não coube no prazo. Esse
@@ -90,8 +90,8 @@ concepção errônea que ele afirma diagnosticar tem procedência declarada.
 
 1. Um catálogo de 61 concepções errôneas sobre ponteiros em C, cada uma
    com procedência declarada e ligada à premissa que nega (Capítulo 4).
-2. Um diagnóstico que usa a certeza declarada para **escolher o
-   percurso**, e não para pontuar.
+2. Um diagnóstico que usa a certeza declarada para escolher o
+   percurso, e não para pontuar.
 3. Um conjunto de 80 demonstrações com previsão (uma para cada concepção errônea em cada tópico em que ela aparece) e 402 passos de
    escada, além de 79 cenas animadas, todos conferidos por compilador.
 4. Um método de verificação de conteúdo didático de programação em que o

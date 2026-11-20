@@ -525,14 +525,14 @@ que procura no texto integral de Sorva (2012) a frase em inglês de cada
 citação daquela obra. Rodado sem esse texto, o programa marca essas linhas
 como não conferidas, em vez de afirmar uma conferência que não fez.
 
-As colunas são: a **concepção**, pelo identificador do catálogo; os
-**tópicos** em que ela aparece; a **premissa** que ela nega, no primeiro
-desses tópicos; a **classe** da fonte (1, concepção estudada com
-estudantes; 2, corpus de praticante; ou hipótese); o **grau** de
-procedência (Quadro 4.1); o **localizador**, isto é, o tipo de posição que
-a citação dá na obra; e a **conferência**, como a citação foi conferida na
-obra primária (Quadro 4.4). A conferência é a da passada de curadoria; a
-conferência posterior das normas CERT C e CWE está em 4.7.
+As colunas são: a concepção, pelo identificador do catálogo; os tópicos
+em que ela aparece; a premissa que ela nega, no primeiro desses tópicos; a
+classe da fonte (1, concepção estudada com estudantes; 2, corpus de
+praticante; ou hipótese); o grau de procedência (Quadro 4.1); o
+localizador, isto é, o tipo de posição que a citação dá na obra; e a
+conferência, como a citação foi conferida na obra primária (Quadro 4.4).
+A conferência é a da curadoria; a das normas CERT C e CWE, feita à parte,
+está em 4.7.
 
 **Quadro B.1 — As %d concepções errôneas do catálogo e a procedência de cada uma**
 

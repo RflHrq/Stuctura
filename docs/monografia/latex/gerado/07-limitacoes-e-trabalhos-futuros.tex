@@ -5,31 +5,31 @@
 
 \section{Limitações}
 
-\textbf{O sistema não foi avaliado com estudantes.} É a limitação central, e foi uma decisão de recorte, não um esquecimento: o estudo com participantes não coube no prazo. Por isso este trabalho não afirma que estudantes consigam ou queiram completar a sessão, que a hipótese de concepção errônea gerada pelo sistema coincida com o que eles pensam, nem que a demonstração os faça mudar de ideia. O que se afirma é que o sistema faz o que o desenho diz, e que o conteúdo é correto segundo o compilador.
+O sistema não foi avaliado com estudantes. É a limitação central, e foi uma decisão de recorte, não um esquecimento: o estudo com participantes não coube no prazo. Por isso este trabalho não afirma que estudantes consigam ou queiram completar a sessão, que a hipótese de concepção errônea gerada pelo sistema coincida com o que eles pensam, nem que a demonstração os faça mudar de ideia. O que se afirma é que o sistema faz o que o desenho diz, e que o conteúdo é correto segundo o compilador.
 
-\textbf{A verificação mecânica não verifica a pedagogia.} O compilador confirma o que um programa faz; não confirma que a ideia ensinada é a certa para um iniciante, que a ordem dos passos é a mais fácil, nem que a frase de um passo é clara (5.8). A leitura das perguntas (5.7) consertou um tipo de defeito de clareza, com um critério escrito, mas foi feita uma vez, sobre os passos guiados: os passos de prática e as perguntas de abertura não passaram por ela.
+A verificação mecânica não verifica a pedagogia. O compilador confirma o que um programa faz; não confirma que a ideia ensinada é a certa para um iniciante, que a ordem dos passos é a mais fácil, nem que a frase de um passo é clara (5.8). A leitura das perguntas (5.7) tratou um tipo de defeito de clareza, com um critério escrito, mas foi feita uma vez, sobre os passos guiados: os passos de prática e as perguntas de abertura não passaram por ela.
 
-\textbf{Só parte do banco é conferida contra o compilador.} O conferidor cobre as escadas e as demonstrações; no banco, só as 69 questões de prever a saída com resposta em valor são comparadas com o que o programa imprime (5.2). Nas outras, a alternativa certa (``não dá para saber'', o que está errado num trecho, a diferença entre dois casos) depende da revisão mecânica da forma e da leitura.
+Só parte do banco é conferida contra o compilador. O conferidor cobre as escadas e as demonstrações; no banco, só as 69 questões de prever a saída com resposta em valor são comparadas com o que o programa imprime (5.2). Nas outras, a alternativa certa (``não dá para saber'', o que está errado num trecho, a diferença entre dois casos) depende da revisão mecânica da forma e da leitura.
 
-\textbf{O conteúdo foi escrito com assistência de um modelo de linguagem}, e as escadas aguardam a revisão do autor. A verificação reduz o risco de afirmação errada sobre C, mas não substitui a leitura de quem conhece o domínio.
+O conteúdo foi escrito com assistência de um modelo de linguagem, e as escadas aguardam a revisão do autor. A verificação reduz o risco de afirmação errada sobre C, mas não substitui a leitura de quem conhece o domínio.
 
-\textbf{As concepções errôneas têm procedência desigual.} A maior parte do catálogo vem de obras técnicas e de corpus de praticantes, e poucas de medição empírica direta em C (Capítulo 4). O sistema diagnostica as concepções que a literatura registra; se um estudante tiver outra, o diagnóstico a registra como erro fora do catálogo, sem tratá-la.
+As concepções errôneas têm procedência desigual. A maior parte do catálogo vem de obras técnicas e de corpus de praticantes, e poucas de medição empírica direta em C (Capítulo 4). O sistema diagnostica as concepções que a literatura registra; se um estudante tiver outra, o diagnóstico a registra como erro fora do catálogo, sem tratá-la.
 
-\textbf{A certeza declarada é um sinal barato e ruidoso.} Quem marca ``tenho certeza'' por hábito gera uma hipótese de concepção errônea errada. O sistema mitiga isso exigindo a razão da concepção, e não só a resposta errada, mas não elimina o ruído. E a escala usa palavras (``chutei'', ``acho que sei'', ``tenho certeza''), que querem dizer coisas diferentes para pessoas diferentes; é por isso que \citeonline{gardnermedwin2006} nomeia os níveis com números. Se a mesma marcação significa convicções diferentes, o mesmo erro pode levar uma pessoa à demonstração e outra ao ensino.
+A certeza declarada é um sinal barato e ruidoso. Quem marca ``tenho certeza'' por hábito gera uma hipótese de concepção errônea errada. O sistema mitiga isso exigindo a razão da concepção, e não só a resposta errada, mas não elimina o ruído. E a escala usa palavras (``chutei'', ``acho que sei'', ``tenho certeza''), que querem dizer coisas diferentes para pessoas diferentes; é por isso que \citeonline{gardnermedwin2006} nomeia os níveis com números. Se a mesma marcação significa convicções diferentes, o mesmo erro pode levar uma pessoa à demonstração e outra ao ensino.
 
-\textbf{O que se mede é a sessão.} O fechamento fala de assimilação dentro de uma sessão: acertar de novo com outras premissas no meio. Isso não é aprendizagem duradoura, que se mede por retenção de longo prazo ou por transferência e exigiria reteste dias depois \cite[p.~176]{soderstrom2015}.
+O que se mede é a sessão. O fechamento fala de assimilação dentro de uma sessão: acertar de novo com outras premissas no meio. Isso não é aprendizagem duradoura, que se mede por retenção de longo prazo ou por transferência e exigiria reteste dias depois \cite[p.~176]{soderstrom2015}.
 
-\textbf{Um ambiente.} As demonstrações e as cenas foram conferidas no gcc 16.2, no Windows. Onde o resultado depende do ambiente, a demonstração diz isso; mas outro compilador, ou outra versão, pode dar outra mensagem.
+Um ambiente. As demonstrações e as cenas foram conferidas no gcc 16.2, no Windows. Onde o resultado depende do ambiente, a demonstração diz isso; mas outro compilador, ou outra versão, pode dar outra mensagem.
 
 \section{Trabalhos futuros}
 
 \begin{enumerate}
-\item \textbf{O estudo com estudantes}, como desenhado no Apêndice A: de 10 a 15 participantes que cursam ou cursaram a disciplina com C, pensando em voz alta, com quatro perguntas: se concluem a sessão sem ajuda (V1), se a concepção detectada coincide com a verbalizada (V2), se mudam de resposta num item novo depois da demonstração (V3) e como percebem o sistema (V4). O sistema já grava tudo o que o estudo precisa; falta a exportação das sessões da trilha em tabelas, o termo de consentimento e a submissão ao comitê de ética, se exigida.
-\item \textbf{A revisão das escadas por especialistas}, com o registro de quem revisou cada uma.
-\item \textbf{O resto do banco contra o compilador}: nas questões de achar o erro e de comparar casos, montar cada caso e conferir se o compilador reclama dele, como o conferidor já faz com os passos de completar.
-\item \textbf{As cenas das demonstrações.} As 79 cenas animam a revisão de cada premissa; as 80 demonstrações ainda mostram o programa e o resultado sem animação. O formato e o conferidor das cenas já servem para elas.
-\item \textbf{A leitura das perguntas (5.7) nos passos de prática e nas perguntas de abertura}, com o mesmo critério.
-\item \textbf{Um modo de prática}, só com os exercícios da escada e retorno de certo e errado, para uso fora da sessão de diagnóstico.
-\item \textbf{Retenção}: um reteste dias depois, para medir o que fica.
-\item \textbf{Outros compiladores}: conferir as demonstrações e as cenas também no clang, e marcar as que mudam.
+\item O estudo com estudantes, como desenhado no Apêndice A: de 10 a 15 participantes que cursam ou cursaram a disciplina com C, pensando em voz alta, com quatro perguntas: se concluem a sessão sem ajuda (V1), se a concepção detectada coincide com a verbalizada (V2), se mudam de resposta num item novo depois da demonstração (V3) e como percebem o sistema (V4). O sistema já grava tudo o que o estudo precisa; falta a exportação das sessões da trilha em tabelas, o termo de consentimento e a submissão ao comitê de ética, se exigida.
+\item A revisão das escadas por especialistas, com o registro de quem revisou cada uma.
+\item O resto do banco contra o compilador: nas questões de achar o erro e de comparar casos, montar cada caso e conferir se o compilador reclama dele, como o conferidor já faz com os passos de completar.
+\item As cenas das demonstrações. As 79 cenas animam a revisão de cada premissa; as 80 demonstrações ainda mostram o programa e o resultado sem animação. O formato e o conferidor das cenas já servem para elas.
+\item A leitura das perguntas (5.7) nos passos de prática e nas perguntas de abertura, com o mesmo critério.
+\item Um modo de prática, só com os exercícios da escada e retorno de certo e errado, para uso fora da sessão de diagnóstico.
+\item Retenção: um reteste dias depois, para medir o que fica.
+\item Outros compiladores: conferir as demonstrações e as cenas também no clang, e marcar as que mudam.
 \end{enumerate}

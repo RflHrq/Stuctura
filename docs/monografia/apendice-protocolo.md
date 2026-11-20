@@ -1,8 +1,7 @@
 # Apêndice A — Protocolo do estudo com estudantes
 
 O estudo que este trabalho deixa para depois (7.2), desenhado para a
-versão do sistema descrita no Capítulo 3. Adaptado de `docs/plano-tcc.md`,
-que foi escrito para a versão anterior da sessão.
+versão do sistema descrita no Capítulo 3.
 
 ## A.1 As quatro perguntas
 
@@ -20,7 +19,7 @@ consigam e queiram completar. Ela se divide em quatro:
 | V3 | Depois da demonstração, o participante responde de outro jeito? | a reconferência do fim: certa pela razão certa, ou "a ideia voltou" | o registro da sessão |
 | V4 | Como percebe clareza, dificuldade e utilidade? | SUS, de 10 itens (BROOKE, 1996), e três perguntas abertas | questionário ao fim |
 
-A unidade de análise de V2 e V3 **não é o participante**: é o episódio de
+A unidade de análise de V2 e V3 não é o participante: é o episódio de
 concepção errônea detectada. Dez pessoas podem gerar 25 episódios ou 4, e
 o denominador de cada resultado é esse número.
 
@@ -69,8 +68,8 @@ porque mostra onde a regra falha.
 
 ## A.5 O que falta antes da coleta
 
-1. A exportação das sessões da trilha em tabelas (hoje a exportação lê
-   só a versão anterior da sessão).
+1. A exportação das sessões da trilha em tabelas, que o sistema ainda não
+   faz.
 2. O termo de consentimento, e a submissão ao comitê de ética, se
    exigida.
 3. O ensaio com dois colegas.

@@ -1,8 +1,11 @@
 # 2. Fundamentação
 
-As ideias que sustentam o Structura, e o que cada uma obriga o sistema a
-fazer. Cada obra citada foi aberta, e onde e como está registrado em
-[conferencia-das-referencias.md](conferencia-das-referencias.md).
+Este capítulo apresenta as ideias de que o Structura parte e o que cada
+uma exige do sistema: a concepção errônea como conhecimento, e não como
+falta dele (2.1); a certeza declarada (2.2); o grafo de premissas (2.3); a
+previsão seguida da observação (2.4); o ensino por passos (2.5); os tutores
+inteligentes (2.6); a diferença entre desempenho e aprendizagem (2.7); e os
+trabalhos relacionados (2.8).
 
 ## 2.1 Saber errado não é não saber
 
@@ -21,21 +24,22 @@ compartimento à parte, onde ela não entra em conflito com a antiga
 (POSNER et al., 1982, p. 221). Para que a acomodação aconteça, os autores
 propõem quatro condições: a pessoa precisa estar insatisfeita com a
 concepção que tem, e a nova precisa ser inteligível, parecer plausível
-desde o início e mostrar-se frutífera (p. 214). A insatisfação vem da
-anomalia levada a sério, que produz o conflito cognitivo (p. 224), e por
-isso os autores recomendam demonstrações e problemas que o criem (p. 225).
-É esse o papel do confronto no Structura.
+desde o início e mostrar-se frutífera (POSNER et al., 1982, p. 214). A
+insatisfação vem da anomalia levada a sério, que produz o conflito
+cognitivo (POSNER et al., 1982, p. 224), e por isso os autores recomendam
+demonstrações e problemas que o criem (POSNER et al., 1982, p. 225). É esse
+o papel do confronto no Structura.
 
-Uma nota de vocabulário: Posner et al. chamam de assimilação o primeiro
+Uma nota de vocabulário: Posner et al. (1982, p. 212) chamam de assimilação o primeiro
 modo, o de encaixar o novo no que já se tinha. Neste texto, como no
 sistema, "assimilou" quer dizer outra coisa: que a pessoa acertou de novo, com outras premissas no meio (Capítulo 3).
 
 Em programação, o estudo das concepções errôneas começa nos anos 1980,
-com nomes variados (dificuldades, erros, *bugs*, concepções errôneas) e sem uma definição aceita por todos (QIAN; LEHMAN, 2017, p. 1:2-1:3). Na
-revisão de Qian e Lehman (2017, p. 1:1), as dificuldades dos iniciantes
+com nomes variados (dificuldades, erros, *bugs*, concepções errôneas) e sem uma definição aceita por todos (QIAN; LEHMAN, 2017, p. 2-3). Na
+revisão de Qian e Lehman (2017, p. 1), as dificuldades dos iniciantes
 aparecem no conhecimento sintático, no conceitual e no estratégico, e os
 autores recomendam que a pesquisa vá além de documentá-las e incorpore as
-teorias de mudança conceitual. A dissertação de Sorva (2012) organiza boa
+teorias de mudança conceitual. A tese de Sorva (2012) organiza boa
 parte dessa literatura em torno do modelo de máquina que o estudante constrói, a "máquina nocional", e é a fonte de que o catálogo do
 sistema mais se serve (Capítulo 4).
 
@@ -49,7 +53,7 @@ mesmo da avaliação por computador, e Gardner-Medwin (2006) relata dez anos de 
 crescente para o erro convicto. O argumento dele é o deste trabalho: um
 acerto por sorte não é conhecimento, e uma concepção errônea firme é
 muito pior do que a ignorância reconhecida. O que o Structura faz de
-diferente é usar esse sinal para **escolher o percurso**, e não para
+diferente é usar esse sinal para escolher o percurso, e não para
 pontuar: o erro com "chutei" leva ao ensino; o erro com convicção, pela
 razão de uma concepção mapeada, leva à demonstração.
 
@@ -59,7 +63,7 @@ hipótese errada. A escala tem três pontos, como a de Gardner-Medwin
 ele nomeia os níveis com números ou termos neutros, porque palavras como
 "certeza" e "chute" querem dizer coisas diferentes para pessoas
 diferentes, e o Structura usa palavras ("chutei", "acho que sei", "tenho certeza"); o custo disso está no Capítulo 7. E a razão escolhida pesa
-tanto quanto a certeza: sem ela, o sistema não saberia **qual** ideia
+tanto quanto a certeza: sem ela, o sistema não saberia qual ideia
 sustenta o erro.
 
 ## 2.3 O grafo de premissas e a fronteira
@@ -85,7 +89,7 @@ resultado de um acontecimento, justificando a previsão; descrever o que se
 vê acontecer; e reconciliar o conflito entre o previsto e o observado. No
 Structura, a justificativa já veio antes: é a razão escolhida na pergunta
 de diagnóstico. A previsão é o que dá força ao confronto: a contradição
-deixa de ser entre o estudante e o sistema, em quem ele poderia simplesmente não acreditar, e passa a ser entre o que **ele** previu e o
+deixa de ser entre o estudante e o sistema, em quem ele poderia simplesmente não acreditar, e passa a ser entre o que ele previu e o
 que a máquina fez.
 
 É também a lógica dos textos de refutação, que ativam a concepção
@@ -93,7 +97,8 @@ errônea, refutam-na explicitamente e só então enunciam a correta
 (NUSSBAUM; CORDOVA; REHMAT, 2017, p. 23): a tela "Você disse" repete a
 ideia da pessoa, como razoável, antes de mostrar a máquina. Três décadas
 de pesquisa comparam esses textos com os expositivos, a favor dos
-primeiros (p. 23), e a revisão de Tippett observa que a refutação tende a
+primeiros (NUSSBAUM; CORDOVA; REHMAT, 2017, p. 23), e a revisão de Tippett
+observa que a refutação tende a
 funcionar melhor quando a concepção errônea é uma ideia única, e não um
 conceito complexo (TIPPETT, 2010, p. 965 apud NUSSBAUM; CORDOVA; REHMAT,
 2017, p. 31). É o desenho do grafo de premissas, em que cada concepção
@@ -111,12 +116,16 @@ oferece uma escada de passos, dos guiados aos de prática, com retorno a
 cada passo e uma ideia nova por passo. O desenho segue quatro efeitos que a
 teoria da carga cognitiva descreve (SWELLER; VAN MERRIËNBOER; PAAS, 2019).
 Os passos guiados mostram o programa e pedem uma parte dele, perto do
-exemplo resolvido (p. 265) e do problema de completar, este proposto justamente para a programação introdutória, em que o estudante recebe um
-programa incompleto para terminar (p. 268). A orientação esmaece ao longo
-da escada, dos passos guiados aos de prática, porque o que ajuda o novato
-fica redundante para quem já avançou (p. 277). E cada passo muda uma coisa
-só em relação ao anterior, como no efeito dos elementos isolados, em que
-as partes vêm antes das relações entre elas (p. 279). O tópico inteiro
+exemplo resolvido (SWELLER; VAN MERRIËNBOER; PAAS, 2019, p. 265) e do
+problema de completar, este proposto justamente para a programação
+introdutória, em que o estudante recebe um programa incompleto para
+terminar (SWELLER; VAN MERRIËNBOER; PAAS, 2019, p. 268). A orientação
+esmaece ao longo da escada, dos passos guiados aos de prática, porque o que
+ajuda o novato fica redundante para quem já avançou (SWELLER; VAN
+MERRIËNBOER; PAAS, 2019, p. 277). E cada passo muda uma coisa só em relação
+ao anterior, como no efeito dos elementos isolados, em que as partes vêm
+antes das relações entre elas (SWELLER; VAN MERRIËNBOER; PAAS, 2019, p.
+279). O tópico inteiro
 trabalha as mesmas duas ou três variáveis.
 
 ## 2.6 Tutores inteligentes
@@ -142,8 +151,8 @@ programa que ele descreve.
 O que se observa durante a instrução é desempenho, e desempenho é, muitas
 vezes, índice pouco confiável de que a aprendizagem (a mudança relativamente permanente, que se mede por retenção de longo prazo ou por transferência) aconteceu (SODERSTROM; BJORK, 2015, p. 176). Acertar logo
 depois de ver a resposta não garante que a ideia ficou. Por isso o sistema
-reconfere, no fim do tópico, cada premissa trabalhada, com outras premissas no meio; e por isso o fechamento fala de assimilação **nesta
-sessão**, e não de aprendizagem.
+reconfere, no fim do tópico, cada premissa trabalhada, com outras premissas no meio; e por isso o fechamento fala de assimilação nesta
+sessão, e não de aprendizagem.
 
 ## 2.8 Trabalhos relacionados
 
@@ -165,7 +174,8 @@ política de visualização definida pelo professor. Nos questionários de
 autoavaliação aplicados depois das aulas, a dispersão das respostas sobre o
 grau de compreensão, o ritmo e a dificuldade foi menor na turma de 2015,
 que usou o sistema, do que nas de 2013 e 2014, o que os autores leem como
-redução da desigualdade de compreensão entre os participantes (p. 12).
+redução da desigualdade de compreensão entre os participantes (YAMASHITA
+et al., 2017, p. 12).
 
 O artigo não descreve modelo do estudante nem diagnóstico individual: a
 adaptação que o sistema oferece é a que o professor configura. O Structura
@@ -187,10 +197,11 @@ exercícios.
 
 O segundo fluxo vai além da medida: prevê usar as concepções descobertas
 para melhorar o retorno do tutor e testar se esse retorno ajuda, o que
-serviria também de sinal de que a concepção é real (p. 466). O estudo,
-porém, aplica só a parte de medida e de descoberta (p. 469-470); no
-Iltis, o retorno a cada tentativa dizia se ela estava certa e, se não,
-por quê (p. 467). O trabalho mostra o que um tutor pode dar à pesquisa
+serviria também de sinal de que a concepção é real (SCHMELLENKAMP; LATYS;
+ZEUME, 2023, p. 466). O estudo, porém, aplica só a parte de medida e de
+descoberta (SCHMELLENKAMP; LATYS; ZEUME, 2023, p. 469-470); no Iltis, o
+retorno a cada tentativa dizia se ela estava certa e, se não, por quê
+(SCHMELLENKAMP; LATYS; ZEUME, 2023, p. 467). O trabalho mostra o que um tutor pode dar à pesquisa
 de concepções errôneas, que é escala, e é de outro domínio. O Structura
 parte de concepções já registradas na literatura (Capítulo 4) e já as
 usa para escolher a intervenção de cada pessoa. O registro que ele
@@ -255,18 +266,16 @@ sessão, está registrado na declaração de uso de inteligência artificial.
 
 | Trabalho | Domínio | Diagnóstico de concepção errônea | Intervenção conforme o diagnóstico | Mostra a máquina em funcionamento |
 | --- | --- | --- | --- | --- |
-| TEDViT (YAMASHITA et al., 2017) | ponteiros em C | não | não | sim: memória e mundo do domínio |
-| Iltis (SCHMELLENKAMP; LATYS; ZEUME, 2023) | métodos formais | mede e descobre, nos dados agregados | proposta (retorno sob medida), não aplicada no estudo | não |
-| ALEKS (FALMAGNE et al., 2006) | matemática | não: avalia o que se sabe e o que falta | indica o que aprender em seguida | não |
-| Sorva (2013) | programação introdutória | não se aplica: é uma revisão | não se aplica | recomenda ensinar a máquina nocional |
+| TEDViT | ponteiros em C | não | não | sim: memória e mundo do domínio |
+| Iltis | métodos formais | mede e descobre, nos dados agregados | proposta (retorno sob medida), não aplicada no estudo | não |
+| ALEKS | matemática | não: avalia o que se sabe e o que falta | indica o que aprender em seguida | não |
+| máquinas nocionais | programação introdutória | não se aplica: é uma revisão | não se aplica | recomenda ensinar a máquina nocional |
 | Structura | ponteiros em C | sim: resposta, razão e certeza, por premissa | sim: escada, demonstração ou revisão | sim: as cenas da revisão |
 
-*Fonte: elaborado pelo autor, a partir das obras citadas.*
+*Fonte: elaborado pelo autor, a partir de Yamashita et al. (2017), Schmellenkamp, Latys e Zeume (2023), Falmagne et al. (2006) e Sorva (2013).*
 
 Entre os trabalhos analisados, nenhum reúne, para ponteiros em C, o
 diagnóstico da concepção errônea pela resposta, pela razão e pela certeza,
 a intervenção escolhida por esse diagnóstico e a máquina mostrada em
 funcionamento. Essa combinação, com o conteúdo conferido por compilador, é
 o que o Structura acrescenta.
-
-As obras citadas estão em [Referências](referencias.md).
