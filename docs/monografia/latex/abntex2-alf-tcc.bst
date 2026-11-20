@@ -1,8 +1,12 @@
 %% abntex2-alf-tcc.bst
 %% COPIA MODIFICADA de abntex2-alf.bst, v-1.9.7 (abnTeX2), distribuida sob a LPPL 1.3.
-%% Unica mudanca: em output.nonnull.dash, o separador entre o tipo do trabalho e a
-%% instituicao (teses e dissertacoes) passa de travessao (---) a meia-risca (--),
-%% como nos exemplos da NBR 6023:2018. Nao e mantida pelo grupo abnTeX2.
+%% Mudancas, para seguir a NBR 6023/2025 como no manual de normalizacao da UFV (2026):
+%%  1. em output.nonnull.dash, o separador entre o tipo do trabalho e a instituicao
+%%     (teses e dissertacoes) passa de travessao (---) a meia-risca (--);
+%%  2. a indicacao de responsabilidade passa de (Ed.) a (ed.), em minusculas;
+%%  3. local e editora nao identificados passam a [S. l.], [s. n.] e [S. l.: s. n.],
+%%     com espaco.
+%% Nao e mantida pelo grupo abnTeX2.
 %% O cabecalho original segue abaixo.
 %%
 %% abntex2-alf.bst, v-1.9.7 laurocesar
@@ -253,8 +257,8 @@ FUNCTION {bbl.and}
   abnt.and.type #1 = {" \& "} 'skip$ if$}
 FUNCTION {bbl.chapter} { "cap." }
 FUNCTION {bbl.colon} {": "}
-FUNCTION {bbl.editors} { "Ed." }
-FUNCTION {bbl.editor} { "Ed." }
+FUNCTION {bbl.editors} { "ed." }
+FUNCTION {bbl.editor} { "ed." }
 FUNCTION {bbl.edby} { "editado por" }
 FUNCTION {bbl.edition} { "ed." }
 FUNCTION {bbl.empty} {""}
@@ -276,9 +280,9 @@ FUNCTION {bbl.missing.year}
  if$}
 FUNCTION {bbl.monography} { "Monografia" }
 FUNCTION {bbl.mthesis} { "Disserta\c{c}\~{a}o" }
-FUNCTION {bbl.no.address} {"[S.l.]"}
-FUNCTION {bbl.no.address.no.publisher} {"[S.l.: s.n.]"}
-FUNCTION {bbl.no.publisher} {"[s.n.]"}
+FUNCTION {bbl.no.address} {"[S.~l.]"}
+FUNCTION {bbl.no.address.no.publisher} {"[S.~l.: s.~n.]"}
+FUNCTION {bbl.no.publisher} {"[s.~n.]"}
 FUNCTION {bbl.number} { iso.abbreviation {"no."} {"n."} if$ }
 FUNCTION {bbl.nr} { "n." }
 FUNCTION {bbl.of} { "de" }

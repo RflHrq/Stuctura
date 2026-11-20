@@ -13,11 +13,11 @@
 
 ## Problema da procedência
 
-O sistema descrito nos capítulos anteriores formula, a cada atividade respondida, uma hipótese com consequência imediata: a de que a pessoa provavelmente sustenta determinada concepção errônea. É essa hipótese que seleciona o percurso de refutação a ser apresentado.
+O sistema descrito nas seções anteriores formula, a cada atividade respondida, uma hipótese com consequência imediata: a de que a pessoa provavelmente sustenta determinada concepção errônea. É essa hipótese que seleciona o percurso de refutação a ser apresentado.
 
 A validade da hipótese depende de uma questão anterior, que o software não responde: a origem de cada concepção do catálogo. Se uma concepção tiver sido incluída apenas por parecer plausível ao autor, o sistema não estará diagnosticando uma concepção errônea documentada, e sim produzindo dados sobre uma suposição, com a mesma aparência de rigor do restante. Por essa razão, o projeto adota a seguinte regra: uma concepção sem procedência é tratada como hipótese do autor e não é incluída no catálogo como achado.
 
-Este capítulo trata dessa questão, que pode ser verificada sem a participação de estudantes. O instrumento não foi avaliado com estudantes, limitação declarada no Capítulo 7. O que se sustenta aqui é mais restrito e inteiramente verificável: o sistema afirma sobre concepções errôneas apenas o que a literatura registra e identifica explicitamente os casos em que não há registro.
+Esta seção trata dessa questão, que pode ser verificada sem a participação de estudantes. O instrumento não foi avaliado com estudantes, limitação declarada na Seção 7. O que se sustenta aqui é mais restrito e inteiramente verificável: o sistema afirma sobre concepções errôneas apenas o que a literatura registra e identifica explicitamente os casos em que não há registro.
 
 ## Graus de procedência
 
@@ -25,19 +25,19 @@ Cada concepção do catálogo possui um campo de procedência (`provenance`), qu
 
 **Quadro 4.1 — Graus de procedência**
 
-| grau | significado |
+| Grau | Significado |
 | --- | --- |
 | `D` | documentada: achado empírico, com fonte e posição localizável |
 | `L` | registrada como erro comum em obra técnica |
 | `T` | transposta de outra linguagem, com a analogia declarada |
-| `N` | o erro consta de norma, como o padrão de codificação CERT C (SEI, 2025) e a CWE, *Common Weakness Enumeration* (MITRE, 2026), mas a concepção não |
+| `N` | o erro consta de norma, como o padrão de codificação CERT C (SEI, 2025) e a *Common Weakness Enumeration* (CWE), da MITRE (2026), mas a concepção não |
 | `E` | elaborada a partir do modelo de máquina: hipótese a testar |
 
 Duas propriedades desse campo são relevantes para o método.
 
-A primeira é que o grau constitui uma afirmação sobre a literatura, e não sobre o uso da concepção no sistema. Uma mesma concepção pode aparecer em mais de um tópico do domínio (o que ocorre com quatorze delas), e o texto que a contextualiza varia de um tópico para outro; o grau, porém, deve ser o mesmo. Se uma concepção tem grau `D` em um tópico e `L` em outro, uma das duas afirmações é falsa, e essa diferença corresponde, em um trabalho acadêmico, à diferença entre citar e alegar. A auditoria encontrou três casos desse tipo (Seção 4.6.5), e um teste automatizado impede a divergência (Quadro 4.7).
+A primeira é que o grau constitui uma afirmação sobre a literatura, e não sobre o uso da concepção no sistema. Uma mesma concepção pode aparecer em mais de um tópico do domínio (o que ocorre com 14 delas), e o texto que a contextualiza varia de um tópico para outro; o grau, porém, deve ser o mesmo. Se uma concepção tem grau `D` em um tópico e `L` em outro, uma das duas afirmações é falsa, e essa diferença corresponde, em um trabalho acadêmico, à diferença entre citar e alegar. A auditoria encontrou três casos desse tipo (Seção 4.6.5), e um teste automatizado impede a divergência (Quadro 4.7).
 
-A segunda é que o grau `E` é legítimo, desde que declarado. Uma hipótese do autor pode integrar o catálogo, mas não pode ser apresentada como achado. As três hipóteses do catálogo são identificadas como tais no próprio campo de fonte, e dois testes independentes asseguram que nenhuma delas apareça nos tópicos selecionados para a coleta de dados.
+A segunda é que o grau `E` é legítimo, desde que declarado. Uma hipótese do autor pode integrar o catálogo, mas não pode ser apresentada como achado. As três hipóteses do catálogo são identificadas como tais no próprio campo de fonte, e dois testes independentes asseguram que nenhuma delas apareça nos quatro tópicos selecionados para a futura coleta de dados com estudantes (kc_02, kc_07, kc_09 e kc_11).
 
 ## Classes de fonte
 
@@ -45,26 +45,26 @@ O catálogo apoia-se em dois tipos de obra. A diferença entre eles não é de q
 
 ### Classe 1: literatura de concepções errôneas (23 concepções)
 
-A primeira classe compreende estudos empíricos com estudantes e revisões que os agregam. A obra principal é o Apêndice A de Sorva (2012), cuja Tabela A.1 relaciona 162 concepções errôneas levantadas na literatura de ensino de programação introdutória, cada uma com tópico, descrição e fonte. A ela se somam os estudos que a própria tabela atribui: du Boulay (1986), Soloway et al. (1982), Putnam et al. (1986), Sleeman et al. (1986), Samurçay (1989), Holland et al. (1997), Ma (2007), Doukakis et al. (2007) e Kaczmarczyk et al. (2010). Uma obra externa à Tabela A.1 também sustenta uma das concepções: Hermans et al. (2018) registram a ideia de que a variável armazena vários valores ou "lembra" os anteriores e a investigam em um experimento com 496 iniciantes.
+A primeira classe compreende estudos empíricos com estudantes e revisões que os agregam. A obra principal é o Apêndice A de Sorva (2012), cuja Tabela A.1 relaciona 162 concepções errôneas levantadas na literatura de ensino de programação introdutória, cada uma com tópico, descrição e fonte. A ela se somam os estudos aos quais a própria tabela atribui os itens utilizados, citados neste trabalho por intermédio dela: du Boulay (1986), Soloway et al. (1982), Putnam et al. (1986), Sleeman et al. (1986), Samurçay (1989), Holland et al. (1997), Ma (2007), Doukakis et al. (2007) e Kaczmarczyk et al. (2010), todos *apud* Sorva (2012). Uma obra externa à Tabela A.1 também sustenta uma das concepções: Hermans et al. (2018) registram a ideia de que a variável armazena vários valores ou "lembra" os anteriores e a investigam em um experimento com 496 iniciantes.
 
 Essa classe sustenta que a concepção foi observada em estudantes por pesquisadores que a investigaram.
 
 ### Classe 2: corpus de praticante (34 concepções)
 
-A segunda classe é constituída pelo FAQ (*Frequently Asked Questions*, perguntas frequentes) do grupo comp.lang.c, compilado em 1990 a partir do grupo de Usenet de mesmo nome, aprimorado de forma episódica desde então e publicado em livro por Summit (1996).
+A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, compilada a partir de 1990 no grupo de Usenet de mesmo nome e aprimorada de forma episódica desde então (Summit, c2005). Uma versão ampliada da lista foi publicada em livro pelo mesmo autor; este trabalho utiliza a versão on-line.
 
 A inclusão dessa classe requer justificar por que um FAQ de linguagem constitui evidência sobre concepções errôneas, e não apenas sobre a linguagem C. A justificativa está no critério de inclusão adotado, que pode ser conferido por qualquer leitor: é incluída somente a pergunta cujo título enuncia a concepção na voz de quem a sustenta, em primeira pessoa (Quadro 4.2).
 
 **Quadro 4.2 — Exemplos de perguntas do FAQ cujo título enuncia a concepção na voz de quem a sustenta**
 
-| pergunta | título |
+| Pergunta | Título |
 | --- | --- |
 | 6.2 | "But I heard that `char a[]` was identical to `char *a`." |
 | 6.9 | "Someone explained to me that arrays were really just constant pointers." |
 | 6.4b | "So arrays are passed by reference, even though the rest of C uses pass by value?" |
 | 4.11 | "Does C even have ``pass by reference''?" |
 
-*Fonte: elaborado pelo autor, com títulos de perguntas de Summit (1996).*
+*Fonte: elaborado pelo autor, com títulos de perguntas de Summit (c2005).*
 
 O catálogo, portanto, não infere a concepção a partir de uma explicação técnica: registra a formulação de quem a sustenta. Para conferir a inclusão, basta consultar a pergunta e avaliar se o título enuncia a concepção ou apenas o assunto.
 
@@ -80,13 +80,13 @@ A Tabela A.1 possui um tópico dedicado a referências (`Refs`, com 17 dos 162 i
 
 **Quadro 4.3 — Ocorrências de termos relativos à memória na Tabela A.1**
 
-| termo buscado na Tabela A.1 | ocorrências |
+| Termo buscado na Tabela A.1 | Ocorrências |
 | --- | --- |
 | `malloc`, `free`, `deallocat`, `garbage` | 0 |
 | `heap`, `stack` | 0 |
 | `arithmetic`, `decay`, `dangling`, `sizeof` | 0 |
-| `null` | 1: o item 54, "Null model of recursion" (SORVA, 2012, p. 362), que não trata de ponteiro nulo |
-| `lifetime` | 1: o item 5, "Difficulties understanding the lifetime of values" (SORVA, 2012, p. 359) |
+| `null` | 1: o item 54, "Null model of recursion" (Sorva, 2012, p. 362), que não trata de ponteiro nulo |
+| `lifetime` | 1: o item 5, "Difficulties understanding the lifetime of values" (Sorva, 2012, p. 359) |
 | `memory` | 7 |
 
 *Fonte: elaborado pelo autor, por busca no texto de Sorva (2012).*
@@ -105,7 +105,7 @@ O quadro é exaustivo e mutuamente exclusivo: cada uma das 61 concepções figur
 
 **Quadro 4.4 — Forma de conferência de cada uma das 61 concepções**
 
-| forma de conferência | concepções |
+| Forma de conferência | Concepções |
 | --- | --- |
 | conferida no texto integral de Sorva (2012), obtido do repositório aberto da Universidade Aalto (handle `123456789/3534`, bundle TEXT); a frase em inglês citada entre aspas foi localizada no texto da obra | 21 |
 | conferida no índice do FAQ comp.lang.c: as seções 1, 4, 5, 6 e 7 foram consultadas em `c-faq.com`; as perguntas citadas existem, e os títulos coincidem com os citados no catálogo | 32 |
@@ -119,7 +119,7 @@ O quadro é exaustivo e mutuamente exclusivo: cada uma das 61 concepções figur
 
 As duas primeiras linhas somam as 53 concepções conferidas na obra primária. As seis últimas correspondem ao que a curadoria não afirma ter conferido, com a respectiva justificativa.
 
-Os estudos agregados pelo Apêndice A de Sorva (2012), a saber, du Boulay (1986), Samurçay (1989), Sleeman et al. (1986), Soloway et al. (1982), Putnam et al. (1986), Doukakis et al. (2007), Ma (2007) e Kaczmarczyk et al. (2010), não figuram em linha própria porque não foram consultados diretamente. As cinco concepções que os citam fazem-no *apud* Sorva (2012), com página e item, e estão contadas na primeira linha do quadro. A Seção 4.7 detalha esse ponto.
+Os estudos agregados pelo Apêndice A de Sorva (2012), relacionados na Seção 4.3.1, não figuram em linha própria porque não foram consultados diretamente. As cinco concepções que os citam fazem-no *apud* Sorva (2012), com página e item, e estão contadas na primeira linha do quadro. A Seção 4.7 detalha esse ponto.
 
 A conferência é automatizada sempre que possível: o programa que gera o Apêndice B extrai a frase entre aspas de cada citação e a procura no texto da obra, de modo que o resultado não depende do que está declarado no campo de fonte. Quando o programa é executado sem o texto da obra, o número de concepções conferidas cai de 53 para 32, e o apêndice passa a indicar, linha por linha, que a conferência não foi realizada.
 
@@ -129,7 +129,7 @@ O Quadro 4.5 sintetiza o resultado da curadoria.
 
 **Quadro 4.5 — Resultado da curadoria**
 
-| indicador | valor |
+| Indicador | Valor |
 | --- | --- |
 | concepções distintas no catálogo | 61 |
 | conferidas na obra primária | 53 |
@@ -146,11 +146,11 @@ Em três concepções, a busca inicial na obra não localizou o item corresponde
 
 **Quadro 4.6 — Buscas que não localizaram o item e o item existente na obra**
 
-| concepção | registro anterior no catálogo | item existente na obra |
+| Concepção | Registro anterior no catálogo | Item existente na obra |
 | --- | --- | --- |
-| `pointer_has_no_address` | "procurei no catálogo do Sorva e não está lá: nenhum dos 162 itens afirma que a referência não ocupa espaço" | a segunda frase do item 14: "It is not stored inside the computer" (SORVA, 2012, p. 360). A busca utilizou os termos "referência" e "espaço", ao passo que o item trata de variável |
-| `array_confused_with_cell` | "não tem fonte empírica, entra como hipótese" | o item 151, "Confusion between an array and its cell" (SORVA, 2012, p. 367), e o item 9, "A variable can hold multiple values at a time" (SORVA, 2012, p. 359). A busca utilizou o termo "array", ao passo que o item 9 trata de variável e o item 151 pertence ao tópico `Misc` |
-| `assignment_symmetric` | citava o item 11, com a aproximação declarada: "o 11 é sobre a direção invertida, e esta concepção é sobre os dois lados" | o item 12, imediatamente posterior ao 11: "Primitive assignment works both directions (swaps)" (SORVA, 2012, p. 359). O item corresponde ao rótulo da concepção |
+| `pointer_has_no_address` | "procurei no catálogo do Sorva e não está lá: nenhum dos 162 itens afirma que a referência não ocupa espaço" | a segunda frase do item 14: "It is not stored inside the computer" (Sorva, 2012, p. 360). A busca utilizou os termos "referência" e "espaço", ao passo que o item trata de variável |
+| `array_confused_with_cell` | "não tem fonte empírica, entra como hipótese" | o item 151, "Confusion between an array and its cell" (Sorva, 2012, p. 367), e o item 9, "A variable can hold multiple values at a time" (Sorva, 2012, p. 359). A busca utilizou o termo "array", ao passo que o item 9 trata de variável e o item 151 pertence ao tópico `Misc` |
+| `assignment_symmetric` | citava o item 11, com a aproximação declarada: "o 11 é sobre a direção invertida, e esta concepção é sobre os dois lados" | o item 12, imediatamente posterior ao 11: "Primitive assignment works both directions (swaps)" (Sorva, 2012, p. 359). O item corresponde ao rótulo da concepção |
 
 *Fonte: elaborado pelo autor, com trechos de Sorva (2012).*
 
@@ -162,13 +162,13 @@ O terceiro caso acrescenta um segundo princípio, relativo à transparência da 
 
 ### 2. Citação associada a item incorreto
 
-A citação da concepção `pointer_is_data` remetia ao item 14 de Sorva (2012, p. 360), que trata de a variável ser um par de nome e valor, e não de ponteiros. A concepção consta do item 65: "A (non-primitive Java) variable does not hold a reference but a set of object properties" (SORVA, 2012, p. 362). A obra citada estava correta, mas o item não, e esse tipo de erro somente pode ser identificado com a consulta à obra.
+A citação da concepção `pointer_is_data` remetia ao item 14 de Sorva (2012, p. 360), que trata de a variável ser um par de nome e valor, e não de ponteiros. A concepção consta do item 65: "A (non-primitive Java) variable does not hold a reference but a set of object properties" (Sorva, 2012, p. 362). A obra citada estava correta, mas o item não, e esse tipo de erro somente pode ser identificado com a consulta à obra.
 
-O mesmo tipo de erro ocorre na identificação das obras mediadas. A Tabela A.1 atribui quatorze dos itens utilizados a "Ma (2007)", e um artigo publicado no simpósio SIGCSE no mesmo ano e sobre o mesmo tema, assinado por Ma e outros três autores, pode ser facilmente confundido com essa obra; a bibliografia de Sorva (2012), entretanto, identifica "Ma (2007)" como uma tese de doutorado de autoria única, de outra instituição. A citação de uma obra mediada exige, portanto, a consulta à bibliografia da obra mediadora, não bastando o reconhecimento do sobrenome e do ano.
+O mesmo tipo de erro ocorre na identificação das obras mediadas. A Tabela A.1 atribui 14 dos itens utilizados a "Ma (2007)", e um artigo publicado no simpósio do *Special Interest Group on Computer Science Education* (SIGCSE) no mesmo ano e sobre o mesmo tema, assinado por Ma e outros três autores, pode ser facilmente confundido com essa obra; a bibliografia de Sorva (2012), entretanto, identifica "Ma (2007)" como uma tese de doutorado de autoria única, de outra instituição. A citação de uma obra mediada exige, portanto, a consulta à bibliografia da obra mediadora, não bastando o reconhecimento do sobrenome e do ano.
 
 ### 3. Fontes que sustentam mais de uma concepção
 
-As concepções `memory_is_by_name` e `pointer_has_no_address` derivam das duas frases do mesmo item 14 de Sorva (2012, p. 360). No FAQ de Summit (1996), a pergunta 7.21 sustenta três concepções de um tópico; a 7.22, duas de outro; e a 4.9, duas de um terceiro.
+As concepções `memory_is_by_name` e `pointer_has_no_address` derivam das duas frases do mesmo item 14 de Sorva (2012, p. 360). No FAQ (Summit, c2005), a pergunta 7.21 sustenta três concepções de um tópico; a 7.22, duas de outro; e a 4.9, duas de um terceiro.
 
 Não se trata de economia de fontes: uma resposta de FAQ frequentemente trata de mais de uma confusão, e separá-las constitui trabalho de curadoria, e não apenas de leitura.
 
@@ -176,10 +176,10 @@ Não se trata de economia de fontes: uma resposta de FAQ frequentemente trata de
 
 A regra aplicada é a seguinte: se a fonte não pode ser verificada, procura-se o item correspondente na obra; se ele não existir, a citação não permanece no catálogo. Cinco casos foram identificados:
 
-- Atribuição incorreta. A citação de `declaration_allocates` atribuía a concepção a Kaczmarczyk et al. (2010), com página e código de tabela que somente poderiam ser conferidos com a consulta ao artigo. O item que registra essa concepção, o de número 92, atribui-a a Ma (2007), e é essa a atribuição citada no catálogo, *apud* Sorva (2012, p. 364). Como a concepção pertence a um dos tópicos selecionados para a coleta de dados, a atribuição tem consequência prática.
-- Concepção sem item na obra. Para `memory_is_uniform`, a citação indicava página e tabela de um artigo sem cópia de acesso aberto. Na busca item por item no Apêndice A, não se encontrou item sobre a memória como região única, sem regras distintas de tempo de vida; o mais próximo, o item 5 (SORVA, 2012, p. 359), refere-se à *dificuldade* com o tempo de vida, que é outro fenômeno. No catálogo, a concepção é uma hipótese declarada, de grau `E`.
-- Refutação no lugar da fonte. Para `declaration_zeroes`, a fonte citada era Kernighan e Ritchie (1988), obra que afirma ser falsa a concepção; trata-se, portanto, da refutação, e não do registro de que alguém a sustenta. O catálogo distingue os dois papéis: a fonte é o item 10 (SORVA, 2012, p. 359), e a obra de Kernighan e Ritchie (1988) é registrada como refutação.
-- Código interno de artigo não consultado. A citação de `no_value_no_memory` continha o código "(PVR2)", pelo qual Kaczmarczyk et al. (2010) identificam o achado e que somente pode ser verificado com a consulta ao artigo. O catálogo cita o item 22, *apud* Sorva (2012, p. 360).
+- Atribuição incorreta. A citação de `declaration_allocates` atribuía a concepção a Kaczmarczyk et al. (2010), com página e código de tabela que somente poderiam ser conferidos com a consulta ao artigo. O item que registra essa concepção, o de número 92, atribui-a a Ma (2007 apud Sorva, 2012, p. 364), e é essa a atribuição citada no catálogo. Como a concepção pertence a um dos tópicos selecionados para a coleta de dados, a atribuição tem consequência prática.
+- Concepção sem item na obra. Para `memory_is_uniform`, a citação indicava página e tabela de um artigo sem cópia de acesso aberto. Na busca item por item no Apêndice A, não se encontrou item sobre a memória como região única, sem regras distintas de tempo de vida; o mais próximo, o item 5 (Sorva, 2012, p. 359), refere-se à *dificuldade* com o tempo de vida, que é outro fenômeno. No catálogo, a concepção é uma hipótese declarada, de grau `E`.
+- Refutação no lugar da fonte. Para `declaration_zeroes`, a fonte citada era Kernighan e Ritchie (1988), obra que afirma ser falsa a concepção; trata-se, portanto, da refutação, e não do registro de que alguém a sustenta. O catálogo distingue os dois papéis: a fonte é o item 10 (Sorva, 2012, p. 359), e a obra de Kernighan e Ritchie (1988) é registrada como refutação.
+- Código interno de artigo não consultado. A citação de `no_value_no_memory` continha o código "(PVR2)", pelo qual Kaczmarczyk et al. (2010) identificam o achado e que somente pode ser verificado com a consulta ao artigo. O catálogo cita o item 22 (Sorva, 2012, p. 360).
 - Aproximação declarada que indicou o item correto. É o caso de `assignment_symmetric`, descrito na Seção 4.6.1 por constituir também um resultado de método.
 
 ### 5. Procedência divergente entre tópicos
@@ -194,13 +194,13 @@ Esta seção explicita o que foi lido no original, em contrapartida ao fato de o
 
 Foram lidos no original o texto integral de Sorva (2012), obtido do repositório institucional aberto da Universidade Aalto; as perguntas citadas do FAQ do comp.lang.c, consultadas em `c-faq.com`; e o artigo de Hermans et al. (2018). As citações dessas obras são diretas, e a frase citada foi localizada no texto.
 
-Os estudos agregados pelo Apêndice A, a saber, du Boulay (1986), Samurçay (1989), Sleeman et al. (1986), Soloway et al. (1982), Putnam et al. (1986), Doukakis et al. (2007), Ma (2007) e Kaczmarczyk et al. (2010), são citados *apud* Sorva (2012), com página e item. Os artigos originais não foram consultados, por se encontrarem em acervos de acesso restrito; a verificação realizada limitou-se à existência do registro bibliográfico, sem acesso ao texto. Cinco concepções do catálogo citam esses estudos, e cada uma declara a mediação no próprio campo de fonte.
+Os estudos agregados pelo Apêndice A (Seção 4.3.1) são citados *apud* Sorva (2012), com página e item, e por essa razão não constam da lista de referências, que relaciona apenas as obras consultadas. Os documentos originais não foram consultados, por se encontrarem em acervos de acesso restrito; a verificação realizada limitou-se à existência do registro bibliográfico, sem acesso ao texto. Cinco concepções do catálogo citam esses estudos, e cada uma declara a mediação no próprio campo de fonte.
 
-Em consequência, nenhuma afirmação deste trabalho atribui a esses artigos conteúdo que não conste do item do Apêndice A que os cita.
+Em consequência, nenhuma afirmação deste trabalho atribui a esses estudos conteúdo que não conste do item do Apêndice A que os cita.
 
 As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), que sustentam as três concepções de grau `N`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita. Os Quadros 4.4 e 4.5 referem-se à conferência realizada na curadoria, na qual a concepção que cita apenas normas ficou sem conferência e a seção 11 do FAQ não foi incluída.
 
-Duas observações de forma delimitam o que se pode afirmar. A primeira é que a versão on-line do FAQ é mais curta do que o livro de Summit (1996), como informa o próprio autor na página do FAQ; as citações deste trabalho referem-se à versão on-line, por número de pergunta, que foi a versão consultada. A segunda é que os números de página do Apêndice A referem-se ao texto extraído do PDF disponível no repositório mencionado e foram calibrados com base nos marcadores de página do próprio texto.
+Duas observações de forma delimitam o que se pode afirmar. A primeira é que a versão on-line do FAQ (Summit, c2005) é mais curta do que o livro publicado pelo mesmo autor, como ele próprio informa na página do FAQ; as citações deste trabalho referem-se à versão on-line, por número de pergunta, que foi a versão consultada. A segunda é que os números de página do Apêndice A referem-se ao texto extraído do arquivo em *Portable Document Format* (PDF) disponível no repositório mencionado e foram calibrados com base nos marcadores de página do próprio texto.
 
 ## Limites da curadoria
 
@@ -214,13 +214,13 @@ A delimitação do alcance da curadoria integra o método. Cinco limites devem s
 
 ## Verificação automatizada do catálogo
 
-O Apêndice B não foi redigido manualmente: é gerado a partir do catálogo por um comando. A digitação de 61 linhas favoreceria exatamente a divergência entre documento e dado que este capítulo se propõe a controlar, e a Seção 4.6.5 mostra que essa divergência ocorre mesmo quando o risco é conhecido por quem mantém os arquivos.
+O Apêndice B não foi redigido manualmente: é gerado a partir do catálogo por um comando. A digitação de 61 linhas favoreceria exatamente a divergência entre documento e dado que esta seção se propõe a controlar, e a Seção 4.6.5 mostra que essa divergência ocorre mesmo quando o risco é conhecido por quem mantém os arquivos.
 
 O catálogo é submetido a verificações automatizadas, que fazem a suíte de testes falhar caso a propriedade correspondente deixe de valer. As principais são apresentadas no Quadro 4.7.
 
 **Quadro 4.7 — Principais verificações automatizadas do catálogo**
 
-| verificação | situação rejeitada |
+| Verificação | Situação rejeitada |
 | --- | --- |
 | grau uniforme entre tópicos | a mesma concepção com grau `D` em um tópico e `L` em outro |
 | grau `D` com posição | grau `D` sem página nem item na fonte |
@@ -229,7 +229,7 @@ O catálogo é submetido a verificações automatizadas, que fazem a suíte de t
 | busca sem resultado não conta como conferência | linha que indique "conferida" para concepção que declara, em campo próprio, não haver item na literatura |
 | busca sem resultado declarada em todas as ocorrências | campo que a declara presente em um tópico e ausente em outro |
 | ausência de chave duplicada no YAML | campo sobrescrito por repetição, sem aviso |
-| consistência entre capítulo e catálogo | número afirmado neste capítulo que o catálogo deixou de sustentar |
+| consistência entre o texto e o catálogo | número afirmado nesta seção que o catálogo deixou de sustentar |
 
 A reprodução da curadoria requer um único comando:
 
@@ -239,19 +239,18 @@ python scripts/gera_curadoria.py CAMINHO/DO/sorva2012.txt
 
 O argumento é o texto integral da obra, obtido do repositório da Universidade Aalto. O arquivo não integra o repositório do projeto por se tratar de obra de terceiro; na sua ausência, o programa é executado normalmente, e o apêndice passa a indicar, linha por linha, que a conferência não foi realizada.
 
-A contribuição deste capítulo reside nessa verificabilidade, e não no número de concepções: um catálogo de 61 concepções errôneas sobre ponteiros em C, com duas classes de fonte declaradas, posição localizável sempre que o grau a exige, mediação de citação declarada onde existe, e conferível em seu conjunto por um único comando.
+A contribuição desta seção reside nessa verificabilidade, e não no número de concepções: um catálogo de 61 concepções errôneas sobre ponteiros em C, com duas classes de fonte declaradas, posição localizável sempre que o grau a exige, mediação de citação declarada onde existe, e conferível em seu conjunto por um único comando.
 
 ## Referências deste capítulo
 
-Marcadas com ★ as obras lidas no original para esta curadoria. As demais são citadas pela mediação de Sorva (2012), com página e item, conforme declarado acima; os dados bibliográficos abaixo são os que constam da bibliografia daquela obra, com duas correções, anotadas nas entradas de Samurçay e de Sleeman et al.
+Lista de trabalho, que não vai para o PDF. Marcadas com ★ as obras consultadas, que constam da lista de referências do trabalho. As demais são citadas *apud* Sorva (2012), com página e item, e por isso não entram na lista de referências (NBR 10520/2023; manual de normalização da UFV, 2026); os dados bibliográficos abaixo são os que constam da bibliografia daquela obra, com duas correções, anotadas nas entradas de Samurçay e de Sleeman et al.
 
 ★ SORVA, J. **Visual Program Simulation in Introductory Programming
 Education.** Tese (Doutorado) – Aalto University School of Science,
 Espoo, 2012. Disponível no repositório institucional da Universidade Aalto,
 handle 123456789/3534.
 
-★ SUMMIT, S. **C Programming FAQs: Frequently Asked Questions.** Reading:
-Addison-Wesley, 1996. ISBN 0-201-84519-9. Versão on-line consultada em `c-faq.com`, mais curta que o livro.
+★ SUMMIT, S. **comp.lang.c frequently asked questions.** [S. l.], c2005. Versão em hipertexto da lista de perguntas frequentes do grupo comp.lang.c, mais curta que o livro *C programming FAQs*, do mesmo autor (Addison-Wesley, ISBN 0-201-84519-9). Disponível em: `https://c-faq.com/`. Acesso em: 19 nov. 2026.
 
 ★ KERNIGHAN, B. W.; RITCHIE, D. M. **The C Programming Language.** 2. ed.
 Englewood Cliffs: Prentice Hall, 1988. *(citada como refutação, não como

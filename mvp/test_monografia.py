@@ -76,7 +76,7 @@ def test_os_numeros_do_sistema_estao_no_texto(contagens):
             "catálogo de 61 concepções errôneas",
             "80 demonstrações com previsão (uma para cada concepção errônea "
             "em cada tópico em que ela aparece) e 402 passos",
-            "treze tópicos de ponteiros em C"],
+            "em 13 tópicos de ponteiros em C"],
         "03-sistema.md": [
             "organizado em 13 tópicos", "somam 79 premissas",
             "O catálogo tem 61 concepções", "tem 560 questões",

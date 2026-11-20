@@ -42,9 +42,20 @@ brazil
 % Sistema de citações ABNT nativo do abntex2: autor-data, título das
 % referências em negrito (como sugere o modelo da UFV) e todos os autores
 % na lista de referências (a NBR 6023 recomenda; nas citações, et al. a
-% partir de quatro autores)
+% partir de quatro autores). Nas teses, o ano vem depois do título e ao
+% fim, como no manual de normalização da UFV (2026).
+%
+% As citações do texto seguem a NBR 10520/2023 (sobrenome só com a inicial
+% maiúscula, também entre parênteses; "et al." e "apud" em itálico). O
+% abntex2cite ainda escreve o sobrenome em caixa alta, e por isso o texto
+% gerado traz a autoria por extenso e usa só \citeyear (ver
+% scripts/monografia_latex.py).
 % ---
-\usepackage[alf,abnt-emphasize=bf,abnt-etal-list=0,abnt-last-names=bibtex]{abntex2cite}
+\usepackage[alf,abnt-emphasize=bf,abnt-etal-list=0,abnt-last-names=bibtex,abnt-thesis-year=both]{abntex2cite}
+
+% Endereço eletrônico sem os sinais < >, como na NBR 6023 vigente.
+\def\UrlLeft{}
+\def\UrlRight{}
 
 % ---
 % Espaçamento ABNT
@@ -52,21 +63,22 @@ brazil
 \setlength{\parindent}{1.3cm}
 
 % ---
-% Figuras e quadros numerados por capítulo (Figura 3.1, Quadro 6.2),
-% como o texto os cita
+% Figuras e quadros numerados em sequência única ao longo do trabalho
+% (Figura 1, Quadro 1...), pela ordem de ocorrência no texto, como pedem
+% a NBR 14724 e o manual da UFV. No .md eles têm rótulos por seção (3.1,
+% 6.2), que viram \label e \ref: o número impresso é o do LaTeX.
 % ---
 \graphicspath{{../figuras/}}
 
-% Título de capítulo longo alinhado à esquerda, sem hifenizar
+% Título de seção primária longo alinhado à esquerda, sem hifenizar
 \makeatletter
 \renewcommand{\printchaptertitle}[1]{%
 	\chaptitlefont\raggedright\hyphenpenalty=10000 #1\par}
 \makeatother
-\counterwithin{figure}{chapter}
 
 \newcommand{\quadroname}{Quadro}
 \newcommand{\listofquadrosname}{Lista de quadros}
-\newfloat[chapter]{quadro}{loq}{\quadroname}
+\newfloat{quadro}{loq}{\quadroname}
 \newlistof{listofquadros}{loq}{\listofquadrosname}
 \newlistentry{quadro}{loq}{0}
 \setfloatadjustment{quadro}{\centering}
@@ -198,9 +210,11 @@ brazil
 		\item[CSS]   \textit{Cascading Style Sheets}
 		\item[CWE]   \textit{Common Weakness Enumeration}
 		\item[FAQ]   \textit{Frequently Asked Questions}
+		\item[gcc]   \textit{GNU Compiler Collection}
 		\item[HTML]  \textit{HyperText Markup Language}
 		\item[HTTP]  \textit{Hypertext Transfer Protocol}
 		\item[OFL]   \textit{SIL Open Font License}
+		\item[PDF]   \textit{Portable Document Format}
 		\item[SEI]   \textit{Software Engineering Institute}
 		\item[SIGCSE] \textit{Special Interest Group on Computer Science Education}
 		\item[SUS]   \textit{System Usability Scale}
@@ -216,6 +230,10 @@ brazil
 
 	% ============================================================
 	\textual
+	% Só o número da página no alto, à direita (NBR 14724). O cabeçalho
+	% padrão do abnTeX2 traz "Capítulo N", e o manual da UFV diz que o
+	% trabalho se divide em seções, e não em capítulos.
+	\pagestyle{abntchapfirst}
 	% ============================================================
 
 	\input{gerado/01-introducao}

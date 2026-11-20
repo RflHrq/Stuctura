@@ -515,3 +515,28 @@ conferidos como os outros (ver as entradas de cada obra).
   (`variable_remembers`, em `beliefs_kc00.yaml`), com a seção 3, a p. 2
   do manuscrito aceito e a frase; o grau continua `T`, porque o
   experimento não é em C.
+
+## Revisão de 20/11/2026 contra o manual de normalização da UFV
+
+A lista de referências e as citações foram conferidas contra o manual
+"Normalização de trabalhos acadêmicos" da Biblioteca Central da UFV
+(2026, 146 p., `fontes/ufv-manual-2026/`, sha256 704793c6074d), que segue a
+NBR 6023/2025 e a NBR 10520/2023. Três decisões mudam o que está acima:
+
+- **Só a obra consultada entra na lista** (seção 6.4.3 do manual). As
+  obras citadas por intermédio de Sorva (2012), de Nussbaum, Cordova e
+  Rehmat (2017) e de Falmagne et al. (2006) aparecem no texto na forma
+  "apud" e não têm entrada na lista do PDF. Os dados delas continuam na
+  lista de trabalho de `curadoria.md`.
+- **O FAQ do comp.lang.c é referenciado pela versão on-line**, que foi a
+  consultada: a página inicial traz "Copyright 1995-2005 by Steve
+  Summit", e a citação passa a ser Summit (c2005), com endereço e data de
+  acesso (19 nov. 2026). O livro fica mencionado na nota da referência, e
+  a dúvida sobre o ano dele (1995 ou 1996) deixa de afetar o texto.
+- **Sorva (2012)** ganha o endereço do repositório
+  (`https://aaltodoc.aalto.fi/handle/123456789/3534`) e a vinculação que
+  consta da folha de rosto (Department of Computer Science and
+  Engineering, Aalto University School of Science, Espoo). **Hermans et
+  al. (2018)** e **Schmellenkamp, Latys e Zeume (2023)** entram pelo nome
+  do evento, com número, ano e local, lidos na primeira página de cada
+  artigo (Potsdam; Toronto; ACM, New York).

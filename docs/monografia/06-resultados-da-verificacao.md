@@ -2,11 +2,11 @@
 
 ## 6.1 Escopo verificado
 
-O Quadro 6.1 resume a dimensão do sistema abrangido pela verificação descrita no Capítulo 5, na versão de 19/11/2026.
+O Quadro 6.1 resume a dimensão do sistema abrangido pela verificação descrita na Seção 5, na versão de 19/11/2026.
 
 **Quadro 6.1 — Dimensão do sistema verificado**
 
-| elemento | quantidade |
+| Elemento | Quantidade |
 | --- | --- |
 | Tópicos, todos na trilha | 13 |
 | Premissas | 79 |
@@ -16,7 +16,7 @@ O Quadro 6.1 resume a dimensão do sistema abrangido pela verificação descrita
 | Demonstrações com previsão | 80 (41 saídas, 39 do compilador) |
 | Cenas da revisão | 79 |
 | Trechos de código das escadas | 1 762 |
-| Testes automatizados | 7 547 |
+| Testes automatizados | 7 553 |
 
 ## 6.2 Conferência do conteúdo por compilador
 
@@ -52,7 +52,7 @@ O Quadro 6.2 apresenta o número de telas e de toques necessários para que cada
 
 Três observações decorrem do quadro:
 
-- A extensão da sessão varia conforme a necessidade da pessoa, e não conforme o tópico. O perfil que sabe todo o conteúdo percorre um tópico de seis premissas em 14 telas; os que necessitam de ensino ou de correção em todas as premissas, em 26 a 38 telas. O tamanho do tópico influi apenas pelo número de premissas: o kc_09, com oito, é o mais longo em todos os perfis.
+- A extensão da sessão varia conforme a necessidade da pessoa, e não conforme o tópico. O perfil que sabe todo o conteúdo percorre um tópico de seis premissas em 14 telas; os que necessitam de ensino ou de correção em todas as premissas, em 26 a 44 telas. O tamanho do tópico influi apenas pelo número de premissas: o kc_09, com oito, é o mais longo em todos os perfis.
 - O limite de duração é respeitado. Mesmo o perfil que erra todos os passos conclui o tópico, com as premissas em aberto e sem repetição indefinida: o pior caso é finito e previsível.
 - A demonstração é breve. O perfil que sustenta a concepção errônea e a abandona realiza menos toques do que o que não sabe e aprende (37 e 43, respectivamente, em um tópico de seis premissas), pois a demonstração substitui o percurso da escada, e não se soma a ele.
 

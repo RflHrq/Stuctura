@@ -45,76 +45,109 @@ LINHAS_DO_QUADRO_LONGO = 25
 FONTE_PADRAO_QUADRO = "Elaborado pelo autor."
 FONTE_PADRAO_FIGURA = "Captura de tela do Structura, elaborada pelo autor."
 
-# Cada citação do texto, na forma em que está escrita, e o que ela vira.
-# Uma citação fora desta tabela faz o script parar (ver _sobra_citacao).
-P = r"p\. ([\d:\-]+)"
-CITACOES = [
-    (r"\(POSNER et al\., 1982, " + P + r"\)", r"\\cite[p.~\1]{posner1982}"),
-    (r"Posner et al\. \(1982, " + P + r"\)",
-     r"\\citeonline[p.~\1]{posner1982}"),
-    (r"\(QIAN; LEHMAN, 2017, " + P + r"\)", r"\\cite[p.~\1]{qian2017}"),
-    (r"Qian e Lehman \(2017, " + P + r"\)", r"\\citeonline[p.~\1]{qian2017}"),
-    (r"\(FALMAGNE et al\., 2006\)", r"\\cite{falmagne2006}"),
-    (r"VanLehn \(2011, " + P + r"\)", r"\\citeonline[p.~\1]{vanlehn2011}"),
-    (r"VanLehn \(2006\)", r"\\citeonline{vanlehn2006}"),
-    (r"\(TIPPETT, 2010, p\. 965 apud NUSSBAUM; CORDOVA; REHMAT, 2017, "
-     r"p\. 31\)",
-     r"(TIPPETT, 2010, p.~965 \\textit{apud} NUSSBAUM; CORDOVA; REHMAT, "
-     r"2017, p.~31)"),
-    (r"\(NUSSBAUM; CORDOVA; REHMAT, 2017, " + P + r"\)",
-     r"\\cite[p.~\1]{nussbaum2017}"),
-    (r"\(SODERSTROM; BJORK, 2015, " + P + r"\)",
-     r"\\cite[p.~\1]{soderstrom2015}"),
-    # o abntex2 corta a partícula do sobrenome nas citações (MERRIËNBOER,
-    # Boulay); nestes dois casos o nome vai por extenso e só o ano é citado
-    (r"\(SWELLER; VAN MERRIËNBOER; PAAS, 2019, " + P + r"\)",
-     r"(SWELLER; VAN MERRIËNBOER; PAAS, \\citeyear{sweller2019}, p.~\1)"),
-    (r"\(SWELLER; VAN MERRIËNBOER; PAAS, 2019\)",
-     r"(SWELLER; VAN MERRIËNBOER; PAAS, \\citeyear{sweller2019})"),
-    (r"\(W3C, 2025\)", r"\\cite{w3c2025}"),
-    (r"Gardner-Medwin \(2006\)", r"\\citeonline{gardnermedwin2006}"),
-    (r"White e Gunstone \(1992, cap\. (\d+)\)",
-     r"\\citeonline[cap.~\1]{white1992}"),
-    (r"\(SORVA, 2012, " + P + r"\)", r"\\cite[p.~\1]{sorva2012}"),
-    (r"Sorva \(2012, " + P + r"\)", r"\\citeonline[p.~\1]{sorva2012}"),
-    (r"Sorva \(2012\)", r"\\citeonline{sorva2012}"),
-    (r"Summit \(1996\)", r"\\citeonline{summit1996}"),
-    (r"du Boulay \(1986\)", r"du Boulay (\\citeyear{duboulay1986})"),
-    (r"Soloway et al\. \(1982\)", r"\\citeonline{soloway1982}"),
-    (r"Putnam et al\. \(1986\)", r"\\citeonline{putnam1986}"),
-    (r"Sleeman et al\. \(1986\)", r"\\citeonline{sleeman1986}"),
-    (r"Samurçay \(1989\)", r"\\citeonline{samurcay1989}"),
-    (r"Holland et al\. \(1997\)", r"\\citeonline{holland1997}"),
-    (r"Ma \(2007\)", r"\\citeonline{ma2007}"),
-    (r"Doukakis et al\. \(2007\)", r"\\citeonline{doukakis2007}"),
-    (r"Kaczmarczyk et al\. \(2010\)", r"\\citeonline{kaczmarczyk2010}"),
-    (r"Kernighan e Ritchie \(1988\)", r"\\citeonline{kernighan1988}"),
-    (r"\(BROOKE, 1996\)", r"\\cite{brooke1996}"),
-    (r"Yamashita et al\. \(2017\)", r"\\citeonline{yamashita2017}"),
-    (r"\(YAMASHITA et al\., 2017, " + P + r"\)",
-     r"\\cite[p.~\1]{yamashita2017}"),
-    (r"\(YAMASHITA et al\., 2017\)", r"\\cite{yamashita2017}"),
-    (r"Schmellenkamp, Latys e Zeume \(2023\)",
-     r"\\citeonline{schmellenkamp2023}"),
-    (r"\(SCHMELLENKAMP; LATYS; ZEUME, 2023, " + P + r"\)",
-     r"\\cite[p.~\1]{schmellenkamp2023}"),
-    (r"\(SCHMELLENKAMP; LATYS; ZEUME, 2023\)",
-     r"\\cite{schmellenkamp2023}"),
-    (r"\(DOIGNON; FALMAGNE, 1985 apud FALMAGNE et al\., 2006\)",
-     r"(DOIGNON; FALMAGNE, 1985 \\textit{apud} FALMAGNE et al., "
-     r"\\citeyear{falmagne2006})"),
-    (r"Falmagne et al\. \(2006\)", r"\\citeonline{falmagne2006}"),    (r"Sorva \(2013\)", r"\\citeonline{sorva2013}"),
-    (r"Hermans et al\. \(2018\)", r"\\citeonline{hermans2018}"),
-    (r"\(SEI, 2025\)", r"\\cite{sei2025}"),
-    (r"\(MITRE, 2026\)", r"\\cite{mitre2026}"),
+# --------------------------------------------------------------------------
+# Citações: NBR 10520/2023, como no manual de normalização da UFV (2026)
+# --------------------------------------------------------------------------
+# No .md a citação vem na forma da norma: "(Posner et al., 1982, p. 221)"
+# ou "Posner et al. (1982, p. 212)". O sobrenome tem só a inicial maiúscula,
+# também entre parênteses; "et al." e "apud" saem em itálico. O abntex2cite
+# escreveria o sobrenome em caixa alta, e por isso a autoria é escrita aqui
+# por extenso e só o ano vem de \citeyear, que liga a citação à referência.
+# Uma citação que não esteja nesta tabela faz o script parar.
+#
+# (chave do .bib, ano, autoria no texto, autoria entre parênteses)
+OBRAS = [
+    ("brooke1996", "1996", "Brooke", "Brooke"),
+    ("falmagne2006", "2006", "Falmagne et al.", "Falmagne et al."),
+    ("gardnermedwin2006", "2006", "Gardner-Medwin", "Gardner-Medwin"),
+    ("hermans2018", "2018", "Hermans et al.", "Hermans et al."),
+    ("kernighan1988", "1988", "Kernighan e Ritchie", "Kernighan; Ritchie"),
+    ("mitre2026", "2026", "MITRE", "MITRE"),
+    ("nussbaum2017", "2017", "Nussbaum, Cordova e Rehmat",
+     "Nussbaum; Cordova; Rehmat"),
+    ("posner1982", "1982", "Posner et al.", "Posner et al."),
+    ("qian2017", "2017", "Qian e Lehman", "Qian; Lehman"),
+    ("schmellenkamp2023", "2023", "Schmellenkamp, Latys e Zeume",
+     "Schmellenkamp; Latys; Zeume"),
+    ("sei2025", "2025", "SEI", "SEI"),
+    ("soderstrom2015", "2015", "Soderstrom e Bjork", "Soderstrom; Bjork"),
+    ("sorva2012", "2012", "Sorva", "Sorva"),
+    ("sorva2013", "2013", "Sorva", "Sorva"),
+    ("summit2005", "c2005", "Summit", "Summit"),
+    ("sweller2019", "2019", "Sweller, Van Merriënboer e Paas",
+     "Sweller; Van Merriënboer; Paas"),
+    ("vanlehn2006", "2006", "VanLehn", "VanLehn"),
+    ("vanlehn2011", "2011", "VanLehn", "VanLehn"),
+    ("w3c2025", "2025", "W3C", "W3C"),
+    ("white1992", "1992", "White e Gunstone", "White; Gunstone"),
+    ("yamashita2017", "2017", "Yamashita et al.", "Yamashita et al."),
 ]
-# Menções a obras que o texto discute sem citar como fonte, e que por isso
-# não têm entrada na lista: ficam como texto. Conferir com o autor.
-SEM_REFERENCIA = ["TIPPETT, 2010", "DOIGNON; FALMAGNE, 1985"]
+# Obras citadas por intermédio de outra (apud). A lista de referências traz
+# só as obras consultadas, de modo que estas ficam como texto.
+SEM_REFERENCIA = {"Boulay", "Soloway et al.", "Putnam et al.",
+                  "Sleeman et al.", "Samurçay", "Holland et al.", "Ma",
+                  "Doukakis et al.", "Kaczmarczyk et al."}
 
+# Página ou outro localizador, depois do ano: ", p. 212-213" ou ", cap. 3".
+LOCALIZADOR = r"(?:, ((?:p|cap)\. [\dIVXivx\-]+))?"
+
+# O que parece citação e não foi traduzido: "(Autor, 2000...)" ou
+# "Autor (2000...".
 PADRAO_DE_CITACAO = re.compile(
-    r"\b[A-ZÀ-Ý][A-ZÀ-Ý\-]{2,}(?: et al\.)?(?:; [A-ZÀ-Ý][A-ZÀ-Ý \-]+)*, "
-    r"\d{4}|[A-Z][a-zà-ÿ\-]+(?: et al\.| e [A-Z][a-z]+)? \(\d{4}")
+    r"\((?P<par>[A-ZÀ-Ý][^()]{0,70}?), c?\d{4}[a-z]?(?:, [^()]{0,20})?\)"
+    r"|(?P<txt>[A-ZÀ-Ý][\wÀ-ÿ\-]+(?:(?:, [A-ZÀ-Ý][\wÀ-ÿ\-]+)* e "
+    r"[A-ZÀ-Ý][\wÀ-ÿ\-]+| et al\.)?) \(c?\d{4}")
+
+
+def _autoria_tex(autoria: str) -> str:
+    return autoria.replace("et al.", r"\textit{et al.}")
+
+
+def _localizador_tex(loc) -> str:
+    return ", " + loc.replace(". ", ".~") if loc else ""
+
+
+def _traduz_citacoes(t: str, guarda) -> str:
+    """Troca cada citação do texto pela forma em LaTeX, já guardada."""
+    # 1. citação de citação: "(Tippett, 2010, p. 965 apud Nussbaum; Cordova;
+    #    Rehmat, 2017, p. 31)" e "Ma (2007 apud Sorva, 2012, p. 364)"
+    for chave, ano, _, par in OBRAS:
+        padrao = (r"\(([^()]{1,80}?) apud " + re.escape(par) + ", "
+                  + re.escape(ano) + LOCALIZADOR + r"\)")
+
+        def apud(m, chave=chave, par=par):
+            original = _escapa(m.group(1)).replace("p. ", "p.~")
+            return guarda("(%s \\textit{apud} %s, \\citeyear{%s}%s)" % (
+                _autoria_tex(original), _autoria_tex(par), chave,
+                _localizador_tex(m.group(2))))
+        t = re.sub(padrao, apud, t)
+    # 2. autoria entre parênteses: "(Posner et al., 1982, p. 221)"
+    for chave, ano, _, par in OBRAS:
+        padrao = (r"\(" + re.escape(par) + ", " + re.escape(ano)
+                  + LOCALIZADOR + r"\)")
+
+        def entre(m, chave=chave, par=par):
+            return guarda("(%s, \\citeyear{%s}%s)" % (
+                _autoria_tex(par), chave, _localizador_tex(m.group(1))))
+        t = re.sub(padrao, entre, t)
+    # 3. autoria na frase: "Posner et al. (1982, p. 212)"
+    for chave, ano, txt, _ in OBRAS:
+        padrao = (re.escape(txt) + r" \(" + re.escape(ano) + LOCALIZADOR
+                  + r"\)")
+
+        def frase(m, chave=chave, txt=txt):
+            return guarda("%s (\\citeyear{%s}%s)" % (
+                _autoria_tex(txt), chave, _localizador_tex(m.group(1))))
+        t = re.sub(padrao, frase, t)
+    sobra = []
+    for m in PADRAO_DE_CITACAO.finditer(t):
+        if m.group("txt") is not None and m.group("txt") in SEM_REFERENCIA:
+            continue
+        sobra.append(m.group(0))
+    if sobra:
+        raise Erro("citação sem tradução: %s" % sobra)
+    # "et al." das obras citadas por intermédio de outra
+    return re.sub(r"\bet al\.", lambda m: guarda(r"\textit{et al.}"), t)
 
 
 class Erro(Exception):
@@ -179,12 +212,7 @@ class Texto:
             return texto
         t = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", link, t)
 
-        for padrao, latex in CITACOES:
-            t = re.sub(padrao, lambda m, l=latex: self._guarda(m.expand(l)), t)
-        sobra = [m.group(0) for m in PADRAO_DE_CITACAO.finditer(t)
-                 if not any(s.startswith(m.group(0)[:8]) for s in SEM_REFERENCIA)]
-        if sobra:
-            raise Erro("citação sem tradução: %s" % sobra)
+        t = _traduz_citacoes(t, self._guarda)
 
         def cruzada(m):
             palavra, nums = m.group(1), m.group(2)
@@ -202,6 +230,8 @@ class Texto:
         # um asterisco solto é o operador de C, como em "& e *"
         t = re.sub(r"(?<=\s)\*(?=\s|$)", lambda m: self._guarda("*"), t)
         t = _escapa(t)
+        # "Seção 7" e "Apêndice A" não se partem entre o nome e o número
+        t = re.sub(r"\b(Seção|Seções|Apêndice) (?=[\dA-Z])", r"\1~", t)
         t = re.sub(r'"([^"]*)"', r"``\1''", t)
         t = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", t)
         t = re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])",

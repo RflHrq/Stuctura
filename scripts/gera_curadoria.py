@@ -520,7 +520,7 @@ fonte_ap = ("gerado do catálogo do Structura por "
 ap = """# Apêndice B — O catálogo de concepções errôneas, linha por linha
 
 Este apêndice relaciona as %d concepções errôneas do catálogo, uma por
-linha, com a respectiva procedência (Capítulo 4). O conteúdo não foi
+linha, com a respectiva procedência (Seção 4). O conteúdo não foi
 redigido manualmente: é gerado a partir do catálogo
 (`mvp/dominio/beliefs_kc*.yaml`) pelo programa `scripts/gera_curadoria.py`,
 que procura no texto integral de Sorva (2012) a frase em inglês de cada
@@ -540,7 +540,7 @@ Seção 4.7.
 
 **Quadro B.1 — As %d concepções errôneas do catálogo e a procedência de cada uma**
 
-| concepção | tópicos | premissa | classe | grau | localizador | conferência |
+| Concepção | Tópicos | Premissa | Classe | Grau | Localizador | Conferência |
 | --- | --- | --- | --- | --- | --- | --- |
 %s
 

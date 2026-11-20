@@ -1,16 +1,24 @@
 % Referências da monografia, no formato do abnTeX2 (abntex2cite, alf).
 %
-% Os dados são os de docs/monografia/referencias.md (capítulos 1 a 3, 5 a
-% 8 e Apêndice A) e da lista do capítulo de curadoria (curadoria.md),
-% juntadas aqui numa só, como pede a NBR 6023. Nenhuma entrada foi
-% acrescentada sem estar numa daquelas duas listas: a regra do projeto é
-% que nenhuma referência entra sem ter sido aberta na obra
-% (conferencia-das-referencias.md), e as obras da curadoria citadas pela
-% mediação de Sorva (2012) trazem os dados da bibliografia daquela obra.
+% A forma segue o manual "Normalização de trabalhos acadêmicos" da
+% Biblioteca Central da UFV (2026), que aplica a NBR 6023/2025 e a NBR
+% 10520/2023:
+%   - só entram aqui as obras CONSULTADAS. As obras citadas por intermédio
+%     de outra (apud) não têm entrada: du Boulay (1986), Soloway et al.
+%     (1982), Putnam et al. (1986), Sleeman et al. (1986), Samurçay (1989),
+%     Holland et al. (1997), Ma (2007), Doukakis et al. (2007) e
+%     Kaczmarczyk et al. (2010), todas apud Sorva (2012); Tippett (2010),
+%     apud Nussbaum, Cordova e Rehmat (2017); Doignon e Falmagne (1985),
+%     apud Falmagne et al. (2006). Os dados delas estão na lista de trabalho
+%     de curadoria.md;
+%   - artigo de periódico traz o local de publicação, ou [s. l.] quando o
+%     documento não o informa;
+%   - trabalho em evento entra pelo nome do evento, com número, ano e local;
+%   - documento on-line traz "Disponível em:" e "Acesso em:".
 %
-% O abntex2 não tem campo de DOI: ele vai em note.
-
-% --- Capítulos 1 a 3, 5 a 8 e Apêndice A ------------------------------
+% Nenhuma referência entra sem ter sido aberta na obra
+% (conferencia-das-referencias.md). O abntex2 não tem campo de DOI: ele vai
+% em note.
 
 @incollection{brooke1996,
 	author    = {Brooke, J.},
@@ -33,8 +41,7 @@
 	publisher = {Springer},
 	year      = {2006},
 	pages     = {61-79},
-	series    = {Lecture Notes in Computer Science, v. 3874},
-	note      = {DOI: 10.1007/11671404\_4}
+	note      = {(Lecture Notes in Computer Science, v. 3874). DOI: 10.1007/11671404\_4}
 }
 
 @incollection{gardnermedwin2006,
@@ -48,10 +55,48 @@
 	pages     = {141-149}
 }
 
+% Aberta em 19/11/2026: manuscrito aceito, repositório da TU Delft. Evento,
+% local e editora constam da primeira página (formato de referência da ACM).
+@inproceedings{hermans2018,
+	author              = {Hermans, F. and Swidan, A. and Aivaloglou, E. and Smit, M.},
+	title               = {Thinking out of the box: comparing metaphors for variables in programming education},
+	organization        = {Workshop in Primary and Secondary Computing Education},
+	conference-number   = {13},
+	conference-year     = {2018},
+	conference-location = {Potsdam},
+	booktitle           = {Proceedings [...]},
+	address             = {New York},
+	publisher           = {ACM},
+	year                = {2018},
+	pages               = {1-8},
+	note                = {Art. 8. DOI: 10.1145/3265757.3265765}
+}
+
+@book{kernighan1988,
+	author    = {Kernighan, B. W. and Ritchie, D. M.},
+	title     = {The {C} programming language},
+	edition   = {2},
+	address   = {Englewood Cliffs},
+	publisher = {Prentice Hall},
+	year      = {1988}
+}
+
+@book{mitre2026,
+	author        = {{MITRE}},
+	title         = {{CWE}: common weakness enumeration},
+	address       = {[S.~l.]},
+	publisher     = {MITRE Corporation},
+	note          = {Versão 5.0, de 28 out. 2026. Entradas CWE-252, CWE-415 e CWE-476},
+	year          = {2026},
+	url           = {https://cwe.mitre.org},
+	urlaccessdate = {19 nov. 2026}
+}
+
 @article{nussbaum2017,
 	author        = {Nussbaum, E. M. and Cordova, J. R. and Rehmat, A. P.},
 	title         = {Refutation texts for effective climate change education},
 	journal       = {Journal of Geoscience Education},
+	address       = {[s.~l.]},
 	volume        = {65},
 	number        = {1},
 	pages         = {23-34},
@@ -64,6 +109,7 @@
 	author  = {Posner, G. J. and Strike, K. A. and Hewson, P. W. and Gertzog, W. A.},
 	title   = {Accommodation of a scientific conception: toward a theory of conceptual change},
 	journal = {Science Education},
+	address = {[s.~l.]},
 	volume  = {66},
 	number  = {2},
 	pages   = {211-227},
@@ -75,6 +121,7 @@
 	author  = {Qian, Y. and Lehman, J.},
 	title   = {Students' misconceptions and other difficulties in introductory programming: a literature review},
 	journal = {ACM Transactions on Computing Education},
+	address = {[s.~l.]},
 	volume  = {18},
 	number  = {1, art. 1},
 	pages   = {1-24},
@@ -83,10 +130,42 @@
 	note    = {DOI: 10.1145/3077618}
 }
 
+% Evento, local e editora constam da primeira página do artigo (formato de
+% referência da ACM): SIGCSE 2023, Toronto; ACM, New York.
+@inproceedings{schmellenkamp2023,
+	author              = {Schmellenkamp, M. and Latys, A. and Zeume, T.},
+	title               = {Discovering and quantifying misconceptions in formal methods using intelligent tutoring systems},
+	organization        = {ACM Technical Symposium on Computer Science Education},
+	conference-number   = {54},
+	conference-year     = {2023},
+	conference-location = {Toronto},
+	booktitle           = {Proceedings [...]},
+	address             = {New York},
+	publisher           = {ACM},
+	year                = {2023},
+	volume              = {1},
+	pages               = {465-471},
+	note                = {DOI: 10.1145/3545945.3569806}
+}
+
+% O CERT C foi lido nas cópias de dezembro de 2025 do Internet Archive,
+% porque o wiki recusou a conexão.
+@book{sei2025,
+	author        = {{SEI}},
+	title         = {{SEI CERT C} coding standard},
+	address       = {Pittsburgh},
+	publisher     = {Software Engineering Institute, Carnegie Mellon University},
+	note          = {Regras ERR33-C, EXP34-C, MEM30-C e MEM31-C},
+	year          = {2025},
+	url           = {https://wiki.sei.cmu.edu/confluence/display/c},
+	urlaccessdate = {19 nov. 2026}
+}
+
 @article{soderstrom2015,
 	author  = {Soderstrom, N. C. and Bjork, R. A.},
 	title   = {Learning versus performance: an integrative review},
 	journal = {Perspectives on Psychological Science},
+	address = {[s.~l.]},
 	volume  = {10},
 	number  = {2},
 	pages   = {176-199},
@@ -94,20 +173,52 @@
 	note    = {DOI: 10.1177/1745691615569000}
 }
 
+% Folha de rosto da tese: "Doctoral dissertation for the degree of Doctor
+% of Science in Technology [...] Aalto University School of Science,
+% Department of Computer Science and Engineering [...] (Espoo, Finland)".
 @phdthesis{sorva2012,
+	author        = {Sorva, J.},
+	title         = {Visual program simulation in introductory programming education},
+	type          = {Doutorado},
+	school        = {Department of Computer Science and Engineering, Aalto University School of Science},
+	address       = {Espoo},
+	year          = {2012},
+	url           = {https://aaltodoc.aalto.fi/handle/123456789/3534},
+	urlaccessdate = {19 nov. 2026}
+}
+
+@article{sorva2013,
 	author  = {Sorva, J.},
-	title   = {Visual program simulation in introductory programming education},
-	type    = {Doutorado},
-	school  = {Aalto University School of Science},
-	address = {Espoo},
-	year    = {2012},
-	note    = {Disponível no repositório institucional da Universidade Aalto, handle 123456789/3534}
+	title   = {Notional machines and introductory programming education},
+	journal = {ACM Transactions on Computing Education},
+	address = {[s.~l.]},
+	volume  = {13},
+	number  = {2, art. 8},
+	pages   = {1-31},
+	month   = {June},
+	year    = {2013},
+	note    = {DOI: 10.1145/2483710.2483713}
+}
+
+% O que foi consultado é a versão on-line do FAQ, e é ela que se referencia.
+% A página inicial traz "Copyright 1995-2005 by Steve Summit" e diz que o
+% conteúdo vem do livro "C Programming FAQs: Frequently Asked Questions"
+% (Addison-Wesley, ISBN 0-201-84519-9), mais longo que a versão on-line.
+@manual{summit2005,
+	author        = {Summit, S.},
+	title         = {comp.lang.c frequently asked questions},
+	address       = {[S.~l.]},
+	year          = {c2005},
+	note          = {Versão em hipertexto da lista de perguntas frequentes do grupo comp.lang.c, mais curta que o livro C programming FAQs, do mesmo autor},
+	url           = {https://c-faq.com/},
+	urlaccessdate = {19 nov. 2026}
 }
 
 @article{sweller2019,
 	author  = {Sweller, J. and Van Merri{\"e}nboer, J. J. G. and Paas, F.},
 	title   = {Cognitive architecture and instructional design: 20 years later},
 	journal = {Educational Psychology Review},
+	address = {[s.~l.]},
 	volume  = {31},
 	pages   = {261-292},
 	year    = {2019},
@@ -118,6 +229,7 @@
 	author  = {VanLehn, K.},
 	title   = {The behavior of tutoring systems},
 	journal = {International Journal of Artificial Intelligence in Education},
+	address = {[s.~l.]},
 	volume  = {16},
 	number  = {3},
 	pages   = {227-265},
@@ -128,6 +240,7 @@
 	author  = {VanLehn, K.},
 	title   = {The relative effectiveness of human tutoring, intelligent tutoring systems, and other tutoring systems},
 	journal = {Educational Psychologist},
+	address = {[s.~l.]},
 	volume  = {46},
 	number  = {4},
 	pages   = {197-221},
@@ -138,6 +251,7 @@
 @manual{w3c2025,
 	author        = {{W3C}},
 	title         = {Web Content Accessibility Guidelines ({WCAG}) 2.1},
+	address       = {[S.~l.]},
 	note          = {W3C Recommendation, 6 May 2025. Versão original: 5 jun. 2018},
 	year          = {2025},
 	url           = {https://www.w3.org/TR/WCAG21/},
@@ -152,185 +266,13 @@
 	year      = {1992}
 }
 
-% Trabalhos relacionados (2.8). Yamashita et al. (2017): SpringerOpen.
-% Schmellenkamp et al. (2023) e Sorva (2013): texto integral, baixado pelo
-% autor na ACM.
-
 @article{yamashita2017,
 	author  = {Yamashita, K. and Fujioka, R. and Kogure, S. and Noguchi, Y. and Konishi, T. and Itoh, Y.},
 	title   = {Classroom practice for understanding pointers using learning support system for visualizing memory image and target domain world},
 	journal = {Research and Practice in Technology Enhanced Learning},
-	volume  = {12},
+	address = {[s.~l.]},
+	volume  = {12, art. 17},
 	pages   = {1-16},
 	year    = {2017},
-	note    = {Art. 17. DOI: 10.1186/s41039-017-0058-4}
-}
-
-@inproceedings{schmellenkamp2023,
-	author    = {Schmellenkamp, M. and Latys, A. and Zeume, T.},
-	title     = {Discovering and quantifying misconceptions in formal methods using intelligent tutoring systems},
-	booktitle = {Proceedings of the 54th ACM Technical Symposium on Computer Science Education V. 1},
-	publisher = {ACM},
-	year      = {2023},
-	pages     = {465-471},
-	note      = {DOI: 10.1145/3545945.3569806}
-}
-
-@article{sorva2013,
-	author  = {Sorva, J.},
-	title   = {Notional machines and introductory programming education},
-	journal = {ACM Transactions on Computing Education},
-	volume  = {13},
-	number  = {2},
-	pages   = {1-31},
-	month   = {June},
-	year    = {2013},
-	note    = {Art. 8. DOI: 10.1145/2483710.2483713}
-}
-
-% --- Capítulo 4, curadoria ----------------------------------------------
-% Lidas no original: Sorva (2012), acima; Summit (1996); Kernighan e
-% Ritchie (1988). As demais são citadas pela mediação de Sorva (2012).
-
-@book{summit1996,
-	author    = {Summit, S.},
-	title     = {C programming {FAQs}: frequently asked questions},
-	address   = {Reading},
-	publisher = {Addison-Wesley},
-	year      = {1996},
-	isbn      = {0-201-84519-9},
-	note      = {Versão on-line consultada em c-faq.com, mais curta que o livro}
-}
-
-@book{kernighan1988,
-	author    = {Kernighan, B. W. and Ritchie, D. M.},
-	title     = {The {C} programming language},
-	edition   = {2},
-	address   = {Englewood Cliffs},
-	publisher = {Prentice Hall},
-	year      = {1988}
-}
-
-@inproceedings{doukakis2007,
-	author    = {Doukakis, D. and Grigoriadou, M. and Tsaganou, G.},
-	title     = {Understanding the programming variable concept with animated interactive analogies},
-	booktitle = {Proceedings of the 8th Hellenic European Research on Computer Mathematics \& its Applications Conference ({HERCMA} '07)},
-	year      = {2007}
-}
-
-@article{duboulay1986,
-	author  = {Du Boulay, B.},
-	title   = {Some difficulties of learning to program},
-	journal = {Journal of Educational Computing Research},
-	volume  = {2},
-	number  = {1},
-	pages   = {57-73},
-	year    = {1986}
-}
-
-@article{holland1997,
-	author  = {Holland, S. and Griffiths, R. and Woodman, M.},
-	title   = {Avoiding object misconceptions},
-	journal = {SIGCSE Bulletin},
-	volume  = {29},
-	number  = {1},
-	pages   = {131-134},
-	year    = {1997}
-}
-
-@inproceedings{kaczmarczyk2010,
-	author    = {Kaczmarczyk, L. C. and Petrick, E. R. and East, J. P. and Herman, G. L.},
-	title     = {Identifying student misconceptions of programming},
-	booktitle = {Proceedings of the 41st ACM Technical Symposium on Computer Science Education ({SIGCSE} '10)},
-	publisher = {ACM},
-	year      = {2010},
-	pages     = {107-111}
-}
-
-@phdthesis{ma2007,
-	author = {Ma, L.},
-	title  = {Investigating and improving novice programmers' mental models of programming concepts},
-	type   = {Doutorado},
-	school = {Department of Computer \& Information Sciences, University of Strathclyde},
-	year   = {2007}
-}
-
-@article{putnam1986,
-	author  = {Putnam, R. T. and Sleeman, D. and Baxter, J. A. and Kuspa, L. K.},
-	title   = {A summary of misconceptions of high school {BASIC} programmers},
-	journal = {Journal of Educational Computing Research},
-	volume  = {2},
-	number  = {4},
-	pages   = {459-472},
-	year    = {1986}
-}
-
-@incollection{samurcay1989,
-	author    = {Samur{\c{c}}ay, R.},
-	title     = {The concept of variable in programming: its meaning and use in problem-solving by novice programmers},
-	editor    = {Soloway, E. and Spohrer, J. C.},
-	booktitle = {Studying the novice programmer},
-	address   = {Hillsdale},
-	publisher = {Lawrence Erlbaum Associates},
-	year      = {1989},
-	pages     = {161-178}
-}
-
-% A bibliografia de Sorva (2012) traz duas entradas de Sleeman em 1986; uma
-% repete os dados de putnam1986. Esta é a outra, confirmada na Crossref
-% (DOI 10.2190/2XPP-LTYH-98NQ-BU77).
-@article{sleeman1986,
-	author  = {Sleeman, D. and Putnam, R. T. and Baxter, J. and Kuspa, L.},
-	title   = {Pascal and high school students: a study of errors},
-	journal = {Journal of Educational Computing Research},
-	volume  = {2},
-	number  = {1},
-	pages   = {5-23},
-	year    = {1986}
-}
-
-@incollection{soloway1982,
-	author    = {Soloway, E. and Ehrlich, K. and Bonar, J. and Greenspan, J.},
-	title     = {What do novices know about programming?},
-	editor    = {Badre, A. and Shneiderman, B.},
-	booktitle = {Directions in human--computer interaction},
-	address   = {Norwood},
-	publisher = {Ablex Publishing},
-	year      = {1982},
-	pages     = {27-54}
-}
-
-% Abertas na terceira conferência (19/11/2026). O CERT C foi lido nas cópias
-% de dezembro de 2025 do Internet Archive, porque o wiki recusou a conexão.
-
-@inproceedings{hermans2018,
-	author    = {Hermans, F. and Swidan, A. and Aivaloglou, E. and Smit, M.},
-	title     = {Thinking out of the box: comparing metaphors for variables in programming education},
-	booktitle = {Proceedings of the 13th Workshop in Primary and Secondary Computing Education ({WiPSCE} '18)},
-	publisher = {ACM},
-	year      = {2018},
-	pages     = {1-8},
-	note      = {Art. 8. DOI: 10.1145/3265757.3265765}
-}
-
-@book{mitre2026,
-	author        = {{MITRE}},
-	title         = {{CWE}: common weakness enumeration},
-	address       = {[S.l.]},
-	publisher     = {MITRE Corporation},
-	note          = {Versão 5.0, de 28 out. 2026. Entradas CWE-252, CWE-415 e CWE-476},
-	year          = {2026},
-	url           = {https://cwe.mitre.org},
-	urlaccessdate = {19 nov. 2026}
-}
-
-@book{sei2025,
-	author        = {{SEI}},
-	title         = {{SEI CERT C} coding standard},
-	address       = {Pittsburgh},
-	publisher     = {Software Engineering Institute, Carnegie Mellon University},
-	note          = {Regras ERR33-C, EXP34-C, MEM30-C e MEM31-C},
-	year          = {2025},
-	url           = {https://wiki.sei.cmu.edu/confluence/display/c},
-	urlaccessdate = {19 nov. 2026}
+	note    = {DOI: 10.1186/s41039-017-0058-4}
 }

@@ -3,9 +3,9 @@
 
 \chapter{\texorpdfstring{\mbox{O} \mbox{CATÁLOGO} \mbox{DE} \mbox{CONCEPÇÕES} \mbox{ERRÔNEAS,} \mbox{LINHA} \mbox{POR} \mbox{LINHA}}{O CATÁLOGO DE CONCEPÇÕES ERRÔNEAS, LINHA POR LINHA}}\label{cap:B}
 
-Este apêndice relaciona as 61 concepções errôneas do catálogo, uma por linha, com a respectiva procedência (Capítulo 4). O conteúdo não foi redigido manualmente: é gerado a partir do catálogo (\texttt{mvp/\allowbreak{}dominio/\allowbreak{}beliefs\_\allowbreak{}kc*.\allowbreak{}yaml}) pelo programa \texttt{scripts/\allowbreak{}gera\_\allowbreak{}curadoria.\allowbreak{}py}, que procura no texto integral de \citeonline{sorva2012} a frase em inglês de cada citação daquela obra. Quando executado sem esse texto, o programa marca essas linhas como não conferidas, em vez de registrar uma conferência não realizada.
+Este apêndice relaciona as 61 concepções errôneas do catálogo, uma por linha, com a respectiva procedência (Seção~4). O conteúdo não foi redigido manualmente: é gerado a partir do catálogo (\texttt{mvp/\allowbreak{}dominio/\allowbreak{}beliefs\_\allowbreak{}kc*.\allowbreak{}yaml}) pelo programa \texttt{scripts/\allowbreak{}gera\_\allowbreak{}curadoria.\allowbreak{}py}, que procura no texto integral de Sorva (\citeyear{sorva2012}) a frase em inglês de cada citação daquela obra. Quando executado sem esse texto, o programa marca essas linhas como não conferidas, em vez de registrar uma conferência não realizada.
 
-As colunas do Quadro~\ref{qua:B-1} indicam: a concepção, pelo identificador do catálogo; os tópicos em que ela aparece; a premissa que ela nega, no primeiro desses tópicos; a classe da fonte (1, concepção estudada com estudantes; 2, corpus de praticante; ou hipótese); o grau de procedência (Quadro~\ref{qua:4-1}); o localizador, isto é, o tipo de posição que a citação indica na obra; e a conferência, isto é, a forma como a citação foi conferida na obra primária (Quadro~\ref{qua:4-4}). A conferência indicada é a da curadoria; a das normas CERT C e CWE, realizada à parte, é descrita na Seção 4.7.
+As colunas do Quadro~\ref{qua:B-1} indicam: a concepção, pelo identificador do catálogo; os tópicos em que ela aparece; a premissa que ela nega, no primeiro desses tópicos; a classe da fonte (1, concepção estudada com estudantes; 2, corpus de praticante; ou hipótese); o grau de procedência (Quadro~\ref{qua:4-1}); o localizador, isto é, o tipo de posição que a citação indica na obra; e a conferência, isto é, a forma como a citação foi conferida na obra primária (Quadro~\ref{qua:4-4}). A conferência indicada é a da curadoria; a das normas CERT C e CWE, realizada à parte, é descrita na Seção~4.7.
 
 \begin{center}
 \refstepcounter{quadro}\label{qua:B-1}
@@ -15,72 +15,72 @@ Quadro~\thequadro~--~As 61 concepções errôneas do catálogo e a procedência 
 {\scriptsize\setlength{\tabcolsep}{3pt}
 \begin{longtable}{|>{\raggedright\arraybackslash}p{0.166\linewidth}|>{\raggedright\arraybackslash}p{0.135\linewidth}|>{\raggedright\arraybackslash}p{0.093\linewidth}|>{\raggedright\arraybackslash}p{0.119\linewidth}|>{\raggedright\arraybackslash}p{0.052\linewidth}|>{\raggedright\arraybackslash}p{0.166\linewidth}|>{\raggedright\arraybackslash}p{0.166\linewidth}|}
 \hline
-\textbf{concepção} & \textbf{tópicos} & \textbf{premissa} & \textbf{classe} & \textbf{grau} & \textbf{localizador} & \textbf{conferência} \\ \hline
+\textbf{Concepção} & \textbf{Tópicos} & \textbf{Premissa} & \textbf{Classe} & \textbf{Grau} & \textbf{Localizador} & \textbf{Conferência} \\ \hline
 \endfirsthead
 \hline
-\textbf{concepção} & \textbf{tópicos} & \textbf{premissa} & \textbf{classe} & \textbf{grau} & \textbf{localizador} & \textbf{conferência} \\ \hline
+\textbf{Concepção} & \textbf{Tópicos} & \textbf{Premissa} & \textbf{Classe} & \textbf{Grau} & \textbf{Localizador} & \textbf{Conferência} \\ \hline
 \endhead
-\texttt{ampersand\_\allowbreak{}copies} & kc\_04, kc\_06, kc\_10, kc\_12 & B2 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{ampersand\_\allowbreak{}copies} & kc\_04, kc\_06, kc\_10, kc\_12 & B2 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{ampersand\_\allowbreak{}takes\_\allowbreak{}value} & kc\_04 & B1 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{any\_\allowbreak{}zero\_\allowbreak{}is\_\allowbreak{}null} & kc\_05 & B2 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{arr\_\allowbreak{}equals\_\allowbreak{}addr\_\allowbreak{}of\_\allowbreak{}arr} & kc\_07 & B4 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{array2d\_\allowbreak{}is\_\allowbreak{}double\_\allowbreak{}pointer} & kc\_10 & I2 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{array\_\allowbreak{}confused\_\allowbreak{}with\_\allowbreak{}cell} & kc\_07 & B1 & 1, concepção estudada & \texttt{D} & página/item, seção da obra & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{array\_\allowbreak{}confused\_\allowbreak{}with\_\allowbreak{}cell} & kc\_07 & B1 & 1, concepção estudada & \texttt{D} & página/item, seção da obra & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{array\_\allowbreak{}is\_\allowbreak{}assignable} & kc\_07 & I1 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{array\_\allowbreak{}is\_\allowbreak{}pointer} & kc\_07 & I3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{array\_\allowbreak{}passed\_\allowbreak{}by\_\allowbreak{}reference} & kc\_07 & B3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{assignment\_\allowbreak{}symmetric} & kc\_00 & I1 & 1, concepção estudada & \texttt{D} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
-\texttt{declaration\_\allowbreak{}allocates} & kc\_03, kc\_07 & I1 & 1, concepção estudada & \texttt{T} & página/item, pergunta do FAQ & conferida: texto integral de \citeonline{sorva2012} \\ \hline
-\texttt{declaration\_\allowbreak{}zeroes} & kc\_00, kc\_03 & B3 & 1, concepção estudada & \texttt{D} & página/item, pergunta do FAQ, seção da obra & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{assignment\_\allowbreak{}symmetric} & kc\_00 & I1 & 1, concepção estudada & \texttt{D} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
+\texttt{declaration\_\allowbreak{}allocates} & kc\_03, kc\_07 & I1 & 1, concepção estudada & \texttt{T} & página/item, pergunta do FAQ & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
+\texttt{declaration\_\allowbreak{}zeroes} & kc\_00, kc\_03 & B3 & 1, concepção estudada & \texttt{D} & página/item, pergunta do FAQ, seção da obra & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{double\_\allowbreak{}deref\_\allowbreak{}is\_\allowbreak{}data} & kc\_10 & I3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{double\_\allowbreak{}free\_\allowbreak{}is\_\allowbreak{}safe} & kc\_09 & I4 & 2, corpus de praticante & \texttt{N} & pergunta do FAQ, id CWE/CERT & conferida: índice em c-faq.com \\ \hline
 \texttt{estrela\_\allowbreak{}e\_\allowbreak{}do\_\allowbreak{}tipo} & kc\_03 & B2 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{free\_\allowbreak{}kills\_\allowbreak{}pointer} & kc\_09 & I2 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ, id CWE/CERT & conferida: índice em c-faq.com \\ \hline
 \texttt{free\_nullifies} & kc\_09 & I1 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{funcao\_\allowbreak{}usa\_\allowbreak{}a\_\allowbreak{}variavel\_\allowbreak{}do\_\allowbreak{}chamador} & kc\_06 & B1 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
-\texttt{function\_\allowbreak{}gets\_\allowbreak{}original} & kc\_06, kc\_09 & I1 & 1, concepção estudada & \texttt{T} & página/item, pergunta do FAQ & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{funcao\_\allowbreak{}usa\_\allowbreak{}a\_\allowbreak{}variavel\_\allowbreak{}do\_\allowbreak{}chamador} & kc\_06 & B1 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
+\texttt{function\_\allowbreak{}gets\_\allowbreak{}original} & kc\_06, kc\_09 & I1 & 1, concepção estudada & \texttt{T} & página/item, pergunta do FAQ & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{heap\_\allowbreak{}dies\_\allowbreak{}with\_\allowbreak{}function} & kc\_01 & I1 & sem fonte & \texttt{T} & não há & sem item na literatura: busca declarada \\ \hline
 \texttt{heap\_persists} & kc\_09 & B4 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ, id CWE/CERT & conferida: índice em c-faq.com \\ \hline
 \texttt{indice\_\allowbreak{}nao\_\allowbreak{}e\_\allowbreak{}soma} & kc\_11 & I1 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{local\_\allowbreak{}sobrevive} & kc\_01 & B2 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
-\texttt{local\_\allowbreak{}survives\_\allowbreak{}return} & kc\_12 & I3 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{local\_\allowbreak{}sobrevive} & kc\_01 & B2 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
+\texttt{local\_\allowbreak{}survives\_\allowbreak{}return} & kc\_12 & I3 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{malloc\_\allowbreak{}always\_\allowbreak{}succeeds} & kc\_08 & I2 & 2, corpus de praticante & \texttt{N} & id CWE/CERT & não conferida: fonte pública, não aberta aqui \\ \hline
 \texttt{malloc\_\allowbreak{}conta\_\allowbreak{}elementos} & kc\_08 & B1 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{malloc\_\allowbreak{}initializes\_\allowbreak{}zero} & kc\_08 & B3 & 1, concepção estudada & \texttt{L} & página/item, pergunta do FAQ & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{malloc\_\allowbreak{}initializes\_\allowbreak{}zero} & kc\_08 & B3 & 1, concepção estudada & \texttt{L} & página/item, pergunta do FAQ & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{memoria\_\allowbreak{}e\_\allowbreak{}do\_\allowbreak{}computador} & kc\_01 & B1 & hipótese & \texttt{E} & página/item & sem fonte, por desenho \\ \hline
-\texttt{memory\_\allowbreak{}is\_\allowbreak{}by\_\allowbreak{}name} & kc\_02 & B1 & 1, concepção estudada & \texttt{D} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{memory\_\allowbreak{}is\_\allowbreak{}by\_\allowbreak{}name} & kc\_02 & B1 & 1, concepção estudada & \texttt{D} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{memory\_\allowbreak{}is\_\allowbreak{}uniform} & kc\_01, kc\_12 & I2 & hipótese & \texttt{E} & não há & sem item na literatura: busca declarada \\ \hline
 \texttt{modify\_\allowbreak{}pp\_\allowbreak{}changes\_\allowbreak{}p} & kc\_06, kc\_10 & I3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{no\_\allowbreak{}value\_\allowbreak{}no\_\allowbreak{}memory} & kc\_00, kc\_03 & B2 & 1, concepção estudada & \texttt{D} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{no\_\allowbreak{}value\_\allowbreak{}no\_\allowbreak{}memory} & kc\_00, kc\_03 & B2 & 1, concepção estudada & \texttt{D} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{null\_\allowbreak{}after\_\allowbreak{}free\_\allowbreak{}redundant} & kc\_09 & I3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{null\_\allowbreak{}is\_\allowbreak{}absence} & kc\_05 & B1 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{null\_\allowbreak{}is\_\allowbreak{}safe\_\allowbreak{}to\_\allowbreak{}deref} & kc\_05 & I3 & 2, corpus de praticante & \texttt{N} & pergunta do FAQ, id CWE/CERT & conferida: índice em c-faq.com \\ \hline
 \texttt{null\_\allowbreak{}is\_\allowbreak{}zero\_\allowbreak{}always} & kc\_05 & I2 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{null\_\allowbreak{}points\_\allowbreak{}to\_\allowbreak{}zero} & kc\_05 & B3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{passa\_\allowbreak{}a\_\allowbreak{}expressao} & kc\_06 & B2 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{passa\_\allowbreak{}a\_\allowbreak{}expressao} & kc\_06 & B2 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{pode\_usar\_logo} & kc\_03 & I3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{pointer\_\allowbreak{}and\_\allowbreak{}target\_\allowbreak{}are\_\allowbreak{}one} & kc\_02 & I1 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
-\texttt{pointer\_\allowbreak{}copy\_\allowbreak{}is\_\allowbreak{}alias} & kc\_06 & I4 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
-\texttt{pointer\_\allowbreak{}has\_\allowbreak{}no\_\allowbreak{}address} & kc\_02 & B2 & 1, concepção estudada & \texttt{T} & página/item, pergunta do FAQ & conferida: texto integral de \citeonline{sorva2012} \\ \hline
-\texttt{pointer\_\allowbreak{}is\_\allowbreak{}data} & kc\_02, kc\_04, kc\_08, kc\_12 & B3 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{pointer\_\allowbreak{}and\_\allowbreak{}target\_\allowbreak{}are\_\allowbreak{}one} & kc\_02 & I1 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
+\texttt{pointer\_\allowbreak{}copy\_\allowbreak{}is\_\allowbreak{}alias} & kc\_06 & I4 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
+\texttt{pointer\_\allowbreak{}has\_\allowbreak{}no\_\allowbreak{}address} & kc\_02 & B2 & 1, concepção estudada & \texttt{T} & página/item, pergunta do FAQ & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
+\texttt{pointer\_\allowbreak{}is\_\allowbreak{}data} & kc\_02, kc\_04, kc\_08, kc\_12 & B3 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{pointer\_\allowbreak{}is\_\allowbreak{}integer} & kc\_02, kc\_11 & I2 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{pointer\_\allowbreak{}is\_\allowbreak{}just\_\allowbreak{}a\_\allowbreak{}name} & kc\_04, kc\_05, kc\_10 & I1 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{pointer\_\allowbreak{}is\_\allowbreak{}just\_\allowbreak{}a\_\allowbreak{}name} & kc\_04, kc\_05, kc\_10 & I1 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{pointer\_\allowbreak{}is\_\allowbreak{}pointless} & kc\_02 & I3 & 1, concepção estudada & \texttt{L} & pergunta do FAQ & citação abreviada; forma íntegra localizada \\ \hline
 \texttt{pointer\_\allowbreak{}knows\_\allowbreak{}block\_\allowbreak{}size} & kc\_09, kc\_11 & B1 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{pointer\_\allowbreak{}lives\_\allowbreak{}in\_\allowbreak{}heap} & kc\_08, kc\_09 & I1 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{ptr\_\allowbreak{}arith\_\allowbreak{}is\_\allowbreak{}bytes} & kc\_11 & I3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{retorno\_\allowbreak{}fica\_\allowbreak{}guardado} & kc\_12 & B3 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{retorno\_\allowbreak{}fica\_\allowbreak{}guardado} & kc\_12 & B3 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{sizeof\_\allowbreak{}array\_\allowbreak{}via\_\allowbreak{}pointer} & kc\_07 & I2 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{star\_\allowbreak{}assigns\_\allowbreak{}pointer} & kc\_04 & I3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{star\_\allowbreak{}binds\_\allowbreak{}to\_\allowbreak{}the\_\allowbreak{}pointer} & kc\_04 & I2 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
-\texttt{static\_\allowbreak{}is\_\allowbreak{}scope} & kc\_12 & I2 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{static\_\allowbreak{}is\_\allowbreak{}scope} & kc\_12 & I2 & 1, concepção estudada & \texttt{T} & página/item & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{string\_\allowbreak{}literal\_\allowbreak{}is\_\allowbreak{}array} & kc\_07, kc\_11 & B1 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{system\_\allowbreak{}frees\_\allowbreak{}auto} & kc\_01, kc\_08 & B3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \texttt{type\_is\_a\_hint} & kc\_00 & B1 & hipótese & \texttt{E} & não há & sem fonte, por desenho \\ \hline
 \texttt{uninitialized\_\allowbreak{}is\_\allowbreak{}null} & kc\_03 & I2 & 1, concepção estudada & \texttt{D} & página/item & citada sem frase entre aspas \\ \hline
-\texttt{variable\_\allowbreak{}remembers} & kc\_00 & B4 & 1, concepção estudada & \texttt{T} & página/item, seção da obra & conferida: texto integral de \citeonline{sorva2012} \\ \hline
+\texttt{variable\_\allowbreak{}remembers} & kc\_00 & B4 & 1, concepção estudada & \texttt{T} & página/item, seção da obra & conferida: texto integral de Sorva (\citeyear{sorva2012}) \\ \hline
 \texttt{voidptr\_\allowbreak{}arith\_\allowbreak{}ok} & kc\_11 & I2 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & parcial: seção 11 não reaberta \\ \hline
 \texttt{voidptr\_\allowbreak{}is\_\allowbreak{}universal} & kc\_10 & B3 & 2, corpus de praticante & \texttt{L} & pergunta do FAQ & conferida: índice em c-faq.com \\ \hline
 \end{longtable}}
 \vspace{-\baselineskip}
-\fonte{Gerado do catálogo do Structura por \texttt{scripts/\allowbreak{}gera\_\allowbreak{}curadoria.\allowbreak{}py}, com o texto integral de \citeonline{sorva2012}.}
+\fonte{Gerado do catálogo do Structura por \texttt{scripts/\allowbreak{}gera\_\allowbreak{}curadoria.\allowbreak{}py}, com o texto integral de Sorva (\citeyear{sorva2012}).}

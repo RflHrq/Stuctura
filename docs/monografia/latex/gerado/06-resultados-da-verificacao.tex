@@ -5,14 +5,14 @@
 
 \section{Escopo verificado}
 
-O Quadro~\ref{qua:6-1} resume a dimensão do sistema abrangido pela verificação descrita no Capítulo 5, na versão de 19/11/2026.
+O Quadro~\ref{qua:6-1} resume a dimensão do sistema abrangido pela verificação descrita na Seção~5, na versão de 19/11/2026.
 
 \begin{quadro}[htbp]
 \caption{Dimensão do sistema verificado}\label{qua:6-1}
 \footnotesize
 \begin{tabularx}{\textwidth}{|X|X|}
 \hline
-\textbf{elemento} & \textbf{quantidade} \\ \hline
+\textbf{Elemento} & \textbf{Quantidade} \\ \hline
 Tópicos, todos na trilha & 13 \\ \hline
 Premissas & 79 \\ \hline
 Concepções errôneas no catálogo & 61 \\ \hline
@@ -21,7 +21,7 @@ Passos de escada (versões) & 402 (804) \\ \hline
 Demonstrações com previsão & 80 (41 saídas, 39 do compilador) \\ \hline
 Cenas da revisão & 79 \\ \hline
 Trechos de código das escadas & 1 762 \\ \hline
-Testes automatizados & 7 547 \\ \hline
+Testes automatizados & 7 553 \\ \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor.}
 \end{quadro}
@@ -32,7 +32,7 @@ O conferidor não acusa nenhum problema nos 13 tópicos: os 402 passos, os 79 ex
 
 As 79 cenas também foram aprovadas na conferência: em cada ponto percorrido por cada cena, o programa instrumentado afirma o valor de cada variável, o destino de cada ponteiro e o número de execuções da linha, e nenhuma afirmação falha. Das 79, 20 passam por dentro de funções (duas delas, a da função \texttt{conta}, no kc\_01, e a da função \texttt{dobra}, no kc\_12, pela mesma função duas vezes), 13 por arrays e 17 por blocos do \texttt{malloc}.
 
-No banco de questões, das 69 questões de prever a saída conferidas, todas imprimem o valor da alternativa correta, e nenhum trecho das 321 questões com código divide uma cadeia de caracteres entre duas linhas. Os defeitos identificados pela conferência do banco são relatados na Seção 6.4.
+No banco de questões, das 69 questões de prever a saída conferidas, todas imprimem o valor da alternativa correta, e nenhum trecho das 321 questões com código divide uma cadeia de caracteres entre duas linhas. Os defeitos identificados pela conferência do banco são relatados na Seção~6.4.
 
 A seleção de questões deixa 93 questões do banco fora da trilha, por utilizarem construções que nenhum tópico ensinou até aquele ponto. Com essa exclusão, as 79 premissas têm como abertura uma questão com código.
 
@@ -66,18 +66,18 @@ kc\_12 & 14 / 19 & 26 / 43 & 38 / 91 & 38 / 37 & 44 / 67 \\ \hline
 Três observações decorrem do quadro:
 
 \begin{itemize}
-\item A extensão da sessão varia conforme a necessidade da pessoa, e não conforme o tópico. O perfil que sabe todo o conteúdo percorre um tópico de seis premissas em 14 telas; os que necessitam de ensino ou de correção em todas as premissas, em 26 a 38 telas. O tamanho do tópico influi apenas pelo número de premissas: o kc\_09, com oito, é o mais longo em todos os perfis.
+\item A extensão da sessão varia conforme a necessidade da pessoa, e não conforme o tópico. O perfil que sabe todo o conteúdo percorre um tópico de seis premissas em 14 telas; os que necessitam de ensino ou de correção em todas as premissas, em 26 a 44 telas. O tamanho do tópico influi apenas pelo número de premissas: o kc\_09, com oito, é o mais longo em todos os perfis.
 \item O limite de duração é respeitado. Mesmo o perfil que erra todos os passos conclui o tópico, com as premissas em aberto e sem repetição indefinida: o pior caso é finito e previsível.
 \item A demonstração é breve. O perfil que sustenta a concepção errônea e a abandona realiza menos toques do que o que não sabe e aprende (37 e 43, respectivamente, em um tópico de seis premissas), pois a demonstração substitui o percurso da escada, e não se soma a ele.
 \end{itemize}
 
-Os valores referem-se a perfis simulados e servem para mostrar que o percurso se comporta conforme o projeto. Não indicam o tempo que uma pessoa leva para concluir a sessão nem se ela aprende, o que exigiria o estudo descrito no Apêndice A.
+Os valores referem-se a perfis simulados e servem para mostrar que o percurso se comporta conforme o projeto. Não indicam o tempo que uma pessoa leva para concluir a sessão nem se ela aprende, o que exigiria o estudo descrito no Apêndice~A.
 
 \section{Defeitos identificados pela verificação}
 
 O resultado mais relevante da verificação não é a ausência de problemas na versão descrita, mas o conjunto de defeitos identificados ao longo do processo.
 
-A leitura do sistema pelo autor, realizada quando a verificação automatizada já não acusava problemas, identificou um tipo de defeito que nenhum teste apontaria, por não se tratar de afirmação falsa, e sim de deficiência de clareza: perguntas que repetiam a frase anterior (Seção 5.7). Dos 244 passos guiados, 101 tiveram a frase reescrita: o passo lido inicialmente pelo autor, 46 dos marcados pelo programa e 54 que o programa não marcou e que somente a leitura identificou. O programa identificou, portanto, menos da metade dos casos: a marcação por palavras serviu como ponto de partida, e não como critério.
+A leitura do sistema pelo autor, realizada quando a verificação automatizada já não acusava problemas, identificou um tipo de defeito que nenhum teste apontaria, por não se tratar de afirmação falsa, e sim de deficiência de clareza: perguntas que repetiam a frase anterior (Seção~5.7). Dos 244 passos guiados, 101 tiveram a frase reescrita: o passo lido inicialmente pelo autor, 46 dos marcados pelo programa e 54 que o programa não marcou e que somente a leitura identificou. O programa identificou, portanto, menos da metade dos casos: a marcação por palavras serviu como ponto de partida, e não como critério.
 
 A verificação automatizada identificou defeitos de outra natureza, todos corrigidos na versão descrita:
 
@@ -86,7 +86,7 @@ A verificação automatizada identificou defeitos de outra natureza, todos corri
 \item Uma resposta inválida no compilador do laboratório. Uma questão do tópico kc\_12 perguntava o que é impresso por \texttt{p == NULL} depois de \texttt{p} receber o endereço de uma variável local de uma função já encerrada, e indicava 0 como resposta correta. No gcc 16.2, o compilador emite um aviso e devolve \texttt{NULL} no lugar desse endereço, e o valor impresso é 1; além disso, o padrão da linguagem C não define aquele valor.
 \item Uma afirmação dependente da versão do compilador. Uma questão do tópico kc\_11 afirmava que o compilador ``recusa'' a aritmética com \texttt{void *}; o gcc aceita a operação por uma extensão própria e apenas emite aviso com a opção \texttt{-{}Wpointer-{}arith}. A questão permanece fora da trilha, por utilizar uma função de várias linhas, e a demonstração do tópico utiliza essa opção e o informa na nota de ambiente.
 \item Uma alternativa correta que utilizava conceito não ensinado. Uma questão do tópico kc\_10 indicava como correta a alternativa ``a vira ponteiro para fileira'', conceito que a escada deliberadamente não aborda.
-\item Um treino que repetia a demonstração. Em uma sessão de ensaio, o primeiro passo de prática posterior a uma demonstração exibia a mesma função que a demonstração acabara de exibir, o que resultava na mesma tela duas vezes seguidas. O teste correspondente a essa regra (Seção 5.3) identificou o mesmo defeito em passos de outros três tópicos.
+\item Um treino que repetia a demonstração. Em uma sessão de ensaio, o primeiro passo de prática posterior a uma demonstração exibia a mesma função que a demonstração acabara de exibir, o que resultava na mesma tela duas vezes seguidas. O teste correspondente a essa regra (Seção~5.3) identificou o mesmo defeito em passos de outros três tópicos.
 \item Uma nota de ambiente que afirmava o que não havia sido conferido (``outros compiladores reclamam'').
 \item Dois defeitos de interface. O teste de contraste e a conferência no navegador identificaram uma lacuna de exercício ilegível no tema claro e uma barra superior que ultrapassava a largura da tela do celular no tópico de oito premissas.
 \end{itemize}

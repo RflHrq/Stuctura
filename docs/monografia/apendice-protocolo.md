@@ -1,6 +1,6 @@
 # Apêndice A — Protocolo do estudo com estudantes
 
-Este apêndice apresenta o protocolo do estudo com estudantes proposto como trabalho futuro (Seção 7.2), elaborado para a versão do sistema descrita no Capítulo 3.
+Este apêndice apresenta o protocolo do estudo com estudantes proposto como trabalho futuro (Seção 7.2), elaborado para a versão do sistema descrita na Seção 3.
 
 ## A.1 Questões do estudo
 
@@ -13,7 +13,7 @@ A questão geral do estudo é se é viável diagnosticar concepções errôneas 
 | V1 | Os estudantes concluem a sessão sem auxílio de conteúdo por parte do pesquisador, e em quanto tempo? | conclusão (sim/não); minutos por tópico; ponto de interrupção | registro da sessão |
 | V2 | A concepção errônea detectada é compatível com a explicação verbalizada pelo participante? | compatível, incompatível ou inconclusiva, por episódio | gravação de áudio comparada às concepções registradas na sessão |
 | V3 | Após a demonstração, o participante altera a resposta? | reconferência ao final do tópico: resposta correta pela razão correta, ou "a ideia voltou" | registro da sessão |
-| V4 | Como o participante percebe a clareza, a dificuldade e a utilidade do sistema? | escala de usabilidade SUS (*System Usability Scale*), de 10 itens (BROOKE, 1996), e três perguntas abertas | questionário ao final |
+| V4 | Como o participante percebe a clareza, a dificuldade e a utilidade do sistema? | *System Usability Scale* (SUS), escala de usabilidade de 10 itens (Brooke, 1996), e três perguntas abertas | questionário ao final |
 
 A unidade de análise de V2 e de V3 não é o participante, e sim o episódio de concepção errônea detectada. Dez participantes podem gerar 25 episódios ou apenas 4, e o denominador de cada resultado é esse número.
 

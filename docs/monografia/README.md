@@ -41,7 +41,7 @@ foram tirados do sistema por script, e não de memória, e
 | # | Arquivo | Estado |
 | --- | --- | --- |
 | — | [00-pre-textuais.md](00-pre-textuais.md) | capa com os dados do arquivo do autor; resumo, abstract e declaração de uso de IA, esta com dois campos "[preencher]" |
-| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (75 páginas em 20/11/2026) |
+| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (73 páginas em 20/11/2026) |
 | 1 | [01-introducao.md](01-introducao.md) | rascunho completo |
 | 2 | [02-fundamentacao.md](02-fundamentacao.md) | rascunho completo; referências conferidas em 18/11/2026 |
 | 3 | [03-sistema.md](03-sistema.md) | rascunho completo; faltam as figuras finais |
@@ -60,9 +60,6 @@ foram tirados do sistema por script, e não de memória, e
 - **O que o modelo da UFV ainda pede e não está no PDF:** a folha de
   aprovação (comentada em `TCC_STRUCTURA.tex` até a banca ser definida) e
   a ficha catalográfica, se o curso a exigir (é feita pela biblioteca).
-- **Um ponto de referência para o autor decidir:** o ano do livro de
-  Summit (1995 na página do FAQ, 1996 no texto; conferir na página de
-  direitos do livro).
 - **As referências.** Nenhuma referência entra sem ter sido aberta na
   obra: é a regra do projeto (`docs/linguagem.md`: "fonte que você só
   consegue parafrasear de memória não é fonte"). A conferência de
@@ -87,20 +84,29 @@ foram tirados do sistema por script, e não de memória, e
   `mvp/test_monografia.py` falha se aparecer uma marca de "conferir" nova
   no texto, ou se a lista e o registro discordarem. As duas listas (esta e
   a do capítulo de curadoria) estão juntas em `latex/referencias.bib`.
-- **A revisão de escrita de 20/11/2026.** O texto inteiro foi reescrito
-  em registro acadêmico (impessoal, títulos nominais, sem coloquialismo),
-  sem mudar fatos, números nem citações. Entraram na Introdução a
+- **A revisão de escrita e de norma de 20/11/2026.** O texto inteiro foi
+  reescrito em registro acadêmico e conferido contra o manual
+  "Normalização de trabalhos acadêmicos" da Biblioteca Central da UFV
+  (2026), baixado em `fontes/ufv-manual-2026/`, que aplica a NBR
+  14724/2025, a NBR 6023/2025 e a NBR 10520/2023. O que mudou por causa
+  dele: (1) citações com o sobrenome só com a inicial maiúscula, também
+  entre parênteses, e "et al." e "apud" em itálico; (2) a lista de
+  referências traz só as obras consultadas, de modo que as nove obras
+  citadas apud Sorva (2012) saíram dela; (3) referências na forma de
+  2025: "(ed.)", "[s. l.]" nos periódicos, evento com número, ano e
+  local, tese com o ano depois do título, endereço sem os sinais < >;
+  (4) o FAQ do comp.lang.c é referenciado pela versão on-line, que foi a
+  consultada (Summit, c2005), e não pelo livro; (5) o trabalho se divide
+  em seções, e não em capítulos; (6) figuras e quadros numerados em
+  sequência única no PDF (os rótulos por seção do `.md` viram referências
+  cruzadas do LaTeX);
+  (7) sigla por extenso na primeira ocorrência, com a forma completa
+  antes da sigla; (8) resumo na voz ativa. Entraram na Introdução a
   justificativa (1.3), os objetivos em subseções (1.4), os procedimentos
-  metodológicos (1.6) e a citação que faltava para a frase de abertura
-  (Yamashita et al., 2017, p. 1); a Conclusão passou a retomar os
-  objetivos. Ficaram para o autor decidir: (a) uma obra de metodologia
-  para apoiar a classificação da pesquisa em 1.6, que está sem citação
-  porque nenhuma foi aberta; (b) o que quer dizer "kc" nos códigos dos
-  tópicos, que o projeto não define em lugar nenhum; (c) se o orientador
-  quer a ordem clássica dos capítulos (método antes do sistema), o que
-  renumera as remissões. As referências usam
-  `latex/abntex2-alf-tcc.bst`, cópia do estilo do abnTeX2 com meia-risca
-  no lugar do travessão nas teses, como na NBR 6023:2018.
+  metodológicos (1.6) e a citação da frase de abertura. Ficaram para o
+  autor decidir: uma obra de metodologia para a classificação da pesquisa
+  em 1.6; o que quer dizer "kc" nos códigos dos tópicos; e se o
+  orientador quer o método antes da descrição do sistema.
 - **A revisão do conteúdo das escadas pelo autor.** As treze escadas
   estão com `revisado_por` em branco. O texto diz como o material foi
   escrito e conferido; dizer "revisado pelo autor" depende dessa leitura.
@@ -123,5 +129,5 @@ foram tirados do sistema por script, e não de memória, e
 | 3.5 | `figuras/fig-3-5-cena.jpg` | a cena da revisão do kc_06 B1, dentro da bancada de `zera`: a cópia `n` vira 0, e `idade` continua 15 (19/11) |
 | 3.6 | `figuras/fig-3-6-inicio-escuro.jpg` | a página inicial no tema escuro: o próximo sugerido e o caminho dos 13 tópicos, com um feito e um em andamento (19/11) |
 
-As figuras são numeradas na ordem em que aparecem no Capítulo 3, como a
+As figuras são numeradas na ordem em que aparecem na Seção 3, como a
 ABNT pede, e cada uma está no texto, logo depois do parágrafo que a cita.

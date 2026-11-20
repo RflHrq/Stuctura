@@ -1,7 +1,7 @@
 # Apêndice B — O catálogo de concepções errôneas, linha por linha
 
 Este apêndice relaciona as 61 concepções errôneas do catálogo, uma por
-linha, com a respectiva procedência (Capítulo 4). O conteúdo não foi
+linha, com a respectiva procedência (Seção 4). O conteúdo não foi
 redigido manualmente: é gerado a partir do catálogo
 (`mvp/dominio/beliefs_kc*.yaml`) pelo programa `scripts/gera_curadoria.py`,
 que procura no texto integral de Sorva (2012) a frase em inglês de cada
@@ -21,7 +21,7 @@ Seção 4.7.
 
 **Quadro B.1 — As 61 concepções errôneas do catálogo e a procedência de cada uma**
 
-| concepção | tópicos | premissa | classe | grau | localizador | conferência |
+| Concepção | Tópicos | Premissa | Classe | Grau | Localizador | Conferência |
 | --- | --- | --- | --- | --- | --- | --- |
 | `ampersand_copies` | kc_04, kc_06, kc_10, kc_12 | B2 | 1, concepção estudada | `T` | página/item | conferida: texto integral de Sorva (2012) |
 | `ampersand_takes_value` | kc_04 | B1 | 2, corpus de praticante | `L` | pergunta do FAQ | conferida: índice em c-faq.com |
