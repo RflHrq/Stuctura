@@ -41,7 +41,7 @@ foram tirados do sistema por script, e não de memória, e
 | # | Arquivo | Estado |
 | --- | --- | --- |
 | — | [00-pre-textuais.md](00-pre-textuais.md) | capa com os dados do arquivo do autor; resumo, abstract e declaração de uso de IA, esta com dois campos "[preencher]" |
-| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (58 páginas em 19/11/2026) |
+| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (75 páginas em 20/11/2026) |
 | 1 | [01-introducao.md](01-introducao.md) | rascunho completo |
 | 2 | [02-fundamentacao.md](02-fundamentacao.md) | rascunho completo; referências conferidas em 18/11/2026 |
 | 3 | [03-sistema.md](03-sistema.md) | rascunho completo; faltam as figuras finais |
@@ -87,6 +87,20 @@ foram tirados do sistema por script, e não de memória, e
   `mvp/test_monografia.py` falha se aparecer uma marca de "conferir" nova
   no texto, ou se a lista e o registro discordarem. As duas listas (esta e
   a do capítulo de curadoria) estão juntas em `latex/referencias.bib`.
+- **A revisão de escrita de 20/11/2026.** O texto inteiro foi reescrito
+  em registro acadêmico (impessoal, títulos nominais, sem coloquialismo),
+  sem mudar fatos, números nem citações. Entraram na Introdução a
+  justificativa (1.3), os objetivos em subseções (1.4), os procedimentos
+  metodológicos (1.6) e a citação que faltava para a frase de abertura
+  (Yamashita et al., 2017, p. 1); a Conclusão passou a retomar os
+  objetivos. Ficaram para o autor decidir: (a) uma obra de metodologia
+  para apoiar a classificação da pesquisa em 1.6, que está sem citação
+  porque nenhuma foi aberta; (b) o que quer dizer "kc" nos códigos dos
+  tópicos, que o projeto não define em lugar nenhum; (c) se o orientador
+  quer a ordem clássica dos capítulos (método antes do sistema), o que
+  renumera as remissões. As referências usam
+  `latex/abntex2-alf-tcc.bst`, cópia do estilo do abnTeX2 com meia-risca
+  no lugar do travessão nas teses, como na NBR 6023:2018.
 - **A revisão do conteúdo das escadas pelo autor.** As treze escadas
   estão com `revisado_por` em branco. O texto diz como o material foi
   escrito e conferido; dizer "revisado pelo autor" depende dessa leitura.

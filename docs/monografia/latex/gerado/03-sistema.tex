@@ -3,14 +3,14 @@
 
 \chapter{\texorpdfstring{\mbox{O} \mbox{SISTEMA} \mbox{STRUCTURA}}{O SISTEMA STRUCTURA}}\label{cap:3}
 
-Este capítulo descreve o sistema na versão de 19/11/2026: o domínio que ele ensina (3.1); a forma como diagnostica cada estudante (3.2); o percurso que oferece a partir do diagnóstico (3.3); as três peças de conteúdo que sustentam esse percurso, que são a escada de passos (3.4), a demonstração com previsão (3.5) e a cena que anima a revisão de cada premissa (3.6); o registro da sessão (3.7); e a interface (3.8). A arquitetura de software está resumida em 3.9.
+Este capítulo descreve o sistema na versão de 19/11/2026. São apresentados o domínio de ensino (Seção 3.1), o diagnóstico de cada estudante (Seção 3.2), o percurso oferecido a partir do diagnóstico (Seção 3.3) e os três tipos de conteúdo que sustentam esse percurso: a escada de passos (Seção 3.4), a demonstração com previsão (Seção 3.5) e a cena que anima a revisão de cada premissa (Seção 3.6). Em seguida, descrevem-se o registro da sessão (Seção 3.7), a interface (Seção 3.8) e a arquitetura de software (Seção 3.9).
 
-\section{O domínio: premissas, concepções errôneas e questões}
+\section{Domínio: premissas, concepções errôneas e questões}
 
-O conteúdo de ponteiros em C está organizado em 13 tópicos, da declaração de variáveis ao ponteiro pendente por escopo (Quadro~\ref{qua:3-1}). Cada tópico é um pequeno grafo de premissas: proposições curtas que o estudante pode afirmar ou negar. As premissas de base são fatos que se verificam olhando um programa (``\texttt{int notas[3]} cria três caixas de int grudadas''); as de inferência decorrem de outras, que são o seu suporte (``então \texttt{notas[i]} é só outro jeito de escrever \texttt{*(notas + i)}''). Os 13 tópicos somam 79 premissas, e a ordem de cada tópico respeita o suporte: nenhuma premissa vem antes de uma premissa que a sustenta.
+O conteúdo de ponteiros em C está organizado em 13 tópicos, identificados pelos códigos kc\_00 a kc\_12, que vão da declaração de variáveis ao ponteiro pendente por escopo (Quadro~\ref{qua:3-1}). Cada tópico é representado por um grafo de premissas, proposições curtas que o estudante pode afirmar ou negar. As premissas de base são fatos verificáveis pela observação de um programa (por exemplo, ``\texttt{int notas[3]} cria três caixas de int grudadas''); as premissas de inferência decorrem de outras, que constituem o seu suporte (por exemplo, ``então \texttt{notas[i]} é só outro jeito de escrever \texttt{*(notas + i)}''). Os 13 tópicos somam 79 premissas, e a ordem de apresentação em cada tópico respeita a relação de suporte: nenhuma premissa é apresentada antes daquelas que a sustentam.
 
 \begin{quadro}[htbp]
-\caption{Os tópicos}\label{qua:3-1}
+\caption{Tópicos do domínio e número de premissas}\label{qua:3-1}
 \footnotesize
 \begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}p{1.7cm}|X|>{\centering\arraybackslash}p{2.4cm}|}
 \hline
@@ -32,86 +32,86 @@ kc\_12 & Ponteiro pendente por escopo & 6 \\ \hline
 \fonte{Elaborado pelo autor.}
 \end{quadro}
 
-Cada concepção errônea do catálogo nega exatamente uma premissa. É o que transforma ``o estudante tem uma ideia errada'' num endereço: a crença de que ``o ponteiro é o próprio dado: retornar o endereço de uma local devolve a variável'' nega a premissa do kc\_12 segundo a qual retornar \texttt{\&local} copia o endereço, e não a caixa. O catálogo tem 61 concepções, cada uma com procedência declarada; o Capítulo 4 trata dessa procedência.
+Cada concepção errônea do catálogo nega exatamente uma premissa. Essa associação permite localizar a concepção no grafo: a crença de que ``o ponteiro é o próprio dado: retornar o endereço de uma local devolve a variável'', por exemplo, nega a premissa do tópico kc\_12 segundo a qual retornar \texttt{\&local} copia o endereço, e não a variável. O catálogo tem 61 concepções, cada uma com procedência declarada; o Capítulo 4 trata dessa procedência.
 
-O banco de questões tem 560 questões de múltipla escolha, distribuídas pelas premissas, cada uma com um nível (do mais mecânico ao mais conceitual) e um uso (entrada, diagnóstico ou treino). Toda alternativa errada aponta a concepção errônea que a explicaria. É dessa ligação que o diagnóstico tira a razão de cada resposta.
+O banco de questões tem 560 questões de múltipla escolha, distribuídas pelas premissas, cada uma com um nível (do mais mecânico ao mais conceitual) e uma finalidade (entrada, diagnóstico ou treino). Toda alternativa incorreta indica a concepção errônea que a explicaria, e é dessa associação que o diagnóstico obtém a razão de cada resposta.
 
-Cada premissa tem ainda uma explicação curta, com a premissa em linguagem simples e um exemplo em código animado pela cena da premissa (3.6), que a pessoa pode abrir a qualquer momento pelo botão ``Ver a explicação''.
+Cada premissa dispõe ainda de uma explicação curta, composta pelo enunciado da premissa em linguagem simples e por um exemplo em código, animado pela cena da premissa (Seção 3.6). A explicação pode ser consultada a qualquer momento por meio do botão ``Ver a explicação''.
 
-\section{O diagnóstico: resposta, razão e certeza}
+\section{Diagnóstico: resposta, razão e certeza}
 
-Cada premissa começa por uma pergunta de diagnóstico, numa tela só (Figura~\ref{fig:3-1}). A pessoa marca a resposta, que pode trocar à vontade, e a confirma. Só então aparecem as razões possíveis (a certa é a premissa em linguagem simples, e as erradas são as concepções errôneas que as alternativas daquela questão apontam), e a resposta trava; por último vem a certeza: ``chutei'', ``acho que sei'' ou ``tenho certeza''. A ordem é deliberada. As razões dão pista de qual resposta combina com cada uma, e quem pudesse voltar depois de lê-las trocaria a resposta para combinar com a razão: o diagnóstico passaria a medir a leitura das razões, e não a ideia com que a pessoa respondeu. A confirmação antes das razões deixa corrigir um toque errado enquanto a resposta ainda não travou. Há também o botão ``Não sei'', que é uma resposta legítima: obrigar a escolher fabricaria chute, e com ele a lacuna vira dado observado, e não inferido.
+Cada premissa tem início com uma pergunta de diagnóstico, apresentada em uma única tela (Figura~\ref{fig:3-1}). A pessoa seleciona a resposta, que pode ser alterada livremente, e a confirma. Somente após a confirmação são exibidas as razões possíveis, e a resposta deixa de poder ser alterada. A razão correta corresponde ao enunciado da premissa em linguagem simples, e as incorretas correspondem às concepções errôneas indicadas pelas alternativas da questão. Por último, a pessoa declara a certeza: ``chutei'', ``acho que sei'' ou ``tenho certeza''. Essa ordem é deliberada. As razões sugerem qual resposta é compatível com cada uma delas; se a resposta pudesse ser alterada depois de lidas as razões, a pessoa tenderia a ajustá-la à razão escolhida, e o diagnóstico passaria a medir a leitura das razões, e não a ideia com que a pessoa respondeu. A confirmação anterior à exibição das razões permite corrigir uma seleção acidental enquanto a resposta ainda pode ser alterada. A tela oferece também o botão ``Não sei'', tratado como resposta legítima: a obrigatoriedade de escolher uma alternativa induziria respostas ao acaso, ao passo que, com esse botão, a lacuna de conhecimento torna-se um dado observado, e não inferido.
 
 \begin{figure}[htbp]
 \centering
-\caption{A pergunta de diagnóstico, com a resposta confirmada e as razões (kc\_07, tema claro)}\label{fig:3-1}
+\caption{Pergunta de diagnóstico, com a resposta confirmada e as razões exibidas (tópico kc\_07, tema claro)}\label{fig:3-1}
 \includegraphics[width=.5\textwidth,height=.55\textheight,keepaspectratio]{fig-3-1-pergunta.jpg}
 \fonte{Captura de tela do Structura, elaborada pelo autor.}
 \end{figure}
 
-A pergunta de abertura de cada premissa é, de preferência, uma questão com código de nível intermediário: a que pede que a pessoa aplique a ideia num trecho de programa. Questões que usam construções que nenhum tópico ensinou até ali (laço, \texttt{struct}, variável global, entre outras) ficam fora da trilha, para não cobrar o que não foi ensinado; nos 13 tópicos, todas as premissas abrem com uma questão de código.
+A pergunta de abertura de cada premissa é, preferencialmente, uma questão com código de nível intermediário, que requer a aplicação do conceito a um trecho de programa. As questões que utilizam construções ainda não ensinadas por nenhum tópico até aquele ponto (laço, \texttt{struct} e variável global, entre outras) são excluídas da trilha, para que não se exija o que não foi ensinado. Nos 13 tópicos, todas as premissas têm como abertura uma questão com código.
 
-Do cruzamento dos três sinais saem quatro caminhos (Quadro~\ref{qua:3-2}).
+A combinação dos três sinais define quatro caminhos (Quadro~\ref{qua:3-2}).
 
 \begin{quadro}[htbp]
-\caption{A classificação e o caminho de cada caso}\label{qua:3-2}
+\caption{Classificação da resposta e caminho correspondente}\label{qua:3-2}
 \footnotesize
 \begin{tabularx}{\textwidth}{|X|X|>{\centering\arraybackslash}p{1.9cm}|}
 \hline
-\textbf{O que a pessoa fez} & \textbf{Situação} & \textbf{Caminho} \\ \hline
-resposta certa, razão certa, ``tenho certeza'' & sabe & firme \\ \hline
-certa sem certeza, certa pela razão errada, ou errada pela razão certa & acerto sem firmeza & reforço \\ \hline
-``Não sei'', ou errada com ``chutei'' & não sabe & lacuna \\ \hline
-errada, pela razão de uma concepção errônea, com alguma certeza & acha que sabe & crença \\ \hline
+\textbf{Resposta, razão e certeza} & \textbf{Situação} & \textbf{Caminho} \\ \hline
+resposta correta, razão correta e ``tenho certeza'' & sabe & firme \\ \hline
+resposta correta sem certeza, correta pela razão incorreta ou incorreta pela razão correta & acerto sem firmeza & reforço \\ \hline
+``Não sei'', ou resposta incorreta com ``chutei'' & não sabe & lacuna \\ \hline
+resposta incorreta, pela razão de uma concepção errônea, com alguma certeza & sustenta uma concepção errônea & crença \\ \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor.}
 \end{quadro}
 
-A certeza declarada, aqui, não mede o estado mental da pessoa: ela escolhe o percurso. Quem erra dizendo ``chutei'' sabe que não sabe, e recebe ensino; quem erra com convicção, pela razão de uma concepção mapeada, recebe a demonstração que confronta aquela concepção. A escala tem três pontos porque precisa caber num toque dentro do ritmo da atividade, e o ponto do meio (``acho que sei'') puxa sempre para o lado conservador: não confirma um acerto, e não deixa de tratar uma crença.
+Nesse desenho, a certeza declarada não mede o estado mental da pessoa: sua função é selecionar o percurso. Quem erra e declara ``chutei'' reconhece que não sabe e recebe ensino; quem erra com convicção, pela razão de uma concepção errônea mapeada, recebe a demonstração que confronta essa concepção. A escala tem três pontos porque deve caber em uma única interação no ritmo da atividade, e o ponto intermediário (``acho que sei'') é sempre tratado de forma conservadora: não confirma um acerto e não dispensa o tratamento de uma concepção errônea.
 
-\section{A trilha: o percurso de um tópico}
+\section{Trilha: percurso de um tópico}
 
-Uma sessão percorre um tópico, premissa por premissa, na ordem do grafo:
+Uma sessão percorre um tópico, premissa por premissa, na ordem definida pelo grafo:
 
 \begin{center}\small\ttfamily
 entrada~$\rightarrow$~premissa~1~$\rightarrow$~premissa~2~$\rightarrow$~…~$\rightarrow$~reconferência~$\rightarrow$~fechamento
 \end{center}
 
-Cada premissa recebe no máximo um trabalho (o da lacuna ou o da crença), o que garante um teto para a duração da sessão. Os quatro caminhos funcionam assim:
+Cada premissa recebe no máximo uma intervenção (a correspondente à lacuna ou a correspondente à crença), o que estabelece um limite superior para a duração da sessão. Os quatro caminhos são descritos a seguir.
 
 \begin{itemize}
-\item \textbf{Firme.} Um retorno curto, que diz por que a resposta está certa (cada uma das 79 perguntas de abertura tem essa explicação escrita, para que o acerto também ensine) e, no ritmo ``completo'', uma segunda pergunta de outra natureza: depois de marcar, a pessoa escreve: é o passo de produzir mais alto da escada da premissa (3.4). Acertou, a premissa fecha como ``já sabia''. No ritmo ``rápido'', a resposta firme fecha sozinha.
-\item \textbf{Reforço.} Uma pergunta a mais, em outro formato. Certa e pela razão certa, a premissa fecha como ``firmou''; senão, segue o trabalho que a nova resposta pedir.
-\item \textbf{Lacuna.} A pessoa sobe a escada da premissa: os passos guiados e um passo de prática, com retorno imediato a cada um. O passo errado mostra a correção, com a resposta certa, e a subida segue: ninguém fica preso num passo. Um dos passos guiados de cada escada tem, entre as alternativas, a concepção errônea da premissa dita com todas as letras, e pede a certeza (Figura~\ref{fig:3-2}): escolhida com convicção, ela abre a demonstração na hora, porque é o mesmo episódio da pergunta de abertura. A premissa fecha como ``aprendeu agora'' quando a pessoa acerta a pergunta seguinte; se erra, vem a revisão: duas ou três frases com a ideia e um trecho de código, animado pela cena da premissa (3.6).
-\item \textbf{Crença.} A tela ``Você disse'' repete a concepção que a pessoa sustentou e pede uma previsão: o que ela espera que o programa faça. A tela seguinte mostra o que a máquina fez (3.5). Depois vem o treino, com os passos de prática da escada; a premissa fecha como ``corrigiu uma ideia'' quando o treino fecha.
+\item \textbf{Firme.} O sistema apresenta um retorno curto, que explica por que a resposta está correta (cada uma das 79 perguntas de abertura dispõe dessa explicação, de modo que também o acerto contribua para o aprendizado) e, no ritmo ``completo'', uma segunda pergunta, de outra natureza, na qual a pessoa deve produzir a resposta por escrito: trata-se do passo de produção de nível mais alto da escada da premissa (Seção 3.4). Em caso de acerto, a premissa é encerrada com o resultado ``já sabia''. No ritmo ``rápido'', a resposta firme encerra a premissa diretamente.
+\item \textbf{Reforço.} O sistema apresenta uma pergunta adicional, em outro formato. Se a resposta for correta e pela razão correta, a premissa é encerrada com o resultado ``firmou''; caso contrário, segue-se a intervenção indicada pela nova resposta.
+\item \textbf{Lacuna.} A pessoa percorre a escada da premissa: os passos guiados e um passo de prática, com retorno imediato a cada um. Diante de um erro, o passo exibe a correção, com a resposta correta, e o percurso prossegue, de modo que a pessoa não fica retida em nenhum passo. Um dos passos guiados de cada escada inclui, entre as alternativas, a concepção errônea da premissa enunciada explicitamente e solicita a certeza (Figura~\ref{fig:3-2}); se essa alternativa for escolhida com convicção, a demonstração é apresentada imediatamente, pois se trata do mesmo tipo de episódio da pergunta de abertura. A premissa é encerrada com o resultado ``aprendeu agora'' quando a pessoa acerta a pergunta seguinte; em caso de erro, é apresentada a revisão, composta de duas ou três frases com o conceito e de um trecho de código animado pela cena da premissa (Seção 3.6).
+\item \textbf{Crença.} A tela ``Você disse'' reapresenta a concepção sustentada pela pessoa e solicita uma previsão do comportamento do programa. A tela seguinte exibe o resultado da execução (Seção 3.5). Em seguida, é realizado o treino, com os passos de prática da escada, e a premissa é encerrada com o resultado ``corrigiu uma ideia'' quando o treino é concluído.
 \end{itemize}
 
 \begin{figure}[htbp]
 \centering
-\caption{Um passo guiado da escada, com a concepção errônea entre as alternativas e a certeza (kc\_07 B2, passo 1)}\label{fig:3-2}
+\caption{Passo guiado da escada, com a concepção errônea entre as alternativas e a solicitação de certeza (tópico kc\_07, premissa B2, passo 1)}\label{fig:3-2}
 \includegraphics[width=.5\textwidth,height=.55\textheight,keepaspectratio]{fig-3-2-passo.jpg}
 \fonte{Captura de tela do Structura, elaborada pelo autor.}
 \end{figure}
 
-Depois de todas as premissas, a reconferência faz uma pergunta para cada premissa trabalhada na sessão, ensinada ou corrigida, com outras premissas no meio. É o que separa ``acertou logo depois de ler'' de ``assimilou nesta sessão''. A pergunta é escolhida nesta ordem: o passo em que a pessoa tropeçou, na versão que ela não viu; um passo de produzir ainda não visto; uma questão do banco ainda não usada, que pergunta também a razão; e só então um passo já visto, com outros valores. Quando a razão marcada na reconferência é a concepção que tinha sido corrigida, o fechamento diz que ``a ideia voltou''.
+Concluídas todas as premissas, a reconferência apresenta uma pergunta para cada premissa trabalhada na sessão, isto é, ensinada ou corrigida, depois de a pessoa ter respondido a outras premissas. Esse intervalo distingue o acerto obtido logo após a leitura da assimilação na sessão. A pergunta é selecionada na seguinte ordem de preferência: o passo em que a pessoa errou, na versão que ela ainda não viu; um passo de produção ainda não visto; uma questão do banco ainda não utilizada, que solicita também a razão; e, somente em último caso, um passo já visto, com outros valores. Quando a razão indicada na reconferência corresponde à concepção que havia sido corrigida, o fechamento informa que ``a ideia voltou''.
 
-O fechamento (Figura~\ref{fig:3-3}) resume a sessão em quatro blocos (as ideias erradas encontradas e se foram corrigidas; as lacunas, e em que passos; o que já estava firme; e o que ficou em aberto) e, abaixo, mostra a lista de premissas com o resultado de cada uma e o acesso à explicação. O passo em que a pessoa tropeçou aparece pelo nome dele, uma frase curta com a ideia do passo, e não pelo enunciado do exercício.
+O fechamento (Figura~\ref{fig:3-3}) resume a sessão em quatro blocos (as concepções errôneas encontradas e a situação de cada uma; as lacunas e os passos em que ocorreram; o que já estava firme; e o que permaneceu em aberto) e, abaixo deles, exibe a lista de premissas com o resultado de cada uma e o acesso à respectiva explicação. O passo em que a pessoa errou é identificado pelo seu nome, uma frase curta que enuncia a ideia do passo, e não pelo enunciado do exercício.
 
 \begin{figure}[htbp]
 \centering
-\caption{O fechamento: as ideias erradas encontradas e a situação de cada uma}\label{fig:3-3}
+\caption{Tela de fechamento: concepções errôneas encontradas e situação de cada uma}\label{fig:3-3}
 \includegraphics[width=.5\textwidth,height=.55\textheight,keepaspectratio]{fig-3-3-fechamento.jpg}
 \fonte{Captura de tela do Structura, elaborada pelo autor.}
 \end{figure}
 
-\section{A escada de passos}
+\section{Escada de passos}
 
-Cada premissa tem uma escada: uma sequência ordenada de passos, do mais mecânico até a ideia. Os passos guiados trazem uma ou duas frases curtas e um exercício pequeno; os de prática trazem só o exercício. A mesma escada serve para ensinar (a subida de quem não sabe), para treinar (depois da demonstração) e para reconferir (no fim).
+Cada premissa dispõe de uma escada, isto é, uma sequência ordenada de passos que parte da operação mais mecânica e chega ao conceito. Os passos guiados contêm uma ou duas frases curtas e um exercício breve; os passos de prática contêm apenas o exercício. A mesma escada é utilizada para ensinar (no percurso de quem não sabe), para treinar (após a demonstração) e para reconferir (ao final do tópico).
 
-Os exercícios têm cinco formas: tocar a parte de uma linha de código, montar uma linha a partir de peças, escolher entre alternativas, completar a lacuna de uma linha, e digitar a saída de um trecho. Cada passo tem duas versões (a segunda, com outros valores, é a que a reconferência usa), e todo erro previsto tem retorno próprio, que diz o que faltou e mostra o certo. As 79 premissas somam 402 passos (244 guiados e 158 de prática) e 804 versões. As formas se distribuem como no Quadro~\ref{qua:3-3}.
+Os exercícios assumem cinco formas: tocar a parte indicada de uma linha de código, montar uma linha a partir de peças, escolher entre alternativas, completar a lacuna de uma linha e digitar a saída de um trecho. Cada passo possui duas versões (a segunda, com outros valores, é utilizada na reconferência), e todo erro previsto tem retorno próprio, que indica o que faltou e apresenta a resposta correta. As 79 premissas somam 402 passos (244 guiados e 158 de prática) e 804 versões. A distribuição dos passos por forma é apresentada no Quadro~\ref{qua:3-3}.
 
 \begin{quadro}[htbp]
-\caption{Os passos, por forma}\label{qua:3-3}
+\caption{Passos por forma de exercício}\label{qua:3-3}
 \footnotesize
 \begin{tabularx}{\textwidth}{|X|l|}
 \hline
@@ -125,15 +125,15 @@ tocar & 5 \\ \hline
 \fonte{Elaborado pelo autor.}
 \end{quadro}
 
-O texto de cada passo segue uma régua escrita, contra a qual o conteúdo foi revisado: um passo, uma ideia, com no máximo duas frases curtas antes do exercício; só usa o que um passo anterior já ensinou, neste tópico ou num anterior; primeiro o que se faz, depois a ideia; código que um iniciante escreveria; cada passo muda uma coisa só em relação ao anterior; e a analogia, quando há, vem depois do passo, nunca no lugar dele. Cada tópico trabalha as mesmas duas ou três variáveis do começo ao fim (no kc\_10, por exemplo, \texttt{idade} guarda um número, \texttt{p} o endereço de \texttt{idade} e \texttt{pp} o endereço de \texttt{p}), de modo que a declaração cresce e o cenário não muda.
+O texto de cada passo obedece a um conjunto de regras de redação, contra o qual o conteúdo foi revisado: cada passo trata de uma única ideia, com no máximo duas frases curtas antes do exercício; utiliza apenas o que já foi ensinado em um passo anterior, do mesmo tópico ou de tópico anterior; apresenta primeiro a operação e depois o conceito; emprega código que um iniciante escreveria; altera um único elemento em relação ao passo anterior; e, quando há analogia, ela é apresentada depois do passo, e nunca em substituição a ele. Cada tópico utiliza as mesmas duas ou três variáveis do início ao fim (no tópico kc\_10, por exemplo, \texttt{idade} armazena um número, \texttt{p} armazena o endereço de \texttt{idade} e \texttt{pp} armazena o endereço de \texttt{p}), de modo que as declarações se acumulam sem que o cenário mude.
 
-\section{A demonstração com previsão}
+\section{Demonstração com previsão}
 
-Para cada concepção errônea de cada tópico há uma demonstração: um programa curto, de no máximo nove linhas, escrito com os nomes do cenário do tópico, e uma pergunta de previsão com duas alternativas: a que a máquina confirma e a que a concepção errônea espera (Figuras~\ref{fig:3-4}a e~\ref{fig:3-4}b). A pessoa prevê; depois vê o que aconteceu, e uma frase diz o que aquilo mostra e qual premissa fica de pé. As 61 concepções do catálogo dão 80 demonstrações porque 14 delas aparecem em mais de um tópico (a de que o ponteiro é o próprio dado, por exemplo, em quatro), e cada tópico tem a sua, com o cenário dele.
+Para cada concepção errônea de cada tópico há uma demonstração, composta de um programa curto, de no máximo nove linhas, escrito com os nomes do cenário do tópico, e de uma pergunta de previsão com duas alternativas: a que a execução confirma e a que decorre da concepção errônea (Figuras~\ref{fig:3-4}a e~\ref{fig:3-4}b). A pessoa registra a previsão e, em seguida, observa o resultado; uma frase indica o que o resultado demonstra e qual premissa permanece válida. As 61 concepções do catálogo resultam em 80 demonstrações porque 14 delas aparecem em mais de um tópico (a de que o ponteiro é o próprio dado, por exemplo, aparece em quatro), e cada tópico possui a sua demonstração, com o respectivo cenário.
 
 \begin{figure}[htbp]
 \centering
-\caption{(a) ``Você disse'': a concepção da pessoa e a previsão pedida; (b) ``A máquina respondeu'': o que o compilador disse, a previsão, e a ideia que fica de pé}\label{fig:3-4}
+\caption{(a) Tela ``Você disse'': a concepção da pessoa e a previsão solicitada; (b) Tela ``A máquina respondeu'': a mensagem do compilador, a previsão registrada e a premissa que permanece válida}\label{fig:3-4}
 \begin{minipage}[t]{.48\textwidth}\centering
 \includegraphics[width=\textwidth,height=.5\textheight,keepaspectratio]{fig-3-4a-voce-disse.jpg}\\[2pt]
 (a)
@@ -145,54 +145,54 @@ Para cada concepção errônea de cada tópico há uma demonstração: um progra
 \fonte{Captura de tela do Structura, elaborada pelo autor.}
 \end{figure}
 
-O que a máquina ``respondeu'' é de dois tipos. Em 41 das 80 demonstrações é a saída do programa: no kc\_11, por exemplo, quem acredita que a aritmética de ponteiros conta bytes prevê lixo para \texttt{*(p + 3)} sem \texttt{sizeof}, e vê sair o valor de \texttt{notas[3]}. Nas outras 39 é o que o compilador diz do programa: no kc\_12, quem acredita que \texttt{static} muda o escopo de uma variável prevê que o nome \texttt{n} passe a valer fora da função, e vê o compilador reclamar que \texttt{n} não foi declarado ali. Algumas dessas mensagens só aparecem com uma opção a mais do compilador (o analisador de fluxo, \texttt{-{}fanalyzer}, por exemplo, que aponta o bloco de memória pedido e nunca devolvido), e as opções permitidas formam uma lista fechada.
+O resultado exibido é de dois tipos. Em 41 das 80 demonstrações, trata-se da saída do programa: no tópico kc\_11, por exemplo, quem acredita que a aritmética de ponteiros opera em bytes prevê a impressão de um valor arbitrário para \texttt{*(p + 3)} sem o uso de \texttt{sizeof}, e observa a impressão do valor de \texttt{notas[3]}. Nas outras 39, trata-se da mensagem emitida pelo compilador: no tópico kc\_12, quem acredita que \texttt{static} altera o escopo de uma variável prevê que o nome \texttt{n} passe a ser válido fora da função, e observa a mensagem de que \texttt{n} não foi declarado naquele ponto. Algumas dessas mensagens são emitidas apenas com uma opção adicional do compilador (por exemplo, o analisador de fluxo, \texttt{-{}fanalyzer}, que aponta o bloco de memória alocado e nunca liberado), e as opções permitidas formam uma lista fechada.
 
-Quando o resultado depende do ambiente (o número de um endereço de memória, o tamanho de um tipo, o comportamento particular de um compilador), a demonstração traz uma nota de ambiente que diz isso com todas as letras. No kc\_12, o gcc 16.2 devolve \texttt{NULL} no lugar do endereço de uma variável local que deixou de existir; a demonstração que usa esse fato diz que é uma escolha do gcc, e que o padrão da linguagem não define aquele valor.
+Quando o resultado depende do ambiente (o valor numérico de um endereço de memória, o tamanho de um tipo ou o comportamento particular de um compilador), a demonstração inclui uma nota de ambiente que explicita essa dependência. No tópico kc\_12, por exemplo, o gcc 16.2 devolve \texttt{NULL} no lugar do endereço de uma variável local que deixou de existir; a demonstração que utiliza esse comportamento informa que se trata de uma escolha do gcc e que o padrão da linguagem não define aquele valor.
 
-Toda demonstração foi conferida por compilador antes de entrar no sistema: a saída tem de ser a que o texto afirma, e a mensagem tem de sair de uma linha só, porque a tela diz ``o compilador reclamou desta linha'', e a mesma mensagem saindo de duas seria a demonstração dizer menos do que aconteceu. O Capítulo 5 descreve essa conferência.
+Toda demonstração foi conferida por compilador antes de ser incorporada ao sistema: a saída deve ser a que o texto afirma, e a mensagem deve ser emitida para uma única linha, pois a tela informa que ``o compilador reclamou desta linha'', e a emissão da mesma mensagem para duas linhas tornaria essa afirmação incompleta. O Capítulo 5 descreve essa conferência.
 
-\section{A cena}
+\section{Cena}
 
-A revisão de cada premissa tem uma cena: o trecho de código dela animado linha a linha (Figura~\ref{fig:3-5}). A linha que roda fica marcada no código, e um palco ao lado mostra o que ela fez: a caixa que nasce, o valor que entra e o que sai, o ponteiro com o seu bilhete, o que vai para a tela. São 79 cenas, uma por premissa.
+A revisão de cada premissa inclui uma cena, na qual o trecho de código correspondente é animado linha a linha (Figura~\ref{fig:3-5}). A linha em execução é destacada no código, e uma área ao lado, denominada palco, representa o efeito dessa linha: a criação de uma variável, o valor armazenado e o valor substituído, o ponteiro e o endereço que ele armazena, e a saída enviada à tela. São 79 cenas, uma por premissa.
 
 \begin{figure}[htbp]
 \centering
-\caption{A cena da revisão do kc\_06 B1, dentro da bancada de \texttt{zera}: a cópia \texttt{n} vira 0, e \texttt{idade} continua 15}\label{fig:3-5}
+\caption{Cena da revisão da premissa B1 do tópico kc\_06, durante a execução da função \texttt{zera}: a cópia \texttt{n} passa a valer 0, e \texttt{idade} permanece com o valor 15}\label{fig:3-5}
 \includegraphics[width=.5\textwidth,height=.55\textheight,keepaspectratio]{fig-3-5-cena.jpg}
 \fonte{Captura de tela do Structura, elaborada pelo autor.}
 \end{figure}
 
-Os personagens são poucos e vêm da mesma analogia em todos os tópicos. A caixa é a variável: uma etiqueta com o nome, o tipo escrito em cima e o valor numa bolinha dentro, com um ``?'' enquanto não há valor. O ponteiro é uma caixa que guarda um bilhete, ``→ idade'', com uma seta até a caixa apontada; o \texttt{NULL} é o bilhete que diz \texttt{NULL}, sem seta. A fileira é o array: as caixinhas lado a lado, com o índice embaixo, ou em linhas e colunas na matriz, e a caixinha que a linha lê ou escreve fica marcada; o texto entra como uma fileira de \texttt{char} com o \texttt{\textquotesingle{}\textbackslash{}0\textquotesingle{}} no fim. A bancada é a função enquanto roda: um andar próprio, com a primeira linha da função por título, onde nascem as caixas dela, que somem quando ela termina, menos a marcada \texttt{static}, que fica. E o bloco alugado é o que o \texttt{malloc} pede: ele mora num andar à parte, o monte, com a placa ``alugado'', e depois do \texttt{free} fica apagado, com a placa ``devolvido''.
+Os elementos visuais são poucos e derivam de uma mesma analogia, utilizada em todos os tópicos. A caixa representa a variável: uma etiqueta com o nome, o tipo indicado acima e o valor em um círculo interno, substituído por ``?'' enquanto a variável não tem valor atribuído. O ponteiro é representado por uma caixa que guarda um bilhete, ``→ idade'', com uma seta até a caixa apontada; o valor \texttt{NULL} é representado por um bilhete com o texto \texttt{NULL}, sem seta. A fileira representa o array: caixas menores dispostas lado a lado, com o índice abaixo de cada uma, ou em linhas e colunas no caso de matrizes, com destaque para a posição lida ou escrita pela linha em execução; uma cadeia de caracteres é representada como uma fileira de \texttt{char} terminada por \texttt{\textquotesingle{}\textbackslash{}0\textquotesingle{}}. A bancada representa a função em execução: uma região própria, cujo título é a primeira linha da função, na qual são criadas as suas variáveis locais, que desaparecem quando a função termina, com exceção das declaradas como \texttt{static}, que permanecem. Por fim, o bloco alugado representa a memória obtida por \texttt{malloc}: é exibido em uma região separada, o monte, com a indicação ``alugado'' e, após a chamada a \texttt{free}, aparece esmaecido, com a indicação ``devolvido''.
 
-A cena anda sozinha, um passo por segundo e pouco, com os botões Pausar, Passo e Rever. Quem pediu ao sistema operacional menos movimento vê a cena já no estado final, com o passo a passo nos botões. Cada passo tem uma frase, escrita embaixo do palco e lida pelos leitores de tela; por exemplo: ``Linha 3: guarda 21 em idade; o 20 que estava lá sai.'' Em tela de computador, a cena fica ao lado do texto da revisão; no celular, embaixo.
+A cena avança automaticamente, a pouco mais de um segundo por passo, e dispõe dos botões Pausar, Passo e Rever. Para quem configurou o sistema operacional para reduzir movimento, a cena é exibida já no estado final, e a execução passo a passo fica disponível por meio dos botões. Cada passo é acompanhado de uma frase, exibida abaixo do palco e lida pelos leitores de tela, como em ``Linha 3: guarda 21 em idade; o 20 que estava lá sai.'' Em telas de computador, a cena é exibida ao lado do texto da revisão; em telas de celular, abaixo dele.
 
-A cena é dado, e não desenho: cada uma é uma lista de passos, um por linha executada, com as ações daquela linha (criar uma caixa, guardar um valor, apontar, chamar e voltar de uma função, alugar e devolver um bloco). Por ser dado, ela é conferida contra o compilador como o resto do conteúdo (Capítulo 5): o palco nunca mostra um valor que o programa não tem.
+A cena é definida como dado, e não como desenho: cada cena é uma lista de passos, um por linha executada, com as ações correspondentes àquela linha (criar uma caixa, armazenar um valor, apontar, chamar uma função e retornar dela, alocar e liberar um bloco). Por ser definida como dado, a cena é conferida contra o compilador da mesma forma que o restante do conteúdo (Capítulo 5), o que assegura que o palco não exiba um valor diferente do que o programa possui.
 
-\section{O registro e a retomada}
+\section{Registro e retomada da sessão}
 
-Tudo o que a pessoa faz é gravado num registro só de acréscimo, um evento por linha: a resposta, a razão, a certeza, o tempo, a previsão e se ela coincidiu com a concepção errônea, os passos errados, a reconferência. Nada é apagado ou reescrito. A sessão inteira pode ser reconstruída reexecutando as entradas gravadas: é assim que o sistema retoma uma sessão depois de o servidor reiniciar, e é por isso que tudo o que muda o caminho da sessão é entrada registrada. Como uma mudança nas regras faria as mesmas respostas caírem em telas diferentes, a primeira linha de cada sessão diz a versão das regras com que ela começou, e uma sessão de outra versão não é refeita: a pessoa vê uma mensagem, e não uma tela errada.
+Todas as ações da pessoa são gravadas em um registro somente de acréscimo, com um evento por linha: a resposta, a razão, a certeza, o tempo, a previsão e a sua coincidência com a concepção errônea, os passos errados e a reconferência. Nenhum evento é apagado ou reescrito. A sessão pode ser inteiramente reconstruída pela reexecução das entradas gravadas; é dessa forma que o sistema retoma uma sessão após a reinicialização do servidor, e é por essa razão que tudo o que altera o percurso da sessão é tratado como entrada registrada. Como uma alteração nas regras faria com que as mesmas respostas conduzissem a telas diferentes, a primeira linha de cada sessão registra a versão das regras com que ela foi iniciada, e uma sessão de outra versão não é reconstruída: nesse caso, a pessoa recebe uma mensagem informativa.
 
-A identificação é por um código de participante, opcional e sem nenhum dado pessoal; o mesmo código retoma a sessão no mesmo tópico. Sem código, é o navegador que guarda o número da sessão: quem fecha a página e reabre o tópico volta à tela em que estava.
+A identificação é feita por um código de participante, opcional e sem nenhum dado pessoal; o mesmo código permite retomar a sessão no mesmo tópico. Na ausência de código, o navegador armazena o identificador da sessão, de modo que a pessoa que fecha a página e reabre o tópico retorna à tela em que se encontrava.
 
-No meio da sessão, o botão Sair do topo oferece duas saídas. ``Guardar e sair'' volta à página dos tópicos, e a sessão continua de onde parou quando o tópico é reaberto. Não há o que gravar a mais, porque cada resposta já está no registro. ``Cancelar a sessão'', depois de uma confirmação, faz o tópico recomeçar do zero. Também o cancelamento não apaga nada: o registro ganha uma linha dizendo que a sessão foi cancelada, e daí em diante ela não é mais retomada: nem pelo número, nem pelo código, nem refeita depois de um reinício do servidor.
+Durante a sessão, o botão Sair, localizado na barra superior, oferece duas opções. A opção ``Guardar e sair'' retorna à página dos tópicos, e a sessão é retomada do ponto em que foi interrompida quando o tópico é reaberto; nenhuma gravação adicional é necessária, pois cada resposta já consta do registro. A opção ``Cancelar a sessão'', após confirmação, faz com que o tópico seja reiniciado. O cancelamento também não apaga dados: o registro recebe uma linha que indica o cancelamento, e a sessão deixa de ser retomada, seja pelo identificador, seja pelo código, seja pela reconstrução após a reinicialização do servidor.
 
-\section{A interface}
+\section{Interface}
 
-A interface foi desenhada para parecer um ambiente de programação, em dois temas: o escuro, inspirado num editor de código à noite (Figura~\ref{fig:3-6}), e o claro, com o topo escuro como a barra de um terminal (Figuras~\ref{fig:3-1} a~\ref{fig:3-4}). O tema é escolhido antes de a página ser desenhada (o do sistema operacional, ou o que a pessoa escolheu da última vez), e pode ser trocado por um botão no topo. Todos os pares de texto sobre fundo passam na razão de contraste de 4,5:1 que o critério 1.4.3 da WCAG 2.1, no nível AA, exige para texto comum \cite{w3c2025}, nos dois temas; quem pediu ao sistema operacional menos movimento não vê animação.
+A interface foi projetada para se assemelhar a um ambiente de programação e dispõe de dois temas: o escuro, inspirado em um editor de código (Figura~\ref{fig:3-6}), e o claro, com a barra superior escura, à semelhança de um terminal (Figuras~\ref{fig:3-1} a~\ref{fig:3-4}). O tema é definido antes da renderização da página (o do sistema operacional ou o escolhido pela pessoa no último acesso) e pode ser alterado por um botão na barra superior. Em ambos os temas, todos os pares de cor de texto e de fundo atendem à razão de contraste de 4,5:1 exigida para texto comum pelo critério de sucesso 1.4.3 das Diretrizes de Acessibilidade para Conteúdo Web (WCAG, do inglês \textit{Web Content Accessibility Guidelines}), versão 2.1, no nível AA \cite{w3c2025}. Para quem configurou o sistema operacional para reduzir movimento, as animações não são exibidas.
 
-O código aparece numa moldura de editor, com cores por categoria (palavras-chave, números, textos, comentários, nomes de função); a saída do programa e a mensagem do compilador aparecem numa moldura de terminal, sem cores de código. O topo da trilha mostra o tópico e uma parada por premissa, numerada, com o estado de cada uma (feita, em aberto, agora ou ainda não), também dito em texto para leitores de tela, além dos botões de tema, de ajustes (o ritmo) e de sair. Em tela de celular os botões ficam só com o desenho, para que as oito paradas do kc\_09 caibam em 360 px de largura.
+O código é exibido em uma moldura de editor, com cores por categoria (palavras-chave, números, cadeias de caracteres, comentários e nomes de função); a saída do programa e a mensagem do compilador são exibidas em uma moldura de terminal, sem realce de sintaxe. A barra superior da trilha exibe o tópico e um marcador numerado por premissa, com o estado de cada uma (concluída, em aberto, atual ou ainda não iniciada), também descrito em texto para leitores de tela, além dos botões de tema, de ajustes (o ritmo) e de saída. Em telas de celular, os botões exibem apenas o ícone, para que os oito marcadores do tópico kc\_09 caibam em 360 px de largura.
 
-A página inicial desenha o caminho dos 13 tópicos como a trilha de um jogo (Figura~\ref{fig:3-6}): dez tópicos em fila, do kc\_00 ao kc\_09 (com o kc\_01, modelo de memória, depois do kc\_06 e do kc\_07), abrindo-se em três no fim (kc\_10, kc\_11 e kc\_12, que não dependem um do outro). A ordem é sugerida, e não imposta: todos os tópicos ficam abertos, e um teste confere que cada tópico vem depois dos seus pré-requisitos. Cada parada mostra o seu estado (já feito, próximo, em andamento ou aberto) e o andamento do tópico (``3 de 6''), e o próximo sugerido aparece num cartão acima do caminho.
+A página inicial representa o caminho dos 13 tópicos como a trilha de um jogo (Figura~\ref{fig:3-6}): dez tópicos em sequência, do kc\_00 ao kc\_09 (com o kc\_01, modelo de memória, posicionado depois do kc\_06 e do kc\_07), seguidos de três ramos finais (kc\_10, kc\_11 e kc\_12, que não dependem uns dos outros). A ordem é sugerida, e não imposta: todos os tópicos permanecem acessíveis, e um teste automatizado confere que cada tópico é posicionado depois dos seus pré-requisitos. Cada marcador exibe o estado do tópico (concluído, próximo, em andamento ou disponível) e o seu andamento (por exemplo, ``3 de 6''), e o próximo tópico sugerido é exibido em um cartão acima do caminho.
 
 \begin{figure}[htbp]
 \centering
-\caption{A página inicial no tema escuro: o próximo sugerido e o caminho dos 13 tópicos, com um tópico feito e um em andamento}\label{fig:3-6}
+\caption{Página inicial no tema escuro: o próximo tópico sugerido e o caminho dos 13 tópicos, com um tópico concluído e um em andamento}\label{fig:3-6}
 \includegraphics[width=.5\textwidth,height=.55\textheight,keepaspectratio]{fig-3-6-inicio-escuro.jpg}
 \fonte{Captura de tela do Structura, elaborada pelo autor.}
 \end{figure}
 
-As fontes são livres (licença OFL) e estão guardadas no próprio projeto: nenhuma página carrega nada de outro endereço.
+As fontes tipográficas utilizadas têm licença livre (OFL) e estão armazenadas no próprio projeto, de modo que nenhuma página carrega recursos de endereços externos.
 
 \section{Arquitetura}
 
-O sistema é escrito em Python, com um servidor HTTP (FastAPI) e páginas em HTML, CSS e JavaScript sem dependências externas. O conteúdo (premissas, concepções errôneas, questões e escadas) fica em arquivos YAML, separados do código: acrescentar ou corrigir conteúdo não exige mexer no motor. O motor da trilha é uma função pura do estado da sessão e da entrada da pessoa, que devolve a próxima tela; é isso que torna a sessão reexecutável a partir do registro. Um portal monta os 13 tópicos num só servidor, que roda num contêiner Docker na própria máquina do laboratório, sem depender de serviço externo.
+O sistema é implementado em Python, com um servidor HTTP (FastAPI) e páginas em HTML, CSS e JavaScript sem dependências externas. O conteúdo (premissas, concepções errôneas, questões e escadas) é mantido em arquivos YAML, separados do código, de modo que a inclusão ou a correção de conteúdo não exige alterações no motor. O motor da trilha é uma função pura do estado da sessão e da entrada da pessoa, que devolve a tela seguinte; essa propriedade torna a sessão reexecutável a partir do registro. Um portal reúne os 13 tópicos em um único servidor, executado em um contêiner Docker na própria máquina do laboratório, sem dependência de serviços externos.

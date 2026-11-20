@@ -3,53 +3,67 @@
 
 \chapter{\texorpdfstring{\mbox{INTRODUÇÃO}}{INTRODUÇÃO}}\label{cap:1}
 
-\section{O problema}
+\section{Contextualização e problema}
 
-Ponteiros são, há décadas, um dos pontos em que o ensino de programação em C mais tropeça. A dificuldade não está só em não saber: está em saber errado. Um estudante pode atravessar um material inteiro sobre ponteiros, acertar boa parte dos exercícios e sair com a mesma ideia errada com que entrou: por exemplo, a de que um array e um ponteiro são a mesma coisa, ideia que funciona em quase todos os casos e só falha diante de \texttt{sizeof}. Uma concepção errônea desse tipo (\textit{misconception}, na literatura em inglês, o termo do título) é estável e coerente para quem a tem, e por isso resiste à informação nova: a explicação correta é lida e encaixada na ideia antiga, ou guardada à parte, sem entrar em conflito com ela \cite[p.~221]{posner1982}.
+Ponteiros são reconhecidos como um conteúdo de difícil aprendizagem para iniciantes em programação na linguagem C \cite[p.~1]{yamashita2017}. Parte dessa dificuldade não decorre da ausência de conhecimento, mas da presença de conhecimento incorreto. O estudante pode percorrer todo o material sobre o tema, acertar a maior parte dos exercícios e manter a concepção equivocada com que iniciou o estudo, como a de que um array e um ponteiro são a mesma coisa, ideia que produz respostas corretas em quase todos os casos e falha apenas diante do operador \texttt{sizeof}. Uma concepção errônea desse tipo (\textit{misconception}, na literatura em língua inglesa, termo adotado no título deste trabalho) é estável e coerente para quem a sustenta e, por isso, resiste à informação nova: a explicação correta tende a ser incorporada à concepção já existente, ou mantida em um compartimento separado, sem entrar em conflito com ela \cite[p.~221]{posner1982}.
 
-Daí decorrem duas dificuldades práticas. A primeira é de diagnóstico: uma resposta errada, sozinha, não distingue quem não sabe de quem sabe errado, e os dois casos pedem intervenções diferentes: a quem não sabe, é preciso construir a ideia; a quem sabe errado, é preciso desmontar a ideia que está no lugar. A segunda é de intervenção: dizer ao estudante qual é a resposta certa não basta quando ele tem razões para acreditar em outra.
+Dessa característica decorrem duas dificuldades práticas. A primeira é de diagnóstico: uma resposta incorreta, isoladamente, não permite distinguir o estudante que desconhece o conteúdo daquele que sustenta uma concepção errônea, e os dois casos demandam intervenções distintas. No primeiro, é preciso construir o conceito; no segundo, é preciso antes confrontar a concepção existente. A segunda dificuldade é de intervenção: informar ao estudante a resposta correta não é suficiente quando ele dispõe de razões para acreditar em outra.
 
-\section{A proposta}
+\section{Proposta}
 
-Este trabalho apresenta o Structura, um sistema de ensino de ponteiros em C que trata as duas dificuldades com dois mecanismos.
+Este trabalho apresenta o Structura, um sistema de ensino de ponteiros em C que trata as duas dificuldades por meio de dois mecanismos: um diagnóstico e uma intervenção condicionada a ele.
 
-O diagnóstico cruza três sinais que o próprio estudante fornece numa única tela: a resposta, a razão que a sustenta e a certeza declarada (``tenho certeza'', ``acho que sei'', ``chutei''). Cada alternativa errada de cada questão está ligada a uma concepção errônea de um catálogo com procedência declarada; a razão escolhida diz qual ideia sustenta a resposta, e a certeza separa o chute da convicção. Desse cruzamento saem quatro situações: o estudante sabe, não sabe, acha que sabe (sustenta uma concepção errônea) ou acertou sem firmeza.
+O diagnóstico combina três sinais fornecidos pelo próprio estudante em uma única tela: a resposta, a razão que a sustenta e a certeza declarada (``tenho certeza'', ``acho que sei'' ou ``chutei''). Cada alternativa incorreta de cada questão está associada a uma concepção errônea de um catálogo com procedência declarada. A razão escolhida indica qual ideia sustenta a resposta, e a certeza distingue a resposta dada ao acaso da resposta dada com convicção. Da combinação dos três sinais resultam quatro situações: o estudante sabe, não sabe, sustenta uma concepção errônea ou acertou sem firmeza.
 
-A intervenção depende da situação. A quem não sabe, o sistema oferece uma escada de passos curtos, do mais mecânico até a ideia, com retorno imediato a cada passo. A quem acha que sabe, o sistema não explica: mostra um programa pequeno, pede que o estudante preveja o que ele faz e, em seguida, mostra o que a máquina de fato fez: a saída do programa, ou o que o compilador disse dele. E quem erra depois de subir a escada recebe uma revisão curta, com o código da ideia animado linha a linha numa cena: a caixa que nasce, o valor que entra, o ponteiro com o seu bilhete. Todas essas demonstrações e cenas foram compiladas e executadas por um conferidor automático antes de entrar no sistema: o que a tela afirma que a máquina faz, a máquina faz.
+A intervenção depende da situação diagnosticada. Ao estudante que não sabe, o sistema oferece uma sequência de passos curtos, denominada escada, que parte da operação mais mecânica e chega ao conceito, com retorno imediato a cada passo. Ao estudante que sustenta uma concepção errônea, o sistema não apresenta uma explicação: exibe um programa curto, solicita uma previsão do seu comportamento e, em seguida, mostra o resultado obtido na execução, isto é, a saída do programa ou a mensagem emitida pelo compilador. Ao estudante que erra depois de percorrer a escada, o sistema apresenta uma revisão breve, na qual o código relativo ao conceito é animado linha a linha em uma representação visual da memória, denominada cena. Todas as demonstrações e cenas foram compiladas e executadas por um conferidor automático antes de serem incorporadas ao sistema, de modo que as afirmações exibidas sobre o comportamento de um programa correspondem ao comportamento observado na execução.
+
+\section{Justificativa}
+
+A proposta justifica-se por três razões. A primeira é teórica. A revisão de \citeonline[p.~1]{qian2017} recomenda que a pesquisa sobre as dificuldades de iniciantes em programação vá além de documentá-las e incorpore as teorias de mudança conceitual, e \citeonline{sorva2013} conclui que o modelo de execução dos programas, a chamada máquina nocional, deve constituir objetivo explícito do ensino introdutório. Um sistema que diagnostica a concepção errônea e a confronta com o comportamento observável do programa busca atender às duas recomendações no domínio de ponteiros em C.
+
+A segunda razão é a lacuna identificada nos trabalhos relacionados. Entre os trabalhos analisados na Seção 2.8, nenhum reúne, para ponteiros em C, o diagnóstico individual da concepção errônea, a intervenção selecionada a partir desse diagnóstico e a visualização da execução. Além disso, o catálogo de concepções errôneas de programação utilizado como fonte principal deste trabalho, o de \citeonline{sorva2012}, foi produzido em contextos de ensino com Java, Python e BASIC e não registra concepções sobre construtos próprios de C, como a alocação dinâmica e a aritmética de ponteiros (Seção 4.3), o que torna necessária uma curadoria específica.
+
+A terceira razão é metodológica. Materiais didáticos de programação fazem afirmações sobre o comportamento de programas, e essas afirmações podem ser verificadas mecanicamente. Ao submeter o conteúdo ao compilador, o trabalho reduz a dependência do julgamento de quem o redigiu, cuidado relevante em um contexto em que parte do conteúdo foi elaborada com assistência de um modelo de linguagem.
 
 \section{Objetivos}
 
-\textbf{Objetivo geral.} Construir e verificar um sistema que diagnostique, em treze tópicos de ponteiros em C, se o estudante sabe, não sabe ou sustenta uma concepção errônea, e que conduza cada caso por um percurso próprio, com demonstrações conferidas por compilador.
+\subsection{Objetivo geral}
 
-\textbf{Objetivos específicos.}
+Desenvolver e verificar um sistema que diagnostique, em treze tópicos de ponteiros em C, se o estudante sabe, não sabe ou sustenta uma concepção errônea, e que conduza cada caso por um percurso próprio, com demonstrações conferidas por compilador.
+
+\subsection{Objetivos específicos}
+
+Para alcançar o objetivo geral, foram definidos os seguintes objetivos específicos:
 
 \begin{enumerate}
-\item Organizar o conteúdo de ponteiros em C em premissas encadeadas, com cada concepção errônea do catálogo ligada à premissa que ela nega.
-\item Implementar o diagnóstico que combina resposta, razão e certeza declarada, e a escolha do percurso a partir dele.
-\item Escrever, para cada premissa, uma escada de passos para quem não sabe, uma demonstração com previsão para cada concepção errônea e uma cena que anima a revisão.
-\item Verificar mecanicamente que todo trecho de código das escadas e das demonstrações compila e faz o que o texto afirma, e que cada cena mostra o que o programa faz.
-\item Verificar o comportamento do sistema com estudantes simulados, que respondem segundo perfis definidos, em todos os tópicos.
+\item organizar o conteúdo de ponteiros em C em premissas encadeadas, associando cada concepção errônea do catálogo à premissa que ela nega;
+\item implementar o diagnóstico que combina resposta, razão e certeza declarada, bem como a escolha do percurso a partir dele;
+\item elaborar, para cada premissa, uma escada de passos destinada a quem não sabe, uma demonstração com previsão para cada concepção errônea e uma cena que anima a revisão;
+\item verificar mecanicamente que todo trecho de código das escadas e das demonstrações compila e se comporta como o texto afirma, e que cada cena representa o estado real do programa;
+\item verificar o comportamento do sistema com estudantes simulados, que respondem segundo perfis definidos, em todos os tópicos.
 \end{enumerate}
 
-\section{A pergunta, e o recorte}
+\section{Questão de pesquisa e delimitação do escopo}
 
-A pergunta que este trabalho responde é de construção e verificação:
+A questão de pesquisa que orienta este trabalho é de construção e de verificação: é possível construir um sistema que diagnostique concepções errôneas sobre ponteiros em C a partir da resposta, da razão e da certeza declarada, e que as confronte com demonstrações verificadas por compilador, de modo que o conteúdo e o comportamento do sistema possam ser conferidos sem depender do julgamento de quem os elaborou?
 
-\begin{citacao}
-É possível construir um sistema que diagnostique concepções errôneas sobre ponteiros em C a partir da resposta, da razão e da certeza declarada, e que as confronte com demonstrações verificadas por compilador, de modo que o conteúdo e o comportamento possam ser conferidos sem depender da opinião de quem o escreveu?
-\end{citacao}
+O trabalho não avalia o sistema com estudantes. Verificar se estudantes de graduação conseguem e desejam concluir a sessão, e se a hipótese de concepção errônea gerada pelo sistema coincide com o que eles pensam, requer um estudo com participantes que não pôde ser realizado no prazo deste trabalho. Esse estudo está planejado e documentado no Apêndice A e constitui o primeiro dos trabalhos futuros (Capítulo 7). As afirmações deste trabalho restringem-se, portanto, ao que pode ser verificado sem participantes: o sistema se comporta conforme especificado, o conteúdo que apresenta está correto segundo o compilador, e cada concepção errônea que ele se propõe a diagnosticar tem procedência declarada.
 
-O trabalho não avalia o sistema com estudantes. A pergunta sobre se estudantes de graduação conseguem e querem completar a sessão, e se a hipótese de concepção errônea gerada pelo sistema coincide com o que eles pensam, exige um estudo com participantes que não coube no prazo. Esse estudo está desenhado e documentado (Apêndice A) e é o primeiro dos trabalhos futuros (Capítulo 7). O que se afirma aqui, portanto, é mais modesto e inteiramente conferível: o sistema faz o que diz fazer, o conteúdo que ele mostra está correto segundo o compilador, e cada concepção errônea que ele afirma diagnosticar tem procedência declarada.
+\section{Procedimentos metodológicos}
+
+Trata-se de uma pesquisa aplicada, de caráter tecnológico, cujo produto é um artefato de software acompanhado da verificação de suas propriedades. O trabalho foi conduzido em quatro etapas. Na primeira, realizou-se o levantamento bibliográfico sobre concepções errôneas e mudança conceitual, certeza declarada, ensino por passos e sistemas tutores inteligentes, bem como sobre os trabalhos relacionados (Capítulo 2). Na segunda, procedeu-se à curadoria do catálogo de concepções errôneas, com a conferência das fontes nas obras primárias (Capítulo 4). Na terceira, o domínio foi modelado e o sistema foi desenvolvido, com testes automatizados escritos antes do código (Capítulo 3 e Seção 5.1). Na quarta, verificaram-se o conteúdo, por meio de compilador, e o comportamento, por meio de estudantes simulados (Capítulo 5); os resultados dessa verificação são apresentados no Capítulo 6. Não houve coleta de dados com participantes humanos.
 
 \section{Contribuições}
 
+As principais contribuições deste trabalho são:
+
 \begin{enumerate}
-\item Um catálogo de 61 concepções errôneas sobre ponteiros em C, cada uma com procedência declarada e ligada à premissa que nega (Capítulo 4).
-\item Um diagnóstico que usa a certeza declarada para escolher o percurso, e não para pontuar.
-\item Um conjunto de 80 demonstrações com previsão (uma para cada concepção errônea em cada tópico em que ela aparece) e 402 passos de escada, além de 79 cenas animadas, todos conferidos por compilador.
-\item Um método de verificação de conteúdo didático de programação em que o compilador é o árbitro: o texto que afirma o que um programa faz é testado contra o programa.
+\item um catálogo de 61 concepções errôneas sobre ponteiros em C, cada uma com procedência declarada e associada à premissa que nega (Capítulo 4);
+\item um diagnóstico que utiliza a certeza declarada para selecionar o percurso de intervenção, e não para atribuir pontuação;
+\item um conjunto de 80 demonstrações com previsão (uma para cada concepção errônea em cada tópico em que ela aparece) e 402 passos de escada, além de 79 cenas animadas, todos conferidos por compilador;
+\item um método de verificação de conteúdo didático de programação no qual o compilador atua como árbitro: o texto que afirma o comportamento de um programa é testado contra o próprio programa.
 \end{enumerate}
 
 \section{Organização do texto}
 
-O Capítulo 2 apresenta as ideias que sustentam o sistema e os trabalhos relacionados. O Capítulo 3 descreve o Structura: o domínio, o diagnóstico, a trilha e a interface. O Capítulo 4 trata da procedência do catálogo de concepções errôneas. O Capítulo 5 descreve como o sistema foi construído e verificado, e o Capítulo 6 apresenta os resultados dessa verificação. O Capítulo 7 discute as limitações e os trabalhos futuros, e o Capítulo 8 conclui.
+O restante deste trabalho está organizado como segue. O Capítulo 2 apresenta a fundamentação teórica e os trabalhos relacionados. O Capítulo 3 descreve o sistema Structura: o domínio, o diagnóstico, o percurso de aprendizagem e a interface. O Capítulo 4 trata da procedência do catálogo de concepções errôneas. O Capítulo 5 descreve o método de construção e de verificação do sistema, e o Capítulo 6 apresenta os resultados da verificação. O Capítulo 7 discute as limitações e os trabalhos futuros, e o Capítulo 8 apresenta as conclusões.

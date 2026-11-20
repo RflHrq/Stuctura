@@ -83,7 +83,8 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
 - **p. 1:3:** não há definição comumente aceita na computação.
 - **p. 1:13:** a seção sobre mudança conceitual parte de Posner et al.
   (1982) e do conflito cognitivo.
-- **Sustenta:** Capítulo 2 (2.1).
+- **Sustenta:** Capítulo 1 (1.3, a recomendação da p. 1:1, citada como
+  p. 1); Capítulo 2 (2.1).
 - **Baixada pelo autor em 19/11/2026** (acesso da UFV), em
   `fontes/qian2017/` (329 KB, b0ef226a6366). No arquivo, a p. 1:2 diz que,
   como nas ciências naturais, os primeiros trabalhos sobre concepções
@@ -315,7 +316,12 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
 - **O que não está:** nenhuma ocorrência de modelo do estudante,
   diagnóstico ou concepção errônea; o texto diz que o artigo "não
   descreve" modelo do estudante, e não que o sistema não o tenha.
-- **Sustenta:** Capítulo 2 (2.8.1 e Quadro 2.1).
+- **p. 1 (resumo), usada em 20/11/2026:** "Pointers are difficult
+  learning targets for novice learners of C programming." A p. 3 repete
+  a ideia, com Milne e Rowe (2002) e Lahtinen, Ala-Mutka e Järvinen
+  (2005); o texto cita só Yamashita et al., que é a obra aberta.
+- **Sustenta:** Capítulo 1 (1.1, a dificuldade dos ponteiros para
+  iniciantes em C); Capítulo 2 (2.8.1 e Quadro 2.1).
 
 ### SCHMELLENKAMP, LATYS e ZEUME (2023)
 
@@ -362,7 +368,9 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
   artigo reúne e comenta essas linhas (e cita outras, sem visualização); o
   conceito é anterior ao artigo. O texto passou a dizer o que o resumo
   diz.
-- **Sustenta:** Capítulo 2 (2.8.4 e Quadro 2.1).
+- **Sustenta:** Capítulo 1 (1.3, a conclusão de que a máquina nocional
+  deve ser objetivo explícito do ensino); Capítulo 2 (2.8.4 e Quadro
+  2.1).
 
 **Também conferido para 2.8, em Falmagne et al.:**
 

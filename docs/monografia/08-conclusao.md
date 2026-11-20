@@ -1,37 +1,9 @@
 # 8. Conclusão
 
-Este trabalho partiu de uma dificuldade conhecida do ensino de ponteiros
-em C: o estudante que sabe errado não se distingue, por uma resposta
-errada, do estudante que não sabe, e não se corrige com mais explicação.
-O Structura responde a isso com dois mecanismos. O diagnóstico cruza a
-resposta, a razão e a certeza declarada, e com isso separa quem sabe,
-quem não sabe e quem sustenta uma concepção errônea. A intervenção segue
-o diagnóstico: a quem não sabe, uma escada de passos curtos; a quem acha
-que sabe, uma demonstração em que ele prevê o que um programa faz e vê o
-que a máquina fez.
+Este trabalho partiu de uma dificuldade conhecida do ensino de ponteiros em C: uma resposta incorreta não distingue o estudante que sustenta uma concepção errônea daquele que desconhece o conteúdo, e a concepção errônea não é corrigida apenas com explicações adicionais. Para tratá-la, foi desenvolvido o Structura, sistema que combina dois mecanismos. O diagnóstico utiliza a resposta, a razão e a certeza declarada para distinguir quem sabe, quem não sabe e quem sustenta uma concepção errônea. A intervenção decorre do diagnóstico: ao estudante que não sabe, é oferecida uma escada de passos curtos; ao que sustenta uma concepção errônea, uma demonstração na qual ele prevê o comportamento de um programa e observa o resultado da execução.
 
-A pergunta que o trabalho se propôs foi se é possível construir esse
-sistema de modo que o conteúdo e o comportamento possam ser conferidos
-sem depender da opinião de quem o escreveu. A resposta, nos limites do
-que foi feito, é sim. Os 13 tópicos, com 79 premissas, 402 passos e 80
-demonstrações, além das 79 cenas que animam a revisão de cada premissa,
-foram conferidos contra o compilador: o que cada passo, cada
-demonstração e cada cena afirma sobre um programa é o que o programa faz. No
-banco, a conferência alcança as 69 questões de prever a saída com
-resposta em valor; o resto depende de leitura (7.1). O comportamento foi
-conferido com dez perfis de estudante simulado em todos os tópicos: cada
-caso segue o percurso que o desenho promete, e a sessão tem teto. E a
-verificação mostrou o seu valor no caminho, encontrando defeitos que a
-leitura humana deixara passar, entre eles uma questão cuja resposta
-certa não vale no compilador do laboratório, e oito questões cujo código
-aparecia partido na tela. A leitura humana, por sua vez, achou o que a
-verificação mecânica não poderia achar: perguntas verdadeiras, mas que
-repetiam a frase de cima, reescritas em 101 dos 244 passos guiados. As
-duas coisas se completam, e nenhuma substitui a outra.
+O objetivo geral, de desenvolver e verificar um sistema com essas características, foi alcançado, e os objetivos específicos foram atendidos da seguinte forma. O conteúdo foi organizado em premissas encadeadas, com cada uma das 61 concepções errôneas do catálogo associada à premissa que nega e com procedência declarada (Capítulos 3 e 4). O diagnóstico e a escolha do percurso foram implementados conforme descrito no Capítulo 3. Os 13 tópicos, com 79 premissas, 402 passos e 80 demonstrações, além das 79 cenas que animam a revisão de cada premissa, foram conferidos contra o compilador: o que cada passo, cada demonstração e cada cena afirma sobre um programa corresponde ao comportamento do programa (Capítulos 5 e 6). No banco de questões, a conferência por compilador alcança as 69 questões de prever a saída com resposta em valor, e as demais dependem de leitura (Seção 7.1). O comportamento foi conferido com dez perfis de estudante simulado em todos os tópicos: cada caso segue o percurso especificado, e a duração da sessão é limitada.
 
-O que o trabalho não responde é se o sistema ensina. Essa pergunta exige
-estudantes, e é o primeiro trabalho futuro: o estudo está desenhado, e o
-sistema já registra tudo o que ele precisa. Até lá, a contribuição é um
-sistema verificável, um catálogo de concepções errôneas com procedência
-declarada e um método em que o compilador, e não o autor, é o árbitro do
-que o material de ensino afirma.
+A questão de pesquisa indagava se é possível construir esse sistema de modo que o conteúdo e o comportamento possam ser conferidos sem depender do julgamento de quem os elaborou. Nos limites do que foi realizado, a resposta é afirmativa. A verificação mostrou-se útil ao longo do processo, ao identificar defeitos que a leitura humana não havia percebido, entre eles uma questão cuja resposta indicada como correta não é válida no compilador do laboratório e oito questões cujo código era exibido de forma truncada. A leitura humana, por sua vez, identificou o que a verificação automatizada não poderia identificar: perguntas verdadeiras, mas que repetiam a frase anterior, reescritas em 101 dos 244 passos guiados. As duas formas de verificação são complementares, e nenhuma substitui a outra.
+
+O trabalho não responde se o sistema produz aprendizagem. Essa questão requer um estudo com estudantes, que constitui o primeiro dos trabalhos futuros: o protocolo está definido (Apêndice A), e o sistema já registra os dados necessários. As contribuições deste trabalho são, portanto, um sistema verificável, um catálogo de concepções errôneas com procedência declarada e um método no qual o compilador, e não o autor, arbitra as afirmações do material de ensino.

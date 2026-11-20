@@ -2,80 +2,31 @@
 
 ## 7.1 Limitações
 
-O sistema não foi avaliado com estudantes. É a limitação central, e
-foi uma decisão de recorte, não um esquecimento: o estudo com
-participantes não coube no prazo. Por isso este trabalho não afirma que
-estudantes consigam ou queiram completar a sessão, que a hipótese de
-concepção errônea gerada pelo sistema coincida com o que eles pensam, nem
-que a demonstração os faça mudar de ideia. O que se afirma é que o
-sistema faz o que o desenho diz, e que o conteúdo é correto segundo o
-compilador.
+A principal limitação deste trabalho é a ausência de avaliação do sistema com estudantes. Trata-se de uma decisão de escopo, e não de uma omissão: o estudo com participantes não pôde ser realizado no prazo disponível. Por essa razão, este trabalho não afirma que estudantes consigam ou desejem concluir a sessão, que a hipótese de concepção errônea gerada pelo sistema coincida com o que eles pensam, nem que a demonstração os leve a abandonar a concepção. Afirma-se apenas que o sistema se comporta conforme o projeto e que o conteúdo está correto segundo o compilador.
 
-A verificação mecânica não verifica a pedagogia. O compilador confirma
-o que um programa faz; não confirma que a ideia ensinada é a certa para um
-iniciante, que a ordem dos passos é a mais fácil, nem que a frase de um
-passo é clara (5.8). A leitura das perguntas (5.7) tratou um tipo de
-defeito de clareza, com um critério escrito, mas foi feita uma vez, sobre
-os passos guiados: os passos de prática e as perguntas de abertura não
-passaram por ela.
+A segunda limitação é que a verificação automatizada não alcança os aspectos pedagógicos. O compilador confirma o comportamento de um programa, mas não que a ideia ensinada seja a adequada a um iniciante, que a ordem dos passos seja a mais acessível ou que a frase de um passo seja clara (Seção 5.8). A revisão da clareza das perguntas (Seção 5.7) tratou um tipo específico de defeito, com critério registrado por escrito, mas foi realizada uma única vez e apenas sobre os passos guiados: os passos de prática e as perguntas de abertura não foram submetidos a ela.
 
-Só parte do banco é conferida contra o compilador. O conferidor
-cobre as escadas e as demonstrações; no banco, só as 69 questões de
-prever a saída com resposta em valor são comparadas com o que o programa
-imprime (5.2). Nas outras, a alternativa certa ("não dá para saber", o que está errado num trecho, a diferença entre dois casos) depende da
-revisão mecânica da forma e da leitura.
+Em terceiro lugar, apenas parte do banco de questões é conferida contra o compilador. O conferidor abrange as escadas e as demonstrações; no banco, somente as 69 questões de prever a saída com resposta em valor são comparadas com o que o programa imprime (Seção 5.2). Nas demais, a alternativa correta ("não dá para saber", a identificação do erro em um trecho, a diferença entre dois casos) depende da revisão automatizada da forma e da leitura.
 
-O conteúdo foi escrito com assistência de um modelo de linguagem, e
-as escadas aguardam a revisão do autor. A verificação reduz o risco de
-afirmação errada sobre C, mas não substitui a leitura de quem conhece o
-domínio.
+Em quarto lugar, o conteúdo foi elaborado com assistência de um modelo de linguagem, e as escadas aguardam a revisão do autor. A verificação reduz o risco de afirmações incorretas sobre a linguagem C, mas não substitui a leitura por especialista no domínio.
 
-As concepções errôneas têm procedência desigual. A maior parte do
-catálogo vem de obras técnicas e de corpus de praticantes, e poucas de
-medição empírica direta em C (Capítulo 4). O sistema diagnostica as
-concepções que a literatura registra; se um estudante tiver outra, o
-diagnóstico a registra como erro fora do catálogo, sem tratá-la.
+Em quinto lugar, as concepções errôneas do catálogo têm procedência desigual. A maior parte provém de obras técnicas e de corpus de praticantes, e poucas provêm de medição empírica direta em C (Capítulo 4). O sistema diagnostica as concepções registradas na literatura; se o estudante sustentar outra, o diagnóstico a registra como erro externo ao catálogo, sem tratá-la.
 
-A certeza declarada é um sinal barato e ruidoso. Quem marca "tenho
-certeza" por hábito gera uma hipótese de concepção errônea errada. O
-sistema mitiga isso exigindo a razão da concepção, e não só a resposta
-errada, mas não elimina o ruído. E a escala usa palavras ("chutei", "acho que sei", "tenho certeza"), que querem dizer coisas diferentes
-para pessoas diferentes; é por isso que Gardner-Medwin (2006) nomeia os
-níveis com números. Se a mesma marcação significa convicções diferentes,
-o mesmo erro pode levar uma pessoa à demonstração e outra ao ensino.
+Em sexto lugar, a certeza declarada é um sinal de baixo custo, porém ruidoso. A marcação de "tenho certeza" por hábito gera uma hipótese incorreta de concepção errônea. O sistema atenua esse efeito ao exigir a razão correspondente à concepção, e não apenas a resposta incorreta, mas não elimina o ruído. Além disso, a escala utiliza expressões verbais ("chutei", "acho que sei", "tenho certeza"), cujo significado varia entre as pessoas, razão pela qual Gardner-Medwin (2006) nomeia os níveis com números. Se a mesma marcação corresponde a graus distintos de convicção, o mesmo erro pode conduzir uma pessoa à demonstração e outra ao ensino.
 
-O que se mede é a sessão. O fechamento fala de assimilação dentro de
-uma sessão: acertar de novo com outras premissas no meio. Isso não é
-aprendizagem duradoura, que se mede por retenção de longo prazo ou por
-transferência e exigiria reteste dias depois (SODERSTROM; BJORK, 2015,
-p. 176).
+Em sétimo lugar, o que se mede é restrito à sessão. O fechamento refere-se à assimilação dentro de uma sessão, isto é, ao acerto repetido após a resposta a outras premissas. Esse resultado não equivale à aprendizagem duradoura, que é medida por retenção de longo prazo ou por transferência e exigiria um novo teste dias depois (SODERSTROM; BJORK, 2015, p. 176).
 
-Um ambiente. As demonstrações e as cenas foram conferidas no gcc 16.2,
-no Windows. Onde o resultado depende do ambiente, a demonstração diz isso;
-mas outro compilador, ou outra versão, pode dar outra mensagem.
+Por fim, a verificação foi realizada em um único ambiente. As demonstrações e as cenas foram conferidas no gcc 16.2, no sistema operacional Windows. Nos casos em que o resultado depende do ambiente, a demonstração o informa; outro compilador, ou outra versão do mesmo compilador, pode, contudo, emitir mensagem diferente.
 
 ## 7.2 Trabalhos futuros
 
-1. O estudo com estudantes, como desenhado no Apêndice A: de 10 a 15
-   participantes que cursam ou cursaram a disciplina com C, pensando em
-   voz alta, com quatro perguntas: se concluem a sessão sem ajuda (V1),
-   se a concepção detectada coincide com a verbalizada (V2), se mudam de
-   resposta num item novo depois da demonstração (V3) e como percebem o
-   sistema (V4). O sistema já grava tudo o que o estudo precisa; falta a
-   exportação das sessões da trilha em tabelas, o termo de consentimento
-   e a submissão ao comitê de ética, se exigida.
-2. A revisão das escadas por especialistas, com o registro de quem
-   revisou cada uma.
-3. O resto do banco contra o compilador: nas questões de achar o
-   erro e de comparar casos, montar cada caso e conferir se o compilador
-   reclama dele, como o conferidor já faz com os passos de completar.
-4. As cenas das demonstrações. As 79 cenas animam a revisão de cada
-   premissa; as 80 demonstrações ainda mostram o programa e o resultado
-   sem animação. O formato e o conferidor das cenas já servem para elas.
-5. A leitura das perguntas (5.7) nos passos de prática e nas perguntas
-   de abertura, com o mesmo critério.
-6. Um modo de prática, só com os exercícios da escada e retorno de
-   certo e errado, para uso fora da sessão de diagnóstico.
-7. Retenção: um reteste dias depois, para medir o que fica.
-8. Outros compiladores: conferir as demonstrações e as cenas também
-   no clang, e marcar as que mudam.
+Como continuidade deste trabalho, propõem-se:
+
+1. o estudo com estudantes, conforme o protocolo do Apêndice A: de 10 a 15 participantes que cursam ou cursaram a disciplina com a linguagem C, com verbalização do pensamento em voz alta, para responder a quatro questões: se concluem a sessão sem auxílio (V1), se a concepção detectada coincide com a verbalizada (V2), se alteram a resposta em um item novo após a demonstração (V3) e como percebem o sistema (V4). O sistema já grava os dados necessários ao estudo; restam a exportação das sessões da trilha em tabelas, o termo de consentimento e a submissão ao comitê de ética, se exigida;
+2. a revisão das escadas por especialistas, com o registro do responsável pela revisão de cada uma;
+3. a conferência do restante do banco de questões contra o compilador: nas questões de encontrar o erro e de comparar casos, montar cada caso e conferir se o compilador emite mensagem para ele, como o conferidor já faz com os passos de completar;
+4. a animação das demonstrações por meio de cenas. As 79 cenas animam a revisão de cada premissa, ao passo que as 80 demonstrações ainda exibem o programa e o resultado sem animação; o formato e o conferidor das cenas já são adequados a esse uso;
+5. a extensão da revisão da clareza das perguntas (Seção 5.7) aos passos de prática e às perguntas de abertura, com o mesmo critério;
+6. um modo de prática, composto apenas dos exercícios das escadas, com retorno de acerto e erro, para uso fora da sessão de diagnóstico;
+7. a medição da retenção, por meio de um novo teste aplicado dias depois da sessão;
+8. a conferência das demonstrações e das cenas em outros compiladores, como o clang, com a identificação das que apresentam resultado diferente.

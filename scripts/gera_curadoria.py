@@ -503,6 +503,7 @@ def _monografia(s):
     s = s.replace("**", "")
     s = re.sub(r"^— ", "", s)
     s = s.replace(" — ", ": ").replace(" · ", ", ")
+    s = s.replace("texto integral do Sorva", "texto integral de Sorva (2012)")
     return "não há" if s == "—" else s
 
 
@@ -518,21 +519,24 @@ fonte_ap = ("gerado do catálogo do Structura por "
             "(2012): as citações dessa obra aparecem como não conferidas")
 ap = """# Apêndice B — O catálogo de concepções errôneas, linha por linha
 
-Este apêndice traz as %d concepções errôneas do catálogo, uma por linha,
-com a procedência de cada uma (Capítulo 4). Ele não foi digitado: é gerado
-do catálogo (`mvp/dominio/beliefs_kc*.yaml`) por `scripts/gera_curadoria.py`,
+Este apêndice relaciona as %d concepções errôneas do catálogo, uma por
+linha, com a respectiva procedência (Capítulo 4). O conteúdo não foi
+redigido manualmente: é gerado a partir do catálogo
+(`mvp/dominio/beliefs_kc*.yaml`) pelo programa `scripts/gera_curadoria.py`,
 que procura no texto integral de Sorva (2012) a frase em inglês de cada
-citação daquela obra. Rodado sem esse texto, o programa marca essas linhas
-como não conferidas, em vez de afirmar uma conferência que não fez.
+citação daquela obra. Quando executado sem esse texto, o programa marca
+essas linhas como não conferidas, em vez de registrar uma conferência não
+realizada.
 
-As colunas são: a concepção, pelo identificador do catálogo; os tópicos
-em que ela aparece; a premissa que ela nega, no primeiro desses tópicos; a
-classe da fonte (1, concepção estudada com estudantes; 2, corpus de
-praticante; ou hipótese); o grau de procedência (Quadro 4.1); o
-localizador, isto é, o tipo de posição que a citação dá na obra; e a
-conferência, como a citação foi conferida na obra primária (Quadro 4.4).
-A conferência é a da curadoria; a das normas CERT C e CWE, feita à parte,
-está em 4.7.
+As colunas do Quadro B.1 indicam: a concepção, pelo identificador do
+catálogo; os tópicos em que ela aparece; a premissa que ela nega, no
+primeiro desses tópicos; a classe da fonte (1, concepção estudada com
+estudantes; 2, corpus de praticante; ou hipótese); o grau de procedência
+(Quadro 4.1); o localizador, isto é, o tipo de posição que a citação
+indica na obra; e a conferência, isto é, a forma como a citação foi
+conferida na obra primária (Quadro 4.4). A conferência indicada é a da
+curadoria; a das normas CERT C e CWE, realizada à parte, é descrita na
+Seção 4.7.
 
 **Quadro B.1 — As %d concepções errôneas do catálogo e a procedência de cada uma**
 

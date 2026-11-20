@@ -28,59 +28,14 @@ RIO PARANAÍBA
 
 ## Resumo
 
-Ponteiros estão entre os pontos mais difíceis do ensino de programação
-em C, e parte da dificuldade não é falta de conhecimento, mas concepções
-errôneas: ideias estáveis e coerentes para quem as tem, que resistem à
-explicação correta. Uma resposta errada, sozinha, não distingue quem não
-sabe de quem sabe errado, e os dois casos pedem intervenções diferentes.
-Este trabalho apresenta o Structura, um sistema de ensino de ponteiros
-em C que diagnostica cada premissa do conteúdo cruzando três sinais que o
-estudante fornece numa mesma tela (a resposta, a razão que a sustenta e a certeza declarada) e conduz cada caso por um percurso próprio: a quem
-não sabe, uma escada de passos curtos com retorno imediato; a quem
-sustenta uma concepção errônea, uma demonstração em que ele prevê o que um
-programa faz e vê o que a máquina fez; a quem erra depois da escada, uma
-revisão com o código animado linha a linha. O conteúdo cobre 13 tópicos,
-com 79 premissas, um catálogo de 61 concepções errôneas com procedência
-declarada, 402 passos, 80 demonstrações e 79 cenas animadas. A
-verificação foi feita sem depender da opinião de quem escreveu o
-material: um conferidor compila e executa cada trecho de código e confere
-o que o texto afirma, inclusive o estado que cada cena mostra, e dez
-perfis de estudante simulado atravessam todos os tópicos para conferir o
-comportamento descrito. O trabalho não avalia o sistema com estudantes; o
-estudo com participantes está desenhado e documentado como trabalho
-futuro. Conclui-se que é possível construir um sistema desse tipo com
-conteúdo e comportamento conferíveis, e que a verificação mecânica e a
-leitura humana encontram defeitos de natureza diferente e se completam.
+Ponteiros constituem um dos conteúdos de mais difícil aprendizagem no ensino de programação em C, e parte dessa dificuldade não decorre da falta de conhecimento, mas de concepções errôneas: ideias estáveis e coerentes para quem as sustenta, que resistem à explicação correta. Uma resposta incorreta, isoladamente, não distingue o estudante que desconhece o conteúdo daquele que sustenta uma concepção errônea, e os dois casos demandam intervenções diferentes. Este trabalho apresenta o Structura, um sistema de ensino de ponteiros em C que diagnostica cada premissa do conteúdo a partir de três sinais fornecidos pelo estudante em uma mesma tela (a resposta, a razão que a sustenta e a certeza declarada) e conduz cada caso por um percurso próprio: ao estudante que não sabe, uma sequência de passos curtos com retorno imediato; ao que sustenta uma concepção errônea, uma demonstração na qual ele prevê o comportamento de um programa e observa o resultado da execução; ao que erra após os passos, uma revisão com o código animado linha a linha. O conteúdo abrange 13 tópicos, com 79 premissas, um catálogo de 61 concepções errôneas com procedência declarada, 402 passos, 80 demonstrações e 79 cenas animadas. A verificação foi conduzida sem depender do julgamento de quem elaborou o material: um conferidor automático compila e executa cada trecho de código e confere o que o texto afirma, inclusive o estado representado em cada cena, e dez perfis de estudante simulado percorrem todos os tópicos para conferir o comportamento especificado. O sistema não foi avaliado com estudantes; o estudo com participantes está planejado e documentado como trabalho futuro. Conclui-se que é possível construir um sistema desse tipo com conteúdo e comportamento verificáveis, e que a verificação automatizada e a leitura humana identificam defeitos de natureza distinta e são complementares.
 
 **Palavras-chave:** ponteiros em C; concepções errôneas; diagnóstico;
 ensino de programação; verificação por compilador.
 
 ## Abstract
 
-Pointers are among the hardest topics in teaching C programming, and part
-of the difficulty is not a lack of knowledge but misconceptions: ideas
-that are stable and coherent to those who hold them, and that resist the
-correct explanation. A wrong answer alone does not tell apart a student
-who does not know from one who knows wrongly, and the two cases call for
-different interventions. This work presents Structura, a system for
-teaching pointers in C that diagnoses each premise of the content by
-crossing three signals the student provides on a single screen (the answer, the reason behind it and the declared confidence) and leads each
-case along its own path: to the student who does not know, a ladder of
-short steps with immediate feedback; to the student who holds a
-misconception, a demonstration in which they predict what a program does
-and then see what the machine did; to the student who still errs after
-the ladder, a review with the code animated line by line. The content
-covers 13 topics, with 79 premises, a catalog of 61 misconceptions with
-declared provenance, 402 steps, 80 demonstrations and 79 animated scenes.
-Verification did not rely on the opinion of whoever wrote the material: a
-checker compiles and runs every code snippet and checks what the text
-claims, including the state each scene shows, and ten simulated student
-profiles go through every topic to check the described behavior. The
-work does not evaluate the system with students; the study with
-participants is designed and documented as future work. It concludes
-that such a system can be built with checkable content and behavior, and
-that mechanical verification and human reading find defects of different
-kinds and complement each other.
+Pointers are among the most difficult topics for novices learning C programming, and part of the difficulty stems not from a lack of knowledge but from misconceptions: ideas that are stable and coherent to those who hold them and that resist the correct explanation. A wrong answer alone does not distinguish a student who lacks the knowledge from one who holds a misconception, and the two cases call for different interventions. This work presents Structura, a system for teaching pointers in C that diagnoses each premise of the content from three signals provided by the student on a single screen (the answer, the reason behind it and the declared confidence) and leads each case along its own path: for the student who does not know, a sequence of short steps with immediate feedback; for the student who holds a misconception, a demonstration in which the student predicts the behavior of a program and then observes the result of its execution; for the student who still errs after the steps, a review with the code animated line by line. The content covers 13 topics, with 79 premises, a catalog of 61 misconceptions with declared provenance, 402 steps, 80 demonstrations and 79 animated scenes. Verification did not rely on the judgment of those who wrote the material: an automatic checker compiles and runs every code snippet and checks what the text claims, including the state represented in each scene, and ten simulated student profiles go through every topic to check the specified behavior. The system was not evaluated with students; the study with participants is planned and documented as future work. It is concluded that such a system can be built with verifiable content and behavior, and that automated verification and human reading identify defects of different kinds and are complementary.
 
 **Keywords:** pointers in C; misconceptions; diagnosis; programming
 education; compiler-based verification.
@@ -90,17 +45,7 @@ education; compiler-based verification.
 [preencher: ajustar à norma da UFV, se houver uma, e ao que o autor
 quiser declarar]
 
-Este trabalho foi desenvolvido com assistência de um modelo de linguagem
-(Claude, da Anthropic), sob a direção e a revisão do autor. O modelo foi
-usado para escrever parte do código do sistema, para rascunhar o conteúdo didático (as escadas de passos, as demonstrações e as cenas) e o texto desta monografia, e para localizar e conferir as referências.
+Este trabalho foi desenvolvido com assistência de um modelo de linguagem (Claude, da Anthropic), sob a direção e a revisão do autor. O modelo foi utilizado na escrita de parte do código do sistema, na elaboração preliminar do conteúdo didático (as escadas de passos, as demonstrações e as cenas) e do texto desta monografia, e na localização e conferência das referências.
 
-Três cuidados limitam o que o modelo pôde afirmar sem conferência. Todo
-conteúdo que diz o que um programa em C faz foi conferido por compilador,
-pelos conferidores automáticos descritos no Capítulo 5, e o sistema não
-aceita conteúdo que não passe por eles. Toda referência citada foi aberta
-na obra, e o que cada uma sustenta está registrado à parte, com a página;
-as obras de acervo pago foram baixadas pelo autor, pelo acesso da
-universidade. E as decisões de recorte, de
-desenho e de método são do autor, registradas por escrito ao longo do
-projeto. A revisão do conteúdo didático pelo autor [preencher: feita em
+Três medidas restringem o que o modelo pôde afirmar sem conferência. Primeiro, todo conteúdo que descreve o comportamento de um programa em C foi conferido por compilador, por meio dos conferidores automáticos descritos no Capítulo 5, e o sistema não aceita conteúdo que não seja aprovado por eles. Segundo, toda referência citada foi consultada na obra, e o que cada uma sustenta está registrado à parte, com a indicação da página; as obras de acesso restrito foram obtidas pelo autor por meio do acesso institucional da universidade. Terceiro, as decisões de escopo, de projeto e de método são do autor e foram registradas por escrito ao longo do projeto. A revisão do conteúdo didático pelo autor [preencher: feita em
 (data) / em andamento].

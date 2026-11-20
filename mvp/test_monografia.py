@@ -112,7 +112,7 @@ def test_por_que_61_concepcoes_dao_80_demonstracoes():
     assert (len(vezes), repetidas, sum(vezes.values()), len(provas)) == (
         61, 14, 80, 80)
     texto = _texto("03-sistema.md")
-    assert "As 61 concepções do catálogo dão 80 demonstrações" in texto
+    assert "As 61 concepções do catálogo resultam em 80 demonstrações" in texto
     assert "14 delas aparecem em mais de um tópico" in texto
 
 
@@ -128,8 +128,8 @@ def test_o_quadro_dos_topicos_e_o_das_formas(contagens):
 def test_as_opcoes_de_compilador_das_demonstracoes(contagens):
     c, _, avisos, _ = contagens
     texto = _texto("06-resultados-da-verificacao.md")
-    assert c["com_opcao"] == 9 and "nove pedem opções a mais" in texto
-    assert avisos["-fanalyzer"] == 7 and "sete o analisador de fluxo" in texto
+    assert c["com_opcao"] == 9 and "nove requerem opções adicionais" in texto
+    assert avisos["-fanalyzer"] == 7 and "sete, o analisador de fluxo" in texto
     assert "`-O2` com `-Wnull-dereference`" in texto
     assert avisos == {"-fanalyzer": 7, "-O2": 1, "-Wnull-dereference": 1,
                       "-Wpointer-arith": 1}
@@ -213,8 +213,8 @@ def test_a_leitura_das_perguntas_no_texto():
     assert guiados == 244
     texto = _texto("06-resultados-da-verificacao.md")
     assert ("Dos 244 passos guiados, 101 tiveram a frase reescrita: o passo "
-            "que o autor leu, 46 dos que o programa marcou e 54 que ele não "
-            "marcou") in texto
+            "lido inicialmente pelo autor, 46 dos marcados pelo programa e "
+            "54 que o programa não marcou") in texto
 
 
 def test_os_trechos_de_codigo_do_realce():

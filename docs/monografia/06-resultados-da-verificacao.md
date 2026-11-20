@@ -1,13 +1,12 @@
 # 6. Resultados da verificação
 
-## 6.1 O que foi verificado
+## 6.1 Escopo verificado
 
-O Quadro 6.1 resume o tamanho do que a verificação do Capítulo 5 cobre,
-na versão de 19/11/2026.
+O Quadro 6.1 resume a dimensão do sistema abrangido pela verificação descrita no Capítulo 5, na versão de 19/11/2026.
 
-**Quadro 6.1 — O sistema verificado**
+**Quadro 6.1 — Dimensão do sistema verificado**
 
-| | |
+| elemento | quantidade |
 | --- | --- |
 | Tópicos, todos na trilha | 13 |
 | Premissas | 79 |
@@ -19,34 +18,21 @@ na versão de 19/11/2026.
 | Trechos de código das escadas | 1 762 |
 | Testes automatizados | 7 547 |
 
-## 6.2 O conteúdo contra o compilador
+## 6.2 Conferência do conteúdo por compilador
 
-O conferidor não acusa nenhum problema nos 13 tópicos: os 402 passos, os
-79 exemplos resolvidos e as 80 demonstrações fazem o que o texto afirma
-que fazem, no gcc 16.2. Das 80 demonstrações, nove pedem opções a mais do compilador: sete o analisador de fluxo (`-fanalyzer`), uma `-Wpointer-arith`, e uma, a do `NULL` no kc_05, `-O2` com `-Wnull-dereference`. As que dependem do ambiente trazem nota que
-diz isso.
+O conferidor não acusa nenhum problema nos 13 tópicos: os 402 passos, os 79 exemplos resolvidos e as 80 demonstrações comportam-se, no gcc 16.2, como o texto afirma. Das 80 demonstrações, nove requerem opções adicionais do compilador: sete, o analisador de fluxo (`-fanalyzer`); uma, a opção `-Wpointer-arith`; e uma, a do valor `NULL` no tópico kc_05, as opções `-O2` com `-Wnull-dereference`. As demonstrações que dependem do ambiente contêm nota que explicita essa dependência.
 
-As 79 cenas também conferem: em cada ponto por onde cada uma passa, o
-programa instrumentado afirma o valor de cada caixa, para onde cada
-ponteiro aponta e quantas vezes a linha rodou, e nenhuma afirmação falha.
-Das 79, 20 passam por dentro de funções (duas delas, a do `conta`, no kc_01, e a do `dobra`, no kc_12, pela mesma função duas vezes), 13 por arrays e
-17 por blocos do `malloc`.
+As 79 cenas também foram aprovadas na conferência: em cada ponto percorrido por cada cena, o programa instrumentado afirma o valor de cada variável, o destino de cada ponteiro e o número de execuções da linha, e nenhuma afirmação falha. Das 79, 20 passam por dentro de funções (duas delas, a da função `conta`, no kc_01, e a da função `dobra`, no kc_12, pela mesma função duas vezes), 13 por arrays e 17 por blocos do `malloc`.
 
-No banco, das 69 questões de prever a saída conferidas, todas imprimem
-o valor da alternativa certa, e nenhum trecho das 321 questões com código
-parte uma string entre duas linhas. Os defeitos que a conferência do banco
-encontrou estão em 6.4.
+No banco de questões, das 69 questões de prever a saída conferidas, todas imprimem o valor da alternativa correta, e nenhum trecho das 321 questões com código divide uma cadeia de caracteres entre duas linhas. Os defeitos identificados pela conferência do banco são relatados na Seção 6.4.
 
-A seleção de questões deixa 93 questões do banco fora da trilha, por
-usarem construções que nenhum tópico ensinou até ali. Com elas fora, as 79 premissas abrem com uma questão de código.
+A seleção de questões deixa 93 questões do banco fora da trilha, por utilizarem construções que nenhum tópico ensinou até aquele ponto. Com essa exclusão, as 79 premissas têm como abertura uma questão com código.
 
-## 6.3 A medida, com os estudantes simulados
+## 6.3 Medida do percurso com estudantes simulados
 
-O Quadro 6.2 mostra quantas telas e quantos toques cada perfil leva para
-atravessar cada tópico, no ritmo completo. Um toque é cada envio, isto é, cada vez que a pessoa responde ou segue: marcar a resposta, confirmá-la e
-escolher a razão e a certeza, na mesma tela, contam como um.
+O Quadro 6.2 apresenta o número de telas e de toques necessários para que cada perfil percorra cada tópico, no ritmo completo. Um toque corresponde a um envio, isto é, a cada vez que a pessoa responde ou avança: selecionar a resposta, confirmá-la e escolher a razão e a certeza, na mesma tela, contam como um único toque.
 
-**Quadro 6.2 — Telas e toques por tópico, no ritmo completo**
+**Quadro 6.2 — Número de telas e de toques (telas / toques) por tópico e por perfil, no ritmo completo**
 
 | Tópico | Sabe tudo | Não sabe, aprende | Erra todo passo | Sustenta e muda | Sustenta e não muda |
 | --- | --- | --- | --- | --- | --- |
@@ -64,71 +50,28 @@ escolher a razão e a certeza, na mesma tela, contam como um.
 | kc_11 | 14 / 19 | 26 / 43 | 38 / 91 | 38 / 37 | 44 / 67 |
 | kc_12 | 14 / 19 | 26 / 43 | 38 / 91 | 38 / 37 | 44 / 67 |
 
-Três leituras do quadro:
+Três observações decorrem do quadro:
 
-- A sessão cresce com o que a pessoa precisa, e não com o tópico.
-  Quem sabe tudo atravessa um tópico de seis premissas em 14 telas; quem
-  precisa de ensino ou de correção em todas, em 26 a 38. O tamanho do
-  tópico só pesa pelo número de premissas: o kc_09, com oito, é o mais
-  longo em todos os perfis.
-- O teto vale. Mesmo o perfil que erra todos os passos termina o
-  tópico, com as premissas em aberto, sem laço: o pior caso é finito e
-  previsível.
-- A demonstração é curta. Quem sustenta a concepção errônea e muda de
-  ideia gasta menos toques do que quem não sabe e aprende (37 contra 43
-  num tópico de seis premissas): a demonstração substitui a subida da
-  escada, e não se soma a ela.
+- A extensão da sessão varia conforme a necessidade da pessoa, e não conforme o tópico. O perfil que sabe todo o conteúdo percorre um tópico de seis premissas em 14 telas; os que necessitam de ensino ou de correção em todas as premissas, em 26 a 38 telas. O tamanho do tópico influi apenas pelo número de premissas: o kc_09, com oito, é o mais longo em todos os perfis.
+- O limite de duração é respeitado. Mesmo o perfil que erra todos os passos conclui o tópico, com as premissas em aberto e sem repetição indefinida: o pior caso é finito e previsível.
+- A demonstração é breve. O perfil que sustenta a concepção errônea e a abandona realiza menos toques do que o que não sabe e aprende (37 e 43, respectivamente, em um tópico de seis premissas), pois a demonstração substitui o percurso da escada, e não se soma a ele.
 
-Os números são de perfis simulados, e servem para mostrar que o percurso
-se comporta como o desenho diz. Não dizem quanto tempo uma pessoa leva,
-nem se ela aprende, o que exigiria o estudo do Apêndice A.
+Os valores referem-se a perfis simulados e servem para mostrar que o percurso se comporta conforme o projeto. Não indicam o tempo que uma pessoa leva para concluir a sessão nem se ela aprende, o que exigiria o estudo descrito no Apêndice A.
 
-## 6.4 O que a verificação encontrou
+## 6.4 Defeitos identificados pela verificação
 
-O resultado mais útil da verificação não é o "zero problemas" da versão
-descrita, mas os defeitos que ela encontrou no caminho.
+O resultado mais relevante da verificação não é a ausência de problemas na versão descrita, mas o conjunto de defeitos identificados ao longo do processo.
 
-A leitura do sistema pelo autor, já com a verificação mecânica limpa,
-encontrou um tipo de defeito que nenhum teste apontaria, porque não é
-afirmação falsa, mas experiência ruim: perguntas que repetiam a frase de
-cima (5.7). Dos 244 passos guiados, 101 tiveram a frase reescrita: o passo
-que o autor leu, 46 dos que o programa marcou e 54 que ele não marcou e só
-a leitura achou. O programa, portanto, achou menos da metade: a marca por
-palavras serviu de ponto de partida, e não de critério.
+A leitura do sistema pelo autor, realizada quando a verificação automatizada já não acusava problemas, identificou um tipo de defeito que nenhum teste apontaria, por não se tratar de afirmação falsa, e sim de deficiência de clareza: perguntas que repetiam a frase anterior (Seção 5.7). Dos 244 passos guiados, 101 tiveram a frase reescrita: o passo lido inicialmente pelo autor, 46 dos marcados pelo programa e 54 que o programa não marcou e que somente a leitura identificou. O programa identificou, portanto, menos da metade dos casos: a marcação por palavras serviu como ponto de partida, e não como critério.
 
-A verificação mecânica encontrou defeitos de outra natureza, todos
-corrigidos na versão descrita:
+A verificação automatizada identificou defeitos de outra natureza, todos corrigidos na versão descrita:
 
-- Oito questões com o código partido na tela. No kc_02, oito questões
-  tinham o `\n` do `printf` gravado como quebra de linha de verdade: a
-  pessoa via o `printf` cortado em duas linhas, e o código não compilava.
-  Uma delas abria a premissa B3. A leitura não as tinha notado; a
-  conferência do banco achou as oito.
-- Uma resposta que não vale no compilador do laboratório. Uma questão do
-  kc_12 perguntava o que imprime `p == NULL` depois de `p` receber o
-  endereço de uma variável local de uma função que já retornou, e dava
-  como certa a resposta 0. No gcc 16.2, o compilador avisa e devolve
-  `NULL` no lugar daquele endereço, e sai 1; e o padrão do C não define
-  aquele valor.
-- Uma afirmação que depende da versão do compilador. Uma questão do kc_11
-  dizia que o compilador "recusa" aritmética em `void *`; o gcc aceita a
-  conta por uma extensão própria, e só avisa com `-Wpointer-arith`. A
-  questão fica fora da trilha, por usar uma função de várias linhas, e a
-  demonstração do tópico usa essa opção e diz isso na nota de ambiente.
-- Uma alternativa certa que usava o que não foi ensinado. Uma questão do
-  kc_10 dava como certa "a vira ponteiro para fileira", conceito que a
-  escada deixa de fora de propósito.
-- O treino que repetia a demonstração. Num ensaio, o primeiro passo de
-  prática depois de uma demonstração mostrava a mesma função que a
-  demonstração tinha acabado de mostrar: a mesma tela duas vezes
-  seguidas. O teste dessa regra (5.3) encontrou o mesmo defeito em passos
-  de outros três tópicos.
-- Uma nota de ambiente que afirmava o que não foi conferido ("outros
-  compiladores reclamam").
-- Na interface, o teste de contraste e a conferência no navegador
-  encontraram uma lacuna de exercício ilegível no tema claro e um topo
-  que transbordava a tela do celular no tópico de oito premissas.
+- Oito questões com o código dividido na tela. No tópico kc_02, oito questões continham a sequência `\n` do `printf` gravada como quebra de linha real, de modo que a chamada a `printf` era exibida em duas linhas e o código não compilava. Uma delas era a pergunta de abertura da premissa B3. A leitura não havia percebido o defeito, identificado nas oito questões pela conferência do banco.
+- Uma resposta inválida no compilador do laboratório. Uma questão do tópico kc_12 perguntava o que é impresso por `p == NULL` depois de `p` receber o endereço de uma variável local de uma função já encerrada, e indicava 0 como resposta correta. No gcc 16.2, o compilador emite um aviso e devolve `NULL` no lugar desse endereço, e o valor impresso é 1; além disso, o padrão da linguagem C não define aquele valor.
+- Uma afirmação dependente da versão do compilador. Uma questão do tópico kc_11 afirmava que o compilador "recusa" a aritmética com `void *`; o gcc aceita a operação por uma extensão própria e apenas emite aviso com a opção `-Wpointer-arith`. A questão permanece fora da trilha, por utilizar uma função de várias linhas, e a demonstração do tópico utiliza essa opção e o informa na nota de ambiente.
+- Uma alternativa correta que utilizava conceito não ensinado. Uma questão do tópico kc_10 indicava como correta a alternativa "a vira ponteiro para fileira", conceito que a escada deliberadamente não aborda.
+- Um treino que repetia a demonstração. Em uma sessão de ensaio, o primeiro passo de prática posterior a uma demonstração exibia a mesma função que a demonstração acabara de exibir, o que resultava na mesma tela duas vezes seguidas. O teste correspondente a essa regra (Seção 5.3) identificou o mesmo defeito em passos de outros três tópicos.
+- Uma nota de ambiente que afirmava o que não havia sido conferido ("outros compiladores reclamam").
+- Dois defeitos de interface. O teste de contraste e a conferência no navegador identificaram uma lacuna de exercício ilegível no tema claro e uma barra superior que ultrapassava a largura da tela do celular no tópico de oito premissas.
 
-São defeitos que uma leitura atenta deixa passar e que a verificação
-mecânica pega, porque compara o texto com o programa, e não com a
-memória de quem escreveu.
+Trata-se de defeitos que uma leitura atenta não percebe e que a verificação automatizada identifica, por comparar o texto com o programa, e não com a lembrança de quem o redigiu.

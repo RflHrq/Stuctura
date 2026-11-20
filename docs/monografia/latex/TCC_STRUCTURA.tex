@@ -120,6 +120,10 @@ brazil
 	requisito para obtenção do título de bacharel em Sistemas de
 	Informação.}
 
+% Linhas com identificadores de código (que não se partem) ganham folga
+% extra entre as palavras em vez de passar da margem.
+\setlength{\emergencystretch}{2em}
+
 % Sobrenomes das citações não se partem no fim da linha.
 \hyphenation{Schmellenkamp Yamashita Falmagne Kernighan Ritchie Medwin
 	Gardner Kaczmarczyk Samurçay Soderstrom Sweller Doukakis Grigoriadou
@@ -197,6 +201,8 @@ brazil
 		\item[HTML]  \textit{HyperText Markup Language}
 		\item[HTTP]  \textit{Hypertext Transfer Protocol}
 		\item[OFL]   \textit{SIL Open Font License}
+		\item[SEI]   \textit{Software Engineering Institute}
+		\item[SIGCSE] \textit{Special Interest Group on Computer Science Education}
 		\item[SUS]   \textit{System Usability Scale}
 		\item[UFV]   Universidade Federal de Viçosa
 		\item[W3C]   \textit{World Wide Web Consortium}
@@ -224,6 +230,9 @@ brazil
 	% ============================================================
 	\postextual
 
+	% Estilo das referências: cópia do abntex2-alf com meia-risca, e não
+	% travessão, entre "Tese (Doutorado)" e a instituição (NBR 6023:2018).
+	\bibliographystyle{abntex2-alf-tcc}
 	\bibliography{referencias}
 
 	\begin{apendicesenv}
