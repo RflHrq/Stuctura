@@ -64,7 +64,7 @@
 
 - id: heap_dies_with_function
   negates: kc_01:I1
-  provenance: T
+  provenance: E
   sem_item: >
     Procurado no Apendice A do Sorva (2012) em 11/11/2026, pelo
     vocabulario do fenomeno e nao pelo termo de C: lifetime, scope,
@@ -73,11 +73,15 @@
     crenca de que o bloco do malloc morre com a funcao. Nao ha item.
   label_pt: "O bloco do malloc também some quando a função termina."
   source: >
-    TRANSPOSIÇÃO, com a analogia declarada: em Java e Python o que a
+    HIPÓTESE A TESTAR, e desceu de `T` para `E` em 20/11/2026: ela não
+    cita obra nenhuma, e a grade `T` afirma a transposição de uma crença
+    registrada em outra linguagem.
+
+    O que ela tem é a ANALOGIA, declarada: em Java e Python o que a
     função alocou e não é mais alcançado desaparece sozinho, e a regra que
     a pessoa traz é "saiu da função, foi-se". Em C a diferença entre a
-    pilha e o monte é exatamente onde ela quebra.
-    PRECISA DE FONTE antes da coleta, ou desce para E.
+    pilha e o monte é exatamente onde ela quebra. A analogia diz por que
+    a hipótese é plausível; não é registro de que alguém a sustente.
 
     A BUSCA FOI REFEITA em 11/11/2026, pelo vocabulario do fenomeno e
     nao pelo termo de C -- que e o metodo que fez duas outras crencas
@@ -86,8 +90,10 @@
     proximo e o item 5, p. 359, "Difficulties understanding the
     lifetime of values" (du Boulay 1986), que e DIFICULDADE com tempo
     de vida, nao a crenca de que o bloco do malloc morre com a funcao.
-    Nao ha item. A analogia continua sendo toda a procedencia que esta
-    crenca tem, e e isso que a grade T afirma.
+    Nao ha item.
+
+    Fica declarada como hipótese. O tópico em que ela aparece, kc_01, não
+    é piloto, então ela não viola a regra que proíbe `E` em piloto.
 
 - id: memory_is_uniform
   negates: kc_01:I2

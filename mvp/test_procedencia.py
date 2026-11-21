@@ -212,18 +212,20 @@ def test_toda_grade_E_diz_que_e_hipotese(catalogo):
         "crença `E` que não se declara hipótese na fonte: %s" % fora)
 
 
-def test_as_tres_hipoteses_estao_fora_do_piloto(catalogo):
+def test_as_hipoteses_estao_fora_do_piloto(catalogo):
     """As `E` existem, e nenhuma em tópico que vai para a coleta.
 
     Duplica de propósito o `test_piloto_nao_tem_crenca_estimada`, por
     outro caminho: aquele carrega o domínio, este lê o YAML. Em
     11/11/2026 a `memory_is_uniform` desceu para `E` e aparece em kc_01 e
-    kc_12 — se algum dia ela entrar num piloto, os dois caem.
+    kc_12 — se algum dia ela entrar num piloto, os dois caem. Em
+    20/11/2026 a `heap_dies_with_function` (kc_01) desceu de `T` para `E`,
+    por não citar obra nenhuma: são quatro.
     """
     estimadas = {cid: [t for t, g, _ in ocor if g == "E"]
                  for cid, ocor in catalogo.items()
                  if any(g == "E" for _, g, _ in ocor)}
-    assert len(estimadas) == 3, sorted(estimadas)
+    assert len(estimadas) == 4, sorted(estimadas)
     for cid, topicos in sorted(estimadas.items()):
         for t in topicos:
             assert t not in PILOTOS, (cid, t)
@@ -389,13 +391,13 @@ CAPITULO = (pathlib.Path(__file__).resolve().parent.parent
 AFIRMA_O_CAPITULO = {
     "concepções distintas no catálogo | 61": lambda c: c["total"] == 61,
     "conferidas na obra primária | 53": lambda c: c["conferidas"] == 53,
-    "`D` 6, `L` 33, `T` 16, `N` 3, `E` 3": lambda c: c["grades"] == {
-        "D": 6, "L": 33, "T": 16, "N": 3, "E": 3},
+    "`D` 6, `L` 33, `T` 15, `N` 3, `E` 4": lambda c: c["grades"] == {
+        "D": 6, "L": 33, "T": 15, "N": 3, "E": 4},
     "Classe 1: literatura de concepções errôneas (23 concepções)":
         lambda c: c["classe1"] == 23,
     "Classe 2: corpus de praticante (34 concepções)":
         lambda c: c["classe2"] == 34,
-    "hipóteses `E` | 3": lambda c: c["grades"]["E"] == 3,
+    "hipóteses `E` | 4": lambda c: c["grades"]["E"] == 4,
     "Quatorze concepções aparecem em mais de um tópico": lambda c: c["em_dois_topicos"] == 14,
 }
 

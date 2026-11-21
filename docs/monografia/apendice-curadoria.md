@@ -42,7 +42,7 @@ Seção 4.7.
 | `free_nullifies` | kc_09 | I1 | 2, corpus de praticante | `L` | pergunta do FAQ | conferida: índice em c-faq.com |
 | `funcao_usa_a_variavel_do_chamador` | kc_06 | B1 | 1, concepção estudada | `T` | página/item | conferida: texto integral de Sorva (2012) |
 | `function_gets_original` | kc_06, kc_09 | I1 | 1, concepção estudada | `T` | página/item, pergunta do FAQ | conferida: texto integral de Sorva (2012) |
-| `heap_dies_with_function` | kc_01 | I1 | sem fonte | `T` | não há | sem item na literatura: busca declarada |
+| `heap_dies_with_function` | kc_01 | I1 | hipótese | `E` | não há | sem item na literatura: busca declarada |
 | `heap_persists` | kc_09 | B4 | 2, corpus de praticante | `L` | pergunta do FAQ, id CWE/CERT | conferida: índice em c-faq.com |
 | `indice_nao_e_soma` | kc_11 | I1 | 2, corpus de praticante | `L` | pergunta do FAQ | conferida: índice em c-faq.com |
 | `local_sobrevive` | kc_01 | B2 | 1, concepção estudada | `T` | página/item | conferida: texto integral de Sorva (2012) |

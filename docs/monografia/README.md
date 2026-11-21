@@ -126,9 +126,15 @@ foram tirados do sistema por script, e não de memória, e
   teste); (7) "extensão" da sessão, em número de telas, no lugar de
   "duração"; (8) o caminho de reforço explica os sinais divergentes;
   (9) as providências éticas do Apêndice A antecedem qualquer coleta.
-  Ficaram para o autor decidir: a grade de `heap_dies_with_function`
-  (T sem obra citada), a referência normativa do padrão C e o termo
-  "misconceptions" no título.
+  O autor decidiu no mesmo dia: (10) a `heap_dies_with_function`, que
+  era `T` sem citar obra nenhuma, desceu para `E` (os graus ficam
+  `T` 15 e `E` 4; três asserções de `mvp/test_procedencia.py`, teste
+  anterior ao ramo, mudaram com a autorização dele); (11) o título
+  mantém "Misconceptions"; (12) a declaração de uso de IA descreve
+  o que ele fez. Ficou em aberto a referência normativa do padrão C:
+  o rascunho N2176 (C17) do WG14 baixa protegido por senha e não foi
+  lido; as duas frases que dizem "o padrão não define" (3.5 e 6.4)
+  seguem sem citação até haver uma obra aberta.
 - **A revisão do conteúdo das escadas pelo autor.** As treze escadas
   estão com `revisado_por` em branco. O texto diz como o material foi
   escrito e conferido; dizer "revisado pelo autor" depende dessa leitura.

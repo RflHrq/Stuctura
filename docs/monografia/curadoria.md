@@ -37,7 +37,7 @@ Duas propriedades desse campo são relevantes para o método.
 
 A primeira é que o grau constitui uma afirmação sobre a literatura, e não sobre o uso da concepção no sistema. Uma mesma concepção pode aparecer em mais de um tópico do domínio (o que ocorre com 14 delas), e o texto que a contextualiza varia de um tópico para outro; o grau, porém, deve ser o mesmo. Se uma concepção tem grau `D` em um tópico e `L` em outro, uma das duas afirmações é falsa, e essa diferença corresponde, em um trabalho acadêmico, à diferença entre citar e alegar. A auditoria encontrou três casos desse tipo (Seção 4.6.5), e um teste automatizado impede a divergência (Quadro 4.7).
 
-A segunda é que o grau `E` é legítimo, desde que declarado. Uma hipótese do autor pode integrar o catálogo, mas não pode ser apresentada como achado. As três hipóteses do catálogo são identificadas como tais no próprio campo de fonte, e dois testes independentes asseguram que nenhuma delas apareça nos quatro tópicos selecionados para a futura coleta de dados com estudantes (kc_02, kc_07, kc_09 e kc_11).
+A segunda é que o grau `E` é legítimo, desde que declarado. Uma hipótese do autor pode integrar o catálogo, mas não pode ser apresentada como achado. As quatro hipóteses do catálogo são identificadas como tais no próprio campo de fonte, e dois testes independentes asseguram que nenhuma delas apareça nos quatro tópicos selecionados para a futura coleta de dados com estudantes (kc_02, kc_07, kc_09 e kc_11).
 
 ## Classes de fonte
 
@@ -133,8 +133,8 @@ O Quadro 4.5 sintetiza o resultado da curadoria.
 | --- | --- |
 | concepções distintas no catálogo | 61 |
 | conferidas na obra primária | 53 |
-| graus | `D` 6, `L` 33, `T` 16, `N` 3, `E` 3 |
-| hipóteses `E` | 3, todas fora dos tópicos selecionados para a coleta |
+| graus | `D` 6, `L` 33, `T` 15, `N` 3, `E` 4 |
+| hipóteses `E` | 4, todas fora dos tópicos selecionados para a coleta |
 
 ## Achados da auditoria
 
@@ -204,13 +204,12 @@ Duas observações de forma delimitam o que se pode afirmar. A primeira é que a
 
 ## Limites da curadoria
 
-A delimitação do alcance da curadoria integra o método. Cinco limites devem ser considerados:
+A delimitação do alcance da curadoria integra o método. Quatro limites devem ser considerados:
 
 1. Não há afirmação de prevalência. Nem a classe 1 nem a classe 2 autorizam afirmar que determinada proporção dos estudantes sustenta uma dada concepção. O catálogo afirma que a concepção está registrada na literatura ou no corpus de praticantes, e não que seja frequente entre estudantes.
 2. Não há afirmação sobre a eficácia do instrumento. O fato de as concepções estarem documentadas não implica que o sistema as detecte adequadamente nem que a refutação produza efeito, o que exigiria coleta de dados com participantes.
-3. Três concepções permanecem como hipóteses. São elas `memory_is_uniform`, `type_is_a_hint` e `memoria_e_do_computador`, declaradas como tais e ausentes dos tópicos de coleta. A auditoria indica o procedimento a adotar antes de aceitá-las: refazer a busca com outro vocabulário, procedimento que localizou o item de duas concepções antes consideradas hipóteses (Seção 4.6.1) e que, para essas três, confirmou a inexistência de item.
-4. Uma concepção de grau `T` não cita nenhuma obra. A concepção `heap_dies_with_function` apoia-se apenas na analogia declarada: em Java e em Python, a memória alocada por uma função e que deixa de ser alcançável é liberada automaticamente. A busca foi refeita com o vocabulário do fenômeno e registrada, sem que se localizasse item correspondente. O próprio campo de fonte indica que a concepção requer uma fonte ou deve ser reclassificada para o grau `E`.
-5. Uma citação de Sorva (2012) não contém frase entre aspas. Trata-se da citação de `uninitialized_is_null`, que, embora indique página e item, não pode ser verificada pelo procedimento automatizado descrito na Seção 4.4.
+3. Quatro concepções permanecem como hipóteses. São elas `memory_is_uniform`, `type_is_a_hint`, `memoria_e_do_computador` e `heap_dies_with_function`, declaradas como tais e ausentes dos tópicos de coleta. A última apoia-se em uma analogia declarada (em Java e em Python, a memória alocada por uma função e que deixa de ser alcançável é liberada automaticamente), mas nenhuma obra consultada registra a concepção; por essa razão, é classificada como hipótese, e não como transposição. A auditoria indica o procedimento a adotar antes de aceitá-las: refazer a busca com outro vocabulário, procedimento que localizou o item de duas concepções antes consideradas hipóteses (Seção 4.6.1) e que, para essas quatro, confirmou a inexistência de item.
+4. Uma citação de Sorva (2012) não contém frase entre aspas. Trata-se da citação de `uninitialized_is_null`, que, embora indique página e item, não pode ser verificada pelo procedimento automatizado descrito na Seção 4.4.
 
 ## Verificação automatizada do catálogo
 

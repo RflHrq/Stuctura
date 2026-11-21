@@ -427,24 +427,25 @@ curadoria, não de leitura.
    mecanicamente pelo gerador. Ela traz página e item. Eram duas: a
    `assignment_symmetric` passou a trazer a frase do item 12 em
    11/11/2026, e o caso dela está contado no achado 1.
-5. **Uma crença de grade `T` não cita obra nenhuma** —
-   `heap_dies_with_function` (kc_01). O que ela tem é a analogia,
-   declarada: em Java e Python o que a função alocou e ninguém mais
-   alcança desaparece sozinho. A busca por vocabulário do fenômeno foi
-   refeita — *lifetime*, *scope*, *deallocate*, *garbage* — e o que o
-   Apêndice A tem de mais próximo é o item 5, p. 359, *"Difficulties
-   understanding the lifetime of values"*, que é DIFICULDADE com tempo
-   de vida e não a crença. O próprio campo de fonte dela diz
-   "PRECISA DE FONTE antes da coleta, ou desce para `E`".
-6. **As três `E`** — `type_is_a_hint` (kc_00),
-   `memoria_e_do_computador` (kc_01) e `memory_is_uniform` (kc_01,
-   kc_12) — seguem declaradas como hipótese. Estão fora dos
-   tópicos-piloto, e há dois testes proibindo `E` em piloto, por
-   caminhos diferentes (`test_piloto_nao_tem_crenca_estimada` carrega o
-   domínio; `test_as_tres_hipoteses_estao_fora_do_piloto` lê o YAML). O
-   precedente desta auditoria diz o que tentar antes de aceitá-las:
-   refazer a busca com outro vocabulário — foi o que fez duas delas
-   subirem de grade, e o que confirmou que esta terceira não tem item.
+5. **As quatro `E`** — `type_is_a_hint` (kc_00),
+   `memoria_e_do_computador` (kc_01), `memory_is_uniform` (kc_01,
+   kc_12) e `heap_dies_with_function` (kc_01) — seguem declaradas como
+   hipótese. Estão fora dos tópicos-piloto, e há dois testes proibindo
+   `E` em piloto, por caminhos diferentes
+   (`test_piloto_nao_tem_crenca_estimada` carrega o domínio;
+   `test_as_hipoteses_estao_fora_do_piloto` lê o YAML). O precedente
+   desta auditoria diz o que tentar antes de aceitá-las: refazer a busca
+   com outro vocabulário — foi o que fez duas crenças subirem de grade,
+   e o que confirmou que estas não têm item.
+6. **A `heap_dies_with_function` era `T` e desceu para `E` em
+   20/11/2026.** O que ela tem é a analogia, declarada: em Java e Python
+   o que a função alocou e ninguém mais alcança desaparece sozinho. A
+   busca por vocabulário do fenômeno foi refeita — *lifetime*, *scope*,
+   *deallocate*, *garbage* — e o que o Apêndice A tem de mais próximo é
+   o item 5, p. 359, *"Difficulties understanding the lifetime of
+   values"*, que é DIFICULDADE com tempo de vida e não a crença. Sem
+   obra que registre a crença, a grade `T` afirmava uma transposição que
+   não tinha de onde ser transposta.
 
 ## A tabela
 
