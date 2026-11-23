@@ -127,10 +127,10 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
         esse teste as quatro que as demonstrações usam; `-O1` e `-Wextra`
         estão na lista e nenhuma demonstração as usa;
       - 5.5 atribuía o limiar antigo à "versão 2.0 da norma".
-- [ ] Seção 6.4: commits dos defeitos relatados. Achados: `579e89c` (as
-      oito questões do kc_02 e a conferência do banco), `9e766dc` (a
-      resposta inválida do kc_12 e o "recusa" do kc_11), `7232144` (a
-      alternativa "a vira ponteiro para fileira" do kc_10) e `2fe883c`
+- [ ] Seção 6.4: commits dos defeitos relatados. Achados: `a76a9cd` (as
+      oito questões do kc_02 e a conferência do banco), `afa2aba` (a
+      resposta inválida do kc_12 e o "recusa" do kc_11), `08e30dc` (a
+      alternativa "a vira ponteiro para fileira" do kc_10) e `bf1754b`
       (a nota "outros compiladores reclamam"). Faltam localizar o commit
       do treino que repetia a demonstração e os dos dois defeitos de
       interface.
@@ -151,7 +151,7 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
       mudanças no catálogo. Numa rodada, um teste de `mvp/test_gerador.py`
       falhou e não repetiu a falha sozinho. Rodar com a máquina acordada.
 - [ ] Seções 5.2 e 7.1 dizem que parte do banco de questões depende de
-      "leitura". O commit `857c5f4` registra que 252 questões foram lidas
+      "leitura". O commit `1010b5b` registra que 252 questões foram lidas
       uma a uma com assistência da ferramenta, e que cinco foram
       corrigidas. O texto não diz quem leu nem relata essas cinco:
       decidir se entra.
@@ -165,7 +165,7 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
       a Seção 3.1 diz o que o código abrevia, e a sigla KC entrou na
       lista de siglas. O texto declara que o tópico é um grão maior
       que o componente do autor, que fica mais perto da premissa.
-- [ ] A ordem das seções, para confirmar com o orientador. O texto
+- [x] A ordem das seções fica como está (o autor, em 23/11/2026). O texto
       descreve o sistema (Seção 3) e a curadoria (Seção 4) antes do
       método de construção e verificação (Seção 5). Muitos trabalhos
       trazem a metodologia logo depois do referencial. Aqui ela vem
@@ -182,8 +182,32 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
 - [ ] A ficha catalográfica: o curso exige, e ela é feita depois da
       defesa, para a versão final (o autor, em 23/11/2026). Nada a fazer
       nesta etapa.
-- [ ] O repositório: privado ou público, licença e o e-mail que aparece
-      nos commits.
+- [x] O repositório é público, em `https://github.com/RflHrq/Stuctura`
+      (decisão do autor em 23/11/2026, para o orientador e a banca
+      acessarem). Antes do envio, o histórico foi reescrito:
+      - o e-mail dos 352 commits passou a ser o endereço noreply do
+        GitHub, também nos dois planos que o traziam no texto;
+      - saiu o token de exportação que ficou versionado por um dia, em
+        03/09/2026 (não era mais o token em uso);
+      - saíram as três cópias do registro de sessões de desenvolvimento
+        de 29/10/2026.
+      Todo o conteúdo de todos os commits foi varrido atrás de senhas,
+      chaves de API, tokens e chaves privadas: nada. Os hashes dos
+      commits mudaram; os citados nas mensagens e nos documentos foram
+      trocados pelos novos. A cópia do repositório de antes da limpeza
+      está em `backup/`, fora do controle de versão. Os commits novos
+      saem com o e-mail noreply (configuração local do repositório).
+      Só os ramos `trilha` e `master` vão para o GitHub: o ramo
+      `claude/elastic-perlman-c65bb1`, de uma sessão antiga, ainda tem o
+      histórico anterior e não pode ser enviado.
+- [ ] A licença do repositório: sem arquivo de licença, o código
+      público fica com todos os direitos reservados. Decidir se entra
+      uma licença.
+- [x] A declaração do orientador sobre as correções da banca (SIN499),
+      preenchida a partir do modelo do curso com o nome e a matrícula
+      do aluno e o nome do orientador, está em `entrega/`, fora do
+      repositório. É para depois da defesa. A data do `.doc` é
+      automática (a do dia em que o arquivo é aberto).
 - [ ] O documento on-line criado antes neste projeto guarda uma versão
       antiga do texto: atualizar ou apagar.
 

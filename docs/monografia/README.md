@@ -27,12 +27,12 @@ trabalhos futuros, com o protocolo do estudo pronto em apêndice. Se a
 coleta acontecer depois, os resultados entram num capítulo próprio.
 
 **A versão descrita** é a do ramo `trilha` em 19/11/2026 (commit
-`2a549a2`): os treze tópicos na trilha, com a conferência do banco contra
+`31d4183`): os treze tópicos na trilha, com a conferência do banco contra
 o compilador, as 79 cenas que animam a revisão de cada premissa
-(`b8a02bc`), as duas passadas da leitura das perguntas (`0e4f522` e
-`ebb0b82`, registro em `docs/pente-dos-degraus.md`), o caminho na página
+(`0e16772`), as duas passadas da leitura das perguntas (`91387b3` e
+`2fcd055`, registro em `docs/pente-dos-degraus.md`), o caminho na página
 inicial, a volta sem código, o sair da sessão (guardar ou cancelar) e o
-"Confirmar resposta" antes do porquê (`2a549a2`). Os números do texto
+"Confirmar resposta" antes do porquê (`31d4183`). Os números do texto
 foram tirados do sistema por script, e não de memória, e
 `mvp/test_monografia.py` falha se o sistema e o texto discordarem.
 

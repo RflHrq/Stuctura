@@ -41,7 +41,7 @@ fatal: cannot create directory at 'CUsers...midia': Filename too long
 ```
 
 **O repositório não podia ser clonado no Windows.** Três arquivos estavam
-versionados desde `15cd3c3` dentro de pastas cujo nome é um caminho Windows
+versionados desde `75ac709` dentro de pastas cujo nome é um caminho Windows
 literal. Eram **cópias byte a byte do log de desenvolvimento**: 925 KB cada,
 1.503 linhas, 38 sessões, 23 linhas de texto livre de teach-back.
 
@@ -63,7 +63,7 @@ Código de saída 0. É o pior desfecho possível para um procedimento cuja
 razão de existir é **perda tolerável zero** — e o mesmo engano esperava
 quem chamasse o script do PowerShell com `D:\coleta`.
 
-**Fechado em `d34f12c`**: os três arquivos fora do versionamento; o
+**Fechado em `d19f03b`**: os três arquivos fora do versionamento; o
 `copia.sh` recusa destino em formato Windows, destino cuja pasta-mãe não
 existe (mídia desmontada) e destino dentro do repositório; o
 `participante.sh` recusa `--log` em formato Windows; o `verify.sh` ganhou
@@ -153,9 +153,9 @@ estado do código.
 Ensaio de reversão, no clone:
 
 ```
-$ git checkout 8955745     → fatal: cannot create directory ... (fim do ciclo 2)
-$ git checkout 15cd3c3     → fatal: cannot create directory ... (R6)
-$ git checkout 5489db2     → ok                                 (R5)
+$ git checkout 71ebf25     → fatal: cannot create directory ... (fim do ciclo 2)
+$ git checkout 75ac709     → fatal: cannot create directory ... (R6)
+$ git checkout da92f9a     → ok                                 (R5)
 ```
 
 Se a versão de hoje der problema no meio da coleta, a volta pula dois
@@ -190,8 +190,8 @@ aceito — e exatamente a causa do P1-1.
   **Não há hook de pré-commit** — a varredura só roda quando alguém a chama
   (P2-1).
 - **Camada 1:** nada em 106 arquivos versionados. No histórico, um achado:
-  `data/export_token.txt` foi versionado em `1e19a18` e removido em
-  `cdaf76a`, no mesmo dia. **O valor vazado não é o de hoje** — o arquivo
+  `data/export_token.txt` foi versionado em `0824410` e removido em
+  `74f9bc7`, no mesmo dia. **O valor vazado não é o de hoje** — o arquivo
   foi regerado — e não há remoto. P2-2, pela mesma decisão do P0.
 - **Camada 3:** validação de entrada, contra o servidor rodando:
 

@@ -322,7 +322,7 @@ conceitos:
       # e existe teste que percorre a sessao inteira cobrando isso.
       #
       # E a abertura de TRES cartoes e decisao pedagogica, nao limitacao.
-      # O commit fa8df68 escreve: "Nao enfileirei as seis na abertura de
+      # O commit d7bcec4 escreve: "Nao enfileirei as seis na abertura de
       # proposito: seis telas antes da primeira pergunta e aula, nao
       # diagnostico."
       #

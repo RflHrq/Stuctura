@@ -337,7 +337,7 @@ Cada fatia deixa o sistema funcionando e passa pela suíte inteira.
    tópicos sem desenho nenhum.
 
    **Feita em 17/11/2026** (plano em `docs/plano-interface.md`, commits
-   `f3091e3..` até o fechamento). Fica assim:
+   `03048ea..` até o fechamento). Fica assim:
    - `mvp/web/tema.css` tem os dois temas e veste todas as peças;
      `style.css` e `trilha.css` não mudaram (o fluxo anterior segue com a
      cara antiga). `tema.js` escolhe o tema no `<head>`, antes de a página

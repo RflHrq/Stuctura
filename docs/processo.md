@@ -36,7 +36,7 @@ Antes disso: **revisão final total feita**, veredito
 seguir o desenvolvimento e ensaiar com você mesmo. O ciclo 1 fechou com
 treze tarefas; a [revisão](revisao-ciclo-1.md) deu **parcial**, com dois P1
 e seis P2; o [ciclo 2](tasks-ciclo-2.md) fechou os oito em seis tarefas; a
-revisão final achou um **P0** (fechado nela, `d34f12c`) e quatro P1, dois
+revisão final achou um **P0** (fechado nela, `d19f03b`) e quatro P1, dois
 dos quais não são software.
 
 **Reformulação, não recomeço:** o motor atual (`mvp/`) e o antigo (`engine/`)
@@ -167,18 +167,18 @@ quebrar de propósito a regra que ele defende tem de derrubá-lo.
 
 | Tarefa | Commit | O que entregou | Testes do MVP | Sabotagem |
 | --- | --- | --- | --- | --- |
-| T0 | `a45cb7b` | `scripts/verify.sh`: segredos antes dos testes | 28 | segredo plantado faz falhar |
-| T1 | `8e5be7f` | a crença desce da atividade para a alternativa | 42 | sim |
-| T2 | `ce0d44d` | a camada da razão; a resposta tranca | 54 | sim |
-| T3 | `16efa89` | a confiança em tela própria, em toda atividade | 60 | sim |
-| T4 | `a8ac020` | os cinco estados; a crença no nó que ELA nega | 70 | sim — **2 testes aposentados e 2 reescritos**, com aprovação |
-| T7 | `9ae992d` | o mapa com os cinco estados e o caso cruzado | 74 | sim |
-| T5 | `72233e8` | "não sei" nas três camadas | 80 | **fraca**, declarada: o curto-circuito da lacuna derruba 1 teste só |
-| T6 | `8a7447d` | o falso positivo traz outra superfície | 86 | sim — o primeiro teste **não mordia**, reescrito |
-| T9 | `33f16c0` | o teach-back do começo e do fim | 95 | sim |
-| T10 | `6ffd6d9` | a sessão reconstruída pelo log (CS-6) | 110 | sim — 6 de 6 |
-| T11 | `b4bb73c` | o painel do pesquisador, só leitura (CS-7) | 126 | sim — 7 de 7 |
-| T8 | `3c7204c` | a força da premissa escolhe o próximo item | 150 | sim — 11 de 11, **uma não mordia** e foi corrigida |
+| T0 | `e11cc51` | `scripts/verify.sh`: segredos antes dos testes | 28 | segredo plantado faz falhar |
+| T1 | `26d281b` | a crença desce da atividade para a alternativa | 42 | sim |
+| T2 | `6608de0` | a camada da razão; a resposta tranca | 54 | sim |
+| T3 | `2905f99` | a confiança em tela própria, em toda atividade | 60 | sim |
+| T4 | `d4aaa95` | os cinco estados; a crença no nó que ELA nega | 70 | sim — **2 testes aposentados e 2 reescritos**, com aprovação |
+| T7 | `398564b` | o mapa com os cinco estados e o caso cruzado | 74 | sim |
+| T5 | `0ebf464` | "não sei" nas três camadas | 80 | **fraca**, declarada: o curto-circuito da lacuna derruba 1 teste só |
+| T6 | `4a61caa` | o falso positivo traz outra superfície | 86 | sim — o primeiro teste **não mordia**, reescrito |
+| T9 | `85c3d42` | o teach-back do começo e do fim | 95 | sim |
+| T10 | `53ef20b` | a sessão reconstruída pelo log (CS-6) | 110 | sim — 6 de 6 |
+| T11 | `97a1efd` | o painel do pesquisador, só leitura (CS-7) | 126 | sim — 7 de 7 |
+| T8 | `b73269d` | a força da premissa escolhe o próximo item | 150 | sim — 11 de 11, **uma não mordia** e foi corrigida |
 | T12 | — | o reteste do fim da sessão | 167 | sim — 11 de 11, **uma não mordia** e foi corrigida |
 
 A coluna conta funções `def test_` em `mvp/`, apuradas com `git grep` em
@@ -198,12 +198,12 @@ registrada e **não** transformada em tarefa por conta própria: o caminho
 
 | Tarefa | Commit | Fecha | Testes do MVP | Sabotagem |
 | --- | --- | --- | --- | --- |
-| R1 | `8ebafb0` | P1-A, P2-A | 185 | sim — 6 de 6 |
-| R2 | `3f0023e` | P1-B | 191 | sim — 4 de 4 |
-| R3 | `d500edd` | P2-B | 194 | sim — 4 de 4, **uma não mordia** |
-| R4 | `4fb254d` | P2-C | 197 | sim — 5 de 5 |
-| R5 | `5489db2` | P2-D | 200 | sim — 4 de 4 |
-| R6 | `15cd3c3` | P2-E, P2-F | 214 | sim — 9 de 9, **duas não mordiam** |
+| R1 | `d74cff7` | P1-A, P2-A | 185 | sim — 6 de 6 |
+| R2 | `f88458c` | P1-B | 191 | sim — 4 de 4 |
+| R3 | `bd70bfc` | P2-B | 194 | sim — 4 de 4, **uma não mordia** |
+| R4 | `47b0526` | P2-C | 197 | sim — 5 de 5 |
+| R5 | `da92f9a` | P2-D | 200 | sim — 4 de 4 |
+| R6 | `75ac709` | P2-E, P2-F | 214 | sim — 9 de 9, **duas não mordiam** |
 
 Em três das seis tarefas a sabotagem pegou um teste que passava sem
 morder. É a conta que justifica a prática.
@@ -262,10 +262,10 @@ nenhuma precisou de uma segunda.
 
 | Commit | O que entregou |
 | --- | --- |
-| `9242f47` | `docs/linguagem.md`: o contrato, e três formatos de atividade propostos com o custo de cada um |
-| `be1175c` | grafo e crenças do kc_02, sob o contrato |
-| `2c32717` | crenças conferidas na obra primária; relatório em `docs/revisao-crencas-kc02.md` |
-| `6d0c4f6` | as 36 atividades, e o carregador aceitando mais de um tópico |
+| `380c707` | `docs/linguagem.md`: o contrato, e três formatos de atividade propostos com o custo de cada um |
+| `6cf0a24` | grafo e crenças do kc_02, sob o contrato |
+| `6c99909` | crenças conferidas na obra primária; relatório em `docs/revisao-crencas-kc02.md` |
+| `c9aec94` | as 36 atividades, e o carregador aceitando mais de um tópico |
 
 ### A conferência das fontes
 
@@ -343,8 +343,8 @@ telas de confiança por sessão que não alimentam nenhuma decisão.
 
 | Tarefa | Commit | O que entregou |
 | --- | --- | --- |
-| C1 | `23de1e5` | a crença de nó sustentado sai do cardápio; `nao_medido` com motivo |
-| C2 | `23de1e5` | a confiança do treino só no item que fecha a sequência |
+| C1 | `6b6c8d0` | a crença de nó sustentado sai do cardápio; `nao_medido` com motivo |
+| C2 | `6b6c8d0` | a confiança do treino só no item que fecha a sequência |
 | C3 | — | medição: seis nós com 3+3 cabem na sessão |
 
 ### O caminhante, antes e depois
@@ -2689,7 +2689,7 @@ diz ser: as **mesmas** duas escolhas, com `tenho certeza`, dão
 
 ### A correção: `no_fragil` não identifica esta persona
 
-Eu afirmei, ao commitar (`48b7cff`), que sem `no_fragil` nos transitórios
+Eu afirmei, ao commitar (`75ed38e`), que sem `no_fragil` nos transitórios
 a sexta persona seria invisível ao portão. **Está errado**, e a varredura
 dos treze mostrou isso no mesmo dia. O evento tem **duas** causas no
 motor:
