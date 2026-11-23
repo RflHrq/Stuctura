@@ -97,10 +97,12 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
       trechos não batiam e foram corrigidos: a frase da concepção citada
       em 3.1 não era a do catálogo, e a tela não diz "o compilador
       reclamou desta linha" (diz "O compilador reclamou:").
-- [ ] O texto fala em "máquina do laboratório" (3.9) e "compilador do
-      laboratório" (6.4 e conclusão). Confirmar com o autor se existe um
-      laboratório ou se é o computador dele; se for o computador dele,
-      trocar a expressão.
+- [x] "Laboratório": o autor esclareceu em 23/11/2026 que o sistema só
+      roda no computador dele, e que o laboratório é onde o estudo com
+      estudantes deve ser aplicado, para o pesquisador acompanhar o
+      participante. A Seção 3.9 diz onde o sistema roda, 6.4 e a
+      conclusão falam do "compilador utilizado na verificação", e o
+      Apêndice A ganhou o laboratório e a razão da aplicação presencial.
 - [ ] Seção 5.1: "o teste de cada comportamento novo foi escrito antes da
       implementação" é uma afirmação sobre o processo inteiro. A evidência
       está nos planos (`docs/plano-*.md`) e nas mensagens de commit.
