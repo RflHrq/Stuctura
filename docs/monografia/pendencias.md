@@ -21,7 +21,7 @@ As diretrizes da UFV pedem que o conteúdo seja revisado e validado por
 quem assina. Hoje a declaração diz que o conteúdo didático ainda não foi
 integralmente revisado.
 
-- [ ] A monografia inteira, na versão final (75 páginas).
+- [ ] A monografia inteira, na versão final (78 páginas em 23/11/2026).
 - [ ] O conteúdo didático: as 13 escadas (`mvp/dominio/escada_kc00.yaml`
       a `escada_kc12.yaml`), com 402 passos, 80 demonstrações e 79 cenas.
       O campo `revisado_por` está em branco nas 13. Quando a leitura
