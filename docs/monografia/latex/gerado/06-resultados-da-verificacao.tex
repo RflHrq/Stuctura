@@ -5,7 +5,7 @@
 
 \section{Escopo verificado}
 
-O Quadro~\ref{qua:6-1} resume a dimensão do sistema abrangido pela verificação descrita na Seção~5, na versão de 19/11/2026.
+O Quadro~\ref{qua:6-1} resume a dimensão do sistema abrangido pela verificação descrita na Seção~5, na versão de 23/11/2026 (Seção~3).
 
 \begin{quadro}[htbp]
 \caption{Dimensão do sistema verificado}\label{qua:6-1}
@@ -21,10 +21,12 @@ Passos de escada (versões) & 402 (804) \\ \hline
 Demonstrações com previsão & 80 (41 saídas, 39 do compilador) \\ \hline
 Cenas da revisão & 79 \\ \hline
 Trechos de código das escadas & 1 762 \\ \hline
-Testes automatizados & 7 555 \\ \hline
+Testes automatizados & 7 556 \\ \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor.}
 \end{quadro}
+
+Nessa versão, os 7 556 testes foram executados em uma única rodada, em 23/11/2026: 7 548 foram aprovados e nenhum falhou. Os oito restantes são dispensados por definição: correspondem a demonstrações cujo programa, se executado, teria comportamento indefinido, e que outro teste confere pelo diagnóstico do compilador, sem execução.
 
 \section{Conferência do conteúdo por compilador}
 

@@ -169,11 +169,20 @@ As outras 57 das 61 estão conferidas na obra (Apêndice B).
       quarto ("Ficou em aberto") só aparece quando há o que listar, e
       nenhum dos dez perfis simulados chega a ele: passou a dizer "até
       quatro blocos".
-- [ ] "Versão de 19/11/2026" (Seções 3 e 6.1): o catálogo mudou em
-      23/11/2026. Fixar a data e o commit no fechamento.
-- [ ] A suíte inteira (7 555 testes) não teve rodada completa depois das
-      mudanças no catálogo. Numa rodada, um teste de `mvp/test_gerador.py`
-      falhou e não repetiu a falha sozinho. Rodar com a máquina acordada.
+- [x] A versão descrita passou a ser a de 23/11/2026, commit `16d448b`
+      (Seções 3 e 6.1). A Seção 3 traz o endereço do repositório, por
+      decisão do autor. O que vier depois desse commit e mexer no
+      sistema ou no conteúdo pede nova rodada da suíte e nova data.
+- [x] A suíte inteira rodou em 23/11/2026 sobre o commit `16d448b`, com
+      a árvore limpa: 7 556 testes, 7 548 aprovados, 8 dispensados por
+      construção (as demonstrações por aviso, que outro teste confere
+      sem executar), nenhuma falha, em 35 min 26 s. O maior intervalo
+      entre dois testes foi de 72 s: a máquina não dormiu. O log, com a
+      hora em cada linha, está em `ensaios/suite-20261123/`, fora do
+      repositório. A falha isolada de `mvp/test_gerador.py`, vista em
+      20/11 numa rodada em que a máquina dormiu, não se repetiu. O
+      Quadro 6.1 passou a 7 556 (entrou o teste das figuras em
+      colunas) e ganhou a frase com o resultado da rodada.
 - [x] A leitura das 252 questões com código que a saída não confere
       entrou no texto, por decisão do autor em 23/11/2026: a Seção 5.2
       diz que foi feita uma vez, com assistência do modelo de linguagem
