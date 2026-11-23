@@ -749,3 +749,14 @@ N + 8 do PDF; a Tabela A.1 vai da p. 359 à p. 368.
   MEM31-C) estão em `fontes/`.
 - **ISO/IEC (2011):** a p. 140 sustenta a refutação de
   `declaration_zeroes`.
+
+## Reconferência das Seções 5, 6 e 7 e do Apêndice A, 23/11/2026
+
+- **W3C (2025):** a definição de luminância relativa usa o limiar
+  0,04045, e a nota 2 diz que antes de maio de 2021 o valor era 0,03928
+  e que a troca não tem efeito prático. O texto dizia "da versão 2.0 da
+  norma"; a página não diz de qual versão, e a frase passou a dizer
+  "o limiar anterior".
+- **Brooke (1996):** o SUS é uma escala de dez itens (p. 3 do arquivo).
+- **ISO/IEC (2011), Gardner-Medwin (2006) e Soderstrom e Bjork (2015):**
+  as citações das Seções 5.8, 6.4 e 7.1 repetem passagens já conferidas.

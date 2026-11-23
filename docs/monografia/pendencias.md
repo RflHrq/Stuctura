@@ -103,18 +103,42 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
       participante. A Seção 3.9 diz onde o sistema roda, 6.4 e a
       conclusão falam do "compilador utilizado na verificação", e o
       Apêndice A ganhou o laboratório e a razão da aplicação presencial.
-- [ ] Seção 5.1: "o teste de cada comportamento novo foi escrito antes da
-      implementação" é uma afirmação sobre o processo inteiro. A evidência
-      está nos planos (`docs/plano-*.md`) e nas mensagens de commit.
-      Conferir por amostra, ou reduzir a afirmação ao que a amostra
-      mostrar.
-- [ ] Seções 5.5 e 5.6: a conferência no navegador "tela a tela" e as
-      sessões de ensaio. Localizar a evidência de cada uma.
-- [ ] Seção 6.4: cada defeito relatado deve ter o commit que o corrigiu.
-      Achados até agora: `579e89c` (as oito questões do kc_02 com o código
-      dividido, e a conferência do banco), `9e766dc` (a resposta inválida
-      do kc_12 e a afirmação "recusa" do kc_11) e `2a549a2` (sair da
-      sessão). Faltam os commits dos demais.
+- [x] Seções 5, 6 e 7, conferidas contra o código, os testes e o
+      histórico em 23/11/2026. O conferidor foi executado de novo nos 13
+      tópicos, no gcc 16.2: 79 premissas, 402 passos, nenhum problema.
+      Conferem: a lista fechada de seis opções do compilador, os limites
+      das regras de redação (de três a sete passos, 30 palavras, cinco
+      palavras de retorno), os dez perfis nos dois ritmos, a pasta
+      separada das sessões de ensaio e o ambiente (gcc 16.2 no Windows).
+      Quatro frases diziam mais do que há para mostrar e foram ajustadas:
+      - 5.1 dizia que cada parte foi especificada antes e que o teste de
+        cada comportamento veio antes do código. O histórico sustenta a
+        prática (33 commits registram o teste visto falhar, 51 declaram
+        teste alterado de propósito, há oito planos em `docs/`), e não
+        cada caso: a frase passou a descrever a prática;
+      - 5.1 dizia que as decisões foram registradas com o custo de um
+        eventual erro; o registro permanente são as mensagens de commit,
+        com a justificativa;
+      - 5.2 dizia que cada opção do compilador entrou com um teste. Têm
+        esse teste as quatro que as demonstrações usam; `-O1` e `-Wextra`
+        estão na lista e nenhuma demonstração as usa;
+      - 5.5 atribuía o limiar antigo à "versão 2.0 da norma".
+- [ ] Seção 6.4: commits dos defeitos relatados. Achados: `579e89c` (as
+      oito questões do kc_02 e a conferência do banco), `9e766dc` (a
+      resposta inválida do kc_12 e o "recusa" do kc_11), `7232144` (a
+      alternativa "a vira ponteiro para fileira" do kc_10) e `2fe883c`
+      (a nota "outros compiladores reclamam"). Faltam localizar o commit
+      do treino que repetia a demonstração e os dos dois defeitos de
+      interface.
+- [ ] Seções 5.5 e 5.6: a conferência no navegador "tela a tela" não
+      tem registro além do histórico; a pasta de ensaios existe.
+- [ ] Figuras 3.3, 3.4a e 3.4b: capturas de 18/11/2026, anteriores ao
+      botão Sair. O texto descreve a versão de 19/11/2026. Refazer.
+- [ ] "Versão de 19/11/2026" (Seções 3 e 6.1): o catálogo mudou em
+      23/11/2026. Fixar a data e o commit no fechamento.
+- [ ] A suíte inteira (7 555 testes) não teve rodada completa depois das
+      mudanças no catálogo. Numa rodada, um teste de `mvp/test_gerador.py`
+      falhou e não repetiu a falha sozinho. Rodar com a máquina acordada.
 - [ ] Seções 5.2 e 7.1 dizem que parte do banco de questões depende de
       "leitura". O commit `857c5f4` registra que 252 questões foram lidas
       uma a uma com assistência da ferramenta, e que cinco foram
