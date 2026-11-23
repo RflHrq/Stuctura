@@ -51,7 +51,7 @@ Essa classe sustenta que a concepção foi observada em estudantes por pesquisad
 
 ### Classe 2: corpus de praticante (34 concepções)
 
-A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, compilada a partir de 1990 no grupo de Usenet de mesmo nome e aprimorada de forma episódica desde então (Summit, c2005). Uma versão ampliada da lista foi publicada em livro pelo mesmo autor; este trabalho utiliza a versão on-line.
+A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, que o autor passou a publicar em 1990 no grupo de Usenet de mesmo nome (Summit, c2005). Uma versão ampliada da lista foi publicada em livro pelo mesmo autor; este trabalho utiliza a versão on-line.
 
 A inclusão dessa classe requer justificar por que um FAQ de linguagem constitui evidência sobre concepções errôneas, e não apenas sobre a linguagem C. A justificativa está no critério de inclusão adotado, que pode ser conferido por qualquer leitor: é incluída somente a pergunta cujo título formula, na voz de quem pergunta, a concepção ou a dúvida que a revela, de modo que a ideia que motivou a pergunta possa ser identificada no próprio título (Quadro 4.2).
 
@@ -76,7 +76,7 @@ Essa classe sustenta que a confusão foi formulada por pessoas que programam em 
 
 Seria razoável exigir que todo o catálogo se apoiasse na classe 1, de natureza empírica, e que a classe 2 fosse dispensada. Essa exigência foi testada contra a Tabela A.1 de Sorva (2012), item por item, e verificou-se que não pode ser satisfeita.
 
-A Tabela A.1 possui um tópico dedicado a referências (`Refs`, com 17 dos 162 itens) e itens sobre memória e tempo de vida distribuídos pelos tópicos `VarAssign`, `ObjState` e `Misc`. Faltam-lhe, contudo, os itens relevantes para este trabalho, como mostra a contagem do Quadro 4.3, reprodutível por busca de termos no texto da tabela.
+A Tabela A.1 possui um tópico dedicado a referências (`Refs`, com 17 dos 162 itens) e itens sobre memória e tempo de vida distribuídos por seis tópicos (`General`, `VarAssign`, `ObjClass`, `ObjState`, `OtherOOP` e `Misc`). Faltam-lhe, contudo, os itens relevantes para este trabalho, como mostra a contagem do Quadro 4.3, reprodutível por busca de termos no texto da tabela.
 
 **Quadro 4.3 — Ocorrências de termos relativos à memória na Tabela A.1**
 
@@ -164,7 +164,7 @@ O terceiro caso acrescenta um segundo princípio, relativo à transparência da 
 
 A citação da concepção `pointer_is_data` remetia ao item 14 de Sorva (2012, p. 360), que trata de a variável ser um par de nome e valor, e não de ponteiros. A concepção consta do item 65: "A (non-primitive Java) variable does not hold a reference but a set of object properties" (Sorva, 2012, p. 362). A obra citada estava correta, mas o item não, e esse tipo de erro somente pode ser identificado com a consulta à obra.
 
-O mesmo tipo de erro ocorre na identificação das obras mediadas. A Tabela A.1 atribui 14 dos itens utilizados a "Ma (2007)", e um artigo publicado no simpósio do *Special Interest Group on Computer Science Education* (SIGCSE) no mesmo ano e sobre o mesmo tema, assinado por Ma e outros três autores, pode ser facilmente confundido com essa obra; a bibliografia de Sorva (2012), entretanto, identifica "Ma (2007)" como uma tese de doutorado de autoria única, de outra instituição. A citação de uma obra mediada exige, portanto, a consulta à bibliografia da obra mediadora, não bastando o reconhecimento do sobrenome e do ano.
+O mesmo tipo de erro ocorre na identificação das obras mediadas. A Tabela A.1 atribui nove de seus itens a "Ma (2007)", e a bibliografia de Sorva (2012) traz duas obras cujo primeiro autor tem esse sobrenome: uma tese de doutorado de 2007, de autoria única, e um artigo de 2011, com três coautores. É a bibliografia que identifica "Ma (2007)" como a tese. A citação de uma obra mediada exige, portanto, a consulta à bibliografia da obra mediadora, não bastando o reconhecimento do sobrenome e do ano.
 
 ### 3. Fontes que sustentam mais de uma concepção
 
@@ -284,10 +284,12 @@ MA, L. **Investigating and Improving Novice Programmers' Mental Models of
 Programming Concepts.** Tese (Doutorado) – Department of Computer &
 Information Sciences, University of Strathclyde, 2007.
 
-> Nota de conferência: a Tabela A.1 atribui 14 dos itens aqui usados a
-> "Ma (2007)", e a bibliografia de Sorva (2012) identifica essa obra como a
-> tese de doutorado acima, e não como o artigo de SIGCSE de mesmo ano e
-> tema assinado por Ma, Ferguson, Roper e Wood.
+> Nota de conferência: a Tabela A.1 atribui nove itens a "Ma (2007)"
+> (11, 64 a 68, 80, 92 e 148), e a bibliografia de Sorva (2012) identifica
+> essa obra como a tese de doutorado acima. A outra obra de Ma na
+> bibliografia é um artigo de 2011, com Ferguson, Roper e Wood. Até
+> 23/11/2026 esta nota dizia "14 itens" e falava de um artigo de 2007 no
+> SIGCSE, que não foi aberto nem consta da bibliografia da tese.
 
 ★ MITRE. **CWE: Common Weakness Enumeration.** Versão 5.0, 28 out. 2026.
 Entradas CWE-252, CWE-415 e CWE-476. Disponível em:

@@ -131,7 +131,8 @@ documental desse corpus.
 
 Procurado item por item no catálogo do Sorva: ele tem um tópico
 dedicado a referências — `Refs`, 17 dos 162 itens — e itens sobre
-memória e tempo de vida espalhados por `VarAssign`, `ObjState` e `Misc`.
+memória e tempo de vida espalhados por seis tópicos (`General`,
+`VarAssign`, `ObjClass`, `ObjState`, `OtherOOP` e `Misc`).
 O que falta é o que importa aqui, e esta contagem é reprodutível por
 busca de termo no texto da Tabela A.1:
 

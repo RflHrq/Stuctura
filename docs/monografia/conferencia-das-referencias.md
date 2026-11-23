@@ -706,3 +706,46 @@ dizia um pouco mais do que a página diz, a frase mudou:
 - **Schmellenkamp, Latys e Zeume (2023):** as p. 465, 466 e 467
   conferem. Nas p. 469-470 o artigo diz que aplicou parte dos fluxos; a
   frase passou a dizer isso.
+
+## Reconferência da Seção 4, 23/11/2026
+
+A pedido do autor, o que a Seção 4 afirma sobre as obras foi relido nos
+arquivos. A página impressa N da tese de Sorva (2012) está na página
+N + 8 do PDF; a Tabela A.1 vai da p. 359 à p. 368.
+
+- **Tabela A.1 de Sorva (2012):** 162 itens, 17 no tópico `Refs`. Os
+  onze itens citados conferem com o texto e com a página: 5, 9, 10, 11
+  e 12 (p. 359); 14 e 22 (p. 360); 54 e 65 (p. 362); 92 (p. 364, com
+  Ma, 2007, como fonte); 151 (p. 367). A contagem de termos do Quadro
+  4.3 confere: nenhum `malloc`, `free`, `deallocat`, `garbage`, `heap`,
+  `stack`, `arithmetic`, `decay`, `dangling` ou `sizeof`; um `null`
+  (item 54); um `lifetime` (item 5); sete `memory`.
+- **Três afirmações não conferiam e foram corrigidas:**
+  - o texto dizia que a tabela atribui 14 itens a "Ma (2007)". São
+    nove: 11, 64, 65, 66, 67, 68, 80, 92 e 148;
+  - o texto falava de um artigo de Ma e outros três autores publicado
+    no SIGCSE em 2007, fácil de confundir com a tese. Esse artigo não
+    foi aberto nem consta da bibliografia de Sorva (2012), que traz a
+    tese de 2007 (Ph.D., University of Strathclyde) e um artigo de
+    2011, com Ferguson, Roper e Wood. O texto passou a dizer isso, e a
+    sigla SIGCSE saiu da lista de siglas;
+  - o texto dizia que os itens sobre memória e tempo de vida estão em
+    `VarAssign`, `ObjState` e `Misc`. Estão em seis tópicos: `General`
+    (item 5), `VarAssign` (22), `ObjClass` (84), `ObjState` (115 e
+    123), `OtherOOP` (140) e `Misc` (158 e 159).
+- **FAQ do comp.lang.c (Summit, c2005):** os quatro títulos do Quadro
+  4.2 conferem palavra por palavra; a página inicial diz que o livro é
+  mais longo que a versão on-line; o prefácio do livro, publicado pelo
+  autor, diz que a lista começou a ser postada em maio de 1990. Nenhuma
+  das páginas guardadas diz que a lista foi "aprimorada de forma
+  episódica": a frase saiu. No catálogo, a pergunta 7.21 é a fonte de
+  três concepções do kc_09, a 7.22 de duas do kc_08 e a 4.9 de duas do
+  kc_10, como o texto diz.
+- **Hermans et al. (2018):** o resumo traz o experimento com 496
+  iniciantes e a ideia de que a variável guarda vários valores ou
+  "lembra" os anteriores.
+- **CERT C e CWE:** os arquivos das três entradas da CWE (252, 415 e
+  476) e das quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e
+  MEM31-C) estão em `fontes/`.
+- **ISO/IEC (2011):** a p. 140 sustenta a refutação de
+  `declaration_zeroes`.

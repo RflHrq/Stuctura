@@ -243,7 +243,7 @@ obra.
 ### 4.3.2 Classe 2: corpus de praticante (34 concepções)
 
 - [ ] **(Summit, c2005)** · abrir `fontes/cfaq/ (índices e perguntas do FAQ, em HTML)`
-  > A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, compilada a partir de 1990 no grupo de Usenet de mesmo nome e aprimorada de forma episódica desde então (Summit, c2005).
+  > A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, que o autor passou a publicar em 1990 no grupo de Usenet de mesmo nome (Summit, c2005).
 - [ ] **Summit (c2005)** · abrir `fontes/cfaq/ (índices e perguntas do FAQ, em HTML)`
   > *Fonte: elaborado pelo autor, com títulos de perguntas de Summit (c2005).*
 
@@ -293,11 +293,11 @@ obra.
 - [ ] **(Sorva, 2012, p. 362)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > A concepção consta do item 65: "A (non-primitive Java) variable does not hold a reference but a set of object properties" (Sorva, 2012, p. 362).
 - [ ] **Ma (2007)** · sem arquivo · estudo não aberto, citado por intermédio de Sorva (2012): conferir na Tabela A.1 da tese
-  > A Tabela A.1 atribui 14 dos itens utilizados a "Ma (2007)", e um artigo publicado no simpósio do *Special Interest Group on Computer Science Education* (SIGCSE) no mesmo ano e sobre o mesmo tema, assinado por Ma e outros três autores, pode ser facilmente confundido com essa obra; a bibliografia de Sorva (2012), entretanto, identifica "Ma (2007)" como uma tese de doutorado de autoria única, de outra instituição.
+  > A Tabela A.1 atribui nove de seus itens a "Ma (2007)", e a bibliografia de Sorva (2012) traz duas obras cujo primeiro autor tem esse sobrenome: uma tese de doutorado de 2007, de autoria única, e um artigo de 2011, com três coautores.
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
-  > A Tabela A.1 atribui 14 dos itens utilizados a "Ma (2007)", e um artigo publicado no simpósio do *Special Interest Group on Computer Science Education* (SIGCSE) no mesmo ano e sobre o mesmo tema, assinado por Ma e outros três autores, pode ser facilmente confundido com essa obra; a bibliografia de Sorva (2012), entretanto, identifica "Ma (2007)" como uma tese de doutorado de autoria única, de outra instituição.
+  > A Tabela A.1 atribui nove de seus itens a "Ma (2007)", e a bibliografia de Sorva (2012) traz duas obras cujo primeiro autor tem esse sobrenome: uma tese de doutorado de 2007, de autoria única, e um artigo de 2011, com três coautores.
 - [ ] **Ma (2007)** · sem arquivo · estudo não aberto, citado por intermédio de Sorva (2012): conferir na Tabela A.1 da tese
-  > A Tabela A.1 atribui 14 dos itens utilizados a "Ma (2007)", e um artigo publicado no simpósio do *Special Interest Group on Computer Science Education* (SIGCSE) no mesmo ano e sobre o mesmo tema, assinado por Ma e outros três autores, pode ser facilmente confundido com essa obra; a bibliografia de Sorva (2012), entretanto, identifica "Ma (2007)" como uma tese de doutorado de autoria única, de outra instituição.
+  > É a bibliografia que identifica "Ma (2007)" como a tese.
 
 ### 4.6.3 Fontes que sustentam mais de uma concepção
 
