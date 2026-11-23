@@ -55,6 +55,22 @@ como o texto declara: os nove estudos citados por Sorva (2012); Tippett
 (2010), por Nussbaum, Cordova e Rehmat (2017); Doignon e Falmagne (1985),
 por Falmagne et al. (2006).
 
+- [ ] O autor se dispôs, em 23/11/2026, a obter os originais. Cada um
+      que chegar vai para uma pasta própria em `fontes/`, é aberto,
+      conferido contra o que o texto lhe atribui e passa de citação
+      indireta a citação direta, com entrada na lista. Os que o catálogo
+      usa de fato, e a concepção que cada um sustenta:
+      - Kaczmarczyk et al. (2010): `no_value_no_memory`;
+      - du Boulay (1986) e Samurçay (1989): `declaration_zeroes`;
+      - du Boulay (1986), Soloway et al. (1982), Putnam et al. (1986),
+        Sleeman et al. (1986) e Doukakis et al. (2007):
+        `variable_remembers`;
+      - Sleeman et al. (1986): `assignment_symmetric`;
+      - Ma (2007): `declaration_allocates`;
+      - Tippett (2010), p. 965, e Doignon e Falmagne (1985), na Seção 2.
+      Holland et al. (1997) só é nomeado na Seção 4.3.1. Os dados
+      bibliográficos estão na lista de trabalho ao fim de `curadoria.md`.
+
 ## 4. Catálogo: as oito concepções que a curadoria não confere na obra
 
 As outras 53 das 61 estão conferidas na obra (Apêndice B).
