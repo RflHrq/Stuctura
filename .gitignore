@@ -29,3 +29,7 @@ candidatos/*/mol_*.yaml
 # Os registros do portal em Docker (docker-compose.yml monta esta pasta
 # em /dados). E DADO DE SESSAO: nunca vai para um commit.
 coleta/
+
+# O que vai para o orientador e para a coordenacao: o PDF da monografia
+# e os formularios preenchidos, com nome e matricula. Nao e fonte.
+entrega/
