@@ -71,9 +71,9 @@ por Falmagne et al. (2006).
       Holland et al. (1997) só é nomeado na Seção 4.3.1. Os dados
       bibliográficos estão na lista de trabalho ao fim de `curadoria.md`.
 
-## 4. Catálogo: as oito concepções que a curadoria não confere na obra
+## 4. Catálogo: as quatro hipóteses, que ficam sem fonte por desenho
 
-As outras 53 das 61 estão conferidas na obra (Apêndice B).
+As outras 57 das 61 estão conferidas na obra (Apêndice B).
 
 | Concepção | Grau | Situação | O que fecha |
 | --- | --- | --- | --- |
@@ -81,10 +81,26 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
 | `memory_is_uniform` | E | hipótese declarada | nada: fica fora da coleta |
 | `type_is_a_hint` | E | hipótese declarada | nada: fica fora da coleta |
 | `memoria_e_do_computador` | E | hipótese declarada | nada: fica fora da coleta |
-| `malloc_always_succeeds` | N | cita só CERT C e CWE, abertos na conferência das referências, mas não reconferidos na curadoria | reconferir na curadoria |
-| `pointer_is_pointless` | L | citação abreviada, com a forma íntegra localizada | conferir a forma íntegra |
-| `uninitialized_is_null` | D | cita Sorva (2012) com página e item, sem frase entre aspas | pôr a frase do item e deixar o programa conferir |
-| `voidptr_arith_ok` | L | pergunta 11.24 do FAQ; a seção 11 não foi reaberta | reabrir a seção 11 |
+
+- [x] As quatro que a curadoria não conferia por inteiro foram fechadas
+      em 23/11/2026, a pedido do autor:
+      - `uninitialized_is_null` ganhou a frase do item 10 de Sorva
+        (2012), e o gerador a localiza no texto da obra;
+      - `malloc_always_succeeds` cita só normas: a página da ERR33-C
+        lista malloc com NULL no erro, e a CWE-252 tem o título citado;
+      - `voidptr_arith_ok`: o índice da seção 11 do FAQ e a página da
+        pergunta 11.24 foram baixados (com autorização do autor). A
+        frase citada estava encurtada sem marca de corte e passou a ser
+        literal;
+      - `pointer_is_pointless`: o título da pergunta 4.1 do FAQ confere
+        no índice. Estava contada na classe 1 só porque a nota dela
+        menciona Sorva para dizer que a concepção NÃO está lá. A classe
+        1 passou de 23 para 22 concepções e a classe 2, de 34 para 35; o
+        gerador só conta Sorva como fonte quando há página ou item.
+      A Seção 4 traz os números novos e relata os dois defeitos de
+      registro (4.6.6). O teste anterior ao ramo
+      (`mvp/test_procedencia.py`) teve três números atualizados, com
+      autorização do autor.
 
 ## 5. Afirmações de que algo foi feito (Seções 3, 5 e 6)
 
@@ -127,13 +143,21 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
         esse teste as quatro que as demonstrações usam; `-O1` e `-Wextra`
         estão na lista e nenhuma demonstração as usa;
       - 5.5 atribuía o limiar antigo à "versão 2.0 da norma".
-- [ ] Seção 6.4: commits dos defeitos relatados. Achados: `3f0c1e3` (as
-      oito questões do kc_02 e a conferência do banco), `99abee5` (a
-      resposta inválida do kc_12 e o "recusa" do kc_11), `1fb5635` (a
-      alternativa "a vira ponteiro para fileira" do kc_10) e `0729299`
-      (a nota "outros compiladores reclamam"). Faltam localizar o commit
-      do treino que repetia a demonstração e os dos dois defeitos de
-      interface.
+- [x] Seção 6.4: os commits dos defeitos relatados, localizados em
+      23/11/2026: `3f0c1e3` (as oito questões do kc_02 e a conferência do
+      banco), `99abee5` (a resposta inválida do kc_12 e o "recusa" do
+      kc_11), `1fb5635` (a alternativa "a vira ponteiro para fileira" do
+      kc_10), `0729299` (a nota "outros compiladores reclamam"),
+      `729d029` e `8710bfa` (o treino que repetia a demonstração: visto
+      no ensaio do kc_01, e o teste achou o mesmo no kc_05, no kc_06 e
+      no kc_12), `f7f6fd5` (a lacuna do completar, que sumia no tema
+      claro) e `099a46c` (a barra superior com oito paradas em 360 px).
+      A conferência mostrou que a frase atribuía os dois defeitos de
+      interface ao "teste de contraste": o histórico diz que a lacuna
+      foi achada na conferência no navegador e a barra, na revisão,
+      confirmada no navegador; os testes vieram com as correções. A
+      frase foi corrigida, e a abertura e o fecho da lista deixaram de
+      dizer que tudo foi achado pela verificação automatizada.
 - [ ] Seções 5.5 e 5.6: a conferência no navegador "tela a tela" não
       tem registro além do histórico; a pasta de ensaios existe.
 - [x] Figuras da Seção 3, refeitas em 23/11/2026 por
@@ -150,11 +174,12 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
 - [ ] A suíte inteira (7 555 testes) não teve rodada completa depois das
       mudanças no catálogo. Numa rodada, um teste de `mvp/test_gerador.py`
       falhou e não repetiu a falha sozinho. Rodar com a máquina acordada.
-- [ ] Seções 5.2 e 7.1 dizem que parte do banco de questões depende de
-      "leitura". O commit `2ba98f6` registra que 252 questões foram lidas
-      uma a uma com assistência da ferramenta, e que cinco foram
-      corrigidas. O texto não diz quem leu nem relata essas cinco:
-      decidir se entra.
+- [x] A leitura das 252 questões com código que a saída não confere
+      entrou no texto, por decisão do autor em 23/11/2026: a Seção 5.2
+      diz que foi feita uma vez, com assistência do modelo de linguagem
+      e com o resultado da compilação de cada trecho; a 6.4 relata as
+      cinco questões corrigidas; a 7.1 diz de que leitura se trata. É o
+      que o commit `2ba98f6` registra.
 
 ## 6. Decisões e dados que só o autor tem
 

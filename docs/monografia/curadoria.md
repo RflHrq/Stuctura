@@ -43,13 +43,13 @@ A segunda é que o grau `E` é legítimo, desde que declarado. Uma hipótese do 
 
 O catálogo apoia-se em dois tipos de obra. A diferença entre eles não é de qualidade, mas do tipo de afirmação que cada um sustenta. Tratá-los como equivalentes constituiria um defeito metodológico; a declaração da classe, concepção por concepção, é o que torna o catálogo auditável.
 
-### Classe 1: literatura de concepções errôneas (23 concepções)
+### Classe 1: literatura de concepções errôneas (22 concepções)
 
 A primeira classe compreende estudos empíricos com estudantes e revisões que os agregam. A obra principal é o Apêndice A de Sorva (2012), cuja Tabela A.1 relaciona 162 concepções errôneas levantadas na literatura de ensino de programação introdutória, cada uma com tópico, descrição e fonte. A ela se somam os estudos aos quais a própria tabela atribui os itens utilizados, citados neste trabalho por intermédio dela: du Boulay (1986), Soloway et al. (1982), Putnam et al. (1986), Sleeman et al. (1986), Samurçay (1989), Holland et al. (1997), Ma (2007), Doukakis et al. (2007) e Kaczmarczyk et al. (2010), todos *apud* Sorva (2012). Uma obra externa à Tabela A.1 também sustenta uma das concepções: Hermans et al. (2018) registram a ideia de que a variável armazena vários valores ou "lembra" os anteriores e a investigam em um experimento com 496 iniciantes.
 
 Essa classe sustenta que a concepção foi observada em estudantes por pesquisadores que a investigaram.
 
-### Classe 2: corpus de praticante (34 concepções)
+### Classe 2: corpus de praticante (35 concepções)
 
 A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, que o autor passou a publicar em 1990 no grupo de Usenet de mesmo nome (Summit, c2005). Uma versão ampliada da lista foi publicada em livro pelo mesmo autor; este trabalho utiliza a versão on-line.
 
@@ -95,7 +95,7 @@ Não há, portanto, nenhum item sobre `NULL`, sobre `malloc` e `free`, sobre ari
 
 Essa ausência não decorre de descuido da obra. O catálogo reúne concepções sobre o conteúdo comumente abordado em disciplinas introdutórias de programação e deixa de fora, por decisão declarada, as questões muito específicas de uma linguagem ou de uma ferramenta (Sorva, 2012, p. 358). Na revisão dos estudos em que o catálogo se baseia, os que nomeiam a linguagem tratam de BASIC e de Java (Sorva, 2012, p. 29-30). Um catálogo com esse recorte não documenta as confusões relativas justamente ao que distingue a linguagem C.
 
-Conclui-se, assim, não que as 34 concepções da classe 2 sejam frágeis, mas que um catálogo de concepções errôneas para C requer uma segunda classe de fonte, a qual deve ser declarada como tal, com a indicação do que sustenta e do que não sustenta. Essa declaração é feita, concepção por concepção, na coluna de classe do Apêndice B.
+Conclui-se, assim, não que as 35 concepções da classe 2 sejam frágeis, mas que um catálogo de concepções errôneas para C requer uma segunda classe de fonte, a qual deve ser declarada como tal, com a indicação do que sustenta e do que não sustenta. Essa declaração é feita, concepção por concepção, na coluna de classe do Apêndice B.
 
 ## Procedimento de conferência
 
@@ -107,21 +107,18 @@ O quadro é exaustivo e mutuamente exclusivo: cada uma das 61 concepções figur
 
 | Forma de conferência | Concepções |
 | --- | --- |
-| conferida no texto integral de Sorva (2012), obtido do repositório aberto da Universidade Aalto (handle `123456789/3534`, bundle TEXT); a frase em inglês citada entre aspas foi localizada no texto da obra | 21 |
-| conferida no índice do FAQ comp.lang.c: as seções 1, 4, 5, 6 e 7 foram consultadas em `c-faq.com`; as perguntas citadas existem, e os títulos coincidem com os citados no catálogo | 32 |
-| citação abreviada no catálogo, com a forma integral localizada na obra | 1 |
-| cita Sorva (2012) com página e item, mas sem frase entre aspas, o que impede a verificação pelo procedimento automatizado | 1 |
-| conferência parcial: a seção 11 do FAQ não foi incluída na curadoria | 1 |
-| não conferida na curadoria: cita apenas normas (CERT C e CWE), conferidas à parte (Seção 4.7) | 1 |
+| conferida no texto integral de Sorva (2012), obtido do repositório aberto da Universidade Aalto (handle `123456789/3534`, bundle TEXT); a frase em inglês citada entre aspas foi localizada no texto da obra | 22 |
+| conferida no índice do FAQ comp.lang.c: as seções 1, 4, 5, 6, 7 e 11 foram consultadas em `c-faq.com`; as perguntas citadas existem, e os títulos coincidem com os citados no catálogo | 34 |
+| conferida na página das normas: cita apenas uma regra do CERT C e uma entrada da CWE, cujas páginas foram consultadas (Seção 4.7) | 1 |
 | sem item correspondente na literatura, com a busca declarada em campo próprio | 2 |
 | sem fonte, por definição: hipótese declarada como tal | 2 |
 | total | 61 |
 
-As duas primeiras linhas somam as 53 concepções conferidas na obra primária. As seis últimas correspondem ao que a curadoria não afirma ter conferido, com a respectiva justificativa.
+As três primeiras linhas somam as 57 concepções conferidas na obra primária. As duas últimas correspondem às quatro hipóteses, para as quais a curadoria não afirma haver fonte. Quatro das 57 foram conferidas em uma segunda passada, em 23/11/2026 (Seção 4.6.6).
 
 Os estudos agregados pelo Apêndice A de Sorva (2012), relacionados na Seção 4.3.1, não figuram em linha própria porque não foram consultados diretamente. As cinco concepções que os citam fazem-no *apud* Sorva (2012), com página e item, e estão contadas na primeira linha do quadro. A Seção 4.7 detalha esse ponto.
 
-A conferência é automatizada sempre que possível: o programa que gera o Apêndice B extrai a frase entre aspas de cada citação e a procura no texto da obra, de modo que o resultado não depende do que está declarado no campo de fonte. Quando o programa é executado sem o texto da obra, o número de concepções conferidas cai de 53 para 32, e o apêndice passa a indicar, linha por linha, que a conferência não foi realizada.
+A conferência é automatizada sempre que possível: o programa que gera o Apêndice B extrai a frase entre aspas de cada citação e a procura no texto da obra, de modo que o resultado não depende do que está declarado no campo de fonte. Quando o programa é executado sem o texto da obra, o número de concepções conferidas cai de 57 para 35, e o apêndice passa a indicar, linha por linha, que a conferência não foi realizada.
 
 ## Resultado da curadoria
 
@@ -132,7 +129,7 @@ O Quadro 4.5 sintetiza o resultado da curadoria.
 | Indicador | Valor |
 | --- | --- |
 | concepções distintas no catálogo | 61 |
-| conferidas na obra primária | 53 |
+| conferidas na obra primária | 57 |
 | graus | `D` 6, `L` 33, `T` 15, `N` 3, `E` 4 |
 | hipóteses `E` | 4, todas fora dos tópicos selecionados para a coleta |
 
@@ -188,6 +185,16 @@ Quatorze concepções aparecem em mais de um tópico, e cada ocorrência possui 
 
 O achado relevante não se restringe a essas três concepções: um catálogo mantido manualmente em arquivos paralelos tende a divergir sem que isso seja percebido. As ocorrências estão uniformizadas, e um teste automatizado impede novas divergências (Quadro 4.7).
 
+### 6. Defeitos de registro identificados na reconferência
+
+Em uma segunda passada, realizada em 23/11/2026 sobre as quatro concepções que a curadoria inicial não havia conferido integralmente, foram identificados dois defeitos de registro, ambos corrigidos.
+
+O primeiro é uma menção contada como citação. O campo de fonte de `pointer_is_pointless` menciona Sorva (2012) para registrar que a concepção não consta daquela obra; a fonte da concepção é a pergunta 4.1 do FAQ (Summit, c2005). O programa que gera o Apêndice B classificava a fonte pela presença do nome da obra no campo e, por essa razão, incluía a concepção na classe 1 e procurava no texto de Sorva (2012) uma frase que pertence ao FAQ. O programa passou a considerar aquela obra como fonte somente quando a citação indica página ou item, e a contagem das classes foi corrigida de 23 e 34 para 22 e 35 concepções.
+
+O segundo é uma citação encurtada sem indicação de corte. A frase da pergunta 11.24 do FAQ citada em `voidptr_arith_ok` omitia um trecho interno da resposta; a citação passou a reproduzir o texto integral da página.
+
+As outras duas concepções exigiram apenas completar o registro: `uninitialized_is_null` passou a trazer a frase do item 10 (Sorva, 2012, p. 359), que o programa localiza no texto da obra, e `malloc_always_succeeds`, que cita apenas normas, foi conferida nas páginas da regra ERR33-C do CERT C e da entrada 252 da CWE.
+
 ## Integridade das citações
 
 Esta seção explicita o que foi lido no original, em contrapartida ao fato de o catálogo se apoiar em uma obra que, por sua vez, agrega dezenas de outras.
@@ -198,18 +205,17 @@ Os estudos agregados pelo Apêndice A (Seção 4.3.1) são citados *apud* Sorva 
 
 Em consequência, nenhuma afirmação deste trabalho atribui a esses estudos conteúdo que não conste do item do Apêndice A que os cita.
 
-As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), que sustentam as três concepções de grau `N`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita. Os Quadros 4.4 e 4.5 referem-se à conferência realizada na curadoria, na qual a concepção que cita apenas normas ficou sem conferência e a seção 11 do FAQ não foi incluída.
+As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), que sustentam as três concepções de grau `N`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita. Na curadoria inicial, a concepção que cita apenas normas havia ficado sem conferência, e a seção 11 do FAQ não havia sido incluída; as duas lacunas foram fechadas na reconferência de 23/11/2026 (Seção 4.6.6), e os Quadros 4.4 e 4.5 apresentam o resultado posterior a ela.
 
 Duas observações de forma delimitam o que se pode afirmar. A primeira é que a versão on-line do FAQ (Summit, c2005) é mais curta do que o livro publicado pelo mesmo autor, como ele próprio informa na página do FAQ; as citações deste trabalho referem-se à versão on-line, por número de pergunta, que foi a versão consultada. A segunda é que os números de página do Apêndice A referem-se ao texto extraído do arquivo em *Portable Document Format* (PDF) disponível no repositório mencionado e foram calibrados com base nos marcadores de página do próprio texto.
 
 ## Limites da curadoria
 
-A delimitação do alcance da curadoria integra o método. Quatro limites devem ser considerados:
+A delimitação do alcance da curadoria integra o método. Três limites devem ser considerados:
 
 1. Não há afirmação de prevalência. Nem a classe 1 nem a classe 2 autorizam afirmar que determinada proporção dos estudantes sustenta uma dada concepção. O catálogo afirma que a concepção está registrada na literatura ou no corpus de praticantes, e não que seja frequente entre estudantes.
 2. Não há afirmação sobre a eficácia do instrumento. O fato de as concepções estarem documentadas não implica que o sistema as detecte adequadamente nem que a refutação produza efeito, o que exigiria coleta de dados com participantes.
 3. Quatro concepções permanecem como hipóteses. São elas `memory_is_uniform`, `type_is_a_hint`, `memoria_e_do_computador` e `heap_dies_with_function`, declaradas como tais e ausentes dos tópicos de coleta. A última apoia-se em uma analogia declarada (em Java e em Python, a memória alocada por uma função e que deixa de ser alcançável é liberada automaticamente), mas nenhuma obra consultada registra a concepção; por essa razão, é classificada como hipótese, e não como transposição. A auditoria indica o procedimento a adotar antes de aceitá-las: refazer a busca com outro vocabulário, procedimento que localizou o item de duas concepções antes consideradas hipóteses (Seção 4.6.1) e que, para essas quatro, confirmou a inexistência de item.
-4. Uma citação de Sorva (2012) não contém frase entre aspas. Trata-se da citação de `uninitialized_is_null`, que, embora indique página e item, não pode ser verificada pelo procedimento automatizado descrito na Seção 4.4.
 
 ## Verificação automatizada do catálogo
 

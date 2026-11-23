@@ -772,3 +772,29 @@ N + 8 do PDF; a Tabela A.1 vai da p. 359 à p. 368.
 - **Brooke (1996):** o SUS é uma escala de dez itens (p. 3 do arquivo).
 - **ISO/IEC (2011), Gardner-Medwin (2006) e Soderstrom e Bjork (2015):**
   as citações das Seções 5.8, 6.4 e 7.1 repetem passagens já conferidas.
+
+## Reconferência do catálogo, 23/11/2026
+
+As quatro concepções que a curadoria não conferia por inteiro foram
+reabertas contra a obra.
+
+- **FAQ do comp.lang.c (Summit, c2005):** baixados de `c-faq.com`, com
+  autorização do autor, o índice da seção 11 (`fontes/cfaq/ansi-index.html`,
+  8 890 bytes, 3fc445ba9157) e a página da pergunta 11.24
+  (`fontes/cfaq/q11.24-voidparith.html`, 3 347 bytes, 1c91d113bba7). A
+  11.24 tem o título que o catálogo cita, o mesmo da 4.6, e a resposta
+  confere com a citação de `voidptr_arith_ok`. A citação omitia, sem
+  marca de corte, um trecho interno da resposta ("see also question
+  4.4"); passou a ser literal. A página da 4.6 não foi baixada: o
+  título dela está no índice da seção 4, e o que o catálogo diz da
+  resposta dela vem de leitura de sessão anterior, como ele declara.
+- **FAQ, pergunta 4.1:** o título citado em `pointer_is_pointless`
+  confere em `fontes/cfaq/ptrs-index.html`.
+- **CERT C, regra ERR33-C:** a tabela da regra lista `malloc()`, com
+  ponteiro nulo como retorno de erro. **CWE-252:** o título é
+  "Unchecked Return Value". É o que `malloc_always_succeeds` cita.
+  A página guardada como MEM52-C não traz regra com esse número, como
+  a nota do catálogo diz.
+- **Sorva (2012), item 10, p. 359:** a frase do item entrou na citação
+  de `uninitialized_is_null`, e o gerador da curadoria a localiza no
+  texto integral da obra.

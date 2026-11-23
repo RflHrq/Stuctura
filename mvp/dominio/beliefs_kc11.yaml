@@ -72,12 +72,16 @@
   label_pt: "Dá para fazer aritmética em void * como em qualquer ponteiro."
   source: >
     FAQ comp.lang.c 4.6, "Why can't I perform arithmetic on a void *
-    pointer?", cuja resposta é inteira "See question 11.24"; e a 11.24, que
-    dá a razão: "The compiler doesn't know the size of the pointed-to
-    objects. (Remember that pointer arithmetic is always in terms of the
-    pointed-to size.) Therefore, arithmetic on void *'s is disallowed
-    (though some compilers allow it as an extension)." É a crença da
-    curadoria; a citação ganhou a 11.24, que é onde a resposta está.
+    pointer?", cuja resposta é inteira "See question 11.24"; e a 11.24, de
+    mesmo título, que dá a razão: "The compiler doesn't know the size of
+    the pointed-to objects. (Remember that pointer arithmetic is always in
+    terms of the pointed-to size; see also question 4.4.) Therefore,
+    arithmetic on void *'s is disallowed (though some compilers allow it
+    as an extension)." É a crença da curadoria; a citação ganhou a 11.24,
+    que é onde a resposta está. A página da 11.24 e o índice das
+    perguntas 11.x foram abertos e guardados em 23/11/2026, e a frase
+    passou a ser literal (faltava "see also question 4.4"). A 4.6 foi lida
+    em sessão anterior; o título dela está no índice das perguntas 4.x.
 
 - id: ptr_arith_is_bytes
   negates: kc_11:I3

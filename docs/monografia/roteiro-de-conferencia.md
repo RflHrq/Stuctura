@@ -11,7 +11,7 @@ se ela diz o que a frase diz que ela diz. O que cada obra sustenta,
 segundo a conferência anterior, está em
 [conferencia-das-referencias.md](conferencia-das-referencias.md).
 
-São 114 itens: 101 citações de 22 obras abertas e 13 menções a
+São 116 itens: 103 citações de 22 obras abertas e 13 menções a
 estudos que não foram abertos, citados por intermédio de outra
 obra.
 
@@ -29,9 +29,9 @@ obra.
 | Schmellenkamp, Latys e Zeume (`schmellenkamp2023`) | 5 | `schmellenkamp2023/3545945.3569806.pdf` |
 | SEI (`sei2025`) | 2 | `certc/ (regras ERR33-C, EXP34-C, MEM30-C e MEM31-C, em HTML)` |
 | Soderstrom e Bjork (`soderstrom2015`) | 2 | `soderstrom2015/soderstrom_bjork_2015.pdf` |
-| Sorva (`sorva2012`) | 33 | `sorva2012/isbn9789526046266.pdf` |
+| Sorva (`sorva2012`) | 34 | `sorva2012/isbn9789526046266.pdf` |
 | Sorva (`sorva2013`) | 4 | `sorva2013/2483710.2483713.pdf` |
-| Summit (`summit2005`) | 4 | `cfaq/ (índices e perguntas do FAQ, em HTML)` |
+| Summit (`summit2005`) | 5 | `cfaq/ (índices e perguntas do FAQ, em HTML)` |
 | UFV (`ufv2026`) | 3 | `ufv-diretrizes-ia/DIRETRIZES-IA.pdf` |
 | Sweller, Van Merriënboer e Paas (`sweller2019`) | 5 | `sweller2019/sweller2019.pdf` |
 | VanLehn (`vanlehn2006`) | 2 | `vanlehn2006/vanlehn2006behavior.pdf` |
@@ -215,7 +215,7 @@ obra.
 - [ ] **MITRE (2026)** · abrir `fontes/cwe/ (CWE-252, CWE-415 e CWE-476, em HTML)`
   > | `N` | o erro consta de norma, como o padrão de codificação CERT C (SEI, 2025) e a *Common Weakness Enumeration* (CWE), da MITRE (2026), mas a concepção não |
 
-### 4.3.1 Classe 1: literatura de concepções errôneas (23 concepções)
+### 4.3.1 Classe 1: literatura de concepções errôneas (22 concepções)
 
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > A obra principal é o Apêndice A de Sorva (2012), cuja Tabela A.1 relaciona 162 concepções errôneas levantadas na literatura de ensino de programação introdutória, cada uma com tópico, descrição e fonte.
@@ -242,7 +242,7 @@ obra.
 - [ ] **Hermans et al. (2018)** · abrir `fontes/hermans2018/hermans2018.pdf`
   > Uma obra externa à Tabela A.1 também sustenta uma das concepções: Hermans et al. (2018) registram a ideia de que a variável armazena vários valores ou "lembra" os anteriores e a investigam em um experimento com 496 iniciantes.
 
-### 4.3.2 Classe 2: corpus de praticante (34 concepções)
+### 4.3.2 Classe 2: corpus de praticante (35 concepções)
 
 - [ ] **(Summit, c2005)** · abrir `fontes/cfaq/ (índices e perguntas do FAQ, em HTML)`
   > A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, que o autor passou a publicar em 1990 no grupo de Usenet de mesmo nome (Summit, c2005).
@@ -267,9 +267,7 @@ obra.
 ### 4.4 Procedimento de conferência
 
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
-  > | conferida no texto integral de Sorva (2012), obtido do repositório aberto da Universidade Aalto (handle `123456789/3534`, bundle TEXT); a frase em inglês citada entre aspas foi localizada no texto da obra | 21 |
-- [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
-  > | cita Sorva (2012) com página e item, mas sem frase entre aspas, o que impede a verificação pelo procedimento automatizado | 1 |
+  > | conferida no texto integral de Sorva (2012), obtido do repositório aberto da Universidade Aalto (handle `123456789/3534`, bundle TEXT); a frase em inglês citada entre aspas foi localizada no texto da obra | 22 |
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > Os estudos agregados pelo Apêndice A de Sorva (2012), relacionados na Seção 4.3.1, não figuram em linha própria porque não foram consultados diretamente.
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
@@ -325,6 +323,17 @@ obra.
 - [ ] **(Sorva, 2012, p. 360)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > O catálogo cita o item 22 (Sorva, 2012, p. 360).
 
+### 4.6.6 Defeitos de registro identificados na reconferência
+
+- [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
+  > O campo de fonte de `pointer_is_pointless` menciona Sorva (2012) para registrar que a concepção não consta daquela obra; a fonte da concepção é a pergunta 4.1 do FAQ (Summit, c2005).
+- [ ] **(Summit, c2005)** · abrir `fontes/cfaq/ (índices e perguntas do FAQ, em HTML)`
+  > O campo de fonte de `pointer_is_pointless` menciona Sorva (2012) para registrar que a concepção não consta daquela obra; a fonte da concepção é a pergunta 4.1 do FAQ (Summit, c2005).
+- [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
+  > O programa que gera o Apêndice B classificava a fonte pela presença do nome da obra no campo e, por essa razão, incluía a concepção na classe 1 e procurava no texto de Sorva (2012) uma frase que pertence ao FAQ.
+- [ ] **(Sorva, 2012, p. 359)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
+  > As outras duas concepções exigiram apenas completar o registro: `uninitialized_is_null` passou a trazer a frase do item 10 (Sorva, 2012, p. 359), que o programa localiza no texto da obra, e `malloc_always_succeeds`, que cita apenas normas, foi conferida nas páginas da regra ERR33-C do CERT C e da entrada 252 da CWE.
+
 ### 4.7 Integridade das citações
 
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
@@ -339,11 +348,6 @@ obra.
   > As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), que sustentam as três concepções de grau `N`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita.
 - [ ] **(Summit, c2005)** · abrir `fontes/cfaq/ (índices e perguntas do FAQ, em HTML)`
   > A primeira é que a versão on-line do FAQ (Summit, c2005) é mais curta do que o livro publicado pelo mesmo autor, como ele próprio informa na página do FAQ; as citações deste trabalho referem-se à versão on-line, por número de pergunta, que foi a versão consultada.
-
-### 4.8 Limites da curadoria
-
-- [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
-  > Uma citação de Sorva (2012) não contém frase entre aspas.
 
 ## Seção 5: Construção e verificação
 

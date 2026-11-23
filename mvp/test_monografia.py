@@ -214,6 +214,12 @@ def test_a_conferencia_do_banco_no_texto():
         "05-construcao-e-verificacao.md")
     assert "das 69 questões de prever a saída conferidas, todas" in _texto(
         "06-resultados-da-verificacao.md")
+    # As que têm código e a saída não confere foram LIDAS, uma vez, com a
+    # ferramenta (commit de 18/11/2026), e o texto diz quantas são.
+    assert ("A leitura das %d questões com código que a saída não confere"
+            % (com_codigo - conferidas)) in _texto(
+        "05-construcao-e-verificacao.md")
+    assert com_codigo - conferidas == 252
 
 
 def test_as_cenas_no_texto():

@@ -390,13 +390,13 @@ CAPITULO = (pathlib.Path(__file__).resolve().parent.parent
 # o capítulo é este teste.
 AFIRMA_O_CAPITULO = {
     "concepções distintas no catálogo | 61": lambda c: c["total"] == 61,
-    "conferidas na obra primária | 53": lambda c: c["conferidas"] == 53,
+    "conferidas na obra primária | 57": lambda c: c["conferidas"] == 57,
     "`D` 6, `L` 33, `T` 15, `N` 3, `E` 4": lambda c: c["grades"] == {
         "D": 6, "L": 33, "T": 15, "N": 3, "E": 4},
-    "Classe 1: literatura de concepções errôneas (23 concepções)":
-        lambda c: c["classe1"] == 23,
-    "Classe 2: corpus de praticante (34 concepções)":
-        lambda c: c["classe2"] == 34,
+    "Classe 1: literatura de concepções errôneas (22 concepções)":
+        lambda c: c["classe1"] == 22,
+    "Classe 2: corpus de praticante (35 concepções)":
+        lambda c: c["classe2"] == 35,
     "hipóteses `E` | 4": lambda c: c["grades"]["E"] == 4,
     "Quatorze concepções aparecem em mais de um tópico": lambda c: c["em_dois_topicos"] == 14,
 }

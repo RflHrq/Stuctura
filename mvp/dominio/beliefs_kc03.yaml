@@ -60,10 +60,13 @@
   provenance: D
   label_pt: "Ponteiro não inicializado vale NULL."
   source: >
-    Sorva (2012), p. 359, item 10 (du Boulay 1986; Samurçay 1989) — o
-    mesmo item que sustenta `declaration_zeroes`, e aqui na forma que ele
-    toma num ponteiro: o "valor padrão" seria NULL. As duas negam
+    Sorva (2012), p. 359, item 10 (du Boulay 1986; Samurçay 1989):
+    "Variables always receive a particular default value upon creation."
+    É o mesmo item que sustenta `declaration_zeroes`, e aqui na forma que
+    ele toma num ponteiro: o "valor padrão" seria NULL. As duas negam
     premissas diferentes, uma sobre o conteúdo e outra sobre o ponteiro.
+    A frase do item entrou em 23/11/2026, para o gerador da curadoria
+    poder conferi-la no texto da obra.
 
 - id: pode_usar_logo
   negates: kc_03:I3

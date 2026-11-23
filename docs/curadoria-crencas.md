@@ -1,6 +1,7 @@
 # Curadoria do catálogo de crenças — auditoria de procedência
 
-**11/11/2026.** As 61 crenças errôneas do catálogo, uma por linha, com a
+**11/11/2026, com a reconferência de 23/11/2026.** As 61 crenças
+errôneas do catálogo, uma por linha, com a
 grade de procedência, o localizador da fonte e **se ela foi conferida na
 obra primária, e por quem**.
 
@@ -41,28 +42,28 @@ invenção sua que vai virar dado"*.
 | | |
 | --- | --- |
 | crenças distintas | **61** |
-| conferidas na obra primária nesta auditoria | **53** |
+| conferidas na obra primária nesta auditoria | **57** |
 | grades | `D` 6, `E` 4, `L` 33, `N` 3, `T` 15 |
 | hipóteses `E` | **4**, todas fora dos quatro tópicos-piloto |
 
 ### Como cada obra foi conferida
 
 **A coluna "crenças" soma mais que 61 de propósito:** uma crença pode
-citar duas obras — `pointer_is_pointless` cita o Sorva e o FAQ, e as de
-grade `N` costumam citar a norma e o FAQ. Na tabela por crença, a coluna
-de conferência registra **a verificação mais forte alcançada** para
-aquela linha, não todas as obras que ela cita. É por isso que só uma
-linha aparece como "fonte pública, não aberta aqui" embora cinco crenças
-citem CERT/CWE: as outras quatro foram conferidas pela citação do FAQ
-que trazem ao lado.
+citar duas obras — `malloc_initializes_zero` cita o FAQ e o Sorva, e as
+de grade `N` costumam citar a norma e o FAQ. Na tabela por crença, a
+coluna de conferência registra **a verificação mais forte alcançada**
+para aquela linha, não todas as obras que ela cita. É por isso que só
+uma linha aparece como conferida pela página da regra embora cinco
+crenças citem CERT/CWE: as outras quatro foram conferidas pela citação
+do FAQ que trazem ao lado.
 
 | obra | crenças | como |
 | --- | --- | --- |
-| Sorva (2012), *Visual Program Simulation in Introductory Programming Education* | 21 |  **texto integral** do repositório aberto da Aalto (handle 123456789/3534, bundle TEXT). Para cada citação, a frase em inglês entre aspas foi procurada no texto da obra. **23 frases localizadas verbatim.** |
-| FAQ comp.lang.c | 39 | **índices das seções 1, 4, 5, 6 e 7** abertos em c-faq.com. As 48 perguntas citadas nessas seções existem, e os títulos conferem com o que o catálogo cita. |
-| CERT C / CWE | 5 | fontes públicas, **não reabertas nesta auditoria** |
+| Sorva (2012), *Visual Program Simulation in Introductory Programming Education* | 22 |  **texto integral** do repositório aberto da Aalto (handle 123456789/3534, bundle TEXT). Para cada citação, a frase em inglês entre aspas é procurada no texto da obra, e a linha só sai como conferida quando a frase é localizada. |
+| FAQ comp.lang.c | 39 | **índices das seções 1, 4, 5, 6, 7 e 11** abertos em c-faq.com (a 11 em 23/11/2026, com a página da pergunta 11.24). As 49 perguntas citadas existem, e os títulos conferem com o que o catálogo cita. |
+| CERT C / CWE | 5 | **páginas abertas** na conferência das referências da monografia: ERR33-C, EXP34-C, MEM30-C e MEM31-C; CWE-252, 415 e 476. A única crença que cita só normas, `malloc_always_succeeds`, passou a conferida em 23/11/2026 |
 | Ma (2007), Kaczmarczyk et al. (2010), du Boulay (1986), Samurçay (1989) | 5 | **citadas `apud` Sorva (2012)**, com página e item. Os artigos originais não foram abertos — a mediação está declarada no campo de fonte de cada crença, e o que foi lido é o item do Sorva que os atribui. |
-| K&R, *The C Programming Language* | 1 | citada como **refutação**, não como fonte da crença: é a obra que diz que a crença é falsa |
+| ISO/IEC 9899 (rascunho N1570, 2011) | 1 | citado como **refutação**, não como fonte da crença: é o texto que diz que a crença é falsa (p. 140). O K&R, que a citação trazia antes, não foi aberto e saiu |
 
 ## As duas classes de fonte, e por que as duas valem
 
@@ -71,7 +72,7 @@ não é de qualidade: é de **que tipo de afirmação cada um sustenta**.
 Confundi-los seria o defeito; declará-los é o que torna o catálogo
 auditável.
 
-### Classe 1 — literatura de concepções errôneas (23 crenças)
+### Classe 1 — literatura de concepções errôneas (22 crenças)
 
 Estudo empírico com estudantes, ou revisão sistemática que os agrega.
 A principal é o **Apêndice A do Sorva (2012)**: um catálogo de 162
@@ -84,7 +85,7 @@ descrição e fonte. Ao lado dela, os estudos que ela mesma agrega — Ma
 **O que esta classe sustenta:** que a concepção foi *observada em
 estudantes*, por alguém que a estudou.
 
-### Classe 2 — corpus de praticante (34 crenças)
+### Classe 2 — corpus de praticante (35 crenças)
 
 O **FAQ do comp.lang.c**. Conferido na fonte: a lista *"was first
 composed in 1990, for posting to the Usenet newsgroup comp.lang.c. It
@@ -222,16 +223,25 @@ curadoria, não de leitura.
    Sorva, e **diz que o original não foi aberto**. Fechar isso exige o
    portal da biblioteca; o que não fica em aberto é o leitor saber em
    que mão a citação está.
-2. **Cinco crenças de grade `N`** citam CERT C e CWE, que são públicos e
-   não foram reabertos aqui.
-3. **A FAQ 11.24** (`voidptr_arith_ok`) não foi reaberta — a seção 11 do
-   FAQ ficou fora desta passada.
-4. **Uma crença cita o Sorva sem frase entre aspas** —
-   `uninitialized_is_null` —, o que torna a citação não verificável
-   mecanicamente pelo gerador. Ela traz página e item. Eram duas: a
-   `assignment_symmetric` passou a trazer a frase do item 12 em
-   11/11/2026, e o caso dela está contado no achado 1.
-5. **As quatro `E`** — `type_is_a_hint` (kc_00),
+2. **Fechados em 23/11/2026**, e por isso fora desta lista:
+   - a crença que cita só CERT C e CWE (`malloc_always_succeeds`): as
+     páginas da ERR33-C e da CWE-252 foram abertas, a tabela da regra
+     lista malloc com NULL no erro, e o título da entrada confere;
+   - a FAQ 11.24 (`voidptr_arith_ok`): o índice da seção 11 e a página
+     da pergunta foram abertos. A frase citada estava ENCURTADA sem
+     marca de corte (faltava "see also question 4.4" dentro do
+     parêntese); passou a ser literal;
+   - a crença que citava o Sorva sem frase entre aspas
+     (`uninitialized_is_null`): ganhou a frase do item 10, e o gerador a
+     localiza no texto;
+   - a `pointer_is_pointless`, que saía como "citação abreviada": a
+     nota dela fala do Sorva para dizer que a crença NÃO está lá, e a
+     palavra bastava para o gerador pô-la na classe 1 e procurar no
+     Sorva a frase que é do FAQ. A fonte é a pergunta 4.1 do FAQ, cujo
+     título confere no índice. O Sorva só conta como fonte quando a
+     citação traz página ou item, e a classe 1 passou de 23 para 22
+     crenças (a classe 2, de 34 para 35).
+3. **As quatro `E`** — `type_is_a_hint` (kc_00),
    `memoria_e_do_computador` (kc_01), `memory_is_uniform` (kc_01,
    kc_12) e `heap_dies_with_function` (kc_01) — seguem declaradas como
    hipótese. Estão fora dos tópicos-piloto, e há dois testes proibindo
@@ -241,7 +251,7 @@ curadoria, não de leitura.
    desta auditoria diz o que tentar antes de aceitá-las: refazer a busca
    com outro vocabulário — foi o que fez duas crenças subirem de grade,
    e o que confirmou que estas não têm item.
-6. **A `heap_dies_with_function` era `T` e desceu para `E` em
+4. **A `heap_dies_with_function` era `T` e desceu para `E` em
    20/11/2026.** O que ela tem é a analogia, declarada: em Java e Python
    o que a função alocou e ninguém mais alcança desaparece sozinho. A
    busca por vocabulário do fenômeno foi refeita — *lifetime*, *scope*,
@@ -279,7 +289,7 @@ curadoria, não de leitura.
 | `indice_nao_e_soma` | kc_11 | I1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `local_sobrevive` | kc_01 | B2 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
 | `local_survives_return` | kc_12 | I3 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
-| `malloc_always_succeeds` | kc_08 | I2 | 2 · corpus de praticante | `N` | id CWE/CERT | não conferida — fonte pública, não aberta aqui |
+| `malloc_always_succeeds` | kc_08 | I2 | 2 · corpus de praticante | `N` | id CWE/CERT | **conferida** — página da regra (CERT C, CWE) |
 | `malloc_conta_elementos` | kc_08 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `malloc_initializes_zero` | kc_08 | B3 | **1** · concepção estudada | `L` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
 | `memoria_e_do_computador` | kc_01 | B1 | hipótese | `E` | página/item | sem fonte, por desenho |
@@ -300,7 +310,7 @@ curadoria, não de leitura.
 | `pointer_is_data` | kc_02, kc_04, kc_08, kc_12 | B3 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
 | `pointer_is_integer` | kc_02, kc_11 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `pointer_is_just_a_name` | kc_04, kc_05, kc_10 | I1 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
-| `pointer_is_pointless` | kc_02 | I3 | **1** · concepção estudada | `L` | pergunta do FAQ | citação abreviada; forma íntegra localizada |
+| `pointer_is_pointless` | kc_02 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `pointer_knows_block_size` | kc_09, kc_11 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `pointer_lives_in_heap` | kc_08, kc_09 | I1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `ptr_arith_is_bytes` | kc_11 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
@@ -312,15 +322,16 @@ curadoria, não de leitura.
 | `string_literal_is_array` | kc_07, kc_11 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `system_frees_auto` | kc_01, kc_08 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `type_is_a_hint` | kc_00 | B1 | hipótese | `E` | — | sem fonte, por desenho |
-| `uninitialized_is_null` | kc_03 | I2 | **1** · concepção estudada | `D` | página/item | citada sem frase entre aspas |
+| `uninitialized_is_null` | kc_03 | I2 | **1** · concepção estudada | `D` | página/item | **conferida** — texto integral do Sorva |
 | `variable_remembers` | kc_00 | B4 | **1** · concepção estudada | `T` | página/item, seção da obra | **conferida** — texto integral do Sorva |
-| `voidptr_arith_ok` | kc_11 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | parcial — seção 11 não reaberta |
+| `voidptr_arith_ok` | kc_11 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `voidptr_is_universal` | kc_10 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 
 ---
 
-*Gerado de `mvp/dominio/beliefs_kc*.yaml` em 11/11/2026. A coluna de
-conferência registra o que foi aberto NESTA auditoria; o que foi
+*Gerado de `mvp/dominio/beliefs_kc*.yaml`. A coluna de
+conferência registra o que foi aberto nesta auditoria (11/11/2026) e na
+reconferência de 23/11/2026; o que foi
 conferido em auditoria anterior está em `docs/revisao-crencas-kc02.md`.*
 
 ### Como reproduzir, e por que o número muda
@@ -333,7 +344,7 @@ conferência das crenças de classe 1 é produzida **procurando a frase em
 inglês de cada citação nesse texto** — o programa não confia no campo de
 fonte, ele confere.
 
-**Sem o argumento, o número cai de 52 para 32**, e as linhas que
+**Sem o argumento, o número cai de 57 para 35**, e as linhas que
 dependiam do texto passam a dizer "texto da obra não dado nesta
 execução". Isso é deliberado: o documento não afirma uma conferência que
 a execução não fez. O arquivo não entra no repositório porque é a obra
