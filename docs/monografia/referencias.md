@@ -52,6 +52,8 @@ SWELLER, J.; VAN MERRIËNBOER, J. J. G.; PAAS, F. Cognitive architecture
 and instructional design: 20 years later. **Educational Psychology
 Review**, [s. l.], v. 31, p. 261-292, 2019. DOI: 10.1007/s10648-019-09465-5.
 
+UFV. **Diretrizes institucionais para o uso responsável da inteligência artificial**. [Viçosa, MG], [2026]. Documento elaborado pela comissão instituída pelo Ato n. 076/2024/PRE, de 16 out. 2024.
+
 VANLEHN, K. The behavior of tutoring systems. **International Journal of
 Artificial Intelligence in Education**, [s. l.], v. 16, n. 3, p. 227-265, 2006.
 

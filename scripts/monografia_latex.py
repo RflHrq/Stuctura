@@ -75,6 +75,7 @@ OBRAS = [
     ("sorva2012", "2012", "Sorva", "Sorva"),
     ("sorva2013", "2013", "Sorva", "Sorva"),
     ("summit2005", "c2005", "Summit", "Summit"),
+    ("ufv2026", "[2026]", "UFV", "UFV"),
     ("sweller2019", "2019", "Sweller, Van Merriënboer e Paas",
      "Sweller; Van Merriënboer; Paas"),
     ("vanlehn2006", "2006", "VanLehn", "VanLehn"),

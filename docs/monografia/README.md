@@ -41,7 +41,7 @@ foram tirados do sistema por script, e não de memória, e
 | # | Arquivo | Estado |
 | --- | --- | --- |
 | — | [00-pre-textuais.md](00-pre-textuais.md) | capa com os dados do arquivo do autor; resumo, abstract e declaração de uso de IA, que o autor tem de confirmar frase por frase |
-| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (74 páginas em 20/11/2026) |
+| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (75 páginas em 23/11/2026) |
 | 1 | [01-introducao.md](01-introducao.md) | rascunho completo |
 | 2 | [02-fundamentacao.md](02-fundamentacao.md) | rascunho completo; referências conferidas em 18/11/2026 |
 | 3 | [03-sistema.md](03-sistema.md) | rascunho completo; faltam as figuras finais |
@@ -136,6 +136,21 @@ foram tirados do sistema por script, e não de memória, e
   citado com página em 3.5, 5.8, 6.4 e 7.1. O rascunho da revisão de
   2017 (N2176) baixa protegido por senha e não foi lido, e o texto diz
   que a citação é do rascunho de 2011, e não da norma publicada.
+- **As diretrizes de IA da UFV (23/11/2026).** O autor trouxe as
+  "Diretrizes institucionais para o uso responsável da inteligência
+  artificial" da UFV (`fontes/ufv-diretrizes-ia/`). A declaração de uso
+  de IA passou a seguir o que elas pedem: ferramenta, versão e
+  finalidade (Claude Code; Claude Opus 5, Opus 5.5 e Fable 5.2), o
+  título sugerido ("Uso de inteligência artificial generativa (IAG)
+  nesta pesquisa"), nenhuma autoria atribuída à ferramenta e a
+  responsabilidade integral do autor; o método (1.6 e 5.1) cita o uso.
+  O que continua em aberto, e é do autor: o texto sugerido pelas
+  diretrizes diz "integralmente revisado e validado pelos autores", e
+  a declaração ainda diz que o conteúdo didático não foi integralmente
+  revisado. As diretrizes também classificam como "uso restrito" a
+  escrita de textos apresentados como autoria própria (parâmetro
+  sugerido para os planos de ensino): cabe ao orientador dizer se a
+  declaração, como está, é aceita na disciplina de TCC.
 - **A revisão do conteúdo das escadas pelo autor.** As treze escadas
   estão com `revisado_por` em branco. O texto diz como o material foi
   escrito e conferido; dizer "revisado pelo autor" depende dessa leitura.

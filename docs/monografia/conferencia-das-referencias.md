@@ -424,6 +424,53 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
 - **Sustenta:** Seção 3 (3.5); Seção 5 (5.8); Seção 6 (6.4); Seção 7
   (7.1).
 
+### UFV (2026)
+
+- **Aberta em:** `fontes/ufv-diretrizes-ia/DIRETRIZES-IA.pdf` (26 p.,
+  15 760 267 bytes, sha256 c64f8af09f5af32b), arquivo fornecido pelo
+  autor em 23/11/2026. Título: "Diretrizes institucionais para o uso
+  responsável da inteligência artificial", da Universidade Federal de
+  Viçosa, elaborado pela comissão instituída pelo Ato n. 076/2024/PRE,
+  de 16/10/2024 (nota da p. 2). O documento não traz data nem local
+  impressos; cita material de março de 2026 e acessos em 20 mar. 2026,
+  e por isso a referência traz o ano entre colchetes. O autor não
+  informou o endereço de onde o arquivo veio, e a referência vai sem
+  endereço.
+- **p. 5:** as recomendações não são um conjunto rígido de regras, e sim
+  um guia.
+- **p. 6, item 1.1:** a responsabilidade final por conteúdos, decisões e
+  resultados é de quem usa a IA; supervisão e validação são
+  indispensáveis.
+- **p. 7, item 1.2:** o uso de IA deve ser sempre declarado; quando
+  influenciar conteúdos, análises ou resultados, registram-se a
+  ferramenta, a versão e a finalidade; a IA não pode ser considerada
+  autora.
+- **p. 11, itens 2.1.7 e 2.1.7.1:** o uso deve ser citado na metodologia
+  e discutido quanto à influência; orienta-se criar uma seção chamada
+  "Uso de Inteligência Artificial Generativa (IAG) nesta pesquisa";
+  quando a IA gera resumos, códigos ou rascunhos, a declaração é
+  obrigatória, e o texto sugerido diz que o conteúdo foi integralmente
+  revisado e validado pelos autores.
+- **p. 12, item 2.1.7.2:** a IA não pode ser listada como autora ou
+  coautora; os autores humanos respondem pela acurácia e pela veracidade
+  de todas as informações; é vedado o upload de manuscritos inéditos ou
+  de dados sensíveis em plataformas de IA abertas; usar IA para fabricar
+  dados ou omitir fontes é má conduta grave.
+- **p. 14, item 2.2.3.1:** parâmetros sugeridos para os planos de ensino:
+  uso estimulado (estruturar ideias, revisão gramatical), uso com cautela
+  (busca de referências, com conferência obrigatória em bases reais) e
+  uso restrito (escrita integral ou parcial de textos apresentados como
+  autoria própria).
+- **O que a conferência trouxe:** a declaração da monografia passou a
+  registrar a ferramenta e as versões (Claude Code; Claude Opus 5, Opus
+  5.5 e Fable 5.2, tiradas do histórico de versões), a levar o título
+  que as diretrizes sugerem, a dizer que não se atribui autoria à
+  ferramenta e que a responsabilidade é do autor; o método (1.6 e 5.1)
+  passou a citar o uso de IA. Fica em aberto o que o texto sugerido pede
+  e a declaração ainda não pode dizer: que o conteúdo didático foi
+  integralmente revisado e validado pelo autor.
+- **Sustenta:** declaração de uso de IA (pré-textual); Seção 1 (1.6).
+
 ## Trabalhos relacionados: o que do relatório anterior ficou de fora
 
 - **MAZUMDER (2024),** tese de doutorado na UNC Charlotte, "Investigating
