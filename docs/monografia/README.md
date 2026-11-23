@@ -131,10 +131,11 @@ foram tirados do sistema por script, e não de memória, e
   `T` 15 e `E` 4; três asserções de `mvp/test_procedencia.py`, teste
   anterior ao ramo, mudaram com a autorização dele); (11) o título
   mantém "Misconceptions"; (12) a declaração de uso de IA descreve
-  o que ele fez. Ficou em aberto a referência normativa do padrão C:
-  o rascunho N2176 (C17) do WG14 baixa protegido por senha e não foi
-  lido; as duas frases que dizem "o padrão não define" (3.5 e 6.4)
-  seguem sem citação até haver uma obra aberta.
+  o que ele fez; (13) a referência normativa do padrão C é o rascunho
+  público N1570 (revisão de 2011), aberto em `fontes/c11-n1570/` e
+  citado com página em 3.5, 5.8, 6.4 e 7.1. O rascunho da revisão de
+  2017 (N2176) baixa protegido por senha e não foi lido, e o texto diz
+  que a citação é do rascunho de 2011, e não da norma publicada.
 - **A revisão do conteúdo das escadas pelo autor.** As treze escadas
   estão com `revisado_por` em branco. O texto diz como o material foi
   escrito e conferido; dizer "revisado pelo autor" depende dessa leitura.

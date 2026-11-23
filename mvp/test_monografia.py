@@ -280,9 +280,10 @@ def _secao(texto: str, titulo: str) -> str:
 
 
 def _chaves(secao: str) -> list:
-    """'### POSNER et al. (1982)' -> ('posner', '1982')."""
+    """'### POSNER et al. (1982)' -> ('posner', '1982'). A barra entra por
+    causa do nome de entidade: '### ISO/IEC (2011)' -> ('iso/iec', '2011')."""
     return [(m.group(1).lower(), m.group(2)) for m in re.finditer(
-        r"^### ([A-Z][\w-]*)\b[^\n]*\((\d{4})\)", secao, re.M)]
+        r"^### ([A-Z][\w/-]*)\b[^\n]*\((\d{4})\)", secao, re.M)]
 
 
 def test_nenhuma_referencia_segue_marcada():
@@ -307,7 +308,7 @@ def test_cada_referencia_da_lista_foi_aberta_e_e_citada():
     assert pendentes == []
     lista = (CAPITULOS / "referencias.md").read_text(encoding="utf-8")
     entradas = [p for p in re.split(r"\n\s*\n", lista)
-                if re.match(r"[A-Z][\w-]*[,.]", p.strip())]
+                if re.match(r"[A-Z][\w/-]*[,.]", p.strip())]
     assert len(entradas) == len(conferidas) + len(pendentes)
     for nome, ano in conferidas + pendentes:
         assert any(re.match(re.escape(nome) + "[,.]", e.strip().lower())

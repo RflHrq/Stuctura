@@ -385,6 +385,45 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
   questões" e "utilizado por milhões de estudantes" não estão no artigo e
   foram retirados; ficou o número que o artigo dá (24 perguntas).
 
+### ISO/IEC (2011)
+
+- **Aberta em:** `fontes/c11-n1570/n1570.pdf` (701 p., 1 692 004 bytes,
+  sha256 208969fec021e4f4), baixado em 20/11/2026 de
+  `https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf`, com a
+  autorização do autor. A capa traz "N1570", "Committee Draft — April
+  12, 2011", "ISO/IEC 9899:201x" e o título "Programming languages —
+  C". É o rascunho público do comitê da linguagem (WG14) para a revisão
+  de 2011 do padrão. A norma publicada é paga e não foi aberta.
+- **O que não foi aberto:** o rascunho da revisão de 2017 (N2176), no
+  mesmo sítio, baixa protegido por senha; o arquivo foi apagado sem ser
+  lido. O sistema compila com `-std=c17`, e o texto diz que a citação é
+  do rascunho de 2011.
+- **p. 3, seção 3.4.1:** comportamento definido pela implementação é o
+  comportamento não especificado em que cada implementação documenta a
+  escolha feita.
+- **p. 4, seção 3.4.3:** comportamento indefinido é aquele ao qual o
+  padrão não impõe requisitos ("imposes no requirements").
+- **p. 7, seções 3.19.2 e 3.19.3:** valor indeterminado é um valor não
+  especificado ou uma representação de armadilha; valor não especificado
+  é um valor válido do tipo, sem requisito sobre qual.
+- **p. 38, seção 6.2.4, parágrafo 2:** referir-se a um objeto fora do
+  seu tempo de vida é comportamento indefinido, e o valor de um ponteiro
+  torna-se indeterminado ("becomes indeterminate") quando o objeto para
+  o qual aponta chega ao fim do tempo de vida.
+- **p. 41, seção 6.2.5, parágrafo 19:** `void` é um tipo de objeto
+  incompleto, que não pode ser completado.
+- **p. 92, seção 6.5.6, parágrafo 2:** na adição, ou os dois operandos
+  têm tipo aritmético, ou um é ponteiro para um tipo de objeto completo
+  e o outro tem tipo inteiro.
+- **O que a conferência trouxe:** as Seções 3.5 e 6.4 diziam que "o
+  padrão não define aquele valor" sem citar o padrão, e a 6.4 dizia que
+  o gcc aceita a aritmética com `void *` "por uma extensão própria",
+  afirmação sobre a documentação do gcc, que não foi aberta. O texto
+  passou a citar a página do padrão e a dizer do gcc só o que foi
+  observado (aceita a operação e avisa com `-Wpointer-arith`).
+- **Sustenta:** Seção 3 (3.5); Seção 5 (5.8); Seção 6 (6.4); Seção 7
+  (7.1).
+
 ## Trabalhos relacionados: o que do relatório anterior ficou de fora
 
 - **MAZUMDER (2024),** tese de doutorado na UNC Charlotte, "Investigating

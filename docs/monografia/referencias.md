@@ -20,6 +20,8 @@ GARDNER-MEDWIN, A. R. Confidence-based marking: towards deeper learning and
 better exams. In: BRYAN, C.; CLEGG, K. (ed.). **Innovative assessment in
 higher education**. London: Routledge, 2006. p. 141-149.
 
+ISO/IEC. **Programming languages**: C. [S. l.], 2011. Committee draft N1570, de 12 abr. 2011, da norma ISO/IEC 9899:201x. Disponível em: https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf. Acesso em: 20 nov. 2026.
+
 NUSSBAUM, E. M.; CORDOVA, J. R.; REHMAT, A. P. Refutation texts for
 effective climate change education. **Journal of Geoscience Education**,
 [s. l.], v. 65, n. 1, p. 23-34, 2017. Disponível em:
