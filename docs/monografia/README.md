@@ -154,12 +154,13 @@ foram tirados do sistema por script, e não de memória, e
 - **A revisão do conteúdo das escadas pelo autor.** As treze escadas
   estão com `revisado_por` em branco. O texto diz como o material foi
   escrito e conferido; dizer "revisado pelo autor" depende dessa leitura.
-- **Declaração de uso de IA**, se a norma da UFV pedir: o texto e boa
-  parte do código foram produzidos com assistência de um modelo de
-  linguagem, sob direção e revisão do autor.
 - **As figuras.** As capturas de tela estão em `figuras/`, tiradas do
   servidor de ensaio (porta 8013, nunca do sistema no ar), no tamanho de
-  celular. A numeração e as legendas finais seguem o modelo.
+  celular. A numeração e as legendas finais seguem o modelo. As figuras
+  3.3, 3.4a e 3.4b são de 18/11/2026, anteriores ao botão Sair, e o texto
+  descreve a versão de 19/11/2026: precisam ser refeitas.
+- **A lista de pendências** para a revisão ponto a ponto do autor está
+  em [pendencias.md](pendencias.md).
 
 ## As figuras
 
