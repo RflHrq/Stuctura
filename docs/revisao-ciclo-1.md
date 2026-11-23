@@ -1,7 +1,7 @@
 # Revisão do ciclo 1 — fase 7
 
 Artefato da fase 7. Revisão **focada**: só o que as treze tarefas da fase
-6 mudaram (`e11cc51..1b2eea8`), não o sistema inteiro. A revisão completa
+6 mudaram (`8291fe0..d9d65c9`), não o sistema inteiro. A revisão completa
 é a final, e ainda não aconteceu.
 
 **O que foi revisado:** `mvp/motor.py`, `mvp/log.py`, `mvp/app.py`,

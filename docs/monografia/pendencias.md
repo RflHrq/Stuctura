@@ -127,10 +127,10 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
         esse teste as quatro que as demonstrações usam; `-O1` e `-Wextra`
         estão na lista e nenhuma demonstração as usa;
       - 5.5 atribuía o limiar antigo à "versão 2.0 da norma".
-- [ ] Seção 6.4: commits dos defeitos relatados. Achados: `a76a9cd` (as
-      oito questões do kc_02 e a conferência do banco), `afa2aba` (a
-      resposta inválida do kc_12 e o "recusa" do kc_11), `08e30dc` (a
-      alternativa "a vira ponteiro para fileira" do kc_10) e `bf1754b`
+- [ ] Seção 6.4: commits dos defeitos relatados. Achados: `3f0c1e3` (as
+      oito questões do kc_02 e a conferência do banco), `99abee5` (a
+      resposta inválida do kc_12 e o "recusa" do kc_11), `1fb5635` (a
+      alternativa "a vira ponteiro para fileira" do kc_10) e `0729299`
       (a nota "outros compiladores reclamam"). Faltam localizar o commit
       do treino que repetia a demonstração e os dos dois defeitos de
       interface.
@@ -151,7 +151,7 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
       mudanças no catálogo. Numa rodada, um teste de `mvp/test_gerador.py`
       falhou e não repetiu a falha sozinho. Rodar com a máquina acordada.
 - [ ] Seções 5.2 e 7.1 dizem que parte do banco de questões depende de
-      "leitura". O commit `1010b5b` registra que 252 questões foram lidas
+      "leitura". O commit `2ba98f6` registra que 252 questões foram lidas
       uma a uma com assistência da ferramenta, e que cinco foram
       corrigidas. O texto não diz quem leu nem relata essas cinco:
       decidir se entra.
@@ -185,12 +185,17 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
 - [x] O repositório é público, em `https://github.com/RflHrq/Stuctura`
       (decisão do autor em 23/11/2026, para o orientador e a banca
       acessarem). Antes do envio, o histórico foi reescrito:
-      - o e-mail dos 352 commits passou a ser o endereço noreply do
+      - o e-mail de todos os commits passou a ser o endereço noreply do
         GitHub, também nos dois planos que o traziam no texto;
       - saiu o token de exportação que ficou versionado por um dia, em
         03/09/2026 (não era mais o token em uso);
       - saíram as três cópias do registro de sessões de desenvolvimento
         de 29/10/2026.
+      - numa segunda reescrita, no mesmo dia, saiu a pasta `.claude`
+        (configuração local dos servidores de ensaio e do assistente de
+        IA), que não tinha segredo e o autor preferiu não publicar. O
+        texto dos seis portões de revisão, que o README cita, foi para
+        `docs/revisao-de-material.md`.
       Todo o conteúdo de todos os commits foi varrido atrás de senhas,
       chaves de API, tokens e chaves privadas: nada. Os hashes dos
       commits mudaram; os citados nas mensagens e nos documentos foram

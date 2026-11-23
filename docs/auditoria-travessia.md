@@ -82,7 +82,7 @@ I3 do kc_02 apresenta `funcao_com_parametro` é uma verdade do
 > oportunidade identificável de aprendizagem.*
 
 **Dentro de um tópico, o princípio tem mecanismo e teste.** É o
-`PRIMEIRO_CONTATO`, criado em `d7bcec4` com este argumento: *"Perguntar
+`PRIMEIRO_CONTATO`, criado em `07bca37` com este argumento: *"Perguntar
 o que não foi apresentado não mede concepção errônea: mede quem já sabia
 de antes."* E há teste percorrendo a sessão inteira a cobrar isso.
 

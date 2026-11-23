@@ -1,6 +1,6 @@
 # Tarefas — ciclo 3
 
-**Fechado.** Três tarefas, de `6b6c8d0` em diante.
+**Fechado.** Três tarefas, de `bfd6cd3` em diante.
 
 Artefato da fase 5 do terceiro ciclo. Fecha as três decisões que a medição
 do kc_02 deixou em aberto — e as três eram de **motor**, não de conteúdo.
@@ -40,7 +40,7 @@ perguntado ou se os itens foram gastos sem atribuição.
 
 **Portões:** M, U.
 
-**Feito** (`6b6c8d0`). `razoes_de(d, a, e)` filtra por `sustentado`, com
+**Feito** (`bfd6cd3`). `razoes_de(d, a, e)` filtra por `sustentado`, com
 fallback que devolve a lista inteira quando filtrar deixaria menos de duas
 — com uma opção a camada 2 vira teatro. `NAO_MEDIDO` é estado próprio, com
 evento `no_nao_medido` e motivo. A tela de quem responde e o painel ganharam
@@ -74,7 +74,7 @@ por tentativa; o diagnóstico e o reteste não mudam; e pular fica registrado.
 
 **Portões:** U, M.
 
-**Feito** (`6b6c8d0`). Evento `confianca_pulada` com motivo — pular em
+**Feito** (`bfd6cd3`). Evento `confianca_pulada` com motivo — pular em
 silêncio faria "não perguntei" e "perguntei e não respondeu" ficarem iguais
 no log.
 
