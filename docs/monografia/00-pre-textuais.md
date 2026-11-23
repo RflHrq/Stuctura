@@ -18,9 +18,8 @@ RAFAEL HENRIQUE DOS SANTOS SIMÃO
 **STRUCTURA: UM SISTEMA ADAPTATIVO PARA DETECÇÃO E CORREÇÃO DE
 *MISCONCEPTIONS* EM PONTEIROS NA LINGUAGEM C**
 
-Monografia apresentada ao Curso de Sistemas de Informação da Universidade
-Federal de Viçosa, *Campus* Rio Paranaíba, como requisito para obtenção do
-título de bacharel em Sistemas de Informação.
+Monografia apresentada à Universidade Federal de Viçosa, como parte das
+exigências para a aprovação na disciplina Trabalho de Conclusão de Curso II
 
 Orientador: Pedro Henrique Aparecido Damaso de Melo
 

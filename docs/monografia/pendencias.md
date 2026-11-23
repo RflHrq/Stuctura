@@ -122,11 +122,9 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
       do curso, com as linhas de assinatura e a data em branco. Faltam os
       nomes dos dois membros da banca, a instituição de cada um e, depois
       da defesa, a data da aprovação.
-- [ ] O texto da folha de rosto: o modelo do curso diz "apresentada à
-      Universidade Federal de Viçosa, como parte das exigências para a
-      aprovação na disciplina Trabalho de Conclusão de Curso I"; o do
-      trabalho diz "como requisito para obtenção do título de bacharel".
-      Confirmar qual vale e o nome da disciplina.
+- [x] O texto da folha de rosto passou a ser o do modelo do curso, com a
+      disciplina desta entrega, Trabalho de Conclusão de Curso II
+      (decisão do autor em 23/11/2026).
 - [ ] A ficha catalográfica, se o curso a exigir.
 - [ ] O repositório: privado ou público, licença e o e-mail que aparece
       nos commits.
