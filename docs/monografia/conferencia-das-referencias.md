@@ -62,6 +62,14 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
   correta dentro da ideia antiga, e sai com as duas" — o que mistura duas
   das alternativas da p. 221 (assimilar e compartimentalizar). O texto
   agora diz as duas.
+- **Reconferência de 23/11/2026, a pedido do autor:** as sete citações
+  foram relidas no arquivo, página por página, e as páginas conferem
+  (212, 213, 214, 221, 224 e 225). Dois ajustes de fidelidade na p. 221:
+  a Seção 2.1 dizia que "é mais comum" assimilar ou compartimentalizar, e
+  a obra diz que a acomodação é a saída menos provável quando há outras
+  quatro, sem dizer qual delas é a mais comum; a Seção 1.1 falava da
+  "explicação correta", e a obra fala de informação nova que contradiz a
+  concepção. As duas frases passaram a dizer o que a página diz.
 - **Atenção ao termo:** "assimilação", em Posner et al., é encaixar o novo
   na concepção antiga — o contrário do que o sistema chama de "assimilou"
   no fechamento (acertar de novo, com outras premissas no meio). O

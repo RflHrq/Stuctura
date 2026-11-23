@@ -41,7 +41,7 @@ foram tirados do sistema por script, e não de memória, e
 | # | Arquivo | Estado |
 | --- | --- | --- |
 | — | [00-pre-textuais.md](00-pre-textuais.md) | capa com os dados do arquivo do autor; resumo, abstract e declaração de uso de IA, que o autor tem de confirmar frase por frase |
-| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (75 páginas em 23/11/2026) |
+| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (76 páginas em 23/11/2026) |
 | 1 | [01-introducao.md](01-introducao.md) | rascunho completo |
 | 2 | [02-fundamentacao.md](02-fundamentacao.md) | rascunho completo; referências conferidas em 18/11/2026 |
 | 3 | [03-sistema.md](03-sistema.md) | rascunho completo; faltam as figuras finais |

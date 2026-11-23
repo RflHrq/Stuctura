@@ -56,9 +56,9 @@ obra.
 ### 1.1 Contextualização e problema
 
 - [ ] **(Yamashita et al., 2017, p. 1)** · abrir `fontes/yamashita2017/yamashita2017.pdf`
-  > Ponteiros são reconhecidos como um conteúdo de difícil aprendizagem para iniciantes em programação na linguagem C (Yamashita et al., 2017, p. 1).
+  > Ponteiros são um conteúdo de difícil aprendizagem para iniciantes em programação na linguagem C (Yamashita et al., 2017, p. 1).
 - [ ] **(Posner et al., 1982, p. 221)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
-  > Uma concepção errônea desse tipo (*misconception*, na literatura em língua inglesa, termo adotado no título deste trabalho) é estável e coerente para quem a sustenta e, por isso, resiste à informação nova: a explicação correta tende a ser incorporada à concepção já existente, ou mantida em um compartimento separado, sem entrar em conflito com ela (Posner et al., 1982, p. 221).
+  > Uma concepção errônea desse tipo (*misconception*, na literatura em língua inglesa, termo adotado no título deste trabalho) é estável e coerente para quem a sustenta e, por isso, resiste à informação nova: diante de uma informação que a contradiz, é pouco provável que a pessoa reorganize o que pensa, e entre as outras possibilidades estão incorporar a informação à concepção já existente ou mantê-la em um compartimento separado, sem conflito com ela (Posner et al., 1982, p. 221).
 
 ### 1.3 Justificativa
 
@@ -81,7 +81,7 @@ obra.
 - [ ] **Posner et al. (1982, p. 212-213)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
   > Posner et al. (1982, p. 212-213) distinguem dois modos de mudança: lidar com o fenômeno novo por meio dos conceitos existentes, e substituir ou reorganizar os conceitos centrais, processo que denominam acomodação.
 - [ ] **(Posner et al., 1982, p. 221)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
-  > Diante de uma informação que contradiz o que pensa, a pessoa raramente realiza a acomodação: é mais comum que incorpore a informação à concepção que já possui, ou que a mantenha em um compartimento separado, no qual ela não entra em conflito com a anterior (Posner et al., 1982, p. 221).
+  > Diante de uma anomalia, isto é, de uma informação que contradiz o que pensa, a acomodação é o caminho mais difícil e, por isso, o menos provável, sobretudo quando há outras possibilidades: rejeitar a teoria em que a observação se apoia, desconsiderar o resultado por julgá-lo irrelevante, manter o conhecimento em compartimentos, de modo que a informação nova não entre em conflito com a crença existente, ou tentar assimilar a informação às concepções existentes (Posner et al., 1982, p. 221).
 - [ ] **(Posner et al., 1982, p. 214)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
   > Para que a acomodação ocorra, os autores propõem quatro condições: deve haver insatisfação com a concepção existente, e a nova concepção deve ser inteligível, parecer plausível desde o início e mostrar-se frutífera (Posner et al., 1982, p. 214).
 - [ ] **(Posner et al., 1982, p. 224)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
