@@ -11,7 +11,7 @@ se ela diz o que a frase diz que ela diz. O que cada obra sustenta,
 segundo a conferência anterior, está em
 [conferencia-das-referencias.md](conferencia-das-referencias.md).
 
-São 110 itens: 97 citações de 22 obras abertas e 13 menções a
+São 111 itens: 98 citações de 22 obras abertas e 13 menções a
 estudos que não foram abertos, citados por intermédio de outra
 obra.
 
@@ -30,7 +30,7 @@ obra.
 | SEI (`sei2025`) | 2 | `certc/ (regras ERR33-C, EXP34-C, MEM30-C e MEM31-C, em HTML)` |
 | Soderstrom e Bjork (`soderstrom2015`) | 2 | `soderstrom2015/soderstrom_bjork_2015.pdf` |
 | Sorva (`sorva2012`) | 31 | `sorva2012/isbn9789526046266.pdf` |
-| Sorva (`sorva2013`) | 3 | `sorva2013/2483710.2483713.pdf` |
+| Sorva (`sorva2013`) | 4 | `sorva2013/2483710.2483713.pdf` |
 | Summit (`summit2005`) | 4 | `cfaq/ (índices e perguntas do FAQ, em HTML)` |
 | UFV (`ufv2026`) | 3 | `ufv-diretrizes-ia/DIRETRIZES-IA.pdf` |
 | Sweller, Van Merriënboer e Paas (`sweller2019`) | 5 | `sweller2019/sweller2019.pdf` |
@@ -63,9 +63,9 @@ obra.
 ### 1.3 Justificativa
 
 - [ ] **Qian e Lehman (2017, p. 1)** · abrir `fontes/qian2017/3077618.pdf`
-  > A revisão de Qian e Lehman (2017, p. 1) recomenda que a pesquisa sobre as dificuldades de iniciantes em programação vá além de documentá-las e incorpore as teorias de mudança conceitual, e Sorva (2013) conclui que o modelo de execução dos programas, a chamada máquina nocional, deve constituir objetivo explícito do ensino introdutório.
-- [ ] **Sorva (2013)** · abrir `fontes/sorva2013/2483710.2483713.pdf`
-  > A revisão de Qian e Lehman (2017, p. 1) recomenda que a pesquisa sobre as dificuldades de iniciantes em programação vá além de documentá-las e incorpore as teorias de mudança conceitual, e Sorva (2013) conclui que o modelo de execução dos programas, a chamada máquina nocional, deve constituir objetivo explícito do ensino introdutório.
+  > A revisão de Qian e Lehman (2017, p. 1) recomenda que a pesquisa sobre as dificuldades de iniciantes em programação vá além de documentá-las e incorpore as teorias de mudança conceitual, e Sorva (2013, p. 1) defende que o modelo de execução dos programas, a chamada máquina nocional, seja reconhecido como objetivo explícito do ensino introdutório.
+- [ ] **Sorva (2013, p. 1)** · abrir `fontes/sorva2013/2483710.2483713.pdf`
+  > A revisão de Qian e Lehman (2017, p. 1) recomenda que a pesquisa sobre as dificuldades de iniciantes em programação vá além de documentá-las e incorpore as teorias de mudança conceitual, e Sorva (2013, p. 1) defende que o modelo de execução dos programas, a chamada máquina nocional, seja reconhecido como objetivo explícito do ensino introdutório.
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > Além disso, o catálogo de concepções errôneas de programação utilizado como fonte principal deste trabalho, o de Sorva (2012), foi produzido em contextos de ensino com Java, Python e BASIC e não registra concepções sobre construtos próprios de C, como a alocação dinâmica e a aritmética de ponteiros (Seção 4.3), o que torna necessária uma curadoria específica.
 
@@ -174,6 +174,8 @@ obra.
 
 - [ ] **Sorva (2013)** · abrir `fontes/sorva2013/2483710.2483713.pdf`
   > Sorva (2013) reúne e discute as linhas de pesquisa que explicam a dificuldade do iniciante com a dinâmica de execução dos programas: as concepções errôneas de programação, a teoria dos modelos mentais, o construtivismo, a fenomenografia e os conceitos-limiar, examinadas em relação à máquina nocional, o computador abstrato que executa programas de determinado tipo.
+- [ ] **(Sorva, 2013, p. 1)** · abrir `fontes/sorva2013/2483710.2483713.pdf`
+  > Segundo o autor, a literatura aponta a máquina nocional como um dos grandes desafios do ensino introdutório de programação, e ela deve ser reconhecida como objetivo explícito do ensino (Sorva, 2013, p. 1).
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > Trata-se de uma revisão, que não propõe um sistema; a tese de Sorva (2012), fonte principal do catálogo do Structura (Seção 4), trata do mesmo tema.
 
