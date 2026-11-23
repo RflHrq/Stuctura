@@ -41,10 +41,10 @@ foram tirados do sistema por script, e não de memória, e
 | # | Arquivo | Estado |
 | --- | --- | --- |
 | — | [00-pre-textuais.md](00-pre-textuais.md) | capa com os dados do arquivo do autor; resumo, abstract e declaração de uso de IA, que o autor tem de confirmar frase por frase |
-| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (77 páginas em 23/11/2026) |
+| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (78 páginas em 23/11/2026) |
 | 1 | [01-introducao.md](01-introducao.md) | rascunho completo |
 | 2 | [02-fundamentacao.md](02-fundamentacao.md) | rascunho completo; referências conferidas em 18/11/2026 |
-| 3 | [03-sistema.md](03-sistema.md) | rascunho completo; faltam as figuras finais |
+| 3 | [03-sistema.md](03-sistema.md) | rascunho completo; figuras refeitas em 23/11/2026 |
 | 4 | [curadoria.md](curadoria.md) | escrito antes; números presos ao catálogo por teste |
 | 5 | [05-construcao-e-verificacao.md](05-construcao-e-verificacao.md) | rascunho completo |
 | 6 | [06-resultados-da-verificacao.md](06-resultados-da-verificacao.md) | rascunho completo |
@@ -160,11 +160,18 @@ foram tirados do sistema por script, e não de memória, e
 - **A revisão do conteúdo das escadas pelo autor.** As treze escadas
   estão com `revisado_por` em branco. O texto diz como o material foi
   escrito e conferido; dizer "revisado pelo autor" depende dessa leitura.
-- **As figuras.** As capturas de tela estão em `figuras/`, tiradas do
-  servidor de ensaio (porta 8013, nunca do sistema no ar), no tamanho de
-  celular. A numeração e as legendas finais seguem o modelo. As figuras
-  3.3, 3.4a e 3.4b são de 18/11/2026, anteriores ao botão Sair, e o texto
-  descreve a versão de 19/11/2026: precisam ser refeitas.
+- **As figuras (23/11/2026).** As sete capturas foram refeitas por
+  `scripts/figuras_monografia.py`, do servidor de ensaio (porta 8013,
+  nunca do sistema no ar), no tamanho de celular. As anteriores
+  mostravam só o que cabia na janela, com o fim da tela cortado, e três
+  eram de antes do botão Sair. Agora cada captura vai do topo ao fim da
+  tela. O fechamento e a página inicial são compridos e vão em três
+  colunas, numa imagem larga, que o conversor põe na largura do texto
+  (as de celular seguem em meia largura). O fechamento é de uma sessão
+  de ensaio com uma premissa de cada jeito, para mostrar os blocos; o
+  bloco "Ficou em aberto" não aparece nela, e nenhum dos dez perfis
+  simulados chega a ele em tópico nenhum: o texto passou a dizer "até
+  quatro blocos", cada um exibido só quando tem o que listar.
 - **A página nas citações (23/11/2026).** Por decisão do autor, o PDF
   traz a página só nas citações diretas (as sete da Seção 4 que vêm
   depois de um trecho entre aspas); a NBR 10520 só a exige nesse caso.
@@ -184,13 +191,17 @@ foram tirados do sistema por script, e não de memória, e
 
 | Figura | Arquivo | O que mostra |
 | --- | --- | --- |
-| 3.1 | `figuras/fig-3-1-pergunta.jpg` | a pergunta de diagnóstico, com a resposta confirmada e as razões (kc_07, tema claro; 19/11) |
-| 3.2 | `figuras/fig-3-2-passo.jpg` | um passo guiado da escada, com a concepção errônea entre as alternativas e a certeza (kc_07 B2, com a frase da leitura das perguntas; 19/11) |
-| 3.3 | `figuras/fig-3-3-fechamento.jpg` | o fechamento: as ideias erradas encontradas e a situação de cada uma (18/11) |
-| 3.4a | `figuras/fig-3-4a-voce-disse.jpg` | "Você disse": a concepção da pessoa e a previsão pedida (18/11, antes do botão Sair) |
-| 3.4b | `figuras/fig-3-4b-maquina.jpg` | "A máquina respondeu": o que o compilador disse, a previsão, e a ideia que fica de pé (18/11, antes do botão Sair) |
-| 3.5 | `figuras/fig-3-5-cena.jpg` | a cena da revisão do kc_06 B1, dentro da bancada de `zera`: a cópia `n` vira 0, e `idade` continua 15 (19/11) |
-| 3.6 | `figuras/fig-3-6-inicio-escuro.jpg` | a página inicial no tema escuro: o próximo sugerido e o caminho dos 13 tópicos, com um feito e um em andamento (19/11) |
+| 3.1 | `figuras/fig-3-1-pergunta.jpg` | a pergunta de diagnóstico, com a resposta confirmada e as razões (kc_07, tema claro) |
+| 3.2 | `figuras/fig-3-2-passo.jpg` | um passo guiado da escada, com a concepção errônea entre as alternativas e a certeza (kc_07 B2, passo 1) |
+| 3.3 | `figuras/fig-3-3-fechamento.jpg` | o fechamento inteiro de uma sessão de ensaio do kc_07, em três colunas: ideias erradas, lacunas, o que já estava firme, e a lista ideia por ideia |
+| 3.4a | `figuras/fig-3-4a-voce-disse.jpg` | "Você disse": a concepção da pessoa e a previsão pedida (kc_07 I1) |
+| 3.4b | `figuras/fig-3-4b-maquina.jpg` | "A máquina respondeu": o que o compilador disse, a previsão, e a ideia que fica de pé (kc_07 I1) |
+| 3.5 | `figuras/fig-3-5-cena.jpg` | a revisão do kc_06 B1 inteira, com a cena dentro da bancada de `zera`: a cópia `n` vira 0, e `idade` continua 15 |
+| 3.6 | `figuras/fig-3-6-inicio-escuro.jpg` | a página inicial inteira no tema escuro, em três colunas: o próximo sugerido, o caminho dos 13 tópicos (um feito e um em andamento) e a lista dos tópicos |
+
+Todas são de 23/11/2026. Para refazer: ligar o servidor de ensaio e
+rodar `python scripts/figuras_monografia.py` (ou só algumas, como em
+`python scripts/figuras_monografia.py 3.3 3.6`).
 
 As figuras são numeradas na ordem em que aparecem na Seção 3, como a
 ABNT pede, e cada uma está no texto, logo depois do parágrafo que a cita.

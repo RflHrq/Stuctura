@@ -132,8 +132,15 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
       interface.
 - [ ] Seções 5.5 e 5.6: a conferência no navegador "tela a tela" não
       tem registro além do histórico; a pasta de ensaios existe.
-- [ ] Figuras 3.3, 3.4a e 3.4b: capturas de 18/11/2026, anteriores ao
-      botão Sair. O texto descreve a versão de 19/11/2026. Refazer.
+- [x] Figuras da Seção 3, refeitas em 23/11/2026 por
+      `scripts/figuras_monografia.py`. As sete capturas mostravam só o
+      que cabia na janela (o fim da tela ficava cortado), e as 3.3, 3.4a
+      e 3.4b eram de antes do botão Sair. Agora cada uma vai do topo ao
+      fim da tela; o fechamento (3.3) e a página inicial (3.6) vão em
+      três colunas. O texto dizia que o fechamento tem quatro blocos; o
+      quarto ("Ficou em aberto") só aparece quando há o que listar, e
+      nenhum dos dez perfis simulados chega a ele: passou a dizer "até
+      quatro blocos".
 - [ ] "Versão de 19/11/2026" (Seções 3 e 6.1): o catálogo mudou em
       23/11/2026. Fixar a data e o commit no fechamento.
 - [ ] A suíte inteira (7 555 testes) não teve rodada completa depois das
@@ -144,13 +151,6 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
       uma a uma com assistência da ferramenta, e que cinco foram
       corrigidas. O texto não diz quem leu nem relata essas cinco:
       decidir se entra.
-- [ ] Figuras 3.3, 3.4a e 3.4b: capturas de 18/11/2026, anteriores ao
-      botão Sair. O texto descreve a versão de 19/11/2026. Refazer.
-- [ ] "Versão de 19/11/2026" (Seções 3 e 6.1): o catálogo mudou em
-      23/11/2026. Fixar a data e o commit no fechamento.
-- [ ] A suíte inteira (7 555 testes) não teve rodada completa depois das
-      mudanças no catálogo. Numa rodada, um teste de `mvp/test_gerador.py`
-      falhou e não repetiu a falha sozinho. Rodar com a máquina acordada.
 
 ## 6. Decisões e dados que só o autor tem
 

@@ -444,8 +444,32 @@ def _quadro_longo(cab, corpo, titulo, num, fonte, tx: Texto) -> str:
     return "\n".join(s)
 
 
+def tamanho_jpeg(caminho) -> tuple[int, int]:
+    """A largura e a altura de um JPEG, lidas do cabeçalho do arquivo."""
+    dados = pathlib.Path(caminho).read_bytes()
+    k = 2
+    while k + 9 < len(dados):
+        if dados[k] != 0xFF:
+            raise Erro("JPEG fora do padrão: %s" % caminho)
+        marca = dados[k + 1]
+        tamanho = int.from_bytes(dados[k + 2:k + 4], "big")
+        # Os quadros SOF0 a SOF15 trazem as medidas; C4, C8 e CC são
+        # outras tabelas com o mesmo começo de código.
+        if 0xC0 <= marca <= 0xCF and marca not in (0xC4, 0xC8, 0xCC):
+            altura = int.from_bytes(dados[k + 5:k + 7], "big")
+            largura = int.from_bytes(dados[k + 7:k + 9], "big")
+            return largura, altura
+        k += 2 + tamanho
+    raise Erro("JPEG sem as medidas: %s" % caminho)
+
+
 def _figura(imagens, tx: Texto) -> str:
-    """Uma imagem, ou um par 'a'/'b' que vira uma figura só."""
+    """Uma imagem, ou um par 'a'/'b' que vira uma figura só.
+
+    A captura de celular ocupa meia largura do texto. A tela comprida vem
+    em colunas, numa imagem larga, e ocupa a largura inteira: na meia
+    largura, cada coluna ficaria pequena demais para ler.
+    """
     def partes(alt):
         m = re.fullmatch(r"Figura (\d+\.\d+)([ab]?) — (.+)", alt)
         if not m:
@@ -455,8 +479,11 @@ def _figura(imagens, tx: Texto) -> str:
     if len(imagens) == 1:
         _, letra, leg = partes(imagens[0][0])
         arq = pathlib.PurePosixPath(imagens[0][1]).name
-        corpo = ("\\includegraphics[width=.5\\textwidth,height=.55\\textheight,"
-                 "keepaspectratio]{%s}" % arq)
+        largura, altura = tamanho_jpeg(FONTE / imagens[0][1])
+        medidas = ("width=\\textwidth,height=.72\\textheight"
+                   if largura > 0.7 * altura
+                   else "width=.5\\textwidth,height=.55\\textheight")
+        corpo = "\\includegraphics[%s,keepaspectratio]{%s}" % (medidas, arq)
         legenda = tx.converte(leg)
     else:
         corpo, legendas = [], []

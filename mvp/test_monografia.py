@@ -375,6 +375,28 @@ def test_as_figuras_do_latex_existem_em_ordem():
         assert (CAPITULOS / "figuras" / arq).exists(), arq
 
 
+def test_a_figura_em_colunas_ocupa_a_largura_do_texto():
+    """A tela comprida (o fechamento, a página inicial) é capturada inteira
+    e vai em colunas, numa imagem larga. Na meia largura das capturas de
+    celular cada coluna ficaria com um terço do tamanho, e não se leria:
+    a imagem larga ocupa a largura do texto, e a de celular segue como
+    estava."""
+    import monografia_latex
+    cap3 = (LATEX / "gerado" / "03-sistema.tex").read_text(encoding="utf-8")
+    opcoes = {arq: op for op, arq in re.findall(
+        r"\\includegraphics\[([^\]]*)\]\{([^}]+)\}", cap3)}
+    largas = set()
+    for arq in opcoes:
+        largura, altura = monografia_latex.tamanho_jpeg(
+            CAPITULOS / "figuras" / arq)
+        if largura > 0.7 * altura:
+            largas.add(arq)
+    assert largas == {"fig-3-3-fechamento.jpg", "fig-3-6-inicio-escuro.jpg"}
+    for arq in largas:
+        assert opcoes[arq].startswith("width=\\textwidth,"), arq
+    assert opcoes["fig-3-1-pergunta.jpg"].startswith("width=.5\\textwidth,")
+
+
 def test_o_apendice_b_traz_cada_concepcao_do_catalogo_uma_vez():
     """O Apêndice B sai do catálogo por scripts/gera_curadoria.py: cada
     concepção aparece uma vez, com o grau que o catálogo lhe dá. Se o
