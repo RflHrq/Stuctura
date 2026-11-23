@@ -117,6 +117,18 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
   referência. A concepção `pointer_is_data` é a do item 65: o catálogo do
   kc_02 já dizia isso; os do kc_04, kc_08 e kc_12 ainda citavam o 14, e
   foram corrigidos, com a seção 3 dos achados do Capítulo 4.
+- **Reconferência de 23/11/2026, a pedido do autor (Seções 1.3 e 4.3.3):**
+  o texto dizia que o catálogo "foi produzido em contextos de ensino com
+  Java, Python e BASIC" e que nessas linguagens os construtos de C "não
+  existem". A obra não diz isso. A Tabela A.1 nomeia Java em 11 itens e
+  não nomeia Python nem BASIC; a revisão dos estudos em que o apêndice
+  se baseia (seção 3.4, p. 28-30) nomeia BASIC e Java, e Python não
+  aparece. O que a obra diz, na p. 358: a lista vem da literatura, trata
+  do conteúdo comumente abordado em disciplinas introdutórias e deixa de
+  fora o que é muito específico de uma linguagem ou de uma ferramenta. O
+  texto passou a dizer isso, com as páginas.
+- **Como achar a página no arquivo:** a página impressa N está na página
+  N + 8 do PDF (a Tabela A.1 começa na p. 359, página 367 do PDF).
 
 ### GARDNER-MEDWIN (2006)
 

@@ -11,7 +11,7 @@ se ela diz o que a frase diz que ela diz. O que cada obra sustenta,
 segundo a conferência anterior, está em
 [conferencia-das-referencias.md](conferencia-das-referencias.md).
 
-São 111 itens: 98 citações de 22 obras abertas e 13 menções a
+São 113 itens: 100 citações de 22 obras abertas e 13 menções a
 estudos que não foram abertos, citados por intermédio de outra
 obra.
 
@@ -29,7 +29,7 @@ obra.
 | Schmellenkamp, Latys e Zeume (`schmellenkamp2023`) | 5 | `schmellenkamp2023/3545945.3569806.pdf` |
 | SEI (`sei2025`) | 2 | `certc/ (regras ERR33-C, EXP34-C, MEM30-C e MEM31-C, em HTML)` |
 | Soderstrom e Bjork (`soderstrom2015`) | 2 | `soderstrom2015/soderstrom_bjork_2015.pdf` |
-| Sorva (`sorva2012`) | 31 | `sorva2012/isbn9789526046266.pdf` |
+| Sorva (`sorva2012`) | 33 | `sorva2012/isbn9789526046266.pdf` |
 | Sorva (`sorva2013`) | 4 | `sorva2013/2483710.2483713.pdf` |
 | Summit (`summit2005`) | 4 | `cfaq/ (índices e perguntas do FAQ, em HTML)` |
 | UFV (`ufv2026`) | 3 | `ufv-diretrizes-ia/DIRETRIZES-IA.pdf` |
@@ -67,7 +67,9 @@ obra.
 - [ ] **Sorva (2013, p. 1)** · abrir `fontes/sorva2013/2483710.2483713.pdf`
   > A revisão de Qian e Lehman (2017, p. 1) recomenda que a pesquisa sobre as dificuldades de iniciantes em programação vá além de documentá-las e incorpore as teorias de mudança conceitual, e Sorva (2013, p. 1) defende que o modelo de execução dos programas, a chamada máquina nocional, seja reconhecido como objetivo explícito do ensino introdutório.
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
-  > Além disso, o catálogo de concepções errôneas de programação utilizado como fonte principal deste trabalho, o de Sorva (2012), foi produzido em contextos de ensino com Java, Python e BASIC e não registra concepções sobre construtos próprios de C, como a alocação dinâmica e a aritmética de ponteiros (Seção 4.3), o que torna necessária uma curadoria específica.
+  > Além disso, o catálogo de concepções errôneas de programação utilizado como fonte principal deste trabalho, o de Sorva (2012), reúne achados da literatura de programação introdutória, deixa de fora as questões muito específicas de uma linguagem (Sorva, 2012, p. 358) e não registra concepções sobre construtos próprios de C, como a alocação dinâmica e a aritmética de ponteiros (Seção 4.3), o que torna necessária uma curadoria específica.
+- [ ] **(Sorva, 2012, p. 358)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
+  > Além disso, o catálogo de concepções errôneas de programação utilizado como fonte principal deste trabalho, o de Sorva (2012), reúne achados da literatura de programação introdutória, deixa de fora as questões muito específicas de uma linguagem (Sorva, 2012, p. 358) e não registra concepções sobre construtos próprios de C, como a alocação dinâmica e a aritmética de ponteiros (Seção 4.3), o que torna necessária uma curadoria específica.
 
 ### 1.6 Procedimentos metodológicos
 
@@ -255,8 +257,10 @@ obra.
   > | `lifetime` | 1: o item 5, "Difficulties understanding the lifetime of values" (Sorva, 2012, p. 359) |
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > *Fonte: elaborado pelo autor, por busca no texto de Sorva (2012).*
-- [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
-  > Essa ausência não decorre de descuido da obra: o catálogo de Sorva (2012) refere-se à programação introdutória em Java, Python e BASIC, linguagens em que esses construtos não existem.
+- [ ] **(Sorva, 2012, p. 358)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
+  > O catálogo reúne concepções sobre o conteúdo comumente abordado em disciplinas introdutórias de programação e deixa de fora, por decisão declarada, as questões muito específicas de uma linguagem ou de uma ferramenta (Sorva, 2012, p. 358).
+- [ ] **(Sorva, 2012, p. 29-30)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
+  > Na revisão dos estudos em que o catálogo se baseia, os que nomeiam a linguagem tratam de BASIC e de Java (Sorva, 2012, p. 29-30).
 
 ### 4.4 Procedimento de conferência
 

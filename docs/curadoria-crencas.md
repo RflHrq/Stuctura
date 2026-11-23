@@ -150,10 +150,14 @@ dependia da lista de palavras-chave de quem contou, e uma lista
 razoável devolve 21. O que sustenta o argumento são os ZEROS, que não
 dependem de lista.
 
-A razão é que aquele catálogo é de programação introdutória em **Java,
-Python e BASIC**, onde esses construtos não existem. A literatura de
-concepções errôneas **não pode** documentar confusões sobre o que
-distingue C.
+A razão está no recorte que a própria obra declara (p. 358): a lista
+trata do conteúdo comum das disciplinas introdutórias e **deixa de fora o
+que é muito específico de uma linguagem**. Na revisão dos estudos em que
+ela se baseia (p. 29-30), os que nomeiam a linguagem são de BASIC e de
+Java. Com esse recorte, o catálogo não documenta confusões sobre o que
+distingue C. (Até 23/11/2026 este parágrafo dizia "Java, Python e BASIC,
+onde esses construtos não existem"; a obra não diz isso, e Python não
+aparece nem na tabela nem na revisão.)
 
 Então a conclusão não é que as 35 crenças sejam fracas. É que **um
 catálogo de concepções errôneas para C exige uma segunda classe de
