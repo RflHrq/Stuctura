@@ -41,7 +41,7 @@ foram tirados do sistema por script, e não de memória, e
 | # | Arquivo | Estado |
 | --- | --- | --- |
 | — | [00-pre-textuais.md](00-pre-textuais.md) | capa com os dados do arquivo do autor; resumo, abstract e declaração de uso de IA, que o autor tem de confirmar frase por frase |
-| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (76 páginas em 23/11/2026) |
+| — | `latex/TCC_STRUCTURA.tex` | o PDF no modelo da UFV, gerado dos `.md` (77 páginas em 23/11/2026) |
 | 1 | [01-introducao.md](01-introducao.md) | rascunho completo |
 | 2 | [02-fundamentacao.md](02-fundamentacao.md) | rascunho completo; referências conferidas em 18/11/2026 |
 | 3 | [03-sistema.md](03-sistema.md) | rascunho completo; faltam as figuras finais |
@@ -57,9 +57,15 @@ foram tirados do sistema por script, e não de memória, e
 
 ## O que falta, e de quem é
 
-- **O que o modelo da UFV ainda pede e não está no PDF:** a folha de
-  aprovação (comentada em `TCC_STRUCTURA.tex` até a banca ser definida) e
-  a ficha catalográfica, se o curso a exigir (é feita pela biblioteca).
+- **O modelo do curso.** Em 23/11/2026 o autor trouxe o modelo de TCC do
+  curso (UFV-modelo-TCC, de R. Smarzaro, versão de agosto de 2021). O
+  `abntex2-UFV.sty` do projeto é idêntico ao do modelo, e a ordem dos
+  elementos pré-textuais é a mesma. A folha de aprovação, que estava
+  comentada, voltou ao PDF, com os nomes da banca e a data em branco
+  até serem definidos. Onde o modelo de 2021 e o manual de normalização
+  de 2026 divergem (forma das citações e das referências,
+  palavras-chave), o texto segue o manual de 2026. Falta a ficha
+  catalográfica, se o curso a exigir (é feita pela biblioteca).
 - **As referências.** Nenhuma referência entra sem ter sido aberta na
   obra: é a regra do projeto (`docs/linguagem.md`: "fonte que você só
   consegue parafrasear de memória não é fonte"). A conferência de

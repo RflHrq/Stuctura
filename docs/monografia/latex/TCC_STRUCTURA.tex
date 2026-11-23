@@ -122,11 +122,15 @@ brazil
 \instituicao{Universidade Federal de Viçosa}
 \campus{\emph{Campus} Rio Paranaíba}
 \curso{Sistemas de Informação}
-% Folha de aprovação: descomentar \imprimirfolhadeaprovacao abaixo
-% quando a banca for definida.
-\membrobancaA{}
-\membrobancaB{}
-\databanca{\today}
+% Folha de aprovação, como no modelo do curso (abntex2-UFV.sty). Os nomes
+% dos membros da banca, a instituição de cada um e a data da aprovação
+% entram quando forem definidos:
+%   \membrobancaA[UFV-CRP]{Nome do membro}
+%   \databanca{10 de dezembro de 2026}
+% Até lá, a folha sai com as linhas de assinatura e a data em branco.
+\membrobancaA[]{Membro da banca}
+\membrobancaB[]{Membro da banca}
+\databanca{\underline{\hspace{5cm}}}
 \preambulo{Monografia apresentada ao Curso de Sistemas de Informação da
 	Universidade Federal de Viçosa, \emph{Campus} Rio Paranaíba, como
 	requisito para obtenção do título de bacharel em Sistemas de
@@ -153,7 +157,11 @@ brazil
 
 	\imprimircapa
 	\imprimirfolhaderosto
-	% \imprimirfolhadeaprovacao
+
+	% A linha em branco acima é necessária: no abnTeX2, \imprimirfolhaderosto
+	% toma o que vem logo depois como argumento, e sem ela a folha de
+	% aprovação sairia antes da folha de rosto.
+	\imprimirfolhadeaprovacao
 
 	\begin{dedicatoria}
 		\vspace*{\fill}

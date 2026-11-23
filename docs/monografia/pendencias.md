@@ -118,7 +118,16 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
 - [ ] O que "kc" significa nos códigos dos tópicos (kc_00 a kc_12).
 - [ ] A ordem das seções: o sistema (Seção 3) vem antes do método
       (Seção 5).
-- [ ] A folha de aprovação (banca) e a ficha catalográfica.
+- [ ] A folha de aprovação está no PDF desde 23/11/2026, como no modelo
+      do curso, com as linhas de assinatura e a data em branco. Faltam os
+      nomes dos dois membros da banca, a instituição de cada um e, depois
+      da defesa, a data da aprovação.
+- [ ] O texto da folha de rosto: o modelo do curso diz "apresentada à
+      Universidade Federal de Viçosa, como parte das exigências para a
+      aprovação na disciplina Trabalho de Conclusão de Curso I"; o do
+      trabalho diz "como requisito para obtenção do título de bacharel".
+      Confirmar qual vale e o nome da disciplina.
+- [ ] A ficha catalográfica, se o curso a exigir.
 - [ ] O repositório: privado ou público, licença e o e-mail que aparece
       nos commits.
 - [ ] O documento on-line criado antes neste projeto guarda uma versão
