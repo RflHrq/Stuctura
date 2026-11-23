@@ -37,10 +37,17 @@
     que foi lido é o item do Sorva que os atribui.
 
     E a REFUTAÇÃO, que é outra coisa e estava ocupando o campo da fonte:
-    Kernighan & Ritchie, The C Programming Language, 2a ed., seção 2.4,
-    contradiz a crença — mas isso é a obra técnica que diz que a crença é
-    FALSA, não a fonte que registra que alguém a tem. Os dois papéis
-    ficam separados aqui.
+    o padrão da linguagem diz que o valor de um objeto de duração
+    automática não inicializado explicitamente é indeterminado (ISO/IEC
+    9899:201x, rascunho N1570, seção 6.7.9, parágrafo 10, p. 140, aberto
+    em 20/11/2026) — mas isso é a norma que diz que a crença é FALSA, não
+    a fonte que registra que alguém a tem. Os dois papéis ficam separados
+    aqui.
+
+    A refutação registrada antes era um livro-texto da linguagem
+    (Kernighan & Ritchie, 2a ed., seção 2.4), que NÃO FOI ABERTO na
+    conferência das referências; saiu em 23/11/2026, porque obra não
+    aberta não sustenta nada neste catálogo.
 
 - id: variable_remembers
   negates: kc_00:B4

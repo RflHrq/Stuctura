@@ -415,14 +415,18 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
 - **p. 92, seção 6.5.6, parágrafo 2:** na adição, ou os dois operandos
   têm tipo aritmético, ou um é ponteiro para um tipo de objeto completo
   e o outro tem tipo inteiro.
+- **p. 140, seção 6.7.9, parágrafo 10:** o valor de um objeto de duração
+  automática não inicializado explicitamente é indeterminado. É a
+  refutação da concepção `declaration_zeroes` (Seção 4.6.4), no lugar de
+  Kernighan e Ritchie (1988), que não foi aberto.
 - **O que a conferência trouxe:** as Seções 3.5 e 6.4 diziam que "o
   padrão não define aquele valor" sem citar o padrão, e a 6.4 dizia que
   o gcc aceita a aritmética com `void *` "por uma extensão própria",
   afirmação sobre a documentação do gcc, que não foi aberta. O texto
   passou a citar a página do padrão e a dizer do gcc só o que foi
   observado (aceita a operação e avisa com `-Wpointer-arith`).
-- **Sustenta:** Seção 3 (3.5); Seção 5 (5.8); Seção 6 (6.4); Seção 7
-  (7.1).
+- **Sustenta:** Seção 3 (3.5); Seção 4 (4.6.4); Seção 5 (5.8); Seção 6
+  (6.4); Seção 7 (7.1).
 
 ### UFV (2026)
 
@@ -571,9 +575,13 @@ conferidos como os outros (ver as entradas de cada obra).
   et al. (1982) conferem com a bibliografia do Sorva e, onde há registro,
   com a Crossref e a Open Library. Os artigos em si continuam não abertos
   (acervos pagos), como o capítulo declara: a citação é `apud` Sorva.
-- **Kernighan e Ritchie (1988)** é livro e não foi baixado; a frase que o
-  cita (K&R diz que a variável declarada não é zerada) fica com a leitura
-  original.
+- **Kernighan e Ritchie (1988)** é livro e não foi baixado nem aberto.
+  Ficou na lista de referências até 23/11/2026, contra a regra do projeto
+  e contra o que a declaração de uso de IA afirmava (que toda obra da
+  lista foi consultada). Saiu da lista, do texto (Seção 4.6.4) e do campo
+  de fonte de `declaration_zeroes`; a refutação passou a ser o padrão da
+  linguagem (ISO/IEC, 2011, p. 140), que foi aberto. Se o autor abrir o
+  livro e conferir a seção 2.4, a obra pode voltar.
 - **CERT C e CWE, abertos em 19/11/2026 para entrar nas referências.** A
   CWE, no site oficial (versão 5.0, de 28/10/2026), em `fontes/cwe/`: os
   títulos de CWE-476 ("NULL Pointer Dereference"), CWE-252 ("Unchecked

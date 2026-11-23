@@ -62,7 +62,6 @@ OBRAS = [
     ("gardnermedwin2006", "2006", "Gardner-Medwin", "Gardner-Medwin"),
     ("hermans2018", "2018", "Hermans et al.", "Hermans et al."),
     ("isoiec2011", "2011", "ISO/IEC", "ISO/IEC"),
-    ("kernighan1988", "1988", "Kernighan e Ritchie", "Kernighan; Ritchie"),
     ("mitre2026", "2026", "MITRE", "MITRE"),
     ("nussbaum2017", "2017", "Nussbaum, Cordova e Rehmat",
      "Nussbaum; Cordova; Rehmat"),

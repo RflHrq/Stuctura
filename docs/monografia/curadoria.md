@@ -178,7 +178,7 @@ A regra aplicada é a seguinte: se a fonte não pode ser verificada, procura-se 
 
 - Atribuição incorreta. A citação de `declaration_allocates` atribuía a concepção a Kaczmarczyk et al. (2010), com página e código de tabela que somente poderiam ser conferidos com a consulta ao artigo. O item que registra essa concepção, o de número 92, atribui-a a Ma (2007 apud Sorva, 2012, p. 364), e é essa a atribuição citada no catálogo. Como a concepção pertence a um dos tópicos selecionados para a coleta de dados, a atribuição tem consequência prática.
 - Concepção sem item na obra. Para `memory_is_uniform`, a citação indicava página e tabela de um artigo sem cópia de acesso aberto. Na busca item por item no Apêndice A, não se encontrou item sobre a memória como região única, sem regras distintas de tempo de vida; o mais próximo, o item 5 (Sorva, 2012, p. 359), refere-se à *dificuldade* com o tempo de vida, que é outro fenômeno. No catálogo, a concepção é uma hipótese declarada, de grau `E`.
-- Refutação no lugar da fonte. Para `declaration_zeroes`, a fonte citada era Kernighan e Ritchie (1988), obra que afirma ser falsa a concepção; trata-se, portanto, da refutação, e não do registro de que alguém a sustenta. O catálogo distingue os dois papéis: a fonte é o item 10 (Sorva, 2012, p. 359), e a obra de Kernighan e Ritchie (1988) é registrada como refutação.
+- Refutação no lugar da fonte. Para `declaration_zeroes`, o campo de fonte trazia a citação de um livro-texto da linguagem C, apresentado no próprio campo como a obra que contradiz a concepção; tratava-se, portanto, da refutação, e não do registro de que alguém a sustenta. O catálogo distingue os dois papéis: a fonte é o item 10 (Sorva, 2012, p. 359), e a refutação registrada é o padrão da linguagem, segundo o qual o valor de um objeto de duração automática não inicializado explicitamente é indeterminado (ISO/IEC, 2011, p. 140).
 - Código interno de artigo não consultado. A citação de `no_value_no_memory` continha o código "(PVR2)", pelo qual Kaczmarczyk et al. (2010) identificam o achado e que somente pode ser verificado com a consulta ao artigo. O catálogo cita o item 22 (Sorva, 2012, p. 360).
 - Aproximação declarada que indicou o item correto. É o caso de `assignment_symmetric`, descrito na Seção 4.6.1 por constituir também um resultado de método.
 
@@ -251,9 +251,12 @@ handle 123456789/3534.
 
 ★ SUMMIT, S. **comp.lang.c frequently asked questions.** [S. l.], c2005. Versão em hipertexto da lista de perguntas frequentes do grupo comp.lang.c, mais curta que o livro *C programming FAQs*, do mesmo autor (Addison-Wesley, ISBN 0-201-84519-9). Disponível em: `https://c-faq.com/`. Acesso em: 19 nov. 2026.
 
-★ KERNIGHAN, B. W.; RITCHIE, D. M. **The C Programming Language.** 2. ed.
-Englewood Cliffs: Prentice Hall, 1988. *(citada como refutação, não como
-fonte de concepção)*
+★ ISO/IEC. **Programming languages**: C. [S. l.], 2011. Committee draft N1570. *(citada como refutação da concepção `declaration_zeroes`, p. 140, e não como fonte de concepção)*
+
+KERNIGHAN, B. W.; RITCHIE, D. M. **The C Programming Language.** 2. ed.
+Englewood Cliffs: Prentice Hall, 1988. *(era a refutação registrada no
+catálogo; não foi aberta na conferência das referências, e por isso saiu
+do texto e da lista de referências em 23/11/2026)*
 
 DOUKAKIS, D.; GRIGORIADOU, M.; TSAGANOU, G. Understanding the Programming
 Variable Concept with Animated Interactive Analogies. In: **Proceedings of
