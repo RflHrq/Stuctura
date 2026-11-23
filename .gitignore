@@ -33,3 +33,7 @@ coleta/
 # O que vai para o orientador e para a coordenacao: o PDF da monografia
 # e os formularios preenchidos, com nome e matricula. Nao e fonte.
 entrega/
+
+# Configuracao local do assistente de IA e dos servidores de ensaio.
+# Fica no computador de quem desenvolve, e nao no repositorio.
+.claude/

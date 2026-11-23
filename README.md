@@ -135,7 +135,7 @@ de passar calada**, e eles são parte da contribuição:
 - `mvp/dominio/conceitos.yaml` — um conceito só entra como `disponivel`
   com a **evidência de onde foi ensinado**, e a regra é estreita:
   explicação com exemplo. Menção não conta.
-- `.claude/skills/revisar-material/` — seis portões de julgamento para
+- `docs/revisao-de-material.md` — seis portões de julgamento para
   material novo, cada um com o defeito real que o motivou.
 - `mvp/test_yaml_duplicado.py` — recusa chave repetida em todo YAML de
   domínio, porque `yaml.safe_load` fica com a última em silêncio.
