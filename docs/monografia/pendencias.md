@@ -6,8 +6,10 @@ de trabalho, que não vai para o PDF.
 
 ## 1. Antes do aceite: perguntar ao orientador
 
-- [ ] Ele aceita o escopo sem avaliação com estudantes (Seções 1.5 e 7.1)?
-- [ ] Ele aceita a declaração de uso de IA (página 5 do PDF)? As
+O autor informou em 23/11/2026 que as duas respostas são sim.
+
+- [x] Ele aceita o escopo sem avaliação com estudantes (Seções 1.5 e 7.1)?
+- [x] Ele aceita a declaração de uso de IA (página 5 do PDF)? As
       diretrizes de IA da UFV classificam como uso restrito a escrita de
       textos apresentados como autoria própria (página 14 das
       diretrizes), e a declaração diz que o texto foi redigido com a
@@ -33,7 +35,13 @@ foi aberta e o que sustenta, com página) e o arquivo em `fontes/` (fora
 do git).
 
 - [ ] Conferir, obra por obra, cada frase do texto que a cita contra o
-      arquivo aberto.
+      arquivo aberto. O [roteiro-de-conferencia.md](roteiro-de-conferencia.md)
+      traz as 110 citações na ordem de leitura, cada uma com a página, o
+      arquivo a abrir e a frase.
+- [ ] Kernighan e Ritchie (1988) saiu da lista em 23/11/2026, porque o
+      livro não foi aberto; a refutação passou a citar o padrão da
+      linguagem (ISO/IEC, 2011, p. 140). Se o autor quiser a obra de
+      volta, é preciso abrir o livro e conferir a seção 2.4.
 - [ ] UFV ([2026]), as diretrizes de IA: falta o endereço de onde o
       arquivo foi baixado.
 - [ ] ISO/IEC (2011): é o rascunho de 2011 do padrão C. Se o autor
@@ -72,7 +80,15 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
 - [ ] Seções 5.5 e 5.6: a conferência no navegador "tela a tela" e as
       sessões de ensaio. Localizar a evidência de cada uma.
 - [ ] Seção 6.4: cada defeito relatado deve ter o commit que o corrigiu.
-      Montar a lista.
+      Achados até agora: `579e89c` (as oito questões do kc_02 com o código
+      dividido, e a conferência do banco), `9e766dc` (a resposta inválida
+      do kc_12 e a afirmação "recusa" do kc_11) e `2a549a2` (sair da
+      sessão). Faltam os commits dos demais.
+- [ ] Seções 5.2 e 7.1 dizem que parte do banco de questões depende de
+      "leitura". O commit `857c5f4` registra que 252 questões foram lidas
+      uma a uma com assistência da ferramenta, e que cinco foram
+      corrigidas. O texto não diz quem leu nem relata essas cinco:
+      decidir se entra.
 - [ ] Figuras 3.3, 3.4a e 3.4b: capturas de 18/11/2026, anteriores ao
       botão Sair. O texto descreve a versão de 19/11/2026. Refazer.
 - [ ] "Versão de 19/11/2026" (Seções 3 e 6.1): o catálogo mudou em
