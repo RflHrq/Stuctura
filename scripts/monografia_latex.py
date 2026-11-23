@@ -114,6 +114,37 @@ def _direta(m) -> bool:
     return m.string[:m.start()].rstrip().endswith('"')
 
 
+def _tira_repetidas(t: str) -> str:
+    """Num mesmo parágrafo, a obra é citada uma vez (decisão do autor em
+    23/11/2026). Sem a página, as citações indiretas de uma mesma obra
+    ficaram iguais, e repeti-las a cada frase não acrescenta nada.
+
+    Sai só a citação inteira entre parênteses, indireta, de uma obra que o
+    parágrafo já citou. Ficam: a primeira citação de cada obra, toda
+    citação direta (com a página), a autoria na frase ("Sorva (2012)
+    afirma"), que faz parte da frase, e a citação de citação (apud). O .md
+    não muda: é nele que cada afirmação continua com a sua citação e a sua
+    página, para a conferência.
+    """
+    achados = []
+    for chave, ano, txt, par in OBRAS:
+        a = re.escape(ano) + LOCALIZADOR + r"\)"
+        formas = (("apud", r"\([^()]{1,80}? apud " + re.escape(par) + ", " + a),
+                  ("par", r" ?\(" + re.escape(par) + ", " + a),
+                  ("frase", re.escape(txt) + r" \(" + a))
+        for tipo, padrao in formas:
+            for m in re.finditer(padrao, t):
+                achados.append((m.start(), m.end(), chave, tipo, _direta(m)))
+    vistas, cortes = set(), []
+    for ini, fim, chave, tipo, direta in sorted(achados):
+        if tipo == "par" and not direta and chave in vistas:
+            cortes.append((ini, fim))
+        vistas.add(chave)
+    for ini, fim in reversed(cortes):
+        t = t[:ini] + t[fim:]
+    return t
+
+
 def _traduz_citacoes(t: str, guarda) -> str:
     """Troca cada citação do texto pela forma em LaTeX, já guardada.
 
@@ -123,6 +154,7 @@ def _traduz_citacoes(t: str, guarda) -> str:
     (docs/monografia/roteiro-de-conferencia.md); aqui, a página da citação
     indireta fica de fora do LaTeX.
     """
+    t = _tira_repetidas(t)
     # 1. citação de citação: "(Tippett, 2010, p. 965 apud Nussbaum; Cordova;
     #    Rehmat, 2017, p. 31)" e "Ma (2007 apud Sorva, 2012, p. 364)"
     for chave, ano, _, par in OBRAS:

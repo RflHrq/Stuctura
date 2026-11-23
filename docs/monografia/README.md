@@ -172,6 +172,11 @@ foram tirados do sistema por script, e não de memória, e
   cada obra é conferida no roteiro, e `scripts/monografia_latex.py`
   deixa a página da citação indireta fora do LaTeX. Citação nova entra
   no `.md` com a página.
+  Pela mesma decisão, num mesmo parágrafo a obra é citada uma vez: o
+  conversor deixa de fora a citação indireta entre parênteses de uma
+  obra que o parágrafo já citou (17 repetições saíram do PDF). Ficam a
+  primeira citação, as diretas, a autoria na frase e as citações de
+  citação. Os `.md` continuam com a citação em cada afirmação.
 - **A lista de pendências** para a revisão ponto a ponto do autor está
   em [pendencias.md](pendencias.md).
 
