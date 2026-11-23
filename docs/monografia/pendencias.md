@@ -36,7 +36,7 @@ do git).
 
 - [ ] Conferir, obra por obra, cada frase do texto que a cita contra o
       arquivo aberto. O [roteiro-de-conferencia.md](roteiro-de-conferencia.md)
-      traz as 110 citações na ordem de leitura, cada uma com a página, o
+      traz os 114 itens na ordem de leitura, cada uma com a página, o
       arquivo a abrir e a frase.
 - [ ] Kernighan e Ritchie (1988) saiu da lista em 23/11/2026, porque o
       livro não foi aberto; a refutação passou a citar o padrão da
@@ -103,6 +103,10 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
       participante. A Seção 3.9 diz onde o sistema roda, 6.4 e a
       conclusão falam do "compilador utilizado na verificação", e o
       Apêndice A ganhou o laboratório e a razão da aplicação presencial.
+      Em 23/11/2026 o autor precisou: "laboratório" quer dizer um
+      lugar em que ele supervisione quem responde, e pode ser uma
+      sala. O Apêndice A passou a dizer "de forma presencial e
+      supervisionada, em uma sala ou laboratório da universidade".
 - [x] Seções 5, 6 e 7, conferidas contra o código, os testes e o
       histórico em 23/11/2026. O conferidor foi executado de novo nos 13
       tópicos, no gcc 16.2: 79 premissas, 402 passos, nenhum problema.
@@ -154,9 +158,20 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
 
 ## 6. Decisões e dados que só o autor tem
 
-- [ ] O que "kc" significa nos códigos dos tópicos (kc_00 a kc_12).
-- [ ] A ordem das seções: o sistema (Seção 3) vem antes do método
-      (Seção 5).
+- [x] "kc" é *knowledge component*, componente de conhecimento (o
+      autor, em 23/11/2026; os documentos do projeto já diziam
+      "componentes de conhecimento"). O termo entrou na Seção 2.3,
+      com VanLehn (2006), que já estava na lista e o define (ms p. 3);
+      a Seção 3.1 diz o que o código abrevia, e a sigla KC entrou na
+      lista de siglas. O texto declara que o tópico é um grão maior
+      que o componente do autor, que fica mais perto da premissa.
+- [ ] A ordem das seções, para confirmar com o orientador. O texto
+      descreve o sistema (Seção 3) e a curadoria (Seção 4) antes do
+      método de construção e verificação (Seção 5). Muitos trabalhos
+      trazem a metodologia logo depois do referencial. Aqui ela vem
+      depois porque verifica peças (passos, demonstrações, cenas) que a
+      Seção 3 define, e a Seção 1.6 já anuncia os procedimentos. Se o
+      orientador preferir a outra ordem, a Seção 5 sobe para depois da 2.
 - [ ] A folha de aprovação está no PDF desde 23/11/2026, como no modelo
       do curso, com as linhas de assinatura e a data em branco. Faltam os
       nomes dos dois membros da banca, a instituição de cada um e, depois
@@ -164,7 +179,9 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
 - [x] O texto da folha de rosto passou a ser o do modelo do curso, com a
       disciplina desta entrega, Trabalho de Conclusão de Curso II
       (decisão do autor em 23/11/2026).
-- [ ] A ficha catalográfica, se o curso a exigir.
+- [ ] A ficha catalográfica: o curso exige, e ela é feita depois da
+      defesa, para a versão final (o autor, em 23/11/2026). Nada a fazer
+      nesta etapa.
 - [ ] O repositório: privado ou público, licença e o e-mail que aparece
       nos commits.
 - [ ] O documento on-line criado antes neste projeto guarda uma versão

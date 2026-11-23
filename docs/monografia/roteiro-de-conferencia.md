@@ -11,7 +11,7 @@ se ela diz o que a frase diz que ela diz. O que cada obra sustenta,
 segundo a conferência anterior, está em
 [conferencia-das-referencias.md](conferencia-das-referencias.md).
 
-São 113 itens: 100 citações de 22 obras abertas e 13 menções a
+São 114 itens: 101 citações de 22 obras abertas e 13 menções a
 estudos que não foram abertos, citados por intermédio de outra
 obra.
 
@@ -34,7 +34,7 @@ obra.
 | Summit (`summit2005`) | 4 | `cfaq/ (índices e perguntas do FAQ, em HTML)` |
 | UFV (`ufv2026`) | 3 | `ufv-diretrizes-ia/DIRETRIZES-IA.pdf` |
 | Sweller, Van Merriënboer e Paas (`sweller2019`) | 5 | `sweller2019/sweller2019.pdf` |
-| VanLehn (`vanlehn2006`) | 1 | `vanlehn2006/vanlehn2006behavior.pdf` |
+| VanLehn (`vanlehn2006`) | 2 | `vanlehn2006/vanlehn2006behavior.pdf` |
 | VanLehn (`vanlehn2011`) | 1 | `vanlehn2011/EffectivenessOfTutoring_Vanlehn.pdf` |
 | W3C (`w3c2025`) | 2 | `w3c2025/WCAG21.html` |
 | White e Gunstone (`white1992`) | 1 | `white1992/capitulo3.html` |
@@ -108,6 +108,8 @@ obra.
 
 ### 2.3 Grafo de premissas e teoria dos espaços de conhecimento
 
+- [ ] **VanLehn (2006)** · abrir `fontes/vanlehn2006/vanlehn2006behavior.pdf`
+  > Ao descrever o comportamento dos sistemas tutores inteligentes (Seção 2.6), VanLehn (2006) denomina componente de conhecimento (*knowledge component*, KC) cada unidade em que se decompõe o conhecimento que determina o comportamento do estudante em uma tarefa: um princípio, um conceito, uma regra, um procedimento, um fato ou outro fragmento de informação específico da tarefa.
 - [ ] **(Falmagne et al., 2006)** · abrir `fontes/falmagne2006/Science_Behind_ALEKS.pdf`
   > Nessa teoria, o estado de conhecimento de uma pessoa é o conjunto de problemas que ela é capaz de resolver, e a fronteira externa reúne os problemas que, acrescentados ao estado, formam outro estado: corresponde ao que a pessoa está pronta para aprender e ao ponto em que o progresso ocorre (Falmagne et al., 2006).
 

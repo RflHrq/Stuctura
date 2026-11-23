@@ -241,8 +241,20 @@ conferência", ao fim, e as correções que ela pediu já estão no texto.
 - **ms p. 5:** o dever do laço externo é escolher a tarefa; o do interno,
   eliciar os passos e ajudar a aprender; o sistema mais simples dá retorno
   depois de cada passo.
-- **Sustenta:** Capítulo 2 (2.6), no lugar de VanLehn (2011) e Woolf
-  (2009) para a arquitetura.
+- **ms p. 3 (aberta de novo em 23/11/2026):** o autor supõe que o
+  conhecimento que determina o comportamento do estudante na tarefa pode
+  ser decomposto e chama de *knowledge component* cada unidade: um
+  princípio, um conceito, uma regra, um procedimento, um fato, uma
+  associação ou outro fragmento de informação específico da tarefa. Diz
+  ainda que um componente pode ser incorreto: o instrutor prefere que o
+  estudante não o aplique. "Knowledge components" é uma das
+  palavras-chave do artigo (ms p. 1). O rodapé do manuscrito traz "2"
+  em todas as páginas; "ms p." é a página do arquivo.
+- **Sustenta:** Seção 2.3 (o componente de conhecimento, de onde vem a
+  sigla kc dos tópicos) e Seção 2.6, no lugar de VanLehn (2011) e Woolf
+  (2009) para a arquitetura. A aproximação entre o componente incorreto e
+  a concepção errônea, e a observação de que o tópico do Structura é um
+  grão maior que o do autor, são do texto da monografia, e não da obra.
 
 ### VANLEHN (2011)
 

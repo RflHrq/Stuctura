@@ -19,7 +19,7 @@ A unidade de análise de V2 e de V3 não é o participante, e sim o episódio de
 
 ## A.2 Procedimento da sessão
 
-O estudo prevê de 10 a 15 estudantes que cursam ou já cursaram a disciplina com a linguagem C, atendidos individualmente, de forma presencial, em laboratório da universidade, em sessões de cerca de 30 minutos. A aplicação presencial permite ao pesquisador acompanhar o que o participante responde e evita a consulta a outras fontes e a ajuda de terceiros, que uma aplicação remota, pela internet, não permitiria controlar. Cada sessão tem as seguintes etapas:
+O estudo prevê de 10 a 15 estudantes que cursam ou já cursaram a disciplina com a linguagem C, atendidos individualmente, de forma presencial e supervisionada, em uma sala ou laboratório da universidade, em sessões de cerca de 30 minutos. A aplicação presencial permite ao pesquisador acompanhar o que o participante responde e evita a consulta a outras fontes e a ajuda de terceiros, que uma aplicação remota, pela internet, não permitiria controlar. Cada sessão tem as seguintes etapas:
 
 1. consentimento e atribuição de um código anônimo (P01 a P15); o nome e a matrícula são registrados em papel, fora do sistema;
 2. três perguntas breves sobre a experiência com a linguagem C;
@@ -52,7 +52,7 @@ O Quadro A.3 relaciona as ameaças à validade identificadas e as respectivas co
 | Nenhum participante erra com convicção, e V2 e V3 ficam sem episódios | recrutamento de estudantes que estejam cursando a disciplina; escolha dos tópicos com mais concepções mapeadas; medição da taxa em um ensaio com dois colegas antes do agendamento da coleta |
 | A verbalização em voz alta altera o próprio raciocínio | tratamento da fala como evidência qualitativa, e nunca como leitura direta do pensamento |
 | O pesquisador influencia a sessão | lembretes padronizados, definidos previamente |
-| O participante consulta outras fontes ou recebe ajuda durante a sessão | sessões presenciais em laboratório, com o pesquisador presente |
+| O participante consulta outras fontes ou recebe ajuda durante a sessão | sessões presenciais supervisionadas, com o pesquisador presente |
 | A hipótese está correta, mas a fala não a revela | a categoria "inconclusiva" existe e é relatada |
 
 ## A.5 Pendências anteriores à coleta
