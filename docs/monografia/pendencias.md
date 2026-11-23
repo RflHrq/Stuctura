@@ -239,9 +239,13 @@ As outras 57 das 61 estão conferidas na obra (Apêndice B).
       Só os ramos `trilha` e `master` vão para o GitHub: o ramo
       `claude/elastic-perlman-c65bb1`, de uma sessão antiga, ainda tem o
       histórico anterior e não pode ser enviado.
-- [ ] A licença do repositório: sem arquivo de licença, o código
-      público fica com todos os direitos reservados. Decidir se entra
-      uma licença.
+- [x] A licença do repositório é a MIT (o autor, em 23/11/2026): arquivo
+      `LICENSE` na raiz, e uma seção no README que diz o que fica fora
+      dela: as fontes tipográficas (OFL), os estilos do LaTeX (LPPL), os
+      trechos citados de obras de terceiros e o texto da monografia. A
+      exclusão do texto da monografia foi escolha de quem escreveu a
+      seção, por cautela: se o autor quiser a monografia também sob a
+      MIT, basta tirar a linha.
 - [x] A declaração do orientador sobre as correções da banca (SIN499),
       preenchida a partir do modelo do curso com o nome e a matrícula
       do aluno e o nome do orientador, está em `entrega/`, fora do

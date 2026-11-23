@@ -160,3 +160,19 @@ Participantes são identificados por **pseudônimo** (`P01`…`P40`). Não há
 nome, matrícula ou identificador direto em banco nem em exportação. O
 token de exportação fica em `data/export_token.txt`, fora do controle de
 versão.
+
+## Licença
+
+O código e o conteúdo de ensino do Structura estão sob a licença MIT
+(arquivo [LICENSE](LICENSE)). Ficam fora dela, por terem dono ou licença
+própria:
+
+- as fontes tipográficas em `mvp/web/fontes/`, sob a SIL Open Font
+  License (as licenças estão na mesma pasta);
+- os arquivos de estilo do LaTeX em `docs/monografia/latex/`
+  (`abntex2-UFV.sty` e `abntex2-alf-tcc.bst`), sob a LaTeX Project Public
+  License;
+- o texto da monografia, em `docs/monografia/`, que é o Trabalho de
+  Conclusão de Curso do autor e não é licenciado para reuso;
+- os trechos de obras de terceiros citados no catálogo e nos documentos,
+  que pertencem aos respectivos autores.
