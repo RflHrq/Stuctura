@@ -92,17 +92,17 @@ obra.
   > A insatisfação decorre da anomalia levada a sério, que produz o conflito cognitivo (Posner et al., 1982, p. 224), razão pela qual os autores recomendam o uso de demonstrações e de problemas capazes de produzi-lo (Posner et al., 1982, p. 225).
 - [ ] **Posner et al. (1982, p. 212)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
   > Posner et al. (1982, p. 212) denominam assimilação o primeiro modo de mudança, em que o novo é incorporado ao que já se conhecia.
-- [ ] **(Qian; Lehman, 2017, p. 2-3)** · abrir `fontes/qian2017/3077618.pdf`
-  > Na área de programação, o estudo das concepções errôneas tem início na década de 1980, sob denominações variadas (dificuldades, erros, *bugs*, concepções errôneas) e sem uma definição aceita por todos (Qian; Lehman, 2017, p. 2-3).
+- [ ] **(Qian; Lehman, 2017, p. 2)** · abrir `fontes/qian2017/3077618.pdf`
+  > Na área de programação, o estudo das concepções errôneas tem início na década de 1980, sob denominações variadas (dificuldades, erros, *bugs*, concepções errôneas), às quais diferentes autores atribuem sentidos particulares (Qian; Lehman, 2017, p. 2).
 - [ ] **Qian e Lehman (2017, p. 1)** · abrir `fontes/qian2017/3077618.pdf`
   > Na revisão de Qian e Lehman (2017, p. 1), as dificuldades dos iniciantes situam-se no conhecimento sintático, no conceitual e no estratégico, e os autores recomendam que a pesquisa vá além de documentá-las e incorpore as teorias de mudança conceitual.
-- [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
-  > A tese de Sorva (2012) organiza parte significativa dessa literatura em torno do modelo de máquina que o estudante constrói, a "máquina nocional", e é a principal fonte do catálogo do sistema (Seção 4).
+- [ ] **Sorva (2012, p. 59-61)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
+  > A tese de Sorva (2012, p. 59-61) reúne parte significativa dessa literatura e a relaciona à máquina nocional, a abstração do computador da qual o estudante precisa formar um modelo mental, e é a principal fonte do catálogo do sistema (Seção 4).
 
 ### 2.2 Certeza declarada como sinal diagnóstico
 
 - [ ] **Gardner-Medwin (2006)** · abrir `fontes/gardnermedwin2006/innovass7.pdf`
-  > A avaliação baseada em certeza foi amplamente pesquisada antes mesmo da avaliação por computador, e Gardner-Medwin (2006) relata dez anos de uso na University College London, sobretudo em cursos de medicina, com três níveis de certeza e penalidade crescente para o erro cometido com convicção.
+  > A avaliação baseada em certeza foi pesquisada extensamente, sobretudo antes de a avaliação por computador se tornar viável em larga escala, e Gardner-Medwin (2006) relata dez anos de uso na University College London, sobretudo em cursos de medicina, com três níveis de certeza e penalidade crescente para o erro cometido com convicção.
 - [ ] **Gardner-Medwin (2006)** · abrir `fontes/gardnermedwin2006/innovass7.pdf`
   > Segundo, a escala possui três pontos, como a de Gardner-Medwin (2006), porque deve caber em uma única interação no ritmo da atividade; o autor, contudo, nomeia os níveis com números ou termos neutros, pois palavras como "certeza" e "chute" têm significados diferentes para pessoas diferentes, ao passo que o Structura utiliza expressões verbais ("chutei", "acho que sei", "tenho certeza").
 
@@ -161,9 +161,9 @@ obra.
 - [ ] **(Schmellenkamp; Latys; Zeume, 2023, p. 466)** · abrir `fontes/schmellenkamp2023/3545945.3569806.pdf`
   > O segundo fluxo vai além da medição: prevê o uso das concepções descobertas para aprimorar o retorno do tutor e testar se esse retorno auxilia os estudantes, o que serviria também como indício de que a concepção é real (Schmellenkamp; Latys; Zeume, 2023, p. 466).
 - [ ] **(Schmellenkamp; Latys; Zeume, 2023, p. 469-470)** · abrir `fontes/schmellenkamp2023/3545945.3569806.pdf`
-  > O estudo, contudo, aplica apenas as etapas de medição e de descoberta (Schmellenkamp; Latys; Zeume, 2023, p. 469-470); no Iltis, o retorno a cada tentativa informava se ela estava correta e, em caso negativo, o motivo (Schmellenkamp; Latys; Zeume, 2023, p. 467).
+  > O estudo, contudo, aplica apenas parte dos dois fluxos, a medição e a descoberta de erros típicos (Schmellenkamp; Latys; Zeume, 2023, p. 469-470); no Iltis, o retorno a cada tentativa informava se ela estava correta e, em caso negativo, o motivo (Schmellenkamp; Latys; Zeume, 2023, p. 467).
 - [ ] **(Schmellenkamp; Latys; Zeume, 2023, p. 467)** · abrir `fontes/schmellenkamp2023/3545945.3569806.pdf`
-  > O estudo, contudo, aplica apenas as etapas de medição e de descoberta (Schmellenkamp; Latys; Zeume, 2023, p. 469-470); no Iltis, o retorno a cada tentativa informava se ela estava correta e, em caso negativo, o motivo (Schmellenkamp; Latys; Zeume, 2023, p. 467).
+  > O estudo, contudo, aplica apenas parte dos dois fluxos, a medição e a descoberta de erros típicos (Schmellenkamp; Latys; Zeume, 2023, p. 469-470); no Iltis, o retorno a cada tentativa informava se ela estava correta e, em caso negativo, o motivo (Schmellenkamp; Latys; Zeume, 2023, p. 467).
 
 ### 2.8.3 ALEKS e a teoria dos espaços de conhecimento
 

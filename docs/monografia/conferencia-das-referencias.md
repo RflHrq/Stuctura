@@ -654,3 +654,55 @@ NBR 6023/2025 e a NBR 10520/2023. Três decisões mudam o que está acima:
   al. (2018)** e **Schmellenkamp, Latys e Zeume (2023)** entram pelo nome
   do evento, com número, ano e local, lidos na primeira página de cada
   artigo (Potsdam; Toronto; ACM, New York).
+
+## Reconferência da Seção 2, 23/11/2026
+
+A pedido do autor, cada citação da Seção 2 foi relida no arquivo da
+obra, na página citada. Todas as obras e páginas conferem. Onde a frase
+dizia um pouco mais do que a página diz, a frase mudou:
+
+- **Posner et al. (1982):** as sete citações conferem (p. 212, 213,
+  214, 221, 224 e 225). A frase da p. 221 passou a listar as quatro
+  possibilidades que a página lista.
+- **Qian e Lehman (2017):** a p. 1 (resumo) sustenta os três tipos de
+  conhecimento e a recomendação. A p. 2 diz que o trabalho inicial é
+  dos anos 1980 e que os autores usam termos diferentes, aos quais dão
+  sentidos particulares; não diz que falta uma definição aceita por
+  todos. A frase mudou, e a citação passou de p. 2-3 a p. 2.
+- **Sorva (2012):** a máquina nocional é uma abstração do computador
+  (seção 5.4.1, p. 59), da qual o estudante forma modelos mentais
+  (seção 5.4.2, p. 61). O texto dizia que a máquina nocional é o modelo
+  que o estudante constrói, o que mistura as duas coisas. Corrigido,
+  com as páginas.
+- **Sorva (2013):** as três citações se apoiam no resumo (p. 1).
+- **Gardner-Medwin (2006):** confere: dez anos de uso na UCL, escolas
+  de medicina, escala de três pontos, níveis nomeados por números ou
+  termos neutros, e a frase de que um palpite feliz não é conhecimento
+  e uma concepção errônea firme é pior que a ignorância reconhecida. O
+  arquivo é a versão do autor, com paginação própria, e por isso a
+  citação segue sem página. A frase sobre a pesquisa anterior passou a
+  dizer o que o texto diz: pesquisada extensamente, sobretudo antes de
+  a avaliação por computador ser viável em larga escala.
+- **Falmagne et al. (2006):** confere: o estado de conhecimento, a
+  fronteira externa, as duas listas, a pergunta mais informativa (cerca
+  de 50%), as 24 perguntas da avaliação de Aritmética, o artigo de 1985
+  e a vinculação de dois autores à ALEKS Corporation. O arquivo é a
+  versão aberta, com paginação própria: citação sem página.
+- **White e Gunstone (1992):** o que foi lido é o primeiro parágrafo do
+  capítulo 3, publicado na página da editora, e ele diz as três
+  tarefas. O resto do capítulo não foi lido, e o texto não usa mais do
+  que esse parágrafo.
+- **Nussbaum, Cordova e Rehmat (2017):** a p. 23 sustenta as duas
+  frases; a p. 31 traz a citação de Tippett (2010, p. 965).
+- **Sweller, Van Merriënboer e Paas (2019):** as quatro páginas
+  conferem (265, 268, 277 e 279).
+- **VanLehn (2006):** o resumo descreve os dois laços. O arquivo não
+  traz a paginação da revista: citação sem página.
+- **VanLehn (2011):** o resumo (p. 197) traz os tamanhos de efeito 0,76
+  e 0,79 e a divisão por granularidade.
+- **Soderstrom e Bjork (2015):** o resumo (p. 176) sustenta a frase.
+- **Yamashita et al. (2017):** o resumo (p. 1) e as p. 10 a 12
+  sustentam a descrição do sistema e a leitura dos desvios menores.
+- **Schmellenkamp, Latys e Zeume (2023):** as p. 465, 466 e 467
+  conferem. Nas p. 469-470 o artigo diz que aplicou parte dos fluxos; a
+  frase passou a dizer isso.
