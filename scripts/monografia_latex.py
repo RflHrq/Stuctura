@@ -108,8 +108,21 @@ def _localizador_tex(loc) -> str:
     return ", " + loc.replace(". ", ".~") if loc else ""
 
 
+def _direta(m) -> bool:
+    """A citação é direta quando vem logo depois de um trecho entre aspas:
+    '"Null model of recursion" (Sorva, 2012, p. 362)'."""
+    return m.string[:m.start()].rstrip().endswith('"')
+
+
 def _traduz_citacoes(t: str, guarda) -> str:
-    """Troca cada citação do texto pela forma em LaTeX, já guardada."""
+    """Troca cada citação do texto pela forma em LaTeX, já guardada.
+
+    A PÁGINA SÓ VAI PARA O PDF NA CITAÇÃO DIRETA (decisão do autor em
+    23/11/2026: a NBR 10520 só a exige nesse caso). O .md guarda a página
+    em toda citação, porque é por ela que a obra é conferida
+    (docs/monografia/roteiro-de-conferencia.md); aqui, a página da citação
+    indireta fica de fora do LaTeX.
+    """
     # 1. citação de citação: "(Tippett, 2010, p. 965 apud Nussbaum; Cordova;
     #    Rehmat, 2017, p. 31)" e "Ma (2007 apud Sorva, 2012, p. 364)"
     for chave, ano, _, par in OBRAS:
@@ -117,10 +130,14 @@ def _traduz_citacoes(t: str, guarda) -> str:
                   + re.escape(ano) + LOCALIZADOR + r"\)")
 
         def apud(m, chave=chave, par=par):
-            original = _escapa(m.group(1)).replace("p. ", "p.~")
+            direta = _direta(m)
+            original = m.group(1)
+            if not direta:
+                original = re.sub(r", (?:p|cap)\. [\dIVXivx\-]+", "", original)
+            original = _escapa(original).replace("p. ", "p.~")
             return guarda("(%s \\textit{apud} %s, \\citeyear{%s}%s)" % (
                 _autoria_tex(original), _autoria_tex(par), chave,
-                _localizador_tex(m.group(2))))
+                _localizador_tex(m.group(2) if direta else None)))
         t = re.sub(padrao, apud, t)
     # 2. autoria entre parênteses: "(Posner et al., 1982, p. 221)"
     for chave, ano, _, par in OBRAS:
@@ -129,7 +146,8 @@ def _traduz_citacoes(t: str, guarda) -> str:
 
         def entre(m, chave=chave, par=par):
             return guarda("(%s, \\citeyear{%s}%s)" % (
-                _autoria_tex(par), chave, _localizador_tex(m.group(1))))
+                _autoria_tex(par), chave,
+                _localizador_tex(m.group(1) if _direta(m) else None)))
         t = re.sub(padrao, entre, t)
     # 3. autoria na frase: "Posner et al. (1982, p. 212)"
     for chave, ano, txt, _ in OBRAS:
@@ -138,7 +156,8 @@ def _traduz_citacoes(t: str, guarda) -> str:
 
         def frase(m, chave=chave, txt=txt):
             return guarda("%s (\\citeyear{%s}%s)" % (
-                _autoria_tex(txt), chave, _localizador_tex(m.group(1))))
+                _autoria_tex(txt), chave,
+                _localizador_tex(m.group(1) if _direta(m) else None)))
         t = re.sub(padrao, frase, t)
     sobra = []
     for m in PADRAO_DE_CITACAO.finditer(t):

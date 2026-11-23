@@ -165,6 +165,13 @@ foram tirados do sistema por script, e não de memória, e
   celular. A numeração e as legendas finais seguem o modelo. As figuras
   3.3, 3.4a e 3.4b são de 18/11/2026, anteriores ao botão Sair, e o texto
   descreve a versão de 19/11/2026: precisam ser refeitas.
+- **A página nas citações (23/11/2026).** Por decisão do autor, o PDF
+  traz a página só nas citações diretas (as sete da Seção 4 que vêm
+  depois de um trecho entre aspas); a NBR 10520 só a exige nesse caso.
+  Os `.md` continuam com a página em toda citação, porque é por ela que
+  cada obra é conferida no roteiro, e `scripts/monografia_latex.py`
+  deixa a página da citação indireta fora do LaTeX. Citação nova entra
+  no `.md` com a página.
 - **A lista de pendências** para a revisão ponto a ponto do autor está
   em [pendencias.md](pendencias.md).
 
