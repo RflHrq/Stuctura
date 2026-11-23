@@ -88,6 +88,19 @@ As outras 53 das 61 estão conferidas na obra (Apêndice B).
 
 ## 5. Afirmações de que algo foi feito (Seções 3, 5 e 6)
 
+- [x] Seção 3, conferida contra o código e os dados em 23/11/2026: as
+      duas citações (W3C e padrão C), as finalidades e os níveis das 560
+      questões, os textos da interface, a ordem de preferência da
+      reconferência, a ordem do caminho na página inicial, o ritmo da
+      cena (1,3 s por passo), as licenças das fontes, os quatro blocos do
+      fechamento e as explicações das 79 perguntas de abertura. Dois
+      trechos não batiam e foram corrigidos: a frase da concepção citada
+      em 3.1 não era a do catálogo, e a tela não diz "o compilador
+      reclamou desta linha" (diz "O compilador reclamou:").
+- [ ] O texto fala em "máquina do laboratório" (3.9) e "compilador do
+      laboratório" (6.4 e conclusão). Confirmar com o autor se existe um
+      laboratório ou se é o computador dele; se for o computador dele,
+      trocar a expressão.
 - [ ] Seção 5.1: "o teste de cada comportamento novo foi escrito antes da
       implementação" é uma afirmação sobre o processo inteiro. A evidência
       está nos planos (`docs/plano-*.md`) e nas mensagens de commit.

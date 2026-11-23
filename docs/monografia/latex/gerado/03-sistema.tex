@@ -32,7 +32,7 @@ kc\_12 & Ponteiro pendente por escopo & 6 \\ \hline
 \fonte{Elaborado pelo autor.}
 \end{quadro}
 
-Cada concepção errônea do catálogo nega exatamente uma premissa. Essa associação permite localizar a concepção no grafo: a crença de que ``o ponteiro é o próprio dado: retornar o endereço de uma local devolve a variável'', por exemplo, nega a premissa do tópico kc\_12 segundo a qual retornar \texttt{\&local} copia o endereço, e não a variável. O catálogo tem 61 concepções, cada uma com procedência declarada; a Seção~4 trata dessa procedência.
+Cada concepção errônea do catálogo nega exatamente uma premissa. Essa associação permite localizar a concepção no grafo: a concepção registrada no catálogo como ``O ponteiro é o próprio dado: retornar \texttt{\&local} devolve a variável'', por exemplo, nega a premissa do tópico kc\_12 segundo a qual retornar \texttt{\&local} copia o endereço, e não a variável. O catálogo tem 61 concepções, cada uma com procedência declarada; a Seção~4 trata dessa procedência.
 
 O banco de questões tem 560 questões de múltipla escolha, distribuídas pelas premissas, cada uma com um nível (do mais mecânico ao mais conceitual) e uma finalidade (entrada, diagnóstico ou treino). Toda alternativa incorreta indica a concepção errônea que a explicaria, e é dessa associação que o diagnóstico obtém a razão de cada resposta.
 
@@ -153,7 +153,7 @@ O resultado exibido é de dois tipos. Em 41 das 80 demonstrações, trata-se da 
 
 Quando o resultado depende do ambiente (o valor numérico de um endereço de memória, o tamanho de um tipo ou o comportamento particular de um compilador), a demonstração inclui uma nota de ambiente que explicita essa dependência. No tópico kc\_12, por exemplo, o compilador \textit{GNU Compiler Collection} (gcc), na versão 16.2, devolve \texttt{NULL} no lugar do endereço de uma variável local que deixou de existir; a demonstração que utiliza esse comportamento informa que se trata de uma escolha do gcc e que o padrão da linguagem não define aquele valor: segundo o padrão, o valor de um ponteiro torna-se indeterminado quando o objeto para o qual ele aponta chega ao fim do seu tempo de vida (ISO/IEC, \citeyear{isoiec2011}).
 
-Toda demonstração foi conferida por compilador antes de ser incorporada ao sistema: a saída deve ser a que o texto afirma, e a mensagem deve ser emitida para uma única linha, pois a tela informa que ``o compilador reclamou desta linha'', e a emissão da mesma mensagem para duas linhas tornaria essa afirmação incompleta. A Seção~5 descreve essa conferência.
+Toda demonstração foi conferida por compilador antes de ser incorporada ao sistema: a saída deve ser a que o texto afirma, e a mensagem deve ser emitida para uma única linha, pois a tela apresenta uma única reclamação do compilador (``O compilador reclamou:'', seguida da mensagem), e a emissão da mesma mensagem para duas linhas faria a demonstração dizer menos do que ocorreu. A Seção~5 descreve essa conferência.
 
 \section{Cena}
 
