@@ -1,12 +1,62 @@
 # Structura
 
-Instrumento de diagnóstico e refutação de concepções errôneas sobre
-**ponteiros em C**. Rafael H. S. Simão, UFV–CRP.
+Sistema adaptativo para **detectar e corrigir concepções errôneas sobre
+ponteiros na linguagem C**.
 
-O sistema apresenta uma atividade, pergunta **a resposta, a razão da
-resposta e a confiança declarada**, infere daí qual crença errônea está
-em jogo, e a refuta conduzindo a pessoa pelo grafo de premissas do
-tópico — não dizendo que ela errou.
+Uma resposta errada, sozinha, não diz se a pessoa não sabe o conteúdo ou
+se sustenta uma ideia errada com convicção. O Structura pergunta **a
+resposta, a razão da resposta e a certeza**, formula daí uma hipótese
+sobre o que a pessoa pensa e escolhe o que fazer: seguir em frente,
+reforçar, ensinar passo a passo ou **mostrar, depois de a pessoa prever,
+o que o compilador de fato faz**.
+
+Trabalho de Conclusão de Curso de Rafael Henrique dos Santos Simão,
+Sistemas de Informação, Universidade Federal de Viçosa, *Campus* Rio
+Paranaíba, 2026.
+
+<p align="center">
+  <img src="docs/monografia/figuras/fig-3-1-pergunta.jpg" width="23%" alt="Pergunta de diagnóstico, com a resposta confirmada e as razões">
+  <img src="docs/monografia/figuras/fig-3-4a-voce-disse.jpg" width="23%" alt="Tela Você disse: a ideia da pessoa e a previsão pedida">
+  <img src="docs/monografia/figuras/fig-3-4b-maquina.jpg" width="23%" alt="Tela A máquina respondeu: o que o compilador disse">
+  <img src="docs/monografia/figuras/fig-3-5-cena.jpg" width="23%" alt="Cena: o código animado linha a linha">
+</p>
+
+## Em números
+
+| | |
+| --- | --- |
+| tópicos | **13**, da declaração de variáveis ao ponteiro pendente por escopo |
+| premissas | **79**, organizadas em um grafo por tópico |
+| concepções errôneas | **61**, cada uma com a procedência declarada: 57 conferidas na obra citada e 4 hipóteses declaradas como tais |
+| questões de diagnóstico | **560** |
+| passos de ensino | **402**, em 13 escadas, cada passo com duas versões |
+| demonstrações com previsão | **80** |
+| cenas animadas | **79** |
+| testes automatizados | **7 556** |
+
+## Como funciona uma sessão
+
+Cada tópico é um conjunto de premissas, proposições curtas que a pessoa
+pode afirmar ou negar. Para cada premissa, o sistema faz uma pergunta e
+pede três coisas: a resposta, a razão e a certeza. A combinação decide o
+caminho:
+
+| Resposta, razão e certeza | Situação | O que o sistema faz |
+| --- | --- | --- |
+| resposta certa, razão certa e "tenho certeza" | sabe | segue para a próxima premissa |
+| resposta certa sem certeza, ou sinais que não combinam | acerto sem firmeza | faz mais uma pergunta, em outro formato |
+| "Não sei", ou resposta errada com "chutei" | não sabe | ensina a premissa em uma **escada de passos** curtos |
+| resposta errada, pela razão de uma concepção errônea, com alguma certeza | sustenta uma concepção errônea | abre a **demonstração com previsão** |
+
+Na demonstração, a tela **"Você disse"** devolve à pessoa a ideia que
+ela afirmou e pede uma previsão sobre um programa curto. A tela **"A
+máquina respondeu"** mostra o que o compilador ou a execução fizeram, e
+qual premissa fica de pé. Ao fim do tópico, o sistema volta às premissas
+trabalhadas com uma pergunta nova e mostra o **fechamento**: as ideias
+erradas encontradas, as lacunas e o que já estava firme.
+
+A situação atribuída é uma **hipótese diagnóstica**: o sistema reconhece
+um padrão de resposta, e não constata o que a pessoa pensa.
 
 ## Rodar
 
@@ -14,152 +64,112 @@ Python 3.11 ou mais novo (desenvolvido em 3.14.7).
 
 ```bash
 python -m pip install -r requirements.txt
+python -m mvp.portal
 ```
+
+Abra **http://127.0.0.1:8010**. A página inicial mostra o caminho dos 13
+tópicos; cada um abre a sua trilha.
+
+Com Docker, o sistema sobe e fica ligado:
 
 ```bash
-python -m mvp.app
+docker compose up -d --build
 ```
 
-Abra **http://127.0.0.1:8010**. O tópico padrão é o `kc_00`; para
-abrir o tópico com material de ensino completo:
+No Windows, `iniciar-structura.bat` e `parar-structura.bat` fazem o mesmo
+com dois cliques. O sistema atende só na própria máquina (`127.0.0.1`):
+não tem login.
 
-```bash
-STRUCTURA_TOPICO=kc_02 python -m mvp.app
-```
+## O que torna o conteúdo conferível
 
-No PowerShell, variável de ambiente se escreve antes, em outra linha:
+A ideia central do trabalho é que **o material de ensino seja testado
+contra o programa que ele descreve**, e não contra a lembrança de quem o
+escreveu.
 
-```bash
-$env:STRUCTURA_TOPICO = "kc_02"; python -m mvp.app
-```
+- **O compilador é o juiz.** Toda afirmação sobre o comportamento de um
+  programa em C é conferida compilando e executando o trecho: a linha
+  que um passo chama de certa compila, a que ele chama de inválida é
+  recusada, e a saída é a que o texto diz.
 
-O painel de acompanhamento, que lê o log da coleta, sobe separado:
+  ```bash
+  python scripts/confere_escada.py kc_07   # passos, exemplos e demonstrações de um tópico
+  python scripts/confere_banco.py          # as questões de prever a saída
+  ```
 
-```bash
-python -m mvp.painel
-```
+- **O catálogo declara de onde veio.** Cada concepção errônea traz a
+  obra, a página ou o item, e um grau de procedência. O documento
+  [docs/curadoria-crencas.md](docs/curadoria-crencas.md) é gerado do
+  catálogo e diz, linha por linha, o que foi conferido na obra.
+- **Estudantes simulados** percorrem os 13 tópicos em dez perfis fixos
+  de resposta, para medir o tamanho de cada percurso e garantir que toda
+  sessão termina.
+- **A suíte de testes** reúne tudo isso:
 
-## DUAS GERAÇÕES NESTE REPOSITÓRIO — leia antes de avaliar
+  ```bash
+  python -m pytest -q
+  ```
 
-O repositório guarda duas gerações do sistema, e **só uma é o
-instrumento**:
+  São 7 556 testes, cerca de 35 minutos. Na versão descrita na
+  monografia (commit `16d448b`, de 23/11/2026), 7 548 passaram e 8 são
+  dispensados por construção.
 
-| pasta | o que é |
+Os conferidores e boa parte dos testes precisam do **gcc**. O trabalho
+usou o gcc 16.2 (MinGW-W64) no Windows; a variável `STRUCTURA_GCC` aponta
+para o compilador em outra máquina. O sistema em si roda sem compilador:
+o conteúdo já chega conferido.
+
+## O que este trabalho não afirma
+
+- **Não foi avaliado com estudantes.** Nada aqui é sobre aprendizagem
+  medida. O protocolo do estudo está pronto (Apêndice A da monografia) e
+  é o primeiro dos trabalhos futuros.
+- **O conteúdo não foi revisado por especialista no domínio.** Foi lido
+  e validado pelo autor, e conferido por compilador no que o compilador
+  alcança, o que não equivale a validação pedagógica.
+- **A conferência vale para um ambiente**: o gcc 16.2 no Windows.
+- **Quatro concepções do catálogo são hipóteses**, declaradas como tais.
+
+O sistema foi construído com assistência de inteligência artificial
+generativa (Claude Code, da Anthropic), sob a direção do autor. O uso
+está declarado na monografia, e o histórico de versões identifica cada
+alteração feita com essa assistência.
+
+## Mapa do repositório
+
+| Pasta | O que é |
 | --- | --- |
-| **`mvp/`** | **o instrumento.** Motor, domínio, rotas, telas, painel e exportador. 1.663 testes. |
-| **`scripts/`** | ferramentas de curadoria: oráculo, gerador de item, gerador de tabela de mesa, validador de material, caminhante |
-| **`docs/`** | o registro do processo e as decisões, com as medições que as produziram |
-| **`candidatos/`** | material e itens propostos, antes de entrarem no domínio |
-| `api/` `engine/` `store/` `tools/` `tests/` | **geração anterior**, de setembro. 252 testes próprios, que ainda passam. O `mvp/` **não importa nada dela** — conferido. |
-| `domain/` `prototipo/` `analise/` `web/` | restos da geração anterior, sem código Python |
+| **`mvp/`** | o sistema: o motor da sessão (`trilha.py`, `motor.py`), o servidor (`portal.py`, `trilha_app.py`), as páginas (`web/`) e os testes (`test_*.py`) |
+| **`mvp/dominio/`** | o conteúdo, em YAML: os grafos de premissas, o catálogo de concepções (`beliefs_kcNN.yaml`), o banco de questões (`activities_kcNN.yaml`) e as escadas (`escada_kcNN.yaml`) |
+| **`scripts/`** | os conferidores e os geradores: o oráculo do compilador, o conferidor das escadas e do banco, os estudantes simulados, a curadoria, o LaTeX e as figuras da monografia |
+| **`docs/`** | o registro do projeto: especificações, planos, a curadoria e o texto de leitura de cada escada (`escada-kcNN-leitura.md`) |
+| **`docs/monografia/`** | o texto do TCC: as seções em Markdown, o LaTeX gerado, as figuras e as pendências |
+| `candidatos/` | material proposto antes de entrar no domínio |
+| `api/` `engine/` `store/` `tools/` `tests/` `domain/` `prototipo/` `web/` | a geração anterior do sistema, de setembro de 2026, mantida como histórico |
 
-A versão anterior deste README mandava rodar `python -m api.main` na
-porta 8000, que é a geração anterior. Quem avaliar seguindo aquilo
-avalia o protótipo de setembro.
+Para ler o conteúdo de ensino sem abrir o sistema, comece por
+[docs/escada-kc07-leitura.md](docs/escada-kc07-leitura.md) (ponteiro e
+array).
 
-## Para ver o mecanismo em cinco minutos
+## A monografia
 
-Com `STRUCTURA_TOPICO=kc_02`:
-
-1. **Teach-back inicial.** Escreva o que você acha que é um ponteiro. O
-   sistema não corrige — ele guarda, e pergunta de novo no fim.
-2. **Três cartões de ensino**, um por premissa observável. Cada um traz
-   a frase, o exemplo em C, uma figura da memória, a ampliação
-   explicativa, o **teste de mesa** — a tabela com o valor de cada
-   variável depois de cada linha, *gerada compilando e executando o
-   exemplo* — e uma analogia de resgate. O botão "Ainda não entendi"
-   traz material diferente, não a mesma frase de novo.
-3. **Diagnóstico.** Responda uma atividade **escolhendo a alternativa
-   errada que corresponde a uma crença** — por exemplo, no nó B3, que o
-   ponteiro guarda o valor e não o endereço. Na tela seguinte, escolha
-   como razão a frase daquela mesma crença, e declare confiança alta.
-4. **A refutação dispara.** O sistema não diz "errado": ele percorre as
-   premissas que sustentam aquele nó, uma tela por premissa, e só então
-   volta a perguntar.
-5. **Treino e reteste.** O nó só fecha com dois acertos em **formatos
-   diferentes** de pergunta. E, no fim da unidade, a crença refutada
-   volta num item que a pessoa não viu — é a medida de transferência.
-6. **Teach-back final**, e o mapa do que ficou confirmado, frágil ou em
-   aberto.
-
-Tudo isso vira linha de log. A sessão inteira é **reconstruível só pelo
-arquivo de log**, sem estado guardado em outro lugar.
-
-## O escopo, delimitado
-
-| | |
-| --- | --- |
-| domínio | ponteiros em C, 13 tópicos, 79 premissas, 560 itens |
-| catálogo | 61 crenças errôneas distintas, cada uma com procedência declarada e fonte conferida na **obra primária** |
-| fontes | Sorva (2012), Apêndice A, Tabela A.1 — citado com página e item; FAQ do comp.lang.c, conferido entrada por entrada; Kaczmarczyk et al. (2010) |
-| material de ensino em profundidade | **um tópico** (`kc_02`), e o primeiro nó de um segundo (`kc_07:B1`) |
-| avaliação com participantes | **não foi feita.** Nenhuma afirmação deste repositório é sobre aprendizagem medida. |
-
-## A limitação principal, medida
-
-**A fragilidade do sistema hoje é a qualidade e a profundidade do
-material de ensino**, e ela não é uma impressão — é número:
-
-```text
-palavras de ensino por tópico
-   kc_02    2828      <- material profundo: ampliação, narração,
-   kc_07     578         caso resolvido, outra rota e teste de mesa
-   kc_09     257
-   kc_12     239
-   ...
-   kc_01     130      <- só a frase da premissa e um exemplo
-```
-
-As consequências, também medidas:
-
-- **oportunidade de aprendizagem registrada por sessão:** 7 no `kc_02`,
-  1 no `kc_07`, **zero nos outros onze**. O log só registra que um
-  conceito foi apresentado onde o material o ensina com explicação e
-  exemplo.
-- **inventário de conceitos:** 6 de 14 estão `disponivel`. Quatro são
-  `so_avaliado` — cobrados em item, nunca ensinados.
-- **67 itens cobram construto que o percurso não ensinou**, 64 deles
-  `funcao_com_parametro`, em 11 tópicos.
-- **7 cadeias de refutação interrogativa escritas, nenhuma acionável:**
-  cada uma exige que todo conceito dos seus degraus esteja ensinado, e
-  nenhuma passa.
-
-### E por que isto está escrito aqui, e não escondido
-
-Porque o instrumento inclui os mecanismos que **impedem essa limitação
-de passar calada**, e eles são parte da contribuição:
-
-- `mvp/test_coerencia.py` — uma catraca que pina, por tópico, quantos
-  itens cobram construto não ensinado, e **falha quando o número
-  cresce**. Dívida antiga não trava o trabalho; dívida nova não entra.
-- `mvp/dominio/conceitos.yaml` — um conceito só entra como `disponivel`
-  com a **evidência de onde foi ensinado**, e a regra é estreita:
-  explicação com exemplo. Menção não conta.
-- `docs/revisao-de-material.md` — seis portões de julgamento para
-  material novo, cada um com o defeito real que o motivou.
-- `mvp/test_yaml_duplicado.py` — recusa chave repetida em todo YAML de
-  domínio, porque `yaml.safe_load` fica com a última em silêncio.
-
-O que o sistema não sabe, ele diz que não sabe: premissa não medida sai
-nomeada no fim da sessão, distrator sem crença não recebe atribuição, e
-conceito sem evidência não é declarado ensinado.
-
-## Testes
+As seções estão em `docs/monografia/*.md`. O PDF é gerado delas:
 
 ```bash
-python -m pytest mvp -q
+python scripts/monografia_latex.py
+cd docs/monografia/latex
+pdflatex TCC_STRUCTURA && bibtex TCC_STRUCTURA && pdflatex TCC_STRUCTURA && pdflatex TCC_STRUCTURA
 ```
 
-1.663 testes do instrumento. A suíte inteira do repositório
-(`python -m pytest -q`) soma 1.915, porque inclui os 252 da geração
-anterior.
+Os números que o texto afirma sobre o sistema são conferidos por teste
+(`mvp/test_monografia.py`, `mvp/test_procedencia.py`): se o sistema muda
+e o texto não, o teste falha.
 
 ## Privacidade
 
-Participantes são identificados por **pseudônimo** (`P01`…`P40`). Não há
-nome, matrícula ou identificador direto em banco nem em exportação. O
-token de exportação fica em `data/export_token.txt`, fora do controle de
-versão.
+O trabalho não coletou dados de participantes. As sessões que o sistema
+grava ficam em pastas fora do controle de versão (`ensaios/`, `coleta/`),
+e o protocolo do estudo futuro identifica cada participante por um
+código anônimo: nome e matrícula não entram no sistema.
 
 ## Licença
 

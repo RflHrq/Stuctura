@@ -31,11 +31,9 @@ quem assina.
       registro é comentário no cabeçalho das escadas: a assinatura do
       conteúdo ficou igual, e a versão descrita segue a do commit
       `16d448b`.
-- [ ] As 79 cenas não estão nos textos de leitura: são animações do
-      código do exemplo resolvido, conferidas por programa. O texto diz
-      que o autor leu as escadas, os exemplos e as demonstrações, e não
-      que assistiu às cenas. Se ele as tiver visto no sistema, o texto
-      pode dizer também isso.
+- [x] As 79 cenas não estão nos textos de leitura. O autor informou em
+      24/11/2026 que as viu no sistema e as validou; a declaração de IA,
+      a Seção 7.1 e o cabeçalho das escadas passaram a incluí-las.
 
 ## 3. Referências
 
