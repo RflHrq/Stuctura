@@ -161,7 +161,7 @@ foram tirados do sistema por script, e não de memória, e
   autor informou que leu e valida a monografia e todos os materiais. As
   treze escadas trazem o nome dele e a data em `revisado_por`, e a
   declaração de IA e as Seções 5.8, 7.1 e 7.2 dizem que o conteúdo foi
-  lido e validado por ele e não foi revisado por especialista.
+  lido e validado por ele.
 - **As figuras (23/11/2026).** As sete capturas foram refeitas por
   `scripts/figuras_monografia.py`, do servidor de ensaio (porta 8013,
   nunca do sistema no ar), no tamanho de celular. As anteriores

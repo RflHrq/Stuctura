@@ -26,8 +26,11 @@ quem assina.
       leu (`docs/escada-kcNN-leitura.md`: os passos, os exemplos
       resolvidos e as demonstrações). A declaração de IA e as Seções 5.8
       e 7.1 passaram a dizer que o conteúdo foi lido e validado pelo
-      autor e que não foi revisado por especialista no domínio; a 7.2
-      deixou de listar a revisão pelo autor como trabalho futuro. O
+      autor; a 7.2 deixou de listar a revisão pelo autor como trabalho
+      futuro. Em 24/11/2026, a pedido do autor, saíram do texto as menções
+      à revisão por especialista (resumo, abstract, declaração, 1.5, 5.8,
+      7.1, 7.2 e conclusão); a adequação pedagógica segue dita como
+      dependente do estudo com estudantes. O
       registro é comentário no cabeçalho das escadas: a assinatura do
       conteúdo ficou igual, e a versão descrita segue a do commit
       `16d448b`.

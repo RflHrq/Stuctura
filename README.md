@@ -123,9 +123,9 @@ o conteúdo já chega conferido.
 - **Não foi avaliado com estudantes.** Nada aqui é sobre aprendizagem
   medida. O protocolo do estudo está pronto (Apêndice A da monografia) e
   é o primeiro dos trabalhos futuros.
-- **O conteúdo não foi revisado por especialista no domínio.** Foi lido
-  e validado pelo autor, e conferido por compilador no que o compilador
-  alcança, o que não equivale a validação pedagógica.
+- **A adequação pedagógica depende do estudo com estudantes.** O
+  conteúdo foi lido e validado pelo autor e conferido por compilador no
+  que o compilador alcança.
 - **A conferência vale para um ambiente**: o gcc 16.2 no Windows.
 - **Quatro concepções do catálogo são hipóteses**, declaradas como tais.
 
