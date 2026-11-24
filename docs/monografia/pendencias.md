@@ -18,14 +18,24 @@ O autor informou em 23/11/2026 que as duas respostas são sim.
 ## 2. Leitura do autor
 
 As diretrizes da UFV pedem que o conteúdo seja revisado e validado por
-quem assina. Hoje a declaração diz que o conteúdo didático ainda não foi
-integralmente revisado.
+quem assina.
 
-- [ ] A monografia inteira, na versão final (78 páginas em 23/11/2026).
-- [ ] O conteúdo didático: as 13 escadas (`mvp/dominio/escada_kc00.yaml`
-      a `escada_kc12.yaml`), com 402 passos, 80 demonstrações e 79 cenas.
-      O campo `revisado_por` está em branco nas 13. Quando a leitura
-      terminar, mudam a declaração de IA e as Seções 5.8 e 7.1.
+- [x] O autor informou em 24/11/2026 que leu e valida a monografia
+      inteira e todos os materiais. O campo `revisado_por` das 13
+      escadas traz o nome dele e a data, com o texto de leitura que ele
+      leu (`docs/escada-kcNN-leitura.md`: os passos, os exemplos
+      resolvidos e as demonstrações). A declaração de IA e as Seções 5.8
+      e 7.1 passaram a dizer que o conteúdo foi lido e validado pelo
+      autor e que não foi revisado por especialista no domínio; a 7.2
+      deixou de listar a revisão pelo autor como trabalho futuro. O
+      registro é comentário no cabeçalho das escadas: a assinatura do
+      conteúdo ficou igual, e a versão descrita segue a do commit
+      `16d448b`.
+- [ ] As 79 cenas não estão nos textos de leitura: são animações do
+      código do exemplo resolvido, conferidas por programa. O texto diz
+      que o autor leu as escadas, os exemplos e as demonstrações, e não
+      que assistiu às cenas. Se ele as tiver visto no sistema, o texto
+      pode dizer também isso.
 
 ## 3. Referências
 
