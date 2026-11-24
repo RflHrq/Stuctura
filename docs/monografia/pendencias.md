@@ -259,8 +259,13 @@ As outras 57 das 61 estão conferidas na obra (Apêndice B).
       do aluno e o nome do orientador, está em `entrega/`, fora do
       repositório. É para depois da defesa. A data do `.doc` é
       automática (a do dia em que o arquivo é aberto).
-- [ ] O documento on-line criado antes neste projeto guarda uma versão
-      antiga do texto: atualizar ou apagar.
+- [x] O documento on-line "Structura — monografia (base)", de
+      19/11/2026, que guardava uma versão antiga do texto, foi apagado em
+      24/11/2026, a pedido do autor. A exclusão feita permite restaurar:
+      para o documento sumir de vez, é o próprio autor quem o apaga na
+      lista de artefatos da conta dele.
+- [x] O README da raiz do repositório foi reescrito em 24/11/2026 para
+      o sistema de hoje (descrevia o de início de novembro).
 
 ## 7. Fora do TCC, declarado como trabalho futuro
 
