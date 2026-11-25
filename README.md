@@ -32,7 +32,7 @@ Paranaíba, 2026.
 | passos de ensino | **402**, em 13 escadas, cada passo com duas versões |
 | demonstrações com previsão | **80** |
 | cenas animadas | **79** |
-| testes automatizados | **7 556** |
+| testes automatizados | **7 568** |
 
 ## Como funciona uma sessão
 
@@ -116,8 +116,8 @@ escreveu.
   python -m pytest -q
   ```
 
-  São 7 556 testes, cerca de 35 minutos. Na versão descrita na
-  monografia (commit `16d448b`, de 23/11/2026), 7 548 passaram e 8 são
+  São 7 568 testes, de 20 a 35 minutos. Na versão descrita na
+  monografia (commit `e57385b`, de 24/11/2026), 7 560 passaram e 8 são
   dispensados por construção.
 
 Os conferidores e boa parte dos testes precisam do **gcc**. O trabalho

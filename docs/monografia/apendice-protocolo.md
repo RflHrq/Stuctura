@@ -24,7 +24,7 @@ O estudo prevê de 10 a 15 estudantes que cursam ou já cursaram a disciplina co
 1. consentimento e atribuição de um código anônimo (P01 a P15); o nome e a matrícula são registrados em papel, fora do sistema;
 2. três perguntas breves sobre a experiência com a linguagem C;
 3. dois tópicos na trilha, com verbalização do pensamento em voz alta. O pesquisador utiliza apenas lembretes padronizados (por exemplo, "continue pensando em voz alta"), definidos antes da coleta, sem oferecer indicações sobre o conteúdo nem correções. Sugerem-se os tópicos kc_07 (ponteiro e array) e kc_09 (`free` e ponteiro pendente), que têm o maior número de concepções mapeadas;
-4. entrevista breve sobre a percepção do participante: o que achou, o que gerou confusão e se faria outro tópico.
+4. aplicação do questionário SUS e entrevista breve sobre a percepção do participante, com três perguntas abertas: o que achou, o que gerou confusão e se faria outro tópico.
 
 As respostas de cada sessão ficam gravadas no registro do sistema e são exportadas, pelo código do participante, nas três tabelas descritas na Seção 3.7 e no Apêndice C, que fornecem os dados do sistema para V1, V2 e V3 (Quadro A.1); a verbalização, que V2 compara com a concepção detectada, vem da gravação de áudio, e a percepção (V4), do questionário e da entrevista.
 

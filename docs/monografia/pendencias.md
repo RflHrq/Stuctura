@@ -32,8 +32,8 @@ quem assina.
       7.1, 7.2 e conclusão); a adequação pedagógica segue dita como
       dependente do estudo com estudantes. O
       registro é comentário no cabeçalho das escadas: a assinatura do
-      conteúdo ficou igual, e a versão descrita segue a do commit
-      `16d448b`.
+      conteúdo ficou igual. A versão descrita passou depois ao commit
+      `e57385b` (ver abaixo).
 - [x] As 79 cenas não estão nos textos de leitura. O autor informou em
       24/11/2026 que as viu no sistema e as validou; a declaração de IA,
       a Seção 7.1 e o cabeçalho das escadas passaram a incluí-las.
