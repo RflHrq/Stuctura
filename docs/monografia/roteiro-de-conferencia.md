@@ -11,7 +11,7 @@ se ela diz o que a frase diz que ela diz. O que cada obra sustenta,
 segundo a conferência anterior, está em
 [conferencia-das-referencias.md](conferencia-das-referencias.md).
 
-São 116 itens: 103 citações de 22 obras abertas e 13 menções a
+São 117 itens: 104 citações de 22 obras abertas e 13 menções a
 estudos que não foram abertos, citados por intermédio de outra
 obra.
 
@@ -29,7 +29,7 @@ obra.
 | Schmellenkamp, Latys e Zeume (`schmellenkamp2023`) | 5 | `schmellenkamp2023/3545945.3569806.pdf` |
 | SEI (`sei2025`) | 2 | `certc/ (regras ERR33-C, EXP34-C, MEM30-C e MEM31-C, em HTML)` |
 | Soderstrom e Bjork (`soderstrom2015`) | 2 | `soderstrom2015/soderstrom_bjork_2015.pdf` |
-| Sorva (`sorva2012`) | 34 | `sorva2012/isbn9789526046266.pdf` |
+| Sorva (`sorva2012`) | 35 | `sorva2012/isbn9789526046266.pdf` |
 | Sorva (`sorva2013`) | 4 | `sorva2013/2483710.2483713.pdf` |
 | Summit (`summit2005`) | 5 | `cfaq/ (índices e perguntas do FAQ, em HTML)` |
 | UFV (`ufv2026`) | 3 | `ufv-diretrizes-ia/DIRETRIZES-IA.pdf` |
@@ -271,7 +271,7 @@ obra.
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > Os estudos agregados pelo Apêndice A de Sorva (2012), relacionados na Seção 4.3.1, não figuram em linha própria porque não foram consultados diretamente.
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
-  > As cinco concepções que os citam fazem-no *apud* Sorva (2012), com página e item, e estão contadas na primeira linha do quadro.
+  > As concepções que os indicam como fonte o fazem pelo item de Sorva (2012) que os cita, com página e item, e estão contadas na primeira linha do quadro.
 
 ### 4.6.1 Buscas realizadas com vocabulário ou item inadequado
 
@@ -342,6 +342,8 @@ obra.
   > Foram lidos no original o texto integral de Sorva (2012), obtido do repositório institucional aberto da Universidade Aalto; as perguntas citadas do FAQ do comp.lang.c, consultadas em `c-faq.com`; e o artigo de Hermans et al. (2018).
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > Os estudos agregados pelo Apêndice A (Seção 4.3.1) são citados *apud* Sorva (2012), com página e item, e por essa razão não constam da lista de referências, que relaciona apenas as obras consultadas.
+- [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
+  > Cada concepção que indica um desses estudos como fonte o faz pelo item de Sorva (2012) que o cita, com página e item, de modo que a mediação fica registrada no próprio campo de fonte.
 - [ ] **(SEI, 2025)** · abrir `fontes/certc/ (regras ERR33-C, EXP34-C, MEM30-C e MEM31-C, em HTML)`
   > As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), que sustentam as três concepções de grau `N`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita.
 - [ ] **(MITRE, 2026)** · abrir `fontes/cwe/ (CWE-252, CWE-415 e CWE-476, em HTML)`

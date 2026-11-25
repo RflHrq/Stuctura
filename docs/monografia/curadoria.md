@@ -37,7 +37,7 @@ Duas propriedades desse campo são relevantes para o método.
 
 A primeira é que o grau constitui uma afirmação sobre a literatura, e não sobre o uso da concepção no sistema. Uma mesma concepção pode aparecer em mais de um tópico do domínio (o que ocorre com 14 delas), e o texto que a contextualiza varia de um tópico para outro; o grau, porém, deve ser o mesmo. Se uma concepção tem grau `D` em um tópico e `L` em outro, uma das duas afirmações é falsa, e essa diferença corresponde, em um trabalho acadêmico, à diferença entre citar e alegar. A auditoria encontrou três casos desse tipo (Seção 4.6.5), e um teste automatizado impede a divergência (Quadro 4.7).
 
-A segunda é que o grau `E` é legítimo, desde que declarado. Uma hipótese do autor pode integrar o catálogo, mas não pode ser apresentada como achado. As quatro hipóteses do catálogo são identificadas como tais no próprio campo de fonte, e dois testes independentes asseguram que nenhuma delas apareça nos quatro tópicos selecionados para a futura coleta de dados com estudantes (kc_02, kc_07, kc_09 e kc_11).
+A segunda é que o grau `E` é legítimo, desde que declarado. Uma hipótese do autor pode integrar o catálogo, mas não pode ser apresentada como achado. As quatro hipóteses do catálogo são identificadas como tais no próprio campo de fonte, e dois testes independentes asseguram que nenhuma delas apareça nos quatro tópicos selecionados para a futura coleta de dados com estudantes (kc_02, kc_07, kc_09 e kc_11), entre os quais estão os dois que o protocolo do estudo sugere para cada sessão (Apêndice A).
 
 ## Classes de fonte
 
@@ -116,7 +116,7 @@ O quadro é exaustivo e mutuamente exclusivo: cada uma das 61 concepções figur
 
 As três primeiras linhas somam as 57 concepções conferidas na obra primária. As duas últimas correspondem às quatro hipóteses, para as quais a curadoria não afirma haver fonte. Quatro das 57 foram conferidas em uma segunda passada, em 23/11/2026 (Seção 4.6.6).
 
-Os estudos agregados pelo Apêndice A de Sorva (2012), relacionados na Seção 4.3.1, não figuram em linha própria porque não foram consultados diretamente. As cinco concepções que os citam fazem-no *apud* Sorva (2012), com página e item, e estão contadas na primeira linha do quadro. A Seção 4.7 detalha esse ponto.
+Os estudos agregados pelo Apêndice A de Sorva (2012), relacionados na Seção 4.3.1, não figuram em linha própria porque não foram consultados diretamente. As concepções que os indicam como fonte o fazem pelo item de Sorva (2012) que os cita, com página e item, e estão contadas na primeira linha do quadro. A Seção 4.7 detalha esse ponto.
 
 A conferência é automatizada sempre que possível: o programa que gera o Apêndice B extrai a frase entre aspas de cada citação e a procura no texto da obra, de modo que o resultado não depende do que está declarado no campo de fonte. Quando o programa é executado sem o texto da obra, o número de concepções conferidas cai de 57 para 35, e o apêndice passa a indicar, linha por linha, que a conferência não foi realizada.
 
@@ -201,7 +201,7 @@ Esta seção explicita o que foi lido no original, em contrapartida ao fato de o
 
 Foram lidos no original o texto integral de Sorva (2012), obtido do repositório institucional aberto da Universidade Aalto; as perguntas citadas do FAQ do comp.lang.c, consultadas em `c-faq.com`; e o artigo de Hermans et al. (2018). As citações dessas obras são diretas, e a frase citada foi localizada no texto.
 
-Os estudos agregados pelo Apêndice A (Seção 4.3.1) são citados *apud* Sorva (2012), com página e item, e por essa razão não constam da lista de referências, que relaciona apenas as obras consultadas. Os documentos originais não foram consultados, por se encontrarem em acervos de acesso restrito; a verificação realizada limitou-se à existência do registro bibliográfico, sem acesso ao texto. Cinco concepções do catálogo citam esses estudos, e cada uma declara a mediação no próprio campo de fonte.
+Os estudos agregados pelo Apêndice A (Seção 4.3.1) são citados *apud* Sorva (2012), com página e item, e por essa razão não constam da lista de referências, que relaciona apenas as obras consultadas. Os documentos originais não foram consultados, por se encontrarem em acervos de acesso restrito; a verificação realizada limitou-se à existência do registro bibliográfico, sem acesso ao texto. Cada concepção que indica um desses estudos como fonte o faz pelo item de Sorva (2012) que o cita, com página e item, de modo que a mediação fica registrada no próprio campo de fonte.
 
 Em consequência, nenhuma afirmação deste trabalho atribui a esses estudos conteúdo que não conste do item do Apêndice A que os cita.
 
