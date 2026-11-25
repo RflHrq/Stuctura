@@ -457,3 +457,24 @@ def test_os_passos_que_o_compilador_confere():
     assert (com, sem) == (246, 156)
     assert ("os 246 passos com código (os outros 156 são de escolher entre "
             "frases, sem código)") in _texto("06-resultados-da-verificacao.md")
+
+
+def test_os_toques_que_a_6_3_compara():
+    """A 6.3 compara os toques de quem sustenta e muda com os de quem não
+    sabe e aprende, nos tópicos de seis premissas: os números saem do
+    Quadro 6.2, e não de um tópico escolhido."""
+    texto = _texto("06-resultados-da-verificacao.md")
+    bruto = (CAPITULOS / "06-resultados-da-verificacao.md").read_text(
+        encoding="utf-8")
+    quadro = bruto.split("**Quadro 6.2")[1].split("**Quadro 6.3")[0]
+    aprende, muda = set(), set()
+    for t in topicos():
+        if len(carrega(topico=t).ordem) != 6:
+            continue
+        linha = next(l for l in quadro.splitlines() if l.startswith("| %s |" % t))
+        celulas = [c.strip() for c in linha.strip("|").split("|")]
+        aprende.add(int(celulas[2].split("/")[1]))
+        muda.add(int(celulas[4].split("/")[1]))
+    assert muda == {37}
+    assert (min(aprende), max(aprende)) == (43, 45)
+    assert "(37 toques, contra 43 a 45, nos tópicos de seis premissas)" in texto

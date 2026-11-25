@@ -5,6 +5,8 @@
 
 Esta seção descreve o sistema na versão de 24/11/2026, registrada no commit \texttt{e57385b} do repositório do projeto, disponível em \texttt{https:/\allowbreak{}/\allowbreak{}github.\allowbreak{}com/\allowbreak{}RflHrq/\allowbreak{}Stuctura}. São apresentados o domínio de ensino (Seção~3.1), o diagnóstico de cada estudante (Seção~3.2), o percurso oferecido a partir do diagnóstico (Seção~3.3) e os três tipos de conteúdo que sustentam esse percurso: a escada de passos (Seção~3.4), a demonstração com previsão (Seção~3.5) e a cena que anima a revisão de cada premissa (Seção~3.6). Em seguida, descrevem-se o registro da sessão (Seção~3.7), a interface (Seção~3.8) e a arquitetura de software (Seção~3.9).
 
+As figuras desta seção são capturas de tela do sistema em sessões de ensaio, conduzidas com as respostas dos estudantes simulados descritos na Seção~5.4, e não com participantes. Foram geradas por um programa do projeto (\texttt{scripts/\allowbreak{}figuras\_\allowbreak{}monografia.\allowbreak{}py}), que conduz cada sessão até a tela desejada e a captura por inteiro.
+
 \section{Domínio: premissas, concepções errôneas e questões}
 
 O conteúdo de ponteiros em C está organizado em 13 tópicos, identificados pelos códigos kc\_00 a kc\_12 (kc abrevia \textit{knowledge component}, o componente de conhecimento da Seção~2.3), que vão da declaração de variáveis ao ponteiro pendente por escopo (Quadro~\ref{qua:3-1}). Cada tópico é representado por um grafo de premissas, proposições curtas que o estudante pode afirmar ou negar. As premissas de base são fatos verificáveis pela observação de um programa (por exemplo, ``\texttt{int notas[3]} cria três caixas de int grudadas''); as premissas de inferência decorrem de outras, que constituem o seu suporte (por exemplo, ``então \texttt{notas[i]} é só outro jeito de escrever \texttt{*(notas + i)}''). Os 13 tópicos somam 79 premissas, e a ordem de apresentação em cada tópico respeita a relação de suporte: nenhuma premissa é apresentada antes daquelas que a sustentam. Em cada tópico, as premissas de base são identificadas pela letra B e as de inferência pela letra I, seguidas de um número de ordem (por exemplo, B1 e I3).
@@ -46,7 +48,7 @@ Cada premissa tem início com uma pergunta de diagnóstico, apresentada em uma �
 \centering
 \caption{Pergunta de diagnóstico, com a resposta confirmada e as razões exibidas (tópico kc\_07, tema claro)}\label{fig:3-1}
 \includegraphics[width=.5\textwidth,height=.55\textheight,keepaspectratio]{fig-3-1-pergunta.jpg}
-\fonte{Captura de tela do Structura, elaborada pelo autor.}
+\fonte{Captura de tela do Structura em sessão de ensaio, elaborada pelo autor.}
 \end{figure}
 
 A pergunta de abertura de cada premissa é, preferencialmente, uma questão com código de nível intermediário, que requer a aplicação do conceito a um trecho de programa. As questões que utilizam construções ainda não ensinadas por nenhum tópico até aquele ponto (laço, \texttt{struct} e variável global, entre outras) são excluídas da trilha, para que não se exija o que não foi ensinado. Nos 13 tópicos, todas as premissas têm como abertura uma questão com código.
@@ -94,7 +96,7 @@ Cada premissa recebe no máximo uma intervenção (a correspondente à lacuna ou
 \centering
 \caption{Passo guiado da escada, com a concepção errônea entre as alternativas e a solicitação de certeza (tópico kc\_07, premissa B2, passo 1)}\label{fig:3-2}
 \includegraphics[width=.5\textwidth,height=.55\textheight,keepaspectratio]{fig-3-2-passo.jpg}
-\fonte{Captura de tela do Structura, elaborada pelo autor.}
+\fonte{Captura de tela do Structura em sessão de ensaio, elaborada pelo autor.}
 \end{figure}
 
 Concluídas todas as premissas, a reconferência apresenta uma pergunta para cada premissa trabalhada na sessão, isto é, ensinada ou corrigida, depois de a pessoa ter respondido a outras premissas. Esse intervalo permite distinguir a assimilação na sessão do acerto obtido logo após a leitura. A pergunta é selecionada na seguinte ordem de preferência: o passo em que a pessoa errou, na versão que ela ainda não viu; um passo de produção ainda não visto; uma questão do banco ainda não utilizada, que solicita também a razão; e, somente em último caso, um passo já visto, com outros valores. Quando a razão indicada na reconferência corresponde à concepção trabalhada naquela premissa, o fechamento informa que ``a ideia voltou''.
@@ -105,7 +107,7 @@ O fechamento (Figura~\ref{fig:3-3}) resume a sessão em até quatro blocos (as c
 \centering
 \caption{Tela de fechamento de uma sessão de ensaio no tópico kc\_07, capturada inteira e disposta em três colunas, lidas de cima para baixo e da esquerda para a direita: os blocos das concepções errôneas, das lacunas e do que já estava firme, seguidos da lista de premissas}\label{fig:3-3}
 \includegraphics[width=\textwidth,height=.72\textheight,keepaspectratio]{fig-3-3-fechamento.jpg}
-\fonte{Captura de tela do Structura, elaborada pelo autor.}
+\fonte{Captura de tela do Structura em sessão de ensaio, elaborada pelo autor.}
 \end{figure}
 
 \section{Escada de passos}
@@ -146,7 +148,7 @@ Para cada concepção errônea de cada tópico há uma demonstração, composta 
 \includegraphics[width=\textwidth,height=.5\textheight,keepaspectratio]{fig-3-4b-maquina.jpg}\\[2pt]
 (b)
 \end{minipage}
-\fonte{Captura de tela do Structura, elaborada pelo autor.}
+\fonte{Captura de tela do Structura em sessão de ensaio, elaborada pelo autor.}
 \end{figure}
 
 O resultado exibido é de dois tipos. Em 41 das 80 demonstrações, trata-se da saída do programa: no tópico kc\_11, por exemplo, quem acredita que a aritmética de ponteiros opera em bytes prevê a impressão de um valor arbitrário para \texttt{*(p + 3)} sem o uso de \texttt{sizeof}, e observa a impressão do valor de \texttt{notas[3]}. Nas outras 39, trata-se da mensagem emitida pelo compilador: no tópico kc\_12, quem acredita que \texttt{static} altera o escopo de uma variável prevê que o nome \texttt{n} passe a ser válido fora da função, e observa a mensagem de que \texttt{n} não foi declarado naquele ponto. Algumas dessas mensagens são emitidas apenas com uma opção adicional do compilador (por exemplo, o analisador de fluxo, \texttt{-{}fanalyzer}, que aponta o bloco de memória alocado e nunca liberado), e as opções permitidas formam uma lista fechada.
@@ -163,7 +165,7 @@ A revisão de cada premissa inclui uma cena, na qual o trecho de código corresp
 \centering
 \caption{Cena da revisão da premissa B1 do tópico kc\_06, durante a execução da função \texttt{zera}: a cópia \texttt{n} passa a valer 0, e \texttt{idade} permanece com o valor 15}\label{fig:3-5}
 \includegraphics[width=.5\textwidth,height=.55\textheight,keepaspectratio]{fig-3-5-cena.jpg}
-\fonte{Captura de tela do Structura, elaborada pelo autor.}
+\fonte{Captura de tela do Structura em sessão de ensaio, elaborada pelo autor.}
 \end{figure}
 
 Os elementos visuais são poucos e derivam de uma mesma analogia, utilizada em todos os tópicos. A caixa representa a variável: uma etiqueta com o nome, o tipo indicado acima e o valor em um círculo interno, substituído por ``?'' enquanto a variável não tem valor atribuído. O ponteiro é representado por uma caixa que guarda um bilhete, ``→ idade'', com uma seta até a caixa apontada; o valor \texttt{NULL} é representado por um bilhete com o texto \texttt{NULL}, sem seta. A fileira representa o array: caixas menores dispostas lado a lado, com o índice abaixo de cada uma, ou em linhas e colunas no caso de matrizes, com destaque para a posição lida ou escrita pela linha em execução; uma cadeia de caracteres é representada como uma fileira de \texttt{char} terminada por \texttt{\textquotesingle{}\textbackslash{}0\textquotesingle{}}. A bancada representa a função em execução: uma região própria, cujo título é a primeira linha da função, na qual são criadas as suas variáveis locais, que desaparecem quando a função termina, com exceção das declaradas como \texttt{static}, que permanecem. Por fim, o bloco alugado representa a memória obtida por \texttt{malloc}: é exibido em uma região separada, o monte, com a indicação ``alugado'' e, após a chamada a \texttt{free}, aparece esmaecido, com a indicação ``devolvido''.
@@ -196,7 +198,7 @@ A página inicial representa o caminho dos 13 tópicos como a trilha de um jogo 
 \centering
 \caption{Página inicial no tema escuro, capturada inteira e disposta em três colunas, lidas de cima para baixo e da esquerda para a direita: o próximo tópico sugerido e o caminho dos 13 tópicos, com um tópico concluído e um em andamento, seguidos da lista dos tópicos}\label{fig:3-6}
 \includegraphics[width=\textwidth,height=.72\textheight,keepaspectratio]{fig-3-6-inicio-escuro.jpg}
-\fonte{Captura de tela do Structura, elaborada pelo autor.}
+\fonte{Captura de tela do Structura em sessão de ensaio, elaborada pelo autor.}
 \end{figure}
 
 As fontes tipográficas utilizadas têm licença livre, a \textit{SIL Open Font License} (OFL), e estão armazenadas no próprio projeto, de modo que nenhuma página carrega recursos de endereços externos.

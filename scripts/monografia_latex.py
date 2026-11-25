@@ -44,7 +44,8 @@ APENDICES = [("apendice-protocolo.md", "apendice-a-protocolo", "A"),
 LINHAS_DO_QUADRO_LONGO = 25
 
 FONTE_PADRAO_QUADRO = "Elaborado pelo autor."
-FONTE_PADRAO_FIGURA = "Captura de tela do Structura, elaborada pelo autor."
+FONTE_PADRAO_FIGURA = ("Captura de tela do Structura em sessão de ensaio, "
+                       "elaborada pelo autor.")
 
 # --------------------------------------------------------------------------
 # Citações: NBR 10520/2023, como no manual de normalização da UFV (2026)
