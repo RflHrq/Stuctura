@@ -28,7 +28,7 @@ As 79 cenas também foram aprovadas na conferência: em cada ponto percorrido po
 
 No banco de questões, das 69 questões de prever a saída conferidas, todas imprimem o valor da alternativa correta, e nenhum trecho das 321 questões com código divide uma cadeia de caracteres entre duas linhas. Os defeitos identificados pela conferência do banco são relatados na Seção 6.4.
 
-A seleção de questões deixa 93 questões do banco fora da trilha, por utilizarem construções que nenhum tópico ensinou até aquele ponto. Com essa exclusão, as 79 premissas têm como abertura uma questão com código.
+A seleção de questões deixa 93 questões do banco fora da trilha, por utilizarem construções que nenhum tópico ensinou até aquele ponto. Com essa exclusão, 78 das 79 premissas têm como abertura uma questão com código; a exceção é a premissa I2 do kc_05 (Seção 3.1).
 
 ## 6.3 Medida do percurso com estudantes simulados
 

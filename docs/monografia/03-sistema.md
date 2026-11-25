@@ -38,7 +38,7 @@ Cada premissa tem início com uma pergunta de diagnóstico, apresentada em uma �
 
 ![Figura 3.1 — Pergunta de diagnóstico, com a resposta confirmada e as razões exibidas (tópico kc_07, tema claro)](figuras/fig-3-1-pergunta.jpg)
 
-A pergunta de abertura de cada premissa é, preferencialmente, uma questão com código de nível intermediário, que requer a aplicação do conceito a um trecho de programa. As questões que utilizam construções ainda não ensinadas por nenhum tópico até aquele ponto (laço, `struct` e variável global, entre outras) são excluídas da trilha, para que não se exija o que não foi ensinado. Nos 13 tópicos, todas as premissas têm como abertura uma questão com código.
+A pergunta de abertura de cada premissa é, preferencialmente, uma questão com código de nível intermediário, que requer a aplicação do conceito a um trecho de programa. As questões que utilizam construções ainda não ensinadas por nenhum tópico até aquele ponto (laço, `struct` e variável global, entre outras) são excluídas da trilha, para que não se exija o que não foi ensinado. Nos 13 tópicos, 78 das 79 premissas têm como abertura uma questão com código; na premissa I2 do kc_05, as duas questões de diagnóstico com código ficam fora da trilha, e a abertura é uma questão de conceito.
 
 A combinação dos três sinais define quatro caminhos (Quadro 3.2).
 
@@ -65,7 +65,7 @@ Uma sessão percorre um tópico, premissa por premissa, na ordem definida pelo g
 entrada → premissa 1 → premissa 2 → … → reconferência → fechamento
 ```
 
-Cada premissa recebe no máximo uma intervenção (a correspondente à lacuna ou a correspondente à crença), o que estabelece um limite superior para a extensão da sessão, medida em número de telas. A premissa cuja intervenção não é concluída dentro desse limite é encerrada com o resultado "em aberto". Os quatro caminhos e os resultados correspondentes são descritos a seguir.
+Cada premissa recebe no máximo uma intervenção de cada tipo, a correspondente à lacuna e a correspondente à crença, e as duas ocorrem na mesma premissa somente quando a escada conduz à demonstração (caminho de lacuna, adiante); com o limite de oito telas por premissa, isso estabelece um limite superior para a extensão da sessão, medida em número de telas. A premissa cuja intervenção não é concluída dentro desse limite é encerrada com o resultado "em aberto". Os quatro caminhos e os resultados correspondentes são descritos a seguir.
 
 - **Firme.** O sistema apresenta um retorno curto, que explica por que a resposta está correta (cada uma das 79 perguntas de abertura dispõe dessa explicação, de modo que também o acerto contribua para o aprendizado) e, no ritmo "completo", uma segunda pergunta, de outra natureza, na qual a pessoa deve produzir a resposta, e não apenas indicá-la entre alternativas: trata-se do passo de produção de nível mais alto da escada da premissa (Seção 3.4); nas três premissas cuja escada não tem passo de prática de produção, é um passo de escolher. Em caso de acerto, a premissa é encerrada com o resultado "já sabia". No ritmo "rápido", a resposta firme encerra a premissa diretamente.
 - **Reforço.** O sistema apresenta uma pergunta adicional, em outro formato. Se a resposta for correta e pela razão correta, a premissa é encerrada com o resultado "firmou"; caso contrário, segue-se a intervenção indicada pela nova resposta.

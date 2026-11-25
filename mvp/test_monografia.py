@@ -527,3 +527,48 @@ def test_as_alternativas_incorretas_sem_concepcao():
     assert topicos_sem == {"kc_00", "kc_02"}
     assert ("1 098 das 1 116 alternativas incorretas indicam a concepção "
             "errônea que as explicaria") in _texto("03-sistema.md")
+
+
+def test_a_abertura_sem_codigo():
+    """A 3.1, a 5.3 e a 6.2 diziam que toda premissa abre com questão com
+    código. Uma não abre: no I2 do kc_05, as duas questões de diagnóstico
+    com código ficam fora da trilha, e sobra a de conceito
+    (test_trilha_topicos.test_no_kc_05_ficam_fora_doze_e_so_o_i2_abre_com_conceito)."""
+    from mvp import trilha
+    sem = []
+    for t in topicos():
+        d, escadas = _escadas(t)
+        for no in d.ordem:
+            ab = trilha.abertura(d, no, fora=tuple(escadas[no].fora))
+            if not ab.codigo:
+                sem.append((t, no))
+    assert sem == [("kc_05", "I2")]
+    assert ("78 das 79 premissas têm como abertura uma questão com código"
+            in _texto("03-sistema.md"))
+    assert ("78 das 79 premissas têm como abertura uma questão com código"
+            in _texto("06-resultados-da-verificacao.md"))
+    assert ("e uma questão com código como abertura de cada premissa, exceto "
+            "a I2 do kc_05") in _texto("05-construcao-e-verificacao.md")
+
+
+def test_a_premissa_pode_receber_a_escada_e_a_demonstracao():
+    """A 3.3 dizia "no máximo uma intervenção (a da lacuna OU a da
+    crença)", e o caso Lacuna, logo abaixo, leva à demonstração quem
+    escolhe a concepção com convicção num passo guiado. O que o sistema
+    garante é no máximo UMA DE CADA TIPO
+    (test_trilha_invariantes.test_cada_premissa_recebe_no_maximo_um_trabalho_de_cada_tipo).
+    Medido nas 520 sessões dos 13 tópicos, em 24/11/2026: 266 premissas
+    receberam as duas."""
+    d, escadas = _escadas("kc_00")
+    c = trilha_alunos.caminha(d, escadas, "crente_teimoso", "explique",
+                              "completo", "t1")
+    por = collections.defaultdict(list)
+    for e in c.eventos:
+        if e.tipo == "trabalho_iniciado":
+            por[e.dados["no"]].append(e.dados["trabalho"])
+    assert any(t == ["lacuna", "crenca"] for t in por.values())
+    assert all(len(t) == len(set(t)) for t in por.values())
+    assert ("Cada premissa recebe no máximo uma intervenção de cada tipo"
+            in _texto("03-sistema.md"))
+    assert ("nenhuma premissa recebe duas vezes a mesma intervenção"
+            in _texto("05-construcao-e-verificacao.md"))
