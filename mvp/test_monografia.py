@@ -496,3 +496,23 @@ def test_a_segunda_pergunta_de_quem_acerta_firme():
     assert sem == [("kc_01", "B1"), ("kc_08", "I3"), ("kc_09", "B1")]
     assert ("nas três premissas cuja escada não tem passo de prática de "
             "produção, é um passo de escolher") in _texto("03-sistema.md")
+
+
+def test_as_alternativas_incorretas_sem_concepcao():
+    """O texto diz quantas alternativas incorretas do banco indicam uma
+    concepção do catálogo: quase todas, e não todas. As que não indicam
+    ficam como aviso na revisão automatizada."""
+    total = sem = 0
+    topicos_sem = set()
+    for t in topicos():
+        for a in carrega(topico=t).atividades:
+            for o in a.opcoes:
+                if not o.correta:
+                    total += 1
+                    if not o.crenca:
+                        sem += 1
+                        topicos_sem.add(t)
+    assert (total, sem) == (1116, 18)
+    assert topicos_sem == {"kc_00", "kc_02"}
+    assert ("1 098 das 1 116 alternativas incorretas indicam a concepção "
+            "errônea que as explicaria") in _texto("03-sistema.md")
