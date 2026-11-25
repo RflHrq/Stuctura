@@ -1,20 +1,8 @@
 /* Os slides da defesa (docs/apresentacao.md). As cores e o desenho da cena
-   vêm de mvp/web/tema.css; as fontes são declaradas aqui por caminho
-   relativo, porque o tema as pede em /web/fontes/, que só existe com o
-   servidor do sistema rodando, e o deck abre direto do arquivo. */
-
-@font-face {
-  font-family: "Nunito";
-  src: url("../mvp/web/fontes/nunito.woff2") format("woff2");
-  font-weight: 200 1000;
-  font-display: block;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("../mvp/web/fontes/jetbrains-mono.woff2") format("woff2");
-  font-weight: 100 800;
-  font-display: block;
-}
+   vêm de mvp/web/tema.css. As fontes vêm embutidas em fontes.css (gerado):
+   o tema as pede em /web/fontes/, que só existe com o servidor do sistema,
+   e o Chrome recusa fonte de outro arquivo quando o deck abre direto do
+   arquivo. */
 
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }

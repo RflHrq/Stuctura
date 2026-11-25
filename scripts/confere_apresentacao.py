@@ -170,6 +170,23 @@ def gera() -> None:
         "   página de cada seção, quadro e figura do PDF entregue. */\n"
         "window.REFS = %s;\n" % json.dumps(refs, ensure_ascii=False, indent=1),
         encoding="utf-8")
+    # As fontes do sistema, embutidas: aberto com dois cliques (file://),
+    # o Chrome recusa a fonte que vem de outro arquivo.
+    import base64
+    fontes = RAIZ / "mvp" / "web" / "fontes"
+    blocos = []
+    for familia, arquivo, pesos in (("Nunito", "nunito.woff2", "200 1000"),
+                                    ("JetBrains Mono", "jetbrains-mono.woff2",
+                                     "100 800")):
+        dado = base64.b64encode((fontes / arquivo).read_bytes()).decode("ascii")
+        blocos.append('@font-face {\n  font-family: "%s";\n  src: url("data:font/'
+                      'woff2;base64,%s") format("woff2");\n  font-weight: %s;\n'
+                      '  font-display: block;\n}\n' % (familia, dado, pesos))
+    (DECK / "fontes.css").write_text(
+        "/* Gerado por scripts/confere_apresentacao.py --gera: as fontes de\n"
+        "   mvp/web/fontes (licença SIL OFL), embutidas. */\n" + "".join(blocos),
+        encoding="utf-8")
+
     d = carrega(topico="kc_06")
     e = le(RAIZ / "mvp" / "dominio" / "escada_kc06.yaml", d)["B1"]
     dados = {"cena": trilha.cena_json(e.cena), "codigo": e.revisao.codigo}

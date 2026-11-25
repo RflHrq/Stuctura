@@ -132,3 +132,20 @@ def test_toda_imagem_e_script_do_deck_existe():
 
 def test_o_deck_passa_no_conferidor(refs, monografia):
     assert ca.problemas(_html(), refs, monografia) == []
+
+
+def test_as_fontes_vem_embutidas_para_abrir_direto_do_arquivo():
+    """Aberto com dois cliques (file://), o Chrome recusa fonte de outro
+    arquivo. As fontes do sistema vão embutidas em fontes.css, e são as
+    mesmas de mvp/web/fontes."""
+    import base64
+    css = (DECK / "fontes.css").read_text(encoding="utf-8")
+    for familia, arquivo in (("Nunito", "nunito.woff2"),
+                             ("JetBrains Mono", "jetbrains-mono.woff2")):
+        m = re.search(r'font-family: "%s";\s*src: url\("data:font/woff2;base64,'
+                      r'([A-Za-z0-9+/=]+)"\)' % familia, css)
+        assert m, familia
+        assert base64.b64decode(m.group(1)) == (
+            RAIZ / "mvp" / "web" / "fontes" / arquivo).read_bytes()
+    assert 'href="fontes.css"' in _html()
+    assert ".woff2" not in (DECK / "deck.css").read_text(encoding="utf-8")
