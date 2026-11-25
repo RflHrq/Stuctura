@@ -201,6 +201,15 @@ As outras 57 das 61 estão conferidas na obra (Apêndice B).
       cinco questões corrigidas; a 7.1 diz de que leitura se trata. É o
       que o commit `2ba98f6` registra.
 
+- [x] A exportação das sessões da trilha, que o Apêndice A listava como
+      pendência anterior à coleta, foi implementada em 24/11/2026, a
+      pedido do autor (para a banca ver que os dados do estudo podem ser
+      coletados): `mvp/exporta_trilha.py`, com três tabelas em CSV por
+      código de participante (sessões, premissas e respostas) e as
+      travas do exportador anterior. Doze testes novos, em
+      `mvp/test_exporta_trilha.py`. A Seção 3.7 a descreve, a 7.2 e o
+      Apêndice A deixaram de listá-la como pendente.
+
 ## 6. Decisões e dados que só o autor tem
 
 - [x] "kc" é *knowledge component*, componente de conhecimento (o

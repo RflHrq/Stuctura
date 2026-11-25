@@ -76,6 +76,13 @@ Com Docker, o sistema sobe e fica ligado:
 docker compose up -d --build
 ```
 
+Para analisar as sessões gravadas, o exportador gera três tabelas em CSV
+(sessões, premissas e respostas), pelo código do participante:
+
+```bash
+python -m mvp.exporta_trilha --pasta coleta/portal --out analise/trilha
+```
+
 No Windows, `iniciar-structura.bat` e `parar-structura.bat` fazem o mesmo
 com dois cliques. O sistema atende só na própria máquina (`127.0.0.1`):
 não tem login.

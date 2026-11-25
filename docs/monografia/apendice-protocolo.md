@@ -26,6 +26,8 @@ O estudo prevê de 10 a 15 estudantes que cursam ou já cursaram a disciplina co
 3. dois tópicos na trilha, com verbalização do pensamento em voz alta. O pesquisador utiliza apenas lembretes padronizados (por exemplo, "continue pensando em voz alta"), definidos antes da coleta, sem oferecer indicações sobre o conteúdo nem correções. Sugerem-se os tópicos kc_07 (ponteiro e array) e kc_09 (`free` e ponteiro pendente), que têm o maior número de concepções mapeadas;
 4. entrevista breve sobre a percepção do participante: o que achou, o que gerou confusão e se faria outro tópico.
 
+As respostas de cada sessão ficam gravadas no registro do sistema e são exportadas, pelo código do participante, nas três tabelas descritas na Seção 3.7, que fornecem os dados do sistema para V1, V2 e V3 (Quadro A.1); a verbalização, que V2 compara com a concepção detectada, vem da gravação de áudio, e a percepção (V4), do questionário e da entrevista.
+
 ## A.3 Classificação dos episódios de V2
 
 Cada episódio é classificado conforme os critérios do Quadro A.2.
@@ -62,5 +64,4 @@ O estudo envolve participantes humanos e gravação de voz. Por essa razão, nen
 1. a consulta formal à instância responsável pela ética em pesquisa com seres humanos da UFV e o cumprimento dos procedimentos por ela indicados, incluída a submissão do protocolo à apreciação ética;
 2. o termo de consentimento, que informe ao participante a gravação de áudio, a finalidade do estudo e o uso dos dados;
 3. um plano de gestão dos dados que defina o local de armazenamento das gravações e dos registros, as pessoas com acesso a eles, o prazo de guarda, as medidas de confidencialidade (inclusive a guarda da lista em papel que associa nomes e matrículas aos códigos) e o procedimento de exclusão de dados a pedido do participante, que deve alcançar também as cópias de segurança do registro;
-4. a exportação das sessões da trilha em tabelas, funcionalidade ainda não implementada no sistema;
-5. o ensaio com dois colegas.
+4. o ensaio com dois colegas.
