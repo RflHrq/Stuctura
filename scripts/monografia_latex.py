@@ -36,7 +36,8 @@ CAPITULOS = [
     ("08-conclusao.md", "08-conclusao", "8"),
 ]
 APENDICES = [("apendice-protocolo.md", "apendice-a-protocolo", "A"),
-             ("apendice-curadoria.md", "apendice-b-curadoria", "B")]
+             ("apendice-curadoria.md", "apendice-b-curadoria", "B"),
+             ("apendice-exportacao.md", "apendice-c-exportacao", "C")]
 
 # Um quadro com mais linhas que isto não cabe numa página: vira tabela
 # longa, que quebra entre páginas e repete o cabeçalho.

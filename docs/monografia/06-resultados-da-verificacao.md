@@ -2,7 +2,7 @@
 
 ## 6.1 Escopo verificado
 
-O Quadro 6.1 resume a dimensão do sistema abrangido pela verificação descrita na Seção 5, na versão de 23/11/2026 (Seção 3).
+O Quadro 6.1 resume a dimensão do sistema abrangido pela verificação descrita na Seção 5, na versão de 24/11/2026 (Seção 3).
 
 **Quadro 6.1 — Dimensão do sistema verificado**
 
@@ -16,9 +16,9 @@ O Quadro 6.1 resume a dimensão do sistema abrangido pela verificação descrita
 | Demonstrações com previsão | 80 (41 saídas, 39 do compilador) |
 | Cenas da revisão | 79 |
 | Trechos de código das escadas | 1 762 |
-| Testes automatizados | 7 556 |
+| Testes automatizados | 7 568 |
 
-Nessa versão, os 7 556 testes foram executados em uma única rodada, em 23/11/2026: 7 548 foram aprovados e nenhum falhou. Os oito restantes são dispensados por definição: correspondem a demonstrações cujo programa, se executado, teria comportamento indefinido, e que outro teste confere pelo diagnóstico do compilador, sem execução.
+Nessa versão, os 7 568 testes foram executados em uma única rodada, em 24/11/2026: 7 560 foram aprovados e nenhum falhou. Os oito restantes são dispensados por definição: correspondem a demonstrações cujo programa, se executado, teria comportamento indefinido, e que outro teste confere pelo diagnóstico do compilador, sem execução.
 
 ## 6.2 Conferência do conteúdo por compilador
 

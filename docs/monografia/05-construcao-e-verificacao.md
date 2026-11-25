@@ -4,9 +4,22 @@ Um sistema de ensino faz afirmações em dois planos. No plano do conteúdo, cad
 
 ## 5.1 Processo de desenvolvimento
 
-As partes principais do sistema foram especificadas por escrito antes de serem construídas, por meio de documentos de projeto, com a intenção, as restrições, as alternativas consideradas e as decisões tomadas, e de planos divididos em tarefas pequenas, cada uma com os testes que a comprovam. As decisões tomadas durante a construção, nos casos não previstos pelos planos, foram registradas, com a respectiva justificativa, nas mensagens do controle de versão. O desenvolvimento foi realizado com assistência de inteligência artificial generativa, declarada na seção pré-textual própria: o autor definiu o escopo e tomou as decisões de projeto, e cada alteração foi verificada pelos testes automatizados e registrada no controle de versão com a identificação dessa assistência.
+As partes principais do sistema foram especificadas por escrito antes de serem construídas, por meio de documentos de projeto, com a intenção, as restrições, as alternativas consideradas e as decisões tomadas, e de planos divididos em tarefas pequenas, cada uma com os testes que a comprovam. As decisões tomadas durante a construção, nos casos não previstos pelos planos, foram registradas, com a respectiva justificativa, nas mensagens do controle de versão. Os documentos de especificação da versão descrita estão no repositório do projeto e são relacionados no Quadro 5.1. O desenvolvimento foi realizado com assistência de inteligência artificial generativa, declarada na seção pré-textual própria: o autor definiu o escopo e tomou as decisões de projeto, e cada alteração foi verificada pelos testes automatizados e registrada no controle de versão com a identificação dessa assistência.
 
 O desenvolvimento adotou a prática de escrever os testes antes da implementação: o teste de um comportamento novo era escrito e executado, com falha, antes de a implementação existir, e somente então a implementação era realizada até que o teste fosse aprovado. Um teste aprovado antes da implementação nada comprova, pois pode estar verificando outra propriedade; por isso, a observação da falha inicial integra o método. Os testes existentes não foram alterados para que fossem aprovados; quando uma alteração deliberada de comportamento exigiu a modificação de um teste, a modificação foi declarada no registro do controle de versão, com a justificativa.
+
+**Quadro 5.1 — Documentos de especificação do sistema**
+
+| Documento | Data | O que especifica |
+| --- | --- | --- |
+| `docs/PRD.md` | 28/10/2026 | os requisitos do primeiro ciclo do sistema, anterior à trilha: usuários, critérios de sucesso e requisitos de interface, de dados, de privacidade e de operação |
+| `docs/linguagem.md` | 29/10/2026 | as regras de redação do conteúdo (a premissa como afirmação única, a concepção errônea, o limite da analogia, a questão e os formatos) e a exigência de procedência, com a hipótese declarada como tal |
+| `docs/trilha.md` | 13/11/2026 | o percurso de cada tópico: o diagnóstico pela resposta, pela razão e pela certeza, a escada de passos, a demonstração, a reconferência, o registro e a retomada da sessão, com os objetivos, as restrições e o que ficou fora da versão |
+| `docs/plano-trilha.md` | 13/11/2026 | o plano de construção da primeira parte da trilha (o tópico kc_00), em 11 tarefas, cada uma com os seus testes |
+| `docs/interface.md` | 14/11/2026 | a interface: a identidade visual, os dois temas, as telas, o caminho dos tópicos na página inicial e as cenas |
+| `docs/plano-interface.md` | 16/11/2026 | o plano de construção da identidade visual e das telas, em 7 tarefas |
+| `docs/plano-cenas.md` | 18/11/2026 | o plano das cenas: o formato, a conferência por compilador e o desenho |
+| `docs/plano-caminho.md` | 18/11/2026 | o plano do caminho na página inicial e da retomada da sessão sem código |
 
 ## 5.2 Verificação do conteúdo por compilador
 
@@ -49,6 +62,10 @@ Para cada tópico, há ainda testes sobre o que ele apresenta e em que ponto: em
 O comportamento do sistema foi verificado com dez estudantes simulados, cada um correspondente a um perfil de resposta definido por programa: o que sabe todo o conteúdo; o inseguro, que acerta sem declarar certeza; o que não sabe e aprende com os passos; o que não sabe e erra todos os passos; o que sustenta a concepção errônea de cada premissa e a abandona após a demonstração; o que a sustenta e não a abandona; o que erra a resposta embora indique a razão correta; o que responde ao acaso declarando certeza; o que erra na prática; e o que consulta a explicação antes de responder.
 
 Cada perfil percorre cada tópico do início ao fim, nos dois ritmos, por meio do mesmo motor que atende os usuários. Nesses percursos, os testes conferem as propriedades especificadas no projeto: toda premissa é encerrada com um dos cinco resultados; nenhuma premissa recebe mais de uma intervenção; a extensão da sessão, em número de telas, é limitada; quem sustenta uma concepção errônea recebe a demonstração correspondente; a sessão pode ser inteiramente reconstruída a partir do registro; e perfis diferentes obtêm resultados diferentes. Os mesmos percursos produzem a medida de cada tópico (número de telas e de toques por perfil), apresentada na Seção 6.
+
+Os estudantes simulados não são modelos de linguagem nem agentes de inteligência artificial: são programas determinísticos, escritos com as regras de cada perfil, que respondem a partir do próprio conteúdo. O perfil que sabe escolhe a alternativa e a razão marcadas como corretas; o que sustenta a concepção errônea escolhe as alternativas associadas a ela no catálogo; e o que responde ao acaso deriva a escolha de uma função de resumo criptográfico aplicada ao identificador da sessão, e não de sorteio. Por essa razão, a mesma sessão produz sempre as mesmas respostas, e uma falha encontrada pode ser reproduzida.
+
+Os estudantes simulados verificam como o sistema reage a cada padrão de resposta, e não o que um estudante faria. Um estudante pode mudar de padrão no meio do tópico, interpretar a pergunta de modo não previsto, demorar ou desistir; nenhum perfil reproduz essas situações, que somente o estudo com estudantes pode revelar (Apêndice A).
 
 ## 5.5 Verificação da interface
 

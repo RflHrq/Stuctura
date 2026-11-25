@@ -420,3 +420,20 @@ def test_o_apendice_b_traz_cada_concepcao_do_catalogo_uma_vez():
         no_apendice[c[0].strip("`")] = c[4].strip("`")
     assert len(linhas) == len(no_apendice) == len(catalogo) == 61
     assert no_apendice == catalogo
+
+
+def test_o_apendice_c_traz_as_colunas_da_exportacao():
+    """O Apêndice C descreve as três tabelas do exportador da trilha. Cada
+    coluna que o código gera está no quadro da sua tabela, e o quadro não
+    tem coluna que o código não gere: se a exportação mudar e o apêndice
+    não, este teste falha."""
+    from mvp import exporta_trilha
+    texto = (CAPITULOS / "apendice-exportacao.md").read_text(encoding="utf-8")
+    quadros = {"sessoes.csv": "C.1", "premissas.csv": "C.2",
+               "respostas.csv": "C.3"}
+    for tabela, quadro in quadros.items():
+        m = re.search(r"\*\*Quadro %s — Colunas de `%s`\*\*\s*\n\n(.*?)(?:\n\n|\Z)"
+                      % (re.escape(quadro), re.escape(tabela)), texto, re.S)
+        assert m, "falta o Quadro %s de %s" % (quadro, tabela)
+        colunas = re.findall(r"^\| `([a-z_]+)` \|", m.group(1), re.M)
+        assert colunas == exporta_trilha.COLUNAS[tabela], tabela

@@ -53,6 +53,7 @@ foram tirados do sistema por script, e não de memória, e
 | — | [referencias.md](referencias.md) | a lista, na NBR 6023, dos capítulos 1 a 3, 5 a 8 e do apêndice |
 | — | [conferencia-das-referencias.md](conferencia-das-referencias.md) | onde cada obra foi aberta e o que sustenta, com página |
 | A | [apendice-protocolo.md](apendice-protocolo.md) | o estudo com estudantes, pronto para quando houver participantes |
+| C | [apendice-exportacao.md](apendice-exportacao.md) | o formato das três tabelas da exportação das sessões, coluna por coluna, presas ao código por teste |
 | B | [apendice-curadoria.md](apendice-curadoria.md) | as 61 concepções do catálogo e a procedência de cada uma; **gerado**, não editar à mão (ver abaixo) |
 
 ## O que falta, e de quem é

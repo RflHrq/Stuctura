@@ -1,0 +1,147 @@
+% Gerado de docs/monografia/apendice-exportacao.md por scripts/monografia_latex.py.
+% Não edite aqui: edite o .md e gere de novo.
+
+\chapter{\texorpdfstring{\mbox{FORMATO} \mbox{DA} \mbox{EXPORTAÇÃO} \mbox{DAS} \mbox{SESSÕES}}{FORMATO DA EXPORTAÇÃO DAS SESSÕES}}\label{cap:C}
+
+Este apêndice descreve as tabelas geradas pelo exportador das sessões da trilha (Seção~3.7), que fornecem os dados do sistema para o estudo com estudantes (Apêndice~A). O exportador é executado pelo pesquisador, no computador em que o sistema roda, com o comando \texttt{python -{}m mvp.\allowbreak{}exporta\_\allowbreak{}trilha -{}-{}pasta coleta/\allowbreak{}portal -{}-{}out analise/\allowbreak{}trilha}, e gera três arquivos: \texttt{sessoes.csv}, \texttt{premissas.csv} e \texttt{respostas.csv}.
+
+Os arquivos seguem o formato \textit{Comma-Separated Values} (CSV), com a primeira linha de cabeçalho e codificação UTF-8 com marca de ordem de bytes, de modo que as planilhas eletrônicas, como o Microsoft Excel e o LibreOffice Calc, os abrem com a acentuação correta. Adotou-se esse formato, e não o de pasta de trabalho do Excel (XLSX), por ser texto aberto, legível por qualquer planilha e por ferramentas de análise estatística, sem dependência de programa específico; a planilha que o abrir pode salvá-lo em XLSX. Toda célula iniciada por caractere que a planilha interpretaria como fórmula recebe um apóstrofo, para que o conteúdo seja exibido, e não executado.
+
+Em todas as tabelas, o participante é identificado pelo código com que entrou na sessão (P01, P02...), sem nome nem matrícula; a sessão aberta sem código é identificada pelo número que o sistema lhe atribuiu. Os valores lógicos são registrados como ``sim'' ou ``não'', e o campo sem valor fica vazio.
+
+\section{Tabela de sessões}
+
+A tabela \texttt{sessoes.csv} tem uma linha por sessão, isto é, por participante e tópico (Quadro~\ref{qua:C-1}).
+
+\begin{quadro}[htbp]
+\caption{Colunas de \texttt{sessoes.csv}}\label{qua:C-1}
+\footnotesize
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\textbf{Coluna} & \textbf{Conteúdo} \\ \hline
+\texttt{participante} & código do participante \\ \hline
+\texttt{topico} & código do tópico (kc\_00 a kc\_12) \\ \hline
+\texttt{iniciada\_em} & data e hora do primeiro evento da sessão \\ \hline
+\texttt{ultima\_em} & data e hora do último evento da sessão \\ \hline
+\texttt{ritmo} & ritmo escolhido na entrada do tópico (``completo'' ou ``rapido'') \\ \hline
+\texttt{encerrada} & se a sessão chegou ao fechamento \\ \hline
+\texttt{cancelada} & se a pessoa cancelou a sessão pelo botão Sair \\ \hline
+\texttt{retomadas} & número de vezes que a sessão foi retomada ou reconstruída \\ \hline
+\texttt{n\_premissas} & número de premissas do tópico \\ \hline
+\texttt{n\_fechadas} & número de premissas concluídas na sessão \\ \hline
+\texttt{n\_respostas} & número de respostas (perguntas, passos e previsões) \\ \hline
+\texttt{n\_corretas} & número de respostas corretas \\ \hline
+\texttt{ja\_sabia} & premissas concluídas com resposta firme na abertura \\ \hline
+\texttt{firmou} & premissas em que a pessoa estava insegura e confirmou \\ \hline
+\texttt{aprendeu\_agora} & premissas ensinadas pela escada e confirmadas em seguida \\ \hline
+\texttt{corrigiu} & premissas em que a concepção errônea foi trabalhada pela demonstração e pelo treino \\ \hline
+\texttt{em\_aberto} & premissas cujo trabalho não se concluiu dentro do limite de telas \\ \hline
+\texttt{ms\_total} & soma dos tempos de resposta, em milissegundos \\ \hline
+\end{tabularx}
+\fonte{Elaborado pelo autor.}
+\end{quadro}
+
+\section{Tabela de premissas}
+
+A tabela \texttt{premissas.csv} tem uma linha por premissa aberta em cada sessão e reúne, lado a lado, o diagnóstico, o trabalho realizado e o resultado, que constituem a unidade de análise das questões V2 e V3 (Quadro~\ref{qua:C-2}).
+
+\begin{quadro}[htbp]
+\caption{Colunas de \texttt{premissas.csv}}\label{qua:C-2}
+\footnotesize
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\textbf{Coluna} & \textbf{Conteúdo} \\ \hline
+\texttt{participante} & código do participante \\ \hline
+\texttt{topico} & código do tópico \\ \hline
+\texttt{premissa} & identificador da premissa no tópico (B1, I2...) \\ \hline
+\texttt{ordem} & posição em que a premissa foi aberta na sessão \\ \hline
+\texttt{situacao\_\allowbreak{}na\_\allowbreak{}abertura} & situação atribuída à resposta da pergunta de abertura (Quadro~\ref{qua:C-4}) \\ \hline
+\texttt{confianca\_\allowbreak{}na\_\allowbreak{}abertura} & certeza declarada na pergunta de abertura \\ \hline
+\texttt{trabalho} & intervenção realizada: ``lacuna'' (escada de passos), ``crenca'' (demonstração) ou vazio (nenhuma) \\ \hline
+\texttt{crenca} & concepção errônea trabalhada ou registrada na premissa, pelo identificador do catálogo (Apêndice~B) \\ \hline
+\texttt{previsao\_\allowbreak{}como\_\allowbreak{}a\_\allowbreak{}crenca} & se a previsão feita na demonstração foi a que a concepção errônea indica \\ \hline
+\texttt{resultado} & como a premissa terminou: ``ja\_sabia'', ``firmou'', ``aprendeu\_agora'', ``corrigiu'' ou ``em\_aberto'' (Quadro~\ref{qua:C-1}) \\ \hline
+\texttt{telas} & número de telas percorridas na premissa \\ \hline
+\texttt{reconferencia} & resultado da pergunta da reconferência ao final do tópico: ``assimilou'', ``nao\_se\_manteve'', ``a\_ideia\_voltou'' ou ``sem\_questao'' \\ \hline
+\end{tabularx}
+\fonte{Elaborado pelo autor.}
+\end{quadro}
+
+\section{Tabela de respostas}
+
+A tabela \texttt{respostas.csv} tem uma linha por resposta da pessoa, na ordem em que foram dadas (Quadro~\ref{qua:C-3}).
+
+\begin{quadro}[htbp]
+\caption{Colunas de \texttt{respostas.csv}}\label{qua:C-3}
+\footnotesize
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\textbf{Coluna} & \textbf{Conteúdo} \\ \hline
+\texttt{participante} & código do participante \\ \hline
+\texttt{topico} & código do tópico \\ \hline
+\texttt{seq} & posição do evento no registro da sessão \\ \hline
+\texttt{ts} & data e hora da resposta \\ \hline
+\texttt{premissa} & identificador da premissa \\ \hline
+\texttt{tela} & tipo de tela: ``pergunta'', ``passo'' (da escada) ou ``previsao'' (da demonstração) \\ \hline
+\texttt{papel} & papel da pergunta (``abertura'', ``reforco'', ``topo'', ``confirmacao'' ou ``reconferencia'') ou do passo (``subida'', ``produzir'', ``treino'' ou ``reconferencia''); vazio na previsão \\ \hline
+\texttt{item} & identificador da questão ou do passo \\ \hline
+\texttt{versao} & versão do passo exibida (cada passo tem duas) \\ \hline
+\texttt{tentativa} & número da tentativa no passo \\ \hline
+\texttt{escolha} & posição da alternativa escolhida, na ordem da tela \\ \hline
+\texttt{razao} & posição da razão escolhida, na ordem da tela \\ \hline
+\texttt{resposta} & texto da resposta do passo ou da alternativa prevista \\ \hline
+\texttt{correta} & se a resposta foi correta \\ \hline
+\texttt{razao\_correta} & se a razão escolhida foi a correta \\ \hline
+\texttt{nao\_sei} & se a pessoa respondeu ``Não sei'' \\ \hline
+\texttt{confianca} & certeza declarada (``chutei'', ``acho que sei'' ou ``tenho certeza'') \\ \hline
+\texttt{confianca\_rank} & a certeza em escala ordinal, de 1 a 3 \\ \hline
+\texttt{crenca} & concepção errônea indicada pela alternativa ou pela razão escolhida \\ \hline
+\texttt{como\_a\_crenca} & na previsão, se ela foi a que a concepção errônea indica \\ \hline
+\texttt{situacao} & na pergunta, situação atribuída à resposta (Quadro~\ref{qua:C-4}) \\ \hline
+\texttt{ms} & tempo de resposta, em milissegundos \\ \hline
+\end{tabularx}
+\fonte{Elaborado pelo autor.}
+\end{quadro}
+
+\section{Valores da situação atribuída}
+
+As colunas \texttt{situacao\_\allowbreak{}na\_\allowbreak{}abertura} e \texttt{situacao} registram a situação atribuída a uma resposta de pergunta, com os valores do Quadro~\ref{qua:C-4}, que correspondem às situações do Quadro~\ref{qua:3-2}.
+
+\begin{quadro}[htbp]
+\caption{Valores da situação atribuída a uma resposta}\label{qua:C-4}
+\footnotesize
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\textbf{Valor} & \textbf{Situação (Quadro~\ref{qua:3-2})} \\ \hline
+\texttt{confirmada} & sabe: resposta correta, razão correta e ``tenho certeza'' \\ \hline
+\texttt{fragil} & acerto sem firmeza: resposta e razão corretas, sem certeza \\ \hline
+\texttt{falso\_positivo} & sinais divergentes: resposta correta pela razão de uma concepção errônea \\ \hline
+\texttt{falso\_negativo} & sinais divergentes: resposta incorreta pela razão correta \\ \hline
+\texttt{lacuna} & não sabe: ``Não sei'', ou resposta incorreta com ``chutei'' \\ \hline
+\texttt{crenca} & sustenta uma concepção errônea: resposta incorreta, pela razão de uma concepção errônea, com alguma certeza \\ \hline
+\end{tabularx}
+\fonte{Elaborado pelo autor.}
+\end{quadro}
+
+\section{Exemplo}
+
+O Quadro~\ref{qua:C-5} apresenta parte da tabela \texttt{premissas.csv} exportada da sessão de ensaio que produziu a tela de fechamento da Figura~\ref{fig:3-3}, no tópico kc\_07. Trata-se de sessão de estudante simulado, e não de participante.
+
+\begin{quadro}[htbp]
+\caption{Exemplo de \texttt{premissas.csv}: sessão de ensaio da Figura~\ref{fig:3-3}}\label{qua:C-5}
+\footnotesize
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}p{2.2cm}|>{\centering\arraybackslash}p{2.6cm}|X|X|X|}
+\hline
+\textbf{Premissa} & \textbf{Abertura} & \textbf{Concepção errônea} & \textbf{Resultado} & \textbf{Reconferência} \\ \hline
+B1 & confirmada &  & ja\_sabia &  \\ \hline
+B2 & lacuna &  & aprendeu\_agora & assimilou \\ \hline
+B3 & crenca & \texttt{array\_\allowbreak{}passed\_\allowbreak{}by\_\allowbreak{}reference} & corrigiu & assimilou \\ \hline
+B4 & confirmada &  & ja\_sabia &  \\ \hline
+I1 & crenca & \texttt{array\_\allowbreak{}is\_\allowbreak{}assignable} & em\_aberto & a\_ideia\_voltou \\ \hline
+I2 & lacuna & \texttt{sizeof\_\allowbreak{}array\_\allowbreak{}via\_\allowbreak{}pointer} & em\_aberto & nao\_se\_manteve \\ \hline
+I3 & fragil &  & firmou &  \\ \hline
+\end{tabularx}
+\fonte{Elaborado pelo autor.}
+\end{quadro}
+
+Nas premissas B3 e I1, a previsão feita na demonstração foi a que a concepção errônea indica (coluna \texttt{previsao\_\allowbreak{}como\_\allowbreak{}a\_\allowbreak{}crenca} igual a ``sim''). Na premissa I2, a concepção errônea apareceu durante a escada, sem demonstração. O quadro omite, por espaço, as colunas de participante, tópico, ordem, certeza na abertura, trabalho e telas; nesse exemplo, a coluna \texttt{trabalho} traz ``lacuna'' nas premissas B2 e I2 e ``crenca'' nas premissas B3 e I1.

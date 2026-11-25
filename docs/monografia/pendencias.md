@@ -210,6 +210,21 @@ As outras 57 das 61 estão conferidas na obra (Apêndice B).
       `mvp/test_exporta_trilha.py`. A Seção 3.7 a descreve, a 7.2 e o
       Apêndice A deixaram de listá-la como pendente.
 
+- [x] Em 24/11/2026, a pedido do autor, para responder perguntas da
+      banca: a Seção 5.1 ganhou o Quadro 5.1, com as oito especificações
+      e os planos que estão no repositório (conferidos no próprio
+      documento; `docs/arquitetura.md` ficou fora por descrever a
+      geração anterior); a 3.7 diz o formato e o local do registro; a
+      5.4 diz que os estudantes simulados são programas determinísticos,
+      e não modelos de linguagem, e o que eles não reproduzem; o
+      Apêndice C descreve as tabelas da exportação, coluna por coluna,
+      com um teste que compara os quadros com o código. CSV e JSON
+      entraram na lista de siglas.
+- [x] A versão descrita passou a ser a de 24/11/2026, commit `e57385b`,
+      sobre o qual a suíte inteira rodou: 7 568 testes, 7 560
+      aprovados, 8 dispensados por construção, nenhuma falha, em
+      17 min 17 s (log em `ensaios/suite-20261124/`).
+
 ## 6. Decisões e dados que só o autor tem
 
 - [x] "kc" é *knowledge component*, componente de conhecimento (o
