@@ -13,7 +13,7 @@
 
 ## Problema da procedência
 
-O sistema descrito nas seções anteriores formula, a cada atividade respondida, uma hipótese com consequência imediata: a de que a pessoa provavelmente sustenta determinada concepção errônea. É essa hipótese que seleciona o percurso de refutação a ser apresentado.
+O sistema descrito nas seções anteriores formula, a cada pergunta respondida, uma hipótese diagnóstica com consequência imediata. Uma das hipóteses possíveis é a de que a pessoa sustenta determinada concepção errônea do catálogo, e é ela que seleciona a demonstração a ser apresentada.
 
 A validade da hipótese depende de uma questão anterior, que o software não responde: a origem de cada concepção do catálogo. Se uma concepção tiver sido incluída apenas por parecer plausível ao autor, o sistema não estará diagnosticando uma concepção errônea documentada, e sim produzindo dados sobre uma suposição, com a mesma aparência de rigor do restante. Por essa razão, o projeto adota a seguinte regra: uma concepção sem procedência é tratada como hipótese do autor e não é incluída no catálogo como achado.
 

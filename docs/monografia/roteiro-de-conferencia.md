@@ -129,9 +129,9 @@ obra.
 - [ ] **(Sweller; Van Merriënboer; Paas, 2019)** · abrir `fontes/sweller2019/sweller2019.pdf`
   > Esse desenho baseia-se em quatro efeitos descritos pela teoria da carga cognitiva (Sweller; Van Merriënboer; Paas, 2019).
 - [ ] **(Sweller; Van Merriënboer; Paas, 2019, p. 265)** · abrir `fontes/sweller2019/sweller2019.pdf`
-  > Os passos guiados exibem o programa e solicitam uma parte dele, o que os aproxima do exemplo resolvido (Sweller; Van Merriënboer; Paas, 2019, p. 265) e do problema de completar, proposto justamente para a programação introdutória, no qual o estudante recebe um programa incompleto para concluir (Sweller; Van Merriënboer; Paas, 2019, p. 268).
+  > Os passos guiados com código exibem um trecho de programa e solicitam uma parte dele, o que os aproxima do exemplo resolvido (Sweller; Van Merriënboer; Paas, 2019, p. 265) e do problema de completar, proposto justamente para a programação introdutória, no qual o estudante recebe um programa incompleto para concluir (Sweller; Van Merriënboer; Paas, 2019, p. 268).
 - [ ] **(Sweller; Van Merriënboer; Paas, 2019, p. 268)** · abrir `fontes/sweller2019/sweller2019.pdf`
-  > Os passos guiados exibem o programa e solicitam uma parte dele, o que os aproxima do exemplo resolvido (Sweller; Van Merriënboer; Paas, 2019, p. 265) e do problema de completar, proposto justamente para a programação introdutória, no qual o estudante recebe um programa incompleto para concluir (Sweller; Van Merriënboer; Paas, 2019, p. 268).
+  > Os passos guiados com código exibem um trecho de programa e solicitam uma parte dele, o que os aproxima do exemplo resolvido (Sweller; Van Merriënboer; Paas, 2019, p. 265) e do problema de completar, proposto justamente para a programação introdutória, no qual o estudante recebe um programa incompleto para concluir (Sweller; Van Merriënboer; Paas, 2019, p. 268).
 - [ ] **(Sweller; Van Merriënboer; Paas, 2019, p. 277)** · abrir `fontes/sweller2019/sweller2019.pdf`
   > A orientação é reduzida gradualmente ao longo da escada, dos passos guiados aos de prática, porque o apoio que auxilia o iniciante torna-se redundante para quem já avançou (Sweller; Van Merriënboer; Paas, 2019, p. 277).
 - [ ] **(Sweller; Van Merriënboer; Paas, 2019, p. 279)** · abrir `fontes/sweller2019/sweller2019.pdf`
