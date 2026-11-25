@@ -76,7 +76,7 @@ O Structura segue essa recomendação no domínio de ponteiros em C: o modelo de
 
 ### 2.8.5 Tutores baseados em modelos de linguagem
 
-Uma alternativa atualmente disponível consiste em gerar o retorno e as explicações de um tutor por meio de um modelo de linguagem de grande escala. O Structura não adota essa abordagem durante a sessão: todo texto exibido à pessoa foi redigido previamente, foi conferido por compilador quando afirma algo sobre um programa (Seção 5), e cada questão está associada a uma premissa, e suas alternativas incorretas, a concepções do catálogo. Em consequência, o comportamento do sistema é determinístico e auditável, e o que ele afirma sobre a linguagem C é conferido antes de chegar ao estudante. A contrapartida é a menor flexibilidade: o sistema reconhece apenas as concepções presentes no catálogo (Seção 7.1). O uso de um modelo de linguagem na elaboração do conteúdo, e não na sessão, está registrado na declaração de uso de inteligência artificial.
+Uma alternativa atualmente disponível consiste em gerar o retorno e as explicações de um tutor por meio de um modelo de linguagem de grande escala. O Structura não adota essa abordagem durante a sessão: todo texto exibido à pessoa foi redigido previamente; o que as demonstrações, as cenas e parte dos passos e das questões afirmam sobre um programa é conferido por compilador antes de chegar ao estudante (Seções 5.2 e 7.1); e cada questão está associada a uma premissa, e suas alternativas incorretas, a concepções do catálogo. Em consequência, o comportamento do sistema é determinístico e auditável. A contrapartida é a menor flexibilidade: o sistema reconhece apenas as concepções presentes no catálogo (Seção 7.1). O uso de um modelo de linguagem na elaboração do conteúdo, e não na sessão, está registrado na declaração de uso de inteligência artificial.
 
 ### 2.8.6 Síntese comparativa
 
@@ -92,4 +92,4 @@ Uma alternativa atualmente disponível consiste em gerar o retorno e as explica�
 
 *Fonte: elaborado pelo autor, a partir de Yamashita et al. (2017), Schmellenkamp, Latys e Zeume (2023), Falmagne et al. (2006) e Sorva (2013).*
 
-Entre os trabalhos analisados, nenhum reúne, para ponteiros em C, o diagnóstico da concepção errônea a partir da resposta, da razão e da certeza, a intervenção selecionada com base nesse diagnóstico e a visualização da execução. Essa combinação, aliada à conferência do conteúdo por compilador, constitui a contribuição do Structura.
+Entre os trabalhos analisados, nenhum reúne, para ponteiros em C, o diagnóstico da concepção errônea a partir da resposta, da razão e da certeza, a intervenção selecionada com base nesse diagnóstico e a visualização da execução. Essa combinação, aliada à conferência por compilador das demonstrações, das cenas e dos passos cuja resposta é código, constitui a contribuição do Structura.

@@ -440,9 +440,12 @@ def test_o_apendice_c_traz_as_colunas_da_exportacao():
 
 
 def test_os_passos_que_o_compilador_confere():
-    """Só o passo com código tem o que compilar: os de escolher entre
-    frases não. A Seção 6.2 diz quantos são de cada tipo."""
-    com = sem = 0
+    """O conferidor só olha o passo cuja resposta é código
+    (`confere_escada.confere` pula o `codigo: false`). Os outros são de
+    escolher entre frases, e quase todos MOSTRAM um trecho de código, que
+    nenhum compilador confere: o texto tem de dizer isso, e não que esses
+    passos não têm código."""
+    com = sem = mostram = 0
     for t in topicos():
         d = carrega(topico=t)
         arquivo = (pathlib.Path(__file__).resolve().parent / "dominio"
@@ -454,9 +457,17 @@ def test_os_passos_que_o_compilador_confere():
                 else:
                     assert g.forma == "escolher", (t, g.id)
                     sem += 1
-    assert (com, sem) == (246, 156)
-    assert ("os 246 passos com código (os outros 156 são de escolher entre "
-            "frases, sem código)") in _texto("06-resultados-da-verificacao.md")
+                    if any(v.mostra.strip() or v.antes.strip()
+                           or v.programa.strip() for v in g.versoes):
+                        mostram += 1
+    assert (com, sem, mostram) == (246, 156, 147)
+    assert ("os 246 passos cuja resposta é código, os 79 exemplos resolvidos "
+            "e as 80 demonstrações comportam-se") in _texto(
+                "06-resultados-da-verificacao.md")
+    assert ("são 156 dos 402 passos, e 147 deles exibem, acima da pergunta, "
+            "um trecho de código") in _texto("05-construcao-e-verificacao.md")
+    assert "e em 246 dos 402 passos" in _texto("00-pre-textuais.md")
+    assert "and 246 of the 402 steps" in _texto("00-pre-textuais.md")
 
 
 def test_os_toques_que_a_6_3_compara():

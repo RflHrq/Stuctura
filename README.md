@@ -93,10 +93,13 @@ A ideia central do trabalho é que **o material de ensino seja testado
 contra o programa que ele descreve**, e não contra a lembrança de quem o
 escreveu.
 
-- **O compilador é o juiz.** Toda afirmação sobre o comportamento de um
-  programa em C é conferida compilando e executando o trecho: a linha
-  que um passo chama de certa compila, a que ele chama de inválida é
-  recusada, e a saída é a que o texto diz.
+- **O compilador é o juiz.** As afirmações das demonstrações, das cenas
+  e dos passos cuja resposta é código são conferidas compilando e
+  executando o trecho: a linha que um passo chama de certa compila, a que
+  ele chama de inválida é recusada, e a saída é a que o texto diz. O
+  código exibido nos passos de escolher entre frases (147 dos 402) e a
+  maior parte do banco de questões ficam fora dessa conferência e
+  dependem de leitura.
 
   ```bash
   python scripts/confere_escada.py kc_07   # passos, exemplos e demonstrações de um tópico
