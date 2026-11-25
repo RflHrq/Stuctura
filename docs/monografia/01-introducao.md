@@ -26,7 +26,7 @@ A terceira razão é metodológica. Materiais didáticos de programação fazem 
 
 ### 1.4.1 Objetivo geral
 
-Desenvolver e verificar um sistema que formule, em 13 tópicos de ponteiros em C, uma hipótese diagnóstica sobre cada estudante (se sabe, não sabe ou sustenta uma concepção errônea) e que conduza cada caso por um percurso próprio, com demonstrações conferidas por compilador.
+Desenvolver e verificar um sistema que formule, em 13 tópicos de ponteiros em C, para cada premissa, uma hipótese diagnóstica sobre o estudante (se sabe, não sabe ou sustenta uma concepção errônea) e que conduza cada caso por um percurso próprio, com demonstrações conferidas por compilador.
 
 ### 1.4.2 Objetivos específicos
 
