@@ -54,7 +54,7 @@ As principais contribuições deste trabalho são:
 
 1. um catálogo de 61 concepções errôneas sobre ponteiros em C, cada uma com procedência declarada e associada à premissa que nega (Seção 4);
 2. um diagnóstico que utiliza a certeza declarada para selecionar o percurso de intervenção, e não para atribuir pontuação;
-3. um conjunto de 80 demonstrações com previsão (uma para cada concepção errônea em cada tópico em que ela aparece) e 402 passos de escada, além de 79 cenas animadas, todos conferidos por compilador;
+3. um conjunto de 80 demonstrações com previsão (uma para cada concepção errônea em cada tópico em que ela aparece) e 402 passos de escada, além de 79 cenas animadas, com todo trecho de código conferido por compilador;
 4. um método de verificação de conteúdo didático de programação no qual o compilador é utilizado como instrumento de verificação: o texto que afirma o comportamento observável de um programa é testado contra o próprio programa, no ambiente especificado.
 
 ## 1.8 Organização do texto

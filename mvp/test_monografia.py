@@ -437,3 +437,23 @@ def test_o_apendice_c_traz_as_colunas_da_exportacao():
         assert m, "falta o Quadro %s de %s" % (quadro, tabela)
         colunas = re.findall(r"^\| `([a-z_]+)` \|", m.group(1), re.M)
         assert colunas == exporta_trilha.COLUNAS[tabela], tabela
+
+
+def test_os_passos_que_o_compilador_confere():
+    """Só o passo com código tem o que compilar: os de escolher entre
+    frases não. A Seção 6.2 diz quantos são de cada tipo."""
+    com = sem = 0
+    for t in topicos():
+        d = carrega(topico=t)
+        arquivo = (pathlib.Path(__file__).resolve().parent / "dominio"
+                   / ("escada_%s.yaml" % t.replace("_", "")))
+        for e in trilha_escada.le(arquivo, d).values():
+            for g in e.degraus:
+                if g.codigo:
+                    com += 1
+                else:
+                    assert g.forma == "escolher", (t, g.id)
+                    sem += 1
+    assert (com, sem) == (246, 156)
+    assert ("os 246 passos com código (os outros 156 são de escolher entre "
+            "frases, sem código)") in _texto("06-resultados-da-verificacao.md")

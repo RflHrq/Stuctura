@@ -26,8 +26,10 @@ O desenvolvimento adotou a prática de escrever os testes antes da implementaç�
 Todos os trechos de código das escadas (passos, exemplos resolvidos e demonstrações) são submetidos a um conferidor automático antes de serem incorporados ao sistema. O conferidor insere cada trecho em um programa completo (com as bibliotecas padrão de entrada e saída e de alocação, e com as funções do trecho posicionadas fora da função `main`), compila-o com o gcc 16.2 (opções `-std=c17 -Wall`) e confere o que o texto afirma:
 
 - nos passos de digitar, executa o programa e compara a saída completa com a resposta aceita;
-- nos passos de completar e de escolher com código, monta cada linha possível e exige que as marcadas como inválidas sejam rejeitadas pelo compilador e que as demais sejam aceitas;
-- nos exemplos resolvidos com saída, executa o programa e compara a saída;
+- nos passos de montar e de completar, exige que as respostas aceitas compilem e que as respostas erradas marcadas como inválidas sejam rejeitadas pelo compilador;
+- nos passos de escolher com código, compila cada alternativa e exige que as marcadas como inválidas sejam rejeitadas e que as demais sejam aceitas;
+- nos passos de tocar, exige que a linha exibida compile;
+- nos exemplos resolvidos, executa o programa e compara a saída, quando o exemplo tem saída, ou exige que ele compile;
 - nas demonstrações, executa o programa e compara a saída ou, quando a demonstração consiste na mensagem do compilador, exige que a mensagem afirmada seja emitida, e para uma única linha.
 
 As opções adicionais de compilador que uma demonstração pode requerer formam uma lista fechada, composta de `-O1`, `-O2`, `-Wextra`, `-Wnull-dereference`, `-fanalyzer` e `-Wpointer-arith`. Apenas as opções dessa lista são repassadas à linha de comando. As quatro que as demonstrações utilizam (`-O2`, `-Wnull-dereference`, `-fanalyzer` e `-Wpointer-arith`) têm testes que apresentam uma demonstração que a opção confirma e mostram que, sem ela, a mesma demonstração não se confirma; as outras duas constam da lista, mas nenhuma demonstração da versão descrita as utiliza. Os endereços de memória, que variam entre máquinas e entre execuções, são apresentados nas demonstrações como valores de exemplo, e o conferidor compara o formato da saída, e não o valor numérico. Cada processo está sujeito a um limite de tempo, para que um programa que não termina não seja considerado conferido.

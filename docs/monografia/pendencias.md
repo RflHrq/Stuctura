@@ -186,8 +186,8 @@ As outras 57 das 61 estão conferidas na obra (Apêndice B).
       sistema ou no conteúdo pede nova rodada da suíte e nova data.
 - [x] A suíte inteira rodou em 23/11/2026 sobre o commit `16d448b`, com
       a árvore limpa: 7 556 testes, 7 548 aprovados, 8 dispensados por
-      construção (as demonstrações por aviso, que outro teste confere
-      sem executar), nenhuma falha, em 35 min 26 s. O maior intervalo
+      construção (programas de exemplo de premissas dos grafos que
+      conferem por aviso, que outro teste confere sem executar), nenhuma falha, em 35 min 26 s. O maior intervalo
       entre dois testes foi de 72 s: a máquina não dormiu. O log, com a
       hora em cada linha, está em `ensaios/suite-20261123/`, fora do
       repositório. A falha isolada de `mvp/test_gerador.py`, vista em

@@ -18,11 +18,11 @@ O Quadro 6.1 resume a dimensão do sistema abrangido pela verificação descrita
 | Trechos de código das escadas | 1 762 |
 | Testes automatizados | 7 568 |
 
-Nessa versão, os 7 568 testes foram executados em uma única rodada, em 24/11/2026: 7 560 foram aprovados e nenhum falhou. Os oito restantes são dispensados por definição: correspondem a demonstrações cujo programa, se executado, teria comportamento indefinido, e que outro teste confere pelo diagnóstico do compilador, sem execução.
+Nessa versão, os 7 568 testes foram executados em uma única rodada, em 24/11/2026: 7 560 foram aprovados e nenhum falhou. Os oito restantes são dispensados por definição: correspondem a programas de exemplo de premissas dos grafos que, se executados, teriam comportamento indefinido, e que outro teste confere pelo diagnóstico do compilador, sem execução. Nenhum deles é uma das 80 demonstrações com previsão.
 
 ## 6.2 Conferência do conteúdo por compilador
 
-O conferidor não acusa nenhum problema nos 13 tópicos: os 402 passos, os 79 exemplos resolvidos e as 80 demonstrações comportam-se, no gcc 16.2, como o texto afirma. Das 80 demonstrações, nove requerem opções adicionais do compilador: sete, o analisador de fluxo (`-fanalyzer`); uma, a opção `-Wpointer-arith`; e uma, a do valor `NULL` no tópico kc_05, as opções `-O2` com `-Wnull-dereference`. As demonstrações que dependem do ambiente contêm nota que explicita essa dependência.
+O conferidor não acusa nenhum problema nos 13 tópicos: os 246 passos com código (os outros 156 são de escolher entre frases, sem código), os 79 exemplos resolvidos e as 80 demonstrações comportam-se, no gcc 16.2, como o texto afirma. Das 80 demonstrações, nove requerem opções adicionais do compilador: sete, o analisador de fluxo (`-fanalyzer`); uma, a opção `-Wpointer-arith`; e uma, a do valor `NULL` no tópico kc_05, as opções `-O2` com `-Wnull-dereference`. As demonstrações que dependem do ambiente contêm nota que explicita essa dependência.
 
 As 79 cenas também foram aprovadas na conferência: em cada ponto percorrido por cada cena, o programa instrumentado afirma o valor de cada variável, o destino de cada ponteiro e o número de execuções da linha, e nenhuma afirmação falha. Das 79, 20 passam por dentro de funções (duas delas, a da função `conta`, no kc_01, e a da função `dobra`, no kc_12, pela mesma função duas vezes), 13 por arrays e 17 por blocos do `malloc`.
 
