@@ -292,7 +292,7 @@ curadoria, não de leitura.
 | `malloc_always_succeeds` | kc_08 | I2 | 2 · corpus de praticante | `N` | id CWE/CERT | **conferida** — página da regra (CERT C, CWE) |
 | `malloc_conta_elementos` | kc_08 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `malloc_initializes_zero` | kc_08 | B3 | **1** · concepção estudada | `L` | página/item, pergunta do FAQ | **conferida** — texto integral do Sorva |
-| `memoria_e_do_computador` | kc_01 | B1 | hipótese | `E` | página/item | sem fonte, por desenho |
+| `memoria_e_do_computador` | kc_01 | B1 | hipótese | `E` | — | sem fonte, por definição |
 | `memory_is_by_name` | kc_02 | B1 | **1** · concepção estudada | `D` | página/item | **conferida** — texto integral do Sorva |
 | `memory_is_uniform` | kc_01, kc_12 | I2 | hipótese | `E` | — | sem item na literatura — busca declarada |
 | `modify_pp_changes_p` | kc_06, kc_10 | I3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
@@ -321,7 +321,7 @@ curadoria, não de leitura.
 | `static_is_scope` | kc_12 | I2 | **1** · concepção estudada | `T` | página/item | **conferida** — texto integral do Sorva |
 | `string_literal_is_array` | kc_07, kc_11 | B1 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
 | `system_frees_auto` | kc_01, kc_08 | B3 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |
-| `type_is_a_hint` | kc_00 | B1 | hipótese | `E` | — | sem fonte, por desenho |
+| `type_is_a_hint` | kc_00 | B1 | hipótese | `E` | — | sem fonte, por definição |
 | `uninitialized_is_null` | kc_03 | I2 | **1** · concepção estudada | `D` | página/item | **conferida** — texto integral do Sorva |
 | `variable_remembers` | kc_00 | B4 | **1** · concepção estudada | `T` | página/item, seção da obra | **conferida** — texto integral do Sorva |
 | `voidptr_arith_ok` | kc_11 | I2 | 2 · corpus de praticante | `L` | pergunta do FAQ | **conferida** — índice em c-faq.com |

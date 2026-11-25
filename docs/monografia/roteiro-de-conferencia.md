@@ -11,7 +11,7 @@ se ela diz o que a frase diz que ela diz. O que cada obra sustenta,
 segundo a conferência anterior, está em
 [conferencia-das-referencias.md](conferencia-das-referencias.md).
 
-São 117 itens: 104 citações de 22 obras abertas e 13 menções a
+São 118 itens: 105 citações de 22 obras abertas e 13 menções a
 estudos que não foram abertos, citados por intermédio de outra
 obra.
 
@@ -35,7 +35,7 @@ obra.
 | UFV (`ufv2026`) | 3 | `ufv-diretrizes-ia/DIRETRIZES-IA.pdf` |
 | Sweller, Van Merriënboer e Paas (`sweller2019`) | 5 | `sweller2019/sweller2019.pdf` |
 | VanLehn (`vanlehn2006`) | 2 | `vanlehn2006/vanlehn2006behavior.pdf` |
-| VanLehn (`vanlehn2011`) | 1 | `vanlehn2011/EffectivenessOfTutoring_Vanlehn.pdf` |
+| VanLehn (`vanlehn2011`) | 2 | `vanlehn2011/EffectivenessOfTutoring_Vanlehn.pdf` |
 | W3C (`w3c2025`) | 2 | `w3c2025/WCAG21.html` |
 | White e Gunstone (`white1992`) | 1 | `white1992/capitulo3.html` |
 | Yamashita et al. (`yamashita2017`) | 4 | `yamashita2017/yamashita2017.pdf` |
@@ -58,14 +58,14 @@ obra.
 - [ ] **(Yamashita et al., 2017, p. 1)** · abrir `fontes/yamashita2017/yamashita2017.pdf`
   > Ponteiros são um conteúdo de difícil aprendizagem para iniciantes em programação na linguagem C (Yamashita et al., 2017, p. 1).
 - [ ] **(Posner et al., 1982, p. 221)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
-  > Uma concepção errônea desse tipo (*misconception*, na literatura em língua inglesa, termo adotado no título deste trabalho) é estável e coerente para quem a sustenta e, por isso, resiste à informação nova: diante de uma informação que a contradiz, é pouco provável que a pessoa reorganize o que pensa, e entre as outras possibilidades estão incorporar a informação à concepção já existente ou mantê-la em um compartimento separado, sem conflito com ela (Posner et al., 1982, p. 221).
+  > Uma concepção errônea desse tipo (*misconception*, na literatura em língua inglesa, termo adotado no título deste trabalho) é estável e coerente para quem a sustenta e, por isso, resiste à informação nova: diante de uma informação que a contradiz, é pouco provável que a pessoa reorganize o que pensa, e entre as outras possibilidades estão incorporar a informação à concepção já existente ou manter a informação em um compartimento separado, sem conflito com a concepção (Posner et al., 1982, p. 221).
 
 ### 1.3 Justificativa
 
 - [ ] **Qian e Lehman (2017, p. 1)** · abrir `fontes/qian2017/3077618.pdf`
-  > A revisão de Qian e Lehman (2017, p. 1) recomenda que a pesquisa sobre as dificuldades de iniciantes em programação vá além de documentá-las e incorpore as teorias de mudança conceitual, e Sorva (2013, p. 1) defende que o modelo de execução dos programas, a chamada máquina nocional, seja reconhecido como objetivo explícito do ensino introdutório.
+  > A revisão de Qian e Lehman (2017, p. 1) recomenda que a pesquisa sobre as dificuldades de iniciantes em programação vá além de documentá-las e incorpore as teorias de mudança conceitual, e Sorva (2013, p. 1) defende que a abstração do computador que executa os programas, a chamada máquina nocional, seja reconhecido como objetivo explícito do ensino introdutório.
 - [ ] **Sorva (2013, p. 1)** · abrir `fontes/sorva2013/2483710.2483713.pdf`
-  > A revisão de Qian e Lehman (2017, p. 1) recomenda que a pesquisa sobre as dificuldades de iniciantes em programação vá além de documentá-las e incorpore as teorias de mudança conceitual, e Sorva (2013, p. 1) defende que o modelo de execução dos programas, a chamada máquina nocional, seja reconhecido como objetivo explícito do ensino introdutório.
+  > A revisão de Qian e Lehman (2017, p. 1) recomenda que a pesquisa sobre as dificuldades de iniciantes em programação vá além de documentá-las e incorpore as teorias de mudança conceitual, e Sorva (2013, p. 1) defende que a abstração do computador que executa os programas, a chamada máquina nocional, seja reconhecido como objetivo explícito do ensino introdutório.
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > Além disso, o catálogo de concepções errôneas de programação utilizado como fonte principal deste trabalho, o de Sorva (2012), reúne achados da literatura de programação introdutória, deixa de fora as questões muito específicas de uma linguagem (Sorva, 2012, p. 358) e não registra concepções sobre construtos próprios de C, como a alocação dinâmica e a aritmética de ponteiros (Seção 4.3), o que torna necessária uma curadoria específica.
 - [ ] **(Sorva, 2012, p. 358)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
@@ -83,7 +83,7 @@ obra.
 - [ ] **Posner et al. (1982, p. 212-213)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
   > Posner et al. (1982, p. 212-213) distinguem dois modos de mudança: lidar com o fenômeno novo por meio dos conceitos existentes, e substituir ou reorganizar os conceitos centrais, processo que denominam acomodação.
 - [ ] **(Posner et al., 1982, p. 221)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
-  > Diante de uma anomalia, isto é, de uma informação que contradiz o que pensa, a acomodação é o caminho mais difícil e, por isso, o menos provável, sobretudo quando há outras possibilidades: rejeitar a teoria em que a observação se apoia, desconsiderar o resultado por julgá-lo irrelevante, manter o conhecimento em compartimentos, de modo que a informação nova não entre em conflito com a crença existente, ou tentar assimilar a informação às concepções existentes (Posner et al., 1982, p. 221).
+  > Diante de uma anomalia, isto é, de uma informação que contradiz o que a pessoa pensa, a acomodação é o caminho mais difícil e, por isso, o menos provável, sobretudo quando há outras possibilidades: rejeitar a teoria em que a observação se apoia, desconsiderar o resultado por julgá-lo irrelevante, manter o conhecimento em compartimentos, de modo que a informação nova não entre em conflito com a crença existente, ou tentar assimilar a informação às concepções existentes (Posner et al., 1982, p. 221).
 - [ ] **(Posner et al., 1982, p. 214)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
   > Para que a acomodação ocorra, os autores propõem quatro condições: deve haver insatisfação com a concepção existente, e a nova concepção deve ser inteligível, parecer plausível desde o início e mostrar-se frutífera (Posner et al., 1982, p. 214).
 - [ ] **(Posner et al., 1982, p. 224)** · abrir `fontes/posner1982/Posner_Strike_Hewson_Gertzog.pdf`
@@ -102,7 +102,7 @@ obra.
 ### 2.2 Certeza declarada como sinal diagnóstico
 
 - [ ] **Gardner-Medwin (2006)** · abrir `fontes/gardnermedwin2006/innovass7.pdf`
-  > A avaliação baseada em certeza foi pesquisada extensamente, sobretudo antes de a avaliação por computador se tornar viável em larga escala, e Gardner-Medwin (2006) relata dez anos de uso na University College London, sobretudo em cursos de medicina, com três níveis de certeza e penalidade crescente para o erro cometido com convicção.
+  > A avaliação baseada em certeza foi pesquisada extensamente, sobretudo antes de a avaliação por computador se tornar viável em larga escala, e Gardner-Medwin (2006) relata dez anos de uso na University College London, em especial em cursos de medicina, com três níveis de certeza e penalidade crescente para o erro cometido com convicção.
 - [ ] **Gardner-Medwin (2006)** · abrir `fontes/gardnermedwin2006/innovass7.pdf`
   > Segundo, a escala possui três pontos, como a de Gardner-Medwin (2006), porque deve caber em uma única interação no ritmo da atividade; o autor, contudo, nomeia os níveis com números ou termos neutros, pois palavras como "certeza" e "chute" têm significados diferentes para pessoas diferentes, ao passo que o Structura utiliza expressões verbais ("chutei", "acho que sei", "tenho certeza").
 
@@ -143,6 +143,8 @@ obra.
   > VanLehn (2006) descreve esses sistemas por meio de dois laços: o externo seleciona a próxima tarefa, com base em um modelo do estudante; o interno acompanha cada passo da tarefa, com retorno e dicas, e atualiza esse modelo.
 - [ ] **VanLehn (2011, p. 197)** · abrir `fontes/vanlehn2011/EffectivenessOfTutoring_Vanlehn.pdf`
   > Na classificação de VanLehn (2011, p. 197), trata-se de um tutor por passo.
+- [ ] **(VanLehn, 2011, p. 208)** · abrir `fontes/vanlehn2011/EffectivenessOfTutoring_Vanlehn.pdf`
+  > Na revisão do autor, em comparação com a ausência de tutoria, os tutores por passo apresentaram tamanho de efeito de 0,76, próximo ao da tutoria humana, de 0,79, e os tutores por subpasso, de 0,40 (VanLehn, 2011, p. 208).
 
 ### 2.7 Desempenho e aprendizagem
 
@@ -245,7 +247,7 @@ obra.
 ### 4.3.2 Classe 2: corpus de praticante (35 concepções)
 
 - [ ] **(Summit, c2005)** · abrir `fontes/cfaq/ (índices e perguntas do FAQ, em HTML)`
-  > A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, que o autor passou a publicar em 1990 no grupo de Usenet de mesmo nome (Summit, c2005).
+  > A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, que Steve Summit passou a publicar em 1990 no grupo de Usenet de mesmo nome (Summit, c2005).
 - [ ] **Summit (c2005)** · abrir `fontes/cfaq/ (índices e perguntas do FAQ, em HTML)`
   > *Fonte: elaborado pelo autor, com títulos de perguntas de Summit (c2005).*
 
@@ -260,7 +262,7 @@ obra.
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > *Fonte: elaborado pelo autor, por busca no texto de Sorva (2012).*
 - [ ] **(Sorva, 2012, p. 358)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
-  > O catálogo reúne concepções sobre o conteúdo comumente abordado em disciplinas introdutórias de programação e deixa de fora, por decisão declarada, as questões muito específicas de uma linguagem ou de uma ferramenta (Sorva, 2012, p. 358).
+  > A Tabela A.1 reúne concepções sobre o conteúdo comumente abordado em disciplinas introdutórias de programação e deixa de fora, por decisão declarada, as questões muito específicas de uma linguagem ou de uma ferramenta (Sorva, 2012, p. 358).
 - [ ] **(Sorva, 2012, p. 29-30)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > Na revisão dos estudos em que o catálogo se baseia, os que nomeiam a linguagem tratam de BASIC e de Java (Sorva, 2012, p. 29-30).
 
@@ -323,7 +325,7 @@ obra.
 - [ ] **(Sorva, 2012, p. 360)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > O catálogo cita o item 22 (Sorva, 2012, p. 360).
 
-### 4.6.6 Defeitos de registro identificados na reconferência
+### 4.6.6 Defeitos de registro identificados na segunda conferência
 
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > O campo de fonte de `pointer_is_pointless` menciona Sorva (2012) para registrar que a concepção não consta daquela obra; a fonte da concepção é a pergunta 4.1 do FAQ (Summit, c2005).
@@ -345,9 +347,9 @@ obra.
 - [ ] **Sorva (2012)** · abrir `fontes/sorva2012/isbn9789526046266.pdf`
   > Cada concepção que indica um desses estudos como fonte o faz pelo item de Sorva (2012) que o cita, com página e item, de modo que a mediação fica registrada no próprio campo de fonte.
 - [ ] **(SEI, 2025)** · abrir `fontes/certc/ (regras ERR33-C, EXP34-C, MEM30-C e MEM31-C, em HTML)`
-  > As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), que sustentam as três concepções de grau `N`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita.
+  > As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), citadas pelas três concepções de grau `N` e por duas de grau `L`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita.
 - [ ] **(MITRE, 2026)** · abrir `fontes/cwe/ (CWE-252, CWE-415 e CWE-476, em HTML)`
-  > As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), que sustentam as três concepções de grau `N`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita.
+  > As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), citadas pelas três concepções de grau `N` e por duas de grau `L`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita.
 - [ ] **(Summit, c2005)** · abrir `fontes/cfaq/ (índices e perguntas do FAQ, em HTML)`
   > A primeira é que a versão on-line do FAQ (Summit, c2005) é mais curta do que o livro publicado pelo mesmo autor, como ele próprio informa na página do FAQ; as citações deste trabalho referem-se à versão on-line, por número de pergunta, que foi a versão consultada.
 
@@ -383,7 +385,7 @@ obra.
 - [ ] **Gardner-Medwin (2006)** · abrir `fontes/gardnermedwin2006/innovass7.pdf`
   > Além disso, a escala utiliza expressões verbais ("chutei", "acho que sei", "tenho certeza"), cujo significado varia entre as pessoas, razão pela qual Gardner-Medwin (2006) nomeia os níveis com números.
 - [ ] **(Soderstrom; Bjork, 2015, p. 176)** · abrir `fontes/soderstrom2015/soderstrom_bjork_2015.pdf`
-  > Esse resultado não equivale à aprendizagem duradoura, que é medida por retenção de longo prazo ou por transferência e exigiria um novo teste dias depois (Soderstrom; Bjork, 2015, p. 176).
+  > Esse resultado não equivale à aprendizagem duradoura, cuja medição, por retenção de longo prazo ou por transferência, exigiria um novo teste dias depois (Soderstrom; Bjork, 2015, p. 176).
 - [ ] **(ISO/IEC, 2011)** · abrir `fontes/c11-n1570/n1570.pdf`
   > Além disso, as afirmações sobre o padrão apoiam-se no rascunho público da revisão de 2011 (ISO/IEC, 2011), e não no texto publicado da revisão utilizada na compilação.
 

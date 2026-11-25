@@ -41,7 +41,7 @@ A segunda é que o grau `E` é legítimo, desde que declarado. Uma hipótese do 
 
 ## Classes de fonte
 
-O catálogo apoia-se em dois tipos de obra. A diferença entre eles não é de qualidade, mas do tipo de afirmação que cada um sustenta. Tratá-los como equivalentes constituiria um defeito metodológico; a declaração da classe, concepção por concepção, é o que torna o catálogo auditável.
+O catálogo apoia-se em dois tipos de obra, aos quais se somam normas de codificação segura (Seção 4.7). A diferença entre eles não é de qualidade, mas do tipo de afirmação que cada um sustenta. Tratá-los como equivalentes constituiria um defeito metodológico; a declaração da classe, concepção por concepção, é o que torna o catálogo auditável.
 
 ### Classe 1: literatura de concepções errôneas (22 concepções)
 
@@ -51,7 +51,7 @@ Essa classe sustenta que a concepção foi observada em estudantes por pesquisad
 
 ### Classe 2: corpus de praticante (35 concepções)
 
-A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, que o autor passou a publicar em 1990 no grupo de Usenet de mesmo nome (Summit, c2005). Uma versão ampliada da lista foi publicada em livro pelo mesmo autor; este trabalho utiliza a versão on-line.
+A segunda classe é constituída pela lista de perguntas frequentes, ou *Frequently Asked Questions* (FAQ), do grupo comp.lang.c, que Steve Summit passou a publicar em 1990 no grupo de Usenet de mesmo nome (Summit, c2005). Uma versão ampliada da lista foi publicada em livro pelo próprio Summit; este trabalho utiliza a versão on-line. Uma das 35 concepções da classe, `malloc_always_succeeds`, não provém do FAQ: apoia-se apenas em uma regra do CERT C e em uma entrada da CWE, que registram o erro de utilizar o resultado de `malloc` sem conferi-lo, e tem por isso o grau `N` (Quadro 4.1); outras quatro citam essas normas junto com a pergunta do FAQ.
 
 A inclusão dessa classe requer justificar por que um FAQ de linguagem constitui evidência sobre concepções errôneas, e não apenas sobre a linguagem C. A justificativa está no critério de inclusão adotado, que pode ser conferido por qualquer leitor: é incluída somente a pergunta cujo título formula, na voz de quem pergunta, a concepção ou a dúvida que a revela, de modo que a ideia que motivou a pergunta possa ser identificada no próprio título (Quadro 4.2).
 
@@ -68,15 +68,15 @@ A inclusão dessa classe requer justificar por que um FAQ de linguagem constitui
 
 O catálogo, portanto, não infere a concepção a partir de uma explicação técnica: registra a formulação de quem pergunta. Para conferir a inclusão, basta consultar a pergunta e avaliar se o título formula a concepção ou apenas indica o assunto.
 
-Do ponto de vista metodológico, o FAQ é tratado como fonte documental: um corpus de confusões autorrelatadas, de ocorrência natural, reunidas pelo editor ao longo de mais de três décadas. O tratamento dado a esse corpus é o da análise documental.
+Do ponto de vista metodológico, o FAQ é tratado como fonte documental: um corpus de confusões autorrelatadas, de ocorrência natural, reunidas pelo editor desde 1990. O tratamento dado a esse corpus é o da análise documental.
 
-Essa classe sustenta que a confusão foi formulada por pessoas que programam em C e que consta de uma lista de perguntas frequentes do grupo. Não sustenta que a confusão seja frequente entre estudantes iniciantes, nem afirmações de prevalência: a população é autosselecionada (pessoas que escrevem para um grupo de Usenet, cuja experiência com a linguagem não é conhecida), e a seleção das perguntas reflete o julgamento do editor, e não uma medição. Por isso, nenhuma afirmação de proporção é extraída dessa fonte, e a ocorrência dessas concepções entre estudantes é uma das questões a verificar no estudo com participantes (Apêndice A).
+Para as 34 concepções apoiadas no FAQ, essa classe sustenta que a confusão foi formulada por pessoas que programam em C e que consta de uma lista de perguntas frequentes do grupo. Não sustenta que a confusão seja frequente entre estudantes iniciantes, nem afirmações de prevalência: a população é autosselecionada (pessoas que escrevem para um grupo de Usenet, cuja experiência com a linguagem não é conhecida), e a seleção das perguntas reflete o julgamento do editor, e não uma medição. Por isso, nenhuma afirmação de proporção é extraída dessa fonte, e a ocorrência dessas concepções entre estudantes é uma das questões a verificar no estudo com participantes (Apêndice A).
 
 ### Necessidade da segunda classe
 
 Seria razoável exigir que todo o catálogo se apoiasse na classe 1, de natureza empírica, e que a classe 2 fosse dispensada. Essa exigência foi testada contra a Tabela A.1 de Sorva (2012), item por item, e verificou-se que não pode ser satisfeita.
 
-A Tabela A.1 possui um tópico dedicado a referências (`Refs`, com 17 dos 162 itens) e itens sobre memória e tempo de vida distribuídos por seis tópicos (`General`, `VarAssign`, `ObjClass`, `ObjState`, `OtherOOP` e `Misc`). Faltam-lhe, contudo, os itens relevantes para este trabalho, como mostra a contagem do Quadro 4.3, reprodutível por busca de termos no texto da tabela.
+A Tabela A.1 possui um tópico dedicado a referências (`Refs`, com 17 dos 162 itens) e itens sobre memória e tempo de vida distribuídos por seis tópicos (`General`, `VarAssign`, `ObjClass`, `ObjState`, `OtherOOP` e `Misc`). Faltam-lhe, contudo, itens sobre os construtos próprios de C, como a alocação dinâmica, como mostra a contagem do Quadro 4.3, reprodutível por busca de termos no texto da tabela.
 
 **Quadro 4.3 — Ocorrências de termos relativos à memória na Tabela A.1**
 
@@ -93,7 +93,7 @@ A Tabela A.1 possui um tópico dedicado a referências (`Refs`, com 17 dos 162 i
 
 Não há, portanto, nenhum item sobre `NULL`, sobre `malloc` e `free`, sobre aritmética de ponteiros, sobre decaimento de array ou sobre a distinção entre pilha e monte.
 
-Essa ausência não decorre de descuido da obra. O catálogo reúne concepções sobre o conteúdo comumente abordado em disciplinas introdutórias de programação e deixa de fora, por decisão declarada, as questões muito específicas de uma linguagem ou de uma ferramenta (Sorva, 2012, p. 358). Na revisão dos estudos em que o catálogo se baseia, os que nomeiam a linguagem tratam de BASIC e de Java (Sorva, 2012, p. 29-30). Um catálogo com esse recorte não documenta as confusões relativas justamente ao que distingue a linguagem C.
+Essa ausência não decorre de descuido da obra. A Tabela A.1 reúne concepções sobre o conteúdo comumente abordado em disciplinas introdutórias de programação e deixa de fora, por decisão declarada, as questões muito específicas de uma linguagem ou de uma ferramenta (Sorva, 2012, p. 358). Na revisão dos estudos em que o catálogo se baseia, os que nomeiam a linguagem tratam de BASIC e de Java (Sorva, 2012, p. 29-30). Um catálogo com esse recorte não documenta as confusões relativas justamente ao que distingue a linguagem C.
 
 Conclui-se, assim, não que as 35 concepções da classe 2 sejam frágeis, mas que um catálogo de concepções errôneas para C requer uma segunda classe de fonte, a qual deve ser declarada como tal, com a indicação do que sustenta e do que não sustenta. Essa declaração é feita, concepção por concepção, na coluna de classe do Apêndice B.
 
@@ -108,13 +108,13 @@ O quadro é exaustivo e mutuamente exclusivo: cada uma das 61 concepções figur
 | Forma de conferência | Concepções |
 | --- | --- |
 | conferida no texto integral de Sorva (2012), obtido do repositório aberto da Universidade Aalto (handle `123456789/3534`, bundle TEXT); a frase em inglês citada entre aspas foi localizada no texto da obra | 22 |
-| conferida no índice do FAQ comp.lang.c: as seções 1, 4, 5, 6, 7 e 11 foram consultadas em `c-faq.com`; as perguntas citadas existem, e os títulos coincidem com os citados no catálogo | 34 |
+| conferida no índice do FAQ comp.lang.c: as seções 1, 4, 5, 6, 7 e 11 foram consultadas em `c-faq.com`; as perguntas citadas existem, e os títulos coincidem com os citados no catálogo; da pergunta 11.24, cuja resposta é citada, foi consultada também a página da resposta | 34 |
 | conferida na página das normas: cita apenas uma regra do CERT C e uma entrada da CWE, cujas páginas foram consultadas (Seção 4.7) | 1 |
 | sem item correspondente na literatura, com a busca declarada em campo próprio | 2 |
 | sem fonte, por definição: hipótese declarada como tal | 2 |
 | total | 61 |
 
-As três primeiras linhas somam as 57 concepções conferidas na obra primária. As duas últimas correspondem às quatro hipóteses, para as quais a curadoria não afirma haver fonte. Quatro das 57 foram conferidas em uma segunda passada, em 23/11/2026 (Seção 4.6.6).
+As três primeiras linhas somam as 57 concepções conferidas na obra primária. As duas últimas correspondem às quatro hipóteses, para as quais a curadoria não afirma haver fonte. Quatro das 57 foram conferidas em uma segunda conferência, em 23/11/2026 (Seção 4.6.6).
 
 Os estudos agregados pelo Apêndice A de Sorva (2012), relacionados na Seção 4.3.1, não figuram em linha própria porque não foram consultados diretamente. As concepções que os indicam como fonte o fazem pelo item de Sorva (2012) que os cita, com página e item, e estão contadas na primeira linha do quadro. A Seção 4.7 detalha esse ponto.
 
@@ -153,7 +153,7 @@ Em três concepções, a busca inicial na obra não localizou o item corresponde
 
 Nos três casos, a busca refeita com outro vocabulário localizou o item, e é esse o item citado no catálogo, com o grau que ele sustenta: `T` para a primeira concepção e `D` para as outras duas. Nenhuma das três classificações depende de julgamento intuitivo.
 
-Desses casos decorre uma recomendação de método, que pode ser replicada: a busca deve ser orientada pelo fenômeno, e não pelo termo da linguagem em estudo. Em um catálogo de concepções errôneas da linguagem X, o item procurado pode estar redigido no vocabulário da linguagem Y, o que necessariamente ocorre quando o catálogo foi produzido em Y.
+Desses casos decorre uma recomendação de método, que pode ser replicada: a busca deve ser orientada pelo fenômeno, e não pelo termo da linguagem em estudo. Quando se procura, em uma fonte, uma concepção errônea da linguagem X, o item pode estar redigido no vocabulário da linguagem Y, o que necessariamente ocorre quando a fonte foi produzida a partir de estudos em Y.
 
 O terceiro caso acrescenta um segundo princípio, relativo à transparência da citação: foi a aproximação declarada que permitiu localizar o erro. A citação indicava em que o item diferia da concepção, e essa diferença apontou para o item vizinho. Uma citação que omite a discrepância não oferece esse indício e permanece incorreta sem que se perceba.
 
@@ -185,9 +185,9 @@ Quatorze concepções aparecem em mais de um tópico, e cada ocorrência possui 
 
 O achado relevante não se restringe a essas três concepções: um catálogo mantido manualmente em arquivos paralelos tende a divergir sem que isso seja percebido. As ocorrências estão uniformizadas, e um teste automatizado impede novas divergências (Quadro 4.7).
 
-### 6. Defeitos de registro identificados na reconferência
+### 6. Defeitos de registro identificados na segunda conferência
 
-Em uma segunda passada, realizada em 23/11/2026 sobre as quatro concepções que a curadoria inicial não havia conferido integralmente, foram identificados dois defeitos de registro, ambos corrigidos.
+Em uma segunda conferência, realizada em 23/11/2026 sobre as quatro concepções que a curadoria inicial não havia conferido integralmente, foram identificados dois defeitos de registro, ambos corrigidos.
 
 O primeiro é uma menção contada como citação. O campo de fonte de `pointer_is_pointless` menciona Sorva (2012) para registrar que a concepção não consta daquela obra; a fonte da concepção é a pergunta 4.1 do FAQ (Summit, c2005). O programa que gera o Apêndice B classificava a fonte pela presença do nome da obra no campo e, por essa razão, incluía a concepção na classe 1 e procurava no texto de Sorva (2012) uma frase que pertence ao FAQ. O programa passou a considerar aquela obra como fonte somente quando a citação indica página ou item, e a contagem das classes foi corrigida de 23 e 34 para 22 e 35 concepções.
 
@@ -205,7 +205,7 @@ Os estudos agregados pelo Apêndice A (Seção 4.3.1) são citados *apud* Sorva 
 
 Em consequência, nenhuma afirmação deste trabalho atribui a esses estudos conteúdo que não conste do item do Apêndice A que os cita.
 
-As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), que sustentam as três concepções de grau `N`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita. Na curadoria inicial, a concepção que cita apenas normas havia ficado sem conferência, e a seção 11 do FAQ não havia sido incluída; as duas lacunas foram fechadas na reconferência de 23/11/2026 (Seção 4.6.6), e os Quadros 4.4 e 4.5 apresentam o resultado posterior a ela.
+As normas CERT C (SEI, 2025) e CWE (MITRE, 2026), citadas pelas três concepções de grau `N` e por duas de grau `L`, foram conferidas separadamente da curadoria, na conferência das referências deste trabalho: as três entradas da CWE (252, 415 e 476) e as quatro regras do CERT C (ERR33-C, EXP34-C, MEM30-C e MEM31-C) correspondem ao que o catálogo cita. Na curadoria inicial, a concepção que cita apenas normas havia ficado sem conferência, e a seção 11 do FAQ não havia sido incluída; as duas lacunas foram fechadas na segunda conferência, de 23/11/2026 (Seção 4.6.6), e os Quadros 4.4 e 4.5 apresentam o resultado posterior a ela.
 
 Duas observações de forma delimitam o que se pode afirmar. A primeira é que a versão on-line do FAQ (Summit, c2005) é mais curta do que o livro publicado pelo mesmo autor, como ele próprio informa na página do FAQ; as citações deste trabalho referem-se à versão on-line, por número de pergunta, que foi a versão consultada. A segunda é que os números de página do Apêndice A referem-se ao texto extraído do arquivo em *Portable Document Format* (PDF) disponível no repositório mencionado e foram calibrados com base nos marcadores de página do próprio texto.
 
@@ -215,11 +215,11 @@ A delimitação do alcance da curadoria integra o método. Três limites devem s
 
 1. Não há afirmação de prevalência. Nem a classe 1 nem a classe 2 autorizam afirmar que determinada proporção dos estudantes sustenta uma dada concepção. O catálogo afirma que a concepção está registrada na literatura ou no corpus de praticantes, e não que seja frequente entre estudantes.
 2. Não há afirmação sobre a eficácia do instrumento. O fato de as concepções estarem documentadas não implica que o sistema as detecte adequadamente nem que a refutação produza efeito, o que exigiria coleta de dados com participantes.
-3. Quatro concepções permanecem como hipóteses. São elas `memory_is_uniform`, `type_is_a_hint`, `memoria_e_do_computador` e `heap_dies_with_function`, declaradas como tais e ausentes dos tópicos de coleta. A última apoia-se em uma analogia declarada (em Java e em Python, a memória alocada por uma função e que deixa de ser alcançável é liberada automaticamente), mas nenhuma obra consultada registra a concepção; por essa razão, é classificada como hipótese, e não como transposição. A auditoria indica o procedimento a adotar antes de aceitá-las: refazer a busca com outro vocabulário, procedimento que localizou o item de duas concepções antes consideradas hipóteses (Seção 4.6.1) e que, para essas quatro, confirmou a inexistência de item.
+3. Quatro concepções permanecem como hipóteses. São elas `memory_is_uniform`, `type_is_a_hint`, `memoria_e_do_computador` e `heap_dies_with_function`, declaradas como tais e ausentes dos tópicos de coleta. A última apoia-se em uma analogia declarada (em Java e em Python, a memória alocada por uma função e que deixa de ser alcançável é liberada automaticamente), mas nenhuma obra consultada registra a concepção; por essa razão, é classificada como hipótese, e não como transposição. A auditoria indica o procedimento a adotar antes de aceitá-las: refazer a busca com outro vocabulário, procedimento que localizou o item de duas concepções antes consideradas hipóteses (Seção 4.6.1). Para duas das quatro, a busca sem resultado está declarada em campo próprio; as outras duas foram elaboradas a partir do modelo de máquina e não têm busca declarada.
 
 ## Verificação automatizada do catálogo
 
-O Apêndice B não foi redigido manualmente: é gerado a partir do catálogo por um comando. A digitação de 61 linhas favoreceria exatamente a divergência entre documento e dado que esta seção se propõe a controlar, e a Seção 4.6.5 mostra que essa divergência ocorre mesmo quando o risco é conhecido por quem mantém os arquivos.
+O Apêndice B não foi redigido manualmente: é gerado a partir do catálogo por um comando. A digitação de 61 linhas favoreceria exatamente a divergência entre documento e dado que esta seção se propõe a controlar, e a Seção 4.6.5 mostra que essa divergência ocorreu.
 
 O catálogo é submetido a verificações automatizadas, que fazem a suíte de testes falhar caso a propriedade correspondente deixe de valer. As principais são apresentadas no Quadro 4.7.
 

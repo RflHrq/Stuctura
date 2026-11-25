@@ -29,7 +29,7 @@ Paranaíba, 2026.
 | premissas | **79**, organizadas em um grafo por tópico |
 | concepções errôneas | **61**, cada uma com a procedência declarada: 57 conferidas na obra citada e 4 hipóteses declaradas como tais |
 | questões de diagnóstico | **560** |
-| passos de ensino | **402**, em 13 escadas, cada passo com duas versões |
+| passos de ensino | **402**, nas escadas das 79 premissas, cada passo com duas versões |
 | demonstrações com previsão | **80** |
 | cenas animadas | **79** |
 | testes automatizados | **7 568** |
@@ -179,7 +179,8 @@ e o texto não, o teste falha.
 O trabalho não coletou dados de participantes. As sessões que o sistema
 grava ficam em pastas fora do controle de versão (`ensaios/`, `coleta/`),
 e o protocolo do estudo futuro identifica cada participante por um
-código anônimo: nome e matrícula não entram no sistema.
+código sem dado pessoal, que funciona como pseudônimo: nome e matrícula
+não entram no sistema.
 
 ## Licença
 

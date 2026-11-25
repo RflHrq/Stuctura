@@ -3,7 +3,7 @@
 
 \chapter{\texorpdfstring{\mbox{FORMATO} \mbox{DA} \mbox{EXPORTAÇÃO} \mbox{DAS} \mbox{SESSÕES}}{FORMATO DA EXPORTAÇÃO DAS SESSÕES}}\label{cap:C}
 
-Este apêndice descreve as tabelas geradas pelo exportador das sessões da trilha (Seção~3.7), que fornecem os dados do sistema para o estudo com estudantes (Apêndice~A). O exportador é executado pelo pesquisador, no computador em que o sistema roda, com o comando \texttt{python -{}m mvp.\allowbreak{}exporta\_\allowbreak{}trilha -{}-{}pasta coleta/\allowbreak{}portal -{}-{}out analise/\allowbreak{}trilha}, e gera três arquivos: \texttt{sessoes.csv}, \texttt{premissas.csv} e \texttt{respostas.csv}.
+Este apêndice descreve as tabelas geradas pelo exportador das sessões da trilha (Seção~3.7), que fornecem os dados do sistema para o estudo com estudantes (Apêndice~A). O exportador é executado pelo pesquisador, no computador em que o sistema é executado, com o comando \texttt{python -{}m mvp.\allowbreak{}exporta\_\allowbreak{}trilha -{}-{}pasta coleta/\allowbreak{}portal -{}-{}out analise/\allowbreak{}trilha}, e gera três arquivos: \texttt{sessoes.csv}, \texttt{premissas.csv} e \texttt{respostas.csv}.
 
 Os arquivos seguem o formato \textit{Comma-Separated Values} (CSV), com a primeira linha de cabeçalho e codificação \textit{8-bit Unicode Transformation Format} (UTF-8) com marca de ordem de bytes, de modo que as planilhas eletrônicas, como o Microsoft Excel e o LibreOffice Calc, os abrem com a acentuação correta. Adotou-se esse formato, e não o formato próprio de pasta de trabalho do Excel, por ser texto aberto, legível por qualquer planilha e por ferramentas de análise estatística, sem dependência de programa específico; a planilha que o abrir pode salvá-lo naquele formato. Toda célula iniciada por caractere que a planilha interpretaria como fórmula recebe um apóstrofo, para que o conteúdo seja exibido, e não executado.
 
@@ -32,10 +32,10 @@ A tabela \texttt{sessoes.csv} tem uma linha por sessão, isto é, por participan
 \texttt{n\_respostas} & número de respostas (perguntas, passos e previsões) \\ \hline
 \texttt{n\_corretas} & número de respostas corretas \\ \hline
 \texttt{ja\_sabia} & premissas concluídas com resposta firme na abertura \\ \hline
-\texttt{firmou} & premissas em que a pessoa estava insegura e confirmou \\ \hline
+\texttt{firmou} & premissas confirmadas na pergunta de reforço, após um acerto sem firmeza ou sinais divergentes \\ \hline
 \texttt{aprendeu\_agora} & premissas ensinadas pela escada e confirmadas em seguida \\ \hline
-\texttt{corrigiu} & premissas em que a concepção errônea foi trabalhada pela demonstração e pelo treino \\ \hline
-\texttt{em\_aberto} & premissas cujo trabalho não se concluiu dentro do limite de telas \\ \hline
+\texttt{corrigiu} & premissas em que a concepção errônea foi trabalhada pela demonstração e o treino terminou com dois acertos seguidos \\ \hline
+\texttt{em\_aberto} & premissas encerradas sem que o trabalho se concluísse (por exemplo, erro na pergunta que segue a escada, ou treino sem dois acertos seguidos dentro do limite) \\ \hline
 \texttt{ms\_total} & soma dos tempos de resposta, em milissegundos \\ \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor.}
@@ -43,7 +43,7 @@ A tabela \texttt{sessoes.csv} tem uma linha por sessão, isto é, por participan
 
 \section{Tabela de premissas}
 
-A tabela \texttt{premissas.csv} tem uma linha por premissa aberta em cada sessão e reúne, lado a lado, o diagnóstico, o trabalho realizado e o resultado, que constituem a unidade de análise das questões V2 e V3 (Quadro~\ref{qua:C-2}).
+A tabela \texttt{premissas.csv} tem uma linha por premissa aberta em cada sessão e reúne, lado a lado, o diagnóstico, o trabalho realizado e o resultado, de onde se obtêm os episódios que constituem a unidade de análise das questões V2 e V3 (Quadro~\ref{qua:C-2}).
 
 \begin{quadro}[htbp]
 \caption{Colunas de \texttt{premissas.csv}}\label{qua:C-2}
@@ -144,4 +144,4 @@ I3 & fragil &  & firmou &  \\ \hline
 \fonte{Elaborado pelo autor.}
 \end{quadro}
 
-Nas premissas B3 e I1, a previsão feita na demonstração foi a que a concepção errônea indica (coluna \texttt{previsao\_\allowbreak{}como\_\allowbreak{}a\_\allowbreak{}crenca} igual a ``sim''). Na premissa I2, a concepção errônea apareceu durante a escada, sem demonstração. O quadro omite, por espaço, as colunas de participante, tópico, ordem, certeza na abertura, trabalho e telas; nesse exemplo, a coluna \texttt{trabalho} traz ``lacuna'' nas premissas B2 e I2 e ``crenca'' nas premissas B3 e I1.
+Nas premissas B3 e I1, a previsão feita na demonstração foi a que a concepção errônea indica (coluna \texttt{previsao\_\allowbreak{}como\_\allowbreak{}a\_\allowbreak{}crenca} igual a ``sim''). Na premissa I2, a concepção errônea apareceu durante a escada, sem demonstração. O quadro omite, por espaço, as colunas de participante, tópico, ordem, certeza na abertura, trabalho, previsão como a crença e telas; nesse exemplo, a coluna \texttt{trabalho} traz ``lacuna'' nas premissas B2 e I2 e ``crenca'' nas premissas B3 e I1.

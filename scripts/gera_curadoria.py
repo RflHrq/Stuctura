@@ -74,11 +74,14 @@ LOCALIZADOR = [
 ]
 
 
-def localizador(f, sem_item=""):
+def localizador(f, sem_item="", grade=""):
     # A pagina citada numa nota de busca que falhou e a pagina do item
     # que NAO e a crenca. Nao e localizador de fonte: e endereco de uma
-    # ausencia.
-    if sem_item:
+    # ausencia. A hipotese (grade E) tambem: a nota de
+    # `memoria_e_do_computador` cita o item 141, p. 367, para dizer que
+    # o mais proximo NAO e a crenca, e o Apendice B escrevia "pagina/item"
+    # numa linha que nao tem fonte (24/11/2026).
+    if sem_item or grade == "E":
         return "—"
     fora = [n for n, pat in LOCALIZADOR if re.search(pat, f, re.I)]
     return ", ".join(fora) if fora else "—"
@@ -170,7 +173,7 @@ def conferencia(cid, f, grade, sem_item=""):
     if sem_item:
         return "sem item na literatura — busca declarada"
     if grade == "E":
-        return "sem fonte, por desenho"
+        return "sem fonte, por definição"
     if cita_sorva(f):
         if not TEM_SORVA:
             return "não conferida — texto da obra não dado nesta execução"
@@ -215,10 +218,10 @@ for cid in sorted(cr):
     conta["grade " + grade] += 1
     cl = classe(f, grade, si)
     conta["classe " + cl.replace("**", "")] += 1
-    apendice.append((cid, ts, nega, cl, grade, localizador(f, si), conf))
+    apendice.append((cid, ts, nega, cl, grade, localizador(f, si, grade), conf))
     linhas.append("| `%s` | %s | %s | %s | `%s` | %s | %s |"
                   % (cid, ", ".join(ts), nega, cl, grade,
-                     localizador(f, si), conf))
+                     localizador(f, si, grade), conf))
 
 tabela = NL.join(linhas)
 n = len(cr)
@@ -577,7 +580,7 @@ estudantes; 2, corpus de praticante; ou hipótese); o grau de procedência
 (Quadro 4.1); o localizador, isto é, o tipo de posição que a citação
 indica na obra; e a conferência, isto é, a forma como a citação foi
 conferida na obra primária (Quadro 4.4). A conferência das normas CERT C
-e CWE, realizada na conferência das referências deste trabalho, é
+e CWE, realizada durante a verificação das referências deste trabalho, é
 descrita na Seção 4.7.
 
 **Quadro B.1 — As %d concepções errôneas do catálogo e a procedência de cada uma**

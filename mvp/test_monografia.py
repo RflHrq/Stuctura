@@ -572,3 +572,18 @@ def test_a_premissa_pode_receber_a_escada_e_a_demonstracao():
             in _texto("03-sistema.md"))
     assert ("nenhuma premissa recebe duas vezes a mesma intervenção"
             in _texto("05-construcao-e-verificacao.md"))
+
+
+def test_as_hipoteses_do_apendice_b_nao_tem_localizador():
+    """Hipótese não tem fonte, e portanto não tem localizador. O gerador
+    via o "p. 367" que a nota de `memoria_e_do_computador` cita para dizer
+    que o item mais próximo NÃO é a concepção, e escrevia "página/item".
+    E a conferência diz "por definição", como o Quadro 4.4."""
+    linhas = [l for l in (CAPITULOS / "apendice-curadoria.md").read_text(
+        encoding="utf-8").splitlines() if "| `E` |" in l]
+    assert len(linhas) == 4
+    for l in linhas:
+        celulas = [c.strip() for c in l.strip("|").split("|")]
+        assert celulas[5] == "não há", l
+        assert "por desenho" not in l, l
+    assert sum("sem fonte, por definição" in l for l in linhas) == 2

@@ -1,6 +1,6 @@
 # Apêndice C — Formato da exportação das sessões
 
-Este apêndice descreve as tabelas geradas pelo exportador das sessões da trilha (Seção 3.7), que fornecem os dados do sistema para o estudo com estudantes (Apêndice A). O exportador é executado pelo pesquisador, no computador em que o sistema roda, com o comando `python -m mvp.exporta_trilha --pasta coleta/portal --out analise/trilha`, e gera três arquivos: `sessoes.csv`, `premissas.csv` e `respostas.csv`.
+Este apêndice descreve as tabelas geradas pelo exportador das sessões da trilha (Seção 3.7), que fornecem os dados do sistema para o estudo com estudantes (Apêndice A). O exportador é executado pelo pesquisador, no computador em que o sistema é executado, com o comando `python -m mvp.exporta_trilha --pasta coleta/portal --out analise/trilha`, e gera três arquivos: `sessoes.csv`, `premissas.csv` e `respostas.csv`.
 
 Os arquivos seguem o formato *Comma-Separated Values* (CSV), com a primeira linha de cabeçalho e codificação *8-bit Unicode Transformation Format* (UTF-8) com marca de ordem de bytes, de modo que as planilhas eletrônicas, como o Microsoft Excel e o LibreOffice Calc, os abrem com a acentuação correta. Adotou-se esse formato, e não o formato próprio de pasta de trabalho do Excel, por ser texto aberto, legível por qualquer planilha e por ferramentas de análise estatística, sem dependência de programa específico; a planilha que o abrir pode salvá-lo naquele formato. Toda célula iniciada por caractere que a planilha interpretaria como fórmula recebe um apóstrofo, para que o conteúdo seja exibido, e não executado.
 
@@ -27,15 +27,15 @@ A tabela `sessoes.csv` tem uma linha por sessão, isto é, por participante e t�
 | `n_respostas` | número de respostas (perguntas, passos e previsões) |
 | `n_corretas` | número de respostas corretas |
 | `ja_sabia` | premissas concluídas com resposta firme na abertura |
-| `firmou` | premissas em que a pessoa estava insegura e confirmou |
+| `firmou` | premissas confirmadas na pergunta de reforço, após um acerto sem firmeza ou sinais divergentes |
 | `aprendeu_agora` | premissas ensinadas pela escada e confirmadas em seguida |
-| `corrigiu` | premissas em que a concepção errônea foi trabalhada pela demonstração e pelo treino |
-| `em_aberto` | premissas cujo trabalho não se concluiu dentro do limite de telas |
+| `corrigiu` | premissas em que a concepção errônea foi trabalhada pela demonstração e o treino terminou com dois acertos seguidos |
+| `em_aberto` | premissas encerradas sem que o trabalho se concluísse (por exemplo, erro na pergunta que segue a escada, ou treino sem dois acertos seguidos dentro do limite) |
 | `ms_total` | soma dos tempos de resposta, em milissegundos |
 
 ## C.2 Tabela de premissas
 
-A tabela `premissas.csv` tem uma linha por premissa aberta em cada sessão e reúne, lado a lado, o diagnóstico, o trabalho realizado e o resultado, que constituem a unidade de análise das questões V2 e V3 (Quadro C.2).
+A tabela `premissas.csv` tem uma linha por premissa aberta em cada sessão e reúne, lado a lado, o diagnóstico, o trabalho realizado e o resultado, de onde se obtêm os episódios que constituem a unidade de análise das questões V2 e V3 (Quadro C.2).
 
 **Quadro C.2 — Colunas de `premissas.csv`**
 
@@ -116,4 +116,4 @@ O Quadro C.5 apresenta parte da tabela `premissas.csv` exportada da sessão de e
 | I2 | lacuna | `sizeof_array_via_pointer` | em_aberto | nao_se_manteve |
 | I3 | fragil | | firmou | |
 
-Nas premissas B3 e I1, a previsão feita na demonstração foi a que a concepção errônea indica (coluna `previsao_como_a_crenca` igual a "sim"). Na premissa I2, a concepção errônea apareceu durante a escada, sem demonstração. O quadro omite, por espaço, as colunas de participante, tópico, ordem, certeza na abertura, trabalho e telas; nesse exemplo, a coluna `trabalho` traz "lacuna" nas premissas B2 e I2 e "crenca" nas premissas B3 e I1.
+Nas premissas B3 e I1, a previsão feita na demonstração foi a que a concepção errônea indica (coluna `previsao_como_a_crenca` igual a "sim"). Na premissa I2, a concepção errônea apareceu durante a escada, sem demonstração. O quadro omite, por espaço, as colunas de participante, tópico, ordem, certeza na abertura, trabalho, previsão como a crença e telas; nesse exemplo, a coluna `trabalho` traz "lacuna" nas premissas B2 e I2 e "crenca" nas premissas B3 e I1.

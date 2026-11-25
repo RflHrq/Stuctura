@@ -19,9 +19,9 @@ A unidade de análise de V2 e de V3 não é o participante, e sim o episódio de
 
 ## A.2 Procedimento da sessão
 
-O estudo prevê de 10 a 15 estudantes que cursam ou já cursaram a disciplina com a linguagem C, atendidos individualmente, de forma presencial e supervisionada, em uma sala ou laboratório da universidade, em sessões de cerca de 30 minutos. A aplicação presencial permite ao pesquisador acompanhar o que o participante responde e evita a consulta a outras fontes e a ajuda de terceiros, que uma aplicação remota, pela internet, não permitiria controlar. Cada sessão tem as seguintes etapas:
+O estudo prevê de 10 a 15 estudantes que cursam ou já cursaram a disciplina com a linguagem C, atendidos individualmente, de forma presencial e supervisionada, em uma sala ou em um laboratório da universidade, em sessões de cerca de 30 minutos. A aplicação presencial permite ao pesquisador acompanhar o que o participante responde e evita a consulta a outras fontes e a ajuda de terceiros, que uma aplicação remota, pela internet, não permitiria controlar. Cada sessão tem as seguintes etapas:
 
-1. consentimento e atribuição de um código anônimo (P01 a P15); o nome e a matrícula são registrados em papel, fora do sistema;
+1. consentimento e atribuição de um código sem dado pessoal (P01 a P15), que funciona como pseudônimo; o nome e a matrícula são registrados em papel, fora do sistema;
 2. três perguntas breves sobre a experiência com a linguagem C;
 3. dois tópicos na trilha, com verbalização do pensamento em voz alta. O pesquisador utiliza apenas lembretes padronizados (por exemplo, "continue pensando em voz alta"), definidos antes da coleta, sem oferecer indicações sobre o conteúdo nem correções. Sugerem-se os tópicos kc_07 (ponteiro e array) e kc_09 (`free` e ponteiro pendente), que têm o maior número de concepções mapeadas;
 4. aplicação do questionário SUS e entrevista breve sobre a percepção do participante, com três perguntas abertas: o que achou, o que gerou confusão e se faria outro tópico.
@@ -51,7 +51,7 @@ O Quadro A.3 relaciona as ameaças à validade identificadas e as respectivas co
 | Ameaça | Contramedida |
 | --- | --- |
 | A reconferência ocorre logo após a demonstração | a reconferência é realizada ao final do tópico, após as demais premissas |
-| Nenhum participante erra com convicção, e V2 e V3 ficam sem episódios | recrutamento de estudantes que estejam cursando a disciplina; escolha dos tópicos com mais concepções mapeadas; medição da taxa em um ensaio com dois colegas antes do agendamento da coleta |
+| Nenhum participante erra com convicção, e V2 e V3 ficam sem episódios | recrutamento de estudantes que estejam cursando a disciplina; escolha dos tópicos com mais concepções mapeadas; medição da frequência desses erros em um ensaio com dois colegas antes do agendamento da coleta |
 | A verbalização em voz alta altera o próprio raciocínio | tratamento da fala como evidência qualitativa, e nunca como leitura direta do pensamento |
 | O pesquisador influencia a sessão | lembretes padronizados, definidos previamente |
 | O participante consulta outras fontes ou recebe ajuda durante a sessão | sessões presenciais supervisionadas, com o pesquisador presente |
@@ -61,7 +61,7 @@ O Quadro A.3 relaciona as ameaças à validade identificadas e as respectivas co
 
 O estudo envolve participantes humanos e gravação de voz. Por essa razão, nenhuma coleta deve ser iniciada antes de concluídas as seguintes providências:
 
-1. a consulta formal à instância responsável pela ética em pesquisa com seres humanos da UFV e o cumprimento dos procedimentos por ela indicados, incluída a submissão do protocolo à apreciação ética;
+1. a consulta formal à instância da UFV responsável pela ética em pesquisa com seres humanos e o cumprimento dos procedimentos por ela indicados, incluída a submissão do protocolo à apreciação ética;
 2. o termo de consentimento, que informe ao participante a gravação de áudio, a finalidade do estudo e o uso dos dados;
 3. um plano de gestão dos dados que defina o local de armazenamento das gravações e dos registros, as pessoas com acesso a eles, o prazo de guarda, as medidas de confidencialidade (inclusive a guarda da lista em papel que associa nomes e matrículas aos códigos) e o procedimento de exclusão de dados a pedido do participante, que deve alcançar também as cópias de segurança do registro;
 4. o ensaio com dois colegas.
