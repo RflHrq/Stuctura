@@ -76,6 +76,8 @@ class Slide:
 
 class _Leitor(html.parser.HTMLParser):
     FORA = {"pre", "footer", "script", "style"}
+    BLOCO = {"p", "li", "td", "th", "tr", "div", "h1", "h2", "h3", "small",
+             "blockquote", "cite", "br", "figure", "table", "ul"}
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -91,6 +93,10 @@ class _Leitor(html.parser.HTMLParser):
                     if r.strip()]
             self.slides.append(Slide(len(self.slides) + 1, refs))
         fora = tag in self.FORA or (tag == "aside" and "notas" in classes)
+        # Bloco novo, linha nova: o "5" de uma célula e o "402" do parágrafo
+        # seguinte não podem virar o milhar "5 402".
+        if self.slides and tag in self.BLOCO:
+            self.slides[-1].texto += "\n"
         if tag in ("br", "img", "meta", "link", "input"):
             return
         self._pilha.append((tag, fora))
@@ -114,8 +120,9 @@ def slides(html_deck: str) -> list[Slide]:
     leitor = _Leitor()
     leitor.feed(html_deck)
     for s in leitor.slides:
-        s.texto = _normaliza(s.texto)
-        s.aspas = re.findall(r'"([^"]+)"', s.texto)
+        linhas = [_normaliza(l) for l in s.texto.split("\n")]
+        s.texto = "\n".join(l for l in linhas if l)
+        s.aspas = re.findall(r'"([^"\n]+)"', s.texto)
     return leitor.slides
 
 
@@ -123,7 +130,9 @@ _NUMERO = re.compile(r"(?<![\w,.])\d{1,3}(?: \d{3})+(?![\d,])|(?<![\w,.])\d+(?:,
 
 
 def _tem_numero(monografia: str, n: str) -> bool:
-    return re.search(r"(?<![\w,])" + re.escape(n) + r"(?![\d,]| \d{3}\b)",
+    # A vírgula só faz parte do número quando vem dígito depois ("0,76");
+    # "(1992, cap. 3)" tem o 1992.
+    return re.search(r"(?<!\w)(?<!\d,)" + re.escape(n) + r"(?!\d|,\d| \d{3}\b)",
                      monografia) is not None
 
 

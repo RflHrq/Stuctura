@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="claro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structura — defesa do TCC</title>
+<link rel="stylesheet" href="../mvp/web/tema.css">
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<div id="palco">
+
+<!-- 1 -->
+<section class="slide capa">
+  <div class="instituicao">UNIVERSIDADE FEDERAL DE VIÇOSA<br><i>CAMPUS</i> RIO PARANAÍBA<br>SISTEMAS DE INFORMAÇÃO</div>
+  <h1>STRUCTURA: UM SISTEMA ADAPTATIVO PARA DETECÇÃO E CORREÇÃO DE <i>MISCONCEPTIONS</i> EM PONTEIROS NA LINGUAGEM C</h1>
+  <div class="autor">RAFAEL HENRIQUE DOS SANTOS SIMÃO</div>
+  <div class="orientador">Orientador: Pedro Henrique Aparecido Damaso de Melo</div>
+  <div class="lugar">RIO PARANAÍBA, 2026</div>
+  <aside class="notas">Apresentar-se, dizer o título e que a apresentação segue a ordem da monografia; o rodapé de cada slide diz a seção, o quadro ou a figura do PDF.</aside>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-ref="Seção 1.1">
+  <h2><small>O problema</small>Errar não diz por quê</h2>
+  <blockquote class="citacao">“Ponteiros são um conteúdo de difícil aprendizagem para iniciantes em programação na linguagem C”<cite>Yamashita et al. (2017, p. 1)</cite></blockquote>
+  <ul>
+    <li data-passo="1">Parte da dificuldade vem de conhecimento incorreto, como a ideia de que “um array e um ponteiro são a mesma coisa”, que acerta quase sempre e falha em poucos casos.</li>
+    <li data-passo="2">“Uma resposta incorreta, isoladamente, não permite distinguir o estudante que desconhece o conteúdo daquele que sustenta uma concepção errônea”.</li>
+    <li data-passo="3">“No primeiro, é preciso construir o conceito; no segundo, é preciso antes confrontar a concepção existente.”</li>
+  </ul>
+  <aside class="notas">Concepção errônea (misconception): ideia estável e coerente para quem a sustenta, que resiste à informação nova. Os dois casos pedem intervenções diferentes; é isso que o sistema tenta separar.</aside>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-ref="Seção 1.5">
+  <h2><small>Questão de pesquisa</small>É possível construir e conferir?</h2>
+  <blockquote class="citacao">“é possível construir um sistema que formule hipóteses diagnósticas de concepções errôneas sobre ponteiros em C a partir da resposta, da razão e da certeza declarada, e que as confronte com demonstrações verificadas por compilador, de modo que o conteúdo e o comportamento do sistema possam ser conferidos sem depender do julgamento de quem os elaborou?”</blockquote>
+  <div class="cartao" data-passo="1"><p><b>Escopo.</b> “O trabalho não avalia o sistema com estudantes.” A questão é de construção e de verificação; o estudo com participantes é o primeiro trabalho futuro.</p></div>
+  <aside class="notas">Deixar claro desde já: não houve coleta de dados. Tudo o que vem depois é sobre o sistema e o conteúdo, não sobre aprendizagem.</aside>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-ref="Seção 1.4 · Seção 8">
+  <h2><small>Objetivos</small>O que foi proposto</h2>
+  <p><b>Geral:</b> desenvolver e verificar um sistema que, em 13 tópicos de ponteiros em C, formule para cada premissa uma hipótese diagnóstica sobre o estudante e conduza cada caso por um percurso próprio.</p>
+  <ul>
+    <li data-passo="1">Organizar o conteúdo em premissas encadeadas, cada concepção associada à premissa que nega.</li>
+    <li data-passo="1">Implementar o diagnóstico que combina resposta, razão e certeza declarada.</li>
+    <li data-passo="1">Elaborar escada de passos, demonstração com previsão e cena para cada premissa.</li>
+    <li data-passo="2">Verificar mecanicamente o comportamento do código no compilador — <b>atendido em parte</b>: o código exibido nos passos de escolher entre frases foi conferido pela leitura.</li>
+    <li data-passo="1">Verificar o comportamento do sistema com estudantes simulados, em todos os tópicos.</li>
+  </ul>
+  <aside class="notas">O objetivo 4 ficou atendido em parte, e a conclusão diz isso (Seção 8): o conferidor alcança as demonstrações, as cenas e os 246 passos cuja resposta é código.</aside>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-ref="Seção 2">
+  <h2><small>Fundamentação</small>Em que o sistema se apoia</h2>
+  <div class="grade tres">
+    <div class="cartao" data-passo="1"><h3>Mudança conceitual</h3><p>A concepção errônea resiste à explicação: Posner et al. (1982).</p></div>
+    <div class="cartao" data-passo="1"><h3>Certeza declarada</h3><p>A certeza como sinal, e não como pontuação: Gardner-Medwin (2006).</p></div>
+    <div class="cartao" data-passo="1"><h3>Grafo de premissas</h3><p>Componentes de conhecimento (VanLehn, 2006) e espaços de conhecimento (Falmagne et al., 2006).</p></div>
+    <div class="cartao" data-passo="2"><h3>Prever, observar, explicar</h3><p>A demonstração confronta a previsão da própria pessoa: White e Gunstone (1992).</p></div>
+    <div class="cartao" data-passo="2"><h3>Carga cognitiva</h3><p>Passos curtos, uma ideia nova por passo: Sweller, Van Merriënboer e Paas (2019).</p></div>
+    <div class="cartao" data-passo="2"><h3>Tutores e aprendizagem</h3><p>Tutor por passo (VanLehn, 2011); desempenho não é aprendizagem (Soderstrom; Bjork, 2015).</p></div>
+  </div>
+  <aside class="notas">2.1 a 2.7. O ciclo perguntar, inferir, intervir e reconferir é o dos tutores inteligentes e não é novidade; a monografia diz isso (Seção 2.6).</aside>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-ref="Seção 2.8 · Quadro 1">
+  <h2><small>Trabalhos relacionados</small>O que nenhum reúne</h2>
+  <table class="quadro">
+    <tr><th>Trabalho</th><th>Domínio</th><th>Diagnóstico de concepção errônea</th><th>Intervenção conforme o diagnóstico</th><th>Visualização da execução</th></tr>
+    <tr><td>TEDViT</td><td>ponteiros em C</td><td>não</td><td>não</td><td>sim: memória e mundo do domínio</td></tr>
+    <tr><td>Iltis</td><td>métodos formais</td><td>mede e descobre, nos dados agregados</td><td>proposta (retorno sob medida), não aplicada no estudo</td><td>não</td></tr>
+    <tr><td>ALEKS</td><td>matemática</td><td>não: avalia o que se sabe e o que falta</td><td>indica o que aprender em seguida</td><td>não</td></tr>
+    <tr><td>máquinas nocionais</td><td>programação introdutória</td><td>não se aplica: é uma revisão</td><td>não se aplica</td><td>recomenda ensinar a máquina nocional</td></tr>
+    <tr class="nosso" data-passo="1"><td>Structura</td><td>ponteiros em C</td><td>sim: resposta, razão e certeza, por premissa</td><td>sim: escada, demonstração ou revisão</td><td>sim: as cenas da revisão</td></tr>
+  </table>
+  <aside class="notas">Yamashita et al. (2017), Schmellenkamp, Latys e Zeume (2023), Falmagne et al. (2006) e Sorva (2013).</aside>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-ref="Seção 3.1 · Quadro 2">
+  <h2><small>O domínio</small>13 tópicos, 79 premissas</h2>
+  <div class="duas">
+    <table class="quadro compacto">
+      <tr><th>Tópico</th><th>Título</th><th>Premissas</th></tr>
+      <tr><td>kc_00</td><td>Declaração de variáveis</td><td>5</td></tr>
+      <tr><td>kc_01</td><td>Modelo de memória</td><td>5</td></tr>
+      <tr><td>kc_02</td><td>O que é um ponteiro</td><td>6</td></tr>
+      <tr><td>kc_03</td><td>Declaração e inicialização</td><td>6</td></tr>
+      <tr><td>kc_04</td><td>Derreferência: &amp; e *</td><td>6</td></tr>
+      <tr><td>kc_05</td><td>Ponteiro NULL</td><td>6</td></tr>
+      <tr><td>kc_06</td><td>Passagem por referência</td><td>6</td></tr>
+    </table>
+    <table class="quadro compacto">
+      <tr><th>Tópico</th><th>Título</th><th>Premissas</th></tr>
+      <tr><td>kc_07</td><td>Ponteiro e array</td><td>7</td></tr>
+      <tr><td>kc_08</td><td>Alocação dinâmica</td><td>6</td></tr>
+      <tr><td>kc_09</td><td>free() e ponteiro pendente</td><td>8</td></tr>
+      <tr><td>kc_10</td><td>Ponteiro para ponteiro</td><td>6</td></tr>
+      <tr><td>kc_11</td><td>Aritmética de ponteiros</td><td>6</td></tr>
+      <tr><td>kc_12</td><td>Ponteiro pendente por escopo</td><td>6</td></tr>
+    </table>
+  </div>
+  <div class="numeros baixos" data-passo="1" style="margin-top:12px">
+    <div class="cartao"><b>61</b><span>concepções errôneas, com procedência declarada</span></div>
+    <div class="cartao"><b>560</b><span>questões de múltipla escolha</span></div>
+    <div class="cartao"><b>402</b><span>passos de escada, 80 demonstrações e 79 cenas</span></div>
+  </div>
+  <aside class="notas">Premissa de base (B) é observação de um programa; de inferência (I) decorre de outras. Em cada tópico em que aparece, cada concepção nega exatamente uma premissa. 1 098 das 1 116 alternativas incorretas indicam a concepção que as explicaria.</aside>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-ref="Seção 3.2 · Figura 1">
+  <h2><small>▶ O sistema · 1</small>A pergunta: três sinais numa tela</h2>
+  <div class="duas figura-esquerda">
+    <figure class="tela"><img src="../docs/monografia/figuras/fig-3-1-pergunta.jpg" alt="Pergunta de diagnóstico do Structura, tópico kc_07"></figure>
+    <div class="coluna">
+      <div class="cartao" data-passo="1"><p><b>1. A resposta</b> — a alternativa escolhida.</p></div>
+      <div class="cartao" data-passo="2"><p><b>2. A razão</b> — a ideia que sustenta a resposta; cada razão incorreta aponta uma concepção do catálogo.</p></div>
+      <div class="cartao" data-passo="3"><p><b>3. A certeza</b> — “chutei”, “acho que sei” ou “tenho certeza”.</p></div>
+      <p data-passo="4">“A situação atribuída a cada resposta é uma hipótese diagnóstica”.</p>
+    </div>
+  </div>
+  <aside class="notas">A certeza não mede o estado mental: serve para escolher o percurso. Quem erra pela razão de uma concepção e declara "chutei" recebe ensino; quem erra da mesma forma com alguma certeza recebe a demonstração.</aside>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-ref="Seção 3.2 · Quadro 3">
+  <h2><small>▶ O sistema · 2</small>O diagnóstico escolhe o caminho</h2>
+  <table class="quadro">
+    <tr><th>Resposta, razão e certeza</th><th>Situação</th><th>Caminho</th></tr>
+    <tr data-passo="1"><td>resposta correta, razão correta e “tenho certeza”</td><td>sabe</td><td>firme</td></tr>
+    <tr data-passo="2"><td>resposta e razão corretas sem certeza, resposta correta pela razão incorreta ou resposta incorreta pela razão correta</td><td>acerto sem firmeza ou sinais divergentes</td><td>reforço</td></tr>
+    <tr data-passo="3"><td>“Não sei”, ou resposta e razão incorretas com “chutei”</td><td>não sabe</td><td>lacuna</td></tr>
+    <tr data-passo="4"><td>resposta incorreta, pela razão de uma concepção errônea, com alguma certeza</td><td>sustenta uma concepção errônea</td><td>crença</td></tr>
+  </table>
+  <p data-passo="5" style="margin-top:18px">Cada premissa recebe no máximo uma intervenção de cada tipo, e o limite de oito telas por premissa limita a extensão da sessão.</p>
+  <aside class="notas">No reforço, um único episódio divergente não basta para atribuir uma concepção: o sistema faz uma pergunta adicional. A escada pode levar à demonstração quando a pessoa escolhe a concepção com alguma certeza num passo guiado (Seção 3.3).</aside>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-ref="Seção 3.4 · Figura 2 · Quadro 4">
+  <h2><small>▶ O sistema · 3</small>A escada: para quem não sabe</h2>
+  <div class="duas figura-esquerda">
+    <figure class="tela"><img src="../docs/monografia/figuras/fig-3-2-passo.jpg" alt="Passo guiado da escada, kc_07, premissa B2"></figure>
+    <div class="coluna">
+      <p data-passo="1">“Os passos guiados contêm uma ou duas frases curtas e um exercício breve; os passos de prática contêm apenas o exercício.”</p>
+      <table class="quadro" data-passo="2">
+        <tr><th>Forma</th><th>Passos</th></tr>
+        <tr><td>escolher</td><td>190</td></tr>
+        <tr><td>digitar</td><td>140</td></tr>
+        <tr><td>montar</td><td>37</td></tr>
+        <tr><td>completar</td><td>30</td></tr>
+        <tr><td>tocar</td><td>5</td></tr>
+      </table>
+      <p data-passo="3">402 passos (244 guiados e 158 de prática), cada um com duas versões.</p>
+    </div>
+  </div>
+  <aside class="notas">A mesma escada serve para ensinar, para treinar depois da demonstração e para reconferir no fim. Um dos passos guiados oferece a concepção errônea entre as alternativas e pede a certeza.</aside>
+</section>
+
+<!-- 11 -->
+<section class="slide telas-altas" data-ref="Seção 3.5 · Figura 4">
+  <h2><small>▶ O sistema · 4</small>Prever e ver a máquina</h2>
+  <div class="duas">
+    <div class="coluna">
+      <figure class="tela" data-passo="1"><img src="../docs/monografia/figuras/fig-3-4a-voce-disse.jpg" alt="Tela Você disse"></figure>
+      <p data-passo="1"><b>“Você disse”</b>: a concepção da pessoa e a previsão solicitada.</p>
+    </div>
+    <div class="coluna">
+      <figure class="tela" data-passo="2"><img src="../docs/monografia/figuras/fig-3-4b-maquina.jpg" alt="Tela A máquina respondeu"></figure>
+      <p data-passo="2"><b>“A máquina respondeu”</b>: a mensagem do compilador ou a saída do programa.</p>
+    </div>
+  </div>
+  <p data-passo="3">80 demonstrações: 41 mostram a saída e 39 a mensagem do compilador, todas conferidas antes de entrar no sistema.</p>
+  <aside class="notas">Prever, observar, explicar (White e Gunstone, 1992). A contradição deixa de ser entre o estudante e o sistema e passa a ser entre a previsão do próprio estudante e o que a máquina fez (Seção 2.4).</aside>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-ref="Seção 3.6 · Figura 5">
+  <h2><small>▶ O sistema · 5</small>A cena: o código animado linha a linha</h2>
+  <div class="duas cena-larga">
+    <div class="cena-viva so-tela"></div>
+    <figure class="tela so-pdf"><img src="../docs/monografia/figuras/fig-3-5-cena.jpg" alt="Cena da revisão, kc_06, premissa B1"></figure>
+    <div class="coluna">
+      <p>A caixa é a variável; o bilhete, o ponteiro; a fileira, o array; a bancada, a função em execução; o bloco alugado, a memória do <code>malloc</code>.</p>
+      <p data-passo="1">A cena avança “a pouco mais de um segundo por passo”, com Pausar, Passo e Rever.</p>
+      <p data-passo="2">“São 79 cenas, uma por premissa.” Cada estado do palco é conferido contra o programa instrumentado.</p>
+    </div>
+  </div>
+  <aside class="notas">Esta é a cena real do sistema (kc_06, premissa B1), desenhada pelo mesmo código. A função zera recebe uma cópia: n passa a valer 0, e idade continua com 15.</aside>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-ref="Seção 3.3 · Figura 3">
+  <h2><small>▶ O sistema · 6</small>Reconferência e fechamento</h2>
+  <div class="duas figura-esquerda">
+    <figure class="tela"><img src="../docs/monografia/figuras/fig-3-3-fechamento.jpg" alt="Tela de fechamento de uma sessão de ensaio, kc_07"></figure>
+    <div class="coluna">
+      <p data-passo="1">Ao final do tópico, cada premissa trabalhada é reconferida, depois de a pessoa ter respondido a outras premissas.</p>
+      <p data-passo="2">“Esse intervalo permite distinguir a assimilação na sessão do acerto obtido logo após a leitura.”</p>
+      <p data-passo="3">O fechamento “resume a sessão em até quatro blocos”.</p>
+    </div>
+  </div>
+  <aside class="notas">A figura é de uma sessão de ensaio, com estudante simulado, e não de participante. Os resultados de cada premissa: já sabia, firmou, aprendeu agora, corrigiu e em aberto.</aside>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-ref="Seção 4 · Quadro 5 · Quadro 9">
+  <h2><small>Curadoria</small>De onde vem cada concepção</h2>
+  <div class="duas">
+    <div class="coluna">
+      <div class="cartao" data-passo="1"><p><b>Classe 1 — literatura (22).</b> Principalmente o Apêndice A de Sorva (2012), que reúne 162 concepções da literatura de programação introdutória.</p></div>
+      <div class="cartao" data-passo="2"><p><b>Classe 2 — corpus de praticante (35).</b> As perguntas do FAQ do comp.lang.c (Summit, c2005) e, em uma concepção, só normas (CERT C e CWE).</p></div>
+      <div class="cartao" data-passo="3"><p><b>Graus:</b> <code>D</code> 6, <code>L</code> 33, <code>T</code> 15, <code>N</code> 3, <code>E</code> 4.</p></div>
+    </div>
+    <div class="numeros" style="grid-template-columns:1fr; align-content:start">
+      <div class="cartao" data-passo="4"><b>57</b><span>das 61 conferidas na obra primária</span></div>
+      <div class="cartao" data-passo="4"><b>4</b><span>hipóteses declaradas como tais, fora dos tópicos da coleta</span></div>
+    </div>
+  </div>
+  <aside class="notas">"Uma crença sem procedência é uma invenção sua que vai virar dado": nenhuma obra foi citada de memória. A auditoria achou e corrigiu defeitos no próprio catálogo (Seção 4.6).</aside>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-ref="Seção 5 · Quadro 12">
+  <h2><small>Construção e verificação</small>Como foi conferido</h2>
+  <div class="grade tres">
+    <div class="cartao" data-passo="1"><h3>Por especificação</h3><p>Documentos de projeto e testes escritos antes do código.</p></div>
+    <div class="cartao" data-passo="1"><h3>Compilador</h3><p>gcc 16.2: o conferidor compila e, quando preciso, executa o código das demonstrações, das cenas e dos passos cuja resposta é código.</p></div>
+    <div class="cartao" data-passo="2"><h3>Regras de redação</h3><p>As regras decidíveis por programa viraram testes, em todos os tópicos.</p></div>
+    <div class="cartao" data-passo="2"><h3>Estudantes simulados</h3><p>Dez perfis de regras fixas, determinísticos: não são modelos de linguagem.</p></div>
+    <div class="cartao" data-passo="3"><h3>Interface</h3><p>Contraste da WCAG 2.1 nos dois temas, nenhum recurso externo.</p></div>
+    <div class="cartao" data-passo="3"><h3>Leitura</h3><p>Sessões de ensaio e revisão da clareza das perguntas.</p></div>
+  </div>
+  <aside class="notas">O compilador verifica o comportamento observado no ambiente especificado, e não a correção do programa em qualquer ambiente, nem os aspectos pedagógicos (Seção 5.8).</aside>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-ref="Seção 6.1 · Seção 6.2 · Seção 6.3 · Quadro 14">
+  <h2><small>Resultados</small>O que a verificação mostrou</h2>
+  <div class="numeros">
+    <div class="cartao" data-passo="1"><b>7 568</b><span>testes: 7 560 aprovados, nenhum falhou</span></div>
+    <div class="cartao" data-passo="1"><b>0</b><span>problemas no conferidor: 246 passos, 79 exemplos resolvidos, 80 demonstrações</span></div>
+    <div class="cartao" data-passo="1"><b>79</b><span>cenas aprovadas, estado a estado</span></div>
+  </div>
+  <ul style="margin-top:20px">
+    <li data-passo="2">Quem sabe todo o conteúdo percorre um tópico de seis premissas em 14 telas; quem recebe ensino ou demonstração em todas, em 26 a 44 telas.</li>
+    <li data-passo="3">“Os outros 156 passos, de escolher entre frases, não passam pelo conferidor, embora 147 deles exibam um trecho de código”.</li>
+  </ul>
+  <aside class="notas">Os oito testes restantes são dispensados por definição: programas de exemplo dos grafos que teriam comportamento indefinido. O kc_09, com oito premissas, é o mais longo em todos os perfis. No banco, 69 questões de prever a saída são conferidas pelo compilador.</aside>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-ref="Seção 6.4">
+  <h2><small>Resultados</small>Os defeitos encontrados</h2>
+  <blockquote class="citacao" data-passo="1">“O resultado mais relevante da verificação não é a ausência de problemas na versão descrita, mas o conjunto de defeitos identificados ao longo do processo.”</blockquote>
+  <ul>
+    <li data-passo="2">Leitura: 101 dos 244 passos guiados tiveram a frase reescrita, porque a pergunta repetia a frase anterior.</li>
+    <li data-passo="3">Conferência do banco: oito questões com o código dividido na tela e uma resposta inválida no compilador utilizado.</li>
+    <li data-passo="4">Outros: um treino que repetia a demonstração, uma alternativa com conceito não ensinado e dois defeitos de interface — todos corrigidos.</li>
+  </ul>
+  <aside class="notas">Das 101 reescritas, 46 foram marcadas pelo programa e 54 só a leitura achou: a marcação serviu de ponto de partida, e não de critério. As duas formas de verificação são complementares.</aside>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-ref="Seção 7.1">
+  <h2><small>Limitações</small>O que este trabalho não afirma</h2>
+  <ul>
+    <li data-passo="1">Não houve avaliação com estudantes: nada se afirma sobre aprendizagem nem sobre a correspondência entre a hipótese e o que o estudante pensa.</li>
+    <li data-passo="2">A verificação automatizada não alcança os aspectos pedagógicos.</li>
+    <li data-passo="3">Só parte do conteúdo passa pelo compilador: ficam de fora os trechos dos passos de escolher entre frases e a maior parte do banco.</li>
+    <li data-passo="4">O conteúdo didático foi elaborado com assistência de um modelo de linguagem, e lido e validado pelo autor.</li>
+    <li data-passo="5">A procedência das concepções é desigual, a certeza declarada é um sinal ruidoso, e a verificação foi feita em um único ambiente.</li>
+  </ul>
+  <aside class="notas">Também: o que se mede é restrito à sessão. A reconferência refere-se à assimilação na sessão, e não à aprendizagem duradoura.</aside>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-ref="Seção 7.2 · Apêndice A">
+  <h2><small>Trabalhos futuros</small>O próximo passo é o estudo</h2>
+  <div class="cartao" data-passo="1"><p><b>Estudo com estudantes</b>, conforme o protocolo do Apêndice A: de 10 a 15 participantes, com verbalização do pensamento em voz alta, para quatro questões (V1 a V4).</p></div>
+  <ul style="margin-top:16px">
+    <li data-passo="2">Conferir pelo compilador o restante do banco e os trechos dos passos de escolher entre frases.</li>
+    <li data-passo="2">Animar também as demonstrações por meio de cenas.</li>
+    <li data-passo="3">Revisar a clareza dos passos de prática e das perguntas de abertura, com critério próprio.</li>
+    <li data-passo="3">Modo de prática, medição da retenção e conferência em outros compiladores.</li>
+  </ul>
+  <aside class="notas">O sistema já grava os dados de sessão necessários e os exporta em tabelas pelo código do participante (Apêndice C). Antes de qualquer coleta, restam as providências da Seção A.5.</aside>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-ref="Seção 8">
+  <h2><small>Conclusão</small>A resposta à questão</h2>
+  <blockquote class="citacao" data-passo="1">“Nos limites do que foi realizado, a resposta é afirmativa quanto ao que o compilador e os testes alcançam”</blockquote>
+  <ul>
+    <li data-passo="2">“As duas formas de verificação são complementares, e nenhuma substitui a outra.”</li>
+    <li data-passo="3">“O trabalho não responde se o sistema produz aprendizagem”, e essa é a pergunta do estudo futuro.</li>
+  </ul>
+  <aside class="notas">Contribuições (Seção 1.7): o catálogo com procedência declarada, o diagnóstico que usa a certeza para escolher o percurso, o conteúdo conferido por compilador e o método de verificação.</aside>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-ref="Seção 3 · Seção 5.1">
+  <h2><small>Transparência</small>Repositório e uso de inteligência artificial</h2>
+  <div class="cartao" data-passo="1"><p><b>Código e conteúdo:</b> github.com/RflHrq/Stuctura — a versão descrita na monografia está registrada no commit <code>e57385b</code>.</p></div>
+  <div class="cartao" data-passo="2" style="margin-top:14px"><p><b>Uso de IA:</b> Claude Code, da Anthropic, sob a direção do autor, a quem couberam as decisões de escopo, de projeto e de método. O que se afirma sobre os programas foi conferido por compilador no que ele alcança, e nenhuma obra foi citada de memória.</p></div>
+  <aside class="notas">Declaração de uso de inteligência artificial, nos elementos pré-textuais. Nenhum dado de participante foi inserido na ferramenta: não houve coleta.</aside>
+</section>
+
+<!-- 22 -->
+<section class="slide capa">
+  <h1>Obrigado</h1>
+  <div class="autor">Perguntas?</div>
+  <div class="lugar">Rafael Henrique dos Santos Simão · Orientador: Pedro Henrique Aparecido Damaso de Melo</div>
+  <aside class="notas">As perguntas prováveis estão em entrega/perguntas-da-banca.md.</aside>
+</section>
+
+</div>
+<div id="contador"></div>
+<div id="progresso"></div>
+<script src="referencias.js"></script>
+<script src="cena.js"></script>
+<script src="../mvp/web/realce.js"></script>
+<script src="../mvp/web/cena.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

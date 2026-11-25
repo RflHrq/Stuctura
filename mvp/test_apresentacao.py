@@ -62,6 +62,12 @@ def test_o_numero_que_a_monografia_nao_tem_e_acusado(refs, monografia):
     p = ca.problemas(_deck("<p>4 321 testes</p>"), refs, monografia)
     assert len(p) == 1 and "4 321" in p[0]
     assert ca.problemas(_deck("<p>7 568 testes</p>"), refs, monografia) == []
+    # Ano seguido de vírgula no texto: "(1992, cap. 3)".
+    assert ca.problemas(_deck("<p>White e Gunstone (1992)</p>"),
+                        refs, monografia) == []
+    # Números de blocos vizinhos não se juntam num milhar: "5" e "402".
+    assert ca.problemas(_deck("<table><tr><td>5</td></tr></table>"
+                              "<p>402 passos</p>"), refs, monografia) == []
 
 
 def test_a_frase_entre_aspas_que_a_monografia_nao_tem_e_acusada(
@@ -91,3 +97,38 @@ def test_a_cena_do_deck_e_a_do_sistema():
                                  re.S).group(1))
     assert dados == {"cena": trilha.cena_json(e.cena),
                      "codigo": e.revisao.codigo}
+
+
+def _html():
+    return (DECK / "index.html").read_text(encoding="utf-8")
+
+
+def test_sao_22_slides():
+    assert len(ca.slides(_html())) == 22
+
+
+def test_todo_slide_tem_referencia_menos_capa_e_fim():
+    s = ca.slides(_html())
+    assert s[0].refs == [] and s[-1].refs == []
+    assert all(x.refs for x in s[1:-1]), [x.numero for x in s if not x.refs]
+
+
+def test_o_deck_nao_carrega_nada_de_fora():
+    for arquivo in ("index.html", "deck.css", "deck.js"):
+        texto = (DECK / arquivo).read_text(encoding="utf-8")
+        assert not re.search(r"""(src|href)\s*=\s*["']https?:|url\(\s*["']?https?:""",
+                             texto), arquivo
+
+
+def test_toda_imagem_e_script_do_deck_existe():
+    html = _html()
+    caminhos = re.findall(r"""(?:src|href)\s*=\s*["']([^"'#?]+)""", html)
+    css = (DECK / "deck.css").read_text(encoding="utf-8")
+    caminhos += re.findall(r"""url\(\s*["']?([^"')?]+)""", css)
+    assert caminhos
+    for c in caminhos:
+        assert (DECK / c).resolve().exists(), c
+
+
+def test_o_deck_passa_no_conferidor(refs, monografia):
+    assert ca.problemas(_html(), refs, monografia) == []

@@ -1,0 +1,157 @@
+/* Os slides da defesa (docs/apresentacao.md). As cores e o desenho da cena
+   vêm de mvp/web/tema.css; as fontes são declaradas aqui por caminho
+   relativo, porque o tema as pede em /web/fontes/, que só existe com o
+   servidor do sistema rodando, e o deck abre direto do arquivo. */
+
+@font-face {
+  font-family: "Nunito";
+  src: url("../mvp/web/fontes/nunito.woff2") format("woff2");
+  font-weight: 200 1000;
+  font-display: block;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../mvp/web/fontes/jetbrains-mono.woff2") format("woff2");
+  font-weight: 100 800;
+  font-display: block;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: #0b1418;
+  color: var(--tinta);
+  font-family: "Nunito", system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* O palco tem 1280 × 720 e é escalado pelo deck.js para caber na janela,
+   seja qual for a resolução do projetor. */
+#palco {
+  position: absolute; left: 50%; top: 50%;
+  width: 1280px; height: 720px;
+  transform-origin: center center;
+}
+.slide {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: 54px 72px 64px;
+  background: var(--papel);
+  background-image: var(--fundo-desenho);
+  background-size: var(--fundo-passo);
+  overflow: hidden;
+}
+.slide.atual { display: flex; }
+
+.slide h2 {
+  margin: 0 0 22px;
+  font-size: 40px; font-weight: 800; line-height: 1.15;
+  color: var(--topo);
+}
+.slide h2 small {
+  display: block; margin-bottom: 6px;
+  font-size: 17px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--destaque);
+}
+.slide p, .slide li { font-size: 23px; line-height: 1.4; }
+.slide ul { margin: 0; padding-left: 26px; }
+.slide li { margin: 0 0 10px; }
+.slide code, .slide pre { font-family: "JetBrains Mono", ui-monospace, monospace; }
+.slide code { font-size: .9em; background: var(--acento-fundo); padding: 1px 6px; border-radius: 5px; }
+
+.cartao {
+  background: var(--cartao); border: 1px solid var(--linha);
+  border-radius: 14px; box-shadow: var(--cartao-sombra);
+  padding: 20px 24px;
+}
+.citacao {
+  margin: 0 0 18px; padding: 16px 22px;
+  border-left: 6px solid var(--acento);
+  background: var(--cartao); border-radius: 0 12px 12px 0;
+  font-size: 24px; line-height: 1.4;
+}
+.citacao cite { display: block; margin-top: 8px; font-size: 18px; font-style: normal; color: var(--tinta2); }
+
+.duas { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; flex: 1; min-height: 0; }
+.duas.figura-esquerda { grid-template-columns: 1.15fr 1fr; }
+.coluna { min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.coluna > p, .coluna .cartao p { font-size: 20px; margin: 0; }
+.coluna .cartao { padding: 14px 18px; }
+table.quadro.compacto { font-size: 17px; }
+table.quadro.compacto th, table.quadro.compacto td { padding: 5px 10px; }
+.telas-altas figure.tela { flex: none; }
+.telas-altas figure.tela img { height: 330px; }
+.telas-altas > p { font-size: 20px; margin: 10px 0 0; }
+.numeros.baixos b { font-size: 34px; }
+.numeros.baixos .cartao { padding: 8px 12px; }
+
+figure.tela { margin: 0; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+figure.tela img {
+  max-width: 100%; max-height: 100%; object-fit: contain;
+  border-radius: 10px; box-shadow: var(--cartao-sombra); border: 1px solid var(--linha2);
+}
+
+.grade { display: grid; gap: 14px; }
+.grade.tres { grid-template-columns: repeat(3, 1fr); }
+.grade.quatro { grid-template-columns: repeat(4, 1fr); }
+.grade .cartao h3 { margin: 0 0 6px; font-size: 21px; color: var(--acento); }
+.grade .cartao p { margin: 0; font-size: 18px; line-height: 1.35; }
+
+.numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.numeros .cartao { text-align: center; padding: 14px; }
+.numeros b { display: block; font-size: 44px; font-weight: 900; color: var(--destaque); line-height: 1.1; }
+.numeros span { font-size: 18px; color: var(--tinta2); }
+
+table.quadro { width: 100%; border-collapse: collapse; background: var(--cartao); font-size: 19px; }
+table.quadro th, table.quadro td { border: 1px solid var(--linha2); padding: 8px 12px; text-align: left; vertical-align: top; }
+table.quadro th { background: var(--topo); color: var(--topo-tinta); font-weight: 700; }
+table.quadro tr.nosso td { background: var(--acento-fundo); font-weight: 700; }
+
+/* Passos: o que se revela a cada toque na seta. */
+[data-passo] { opacity: 0; transform: translateY(8px); transition: opacity .35s, transform .35s; }
+[data-passo].visto { opacity: 1; transform: none; }
+tr[data-passo] { transform: none; }
+@media (prefers-reduced-motion: reduce) { [data-passo] { transition: none; transform: none; } }
+
+.capa { justify-content: center; text-align: center; background: var(--topo); color: var(--topo-tinta); }
+.capa .instituicao { font-size: 20px; letter-spacing: .1em; color: var(--topo-tinta2); line-height: 1.6; }
+.capa h1 { margin: 38px auto 30px; max-width: 1000px; font-size: 44px; line-height: 1.2; font-weight: 900; color: #ffffff; }
+.capa .autor { font-size: 26px; font-weight: 700; }
+.capa .orientador { margin-top: 8px; font-size: 21px; color: var(--topo-tinta2); }
+.capa .lugar { margin-top: 40px; font-size: 19px; color: var(--topo-tinta2); }
+
+/* A cena viva do slide 12: o mesmo desenho do sistema. */
+.cena-viva { flex: 1; min-height: 0; overflow: hidden; }
+.cena-viva .cena { margin: 0; gap: 8px; }
+.cena-viva .cena .cn-palco { max-height: 230px !important; }
+.cena-viva .cena pre { font-size: 15px; margin: 0; }
+.cena-viva .cena .cn-frase { font-size: 17px; }
+.duas.cena-larga { grid-template-columns: 1.5fr 1fr; }
+.slide .so-pdf { display: none !important; }
+
+/* Rodapé (montado pelo deck.js) e contador. */
+.slide footer.ref {
+  position: absolute; left: 72px; bottom: 20px;
+  font-size: 16px; color: var(--tinta2);
+}
+.slide footer.ref b { color: var(--acento); }
+#contador { position: absolute; right: 28px; bottom: 20px; font-size: 16px; color: var(--tinta2); z-index: 2; }
+#progresso { position: absolute; left: 0; bottom: 0; height: 5px; background: var(--destaque); z-index: 2; transition: width .3s; }
+
+aside.notas { display: none; }
+body.com-notas aside.notas {
+  display: block; position: absolute; left: 24px; right: 24px; bottom: 52px;
+  background: rgba(18, 48, 58, .95); color: #eaf4f7; padding: 14px 18px; border-radius: 10px;
+  font-size: 17px; line-height: 1.4; z-index: 3;
+}
+
+/* O PDF de reserva: um slide por página, todos os passos revelados. */
+body.pdf { overflow: visible; background: #ffffff; }
+body.pdf #palco { position: static; transform: none !important; width: auto; height: auto; }
+body.pdf .slide { position: relative; display: flex; width: 1280px; height: 720px; break-after: page; }
+body.pdf [data-passo] { opacity: 1; transform: none; transition: none; }
+body.pdf .slide .so-tela { display: none !important; }
+body.pdf .slide .so-pdf { display: flex !important; }
+body.pdf #contador, body.pdf #progresso { display: none; }
+@page { size: 1280px 720px; margin: 0; }
