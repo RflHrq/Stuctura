@@ -1,6 +1,6 @@
 # A escada do kc_03 — Declaração e inicialização
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc03.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc03.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — Declarar uma variável cria a caixa dela. Uma caixa: a que você nomeou.
 

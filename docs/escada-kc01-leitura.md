@@ -1,6 +1,6 @@
 # A escada do kc_01 — Modelo de memória
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc01.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc01.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — Enquanto o programa roda, ele tem uma rua só dele. Outro programa não mexe nessa rua.
 

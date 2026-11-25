@@ -1,6 +1,6 @@
 # A escada do kc_08 — Alocação dinâmica
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc08.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc08.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — malloc(n) pede emprestado um pedaço de memória com n BYTES. Quantos bytes cada elemento ocupa é conta sua.
 

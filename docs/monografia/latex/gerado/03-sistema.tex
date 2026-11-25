@@ -32,11 +32,11 @@ kc\_12 & Ponteiro pendente por escopo & 6 \\ \hline
 \fonte{Elaborado pelo autor.}
 \end{quadro}
 
-Cada concepção errônea do catálogo nega exatamente uma premissa. Essa associação permite localizar a concepção no grafo: a concepção registrada no catálogo como ``O ponteiro é o próprio dado: retornar \texttt{\&local} devolve a variável'', por exemplo, nega a premissa do tópico kc\_12 segundo a qual retornar \texttt{\&local} copia o endereço, e não a variável. O catálogo tem 61 concepções, cada uma com procedência declarada; a Seção~4 trata dessa procedência.
+Em cada tópico em que aparece, cada concepção errônea do catálogo nega exatamente uma premissa. Essa associação permite localizar a concepção no grafo: a concepção registrada no catálogo como ``O ponteiro é o próprio dado: retornar \texttt{\&local} devolve a variável'', por exemplo, nega a premissa do tópico kc\_12 segundo a qual retornar \texttt{\&local} copia o endereço, e não a variável. O catálogo tem 61 concepções, cada uma com procedência declarada; a Seção~4 trata dessa procedência.
 
 O banco de questões tem 560 questões de múltipla escolha, distribuídas pelas premissas, cada uma com um nível (do mais mecânico ao mais conceitual) e uma finalidade (entrada, diagnóstico ou treino). Toda alternativa incorreta indica a concepção errônea que a explicaria, e é dessa associação que o diagnóstico obtém a razão de cada resposta.
 
-Cada premissa dispõe ainda de uma explicação curta, composta pelo enunciado da premissa em linguagem simples e por um exemplo em código, animado pela cena da premissa (Seção~3.6). A explicação pode ser consultada a qualquer momento por meio do botão ``Ver a explicação''.
+Cada premissa dispõe ainda de uma explicação curta, composta pelo enunciado da premissa em linguagem simples, pelas frases dos passos guiados da escada (Seção~3.4) e por um exemplo em código, animado pela cena da premissa (Seção~3.6). A explicação pode ser consultada a qualquer momento por meio do botão ``Ver a explicação''.
 
 \section{Diagnóstico: resposta, razão e certeza}
 
@@ -60,8 +60,8 @@ A combinação dos três sinais define quatro caminhos (Quadro~\ref{qua:3-2}).
 \hline
 \textbf{Resposta, razão e certeza} & \textbf{Situação} & \textbf{Caminho} \\ \hline
 resposta correta, razão correta e ``tenho certeza'' & sabe & firme \\ \hline
-resposta correta sem certeza, correta pela razão incorreta ou incorreta pela razão correta & acerto sem firmeza ou sinais divergentes & reforço \\ \hline
-``Não sei'', ou resposta incorreta com ``chutei'' & não sabe & lacuna \\ \hline
+resposta e razão corretas sem certeza, resposta correta pela razão incorreta ou resposta incorreta pela razão correta & acerto sem firmeza ou sinais divergentes & reforço \\ \hline
+``Não sei'', ou resposta e razão incorretas com ``chutei'' & não sabe & lacuna \\ \hline
 resposta incorreta, pela razão de uma concepção errônea, com alguma certeza & sustenta uma concepção errônea & crença \\ \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor.}
@@ -71,7 +71,7 @@ A situação atribuída a cada resposta é uma hipótese diagnóstica: o sistema
 
 O caminho de reforço reúne dois tipos de caso: o acerto pela razão correta sem a certeza máxima e a divergência entre os sinais, que ocorre quando a resposta é correta pela razão incorreta ou incorreta pela razão correta. Na divergência, um único episódio não é considerado suficiente para atribuir uma concepção errônea à pessoa. O sistema apresenta uma pergunta adicional e somente conduz à demonstração se a mesma concepção for indicada novamente ou se a nova resposta for incorreta, com alguma certeza, pela razão de uma concepção errônea (Seção~3.3).
 
-Nesse desenho, a certeza declarada não mede o estado mental da pessoa: sua função é selecionar o percurso. Quem erra e declara ``chutei'' reconhece que não sabe e recebe ensino; quem erra com convicção, pela razão de uma concepção errônea mapeada, recebe a demonstração que confronta essa concepção. A escala tem três pontos porque deve caber em uma única interação no ritmo da atividade, e o ponto intermediário (``acho que sei'') é sempre tratado de forma conservadora: não confirma um acerto e não dispensa o tratamento de uma concepção errônea.
+Nesse desenho, a certeza declarada não mede o estado mental da pessoa: sua função é selecionar o percurso. Quem erra pela razão de uma concepção errônea e declara ``chutei'' reconhece que não sabe e recebe ensino; quem erra da mesma forma com convicção recebe a demonstração que confronta essa concepção. A escala tem três pontos porque deve caber em uma única interação no ritmo da atividade, e o ponto intermediário (``acho que sei'') é sempre tratado de forma conservadora: não confirma um acerto e não dispensa o tratamento de uma concepção errônea.
 
 \section{Trilha: percurso de um tópico}
 
@@ -87,7 +87,7 @@ Cada premissa recebe no máximo uma intervenção (a correspondente à lacuna ou
 \item \textbf{Firme.} O sistema apresenta um retorno curto, que explica por que a resposta está correta (cada uma das 79 perguntas de abertura dispõe dessa explicação, de modo que também o acerto contribua para o aprendizado) e, no ritmo ``completo'', uma segunda pergunta, de outra natureza, na qual a pessoa deve produzir a resposta, e não apenas indicá-la entre alternativas: trata-se do passo de produção de nível mais alto da escada da premissa (Seção~3.4). Em caso de acerto, a premissa é encerrada com o resultado ``já sabia''. No ritmo ``rápido'', a resposta firme encerra a premissa diretamente.
 \item \textbf{Reforço.} O sistema apresenta uma pergunta adicional, em outro formato. Se a resposta for correta e pela razão correta, a premissa é encerrada com o resultado ``firmou''; caso contrário, segue-se a intervenção indicada pela nova resposta.
 \item \textbf{Lacuna.} A pessoa percorre a escada da premissa: os passos guiados e um passo de prática, com retorno imediato a cada um. Diante de um erro, o passo exibe a correção, com a resposta correta, e o percurso prossegue, de modo que a pessoa não fica retida em nenhum passo. Um dos passos guiados de cada escada inclui, entre as alternativas, a concepção errônea da premissa enunciada explicitamente e solicita a certeza (Figura~\ref{fig:3-2}); se essa alternativa for escolhida com convicção, a demonstração é apresentada imediatamente, pois se trata do mesmo tipo de episódio da pergunta de abertura. A premissa é encerrada com o resultado ``aprendeu agora'' quando a pessoa acerta a pergunta seguinte; em caso de erro, é apresentada a revisão, composta de duas ou três frases com o conceito e de um trecho de código animado pela cena da premissa (Seção~3.6).
-\item \textbf{Crença.} A tela ``Você disse'' reapresenta a concepção sustentada pela pessoa e solicita uma previsão do comportamento do programa. A tela seguinte exibe o resultado da execução (Seção~3.5). Em seguida, é realizado o treino, com os passos de prática da escada, e a premissa é encerrada com o resultado ``corrigiu uma ideia'' quando a pessoa acerta duas perguntas de treino consecutivas, em no máximo três perguntas.
+\item \textbf{Crença.} A tela ``Você disse'' reapresenta a concepção sustentada pela pessoa e solicita uma previsão do comportamento do programa. A tela seguinte exibe o que a máquina fez: a saída do programa ou a mensagem do compilador (Seção~3.5). Em seguida, é realizado o treino, com os passos de prática da escada, e a premissa é encerrada com o resultado ``corrigiu uma ideia'' quando a pessoa acerta duas perguntas de treino consecutivas, em no máximo três perguntas.
 \end{itemize}
 
 \begin{figure}[htbp]
@@ -97,7 +97,7 @@ Cada premissa recebe no máximo uma intervenção (a correspondente à lacuna ou
 \fonte{Captura de tela do Structura, elaborada pelo autor.}
 \end{figure}
 
-Concluídas todas as premissas, a reconferência apresenta uma pergunta para cada premissa trabalhada na sessão, isto é, ensinada ou corrigida, depois de a pessoa ter respondido a outras premissas. Esse intervalo permite distinguir a assimilação na sessão do acerto obtido logo após a leitura. A pergunta é selecionada na seguinte ordem de preferência: o passo em que a pessoa errou, na versão que ela ainda não viu; um passo de produção ainda não visto; uma questão do banco ainda não utilizada, que solicita também a razão; e, somente em último caso, um passo já visto, com outros valores. Quando a razão indicada na reconferência corresponde à concepção que havia sido corrigida, o fechamento informa que ``a ideia voltou''.
+Concluídas todas as premissas, a reconferência apresenta uma pergunta para cada premissa trabalhada na sessão, isto é, ensinada ou corrigida, depois de a pessoa ter respondido a outras premissas. Esse intervalo permite distinguir a assimilação na sessão do acerto obtido logo após a leitura. A pergunta é selecionada na seguinte ordem de preferência: o passo em que a pessoa errou, na versão que ela ainda não viu; um passo de produção ainda não visto; uma questão do banco ainda não utilizada, que solicita também a razão; e, somente em último caso, um passo já visto, com outros valores. Quando a razão indicada na reconferência corresponde à concepção trabalhada naquela premissa, o fechamento informa que ``a ideia voltou''.
 
 O fechamento (Figura~\ref{fig:3-3}) resume a sessão em até quatro blocos (as concepções errôneas encontradas e a situação de cada uma; as lacunas e os passos em que ocorreram; o que já estava firme; e as premissas que permaneceram em aberto sem ter recebido intervenção) e, abaixo deles, exibe a lista de premissas com o resultado de cada uma e o acesso à respectiva explicação. Cada bloco é exibido somente quando há o que listar; na sessão da Figura~\ref{fig:3-3}, nenhuma premissa ficou na situação do quarto bloco, e ele não aparece. O passo em que a pessoa errou é identificado pelo seu nome, uma frase curta que enuncia a ideia do passo, e não pelo enunciado do exercício.
 
@@ -112,7 +112,7 @@ O fechamento (Figura~\ref{fig:3-3}) resume a sessão em até quatro blocos (as c
 
 Cada premissa dispõe de uma escada, isto é, uma sequência ordenada de passos que parte da operação mais mecânica e chega ao conceito. Os passos guiados contêm uma ou duas frases curtas e um exercício breve; os passos de prática contêm apenas o exercício. A mesma escada é utilizada para ensinar (no percurso de quem não sabe), para treinar (após a demonstração) e para reconferir (ao final do tópico).
 
-Os exercícios assumem cinco formas: tocar a parte indicada de uma linha de código, montar uma linha a partir de peças, escolher entre alternativas, completar a lacuna de uma linha e digitar a saída de um trecho. Nas formas montar, completar e digitar, a pessoa produz a resposta, e os passos correspondentes são denominados passos de produção; nas formas tocar e escolher, ela apenas indica a resposta. Cada passo possui duas versões (a segunda, com outros valores, é utilizada na reconferência), e todo erro previsto tem retorno próprio, que indica o que faltou e apresenta a resposta correta. As 79 premissas somam 402 passos (244 guiados e 158 de prática) e 804 versões. A distribuição dos passos por forma é apresentada no Quadro~\ref{qua:3-3}.
+Os exercícios assumem cinco formas: tocar a parte indicada de uma linha de código, montar uma linha a partir de peças, escolher entre alternativas, completar a lacuna de uma linha e digitar a saída de um trecho. Nas formas montar, completar e digitar, a pessoa produz a resposta, e os passos correspondentes são denominados passos de produção; nas formas tocar e escolher, ela apenas indica a resposta. Cada passo possui duas versões (a segunda, com outros valores, é utilizada quando o mesmo passo é apresentado de novo, como no treino e na reconferência, para que a pessoa não responda ao mesmo exercício duas vezes), e todo erro previsto tem retorno próprio, que indica o que faltou e apresenta a resposta correta. As 79 premissas somam 402 passos (244 guiados e 158 de prática) e 804 versões. A distribuição dos passos por forma é apresentada no Quadro~\ref{qua:3-3}.
 
 \begin{quadro}[htbp]
 \caption{Passos por forma de exercício}\label{qua:3-3}
@@ -133,7 +133,7 @@ O texto de cada passo obedece a um conjunto de regras de redação, contra o qua
 
 \section{Demonstração com previsão}
 
-Para cada concepção errônea de cada tópico há uma demonstração, composta de um programa curto, de no máximo nove linhas, escrito com os nomes do cenário do tópico, e de uma pergunta de previsão com duas alternativas: a que a execução confirma e a que decorre da concepção errônea (Figuras~\ref{fig:3-4}a e~\ref{fig:3-4}b). A pessoa registra a previsão e, em seguida, observa o resultado; uma frase indica o que o resultado demonstra e qual premissa permanece válida. As 61 concepções do catálogo resultam em 80 demonstrações porque 14 delas aparecem em mais de um tópico (a de que o ponteiro é o próprio dado, por exemplo, aparece em quatro), e cada tópico possui a sua demonstração, com o respectivo cenário.
+Para cada concepção errônea de cada tópico há uma demonstração, composta de um programa curto, de no máximo nove linhas, escrito com os nomes do cenário do tópico, e de uma pergunta de previsão com duas alternativas: a que o programa confirma e a que decorre da concepção errônea (Figuras~\ref{fig:3-4}a e~\ref{fig:3-4}b). A pessoa registra a previsão e, em seguida, observa o resultado; uma frase indica o que o resultado demonstra e qual premissa permanece válida. As 61 concepções do catálogo resultam em 80 demonstrações porque 14 delas aparecem em mais de um tópico (a de que o ponteiro é o próprio dado, por exemplo, aparece em quatro), e cada tópico possui a sua demonstração, com o respectivo cenário.
 
 \begin{figure}[htbp]
 \centering
@@ -157,7 +157,7 @@ Toda demonstração foi conferida por compilador antes de ser incorporada ao sis
 
 \section{Cena}
 
-A revisão de cada premissa inclui uma cena, na qual o trecho de código correspondente é animado linha a linha (Figura~\ref{fig:3-5}). A linha em execução é destacada no código, e uma área ao lado, denominada palco, representa o efeito dessa linha: a criação de uma variável, o valor armazenado e o valor substituído, o ponteiro e o endereço que ele armazena, e a saída enviada à tela. São 79 cenas, uma por premissa.
+A revisão de cada premissa inclui uma cena, na qual o trecho de código correspondente é animado linha a linha (Figura~\ref{fig:3-5}). A linha em execução é destacada no código, e uma área junto a ele, denominada palco, representa o efeito dessa linha: a criação de uma variável, o valor armazenado e o valor substituído, o ponteiro e o endereço que ele armazena, e a saída enviada à tela. São 79 cenas, uma por premissa.
 
 \begin{figure}[htbp]
 \centering

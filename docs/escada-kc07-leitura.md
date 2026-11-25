@@ -1,6 +1,6 @@
 # A escada do kc_07 — Ponteiro e array
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc07.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc07.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — int a[5] cria cinco caixas de inteiro grudadas uma na outra. O nome a vale para o conjunto inteiro, não para uma caixa só.
 

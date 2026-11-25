@@ -1,6 +1,6 @@
 # A escada do kc_05 — Ponteiro NULL
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc05.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc05.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — NULL é um valor de verdade, escrito dentro do ponteiro. Não é a caixa de p estar vazia.
 

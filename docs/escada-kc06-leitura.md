@@ -1,6 +1,6 @@
 # A escada do kc_06 — Passagem por referência
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc06.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc06.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — A função ganha uma casa nova, só dela, para o parâmetro.
 

@@ -1,6 +1,6 @@
 # A escada do kc_10 — Ponteiro para ponteiro
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc10.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc10.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — Um ponteiro é uma caixa, e toda caixa tem endereço próprio. &p dá o endereço da caixa p — e guardar esse endereço exige uma caixa de mais um nível.
 

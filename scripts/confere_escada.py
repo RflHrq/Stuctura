@@ -642,7 +642,8 @@ def leitura(d: Dominio, escadas: Mapping[str, Escada]) -> str:
     saida = [
         "# A escada do %s — %s" % (d.id, d.titulo), "",
         "Texto para leitura, gerado de `mvp/dominio/%s`. Cada degrau tem "
-        "duas versões: a segunda aparece quando a pessoa erra a primeira."
+        "duas versões: a segunda, com outros valores, aparece quando o mesmo "
+        "passo volta, como no treino e na reconferência do fim."
         % arquivo_da_escada(d.id).name,
     ]
     for premissa in d.ordem:

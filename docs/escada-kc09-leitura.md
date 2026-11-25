@@ -1,6 +1,6 @@
 # A escada do kc_09 — free() e ponteiro pendente
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc09.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc09.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — free recebe o endereço do pedaço que você quer devolver. O tamanho quem guardou foi o alocador, quando entregou.
 

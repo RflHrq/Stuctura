@@ -1,6 +1,6 @@
 # A escada do kc_12 — Ponteiro pendente por escopo
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc12.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc12.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — As caixas criadas dentro de uma função existem enquanto ela está rodando. Quando ela retorna, elas deixam de existir — e ninguém precisa mandar apagar.
 

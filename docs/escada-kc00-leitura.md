@@ -1,6 +1,6 @@
 # A escada do kc_00 — Declaração de variáveis
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc00.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc00.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — Toda variável tem um nome e um tipo — o tipo diz que espécie de valor cabe ali.
 

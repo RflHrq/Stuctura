@@ -1,6 +1,6 @@
 # A escada do kc_04 — Dereferência: & e *
 
-Texto para leitura, gerado de `mvp/dominio/escada_kc04.yaml`. Cada degrau tem duas versões: a segunda aparece quando a pessoa erra a primeira.
+Texto para leitura, gerado de `mvp/dominio/escada_kc04.yaml`. Cada degrau tem duas versões: a segunda, com outros valores, aparece quando o mesmo passo volta, como no treino e na reconferência do fim.
 
 ## B1 — Só tem número de casa o que ocupa uma casa. Um valor escrito no código não ocupa nenhuma.
 

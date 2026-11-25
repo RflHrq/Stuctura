@@ -94,10 +94,10 @@ As colunas `situacao_na_abertura` e `situacao` registram a situação atribuída
 | Valor | Situação (Quadro 3.2) |
 | --- | --- |
 | `confirmada` | sabe: resposta correta, razão correta e "tenho certeza" |
-| `fragil` | acerto sem firmeza: resposta e razão corretas, sem certeza |
+| `fragil` | acerto sem firmeza: resposta e razão corretas, sem "tenho certeza" |
 | `falso_positivo` | sinais divergentes: resposta correta pela razão de uma concepção errônea |
 | `falso_negativo` | sinais divergentes: resposta incorreta pela razão correta |
-| `lacuna` | não sabe: "Não sei", ou resposta incorreta com "chutei" |
+| `lacuna` | não sabe: "Não sei", ou resposta e razão incorretas com "chutei" |
 | `crenca` | sustenta uma concepção errônea: resposta incorreta, pela razão de uma concepção errônea, com alguma certeza |
 
 ## C.5 Exemplo
