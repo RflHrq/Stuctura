@@ -478,3 +478,21 @@ def test_os_toques_que_a_6_3_compara():
     assert muda == {37}
     assert (min(aprende), max(aprende)) == (43, 45)
     assert "(37 toques, contra 43 a 45, nos tópicos de seis premissas)" in texto
+
+
+def test_a_segunda_pergunta_de_quem_acerta_firme():
+    """A 3.3 diz que a segunda pergunta de quem acerta com certeza é um
+    passo de produção, e diz em quantas premissas a escada não tem um, e o
+    sistema usa um de escolher."""
+    from mvp import trilha
+    sem = []
+    for t in topicos():
+        d = carrega(topico=t)
+        arquivo = (pathlib.Path(__file__).resolve().parent / "dominio"
+                   / ("escada_%s.yaml" % t.replace("_", "")))
+        for no, e in trilha_escada.le(arquivo, d).items():
+            if trilha._de_produzir(e)[0].forma not in trilha.PRODUZEM:
+                sem.append((t, no))
+    assert sem == [("kc_01", "B1"), ("kc_08", "I3"), ("kc_09", "B1")]
+    assert ("nas três premissas cuja escada não tem passo de prática de "
+            "produção, é um passo de escolher") in _texto("03-sistema.md")
