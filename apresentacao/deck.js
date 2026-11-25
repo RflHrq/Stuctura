@@ -3,7 +3,8 @@
    Avançam: →, espaço, PageDown (o passador de slides manda PageDown),
    Enter e o clique. Voltam: ←, PageUp e Backspace; num slide com passos,
    voltar desfaz o último passo revelado. Home e End vão ao primeiro e ao
-   último; F põe em tela cheia; N mostra as notas de quem apresenta.
+   último; F põe em tela cheia; N abre as notas de quem apresenta numa
+   janela à parte; #15 na barra de endereço leva ao slide 15.
    Com ?pdf=1, tudo aparece de uma vez, um slide por página. */
 (function () {
   "use strict";
@@ -59,6 +60,32 @@
     cenaFeita = true;
   }
 
+  /* As notas de quem apresenta vão para uma janela à parte (tecla N), que
+     fica no monitor do notebook: com o projetor espelhando a tela, notas
+     por cima do slide seriam lidas pela banca. */
+  var janelaNotas = null;
+  function atualizaNotas() {
+    if (!janelaNotas || janelaNotas.closed) return;
+    var s = slides[atual], prox = slides[atual + 1];
+    var nota = s.querySelector("aside.notas");
+    var titulo = function (x) { var h = x && x.querySelector("h2, h1"); return h ? h.textContent : ""; };
+    var g = grupos(s).length;
+    janelaNotas.document.body.innerHTML =
+      "<p style='color:#7cc4e0;margin:0 0 8px'>Slide " + (atual + 1) + " / " + slides.length +
+      (g ? " · passo " + revelados(s) + " de " + g : "") + "</p>" +
+      "<h2 style='margin:0 0 12px'>" + titulo(s) + "</h2>" +
+      "<p style='font-size:22px;line-height:1.45'>" + (nota ? nota.innerHTML : "") + "</p>" +
+      (prox ? "<p style='color:#9fb3bb;margin-top:24px'>Próximo: " + titulo(prox) + "</p>" : "");
+  }
+  function abreNotas() {
+    janelaNotas = window.open("", "structura-notas", "width=720,height=520");
+    if (!janelaNotas) return;
+    janelaNotas.document.title = "Notas — Structura";
+    janelaNotas.document.body.style.cssText =
+      "background:#12303a;color:#eaf4f7;font-family:Nunito,system-ui,sans-serif;padding:24px";
+    atualizaNotas();
+  }
+
   function mostra(i, quantos) {
     atual = Math.max(0, Math.min(slides.length - 1, i));
     slides.forEach(function (s, k) { s.classList.toggle("atual", k === atual); });
@@ -68,16 +95,17 @@
     contador.textContent = (atual + 1) + " / " + slides.length;
     progresso.style.width = ((atual + 1) / slides.length * 100) + "%";
     if (location.hash !== "#" + (atual + 1)) history.replaceState(null, "", "#" + (atual + 1));
+    atualizaNotas();
   }
 
   function avanca() {
     var s = slides[atual], feitos = revelados(s);
-    if (feitos < grupos(s).length) revela(s, feitos + 1);
+    if (feitos < grupos(s).length) { revela(s, feitos + 1); atualizaNotas(); }
     else if (atual < slides.length - 1) mostra(atual + 1, 0);
   }
   function volta() {
     var s = slides[atual], feitos = revelados(s);
-    if (feitos > 0) revela(s, feitos - 1);
+    if (feitos > 0) { revela(s, feitos - 1); atualizaNotas(); }
     else if (atual > 0) mostra(atual - 1, grupos(slides[atual - 1]).length);
   }
 
@@ -102,7 +130,12 @@
     else if (k === "f" || k === "F") {
       if (document.fullscreenElement) document.exitFullscreen();
       else document.documentElement.requestFullscreen();
-    } else if (k === "n" || k === "N") document.body.classList.toggle("com-notas");
+    } else if (k === "n" || k === "N") abreNotas();
+  });
+  /* Número digitado na barra de endereço (#15) leva ao slide. */
+  window.addEventListener("hashchange", function () {
+    var n = parseInt(location.hash.slice(1), 10);
+    if (!isNaN(n) && n - 1 !== atual) mostra(n - 1, 0);
   });
   palco.addEventListener("click", function (e) {
     if (e.target.closest("button")) return; // os botões da cena

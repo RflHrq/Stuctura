@@ -48,6 +48,9 @@ def test_as_referencias_do_pdf(refs):
     assert refs["Seção 1.1"] == 14
     assert refs["Seção 1"] == 14
     assert refs["Apêndice C"] == 80
+    # A declaração de uso de IA não tem número, e o sumário não a traz: a
+    # página vem do texto do próprio PDF.
+    assert refs["Declaração de uso de IA"] == 6
     assert "Quadro 24" in refs and "Quadro 25" not in refs
 
 
@@ -79,11 +82,14 @@ def test_a_frase_entre_aspas_que_a_monografia_nao_tem_e_acusada(
                         refs, monografia) == []
 
 
-def test_notas_codigo_e_rodape_ficam_fora_da_conferencia(refs, monografia):
-    corpo = ('<pre>int idade = 4321;</pre>'
-             '<aside class="notas">diga 4321</aside>'
-             '<footer>p. 999</footer>')
+def test_codigo_e_rodape_ficam_fora_e_as_notas_sao_conferidas(
+        refs, monografia):
+    """As notas não aparecem na tela, mas são o que o autor vai falar."""
+    corpo = '<pre>int idade = 4321;</pre><footer>p. 999</footer>'
     assert ca.problemas(_deck(corpo), refs, monografia) == []
+    p = ca.problemas(_deck('<aside class="notas">diga 4321 e “frase inventada aqui”</aside>'),
+                     refs, monografia)
+    assert len(p) == 2, p
 
 
 def test_a_cena_do_deck_e_a_do_sistema():
@@ -149,3 +155,11 @@ def test_as_fontes_vem_embutidas_para_abrir_direto_do_arquivo():
             RAIZ / "mvp" / "web" / "fontes" / arquivo).read_bytes()
     assert 'href="fontes.css"' in _html()
     assert ".woff2" not in (DECK / "deck.css").read_text(encoding="utf-8")
+
+
+def test_o_referencias_js_esta_em_dia_com_o_pdf(refs):
+    """O rodapé tira a página de apresentacao/referencias.js, que é gerado.
+    Gerado antes de o PDF mudar, o rodapé citaria página velha, ou nenhuma."""
+    texto = (DECK / "referencias.js").read_text(encoding="utf-8")
+    dados = json.loads(re.search(r"window\.REFS = (\{.*\});", texto, re.S).group(1))
+    assert dados == refs, "rode: python scripts/confere_apresentacao.py --gera"

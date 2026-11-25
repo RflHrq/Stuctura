@@ -46,9 +46,9 @@
   <h2><small>Objetivos</small>O que foi proposto</h2>
   <p><b>Geral:</b> desenvolver e verificar um sistema que, em 13 tópicos de ponteiros em C, formule para cada premissa uma hipótese diagnóstica sobre o estudante e conduza cada caso por um percurso próprio.</p>
   <ul>
-    <li data-passo="1">Organizar o conteúdo em premissas encadeadas, cada concepção associada à premissa que nega.</li>
+    <li data-passo="1">Organizar o conteúdo em premissas encadeadas, cada concepção associada à premissa que nega em cada tópico em que aparece.</li>
     <li data-passo="1">Implementar o diagnóstico que combina resposta, razão e certeza declarada.</li>
-    <li data-passo="1">Elaborar escada de passos, demonstração com previsão e cena para cada premissa.</li>
+    <li data-passo="1">Elaborar escada de passos e cena para cada premissa, e uma demonstração com previsão para cada concepção errônea.</li>
     <li data-passo="2">Verificar mecanicamente o comportamento do código no compilador — <b>atendido em parte</b>: o código exibido nos passos de escolher entre frases foi conferido pela leitura.</li>
     <li data-passo="1">Verificar o comportamento do sistema com estudantes simulados, em todos os tópicos.</li>
   </ul>
@@ -60,11 +60,11 @@
   <h2><small>Fundamentação</small>Em que o sistema se apoia</h2>
   <div class="grade tres">
     <div class="cartao" data-passo="1"><h3>Mudança conceitual</h3><p>A concepção errônea resiste à explicação: Posner et al. (1982).</p></div>
-    <div class="cartao" data-passo="1"><h3>Certeza declarada</h3><p>A certeza como sinal, e não como pontuação: Gardner-Medwin (2006).</p></div>
+    <div class="cartao" data-passo="1"><h3>Certeza declarada</h3><p>Declarada junto com a resposta, como em Gardner-Medwin (2006); aqui ela escolhe o percurso, e não pontua.</p></div>
     <div class="cartao" data-passo="1"><h3>Grafo de premissas</h3><p>Componentes de conhecimento (VanLehn, 2006) e espaços de conhecimento (Falmagne et al., 2006).</p></div>
     <div class="cartao" data-passo="2"><h3>Prever, observar, explicar</h3><p>A demonstração confronta a previsão da própria pessoa: White e Gunstone (1992).</p></div>
     <div class="cartao" data-passo="2"><h3>Carga cognitiva</h3><p>Passos curtos, uma ideia nova por passo: Sweller, Van Merriënboer e Paas (2019).</p></div>
-    <div class="cartao" data-passo="2"><h3>Tutores e aprendizagem</h3><p>Tutor por passo (VanLehn, 2011); desempenho não é aprendizagem (Soderstrom; Bjork, 2015).</p></div>
+    <div class="cartao" data-passo="2"><h3>Tutores e aprendizagem</h3><p>Tutor por passo (VanLehn, 2011); o desempenho é, com frequência, um indicador pouco confiável da aprendizagem (Soderstrom; Bjork, 2015).</p></div>
   </div>
   <aside class="notas">2.1 a 2.7. O ciclo perguntar, inferir, intervir e reconferir é o dos tutores inteligentes e não é novidade; a monografia diz isso (Seção 2.6).</aside>
 </section>
@@ -84,7 +84,7 @@
 </section>
 
 <!-- 7 -->
-<section class="slide" data-ref="Seção 3.1 · Quadro 2">
+<section class="slide" data-ref="Seção 3.1 · Quadro 2 · Quadro 13">
   <h2><small>O domínio</small>13 tópicos, 79 premissas</h2>
   <div class="duas">
     <table class="quadro compacto">
@@ -93,7 +93,7 @@
       <tr><td>kc_01</td><td>Modelo de memória</td><td>5</td></tr>
       <tr><td>kc_02</td><td>O que é um ponteiro</td><td>6</td></tr>
       <tr><td>kc_03</td><td>Declaração e inicialização</td><td>6</td></tr>
-      <tr><td>kc_04</td><td>Derreferência: &amp; e *</td><td>6</td></tr>
+      <tr><td>kc_04</td><td>Dereferência: &amp; e *</td><td>6</td></tr>
       <tr><td>kc_05</td><td>Ponteiro NULL</td><td>6</td></tr>
       <tr><td>kc_06</td><td>Passagem por referência</td><td>6</td></tr>
     </table>
@@ -131,7 +131,7 @@
 </section>
 
 <!-- 9 -->
-<section class="slide" data-ref="Seção 3.2 · Quadro 3">
+<section class="slide" data-ref="Seção 3.2 · Quadro 3 · Seção 3.3">
   <h2><small>▶ O sistema · 2</small>O diagnóstico escolhe o caminho</h2>
   <table class="quadro">
     <tr><th>Resposta, razão e certeza</th><th>Situação</th><th>Caminho</th></tr>
@@ -183,13 +183,13 @@
 </section>
 
 <!-- 12 -->
-<section class="slide" data-ref="Seção 3.6 · Figura 5">
+<section class="slide" data-ref="Seção 3.6 · Figura 5 · Seção 6.2">
   <h2><small>▶ O sistema · 5</small>A cena: o código animado linha a linha</h2>
   <div class="duas cena-larga">
     <div class="cena-viva so-tela"></div>
     <figure class="tela so-pdf"><img src="../docs/monografia/figuras/fig-3-5-cena.jpg" alt="Cena da revisão, kc_06, premissa B1"></figure>
     <div class="coluna">
-      <p>A caixa é a variável; o bilhete, o ponteiro; a fileira, o array; a bancada, a função em execução; o bloco alugado, a memória do <code>malloc</code>.</p>
+      <p>A caixa é a variável; o ponteiro, uma caixa que guarda um bilhete; a fileira, o array; a bancada, a função em execução; o bloco alugado, a memória do <code>malloc</code>.</p>
       <p data-passo="1">A cena avança “a pouco mais de um segundo por passo”, com Pausar, Passo e Rever.</p>
       <p data-passo="2">“São 79 cenas, uma por premissa.” Cada estado do palco é conferido contra o programa instrumentado.</p>
     </div>
@@ -225,7 +225,7 @@
       <div class="cartao" data-passo="4"><b>4</b><span>hipóteses declaradas como tais, fora dos tópicos da coleta</span></div>
     </div>
   </div>
-  <aside class="notas">"Uma crença sem procedência é uma invenção sua que vai virar dado": nenhuma obra foi citada de memória. A auditoria achou e corrigiu defeitos no próprio catálogo (Seção 4.6).</aside>
+  <aside class="notas">Na curadoria, “uma concepção sem procedência é tratada como hipótese do autor e não é incluída no catálogo como achado”; nenhuma obra foi citada de memória. A auditoria achou e corrigiu defeitos no próprio catálogo (Seção 4.6).</aside>
 </section>
 
 <!-- 15 -->
@@ -237,7 +237,7 @@
     <div class="cartao" data-passo="2"><h3>Regras de redação</h3><p>As regras decidíveis por programa viraram testes, em todos os tópicos.</p></div>
     <div class="cartao" data-passo="2"><h3>Estudantes simulados</h3><p>Dez perfis de regras fixas, determinísticos: não são modelos de linguagem.</p></div>
     <div class="cartao" data-passo="3"><h3>Interface</h3><p>Contraste da WCAG 2.1 nos dois temas, nenhum recurso externo.</p></div>
-    <div class="cartao" data-passo="3"><h3>Leitura</h3><p>Sessões de ensaio e revisão da clareza das perguntas.</p></div>
+    <div class="cartao" data-passo="3"><h3>Ensaio e leitura</h3><p>Sessões de ensaio com os perfis simulados, e revisão da clareza das perguntas.</p></div>
   </div>
   <aside class="notas">O compilador verifica o comportamento observado no ambiente especificado, e não a correção do programa em qualquer ambiente, nem os aspectos pedagógicos (Seção 5.8).</aside>
 </section>
@@ -266,7 +266,7 @@
     <li data-passo="3">Conferência do banco: oito questões com o código dividido na tela e uma resposta inválida no compilador utilizado.</li>
     <li data-passo="4">Outros: um treino que repetia a demonstração, uma alternativa com conceito não ensinado e dois defeitos de interface — todos corrigidos.</li>
   </ul>
-  <aside class="notas">Das 101 reescritas, 46 foram marcadas pelo programa e 54 só a leitura achou: a marcação serviu de ponto de partida, e não de critério. As duas formas de verificação são complementares.</aside>
+  <aside class="notas">Das 101 reescritas: o passo lido inicialmente pelo autor, 46 dos marcados pelo programa e 54 que o programa não marcou e que somente a leitura identificou; a marcação serviu de ponto de partida, e não de critério. As duas formas de verificação são complementares.</aside>
 </section>
 
 <!-- 18 -->
@@ -303,11 +303,11 @@
     <li data-passo="2">“As duas formas de verificação são complementares, e nenhuma substitui a outra.”</li>
     <li data-passo="3">“O trabalho não responde se o sistema produz aprendizagem”, e essa é a pergunta do estudo futuro.</li>
   </ul>
-  <aside class="notas">Contribuições (Seção 1.7): o catálogo com procedência declarada, o diagnóstico que usa a certeza para escolher o percurso, o conteúdo conferido por compilador e o método de verificação.</aside>
+  <aside class="notas">Contribuições (Seção 1.7): o catálogo com procedência declarada, o diagnóstico que usa a certeza para escolher o percurso, o conteúdo cujas demonstrações, cenas e passos com resposta em código são conferidos por compilador, e o método de verificação.</aside>
 </section>
 
 <!-- 21 -->
-<section class="slide" data-ref="Seção 3 · Seção 5.1">
+<section class="slide" data-ref="Seção 3 · Declaração de uso de IA">
   <h2><small>Transparência</small>Repositório e uso de inteligência artificial</h2>
   <div class="cartao" data-passo="1"><p><b>Código e conteúdo:</b> github.com/RflHrq/Stuctura — a versão descrita na monografia está registrada no commit <code>e57385b</code>.</p></div>
   <div class="cartao" data-passo="2" style="margin-top:14px"><p><b>Uso de IA:</b> Claude Code, da Anthropic, sob a direção do autor, a quem couberam as decisões de escopo, de projeto e de método. O que se afirma sobre os programas foi conferido por compilador no que ele alcança, e nenhuma obra foi citada de memória.</p></div>
@@ -322,9 +322,9 @@
   <aside class="notas">As perguntas prováveis estão em entrega/perguntas-da-banca.md.</aside>
 </section>
 
-</div>
 <div id="contador"></div>
 <div id="progresso"></div>
+</div>
 <script src="referencias.js"></script>
 <script src="cena.js"></script>
 <script src="../mvp/web/realce.js"></script>

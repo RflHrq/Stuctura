@@ -112,7 +112,7 @@ tr[data-passo] { transform: none; }
 /* A cena viva do slide 12: o mesmo desenho do sistema. */
 .cena-viva { flex: 1; min-height: 0; overflow: hidden; }
 .cena-viva .cena { margin: 0; gap: 8px; }
-.cena-viva .cena .cn-palco { max-height: 230px !important; }
+.cena-viva .cena .cn-palco { max-height: 215px !important; }
 .cena-viva .cena pre { font-size: 15px; margin: 0; }
 .cena-viva .cena .cn-frase { font-size: 17px; }
 .duas.cena-larga { grid-template-columns: 1.5fr 1fr; }
@@ -125,14 +125,12 @@ tr[data-passo] { transform: none; }
 }
 .slide footer.ref b { color: var(--acento); }
 #contador { position: absolute; right: 28px; bottom: 20px; font-size: 16px; color: var(--tinta2); z-index: 2; }
+.slide.capa.atual ~ #contador { color: var(--topo-tinta2); }
 #progresso { position: absolute; left: 0; bottom: 0; height: 5px; background: var(--destaque); z-index: 2; transition: width .3s; }
 
-aside.notas { display: none; }
-body.com-notas aside.notas {
-  display: block; position: absolute; left: 24px; right: 24px; bottom: 52px;
-  background: rgba(18, 48, 58, .95); color: #eaf4f7; padding: 14px 18px; border-radius: 10px;
-  font-size: 17px; line-height: 1.4; z-index: 3;
-}
+/* As notas nunca aparecem no slide: a tecla N as abre numa janela à
+   parte, para o monitor de quem apresenta (deck.js). */
+aside.notas { display: none !important; }
 
 /* O PDF de reserva: um slide por página, todos os passos revelados. */
 body.pdf { overflow: visible; background: #ffffff; }

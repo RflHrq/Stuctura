@@ -13,9 +13,11 @@ conferidor acusa:
   - o número que o texto da monografia não traz;
   - a frase entre aspas que o texto da monografia não contém.
 
-Ficam fora: o rodapé (que o deck monta das referências), as notas do
-apresentador (`<aside class="notas">`, fala de quem apresenta, e não
-tela) e os blocos `<pre>` (código que vem do sistema).
+Ficam fora o rodapé (que o deck monta das referências) e os blocos
+`<pre>` (código que vem do sistema). As notas do apresentador
+(`<aside class="notas">`) ENTRAM: não aparecem na tela, mas são o que o
+autor vai falar (a revisão de 25/11/2026 achou nelas uma frase que não é
+da monografia e uma conta que não fechava).
 """
 
 from __future__ import annotations
@@ -51,6 +53,15 @@ def referencias_do_pdf(pasta: pathlib.Path) -> dict[str, int]:
             nome = {"figure": "Figura", "quadro": "Quadro",
                     "appendix": "Apêndice"}.get(tipo, "Seção")
             refs.setdefault("%s %s" % (nome, num), pag)
+    # A declaração de uso de IA é pré-textual, sem número, e o sumário não
+    # a traz: a página sai do texto do próprio PDF (uma página por \f).
+    import subprocess
+    texto = subprocess.run(["pdftotext", "-enc", "UTF-8", "-layout", str(pasta / "TCC_STRUCTURA.pdf"), "-"],
+                           capture_output=True, check=True).stdout.decode("utf-8", "replace")
+    for k, pagina in enumerate(texto.split("\f"), start=1):
+        if "Uso de inteligência artificial generativa (IAG)" in " ".join(pagina.split()):
+            refs["Declaração de uso de IA"] = k
+            break
     return refs
 
 
@@ -92,7 +103,7 @@ class _Leitor(html.parser.HTMLParser):
             refs = [r.strip() for r in (a.get("data-ref") or "").split("·")
                     if r.strip()]
             self.slides.append(Slide(len(self.slides) + 1, refs))
-        fora = tag in self.FORA or (tag == "aside" and "notas" in classes)
+        fora = tag in self.FORA
         # Bloco novo, linha nova: o "5" de uma célula e o "402" do parágrafo
         # seguinte não podem virar o milhar "5 402".
         if self.slides and tag in self.BLOCO:

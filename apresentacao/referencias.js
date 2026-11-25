@@ -116,5 +116,6 @@ window.REFS = {
  "Quadro 21": 82,
  "Quadro 22": 83,
  "Quadro 23": 83,
- "Quadro 24": 84
+ "Quadro 24": 84,
+ "Declaração de uso de IA": 6
 };
